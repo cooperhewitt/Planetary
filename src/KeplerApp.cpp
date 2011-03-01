@@ -47,17 +47,8 @@ class KeplerApp : public AppCocoaTouch {
 	UiLayer			mUiLayer;
 	Data			mData;
 	
-	CallbackMgr<bool(Node*)> mCallbacksNodeSelected;
-	
-	template<typename T>
-	CallbackId registerNodeSelected( T *obj, bool (T::*callback)(Node*) ){
-		return mCallbacksNodeSelected.registerCb(std::bind1st(std::mem_fun(callback), obj));
-	}
-	
-	
 	// BREADCRUMBS
-	Breadcrumbs		mBreadcrumbs;
-	
+	Breadcrumbs		mBreadcrumbs;	
 	
 	// CAMERA PERSP
 	CameraPersp		mCam;
@@ -81,12 +72,6 @@ class KeplerApp : public AppCocoaTouch {
 	Vec2f			mTouchThrowVel;
 	Vec2f			mTouchVel;
 	bool			mIsDragging;
-	
-	
-	// NODES
-	Node			*mSelectedNode;
-	Node			*mPrevSelectedNode;
-	std::map<u_int8_t, Node*> mMapOfNodes;
 	
 	
 	// TEXTURES
@@ -142,15 +127,12 @@ void KeplerApp::setup()
 	// BREADCRUMBS
 	mBreadcrumbs.setup( this, mFonts[4] );
 	mBreadcrumbs.registerBreadcrumbSelected( this, &KeplerApp::onBreadcrumbSelected );
-	vector<string> testHierarchy;
-	testHierarchy.push_back("Home");
-	mBreadcrumbs.setHierarchy(testHierarchy);
-	
-	registerNodeSelected( this, &KeplerApp::onNodeSelected );
+	mBreadcrumbs.setHierarchy(mState.getHierarchy());
 	
 	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
+	mState.registerNodeSelected( this, &KeplerApp::onNodeSelected );
 	
 	
 	// UILAYER
@@ -162,7 +144,7 @@ void KeplerApp::setup()
 	// DATA
 	mData.initArtists();
 	
-	
+
 	// WORLD
 	mWorld.setData( &mData );
 	mWorld.initNodes( mFonts[3] );
@@ -226,21 +208,9 @@ bool KeplerApp::onAlphaCharSelected( UiLayer *uiLayer )
 
 bool KeplerApp::onAlphaCharStateChanged( State *state )
 {
-	char filterChar = state->getAlphaChar();
-	mData.filterArtistsByAlpha( filterChar );
-	mUiLayer.setAlphaChar( filterChar );
+	mData.filterArtistsByAlpha( mState.getAlphaChar() );
 	mWorld.filterNodes();
-	
-	string s;
-	s += filterChar;
-	
-	vector<string> hierarchy;
-	hierarchy.push_back( s );
-	hierarchy.push_back( "Home" );
-	reverse( hierarchy.begin(), hierarchy.end() );
-
-	mBreadcrumbs.setHierarchy( hierarchy );
-	
+	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
 	return false;
 }
 
@@ -248,89 +218,28 @@ bool KeplerApp::onNodeSelected( Node *node )
 {
 	mTime			= getElapsedSeconds();
 	mCenterFrom		= mCenter;
-	mCamDistFrom	= mCamDist;
-				
-	int gen = node->mGen;
-
-	if( node->mIsSelected ){						// If the touched node is already selected...
-		mSelectedNode = node->mParentNode;
-		node->deselect();								// deselect it
-		
-	} else {										// If the touched node is not already selected...
-		//node->mIsSelected = true;						// select it and make it create some children.
-		node->select();
-	}
-	
-	if( mMapOfNodes[gen] ){							// If there was already a touched node at this level...
-		mMapOfNodes[gen]->deselect();					// deselect it
-		for( int i=gen; i<G_NUM_LEVELS; i++ )
-			mMapOfNodes.erase(i);						// and erase it from the map.
-	}
-	
-	if( node->mIsSelected ){						// If the touched node is now selected...
-		mMapOfNodes[gen]	= node;						// add the touched node to the map.
-		mSelectedNode		= node;
-	}
-	
-	if( mSelectedNode )
-		G_CURRENT_LEVEL		= mSelectedNode->mGen;
-	else
-		G_CURRENT_LEVEL		= 0;
-		
-		
-			
-	vector<string> hierarchy;
-	if( node != NULL ){
-		Node *parent = node;
-		while( parent != NULL ){
-			hierarchy.push_back( parent->mName );
-			parent = parent->mParentNode;
-		}
-		
-		string s;
-		s += mState.getAlphaChar();
-		hierarchy.push_back( s );
-		hierarchy.push_back("Home");
-		reverse( hierarchy.begin(), hierarchy.end() );
-	}
-	
-	mBreadcrumbs.setHierarchy( hierarchy );
-	
+	mCamDistFrom	= mCamDist;				
+	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
 	return false;
 }
 
 bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 {
-	vector<string> hierarchy;
 	int level = event.getLevel();
 	if( level == 0 ){					// BACK TO HOME
 		mWorld.deselectAllNodes();
-		
-		for( int i=0; i<G_NUM_LEVELS; i++ ){
-			if( mMapOfNodes[i] ){
-				mMapOfNodes.erase(i);
-			}
-			
-		}
-		hierarchy.push_back("Home");
-		
-	} else if( level == 1 ){			// BACK TO ALPHA FILTER
-		for( int i=G_NUM_LEVELS; i>=0; i-- ){
-			if( mMapOfNodes[i] ){
-				mMapOfNodes[i]->deselect();
-			}
-		}
-		
-		string s;
-		s += mState.getAlphaChar();
-		hierarchy.push_back( s );
-		hierarchy.push_back("Home");
-		reverse( hierarchy.begin(), hierarchy.end() );
-	} else {
-	
+		mState.setSelectedNode(NULL);
 	}
-	mBreadcrumbs.setHierarchy( hierarchy );
-	
+	else if( level == 1 ){			// BACK TO ALPHA FILTER
+		mWorld.deselectAllNodes();
+		mData.filterArtistsByAlpha( mState.getAlphaChar() );
+		mWorld.filterNodes();
+		mState.setSelectedNode(NULL);
+	} else {
+		// get Artist
+		// get Album
+		// get Track
+	}
 	return false;
 }
 
@@ -339,7 +248,8 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat )
 	Node *touchedNode = NULL;
 	mWorld.checkForSphereIntersect( touchedNode, ray, mat );
 	
-	if( touchedNode ) mCallbacksNodeSelected.call( touchedNode );
+	// TODO: is it actually sensible to setSelectedNode( NULL )?
+	if( touchedNode ) mState.setSelectedNode(touchedNode);
 }
 
 void KeplerApp::update()
@@ -366,15 +276,18 @@ void KeplerApp::updateArcball()
 
 void KeplerApp::updateCamera()
 {
-	if( mSelectedNode ){
+	if( mState.getSelectedNode() ){
+		
+		Node* selectedNode = mState.getSelectedNode();
+		
 		float radiusMulti = 15.0f;
 		
-		mCamDistDest	= ( mSelectedNode->mRadius * radiusMulti  );
-		mCenterDest		= mMatrix.transformPointAffine( mSelectedNode->mPos );
-		mZoomDest		= mSelectedNode->mGen;
+		mCamDistDest	= ( selectedNode->mRadius * radiusMulti  );
+		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
+		mZoomDest		= selectedNode->mGen;
 		
-		if( mSelectedNode->mParentNode )
-			mCenterFrom		+= mSelectedNode->mParentNode->mVel;
+		if( selectedNode->mParentNode )
+			mCenterFrom		+= selectedNode->mParentNode->mVel;
 
 	}
 	
