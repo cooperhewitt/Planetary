@@ -1,0 +1,19 @@
+/*
+ *  Globals.h
+ *  Bloom
+ *
+ *  Created by Robert Hodgin on 1/20/11.
+ *  Copyright 2011 __MyCompanyName__. All rights reserved.
+ *
+ */
+static const double TWO_PI			= M_PI * 2.0;
+
+static const double G_DURATION				= 3.0;
+
+static const int G_HOME_LEVEL		= 0;
+static const int G_ARTIST_LEVEL		= 1;
+static const int G_ALBUM_LEVEL		= 2;
+static const int G_TRACK_LEVEL		= 3;
+static const int G_NUM_LEVELS		= 4;
+
+extern int	G_CURRENT_LEVEL;
