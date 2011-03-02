@@ -48,7 +48,7 @@ void NodeArtist::drawStarGlow()
 {
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
 		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 4.5f;
 		//if( mIsSelected ) radius *= 2.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}

@@ -79,8 +79,7 @@ void NodeAlbum::drawStarGlow()
 {
 	if( mIsHighlighted ){
 		gl::color( mGlowColor );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
-		if( mIsSelected ) radius *= 2.5f;
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 3.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 	
