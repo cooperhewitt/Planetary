@@ -50,7 +50,6 @@ void UiLayer::setup( AppCocoaTouch *app )
 	int x2 = getWindowWidth();
 	int y2 = getWindowHeight();
 	mNavRect			 = Rectf( x1, y1, x2, y2 );
-	mShowWheelButtonRect = Rectf( x1 + NAV_MARGIN, y1 + NAV_MARGIN, x1 + SHOW_WHEEL_BTN_W + NAV_MARGIN, y2 - NAV_MARGIN );
 	
 	// Textures
 	mWheelTex		= gl::Texture( loadImage( loadResource( "wheel.png" ) ) );
@@ -106,10 +105,6 @@ bool UiLayer::touchesEnded( TouchEvent event )
 	}
 	
 	selectWheelItem( mTouchPos, true );
-	
-	if( mShowWheelButtonRect.contains( mTouchPos ) ){
-		mShowWheel = !mShowWheel;
-	}
 	
 	return false;
 }
@@ -172,12 +167,5 @@ void UiLayer::drawNav()
 {
 	gl::color( Color::black() );
 	gl::drawSolidRect( mNavRect );
-	
-	if( mShowWheel ){
-		gl::color( Color( 0.0f, 0.0f, 1.0f ) );
-	} else {
-		gl::color( Color( 1.0f, 0.0f, 0.0f ) );
-	}
-	gl::drawSolidRect( mShowWheelButtonRect );
 }
 

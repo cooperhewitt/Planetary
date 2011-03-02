@@ -49,7 +49,6 @@ class UiLayer {
 	Vec2f			mTouchPos;
 	
 	Rectf			mNavRect;
-	Rectf			mShowWheelButtonRect;
 	bool			mShowWheel;
 	std::string		mAlphaString;
 	int				mAlphaIndex;

@@ -21,5 +21,7 @@ static const int G_ALBUM_LEVEL		= 2;
 static const int G_TRACK_LEVEL		= 3;
 static const int G_NUM_LEVELS		= 4;
 
+static const float G_INIT_CAM_DIST	= 180.0f;
+
 // TODO: move into State.h
 extern int	G_CURRENT_LEVEL;

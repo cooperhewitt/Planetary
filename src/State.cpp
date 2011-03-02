@@ -50,8 +50,7 @@ void State::setSelectedNode( Node* node )
 			node->deselect();								// deselect it
 			
 		} else {										// If the touched node is not already selected...
-			//node->mIsSelected = true;						// select it and make it create some children.
-			node->select();
+			node->select();									// select it and make it create some children.
 		}
 		
 		if( mMapOfNodes[gen] ){							// If there was already a touched node at this level...

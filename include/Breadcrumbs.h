@@ -129,7 +129,7 @@ void Breadcrumbs::update() {
 void Breadcrumbs::draw() {
 	gl::enableAlphaBlending(false);		
 	gl::color( Color::white() );
-	float x			= 70.0f;
+	float x			= 25.0f;
 	float y			= getWindowHeight() - 37;
 	float margin	= 5;
 	clickRects.clear();

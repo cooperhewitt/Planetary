@@ -57,7 +57,6 @@ class KeplerApp : public AppCocoaTouch {
 	Vec3f			mCamVel;
 	Vec3f			mCenterDest, mCenterFrom;
 	float			mCamDist, mCamDistDest, mCamDistFrom, mCamDistDestMulti;
-	float			mZoomFrom, mZoomDest;
 	Arcball			mArcball;
 	Matrix44f		mMatrix;
 	Vec3f			mBbRight, mBbUp;
@@ -91,7 +90,7 @@ void KeplerApp::setup()
 	
 	
 	// CAMERA PERSP
-	mCamDist			= 180.0f;
+	mCamDist			= G_INIT_CAM_DIST;
 	mCamDistDest		= mCamDist;
 	mCamDistFrom		= mCamDist;
 	mCamDistDestMulti	= 1.0f;
@@ -227,6 +226,7 @@ bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 {
 	int level = event.getLevel();
 	if( level == 0 ){					// BACK TO HOME
+		mUiLayer.setShowWheel( !mUiLayer.getShowWheel() );
 		mWorld.deselectAllNodes();
 		mState.setSelectedNode(NULL);
 	}
@@ -248,8 +248,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat )
 	Node *touchedNode = NULL;
 	mWorld.checkForSphereIntersect( touchedNode, ray, mat );
 	
-	// TODO: is it actually sensible to setSelectedNode( NULL )?
-	if( touchedNode ) mState.setSelectedNode(touchedNode);
+	mState.setSelectedNode(touchedNode);
 }
 
 void KeplerApp::update()
@@ -276,19 +275,21 @@ void KeplerApp::updateArcball()
 
 void KeplerApp::updateCamera()
 {
-	if( mState.getSelectedNode() ){
-		
-		Node* selectedNode = mState.getSelectedNode();
-		
+	Node* selectedNode = mState.getSelectedNode();
+	if( selectedNode ){
 		float radiusMulti = 15.0f;
 		
 		mCamDistDest	= ( selectedNode->mRadius * radiusMulti  );
 		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
-		mZoomDest		= selectedNode->mGen;
 		
-		if( selectedNode->mParentNode )
-			mCenterFrom		+= selectedNode->mParentNode->mVel;
+		
+		// Right now, no nodes have parents.
+		//if( selectedNode->mParentNode )
+		//	mCenterFrom		+= selectedNode->mParentNode->mVel;
 
+	} else {
+		mCamDistDest	= G_INIT_CAM_DIST;
+		mCenterDest		= mMatrix.transformPointAffine( Vec3f::zero() );
 	}
 	
 	
