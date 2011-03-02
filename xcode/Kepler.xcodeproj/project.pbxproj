@@ -19,6 +19,10 @@
 		C727C02E121B400300192073 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C727C02D121B400300192073 /* CoreVideo.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		C7FB19D6124BC0D70045AFD2 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C7FB19D5124BC0D70045AFD2 /* AudioToolbox.framework */; };
 		C7FB19D6124BC0D70045AFD3 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C7FB19D5124BC0D70045AFD3 /* CoreText.framework */; };
+		E1555A0B131E05140079B05A /* skydome.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1555A0A131E05140079B05A /* skydome.jpg */; };
+		E1555A20131E0CFF0079B05A /* NodeAlbum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1555A1F131E0CFF0079B05A /* NodeAlbum.cpp */; };
+		E1555CA5131EEBEB0079B05A /* dotted.png in Resources */ = {isa = PBXBuildFile; fileRef = E1555CA4131EEBEB0079B05A /* dotted.png */; };
+		E1555CEE131EF93C0079B05A /* NodeTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1555CED131EF93C0079B05A /* NodeTrack.cpp */; };
 		E15C90B01300B2A300FB8389 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = E15C90AD1300B2A300FB8389 /* logo.png */; };
 		E15C90B11300B2A300FB8389 /* UnitRoundedOT-Medi.otf in Resources */ = {isa = PBXBuildFile; fileRef = E15C90AE1300B2A300FB8389 /* UnitRoundedOT-Medi.otf */; };
 		E15C90B21300B2A300FB8389 /* UnitRoundedOT-Ultra.otf in Resources */ = {isa = PBXBuildFile; fileRef = E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */; };
@@ -54,6 +58,12 @@
 		C727C02D121B400300192073 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		C7FB19D5124BC0D70045AFD2 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		C7FB19D5124BC0D70045AFD3 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
+		E1555A0A131E05140079B05A /* skydome.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = skydome.jpg; path = ../resources/skydome.jpg; sourceTree = SOURCE_ROOT; };
+		E1555A1E131E0CF40079B05A /* NodeAlbum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeAlbum.h; path = ../include/NodeAlbum.h; sourceTree = SOURCE_ROOT; };
+		E1555A1F131E0CFF0079B05A /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
+		E1555CA4131EEBEB0079B05A /* dotted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dotted.png; path = ../resources/dotted.png; sourceTree = SOURCE_ROOT; };
+		E1555CEC131EF92C0079B05A /* NodeTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeTrack.h; path = ../include/NodeTrack.h; sourceTree = SOURCE_ROOT; };
+		E1555CED131EF93C0079B05A /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
 		E15C90AD1300B2A300FB8389 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo.png; path = ../resources/logo.png; sourceTree = SOURCE_ROOT; };
 		E15C90AE1300B2A300FB8389 /* UnitRoundedOT-Medi.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "UnitRoundedOT-Medi.otf"; path = "../resources/UnitRoundedOT-Medi.otf"; sourceTree = SOURCE_ROOT; };
 		E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "UnitRoundedOT-Ultra.otf"; path = "../resources/UnitRoundedOT-Ultra.otf"; sourceTree = SOURCE_ROOT; };
@@ -174,14 +184,8 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				E1A330351301013100CED126 /* cluster.png */,
-				E1A330361301013100CED126 /* starGlow.png */,
-				E1A330371301013100CED126 /* star.png */,
-				E15C90B81300B30100FB8389 /* wheel.png */,
-				E15C90AD1300B2A300FB8389 /* logo.png */,
-				E15C90AE1300B2A300FB8389 /* UnitRoundedOT-Medi.otf */,
-				E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */,
-				43CD9798123D6504003B628E /* Icon.png */,
+				E1555CA3131EEBD50079B05A /* Fonts */,
+				E1555CA2131EEBD10079B05A /* Images */,
 				8D1107310486CEB800E47090 /* Kepler-Info.plist */,
 			);
 			name = Resources;
@@ -203,6 +207,30 @@
 				E1A332E11301068800CED126 /* MediaPlayer.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E1555CA2131EEBD10079B05A /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				E1555CA4131EEBEB0079B05A /* dotted.png */,
+				E1555A0A131E05140079B05A /* skydome.jpg */,
+				E1A330351301013100CED126 /* cluster.png */,
+				E1A330361301013100CED126 /* starGlow.png */,
+				E1A330371301013100CED126 /* star.png */,
+				E15C90B81300B30100FB8389 /* wheel.png */,
+				E15C90AD1300B2A300FB8389 /* logo.png */,
+				43CD9798123D6504003B628E /* Icon.png */,
+			);
+			name = Images;
+			sourceTree = "<group>";
+		};
+		E1555CA3131EEBD50079B05A /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				E15C90AE1300B2A300FB8389 /* UnitRoundedOT-Medi.otf */,
+				E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */,
+			);
+			name = Fonts;
 			sourceTree = "<group>";
 		};
 		E1A3308A130105E500CED126 /* CinderIPod */ = {
@@ -258,6 +286,8 @@
 			children = (
 				E1C60186131892940022246C /* Node.cpp */,
 				E1C60321131C66F50022246C /* NodeArtist.cpp */,
+				E1555A1F131E0CFF0079B05A /* NodeAlbum.cpp */,
+				E1555CED131EF93C0079B05A /* NodeTrack.cpp */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -267,6 +297,8 @@
 			children = (
 				E1C60185131892860022246C /* Node.h */,
 				E1C60320131C66E80022246C /* NodeArtist.h */,
+				E1555A1E131E0CF40079B05A /* NodeAlbum.h */,
+				E1555CEC131EF92C0079B05A /* NodeTrack.h */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -359,6 +391,8 @@
 				E1A330381301013100CED126 /* cluster.png in Resources */,
 				E1A330391301013100CED126 /* starGlow.png in Resources */,
 				E1A3303A1301013100CED126 /* star.png in Resources */,
+				E1555A0B131E05140079B05A /* skydome.jpg in Resources */,
+				E1555CA5131EEBEB0079B05A /* dotted.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -379,6 +413,8 @@
 				E1C600051318490F0022246C /* World.cpp in Sources */,
 				E1C60187131892940022246C /* Node.cpp in Sources */,
 				E1C60322131C66F50022246C /* NodeArtist.cpp in Sources */,
+				E1555A20131E0CFF0079B05A /* NodeAlbum.cpp in Sources */,
+				E1555CEE131EF93C0079B05A /* NodeTrack.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
