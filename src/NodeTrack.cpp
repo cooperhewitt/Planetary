@@ -19,8 +19,8 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeTrack::NodeTrack( ipod::Player *player, Node *parent, int index, vector<ci::Font*> fonts, std::string name )
-	: Node( player, parent, index, fonts, name )
+NodeTrack::NodeTrack( Node *parent, int index, const Font &font, std::string name )
+	: Node( parent, index, font, name )
 {
 	mIsHighlighted	= true;
 	mSphereRes		= 16;
@@ -41,10 +41,8 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mPlayCount		= (*mAlbum)[mIndex]->getPlayCount();
 	
 	//normalize playcount data
-	float playCountDelta	= (mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount) + 1.0f;
+	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
-	
-	mPlanetTexIndex = (int)( normPlayCount * G_NUM_PLANET_TYPES );
 	
 	mRadius			= mRadius * pow( normPlayCount + 0.85f, 2.0f ) * 1.5f;
 	mOrbitPeriod	= mTrackLength;
@@ -100,7 +98,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mTexCoords[t++]		= 1.0f;
 }
 
-void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
+void NodeTrack::update( const CameraPersp &cam, const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	if( mIsSelected ) mSphereRes = 32;
 	else mSphereRes = 16;
@@ -114,7 +112,7 @@ void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	mPos		= mParentNode->mPos + mPosRel;
 	mVel		= mPos - mPosPrev;
 	
-	Node::update( mat, bbRight, bbUp );
+	Node::update( cam, mat, bbRight, bbUp );
 }
 
 void NodeTrack::drawSphere( vector< gl::Texture*> texs )
@@ -123,53 +121,17 @@ void NodeTrack::drawSphere( vector< gl::Texture*> texs )
 	gl::pushModelView();
 	gl::translate( mTransPos );
 	gl::rotate( mMatrix );
-	if( mPlanetTexIndex == G_NUM_PLANET_TYPES - 1 ){
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 10.0f, mAxisAngle ) );
-	} else {
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 50.0f, mAxisAngle ) );
-	}
-	texs[mPlanetTexIndex]->enableAndBind();
 	gl::drawSphere( Vec3f::zero(), mRadius * 0.375f, mSphereRes );
-	
-	if( mIsPlaying ){
-		gl::enableAdditiveBlending();
-		texs[G_CLOUDS_TYPE]->enableAndBind();
-		gl::color( mAtmosphereColor );
-		gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * 30.0f, 0.0f ) );
-		gl::drawSphere( Vec3f::zero(), mRadius * 0.4f, mSphereRes );
-		gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * 40.0f, 180.0f ) );
-		gl::drawSphere( Vec3f::zero(), mRadius * 0.42f, mSphereRes );
-		gl::disableAlphaBlending();
-	}
-	
 	gl::popModelView();
-}
-
-
-void NodeTrack::drawRings( vector< gl::Texture*> texs )
-{
-	if( mPlanetTexIndex == G_NUM_PLANET_TYPES - 1 ){
-		gl::pushModelView();
-		gl::translate( mTransPos );
-		gl::rotate( mMatrix );
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 10.0f, mAxisAngle ) );
-		texs[G_RING_TYPE]->enableAndBind();
-		glEnableClientState( GL_VERTEX_ARRAY );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glVertexPointer( 3, GL_FLOAT, 0, mVerts );
-		glTexCoordPointer( 2, GL_FLOAT, 0, mTexCoords );
-		glDrawArrays( GL_TRIANGLES, 0, 6 );
-		glDisableClientState( GL_VERTEX_ARRAY );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		gl::popModelView();
-	}
 }
 
 void NodeTrack::select()
 {
+	/*
 	std::cout << "Index = " << mIndex << std::endl;
 	std::cout << "AlbumName = " << mAlbum->getAlbumTitle() << std::endl;
 	mPlayer->play( mAlbum, mIndex );
 	mIsPlaying = true;
+	*/
 }
 

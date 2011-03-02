@@ -32,8 +32,18 @@ class World {
 	void drawOrthoNames( const ci::CameraPersp &cam );
 	void drawSpheres();
 	void drawOrbitalRings();
+	void drawConstellation( const ci::Matrix44f &mat );
+	void buildConstellation();
+	
 	Data *mData;
 	
 	std::vector<Node*> mNodes;
 	std::vector<ci::gl::Texture> mNameTextures;
+	
+	std::vector<ci::Vec3f> mConstellation;
+	std::vector<ci::ColorA> mConstellationColors;
+	int mTotalVertices;
+	GLfloat *mVerts;
+	GLfloat *mTexCoords;
+	GLfloat *mColors;
 };

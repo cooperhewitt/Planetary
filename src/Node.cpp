@@ -80,9 +80,12 @@ void Node::update( const CameraPersp &cam, const Matrix44f &mat, const Vec3f &bb
 	mBbRight	= bbRight;
 	mBbUp		= bbUp;
 	mTransPos	= mMatrix * mPos;
+	mSphere.setCenter( mTransPos );
 	
-	mDistFromCamZAxis = cam.worldToEyeDepth( mTransPos );
-	mDistFromCamZAxisPer = constrain( mDistFromCamZAxis * -0.35f, 0.0f, 1.0f );
+	if( mIsHighlighted ){
+		mDistFromCamZAxis = cam.worldToEyeDepth( mTransPos );
+		mDistFromCamZAxisPer = constrain( mDistFromCamZAxis * -0.35f, 0.0f, 1.0f );
+	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->update( cam, mat, bbRight, bbUp );
@@ -127,7 +130,7 @@ void Node::drawOrthoName( const CameraPersp &cam )
 		}
 		
 		Vec2f pos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() ) + Vec2f( mRadius * 4.0f, -mNameTex.getHeight() * 0.5f );
-		if( G_LOCK_TO_LEFT_SIDE ) pos.x = app::getWindowWidth() - mNameTex.getWidth() - 10.0f;
+		//if( G_LOCK_TO_LEFT_SIDE ) pos.x = app::getWindowWidth() - mNameTex.getWidth() - 10.0f;
 
 		gl::draw( mNameTex, pos );
 	}
@@ -140,11 +143,8 @@ void Node::drawOrthoName( const CameraPersp &cam )
 void Node::drawSphere()
 {
 	if( mIsHighlighted ){
-		gl::color( ColorA( mGlowColor, 0.3f ) );
-		gl::pushModelView();
-		gl::translate( mTransPos );
-		gl::draw( mSphere );
-		gl::popModelView();
+		gl::color( ColorA( mGlowColor, 0.05f ) );
+		gl::draw( mSphere, 32 );
 		
 		for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 			(*nodeIt)->drawSphere();

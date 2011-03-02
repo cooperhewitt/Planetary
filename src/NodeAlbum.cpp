@@ -9,6 +9,7 @@
 
 #include "cinder/app/AppBasic.h"
 #include "NodeAlbum.h"
+#include "NodeTrack.h"
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
 #include "cinder/PolyLine.h"
@@ -86,21 +87,40 @@ void NodeAlbum::drawStarGlow()
 	Node::drawStarGlow();
 }
 
-/*
+void NodeAlbum::drawOrbitalRings()
+{
+	if( mIsSelected ){
+		gl::pushModelView();
+		gl::translate( mTransPos );
+		gl::rotate( mMatrix );
+		for( vector<Node*>::iterator c = mChildNodes.begin(); c != mChildNodes.end(); ++c ){
+			float r = (*c)->mOrbitRadius;
+			
+			gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
+			gl::drawStrokedCircle( Vec2f::zero(), r, 150 );
+		}
+		gl::popModelView();
+	}
+}
+
+
 void NodeAlbum::select()
 {
 	int i=0;
-	for(Playlist::Iter it = mAlbum->begin(); it != mAlbum->end(); ++it){
+	for( Playlist::Iter it = mAlbum->begin(); it != mAlbum->end(); ++it ){
 		TrackRef track		= *it;
 		string name			= track->getTitle();
 		std::cout << "trackname = " << name << std::endl;
-		NodeTrack *newNode	= new NodeTrack( mPlayer, this, i, mFonts, name );
+		NodeTrack *newNode	= new NodeTrack( this, i, mFont, name );
 		mChildNodes.push_back( newNode );
 		newNode->setData( track, mAlbum );
 		i++;
 	}
+	
+	Node::select();
 }
 
+/*
 void NodeAlbum::selectNextTrack( Node *nodeSelected, string trackName )
 {
 	for( vector<Node*>::iterator c = mChildNodes.begin(); c != mChildNodes.end(); ++c ){
