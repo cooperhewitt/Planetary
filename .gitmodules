@@ -1,0 +1,6 @@
+[submodule "blocks/CinderGestures"]
+	path = blocks/CinderGestures
+	url = git@github.com:bloomtime/CinderGestures.git
+[submodule "blocks/CinderIPod"]
+	path = blocks/CinderIPod
+	url = git://github.com/notlion/CinderIPod.git
