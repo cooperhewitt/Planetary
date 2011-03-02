@@ -36,6 +36,8 @@
 		E1C60322131C66F50022246C /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C60321131C66F50022246C /* NodeArtist.cpp */; };
 		E1C6FFF3131847A40022246C /* Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C6FFF2131847A40022246C /* Data.cpp */; };
 		E1E663701317887F00E5E4B9 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E6636F1317887F00E5E4B9 /* State.cpp */; };
+		E29C09D1131EC11A009E31FB /* NodeAlbum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29C09CF131EC11A009E31FB /* NodeAlbum.cpp */; };
+		E29C09D2131EC11A009E31FB /* NodeTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29C09D0131EC11A009E31FB /* NodeTrack.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -90,6 +92,10 @@
 		E1FC74B6130B256D007FE9D6 /* PinchEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinchEvent.h; sourceTree = "<group>"; };
 		E1FC74B7130B256D007FE9D6 /* SingleTapEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTapEvent.h; sourceTree = "<group>"; };
 		E1FC74B8130B256D007FE9D6 /* TapRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapRecognizer.h; sourceTree = "<group>"; };
+		E29C09CD131EC103009E31FB /* NodeAlbum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeAlbum.h; path = ../include/NodeAlbum.h; sourceTree = SOURCE_ROOT; };
+		E29C09CE131EC103009E31FB /* NodeTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeTrack.h; path = ../include/NodeTrack.h; sourceTree = SOURCE_ROOT; };
+		E29C09CF131EC11A009E31FB /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
+		E29C09D0131EC11A009E31FB /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -212,7 +218,7 @@
 				E1A331FA130105E700CED126 /* src */,
 			);
 			name = CinderIPod;
-			path = ../../../../cinder_master/blocks/CinderIPod;
+			path = ../blocks/CinderIPod;
 			sourceTree = SOURCE_ROOT;
 		};
 		E1A331BE130105E600CED126 /* include */ = {
@@ -256,6 +262,8 @@
 		E1C601831318926C0022246C /* Nodes */ = {
 			isa = PBXGroup;
 			children = (
+				E29C09CF131EC11A009E31FB /* NodeAlbum.cpp */,
+				E29C09D0131EC11A009E31FB /* NodeTrack.cpp */,
 				E1C60186131892940022246C /* Node.cpp */,
 				E1C60321131C66F50022246C /* NodeArtist.cpp */,
 			);
@@ -265,6 +273,8 @@
 		E1C60184131892750022246C /* Nodes */ = {
 			isa = PBXGroup;
 			children = (
+				E29C09CD131EC103009E31FB /* NodeAlbum.h */,
+				E29C09CE131EC103009E31FB /* NodeTrack.h */,
 				E1C60185131892860022246C /* Node.h */,
 				E1C60320131C66E80022246C /* NodeArtist.h */,
 			);
@@ -286,6 +296,7 @@
 				E1FC74B2130B256D007FE9D6 /* include */,
 			);
 			name = CinderGestures;
+			path = ../blocks/CinderGestures;
 			sourceTree = "<group>";
 		};
 		E1FC74B2130B256D007FE9D6 /* include */ = {
@@ -298,9 +309,8 @@
 				E1FC74B7130B256D007FE9D6 /* SingleTapEvent.h */,
 				E1FC74B8130B256D007FE9D6 /* TapRecognizer.h */,
 			);
-			name = include;
-			path = ../../../../cinder_master/blocks/CinderGestures/include;
-			sourceTree = SOURCE_ROOT;
+			path = include;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -379,6 +389,8 @@
 				E1C600051318490F0022246C /* World.cpp in Sources */,
 				E1C60187131892940022246C /* Node.cpp in Sources */,
 				E1C60322131C66F50022246C /* NodeArtist.cpp in Sources */,
+				E29C09D1131EC11A009E31FB /* NodeAlbum.cpp in Sources */,
+				E29C09D2131EC11A009E31FB /* NodeTrack.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
