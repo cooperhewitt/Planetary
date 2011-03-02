@@ -22,6 +22,7 @@ using namespace ci::app;
 using namespace std;
 
 int G_CURRENT_LEVEL	= 0;
+bool G_LOCK_TO_LEFT_SIDE = false;
 
 float easeInOutQuad( double t, float b, float c, double d );
 Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
@@ -76,6 +77,7 @@ class KeplerApp : public AppCocoaTouch {
 	// TEXTURES
 	gl::Texture		mStarTex;
 	gl::Texture		mStarGlowTex;
+	gl::Texture		mSkyDome;
 	
 	float			mTime;
 };
@@ -119,12 +121,12 @@ void KeplerApp::setup()
 	
 	
 	// TEXTURES
-	mStarTex			= gl::Texture( loadImage( loadResource( "star.png" ) ) );
-	mStarGlowTex		= gl::Texture( loadImage( loadResource( "starGlow.png" ) ) );
-	
+	mStarTex			= loadImage( loadResource( "star.png" ) );
+	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
+	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
 	
 	// BREADCRUMBS
-	mBreadcrumbs.setup( this, mFonts[4] );
+	mBreadcrumbs.setup( this, mFonts[3] );
 	mBreadcrumbs.registerBreadcrumbSelected( this, &KeplerApp::onBreadcrumbSelected );
 	mBreadcrumbs.setHierarchy(mState.getHierarchy());
 	
@@ -146,7 +148,7 @@ void KeplerApp::setup()
 
 	// WORLD
 	mWorld.setData( &mData );
-	mWorld.initNodes( mFonts[3] );
+	mWorld.initNodes( mFonts[4] );
 }
 
 void KeplerApp::touchesBegan( TouchEvent event )
@@ -194,9 +196,9 @@ void KeplerApp::initFonts()
 {
 	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 ) );
 	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 64 ) );
-	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 48 ) );
-	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 32 ) );
-	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 24 ) );
+	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 28 ) );
+	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 18 ) );
+	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 14 ) );
 }
 
 bool KeplerApp::onAlphaCharSelected( UiLayer *uiLayer )
@@ -277,7 +279,7 @@ void KeplerApp::updateCamera()
 {
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){
-		float radiusMulti = 15.0f;
+		float radiusMulti = 10.0f;
 		
 		mCamDistDest	= ( selectedNode->mRadius * radiusMulti  );
 		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
@@ -296,7 +298,7 @@ void KeplerApp::updateCamera()
 	
 	// UPDATE FOV
 	if( mUiLayer.getShowWheel() ){
-		mFovDest = 130.0f;
+		mFovDest = 120.0f;
 	} else {
 		mFovDest = 90.0f;
 	}
@@ -321,6 +323,16 @@ void KeplerApp::draw()
 	gl::enableDepthWrite();
 	gl::setMatrices( mCam );
 	
+	// DRAW SKYDOME
+	gl::pushModelView();
+	gl::rotate( mArcball.getQuat() );
+	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+	mSkyDome.enableAndBind();
+	gl::drawSphere( Vec3f::zero(), 2000.0f, 64 );
+	mSkyDome.disable();
+	gl::popModelView();
+	
+	
 	gl::enableAdditiveBlending();
 	
 	mStarGlowTex.enableAndBind();
@@ -331,14 +343,17 @@ void KeplerApp::draw()
 	mWorld.drawStars();
 	mStarTex.disable();
 	
-	mWorld.drawNames();
-	glDisable( GL_TEXTURE_2D );
-	
-	gl::disableAlphaBlending();
+	//mWorld.drawNames();
+	//glDisable( GL_TEXTURE_2D );
 	
 	gl::disableDepthWrite();
-	gl::enableAlphaBlending();
 	gl::setMatricesWindow( getWindowSize() );
+	gl::enableAdditiveBlending();
+	mWorld.drawOrthoNames( mCam );
+	
+	glDisable( GL_TEXTURE_2D );
+	gl::disableAlphaBlending();
+	gl::enableAlphaBlending();
 	mUiLayer.draw();
 	mBreadcrumbs.draw();
 }

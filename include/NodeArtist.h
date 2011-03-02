@@ -20,6 +20,7 @@ class NodeArtist : public Node
 	void update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void drawStar();
 	void drawStarGlow();
+	void select();
 	
 	ci::Vec3f mPosDest;
 };

@@ -93,8 +93,15 @@ void World::drawStarGlows()
 void World::drawNames()
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->drawName();
+	}
+}
+
+void World::drawOrthoNames( const CameraPersp &cam )
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
-			(*it)->drawName();
+			(*it)->drawOrthoName( cam );
 		}
 	}
 }

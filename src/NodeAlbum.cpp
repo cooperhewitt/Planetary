@@ -9,7 +9,6 @@
 
 #include "cinder/app/AppBasic.h"
 #include "NodeAlbum.h"
-#include "NodeTrack.h"
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
 #include "cinder/PolyLine.h"
@@ -19,8 +18,8 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeAlbum::NodeAlbum( ipod::Player *player, Node *parent, int index, vector<ci::Font*> fonts, std::string name )
-	: Node( player, parent, index, fonts, name )
+NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string name )
+	: Node( parent, index, font, name )
 {
 	mIsHighlighted	= true;
 	float hue		= Rand::randFloat( 0.0f, 0.5f );
@@ -28,9 +27,9 @@ NodeAlbum::NodeAlbum( ipod::Player *player, Node *parent, int index, vector<ci::
 	mColor			= Color( CM_HSV, hue, sat * 0.5f, 1.0f );
 	mGlowColor		= Color( CM_HSV, hue + 0.15f, sat, 1.0f );
 	
-	mSphereRes		= 16;
-	//mRadius			*= 0.5f;
+	mSphere.setRadius( mSphere.getRadius() * 5.0f );
 }
+
 
 void NodeAlbum::setData( PlaylistRef album )
 {
@@ -50,11 +49,9 @@ void NodeAlbum::setData( PlaylistRef album )
 	}
 }
 
+
 void NodeAlbum::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
 {
-	if( mIsSelected ) mSphereRes = 32;
-	else mSphereRes = 16;
-	
 	double playbackTime		= app::getElapsedSeconds();
 	double percentPlayed	= playbackTime/mOrbitPeriod;
 	double orbitAngle		= percentPlayed * TWO_PI + mStartAngle;
@@ -70,72 +67,27 @@ void NodeAlbum::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	Node::update( mat, bbRight, bbUp );
 }
 
-void NodeAlbum::drawStars( float uiScale )
+void NodeAlbum::drawStar()
 {
 	gl::color( mColor );
-	gl::pushModelView();
-	gl::translate( mTransPos );
+	gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ), 0.0f, mBbRight, mBbUp );
 	
-	Vec2f radius = Vec2f( mRadius, mRadius );
-	gl::drawBillboard( Vec3f::zero(), radius * 3.5f, 0.0f, mBbRight, mBbUp );
-	gl::popModelView();
-	
-	Node::drawStars( uiScale );
+	Node::drawStar();
 }
 
-void NodeAlbum::drawGlow()
+void NodeAlbum::drawStarGlow()
 {
-	gl::color( mGlowColor );
-	
-	float radiusMulti;
-	if( mIsSelected ){
-		radiusMulti = 10.0f;
-	} else {
-		radiusMulti = 6.0f;
+	if( mIsHighlighted ){
+		gl::color( mGlowColor );
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
+		if( mIsSelected ) radius *= 2.5f;
+		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 	
-	if( G_CURRENT_LEVEL == 1 )
-		radiusMulti *= Rand::randFloat( 0.9f, 1.1f );
-	
-	gl::pushModelView();
-	gl::translate( mTransPos );
-	gl::drawBillboard( Vec3f::zero(), Vec2f( mRadius, mRadius ) * radiusMulti, 0.0f, mBbRight, mBbUp );
-	gl::popModelView();
-	
-	Node::drawGlow();
+	Node::drawStarGlow();
 }
 
-void NodeAlbum::drawSphere( vector< gl::Texture*> texs )
-{
-	Node::drawSphere( texs );
-}
-
-void NodeAlbum::drawRings( vector< gl::Texture*> texs )
-{
-	Node::drawRings( texs );
-}
-
-void NodeAlbum::drawChildOrbits()
-{	
-	gl::pushModelView();
-	gl::translate( mTransformedPos );
-	gl::rotate( mMatrix );
-	for( vector<Node*>::iterator c = mChildNodes.begin(); c != mChildNodes.end(); ++c ){
-		float r = (*c)->mOrbitRadius;
-		
-		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
-		gl::drawStrokedCircle( Vec2f::zero(), r, 100 );
-		
-		if( (*c)->mIsPlaying ){
-			mOrbitLine.push_back( Vec2f( (*c)->mPosRel.x, (*c)->mPosRel.y ) );
-			
-			gl::color( ColorA( 0.0f, 0.0f, 1.0f, 1.0f ) );
-			gl::draw( mOrbitLine );
-		}
-	}
-	gl::popModelView();
-}
-
+/*
 void NodeAlbum::select()
 {
 	int i=0;
@@ -163,4 +115,4 @@ void NodeAlbum::selectNextTrack( Node *nodeSelected, string trackName )
 		}
 	}
 }
-
+*/

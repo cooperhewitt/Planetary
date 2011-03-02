@@ -17,8 +17,6 @@
 #include "Data.h"
 #include "Node.h"
 
-using namespace ci;
-
 class World {
  public:
 	World();
@@ -32,6 +30,7 @@ class World {
 	void drawStars();
 	void drawStarGlows();
 	void drawNames();
+	void drawOrthoNames( const ci::CameraPersp &cam );
 	
 	Data *mData;
 	

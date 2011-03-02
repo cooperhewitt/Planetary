@@ -13,6 +13,7 @@
 #include "cinder/Font.h"
 #include "cinder/Text.h"
 #include "cinder/ImageIo.h"
+#include "Globals.h"
 #include <sstream>
 
 using std::stringstream;
@@ -102,6 +103,10 @@ bool UiLayer::touchesEnded( TouchEvent event )
 {
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) {
 		mTouchPos = touchIt->getPos();
+	}
+	
+	if( mTouchPos.x < 50.0f && mTouchPos.y < 50.0f ){
+		G_LOCK_TO_LEFT_SIDE = !G_LOCK_TO_LEFT_SIDE;
 	}
 	
 	selectWheelItem( mTouchPos, true );

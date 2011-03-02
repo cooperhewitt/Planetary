@@ -9,6 +9,7 @@
 
 #include "cinder/app/AppBasic.h"
 #include "NodeArtist.h"
+#include "NodeAlbum.h"
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
 #include "Globals.h"
@@ -31,15 +32,14 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string n
 void NodeArtist::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	mPos -= ( mPos - mPosDest ) * 0.1f;
+	
 	Node::update( mat, bbRight, bbUp );
 }
 
 void NodeArtist::drawStar()
 {
 	gl::color( mColor );
-	Vec2f radius = Vec2f( mRadius, mRadius );
-	if( mIsSelected ) radius *= 3.0f;
-	gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+	gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ), 0.0f, mBbRight, mBbUp );
 
 	Node::drawStar();
 }
@@ -49,14 +49,13 @@ void NodeArtist::drawStarGlow()
 	if( mIsHighlighted ){
 		gl::color( mGlowColor );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
-		if( mIsSelected ) radius *= 5.0f;
+		if( mIsSelected ) radius *= 2.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 
 	Node::drawStarGlow();
 }
 
-/*
 void NodeArtist::select()
 {
 	vector<ipod::PlaylistRef> albumsBySelectedArtist = getAlbumsWithArtist( mName );
@@ -65,9 +64,12 @@ void NodeArtist::select()
 	for(vector<PlaylistRef>::iterator it = albumsBySelectedArtist.begin(); it != albumsBySelectedArtist.end(); ++it){
 		PlaylistRef album	= *it;
 		string name			= album->getAlbumTitle();
-		NodeAlbum *newNode = new NodeAlbum( mPlayer, this, i, mFonts, name );
+		NodeAlbum *newNode = new NodeAlbum( this, i, mFont, name );
+		
 		mChildNodes.push_back( newNode );
 		newNode->setData( album );
 		i++;
 	}
-}*/
+	
+	Node::select();
+}

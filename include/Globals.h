@@ -23,5 +23,8 @@ static const int G_NUM_LEVELS		= 4;
 
 static const float G_INIT_CAM_DIST	= 180.0f;
 
+
+
 // TODO: move into State.h
 extern int	G_CURRENT_LEVEL;
+extern bool G_LOCK_TO_LEFT_SIDE;
