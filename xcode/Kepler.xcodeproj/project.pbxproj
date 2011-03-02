@@ -481,7 +481,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = armv7;
-				CINDER_PATH = ../../../../cinder_master;
+				CINDER_PATH = "$(CINDER_PATH_$(USER))";
+				CINDER_PATH_robert = ../../../../cinder_master;
+				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Robert Hodgin (S4H3GSX268)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
@@ -502,7 +504,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = armv7;
-				CINDER_PATH = ../../../../cinder_master;
+				CINDER_PATH = "$(CINDER_PATH_$(USER))";
+				CINDER_PATH_robert = ../../../../cinder_master;
+				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Robert Hodgin (S4H3GSX268)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
