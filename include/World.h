@@ -25,13 +25,13 @@ class World {
 	void filterNodes();
 	void deselectAllNodes();
 	void checkForSphereIntersect( Node* &theNode, const ci::Ray &ray, ci::Matrix44f &mat );
-	void update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	void draw();
+	void update( const ci::CameraPersp &cam, const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void drawStars();
 	void drawStarGlows();
 	void drawNames();
 	void drawOrthoNames( const ci::CameraPersp &cam );
-	
+	void drawSpheres();
+	void drawOrbitalRings();
 	Data *mData;
 	
 	std::vector<Node*> mNodes;

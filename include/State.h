@@ -10,6 +10,7 @@
 #pragma once
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/Vector.h"
+#include "cinder/Font.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 #include "Globals.h"
@@ -20,7 +21,7 @@ using namespace ci;
 class State {
  public:
 	State();
-	
+	void draw( const ci::Font &font);
 	// Alpha char for filtering artist name
 	char getAlphaChar(){ return mAlphaChar; }
 	void setAlphaChar( char c );

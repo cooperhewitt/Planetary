@@ -23,6 +23,10 @@ State::State()
 	mSelectedNode = NULL;
 }
 
+void State::draw( const Font &font )
+{
+}
+
 void State::setAlphaChar( char c )
 {
 	std::cout << "State::setAlphaChar " << c << std::endl;
@@ -90,7 +94,7 @@ vector<string> State::getHierarchy()
 		hierarchy.push_back( s );
 	}
 	
-	hierarchy.push_back("Home");
+	hierarchy.push_back("Kepler");
 	
 	if (hierarchy.size() > 1) {
 		reverse( hierarchy.begin(), hierarchy.end() );

@@ -62,17 +62,10 @@ void World::checkForSphereIntersect( Node* &theNode, const Ray &ray, Matrix44f &
 	}
 }
 
-void World::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
+void World::update( const CameraPersp &cam, const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->update( mat, bbRight, bbUp );
-	}
-}
-
-void World::draw()
-{
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->draw();
+		(*it)->update( cam, mat, bbRight, bbUp );
 	}
 }
 
@@ -103,5 +96,19 @@ void World::drawOrthoNames( const CameraPersp &cam )
 		if( (*it)->mIsHighlighted ){
 			(*it)->drawOrthoName( cam );
 		}
+	}
+}
+
+void World::drawSpheres()
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->drawSphere();
+	}
+}
+
+void World::drawOrbitalRings()
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->drawOrbitalRings();
 	}
 }

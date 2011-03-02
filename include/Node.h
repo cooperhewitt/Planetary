@@ -30,12 +30,13 @@ class Node {
 	void				init();
 	void				initWithParent();
 	void				createNameTexture();
-	virtual void		update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	virtual	void		draw();
+	virtual void		update( const ci::CameraPersp &cam, const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	virtual void		drawStar();
 	virtual void		drawStarGlow();
 	void				drawName();
 	void				drawOrthoName( const ci::CameraPersp &cam );
+	void				drawSphere();
+	virtual void		drawOrbitalRings();
 	void				checkForSphereIntersect( Node* &theNode, const ci::Ray &ray, ci::Matrix44f &mat );
 	virtual void		select();
 	void				deselect();
@@ -69,7 +70,8 @@ class Node {
 	float				mPercentPlayed;		// Track: percent of playback (perhaps this can be pulled directly from player?)
 	float				mHighestPlayCount;	// Album: used to normalize track playcount data
 	float				mLowestPlayCount;	// Album: used to normalize track playcount data
-	
+	float				mDistFromCamZAxis;	// Node's distance from Cam eye
+	float				mDistFromCamZAxisPer; // normalized range.
 	
 	// NAME
 	std::string			mName;				// Name of the node

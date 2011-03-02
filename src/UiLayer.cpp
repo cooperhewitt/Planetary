@@ -21,9 +21,8 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-const static int NAV_H = 50;
+const static int NAV_H = 35;
 const static int NAV_MARGIN = 2;
-const static int SHOW_WHEEL_BTN_W = 50;
 
 UiLayer::UiLayer()
 {
@@ -50,7 +49,7 @@ void UiLayer::setup( AppCocoaTouch *app )
 	int y1 = getWindowHeight() - NAV_H;
 	int x2 = getWindowWidth();
 	int y2 = getWindowHeight();
-	mNavRect			 = Rectf( x1, y1, x2, y2 );
+	mStripRect			 = Rectf( x1, y1, x2, y2 );
 	
 	// Textures
 	mWheelTex		= gl::Texture( loadImage( loadResource( "wheel.png" ) ) );
@@ -117,7 +116,7 @@ bool UiLayer::touchesEnded( TouchEvent event )
 
 void UiLayer::selectWheelItem( const Vec2f &pos, bool closeWheel )
 {
-	if( mShowWheel && ! mNavRect.contains( pos ) ){
+	if( mShowWheel && ! mStripRect.contains( pos ) ){
 		Vec2f dir				= pos - getWindowCenter();
 		float distToCenter		= dir.length();
 		if( distToCenter > 250 && distToCenter < 350 ){
@@ -139,7 +138,7 @@ void UiLayer::selectWheelItem( const Vec2f &pos, bool closeWheel )
 void UiLayer::draw()
 {
 	drawWheel();
-	drawNav();
+	drawStrip();
 }
 
 void UiLayer::drawWheel()
@@ -168,9 +167,13 @@ void UiLayer::drawAlphaChar()
 	mAlphaTextures[mAlphaIndex].disable();
 }
 
-void UiLayer::drawNav()
+void UiLayer::drawStrip()
 {
-	gl::color( Color::black() );
-	gl::drawSolidRect( mNavRect );
+	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.4f ) );
+	gl::drawSolidRect( mStripRect );
+	
+	gl::color( ColorA( 0.3f, 0.4f, 0.8f, 0.15f ) );
+	gl::drawLine( Vec2f( 0.0f, mStripRect.getY1() ), Vec2f( app::getWindowWidth(), mStripRect.getY1() ) );
+	
 }
 

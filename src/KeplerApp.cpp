@@ -197,8 +197,8 @@ void KeplerApp::initFonts()
 	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 ) );
 	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 64 ) );
 	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 28 ) );
-	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 18 ) );
-	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 14 ) );
+	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 16 ) );
+	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 16 ) );
 }
 
 bool KeplerApp::onAlphaCharSelected( UiLayer *uiLayer )
@@ -257,7 +257,7 @@ void KeplerApp::update()
 {
 	updateArcball();
 	updateCamera();
-	mWorld.update( mMatrix, mBbRight, mBbUp );
+	mWorld.update( mCam, mMatrix, mBbRight, mBbUp );
 	mBreadcrumbs.update();
 }
 
@@ -279,7 +279,7 @@ void KeplerApp::updateCamera()
 {
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){
-		float radiusMulti = 10.0f;
+		float radiusMulti = 5.0f;
 		
 		mCamDistDest	= ( selectedNode->mRadius * radiusMulti  );
 		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
@@ -298,9 +298,9 @@ void KeplerApp::updateCamera()
 	
 	// UPDATE FOV
 	if( mUiLayer.getShowWheel() ){
-		mFovDest = 120.0f;
+		mFovDest = 130.0f;
 	} else {
-		mFovDest = 90.0f;
+		mFovDest = 100.0f;
 	}
 	mFov -= ( mFov - mFovDest ) * 0.2f;
 	
@@ -335,18 +335,29 @@ void KeplerApp::draw()
 	
 	gl::enableAdditiveBlending();
 	
+	// STARGLOWS
 	mStarGlowTex.enableAndBind();
 	mWorld.drawStarGlows();
 	mStarGlowTex.disable();
 	
+	// STARS
 	mStarTex.enableAndBind();
 	mWorld.drawStars();
 	mStarTex.disable();
+	
+	// ORBITS
+	mWorld.drawOrbitalRings();
+	
+	// TODO: Find out why the spheres go out of alignment.
+	//glDisable( GL_TEXTURE_2D );
+	//mWorld.drawSpheres();
+	
 	
 	//mWorld.drawNames();
 	//glDisable( GL_TEXTURE_2D );
 	
 	gl::disableDepthWrite();
+	glEnable( GL_TEXTURE_2D );
 	gl::setMatricesWindow( getWindowSize() );
 	gl::enableAdditiveBlending();
 	mWorld.drawOrthoNames( mCam );
@@ -356,6 +367,7 @@ void KeplerApp::draw()
 	gl::enableAlphaBlending();
 	mUiLayer.draw();
 	mBreadcrumbs.draw();
+	mState.draw( mFonts[4] );
 }
 
 

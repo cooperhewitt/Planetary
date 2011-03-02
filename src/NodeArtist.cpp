@@ -29,11 +29,11 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string n
 	mGlowColor		= Color( CM_HSV, hue, sat, 1.0f );
 }
 
-void NodeArtist::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
+void NodeArtist::update( const CameraPersp &cam, const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	mPos -= ( mPos - mPosDest ) * 0.1f;
 	
-	Node::update( mat, bbRight, bbUp );
+	Node::update( cam, mat, bbRight, bbUp );
 }
 
 void NodeArtist::drawStar()
@@ -46,14 +46,32 @@ void NodeArtist::drawStar()
 
 void NodeArtist::drawStarGlow()
 {
-	if( mIsHighlighted ){
-		gl::color( mGlowColor );
+	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
+		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
-		if( mIsSelected ) radius *= 2.5f;
+		//if( mIsSelected ) radius *= 2.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 
 	Node::drawStarGlow();
+}
+
+void NodeArtist::drawOrbitalRings()
+{
+	if( mIsSelected ){
+		gl::pushModelView();
+		gl::translate( mTransPos );
+		gl::rotate( mMatrix );
+		for( vector<Node*>::iterator c = mChildNodes.begin(); c != mChildNodes.end(); ++c ){
+			float r = (*c)->mOrbitRadius;
+			
+			gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
+			gl::drawStrokedCircle( Vec2f::zero(), r, 150 );
+		}
+		gl::popModelView();
+		
+		std::cout << "drawing rings" << std::endl;
+	}
 }
 
 void NodeArtist::select()

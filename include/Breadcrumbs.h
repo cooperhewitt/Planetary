@@ -130,7 +130,7 @@ void Breadcrumbs::draw() {
 	gl::enableAlphaBlending(false);		
 	gl::color( Color::white() );
 	float x			= 25.0f;
-	float y			= getWindowHeight() - 37;
+	float y			= getWindowHeight() - 28;
 	float margin	= 5;
 	clickRects.clear();
 	
@@ -141,7 +141,7 @@ void Breadcrumbs::draw() {
 			x += mSeparatorTexture.getWidth() + margin*2;				
 		}
 		if( i == prevSelectedIndex ){
-			gl::color( Color( 1.0, 1.0, 0 ) );
+			gl::color( Color( 0.3f, 0.4f, 1.0f ) );
 		}
 		gl::draw( mTextures[i], Vec2f( x,y ) );			
 		clickRects.push_back( Rectf( x-margin, y-margin, x+mTextures[i].getWidth()+margin, y+mTextures[i].getHeight()+margin ) );

@@ -31,7 +31,7 @@ class UiLayer {
 	void	draw();
 	void	drawWheel();
 	void	drawAlphaChar();
-	void	drawNav();
+	void	drawStrip();
 	void	setShowWheel( bool b ){ mShowWheel = b; }
 	bool	getShowWheel(){ return mShowWheel; }
 	void	setAlphaChar( char c ){ mAlphaChar = c; }
@@ -48,7 +48,7 @@ class UiLayer {
 	CallbackId		mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded;
 	Vec2f			mTouchPos;
 	
-	Rectf			mNavRect;
+	Rectf			mStripRect;
 	bool			mShowWheel;
 	std::string		mAlphaString;
 	int				mAlphaIndex;

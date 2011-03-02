@@ -27,6 +27,7 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 	}
 	createNameTexture();
 	
+	mTransPos			= mPos;
 	mSphere				= Sphere( mPos, mRadius * 2.0f );
 	
 	mStartAngle			= Rand::randFloat( TWO_PI );
@@ -34,7 +35,9 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 	mOrbitPeriod		= Rand::randFloat( 25.0f, 150.0f );
 	mAngularVelocity	= 0.0f;
 	mPercentPlayed		= 0.0f;
-	
+	mDistFromCamZAxis	= 1000.0f;
+	mDistFromCamZAxisPer = 1.0f;
+		
 	mIsSelected			= false;
 	mIsHighlighted		= false;
 }
@@ -57,7 +60,7 @@ void Node::initWithParent()
 	mPos				= mParentNode->mPos;
 	mPosPrev			= mParentNode->mPos;
 	mVel				= mParentNode->mVel;
-	mOrbitRadiusDest	= Rand::randFloat( mParentNode->mRadius * 2.0f, mParentNode->mRadius * 5.0f );
+	mOrbitRadiusDest	= Rand::randFloat( mParentNode->mRadius * 1.0f, mParentNode->mRadius * 2.0f );
 	mOrbitPeriod		= Rand::randFloat( 25.0f, 150.0f );
 }
 
@@ -70,30 +73,20 @@ void Node::createNameTexture()
 	mNameTex = gl::Texture( layout.render( true, false ) );
 }
 
-void Node::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
-{	
+void Node::update( const CameraPersp &cam, const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
+{
 	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.02f;
 	mMatrix		= mat;
 	mBbRight	= bbRight;
 	mBbUp		= bbUp;
 	mTransPos	= mMatrix * mPos;
 	
+	mDistFromCamZAxis = cam.worldToEyeDepth( mTransPos );
+	mDistFromCamZAxisPer = constrain( mDistFromCamZAxis * -0.35f, 0.0f, 1.0f );
+	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->update( mat, bbRight, bbUp );
+		(*nodeIt)->update( cam, mat, bbRight, bbUp );
 	}
-}
-
-void Node::draw()
-{
-	if( mIsSelected ){
-		gl::color( Color( 1.0f, 0.0f, 0.0f ) );
-	} else {
-		gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-	}
-	gl::pushModelView();
-	gl::translate( mTransPos );
-	gl::drawBillboard( Vec3f::zero(), Vec2f( mRadius, mRadius ), 0.0f, mBbRight, mBbUp );
-	gl::popModelView();
 }
 
 void Node::drawStar()
@@ -144,12 +137,31 @@ void Node::drawOrthoName( const CameraPersp &cam )
 	}
 }
 
+void Node::drawSphere()
+{
+	if( mIsHighlighted ){
+		gl::color( ColorA( mGlowColor, 0.3f ) );
+		gl::pushModelView();
+		gl::translate( mTransPos );
+		gl::draw( mSphere );
+		gl::popModelView();
+		
+		for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+			(*nodeIt)->drawSphere();
+		}
+	}
+}
+
+void Node::drawOrbitalRings()
+{
+}
+
 void Node::checkForSphereIntersect( Node* &theNode, const Ray &ray, Matrix44f &mat )
 {
 	if( ! theNode ){
 		mSphere.setCenter( mat.transformPointAffine( mPos ) );
 
-		if( mSphere.intersects( ray ) && mIsHighlighted ){
+		if( mSphere.intersects( ray ) && mIsHighlighted && ! mIsSelected ){
 			theNode			= this;
 			
 		} else {
