@@ -29,11 +29,11 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string n
 	mGlowColor		= Color( CM_HSV, hue, sat, 1.0f );
 }
 
-void NodeArtist::update( const CameraPersp &cam, const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
+void NodeArtist::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	mPos -= ( mPos - mPosDest ) * 0.1f;
 	
-	Node::update( cam, mat, bbRight, bbUp );
+	Node::update( mat, bbRight, bbUp );
 }
 
 void NodeArtist::drawStar()
@@ -46,6 +46,9 @@ void NodeArtist::drawStar()
 
 void NodeArtist::drawStarGlow()
 {
+	if( mIsSelected ){
+		std::cout << mDistFromCamZAxisPer << std::endl;
+	}
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
 		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 4.5f;

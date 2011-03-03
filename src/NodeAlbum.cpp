@@ -51,7 +51,7 @@ void NodeAlbum::setData( PlaylistRef album )
 }
 
 
-void NodeAlbum::update( const CameraPersp &cam, const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
+void NodeAlbum::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	double playbackTime		= app::getElapsedSeconds();
 	double percentPlayed	= playbackTime/mOrbitPeriod;
@@ -65,7 +65,7 @@ void NodeAlbum::update( const CameraPersp &cam, const Matrix44f &mat, const Vec3
 	//mVel		= mPos - mPosPrev;
 	mVel		= mPosRel - oldPosRel;
 	
-	Node::update( cam, mat, bbRight, bbUp );
+	Node::update( mat, bbRight, bbUp );
 }
 
 void NodeAlbum::drawStar()

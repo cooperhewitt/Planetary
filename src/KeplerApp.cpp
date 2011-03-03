@@ -259,8 +259,10 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat )
 void KeplerApp::update()
 {
 	updateArcball();
-	mWorld.update( mCam, mMatrix, mBbRight, mBbUp );
+	mWorld.update( mMatrix, mBbRight, mBbUp );
 	updateCamera();
+	mWorld.updateGraphics( mCam );
+	
 	mBreadcrumbs.update();
 }
 

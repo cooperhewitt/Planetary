@@ -30,7 +30,8 @@ class Node {
 	void				init();
 	void				initWithParent();
 	void				createNameTexture();
-	virtual void		update( const ci::CameraPersp &cam, const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	virtual void		update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	virtual void		updateGraphics( const ci::CameraPersp &cam );
 	virtual void		drawStar();
 	virtual void		drawStarGlow();
 	void				drawName();

@@ -17,7 +17,7 @@ class NodeTrack : public Node
   public:
 	NodeTrack( Node *parent, int index, const ci::Font &font, std::string name );
 
-	void update( const ci::CameraPersp &cam, const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	void update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void drawSphere( std::vector<ci::gl::Texture*> texs );
 	void drawRings( std::vector<ci::gl::Texture*> texs );
 	void select();

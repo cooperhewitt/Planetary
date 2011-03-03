@@ -21,6 +21,8 @@
 		C7FB19D6124BC0D70045AFD3 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C7FB19D5124BC0D70045AFD3 /* CoreText.framework */; };
 		E1555A0B131E05140079B05A /* skydome.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1555A0A131E05140079B05A /* skydome.jpg */; };
 		E1555CA5131EEBEB0079B05A /* dotted.png in Resources */ = {isa = PBXBuildFile; fileRef = E1555CA4131EEBEB0079B05A /* dotted.png */; };
+		E1555D8F131F14C00079B05A /* NodeAlbum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1555D8D131F14C00079B05A /* NodeAlbum.cpp */; };
+		E1555D90131F14C00079B05A /* NodeTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1555D8E131F14C00079B05A /* NodeTrack.cpp */; };
 		E15C90B01300B2A300FB8389 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = E15C90AD1300B2A300FB8389 /* logo.png */; };
 		E15C90B11300B2A300FB8389 /* UnitRoundedOT-Medi.otf in Resources */ = {isa = PBXBuildFile; fileRef = E15C90AE1300B2A300FB8389 /* UnitRoundedOT-Medi.otf */; };
 		E15C90B21300B2A300FB8389 /* UnitRoundedOT-Ultra.otf in Resources */ = {isa = PBXBuildFile; fileRef = E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */; };
@@ -38,8 +40,6 @@
 		E1C60322131C66F50022246C /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C60321131C66F50022246C /* NodeArtist.cpp */; };
 		E1C6FFF3131847A40022246C /* Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C6FFF2131847A40022246C /* Data.cpp */; };
 		E1E663701317887F00E5E4B9 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E6636F1317887F00E5E4B9 /* State.cpp */; };
-		E29C09D1131EC11A009E31FB /* NodeAlbum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29C09CF131EC11A009E31FB /* NodeAlbum.cpp */; };
-		E29C09D2131EC11A009E31FB /* NodeTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E29C09D0131EC11A009E31FB /* NodeTrack.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -59,11 +59,11 @@
 		C7FB19D5124BC0D70045AFD2 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		C7FB19D5124BC0D70045AFD3 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		E1555A0A131E05140079B05A /* skydome.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = skydome.jpg; path = ../resources/skydome.jpg; sourceTree = SOURCE_ROOT; };
-		E1555A1E131E0CF40079B05A /* NodeAlbum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeAlbum.h; path = ../include/NodeAlbum.h; sourceTree = SOURCE_ROOT; };
-		E1555A1F131E0CFF0079B05A /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
 		E1555CA4131EEBEB0079B05A /* dotted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dotted.png; path = ../resources/dotted.png; sourceTree = SOURCE_ROOT; };
-		E1555CEC131EF92C0079B05A /* NodeTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeTrack.h; path = ../include/NodeTrack.h; sourceTree = SOURCE_ROOT; };
-		E1555CED131EF93C0079B05A /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
+		E1555D8B131F14B30079B05A /* NodeAlbum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeAlbum.h; path = ../include/NodeAlbum.h; sourceTree = SOURCE_ROOT; };
+		E1555D8C131F14B30079B05A /* NodeTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeTrack.h; path = ../include/NodeTrack.h; sourceTree = SOURCE_ROOT; };
+		E1555D8D131F14C00079B05A /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
+		E1555D8E131F14C00079B05A /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
 		E15C90AD1300B2A300FB8389 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo.png; path = ../resources/logo.png; sourceTree = SOURCE_ROOT; };
 		E15C90AE1300B2A300FB8389 /* UnitRoundedOT-Medi.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "UnitRoundedOT-Medi.otf"; path = "../resources/UnitRoundedOT-Medi.otf"; sourceTree = SOURCE_ROOT; };
 		E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "UnitRoundedOT-Ultra.otf"; path = "../resources/UnitRoundedOT-Ultra.otf"; sourceTree = SOURCE_ROOT; };
@@ -100,10 +100,6 @@
 		E1FC74B6130B256D007FE9D6 /* PinchEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinchEvent.h; sourceTree = "<group>"; };
 		E1FC74B7130B256D007FE9D6 /* SingleTapEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTapEvent.h; sourceTree = "<group>"; };
 		E1FC74B8130B256D007FE9D6 /* TapRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapRecognizer.h; sourceTree = "<group>"; };
-		E29C09CD131EC103009E31FB /* NodeAlbum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeAlbum.h; path = ../include/NodeAlbum.h; sourceTree = SOURCE_ROOT; };
-		E29C09CE131EC103009E31FB /* NodeTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeTrack.h; path = ../include/NodeTrack.h; sourceTree = SOURCE_ROOT; };
-		E29C09CF131EC11A009E31FB /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
-		E29C09D0131EC11A009E31FB /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -288,12 +284,10 @@
 		E1C601831318926C0022246C /* Nodes */ = {
 			isa = PBXGroup;
 			children = (
-				E29C09CF131EC11A009E31FB /* NodeAlbum.cpp */,
-				E29C09D0131EC11A009E31FB /* NodeTrack.cpp */,
 				E1C60186131892940022246C /* Node.cpp */,
 				E1C60321131C66F50022246C /* NodeArtist.cpp */,
-				E1555A1F131E0CFF0079B05A /* NodeAlbum.cpp */,
-				E1555CED131EF93C0079B05A /* NodeTrack.cpp */,
+				E1555D8D131F14C00079B05A /* NodeAlbum.cpp */,
+				E1555D8E131F14C00079B05A /* NodeTrack.cpp */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -301,12 +295,10 @@
 		E1C60184131892750022246C /* Nodes */ = {
 			isa = PBXGroup;
 			children = (
-				E29C09CD131EC103009E31FB /* NodeAlbum.h */,
-				E29C09CE131EC103009E31FB /* NodeTrack.h */,
 				E1C60185131892860022246C /* Node.h */,
 				E1C60320131C66E80022246C /* NodeArtist.h */,
-				E1555A1E131E0CF40079B05A /* NodeAlbum.h */,
-				E1555CEC131EF92C0079B05A /* NodeTrack.h */,
+				E1555D8B131F14B30079B05A /* NodeAlbum.h */,
+				E1555D8C131F14B30079B05A /* NodeTrack.h */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -421,8 +413,8 @@
 				E1C600051318490F0022246C /* World.cpp in Sources */,
 				E1C60187131892940022246C /* Node.cpp in Sources */,
 				E1C60322131C66F50022246C /* NodeArtist.cpp in Sources */,
-				E29C09D1131EC11A009E31FB /* NodeAlbum.cpp in Sources */,
-				E29C09D2131EC11A009E31FB /* NodeTrack.cpp in Sources */,
+				E1555D8F131F14C00079B05A /* NodeAlbum.cpp in Sources */,
+				E1555D90131F14C00079B05A /* NodeTrack.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

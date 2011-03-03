@@ -73,7 +73,7 @@ void Node::createNameTexture()
 	mNameTex = gl::Texture( layout.render( true, false ) );
 }
 
-void Node::update( const CameraPersp &cam, const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
+void Node::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.02f;
 	mMatrix		= mat;
@@ -81,14 +81,21 @@ void Node::update( const CameraPersp &cam, const Matrix44f &mat, const Vec3f &bb
 	mBbUp		= bbUp;
 	mTransPos	= mMatrix * mPos;
 	mSphere.setCenter( mTransPos );
-	
+
+	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->update( mat, bbRight, bbUp );
+	}
+}
+
+void Node::updateGraphics( const CameraPersp &cam )
+{
 	if( mIsHighlighted ){
 		mDistFromCamZAxis = cam.worldToEyeDepth( mTransPos );
 		mDistFromCamZAxisPer = constrain( mDistFromCamZAxis * -0.35f, 0.0f, 1.0f );
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->update( cam, mat, bbRight, bbUp );
+		(*nodeIt)->updateGraphics( cam );
 	}
 }
 

@@ -98,7 +98,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mTexCoords[t++]		= 1.0f;
 }
 
-void NodeTrack::update( const CameraPersp &cam, const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
+void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	if( mIsSelected ) mSphereRes = 32;
 	else mSphereRes = 16;
@@ -112,7 +112,7 @@ void NodeTrack::update( const CameraPersp &cam, const Matrix44f &mat, const Vec3
 	mPos		= mParentNode->mPos + mPosRel;
 	mVel		= mPos - mPosPrev;
 	
-	Node::update( cam, mat, bbRight, bbUp );
+	Node::update( mat, bbRight, bbUp );
 }
 
 void NodeTrack::drawSphere( vector< gl::Texture*> texs )
