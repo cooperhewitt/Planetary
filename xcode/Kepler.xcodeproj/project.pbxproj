@@ -288,6 +288,7 @@
 				E25C872D131F1420000780A3 /* NodeArtist.cpp */,
 				E25C8742131F14B3000780A3 /* NodeAlbum.cpp */,
 				E25C8743131F14B3000780A3 /* NodeTrack.cpp */,
+				E1C60186131892940022246C /* Node.cpp */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -299,6 +300,7 @@
 				E25C872B131F1415000780A3 /* NodeArtist.h */,
 				E25C8740131F14A5000780A3 /* NodeAlbum.h */,
 				E25C8741131F14A5000780A3 /* NodeTrack.h */,
+				E1C60185131892860022246C /* Node.h */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
