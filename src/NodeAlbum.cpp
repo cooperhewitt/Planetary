@@ -111,17 +111,18 @@ void NodeAlbum::drawPlanet()
 
 void NodeAlbum::select()
 {
-	int i=0;
-	for( Playlist::Iter it = mAlbum->begin(); it != mAlbum->end(); ++it ){
-		TrackRef track		= *it;
-		string name			= track->getTitle();
-		std::cout << "trackname = " << name << std::endl;
-		NodeTrack *newNode	= new NodeTrack( this, i, mFont, name );
-		mChildNodes.push_back( newNode );
-		newNode->setData( track, mAlbum );
-		i++;
-	}
-	
+	if (!mIsSelected) {
+		int i=0;
+		for( Playlist::Iter it = mAlbum->begin(); it != mAlbum->end(); ++it ){
+			TrackRef track		= *it;
+			string name			= track->getTitle();
+			std::cout << "trackname = " << name << std::endl;
+			NodeTrack *newNode	= new NodeTrack( this, i, mFont, name );
+			mChildNodes.push_back( newNode );
+			newNode->setData( track, mAlbum );
+			i++;
+		}
+	}	
 	Node::select();
 }
 
