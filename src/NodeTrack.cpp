@@ -27,9 +27,10 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font, std::string nam
 	//mRadius			*= 0.75f;
 	mIsPlaying		= false;
 	
-	float hue		= Rand::randFloat( 0.7f );
-	float sat		= 1.0f - sin( hue * 1.6f * M_PI );
-	mColor			= Color( CM_HSV, hue, sat * 0.65f, 1.0f );
+	float hue		= Rand::randFloat();
+	float sat		= Rand::randFloat( 0.2f, 0.7f);
+	float val		= Rand::randFloat( 0.7f, 1.0f);
+	mColor			= Color( CM_HSV, hue, sat, val );
 	mAtmosphereColor = Color( CM_HSV, Rand::randFloat(), 0.45f, 1.0f );
 }
 
@@ -44,7 +45,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
 	
-	mRadius			= mRadius * pow( normPlayCount + 0.85f, 2.0f ) * 1.5f;
+	mRadius			= mRadius * pow( normPlayCount + 0.75f, 2.0f );
 	mOrbitPeriod	= mTrackLength;
 	mAxisAngle		= Rand::randFloat( 5.0f, 30.0f );
 	
@@ -112,6 +113,11 @@ void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	mPos		= mParentNode->mPos + mPosRel;
 	mVel		= mPos - mPosPrev;
 	
+	float zoomOffset = 0.0f;
+	if( mIsSelected ) zoomOffset = 1.0f;
+	else if( mIsHighlighted ) zoomOffset = 0.5f;
+	mZoomPer	= constrain( 1.0f - abs( G_ZOOM-mGen+1.0f ), 0.0f, zoomOffset );
+	
 	Node::update( mat, bbRight, bbUp );
 }
 
@@ -133,5 +139,7 @@ void NodeTrack::select()
 	mPlayer->play( mAlbum, mIndex );
 	mIsPlaying = true;
 	*/
+	
+	Node::select();
 }
 
