@@ -459,12 +459,12 @@ void KeplerApp::setParamsTex()
 	layout.setFont( mFonts[4] );
 	layout.setColor( Color( 0.3f, 0.3f, 1.0f ) );
 
-	int currentLevel = 0;
-	if (mState.getAlphaChar() != ' ') {
-		currentLevel = 1;
-	}
+	int currentLevel = G_HOME_LEVEL;
 	if (mState.getSelectedNode()) {
 		currentLevel = mState.getSelectedNode()->mGen;
+	}
+	else if (mState.getAlphaChar() != ' ') {
+		currentLevel = G_ALPHA_LEVEL;
 	}
 	
 	stringstream s;
