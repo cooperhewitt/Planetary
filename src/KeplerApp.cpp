@@ -382,8 +382,9 @@ void KeplerApp::draw()
 	
 	
 	// PLANETS
-	Node *trackNode = mState.getSelectedNode();
-	if( trackNode && trackNode->mGen == G_TRACK_LEVEL ){
+	Node *albumNode  = mState.getSelectedAlbumNode();
+	Node *artistNode = mState.getSelectedArtistNode();
+	if( artistNode && albumNode ){
 		glEnable( GL_LIGHTING );
 		glEnable( GL_LIGHT0 );
 		glEnable( GL_LIGHT1 );
@@ -394,9 +395,6 @@ void KeplerApp::draw()
 		glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );
 		//glMaterialfv( GL_FRONT, GL_EMISSION, mat_emission );
 		
-		Node *albumNode  = trackNode->mParentNode;
-		Node *artistNode = albumNode->mParentNode;
-
 		// LIGHT FROM ALBUM
 		Vec3f albumLightPos		= albumNode->mTransPos;
 		GLfloat albumLight[]	= { albumLightPos.x, albumLightPos.y, albumLightPos.z, 1.0f };
