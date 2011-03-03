@@ -46,8 +46,14 @@ void State::setSelectedNode( Node* node )
 		mSelectedNode = NULL;
 	}
 	else {
-		// ensure that this selection is selected
-		Node *selection = node;
+		// clear currently selected node and all parents
+		Node *selection = mSelectedNode;
+		while( selection != NULL ) {
+			selection->deselect();
+			selection = selection->mParentNode;
+		}
+		// ensure that the new selection hierarchy is selected
+		selection = node;
 		while( selection != NULL ) {
 			if ( !selection->mIsSelected ) {
 				selection->select();
