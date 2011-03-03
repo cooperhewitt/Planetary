@@ -36,6 +36,24 @@ class State {
 	CallbackId registerNodeSelected( T *obj, bool (T::*callback)(Node*) ){
 		return mCallbacksNodeSelected.registerCb(std::bind1st(std::mem_fun(callback), obj));
 	}	
+	
+	Node* getSelectedArtistNode() { 
+		return getNodeAtLevel(G_ARTIST_LEVEL);
+	}
+	Node* getSelectedAlbumNode() { 
+		return getNodeAtLevel(G_ALBUM_LEVEL);
+	}
+	
+	Node* getNodeAtLevel(int level) {
+		if ( mSelectedNode != NULL && mSelectedNode->mGen >= level ) {
+			Node *retNode = mSelectedNode;
+			while ( retNode->mGen != level) {
+				retNode = retNode->mParentNode;
+			}
+			return retNode;
+		}
+		return NULL;
+	}
 
 	std::vector<std::string> getHierarchy();
 	//std::map<u_int8_t, Node*> mMapOfNodes;
