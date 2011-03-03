@@ -64,13 +64,7 @@ void NodeAlbum::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	mPos		= mParentNode->mPos + mPosRel;
 	//mVel		= mPos - mPosPrev;
 	mVel		= mPosRel - oldPosRel;
-	
-	
-	float zoomOffset = 0.0f;
-	if( mIsSelected ) zoomOffset = 1.0f;
-	else if( mIsHighlighted ) zoomOffset = 0.5f;
-	mZoomPer	= constrain( 1.0f - ( G_ZOOM-mGen ), 0.0f, zoomOffset );
-	
+
 	Node::update( mat, bbRight, bbUp );
 }
 

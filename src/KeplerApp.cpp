@@ -313,7 +313,11 @@ void KeplerApp::updateCamera()
 	} else {
 		mCamDistDest	= G_INIT_CAM_DIST;
 		mCenterDest		= mMatrix.transformPointAffine( Vec3f::zero() );
-		mZoomDest		= 0.0f;
+
+		mZoomDest		= G_HOME_LEVEL;
+		if( mState.getAlphaChar() != ' ' ){
+			mZoomDest	= G_ALPHA_LEVEL;
+		}
 	}
 	
 	
@@ -322,7 +326,7 @@ void KeplerApp::updateCamera()
 	if( mUiLayer.getShowWheel() ){
 		mFovDest = 120.0f;
 	} else {
-		mFovDest = 90.0f - G_ZOOM * 4.0f;
+		mFovDest = 100.0f - G_ZOOM * 5.0f;
 	}
 	mFov -= ( mFov - mFovDest ) * 0.2f;
 	

@@ -84,6 +84,9 @@ void Node::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp
 	mSphere.setCenter( mTransPos );
 	if( mIsSelected ) mSphere.setRadius( mRadius );
 	else mSphere.setRadius( mRadius * 3.0f );
+	
+	mZoomPer	= constrain( 1.0f - abs( G_ZOOM-mGen+1.0f ), 0.0f, 1.0f );
+	if( mIsSelected ) mZoomPer = 1.0f;
 
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->update( mat, bbRight, bbUp );
