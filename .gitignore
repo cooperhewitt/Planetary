@@ -17,3 +17,5 @@ Release/
 
 # Python
 *.pyc
+
+/xcode/Kepler.xcodeproj/project.pbxproj.mergesave

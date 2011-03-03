@@ -39,12 +39,9 @@
 		E1C60187131892940022246C /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C60186131892940022246C /* Node.cpp */; };
 		E1C6FFF3131847A40022246C /* Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C6FFF2131847A40022246C /* Data.cpp */; };
 		E1E663701317887F00E5E4B9 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E6636F1317887F00E5E4B9 /* State.cpp */; };
-<<<<<<< HEAD
-=======
 		E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C872D131F1420000780A3 /* NodeArtist.cpp */; };
 		E25C8744131F14B3000780A3 /* NodeAlbum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8742131F14B3000780A3 /* NodeAlbum.cpp */; };
 		E25C8745131F14B3000780A3 /* NodeTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8743131F14B3000780A3 /* NodeTrack.cpp */; };
->>>>>>> 37183c588d5560ffca6ceb7ae29bd468662cd7b7
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,13 +62,10 @@
 		C7FB19D5124BC0D70045AFD3 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		E1555A0A131E05140079B05A /* skydome.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = skydome.jpg; path = ../resources/skydome.jpg; sourceTree = SOURCE_ROOT; };
 		E1555CA4131EEBEB0079B05A /* dotted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dotted.png; path = ../resources/dotted.png; sourceTree = SOURCE_ROOT; };
-<<<<<<< HEAD
 		E1555D8B131F14B30079B05A /* NodeAlbum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeAlbum.h; path = ../include/NodeAlbum.h; sourceTree = SOURCE_ROOT; };
 		E1555D8C131F14B30079B05A /* NodeTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeTrack.h; path = ../include/NodeTrack.h; sourceTree = SOURCE_ROOT; };
 		E1555D8D131F14C00079B05A /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
 		E1555D8E131F14C00079B05A /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
-=======
->>>>>>> 37183c588d5560ffca6ceb7ae29bd468662cd7b7
 		E15C90AD1300B2A300FB8389 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo.png; path = ../resources/logo.png; sourceTree = SOURCE_ROOT; };
 		E15C90AE1300B2A300FB8389 /* UnitRoundedOT-Medi.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "UnitRoundedOT-Medi.otf"; path = "../resources/UnitRoundedOT-Medi.otf"; sourceTree = SOURCE_ROOT; };
 		E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "UnitRoundedOT-Ultra.otf"; path = "../resources/UnitRoundedOT-Ultra.otf"; sourceTree = SOURCE_ROOT; };
@@ -106,15 +100,12 @@
 		E1FC74B6130B256D007FE9D6 /* PinchEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinchEvent.h; sourceTree = "<group>"; };
 		E1FC74B7130B256D007FE9D6 /* SingleTapEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTapEvent.h; sourceTree = "<group>"; };
 		E1FC74B8130B256D007FE9D6 /* TapRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapRecognizer.h; sourceTree = "<group>"; };
-<<<<<<< HEAD
-=======
 		E25C872B131F1415000780A3 /* NodeArtist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeArtist.h; path = ../include/NodeArtist.h; sourceTree = SOURCE_ROOT; };
 		E25C872D131F1420000780A3 /* NodeArtist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeArtist.cpp; path = ../src/NodeArtist.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8740131F14A5000780A3 /* NodeAlbum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeAlbum.h; path = ../include/NodeAlbum.h; sourceTree = SOURCE_ROOT; };
 		E25C8741131F14A5000780A3 /* NodeTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeTrack.h; path = ../include/NodeTrack.h; sourceTree = SOURCE_ROOT; };
 		E25C8742131F14B3000780A3 /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8743131F14B3000780A3 /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
->>>>>>> 37183c588d5560ffca6ceb7ae29bd468662cd7b7
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -299,17 +290,13 @@
 		E1C601831318926C0022246C /* Nodes */ = {
 			isa = PBXGroup;
 			children = (
-<<<<<<< HEAD
 				E1C60186131892940022246C /* Node.cpp */,
-				E1C60321131C66F50022246C /* NodeArtist.cpp */,
 				E1555D8D131F14C00079B05A /* NodeAlbum.cpp */,
 				E1555D8E131F14C00079B05A /* NodeTrack.cpp */,
-=======
 				E25C8742131F14B3000780A3 /* NodeAlbum.cpp */,
 				E25C8743131F14B3000780A3 /* NodeTrack.cpp */,
 				E25C872D131F1420000780A3 /* NodeArtist.cpp */,
 				E1C60186131892940022246C /* Node.cpp */,
->>>>>>> 37183c588d5560ffca6ceb7ae29bd468662cd7b7
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -317,17 +304,13 @@
 		E1C60184131892750022246C /* Nodes */ = {
 			isa = PBXGroup;
 			children = (
-<<<<<<< HEAD
 				E1C60185131892860022246C /* Node.h */,
-				E1C60320131C66E80022246C /* NodeArtist.h */,
 				E1555D8B131F14B30079B05A /* NodeAlbum.h */,
 				E1555D8C131F14B30079B05A /* NodeTrack.h */,
-=======
 				E25C8740131F14A5000780A3 /* NodeAlbum.h */,
 				E25C8741131F14A5000780A3 /* NodeTrack.h */,
 				E25C872B131F1415000780A3 /* NodeArtist.h */,
 				E1C60185131892860022246C /* Node.h */,
->>>>>>> 37183c588d5560ffca6ceb7ae29bd468662cd7b7
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -441,15 +424,11 @@
 				E1C6FFF3131847A40022246C /* Data.cpp in Sources */,
 				E1C600051318490F0022246C /* World.cpp in Sources */,
 				E1C60187131892940022246C /* Node.cpp in Sources */,
-<<<<<<< HEAD
-				E1C60322131C66F50022246C /* NodeArtist.cpp in Sources */,
 				E1555D8F131F14C00079B05A /* NodeAlbum.cpp in Sources */,
 				E1555D90131F14C00079B05A /* NodeTrack.cpp in Sources */,
-=======
 				E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */,
 				E25C8744131F14B3000780A3 /* NodeAlbum.cpp in Sources */,
 				E25C8745131F14B3000780A3 /* NodeTrack.cpp in Sources */,
->>>>>>> 37183c588d5560ffca6ceb7ae29bd468662cd7b7
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
