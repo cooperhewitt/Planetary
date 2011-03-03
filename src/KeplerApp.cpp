@@ -26,7 +26,7 @@ using std::stringstream;
 int G_CURRENT_LEVEL		= 0;
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
-GLfloat mat_ambient[]	= { 0.2, 0.1, 0.3, 1.0 };
+GLfloat mat_ambient[]	= { 0.02, 0.02, 0.05, 1.0 };
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 
 float easeInOutQuad( double t, float b, float c, double d );
@@ -295,15 +295,15 @@ void KeplerApp::updateCamera()
 {
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){
-		float radiusMulti = 5.0f - ( selectedNode->mGen * 2.0f );
+		float radiusMulti = 5.0f - ( selectedNode->mGen );
 		
 		mCamDistDest	= ( selectedNode->mRadius * radiusMulti  );
 		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
 		mZoomDest		= selectedNode->mGen;
 		
 		// TODO: probably should uncomment this?
-		//if( selectedNode->mParentNode )
-		//	mCenterFrom		+= selectedNode->mParentNode->mVel;
+		if( selectedNode->mParentNode )
+			mCenterFrom		+= selectedNode->mParentNode->mVel;
 
 	} else {
 		mCamDistDest	= G_INIT_CAM_DIST;
@@ -317,7 +317,7 @@ void KeplerApp::updateCamera()
 	if( mUiLayer.getShowWheel() ){
 		mFovDest = 120.0f;
 	} else {
-		mFovDest = 100.0f;
+		mFovDest = 100.0f - G_ZOOM * 10.0f;
 	}
 	mFov -= ( mFov - mFovDest ) * 0.2f;
 	
@@ -330,7 +330,7 @@ void KeplerApp::updateCamera()
 	mEye				= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist );
 	mCamVel				= mEye - prevEye;
 	
-	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.01f, 4000.0f );
+	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.0001f, 4000.0f );
 	mCam.lookAt( mEye, mCenter, mUp );
 	mCam.getBillboardVectors( &mBbRight, &mBbUp );
 }
@@ -363,9 +363,6 @@ void KeplerApp::draw()
 	mWorld.drawStars();
 	mStarTex.disable();
 	
-	// ORBITS
-	mWorld.drawOrbitalRings();
-	
 	
 	// CONSTELLATION
 	mDottedTex.enableAndBind();
@@ -380,7 +377,7 @@ void KeplerApp::draw()
 	
 	
 	// PLANETS
-	if( mState.mMapOfNodes[0] && mState.mMapOfNodes[1] ){
+	if( mState.mMapOfNodes[1] && mState.mMapOfNodes[2] ){
 		glEnable( GL_LIGHTING );
 		glEnable( GL_LIGHT0 );
 		glEnable( GL_LIGHT1 );
@@ -393,16 +390,16 @@ void KeplerApp::draw()
 		
 
 		// LIGHT FROM ALBUM
-		Vec3f albumLightPos		= mState.mMapOfNodes[1]->mTransPos;
+		Vec3f albumLightPos		= mState.mMapOfNodes[2]->mTransPos;
 		GLfloat albumLight[]	= { albumLightPos.x, albumLightPos.y, albumLightPos.z, 1.0f };
-		Color albumDiffuse		= mState.mMapOfNodes[1]->mColor;
+		Color albumDiffuse		= mState.mMapOfNodes[2]->mGlowColor;
 		glLightfv( GL_LIGHT0, GL_POSITION, albumLight );
 		glLightfv( GL_LIGHT0, GL_DIFFUSE, albumDiffuse );
 
 		// LIGHT FROM ARTIST
-		Vec3f artistLightPos	= mState.mMapOfNodes[0]->mTransPos;
+		Vec3f artistLightPos	= mState.mMapOfNodes[1]->mTransPos;
 		GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
-		Color artistDiffuse		= mState.mMapOfNodes[0]->mColor * 0.25f;
+		Color artistDiffuse		= mState.mMapOfNodes[1]->mGlowColor;
 		glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
 		glLightfv( GL_LIGHT1, GL_DIFFUSE, artistDiffuse );
 
@@ -410,10 +407,12 @@ void KeplerApp::draw()
 		gl::disableAlphaBlending();
 		mWorld.drawPlanets();
 		glDisable( GL_LIGHTING );
-		gl::disableDepthRead();
 	}
 	
-	
+	// ORBITS
+	gl::enableAdditiveBlending();
+	mWorld.drawOrbitalRings();
+	gl::disableDepthRead();
 
 	// NAMES
 	gl::disableDepthWrite();
@@ -429,7 +428,7 @@ void KeplerApp::draw()
 	mBreadcrumbs.draw();
 	mState.draw( mFonts[4] );
 	
-	drawInfoPanel();
+	//drawInfoPanel();
 }
 
 

@@ -28,7 +28,7 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string nam
 	mColor			= Color( CM_HSV, hue, sat * 0.5f, 1.0f );
 	mGlowColor		= Color( CM_HSV, hue + 0.15f, sat, 1.0f );
 	
-	mSphere.setRadius( mSphere.getRadius() * 5.0f );
+
 }
 
 
@@ -64,6 +64,12 @@ void NodeAlbum::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	mPos		= mParentNode->mPos + mPosRel;
 	//mVel		= mPos - mPosPrev;
 	mVel		= mPosRel - oldPosRel;
+	
+	
+	float zoomOffset = 0.0f;
+	if( mIsSelected ) zoomOffset = 1.0f;
+	else if( mIsHighlighted ) zoomOffset = 0.5f;
+	mZoomPer	= constrain( 1.0f - abs( G_ZOOM-mGen+1.0f ), 0.0f, zoomOffset );
 	
 	Node::update( mat, bbRight, bbUp );
 }
@@ -105,6 +111,23 @@ void NodeAlbum::drawOrbitalRings()
 
 void NodeAlbum::drawPlanet()
 {
+	/*
+	gl::color( mColor );
+	glDisable( GL_LIGHTING );
+	gl::drawSphere( mTransPos, mRadius * 0.175f, 32 );
+	glEnable( GL_LIGHTING );
+	*/
+	
+	if( mIsSelected ){
+		glDisable( GL_LIGHTING );
+		gl::pushModelView();
+		gl::translate( mTransPos );
+		gl::color( mColor * 2.0f );
+		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.2f, 150 );
+		gl::popModelView();
+		glEnable( GL_LIGHTING );
+	}
+		
 	Node::drawPlanet();
 }
 

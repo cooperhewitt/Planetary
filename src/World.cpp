@@ -14,6 +14,7 @@
 #include "cinder/Rect.h"
 #include "cinder/Text.h"
 #include "cinder/Rand.h"
+#include "Globals.h"
 
 using std::stringstream;
 using namespace ci;
@@ -133,9 +134,10 @@ void World::drawPlanets()
 void World::drawConstellation( const Matrix44f &mat )
 {
 	if( mTotalVertices > 1 ){
+		float zoomPer = 1.0f - G_ZOOM;
 		gl::pushModelView();
 		gl::rotate( mat );
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, zoomPer ) );
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glEnableClientState( GL_COLOR_ARRAY );

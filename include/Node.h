@@ -74,7 +74,8 @@ class Node {
 	float				mLowestPlayCount;	// Album: used to normalize track playcount data
 	float				mDistFromCamZAxis;	// Node's distance from Cam eye
 	float				mDistFromCamZAxisPer; // normalized range.
-	
+	float				mSphereScreenRadius;// mSphere radius in screenspace
+	float				mZoomPer;			// 0.0 to 1.0 to 0.0 based on zoom level vs mgen
 	// NAME
 	std::string			mName;				// Name of the node
 	ci::Font			mFont;

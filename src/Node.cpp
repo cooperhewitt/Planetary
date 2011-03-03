@@ -28,11 +28,12 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 	createNameTexture();
 	
 	mTransPos			= mPos;
-	mSphere				= Sphere( mPos, mRadius * 2.0f );
+	mSphere				= Sphere( mPos, mRadius * 1.5f );
 	
 	mStartAngle			= Rand::randFloat( TWO_PI );
 	mOrbitAngle			= mStartAngle;
 	mOrbitPeriod		= Rand::randFloat( 25.0f, 150.0f );
+	mOrbitRadius		= 0.01f;
 	mAngularVelocity	= 0.0f;
 	mPercentPlayed		= 0.0f;
 	mDistFromCamZAxis	= 1000.0f;
@@ -44,7 +45,7 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 
 void Node::init()
 {
-	mGen				= 0;
+	mGen				= 1;
 	mRadius				= 2.0f;
 	mPos				= Rand::randVec3f();
 	mPosPrev			= mPos;
@@ -92,6 +93,7 @@ void Node::updateGraphics( const CameraPersp &cam )
 	if( mIsHighlighted ){
 		mDistFromCamZAxis = cam.worldToEyeDepth( mTransPos );
 		mDistFromCamZAxisPer = constrain( mDistFromCamZAxis * -0.35f, 0.0f, 1.0f );
+		mSphereScreenRadius = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() ) * 0.4f;
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
@@ -113,12 +115,15 @@ void Node::drawStarGlow()
 	}
 }
 
+
+// DEPRECATED
 void Node::drawName()
 {	
+	
 	if( mIsHighlighted ){
-		gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, mZoomPer ) );
 		mNameTex.enableAndBind();
-		Vec3f pos	= mTransPos + mBbRight * ( mNameTex.getWidth() * 0.075f + mRadius );
+		Vec3f pos	= mTransPos + mBbRight * ( mNameTex.getWidth() * 0.075f );
 		Vec2f size	= Vec2f( mNameTex.getWidth(), mNameTex.getHeight() );
 		gl::drawBillboard( pos, size, 0.0f, mBbRight, mBbUp );
 		for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
@@ -131,13 +136,14 @@ void Node::drawOrthoName( const CameraPersp &cam )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
 		if( mIsSelected ){
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			gl::color( ColorA( 1.0f, 1.0f, 1.0f, mZoomPer ) );
 		} else {
-			gl::color( ColorA( mColor, 0.5f ) );
+			gl::color( ColorA( mColor, mZoomPer ) );
 		}
 		
-		Vec2f pos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() ) + Vec2f( mRadius * 4.0f, -mNameTex.getHeight() * 0.5f );
-		//if( G_LOCK_TO_LEFT_SIDE ) pos.x = app::getWindowWidth() - mNameTex.getWidth() - 10.0f;
+		
+		Vec2f offset = Vec2f( mRadius * 6.0f + mSphereScreenRadius * 0.5f, -mNameTex.getHeight() * 0.5f );
+		Vec2f pos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() ) + offset;
 
 		gl::draw( mNameTex, pos );
 	}
@@ -151,7 +157,7 @@ void Node::drawSphere()
 {
 	if( mIsHighlighted ){
 		gl::color( ColorA( mGlowColor, 0.05f ) );
-		gl::draw( mSphere, 32 );
+		gl::draw( mSphere, 16 );
 		
 		for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 			(*nodeIt)->drawSphere();
