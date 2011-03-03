@@ -21,6 +21,7 @@ class NodeArtist : public Node
 	void drawStar();
 	void drawStarGlow();
 	void drawOrbitalRings();
+	void drawPlanet();
 	void select();
 	
 	ci::Vec3f mPosDest;

@@ -115,7 +115,7 @@ void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	Node::update( mat, bbRight, bbUp );
 }
 
-void NodeTrack::drawSphere( vector< gl::Texture*> texs )
+void NodeTrack::drawPlanet()
 {
 	gl::color( mColor );
 	gl::pushModelView();

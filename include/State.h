@@ -38,7 +38,7 @@ class State {
 	}	
 
 	std::vector<std::string> getHierarchy();
-	
+	std::map<u_int8_t, Node*> mMapOfNodes;
  private:
 	CallbackMgr<bool(State*)> mCallbacksAlphaCharStateChanged;	
 	CallbackMgr<bool(Node*)> mCallbacksNodeSelected;
@@ -46,7 +46,7 @@ class State {
 	// Keep track of selected NODES and levels
 	Node			*mSelectedNode;
 	//Node			*mPrevSelectedNode;
-	std::map<u_int8_t, Node*> mMapOfNodes;
+	
 	
 	char mAlphaChar;
 };

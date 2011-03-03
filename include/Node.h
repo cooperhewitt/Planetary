@@ -37,6 +37,7 @@ class Node {
 	void				drawName();
 	void				drawOrthoName( const ci::CameraPersp &cam );
 	void				drawSphere();
+	virtual void		drawPlanet();
 	virtual void		drawOrbitalRings();
 	void				checkForSphereIntersect( Node* &theNode, const ci::Ray &ray, ci::Matrix44f &mat );
 	virtual void		select();

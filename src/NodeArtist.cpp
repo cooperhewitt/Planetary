@@ -79,6 +79,11 @@ void NodeArtist::drawOrbitalRings()
 	}
 }
 
+void NodeArtist::drawPlanet()
+{
+	Node::drawPlanet();
+}
+
 void NodeArtist::select()
 {
 	vector<ipod::PlaylistRef> albumsBySelectedArtist = getAlbumsWithArtist( mName );

@@ -103,6 +103,11 @@ void NodeAlbum::drawOrbitalRings()
 	}
 }
 
+void NodeAlbum::drawPlanet()
+{
+	Node::drawPlanet();
+}
+
 
 void NodeAlbum::select()
 {

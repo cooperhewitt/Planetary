@@ -27,4 +27,5 @@ static const float G_INIT_CAM_DIST	= 200.0f;
 
 // TODO: move into State.h
 extern int	G_CURRENT_LEVEL;
-extern bool G_SHOW_HIT_SPHERES;
+extern float G_ZOOM;
+extern bool G_DEBUG;

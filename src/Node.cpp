@@ -163,6 +163,13 @@ void Node::drawOrbitalRings()
 {
 }
 
+void Node::drawPlanet()
+{
+	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->drawPlanet();
+	}
+}
+
 void Node::checkForSphereIntersect( Node* &theNode, const Ray &ray, Matrix44f &mat )
 {
 	if( ! theNode ){

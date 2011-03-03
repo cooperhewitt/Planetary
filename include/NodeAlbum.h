@@ -21,6 +21,7 @@ class NodeAlbum : public Node
 	void drawStar();
 	void drawStarGlow();
 	void drawOrbitalRings();
+	void drawPlanet();
 	void select();
 	void setData( ci::ipod::PlaylistRef album );
 	//void selectNextTrack( Node *nodeSelected, string trackName );

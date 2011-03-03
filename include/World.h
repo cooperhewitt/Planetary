@@ -35,6 +35,7 @@ class World {
 	void drawOrbitalRings();
 	void drawConstellation( const ci::Matrix44f &mat );
 	void buildConstellation();
+	void drawPlanets();
 	
 	Data *mData;
 	

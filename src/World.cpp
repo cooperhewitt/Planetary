@@ -123,6 +123,13 @@ void World::drawOrbitalRings()
 	}
 }
 
+void World::drawPlanets()
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->drawPlanet();
+	}
+}
+
 void World::drawConstellation( const Matrix44f &mat )
 {
 	if( mTotalVertices > 1 ){

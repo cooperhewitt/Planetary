@@ -15,14 +15,19 @@
 #include "Breadcrumbs.h"
 #include "BreadcrumbEvent.h"
 #include <vector>
+#include <sstream>
 
 using std::vector;
 using namespace ci;
 using namespace ci::app;
 using namespace std;
+using std::stringstream;
 
-int G_CURRENT_LEVEL	= 0;
-bool G_SHOW_HIT_SPHERES = false;
+int G_CURRENT_LEVEL		= 0;
+float G_ZOOM			= 0;
+bool G_DEBUG			= false;
+GLfloat mat_ambient[]	= { 0.2, 0.1, 0.3, 1.0 };
+GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 
 float easeInOutQuad( double t, float b, float c, double d );
 Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
@@ -38,6 +43,8 @@ class KeplerApp : public AppCocoaTouch {
 	void			updateArcball();
 	void			updateCamera();
 	virtual void	draw();
+	void			drawInfoPanel();
+	void			setParamsTex();
 	bool			onAlphaCharStateChanged( State *state );
 	bool			onAlphaCharSelected( UiLayer *uiLayer );
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
@@ -58,6 +65,7 @@ class KeplerApp : public AppCocoaTouch {
 	Vec3f			mCamVel;
 	Vec3f			mCenterDest, mCenterFrom;
 	float			mCamDist, mCamDistDest, mCamDistFrom, mCamDistDestMulti;
+	float			mZoomFrom, mZoomDest;
 	Arcball			mArcball;
 	Matrix44f		mMatrix;
 	Vec3f			mBbRight, mBbUp;
@@ -75,6 +83,7 @@ class KeplerApp : public AppCocoaTouch {
 	
 	
 	// TEXTURES
+	gl::Texture		mParamsTex;
 	gl::Texture		mStarTex;
 	gl::Texture		mStarGlowTex;
 	gl::Texture		mSkyDome;
@@ -127,6 +136,7 @@ void KeplerApp::setup()
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
+	mParamsTex			= gl::Texture( 768, 75 );
 	
 	// BREADCRUMBS
 	mBreadcrumbs.setup( this, mFonts[3] );
@@ -222,7 +232,8 @@ bool KeplerApp::onNodeSelected( Node *node )
 {
 	mTime			= getElapsedSeconds();
 	mCenterFrom		= mCenter;
-	mCamDistFrom	= mCamDist;				
+	mCamDistFrom	= mCamDist;	
+	mZoomFrom		= G_ZOOM;			
 	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
 	return false;
 }
@@ -288,13 +299,16 @@ void KeplerApp::updateCamera()
 		
 		mCamDistDest	= ( selectedNode->mRadius * radiusMulti  );
 		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
+		mZoomDest		= selectedNode->mGen;
 		
+		// TODO: probably should uncomment this?
 		//if( selectedNode->mParentNode )
 		//	mCenterFrom		+= selectedNode->mParentNode->mVel;
 
 	} else {
 		mCamDistDest	= G_INIT_CAM_DIST;
 		mCenterDest		= mMatrix.transformPointAffine( Vec3f::zero() );
+		mZoomDest		= 0.0f;
 	}
 	
 	
@@ -310,6 +324,7 @@ void KeplerApp::updateCamera()
 	double p	= constrain( getElapsedSeconds()-mTime, 0.0, G_DURATION );
 	mCenter		= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, G_DURATION );
 	mCamDist	= easeInOutQuad( p, mCamDistFrom, mCamDistDest*mCamDistDestMulti - mCamDistFrom, G_DURATION );
+	G_ZOOM		= easeInOutQuad( p, mZoomFrom, mZoomDest - mZoomFrom, G_DURATION );
 	
 	Vec3f prevEye		= mEye;
 	mEye				= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist );
@@ -357,15 +372,50 @@ void KeplerApp::draw()
 	mWorld.drawConstellation( mMatrix );
 	mDottedTex.disable();
 			
-	if( G_SHOW_HIT_SPHERES ){
+	if( G_DEBUG ){
 		// VISUALIZE THE HIT AREA
 		glDisable( GL_TEXTURE_2D );
 		mWorld.drawSpheres();
 	}
 	
-	//mWorld.drawNames();
-	//glDisable( GL_TEXTURE_2D );
 	
+	// PLANETS
+	if( mState.mMapOfNodes[0] && mState.mMapOfNodes[1] ){
+		glEnable( GL_LIGHTING );
+		glEnable( GL_LIGHT0 );
+		glEnable( GL_LIGHT1 );
+		glEnable ( GL_COLOR_MATERIAL ) ;
+		glShadeModel(GL_SMOOTH);
+					
+		glMaterialfv( GL_FRONT, GL_AMBIENT, mat_ambient );
+		glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );
+		//glMaterialfv( GL_FRONT, GL_EMISSION, mat_emission );
+		
+
+		// LIGHT FROM ALBUM
+		Vec3f albumLightPos		= mState.mMapOfNodes[1]->mTransPos;
+		GLfloat albumLight[]	= { albumLightPos.x, albumLightPos.y, albumLightPos.z, 1.0f };
+		Color albumDiffuse		= mState.mMapOfNodes[1]->mColor;
+		glLightfv( GL_LIGHT0, GL_POSITION, albumLight );
+		glLightfv( GL_LIGHT0, GL_DIFFUSE, albumDiffuse );
+
+		// LIGHT FROM ARTIST
+		Vec3f artistLightPos	= mState.mMapOfNodes[0]->mTransPos;
+		GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
+		Color artistDiffuse		= mState.mMapOfNodes[0]->mColor * 0.25f;
+		glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
+		glLightfv( GL_LIGHT1, GL_DIFFUSE, artistDiffuse );
+
+		gl::enableDepthRead();
+		gl::disableAlphaBlending();
+		mWorld.drawPlanets();
+		glDisable( GL_LIGHTING );
+		gl::disableDepthRead();
+	}
+	
+	
+
+	// NAMES
 	gl::disableDepthWrite();
 	glEnable( GL_TEXTURE_2D );
 	gl::setMatricesWindow( getWindowSize() );
@@ -378,7 +428,48 @@ void KeplerApp::draw()
 	mUiLayer.draw();
 	mBreadcrumbs.draw();
 	mState.draw( mFonts[4] );
+	
+	drawInfoPanel();
 }
+
+
+
+void KeplerApp::drawInfoPanel()
+{
+	gl::setMatricesWindow( getWindowSize() );
+	if( getElapsedFrames() % 30 == 0 ){
+		setParamsTex();
+	}
+	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+	gl::draw( mParamsTex, Vec2f( 0.0f, 0.0f ) );
+}
+
+
+void KeplerApp::setParamsTex()
+{
+	TextLayout layout;	
+	layout.setFont( mFonts[4] );
+	layout.setColor( Color( 0.3f, 0.3f, 1.0f ) );
+	
+	stringstream s;
+
+	s.str("");
+	s << " CURRENT LEVEL: " << G_CURRENT_LEVEL;
+	layout.addLine( s.str() );
+	
+	s.str("");
+	s << " FPS: " << getAverageFps();
+	layout.addLine( s.str() );
+	
+	s.str("");
+	s << " ZOOM LEVEL: " << G_ZOOM;
+	layout.setColor( Color( 0.0f, 1.0f, 1.0f ) );
+	layout.addLine( s.str() );
+	
+	mParamsTex = gl::Texture( layout.render( true, false ) );
+}
+
+
 
 
 CINDER_APP_COCOA_TOUCH( KeplerApp, RendererGl )

@@ -105,7 +105,7 @@ bool UiLayer::touchesEnded( TouchEvent event )
 	}
 	
 	if( mTouchPos.x < 50.0f && mTouchPos.y < 50.0f ){
-		G_SHOW_HIT_SPHERES = !G_SHOW_HIT_SPHERES;
+		G_DEBUG = !G_DEBUG;
 	}
 	
 	selectWheelItem( mTouchPos, true );
