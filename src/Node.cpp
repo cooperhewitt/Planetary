@@ -45,7 +45,7 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 
 void Node::init()
 {
-	mGen				= G_ARTIST_LEVELa;
+	mGen				= G_ARTIST_LEVEL;
 	mRadius				= 2.0f;
 	mPos				= Rand::randVec3f();
 	mPosPrev			= mPos;
@@ -82,6 +82,8 @@ void Node::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp
 	mBbUp		= bbUp;
 	mTransPos	= mMatrix * mPos;
 	mSphere.setCenter( mTransPos );
+	if( mIsSelected ) mSphere.setRadius( mRadius );
+	else mSphere.setRadius( mRadius * 3.0f );
 
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->update( mat, bbRight, bbUp );

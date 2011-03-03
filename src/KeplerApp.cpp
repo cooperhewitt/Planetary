@@ -300,7 +300,7 @@ void KeplerApp::updateCamera()
 {
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){
-		float radiusMulti = 5.0f - ( selectedNode->mGen );
+		float radiusMulti = 6.0f - ( selectedNode->mGen );
 		
 		mCamDistDest	= ( selectedNode->mRadius * radiusMulti  );
 		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
@@ -322,7 +322,7 @@ void KeplerApp::updateCamera()
 	if( mUiLayer.getShowWheel() ){
 		mFovDest = 120.0f;
 	} else {
-		mFovDest = 100.0f - G_ZOOM * 10.0f;
+		mFovDest = 90.0f - G_ZOOM * 4.0f;
 	}
 	mFov -= ( mFov - mFovDest ) * 0.2f;
 	
