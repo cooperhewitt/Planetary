@@ -78,11 +78,14 @@ class Node {
 	float				mSphereScreenRadius;// mSphere radius in screenspace
 	float				mZoomPer;			// 0.0 to 1.0 to 0.0 based on zoom level vs mgen
 	int					mPlanetTexIndex;	// Which of the planet textures are used
+	float				mIdealCameraDist;	// Ideal distance from node to camera
 	
 	// NAME
 	std::string			mName;				// Name of the node
 	ci::Font			mFont;
+
 	ci::gl::Texture		mNameTex;			// Texture of the name
+	ci::gl::Texture		mPlanetTex;			// TODO: this is a test.
 	
 	
 	ci::Sphere			mSphere;			// Sphere object used only for hit-testing

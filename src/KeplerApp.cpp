@@ -65,7 +65,7 @@ class KeplerApp : public AppCocoaTouch {
 	Vec3f			mEye, mCenter, mUp;
 	Vec3f			mCamVel;
 	Vec3f			mCenterDest, mCenterFrom;
-	float			mCamDist, mCamDistDest, mCamDistFrom, mCamDistDestMulti;
+	float			mCamDist, mCamDistDest, mCamDistFrom;
 	float			mZoomFrom, mZoomDest;
 	Arcball			mArcball;
 	Matrix44f		mMatrix;
@@ -107,7 +107,6 @@ void KeplerApp::setup()
 	mCamDist			= G_INIT_CAM_DIST;
 	mCamDistDest		= mCamDist;
 	mCamDistFrom		= mCamDist;
-	mCamDistDestMulti	= 1.0f;
 	mEye				= Vec3f( 0.0f, 0.0f, mCamDist );
 	mCenter				= Vec3f::zero();
 	mCenterDest			= mCenter;
@@ -316,9 +315,7 @@ void KeplerApp::updateCamera()
 {
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){
-		float radiusMulti = 6.0f - ( selectedNode->mGen );
-		
-		mCamDistDest	= ( selectedNode->mRadius * radiusMulti  );
+		mCamDistDest	= selectedNode->mIdealCameraDist;
 		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
 		mZoomDest		= selectedNode->mGen;
 		
@@ -347,7 +344,7 @@ void KeplerApp::updateCamera()
 	
 	double p	= constrain( getElapsedSeconds()-mTime, 0.0, G_DURATION );
 	mCenter		= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, G_DURATION );
-	mCamDist	= easeInOutQuad( p, mCamDistFrom, mCamDistDest*mCamDistDestMulti - mCamDistFrom, G_DURATION );
+	mCamDist	= easeInOutQuad( p, mCamDistFrom, mCamDistDest - mCamDistFrom, G_DURATION );
 	G_ZOOM		= easeInOutQuad( p, mZoomFrom, mZoomDest - mZoomFrom, G_DURATION );
 	
 	Vec3f prevEye		= mEye;
@@ -382,13 +379,13 @@ void KeplerApp::draw()
 	mWorld.drawStarGlows();
 	mStarGlowTex.disable();
 	
-	// STARS
+// STARS
 	mStarTex.enableAndBind();
 	mWorld.drawStars();
 	mStarTex.disable();
 	
 	
-	// CONSTELLATION
+// CONSTELLATION
 	mDottedTex.enableAndBind();
 	mWorld.drawConstellation( mMatrix );
 	mDottedTex.disable();
@@ -430,23 +427,24 @@ void KeplerApp::draw()
 		Color artistDiffuse		= artistNode->mGlowColor;
 		glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
 		glLightfv( GL_LIGHT1, GL_DIFFUSE, artistDiffuse );
-
+		
+// PLANETS
 		gl::enableDepthRead();
 		gl::disableAlphaBlending();
 		mWorld.drawPlanets( mPlanetsTex );
 		
-		
+// RINGS
 		gl::enableAdditiveBlending();
 		mWorld.drawRings( mPlanetsTex[G_RING_TYPE] );
 		glDisable( GL_LIGHTING );
 	}
 	
-	// ORBITS
+// ORBITS
 	gl::enableAdditiveBlending();
 	mWorld.drawOrbitalRings();
 	gl::disableDepthRead();
 
-	// NAMES
+// NAMES
 	gl::disableDepthWrite();
 	glEnable( GL_TEXTURE_2D );
 	gl::setMatricesWindow( getWindowSize() );

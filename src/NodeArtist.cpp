@@ -27,6 +27,7 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string n
 	float sat		= 1.0f - sin( hue * 2.0f * M_PI );
 	mColor			= Color( CM_HSV, hue, sat * 0.1f, 1.0f );
 	mGlowColor		= Color( CM_HSV, hue, sat + 0.2f, 1.0f );
+	mIdealCameraDist = mRadius * 1.5f;
 }
 
 void NodeArtist::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
@@ -96,7 +97,7 @@ void NodeArtist::drawPlanet( std::vector< gl::Texture*> texs )
 		gl::color( mColor * 2.0f );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.215f, 100 );
 		
-		gl::enableAlphaBlending();
+		gl::enableAdditiveBlending();
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.5f ) );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.220f, 100 );
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.25f ) );

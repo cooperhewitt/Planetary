@@ -32,6 +32,8 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font, std::string nam
 	float val		= Rand::randFloat( 0.7f, 1.0f);
 	mColor			= Color( CM_HSV, hue, sat, val );
 	mAtmosphereColor = Color( CM_HSV, Rand::randFloat(), 0.45f, 1.0f );
+	mOrbitRadiusDest = Rand::randFloat( mParentNode->mRadius * 0.5f, mParentNode->mRadius * 2.0f );
+	mIdealCameraDist = mSphere.getRadius() * 0.5f;
 }
 
 void NodeTrack::setData( TrackRef track, PlaylistRef album )
@@ -139,6 +141,11 @@ void NodeTrack::drawPlanet( std::vector< gl::Texture*> texs )
 		gl::color( mAtmosphereColor );
 		gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * -25.0f, mAxisAngle ) );
 		gl::drawSphere( Vec3f::zero(), mRadius * 0.385f, mSphereRes );
+		
+		glDisable( GL_LIGHTING );
+		mPlanetTex.enableAndBind();
+		gl::drawSphere( Vec3f::zero(), mRadius * 0.395f, mSphereRes );
+		glEnable( GL_LIGHTING );
 		gl::disableAlphaBlending();
 	}
 	

@@ -28,6 +28,8 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string nam
 	mColor			= Color( CM_HSV, hue, sat * 0.5f, 1.0f );
 	mGlowColor		= Color( CM_HSV, hue + 0.15f, sat, 1.0f );
 	
+	mOrbitRadiusDest = Rand::randFloat( mParentNode->mRadius * 0.5f, mParentNode->mRadius * 1.5f );
+	mIdealCameraDist = mRadius * 2.25f;	
 
 }
 
@@ -109,7 +111,7 @@ void NodeAlbum::drawPlanet( std::vector< gl::Texture*> texs )
 		glDisable( GL_LIGHTING );
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		gl::color( mColor * 2.0f );
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.215f, 100 );
 		
 		gl::enableAlphaBlending();

@@ -62,7 +62,6 @@ void Node::initWithParent()
 	mPos				= mParentNode->mPos;
 	mPosPrev			= mParentNode->mPos;
 	mVel				= mParentNode->mVel;
-	mOrbitRadiusDest	= Rand::randFloat( mParentNode->mRadius * 0.5f, mParentNode->mRadius * 2.0f );
 	mOrbitPeriod		= Rand::randFloat( 25.0f, 150.0f );
 }
 
@@ -72,7 +71,16 @@ void Node::createNameTexture()
 	layout.setFont( mFont );
 	layout.setColor( Color( 1.0f, 1.0f, 1.0f ) );
 	layout.addLine( mName );
-	mNameTex = gl::Texture( layout.render( true, false ) );
+	Surface8u nameSurface	= Surface8u( layout.render( true, false ) );
+	mNameTex				= gl::Texture( nameSurface );
+
+	if( mGen == G_TRACK_LEVEL ){
+		Surface8u planetSurface = Surface( 512, 256, true, SurfaceChannelOrder::RGBA );
+		Vec2i offset = Vec2i( 0.0f, 128 - mNameTex.getHeight() * 0.5f );
+		planetSurface.copyFrom( nameSurface, nameSurface.getBounds(), offset );
+	
+		mPlanetTex = gl::Texture( planetSurface );
+	}
 }
 
 void Node::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
@@ -146,8 +154,11 @@ void Node::drawOrthoName( const CameraPersp &cam )
 			gl::color( ColorA( mColor, mZoomPer ) );
 		}
 		
+		if( mGen == G_TRACK_LEVEL ){
+			gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f - mZoomPer ) );
+		}
 		
-		Vec2f offset = Vec2f( mRadius * 5.25f + mSphereScreenRadius * 0.35f, -mNameTex.getHeight() * 0.5f );
+		Vec2f offset = Vec2f( mRadius * 5.25f + mSphereScreenRadius * 0.2f, -mNameTex.getHeight() * 0.5f );
 		Vec2f pos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() ) + offset;
 
 		gl::draw( mNameTex, pos );
