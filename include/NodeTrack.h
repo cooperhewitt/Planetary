@@ -18,7 +18,8 @@ class NodeTrack : public Node
 	NodeTrack( Node *parent, int index, const ci::Font &font, std::string name );
 
 	void update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	void drawPlanet();
+	void drawPlanet( std::vector< ci::gl::Texture*> texs );
+	void drawRings( ci::gl::Texture *tex );
 	void select();
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
 	

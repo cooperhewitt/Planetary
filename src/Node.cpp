@@ -38,6 +38,7 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 	mPercentPlayed		= 0.0f;
 	mDistFromCamZAxis	= 1000.0f;
 	mDistFromCamZAxisPer = 1.0f;
+	mPlanetTexIndex		= 0;
 		
 	mIsSelected			= false;
 	mIsHighlighted		= false;
@@ -173,12 +174,22 @@ void Node::drawOrbitalRings()
 {
 }
 
-void Node::drawPlanet()
+void Node::drawPlanet( std::vector< gl::Texture*> texs )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawPlanet();
+		(*nodeIt)->drawPlanet( texs );
 	}
 }
+
+void Node::drawRings( gl::Texture *tex )
+{
+	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->drawRings( tex );
+	}
+}
+
+
+
 
 void Node::checkForSphereIntersect( Node* &theNode, const Ray &ray, Matrix44f &mat )
 {

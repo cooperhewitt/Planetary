@@ -22,8 +22,10 @@ static const int G_ALBUM_LEVEL		= 3;
 static const int G_TRACK_LEVEL		= 4;
 static const int G_NUM_LEVELS		= 5;
 
-static const float G_INIT_CAM_DIST	= 165.0f;
-
+static const float G_INIT_CAM_DIST	= 175.0f;
+static const int G_NUM_PLANET_TYPES = 6;
+static const int G_CLOUDS_TYPE		= 6;
+static const int G_RING_TYPE		= 7;
 
 
 // TODO: move into State.h

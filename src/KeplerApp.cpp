@@ -38,6 +38,7 @@ class KeplerApp : public AppCocoaTouch {
 	virtual void	touchesBegan( TouchEvent event );
 	virtual void	touchesMoved( TouchEvent event );
 	virtual void	touchesEnded( TouchEvent event );
+	void			initTextures();
 	void			initFonts();
 	virtual void	update();
 	void			updateArcball();
@@ -88,6 +89,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mStarGlowTex;
 	gl::Texture		mSkyDome;
 	gl::Texture		mDottedTex;
+	vector<gl::Texture*>	mPlanetsTex;
 	
 	float			mTime;
 };
@@ -131,12 +133,7 @@ void KeplerApp::setup()
 	
 	
 	// TEXTURES
-	mStarTex			= loadImage( loadResource( "star.png" ) );
-	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
-	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
-	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
-	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
-	mParamsTex			= gl::Texture( 768, 75 );
+	initTextures();
 	
 	// BREADCRUMBS
 	mBreadcrumbs.setup( this, mFonts[3] );
@@ -203,6 +200,24 @@ void KeplerApp::touchesEnded( TouchEvent event )
 		}
 		mIsDragging = false;
 	}
+}
+
+void KeplerApp::initTextures()
+{
+	mStarTex			= loadImage( loadResource( "star.png" ) );
+	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
+	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
+	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
+	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
+	mParamsTex			= gl::Texture( 768, 75 );
+	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "pluto.jpg" ) ) ) );
+	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "venus.jpg" ) ) ) );
+	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "mars.jpg" ) ) ) );
+	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "uranus.jpg" ) ) ) );
+	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "jupiter.jpg" ) ) ) );
+	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "saturn.jpg" ) ) ) );
+	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "clouds.png" ) ) ) );
+	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "rings.png" ) ) ) );
 }
 
 void KeplerApp::initFonts()
@@ -303,11 +318,10 @@ void KeplerApp::updateCamera()
 	if( selectedNode ){
 		float radiusMulti = 6.0f - ( selectedNode->mGen );
 		
-		mCamDistDest	= ( selectedNode->mRadius * pow( radiusMulti, 0.75f )  );
+		mCamDistDest	= ( selectedNode->mRadius * radiusMulti  );
 		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
 		mZoomDest		= selectedNode->mGen;
 		
-		// TODO: probably should uncomment this?
 		if( selectedNode->mParentNode )
 			mCenterFrom		+= selectedNode->mParentNode->mVel;
 
@@ -327,7 +341,7 @@ void KeplerApp::updateCamera()
 	if( mUiLayer.getShowWheel() ){
 		mFovDest = 120.0f;
 	} else {
-		mFovDest = 110.0f - G_ZOOM * 5.0f;
+		mFovDest = 100.0f - G_ZOOM * 5.0f;
 	}
 	mFov -= ( mFov - mFovDest ) * 0.2f;
 	
@@ -419,7 +433,11 @@ void KeplerApp::draw()
 
 		gl::enableDepthRead();
 		gl::disableAlphaBlending();
-		mWorld.drawPlanets();
+		mWorld.drawPlanets( mPlanetsTex );
+		
+		
+		gl::enableAdditiveBlending();
+		mWorld.drawRings( mPlanetsTex[G_RING_TYPE] );
 		glDisable( GL_LIGHTING );
 	}
 	

@@ -48,8 +48,8 @@ void NodeArtist::drawStarGlow()
 {
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
 		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 4.5f;
-		if( mIsSelected ) radius *= 1.5f;
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 8.5f;
+//		if( mIsSelected ) radius *= 2.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 
@@ -76,7 +76,7 @@ void NodeArtist::drawOrbitalRings()
 	}
 }
 
-void NodeArtist::drawPlanet()
+void NodeArtist::drawPlanet( std::vector< gl::Texture*> texs )
 {
 	/*
 	if( mIsHighlighted ){
@@ -89,7 +89,30 @@ void NodeArtist::drawPlanet()
 		glEnable( GL_LIGHTING );
 	}*/
 	
-	Node::drawPlanet();
+	if( mIsSelected ){
+		glDisable( GL_LIGHTING );
+		gl::pushModelView();
+		gl::translate( mTransPos );
+		gl::color( mColor * 2.0f );
+		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.215f, 100 );
+		
+		gl::enableAlphaBlending();
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.5f ) );
+		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.220f, 100 );
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.25f ) );
+		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.225f, 100 );
+		gl::disableAlphaBlending();
+		gl::popModelView();
+		glEnable( GL_LIGHTING );
+	}
+	
+	
+	Node::drawPlanet( texs );
+}
+
+void NodeArtist::drawRings( gl::Texture *tex )
+{
+	Node::drawRings( tex );
 }
 
 void NodeArtist::select()

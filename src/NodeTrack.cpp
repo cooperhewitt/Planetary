@@ -44,10 +44,12 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	//normalize playcount data
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
-	
+
+	mPlanetTexIndex = (int)( normPlayCount * G_NUM_PLANET_TYPES );
+		
 	mRadius			= mRadius * pow( normPlayCount + 0.5f, 2.0f );
 	mOrbitPeriod	= mTrackLength;
-	mAxisAngle		= Rand::randFloat( 5.0f, 30.0f );
+	mAxisAngle		= 0.0f;//Rand::randFloat( 5.0f, 30.0f );
 	
 	mVerts			= new float[18];
 	mTexCoords		= new float[12];
@@ -116,14 +118,53 @@ void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	Node::update( mat, bbRight, bbUp );
 }
 
-void NodeTrack::drawPlanet()
+void NodeTrack::drawPlanet( std::vector< gl::Texture*> texs )
 {
 	gl::color( mColor );
 	gl::pushModelView();
 	gl::translate( mTransPos );
 	gl::rotate( mMatrix );
+	if( mPlanetTexIndex == G_NUM_PLANET_TYPES - 1 ){
+		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 10.0f, mAxisAngle ) );
+	} else {
+		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 50.0f, mAxisAngle ) );
+	}
+	texs[mPlanetTexIndex]->enableAndBind();
 	gl::drawSphere( Vec3f::zero(), mRadius * 0.375f, mSphereRes );
+	
+	
+	if( mIsSelected ){
+		gl::enableAdditiveBlending();
+		texs[G_CLOUDS_TYPE]->enableAndBind();
+		gl::color( mAtmosphereColor );
+		gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * -25.0f, mAxisAngle ) );
+		gl::drawSphere( Vec3f::zero(), mRadius * 0.385f, mSphereRes );
+		gl::disableAlphaBlending();
+	}
+	
+	
 	gl::popModelView();
+}
+
+void NodeTrack::drawRings( gl::Texture *tex )
+{
+	if( mPlanetTexIndex == G_NUM_PLANET_TYPES - 1 ){
+		gl::pushModelView();
+		gl::translate( mTransPos );
+		gl::rotate( mMatrix );
+		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 10.0f, mAxisAngle ) );
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.5f ) );
+		tex->enableAndBind();
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glVertexPointer( 3, GL_FLOAT, 0, mVerts );
+		glTexCoordPointer( 2, GL_FLOAT, 0, mTexCoords );
+		glDrawArrays( GL_TRIANGLES, 0, 6 );
+		glDisableClientState( GL_VERTEX_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		tex->disable();
+		gl::popModelView();
+	}
 }
 
 void NodeTrack::select()

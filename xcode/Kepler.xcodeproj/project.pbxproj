@@ -27,6 +27,14 @@
 		E15C90B21300B2A300FB8389 /* UnitRoundedOT-Ultra.otf in Resources */ = {isa = PBXBuildFile; fileRef = E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */; };
 		E15C90B71300B2F900FB8389 /* UiLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E15C90B61300B2F900FB8389 /* UiLayer.cpp */; };
 		E15C90B91300B30100FB8389 /* wheel.png in Resources */ = {isa = PBXBuildFile; fileRef = E15C90B81300B30100FB8389 /* wheel.png */; };
+		E17667D613202F4D006A4C2E /* clouds.png in Resources */ = {isa = PBXBuildFile; fileRef = E17667CF13202F4D006A4C2E /* clouds.png */; };
+		E17667D713202F4D006A4C2E /* jupiter.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D013202F4D006A4C2E /* jupiter.jpg */; };
+		E17667D813202F4D006A4C2E /* mars.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D113202F4D006A4C2E /* mars.jpg */; };
+		E17667D913202F4D006A4C2E /* pluto.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D213202F4D006A4C2E /* pluto.jpg */; };
+		E17667DA13202F4D006A4C2E /* saturn.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D313202F4D006A4C2E /* saturn.jpg */; };
+		E17667DB13202F4D006A4C2E /* uranus.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D413202F4D006A4C2E /* uranus.jpg */; };
+		E17667DC13202F4D006A4C2E /* venus.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D513202F4D006A4C2E /* venus.jpg */; };
+		E17667DE13202FB7006A4C2E /* rings.png in Resources */ = {isa = PBXBuildFile; fileRef = E17667DD13202FB7006A4C2E /* rings.png */; };
 		E1A330381301013100CED126 /* cluster.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330351301013100CED126 /* cluster.png */; };
 		E1A330391301013100CED126 /* starGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330361301013100CED126 /* starGlow.png */; };
 		E1A3303A1301013100CED126 /* star.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330371301013100CED126 /* star.png */; };
@@ -68,6 +76,14 @@
 		E15C90B51300B2F100FB8389 /* UiLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UiLayer.h; path = ../include/UiLayer.h; sourceTree = SOURCE_ROOT; };
 		E15C90B61300B2F900FB8389 /* UiLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UiLayer.cpp; path = ../src/UiLayer.cpp; sourceTree = SOURCE_ROOT; };
 		E15C90B81300B30100FB8389 /* wheel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wheel.png; path = ../resources/wheel.png; sourceTree = SOURCE_ROOT; };
+		E17667CF13202F4D006A4C2E /* clouds.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds.png; sourceTree = "<group>"; };
+		E17667D013202F4D006A4C2E /* jupiter.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = jupiter.jpg; sourceTree = "<group>"; };
+		E17667D113202F4D006A4C2E /* mars.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = mars.jpg; sourceTree = "<group>"; };
+		E17667D213202F4D006A4C2E /* pluto.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = pluto.jpg; sourceTree = "<group>"; };
+		E17667D313202F4D006A4C2E /* saturn.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = saturn.jpg; sourceTree = "<group>"; };
+		E17667D413202F4D006A4C2E /* uranus.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = uranus.jpg; sourceTree = "<group>"; };
+		E17667D513202F4D006A4C2E /* venus.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = venus.jpg; sourceTree = "<group>"; };
+		E17667DD13202FB7006A4C2E /* rings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rings.png; sourceTree = "<group>"; };
 		E1A330351301013100CED126 /* cluster.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cluster.png; path = ../resources/cluster.png; sourceTree = SOURCE_ROOT; };
 		E1A330361301013100CED126 /* starGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = starGlow.png; path = ../resources/starGlow.png; sourceTree = SOURCE_ROOT; };
 		E1A330371301013100CED126 /* star.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = star.png; path = ../resources/star.png; sourceTree = SOURCE_ROOT; };
@@ -212,6 +228,7 @@
 		E1555CA2131EEBD10079B05A /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				E17667CE13202F4D006A4C2E /* planets */,
 				E1555CA4131EEBEB0079B05A /* dotted.png */,
 				E1555A0A131E05140079B05A /* skydome.jpg */,
 				E1A330351301013100CED126 /* cluster.png */,
@@ -232,6 +249,22 @@
 			);
 			name = Fonts;
 			sourceTree = "<group>";
+		};
+		E17667CE13202F4D006A4C2E /* planets */ = {
+			isa = PBXGroup;
+			children = (
+				E17667DD13202FB7006A4C2E /* rings.png */,
+				E17667CF13202F4D006A4C2E /* clouds.png */,
+				E17667D013202F4D006A4C2E /* jupiter.jpg */,
+				E17667D113202F4D006A4C2E /* mars.jpg */,
+				E17667D213202F4D006A4C2E /* pluto.jpg */,
+				E17667D313202F4D006A4C2E /* saturn.jpg */,
+				E17667D413202F4D006A4C2E /* uranus.jpg */,
+				E17667D513202F4D006A4C2E /* venus.jpg */,
+			);
+			name = planets;
+			path = ../resources/planets;
+			sourceTree = SOURCE_ROOT;
 		};
 		E1A3308A130105E500CED126 /* CinderIPod */ = {
 			isa = PBXGroup;
@@ -393,6 +426,14 @@
 				E1A3303A1301013100CED126 /* star.png in Resources */,
 				E1555A0B131E05140079B05A /* skydome.jpg in Resources */,
 				E1555CA5131EEBEB0079B05A /* dotted.png in Resources */,
+				E17667D613202F4D006A4C2E /* clouds.png in Resources */,
+				E17667D713202F4D006A4C2E /* jupiter.jpg in Resources */,
+				E17667D813202F4D006A4C2E /* mars.jpg in Resources */,
+				E17667D913202F4D006A4C2E /* pluto.jpg in Resources */,
+				E17667DA13202F4D006A4C2E /* saturn.jpg in Resources */,
+				E17667DB13202F4D006A4C2E /* uranus.jpg in Resources */,
+				E17667DC13202F4D006A4C2E /* venus.jpg in Resources */,
+				E17667DE13202FB7006A4C2E /* rings.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

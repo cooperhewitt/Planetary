@@ -21,7 +21,8 @@ class NodeArtist : public Node
 	void drawStar();
 	void drawStarGlow();
 	void drawOrbitalRings();
-	void drawPlanet();
+	void drawPlanet( std::vector< ci::gl::Texture*> texs );
+	void drawRings( ci::gl::Texture *tex );
 	void select();
 	
 	ci::Vec3f mPosDest;

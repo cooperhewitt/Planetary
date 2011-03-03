@@ -62,8 +62,8 @@ void NodeAlbum::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	Vec3f oldPosRel = mPosRel;
 	mPosRel		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mPosRel;
-	//mVel		= mPos - mPosPrev;
-	mVel		= mPosRel - oldPosRel;
+	mVel		= mPos - mPosPrev;
+	//mVel		= mPosRel - oldPosRel;
 
 	Node::update( mat, bbRight, bbUp );
 }
@@ -78,8 +78,8 @@ void NodeAlbum::drawStar()
 
 void NodeAlbum::drawStarGlow()
 {
-	if( mIsHighlighted ){
-		gl::color( mGlowColor );
+	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
+		gl::color( ColorA( mGlowColor, min( mDistFromCamZAxisPer * 100.0f, 1.0f ) ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 3.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
@@ -103,26 +103,31 @@ void NodeAlbum::drawOrbitalRings()
 	}
 }
 
-void NodeAlbum::drawPlanet()
-{
-	/*
-	gl::color( mColor );
-	glDisable( GL_LIGHTING );
-	gl::drawSphere( mTransPos, mRadius * 0.175f, 32 );
-	glEnable( GL_LIGHTING );
-	*/
-	
+void NodeAlbum::drawPlanet( std::vector< gl::Texture*> texs )
+{	
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
 		gl::pushModelView();
 		gl::translate( mTransPos );
 		gl::color( mColor * 2.0f );
-		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.225f, 150 );
+		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.215f, 100 );
+		
+		gl::enableAlphaBlending();
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.5f ) );
+		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.220f, 100 );
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.25f ) );
+		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.225f, 100 );
+		gl::disableAlphaBlending();
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
 	}
 		
-	Node::drawPlanet();
+	Node::drawPlanet( texs );
+}
+
+void NodeAlbum::drawRings( gl::Texture *tex )
+{
+	Node::drawRings( tex );
 }
 
 

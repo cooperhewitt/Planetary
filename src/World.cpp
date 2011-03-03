@@ -124,30 +124,37 @@ void World::drawOrbitalRings()
 	}
 }
 
-void World::drawPlanets()
+void World::drawPlanets( std::vector< gl::Texture*> texs )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawPlanet();
+		(*it)->drawPlanet( texs );
+	}
+}
+
+void World::drawRings( gl::Texture *tex )
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->drawRings( tex );
 	}
 }
 
 void World::drawConstellation( const Matrix44f &mat )
 {
 	if( mTotalVertices > 1 ){
-		float zoomPer = 1.0f - G_ZOOM;
+		float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.3f;
 		gl::pushModelView();
 		gl::rotate( mat );
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, zoomPer ) );
+		gl::color( ColorA( 0.5f, 0.6f, 1.0f, zoomPer ) );
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glEnableClientState( GL_COLOR_ARRAY );
+		//glEnableClientState( GL_COLOR_ARRAY );
 		glVertexPointer( 3, GL_FLOAT, 0, mVerts );
 		glTexCoordPointer( 2, GL_FLOAT, 0, mTexCoords );
-		glColorPointer( 4, GL_FLOAT, 0, mColors );
+		//glColorPointer( 4, GL_FLOAT, 0, mColors );
 		glDrawArrays( GL_LINES, 0, mTotalVertices );
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );		
-		glDisableClientState( GL_COLOR_ARRAY );
+		//glDisableClientState( GL_COLOR_ARRAY );
 		gl::popModelView();
 	}
 }
@@ -156,7 +163,7 @@ void World::drawConstellation( const Matrix44f &mat )
 void World::buildConstellation()
 {
 	mConstellation.clear();
-	mConstellationColors.clear();
+	//mConstellationColors.clear();
 	
 	// CREATE DATA FOR CONSTELLATION
 	vector<float> distances;
@@ -177,21 +184,21 @@ void World::buildConstellation()
 			}
 		}
 		
-		distances.push_back( shortestDist * 0.2f );
+		distances.push_back( shortestDist * 0.35f );
 		mConstellation.push_back( child1->mPos );
 		mConstellation.push_back( nearestChild->mPos );
 		
-		mConstellationColors.push_back( ColorA( child1->mGlowColor, 0.3f ) );
-		mConstellationColors.push_back( ColorA( nearestChild->mGlowColor, 0.3f ) );
+		//mConstellationColors.push_back( ColorA( child1->mGlowColor, 0.3f ) );
+		//mConstellationColors.push_back( ColorA( nearestChild->mGlowColor, 0.3f ) );
 	}
 	
 	mTotalVertices	= mConstellation.size();
 	mVerts			= new float[mTotalVertices*3];
 	mTexCoords		= new float[mTotalVertices*2];
-	mColors			= new float[mTotalVertices*4];
+	//mColors			= new float[mTotalVertices*4];
 	int vIndex = 0;
 	int tIndex = 0;
-	int cIndex = 0;
+	//int cIndex = 0;
 	int distancesIndex = 0;
 	for( int i=0; i<mTotalVertices; i++ ){
 		Vec3f pos			= mConstellation[i];
@@ -207,11 +214,12 @@ void World::buildConstellation()
 			mTexCoords[tIndex++]	= 0.5f;
 			distancesIndex ++;
 		}
-		
+		/*
 		ColorA c			= mConstellationColors[i];
 		mColors[cIndex++]	= c.r;
 		mColors[cIndex++]	= c.g;
 		mColors[cIndex++]	= c.b;
 		mColors[cIndex++]	= c.a;
+		*/
 	}
 }
