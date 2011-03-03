@@ -21,6 +21,7 @@
 		C7FB19D6124BC0D70045AFD3 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C7FB19D5124BC0D70045AFD3 /* CoreText.framework */; };
 		E1555A0B131E05140079B05A /* skydome.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1555A0A131E05140079B05A /* skydome.jpg */; };
 		E1555CA5131EEBEB0079B05A /* dotted.png in Resources */ = {isa = PBXBuildFile; fileRef = E1555CA4131EEBEB0079B05A /* dotted.png */; };
+		E1555E7A131F2C560079B05A /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1555E79131F2C560079B05A /* Node.cpp */; };
 		E15C90B01300B2A300FB8389 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = E15C90AD1300B2A300FB8389 /* logo.png */; };
 		E15C90B11300B2A300FB8389 /* UnitRoundedOT-Medi.otf in Resources */ = {isa = PBXBuildFile; fileRef = E15C90AE1300B2A300FB8389 /* UnitRoundedOT-Medi.otf */; };
 		E15C90B21300B2A300FB8389 /* UnitRoundedOT-Ultra.otf in Resources */ = {isa = PBXBuildFile; fileRef = E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */; };
@@ -34,7 +35,6 @@
 		E1A332D2130105E700CED126 /* CinderIPodPlayerImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1A331FD130105E700CED126 /* CinderIPodPlayerImpl.mm */; };
 		E1A332E21301068800CED126 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1A332E11301068800CED126 /* MediaPlayer.framework */; };
 		E1C600051318490F0022246C /* World.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C600041318490F0022246C /* World.cpp */; };
-		E1C60187131892940022246C /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C60186131892940022246C /* Node.cpp */; };
 		E1C6FFF3131847A40022246C /* Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C6FFF2131847A40022246C /* Data.cpp */; };
 		E1E663701317887F00E5E4B9 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E6636F1317887F00E5E4B9 /* State.cpp */; };
 		E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C872D131F1420000780A3 /* NodeArtist.cpp */; };
@@ -60,6 +60,8 @@
 		C7FB19D5124BC0D70045AFD3 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		E1555A0A131E05140079B05A /* skydome.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = skydome.jpg; path = ../resources/skydome.jpg; sourceTree = SOURCE_ROOT; };
 		E1555CA4131EEBEB0079B05A /* dotted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dotted.png; path = ../resources/dotted.png; sourceTree = SOURCE_ROOT; };
+		E1555E78131F2C4A0079B05A /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../include/Node.h; sourceTree = SOURCE_ROOT; };
+		E1555E79131F2C560079B05A /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Node.cpp; path = ../src/Node.cpp; sourceTree = SOURCE_ROOT; };
 		E15C90AD1300B2A300FB8389 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo.png; path = ../resources/logo.png; sourceTree = SOURCE_ROOT; };
 		E15C90AE1300B2A300FB8389 /* UnitRoundedOT-Medi.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "UnitRoundedOT-Medi.otf"; path = "../resources/UnitRoundedOT-Medi.otf"; sourceTree = SOURCE_ROOT; };
 		E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "UnitRoundedOT-Ultra.otf"; path = "../resources/UnitRoundedOT-Ultra.otf"; sourceTree = SOURCE_ROOT; };
@@ -80,8 +82,6 @@
 		E1A332F01301072600CED126 /* Globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Globals.h; path = ../include/Globals.h; sourceTree = SOURCE_ROOT; };
 		E1C60003131848FB0022246C /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = World.h; path = ../include/World.h; sourceTree = SOURCE_ROOT; };
 		E1C600041318490F0022246C /* World.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = World.cpp; path = ../src/World.cpp; sourceTree = SOURCE_ROOT; };
-		E1C60185131892860022246C /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../include/Node.h; sourceTree = SOURCE_ROOT; };
-		E1C60186131892940022246C /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Node.cpp; path = ../src/Node.cpp; sourceTree = SOURCE_ROOT; };
 		E1C60253131C4B3D0022246C /* BreadcrumbEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BreadcrumbEvent.h; path = ../include/BreadcrumbEvent.h; sourceTree = SOURCE_ROOT; };
 		E1C60254131C4B3D0022246C /* Breadcrumbs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Breadcrumbs.h; path = ../include/Breadcrumbs.h; sourceTree = SOURCE_ROOT; };
 		E1C6FFF11318479A0022246C /* Data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Data.h; path = ../include/Data.h; sourceTree = SOURCE_ROOT; };
@@ -284,11 +284,10 @@
 		E1C601831318926C0022246C /* Nodes */ = {
 			isa = PBXGroup;
 			children = (
-				E1C60186131892940022246C /* Node.cpp */,
+				E1555E79131F2C560079B05A /* Node.cpp */,
 				E25C872D131F1420000780A3 /* NodeArtist.cpp */,
 				E25C8742131F14B3000780A3 /* NodeAlbum.cpp */,
 				E25C8743131F14B3000780A3 /* NodeTrack.cpp */,
-				E1C60186131892940022246C /* Node.cpp */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -296,11 +295,10 @@
 		E1C60184131892750022246C /* Nodes */ = {
 			isa = PBXGroup;
 			children = (
-				E1C60185131892860022246C /* Node.h */,
+				E1555E78131F2C4A0079B05A /* Node.h */,
 				E25C872B131F1415000780A3 /* NodeArtist.h */,
 				E25C8740131F14A5000780A3 /* NodeAlbum.h */,
 				E25C8741131F14A5000780A3 /* NodeTrack.h */,
-				E1C60185131892860022246C /* Node.h */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -413,10 +411,10 @@
 				E1E663701317887F00E5E4B9 /* State.cpp in Sources */,
 				E1C6FFF3131847A40022246C /* Data.cpp in Sources */,
 				E1C600051318490F0022246C /* World.cpp in Sources */,
-				E1C60187131892940022246C /* Node.cpp in Sources */,
 				E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */,
 				E25C8744131F14B3000780A3 /* NodeAlbum.cpp in Sources */,
 				E25C8745131F14B3000780A3 /* NodeTrack.cpp in Sources */,
+				E1555E7A131F2C560079B05A /* Node.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
