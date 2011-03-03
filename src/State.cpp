@@ -37,43 +37,26 @@ void State::setAlphaChar( char c )
 void State::setSelectedNode( Node* node )
 {
 	if (node == NULL) {
-		for( int i=0; i<G_NUM_LEVELS; i++ ){
-			if( mMapOfNodes[i] ){
-				mMapOfNodes[i]->deselect();
-				mMapOfNodes.erase(i);
-			}
-		}		
+		// clear currently selected node and all parents
+		Node *selection = mSelectedNode;
+		while( selection != NULL ) {
+			selection->deselect();
+			selection = selection->mParentNode;
+		}
 		mSelectedNode = NULL;
 	}
 	else {
-	
-		int gen = node->mGen;
-		
-		if( node->mIsSelected ){						// If the touched node is already selected...
-			mSelectedNode = node->mParentNode;
-			node->deselect();								// deselect it
-			
-		} else {										// If the touched node is not already selected...
-			node->select();									// select it and make it create some children.
+		// ensure that this selection is selected
+		Node *selection = node;
+		while( selection != NULL ) {
+			if ( !selection->mIsSelected ) {
+				selection->select();
+			}
+			selection = selection->mParentNode;
 		}
-		
-		if( mMapOfNodes[gen] ){							// If there was already a touched node at this level...
-			mMapOfNodes[gen]->deselect();					// deselect it
-			for( int i=gen; i<G_NUM_LEVELS; i++ )
-				mMapOfNodes.erase(i);						// and erase it from the map.
-		}
-		
-		if( node->mIsSelected ){						// If the touched node is now selected...
-			mMapOfNodes[gen]	= node;						// add the touched node to the map.
-			mSelectedNode		= node;
-		}
+		mSelectedNode = node;
 	}
-	
-	if( mSelectedNode )
-		G_CURRENT_LEVEL		= mSelectedNode->mGen;
-	else
-		G_CURRENT_LEVEL		= 0;
-	
+	// tell everyone the good news
 	mCallbacksNodeSelected.call(mSelectedNode);
 }
 

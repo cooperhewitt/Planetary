@@ -23,7 +23,7 @@ using namespace ci::app;
 using namespace std;
 using std::stringstream;
 
-int G_CURRENT_LEVEL		= 0;
+//int G_CURRENT_LEVEL		= 0;
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
 GLfloat mat_ambient[]	= { 0.02, 0.02, 0.05, 1.0 };
@@ -244,17 +244,22 @@ bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 	if( level == 0 ){					// BACK TO HOME
 		mUiLayer.setShowWheel( !mUiLayer.getShowWheel() );
 		mWorld.deselectAllNodes();
-		mState.setSelectedNode(NULL);
+		mState.setSelectedNode( NULL );
+		mState.setAlphaChar( ' ' );
 	}
 	else if( level == 1 ){			// BACK TO ALPHA FILTER
 		mWorld.deselectAllNodes();
 		mData.filterArtistsByAlpha( mState.getAlphaChar() );
 		mWorld.filterNodes();
 		mState.setSelectedNode(NULL);
-	} else {
-		// get Artist
-		// get Album
-		// get Track
+	}
+	else if( level >= 2 ){			// BACK TO ARTIST/ALBUM/TRACK
+		// get Artist, Album or Track from selectedNode
+		Node *current = mState.getSelectedNode();
+		while (current != NULL && current->mGen > level) {
+			current = current->mParentNode;
+		}
+		mState.setSelectedNode(current);
 	}
 	return false;
 }
@@ -377,7 +382,8 @@ void KeplerApp::draw()
 	
 	
 	// PLANETS
-	if( mState.mMapOfNodes[1] && mState.mMapOfNodes[2] ){
+	Node *trackNode = mState.getSelectedNode();
+	if( trackNode && trackNode->mGen == G_TRACK_LEVEL ){
 		glEnable( GL_LIGHTING );
 		glEnable( GL_LIGHT0 );
 		glEnable( GL_LIGHT1 );
@@ -388,18 +394,21 @@ void KeplerApp::draw()
 		glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );
 		//glMaterialfv( GL_FRONT, GL_EMISSION, mat_emission );
 		
+		Node *albumNode  = trackNode->mParentNode;
+		Node *artistNode = albumNode->mParentNode;
 
 		// LIGHT FROM ALBUM
-		Vec3f albumLightPos		= mState.mMapOfNodes[2]->mTransPos;
+		Vec3f albumLightPos		= albumNode->mTransPos;
 		GLfloat albumLight[]	= { albumLightPos.x, albumLightPos.y, albumLightPos.z, 1.0f };
-		Color albumDiffuse		= mState.mMapOfNodes[2]->mGlowColor;
+		Color albumDiffuse		= albumNode->mGlowColor;
 		glLightfv( GL_LIGHT0, GL_POSITION, albumLight );
 		glLightfv( GL_LIGHT0, GL_DIFFUSE, albumDiffuse );
 
 		// LIGHT FROM ARTIST
-		Vec3f artistLightPos	= mState.mMapOfNodes[1]->mTransPos;
+		Vec3f artistLightPos	= artistNode->mTransPos;
 		GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
-		Color artistDiffuse		= mState.mMapOfNodes[1]->mGlowColor;
+		Color artistDiffuse		= artistNode->mGlowColor;
+
 		glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
 		glLightfv( GL_LIGHT1, GL_DIFFUSE, artistDiffuse );
 
@@ -449,11 +458,18 @@ void KeplerApp::setParamsTex()
 	TextLayout layout;	
 	layout.setFont( mFonts[4] );
 	layout.setColor( Color( 0.3f, 0.3f, 1.0f ) );
+
+	int currentLevel = 0;
+	if (mState.getAlphaChar() != ' ') {
+		currentLevel = 1;
+	}
+	if (mState.getSelectedNode()) {
+		currentLevel = mState.getSelectedNode()->mGen;
+	}
 	
 	stringstream s;
-
 	s.str("");
-	s << " CURRENT LEVEL: " << G_CURRENT_LEVEL;
+	s << " CURRENT LEVEL: " << currentLevel;
 	layout.addLine( s.str() );
 	
 	s.str("");

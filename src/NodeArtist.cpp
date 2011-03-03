@@ -89,18 +89,19 @@ void NodeArtist::drawPlanet()
 
 void NodeArtist::select()
 {
-	vector<ipod::PlaylistRef> albumsBySelectedArtist = getAlbumsWithArtist( mName );
-	
-	int i=0;
-	for(vector<PlaylistRef>::iterator it = albumsBySelectedArtist.begin(); it != albumsBySelectedArtist.end(); ++it){
-		PlaylistRef album	= *it;
-		string name			= album->getAlbumTitle();
-		NodeAlbum *newNode = new NodeAlbum( this, i, mFont, name );
+	if (!mIsSelected) {
+		vector<ipod::PlaylistRef> albumsBySelectedArtist = getAlbumsWithArtist( mName );
 		
-		mChildNodes.push_back( newNode );
-		newNode->setData( album );
-		i++;
+		int i=0;
+		for(vector<PlaylistRef>::iterator it = albumsBySelectedArtist.begin(); it != albumsBySelectedArtist.end(); ++it){
+			PlaylistRef album	= *it;
+			string name			= album->getAlbumTitle();
+			NodeAlbum *newNode = new NodeAlbum( this, i, mFont, name );
+			
+			mChildNodes.push_back( newNode );
+			newNode->setData( album );
+			i++;
+		}
 	}
-	
 	Node::select();
 }
