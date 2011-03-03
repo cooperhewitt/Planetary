@@ -22,7 +22,7 @@ using namespace ci::app;
 using namespace std;
 
 int G_CURRENT_LEVEL	= 0;
-bool G_LOCK_TO_LEFT_SIDE = false;
+bool G_SHOW_HIT_SPHERES = false;
 
 float easeInOutQuad( double t, float b, float c, double d );
 Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
@@ -78,6 +78,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mStarTex;
 	gl::Texture		mStarGlowTex;
 	gl::Texture		mSkyDome;
+	gl::Texture		mDottedTex;
 	
 	float			mTime;
 };
@@ -124,6 +125,8 @@ void KeplerApp::setup()
 	mStarTex			= loadImage( loadResource( "star.png" ) );
 	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
+	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
+	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
 	
 	// BREADCRUMBS
 	mBreadcrumbs.setup( this, mFonts[3] );
@@ -256,8 +259,8 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat )
 void KeplerApp::update()
 {
 	updateArcball();
-	updateCamera();
 	mWorld.update( mCam, mMatrix, mBbRight, mBbUp );
+	updateCamera();
 	mBreadcrumbs.update();
 }
 
@@ -279,13 +282,11 @@ void KeplerApp::updateCamera()
 {
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){
-		float radiusMulti = 5.0f;
+		float radiusMulti = 5.0f - ( selectedNode->mGen * 2.0f );
 		
 		mCamDistDest	= ( selectedNode->mRadius * radiusMulti  );
 		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
 		
-		
-		// Right now, no nodes have parents.
 		//if( selectedNode->mParentNode )
 		//	mCenterFrom		+= selectedNode->mParentNode->mVel;
 
@@ -298,7 +299,7 @@ void KeplerApp::updateCamera()
 	
 	// UPDATE FOV
 	if( mUiLayer.getShowWheel() ){
-		mFovDest = 130.0f;
+		mFovDest = 120.0f;
 	} else {
 		mFovDest = 100.0f;
 	}
@@ -348,10 +349,17 @@ void KeplerApp::draw()
 	// ORBITS
 	mWorld.drawOrbitalRings();
 	
-	// TODO: Find out why the spheres go out of alignment.
-	//glDisable( GL_TEXTURE_2D );
-	//mWorld.drawSpheres();
 	
+	// CONSTELLATION
+	mDottedTex.enableAndBind();
+	mWorld.drawConstellation( mMatrix );
+	mDottedTex.disable();
+			
+	if( G_SHOW_HIT_SPHERES ){
+		// VISUALIZE THE HIT AREA
+		glDisable( GL_TEXTURE_2D );
+		mWorld.drawSpheres();
+	}
 	
 	//mWorld.drawNames();
 	//glDisable( GL_TEXTURE_2D );

@@ -20,7 +20,8 @@ class NodeAlbum : public Node
 	void update( const ci::CameraPersp &cam, const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void drawStar();
 	void drawStarGlow();
-	//void select();
+	void drawOrbitalRings();
+	void select();
 	void setData( ci::ipod::PlaylistRef album );
 	//void selectNextTrack( Node *nodeSelected, string trackName );
 	

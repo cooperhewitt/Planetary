@@ -13,6 +13,7 @@
 #include "cinder/gl/gl.h"
 #include "cinder/Rect.h"
 #include "cinder/Text.h"
+#include "cinder/Rand.h"
 
 using std::stringstream;
 using namespace ci;
@@ -43,6 +44,8 @@ void World::filterNodes()
 	for(vector<int>::iterator it = mData->mFilteredArtists.begin(); it != mData->mFilteredArtists.end(); ++it){
 		mNodes[*it]->mIsHighlighted = true;
 	}
+	
+	buildConstellation();
 }
 
 void World::deselectAllNodes()
@@ -110,5 +113,89 @@ void World::drawOrbitalRings()
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->drawOrbitalRings();
+	}
+}
+
+void World::drawConstellation( const Matrix44f &mat )
+{
+	if( mTotalVertices > 1 ){
+		gl::pushModelView();
+		gl::rotate( mat );
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glEnableClientState( GL_COLOR_ARRAY );
+		glVertexPointer( 3, GL_FLOAT, 0, mVerts );
+		glTexCoordPointer( 2, GL_FLOAT, 0, mTexCoords );
+		glColorPointer( 4, GL_FLOAT, 0, mColors );
+		glDrawArrays( GL_LINES, 0, mTotalVertices );
+		glDisableClientState( GL_VERTEX_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );		
+		glDisableClientState( GL_COLOR_ARRAY );
+		gl::popModelView();
+	}
+}
+
+
+void World::buildConstellation()
+{
+	mConstellation.clear();
+	mConstellationColors.clear();
+	
+	// CREATE DATA FOR CONSTELLATION
+	vector<float> distances;
+	for( vector<int>::iterator it1 = mData->mFilteredArtists.begin(); it1 != mData->mFilteredArtists.end(); ++it1 ){
+		Node *child1 = mNodes[(*it1)];
+		float shortestDist = 1000.0f;
+		Node *nearestChild;
+		
+		vector<int>::iterator it2 = it1;
+		for( ++it2; it2 != mData->mFilteredArtists.end(); ++it2 ) {
+			Node *child2 = mNodes[(*it2)];
+			
+			Vec3f dirBetweenChildren = child1->mPos - child2->mPos;
+			float distBetweenChildren = dirBetweenChildren.length();
+			if( distBetweenChildren < shortestDist ){
+				shortestDist = distBetweenChildren;
+				nearestChild = child2;
+			}
+		}
+		
+		distances.push_back( shortestDist * 0.2f );
+		mConstellation.push_back( child1->mPos );
+		mConstellation.push_back( nearestChild->mPos );
+		
+		mConstellationColors.push_back( ColorA( child1->mGlowColor, 0.3f ) );
+		mConstellationColors.push_back( ColorA( nearestChild->mGlowColor, 0.3f ) );
+	}
+	
+	mTotalVertices	= mConstellation.size();
+	mVerts			= new float[mTotalVertices*3];
+	mTexCoords		= new float[mTotalVertices*2];
+	mColors			= new float[mTotalVertices*4];
+	int vIndex = 0;
+	int tIndex = 0;
+	int cIndex = 0;
+	int distancesIndex = 0;
+	for( int i=0; i<mTotalVertices; i++ ){
+		Vec3f pos			= mConstellation[i];
+		mVerts[vIndex++]	= pos.x;
+		mVerts[vIndex++]	= pos.y;
+		mVerts[vIndex++]	= pos.z;
+		
+		if( i%2 == 0 ){
+			mTexCoords[tIndex++]	= 0.0f;
+			mTexCoords[tIndex++]	= 0.5f;
+		} else {
+			mTexCoords[tIndex++]	= distances[distancesIndex];
+			mTexCoords[tIndex++]	= 0.5f;
+			distancesIndex ++;
+		}
+		
+		ColorA c			= mConstellationColors[i];
+		mColors[cIndex++]	= c.r;
+		mColors[cIndex++]	= c.g;
+		mColors[cIndex++]	= c.b;
+		mColors[cIndex++]	= c.a;
 	}
 }
