@@ -28,7 +28,7 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 	createNameTexture();
 	
 	mTransPos			= mPos;
-	mSphere				= Sphere( mPos, mRadius * 1.5f );
+	mSphere				= Sphere( mPos, mRadius * 3.0f );
 	
 	mStartAngle			= Rand::randFloat( TWO_PI );
 	mOrbitAngle			= mStartAngle;
@@ -142,7 +142,7 @@ void Node::drawOrthoName( const CameraPersp &cam )
 		}
 		
 		
-		Vec2f offset = Vec2f( mRadius * 6.0f + mSphereScreenRadius * 0.5f, -mNameTex.getHeight() * 0.5f );
+		Vec2f offset = Vec2f( mRadius * 5.25f + mSphereScreenRadius * 0.35f, -mNameTex.getHeight() * 0.5f );
 		Vec2f pos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() ) + offset;
 
 		gl::draw( mNameTex, pos );
