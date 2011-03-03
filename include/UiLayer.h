@@ -32,7 +32,7 @@ class UiLayer {
 	void	drawWheel();
 	void	drawAlphaChar();
 	void	drawStrip();
-	void	setShowWheel( bool b ){ mShowWheel = b; }
+	void	setShowWheel( bool b ){ mShowWheel = b; if ( mShowWheel ) mPrevAlphaChar = ' '; }
 	bool	getShowWheel(){ return mShowWheel; }
 	void	setAlphaChar( char c ){ mAlphaChar = c; }
 	char	getAlphaChar(){ return mAlphaChar; }

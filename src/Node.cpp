@@ -45,7 +45,7 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 
 void Node::init()
 {
-	mGen				= 1;
+	mGen				= G_ARTIST_LEVELa;
 	mRadius				= 2.0f;
 	mPos				= Rand::randVec3f();
 	mPosPrev			= mPos;

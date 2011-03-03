@@ -241,19 +241,19 @@ bool KeplerApp::onNodeSelected( Node *node )
 bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 {
 	int level = event.getLevel();
-	if( level == 0 ){					// BACK TO HOME
+	if( level == G_HOME_LEVEL ){				// BACK TO HOME
 		mUiLayer.setShowWheel( !mUiLayer.getShowWheel() );
 		mWorld.deselectAllNodes();
 		mState.setSelectedNode( NULL );
 		mState.setAlphaChar( ' ' );
 	}
-	else if( level == 1 ){			// BACK TO ALPHA FILTER
+	else if( level == G_ALPHA_LEVEL ){			// BACK TO ALPHA FILTER
 		mWorld.deselectAllNodes();
 		mData.filterArtistsByAlpha( mState.getAlphaChar() );
 		mWorld.filterNodes();
 		mState.setSelectedNode(NULL);
 	}
-	else if( level >= 2 ){			// BACK TO ARTIST/ALBUM/TRACK
+	else if( level >= G_ARTIST_LEVEL ){			// BACK TO ARTIST/ALBUM/TRACK
 		// get Artist, Album or Track from selectedNode
 		Node *current = mState.getSelectedNode();
 		while (current != NULL && current->mGen > level) {
