@@ -61,7 +61,7 @@ void Node::initWithParent()
 	mPos				= mParentNode->mPos;
 	mPosPrev			= mParentNode->mPos;
 	mVel				= mParentNode->mVel;
-	mOrbitRadiusDest	= Rand::randFloat( mParentNode->mRadius * 1.0f, mParentNode->mRadius * 2.0f );
+	mOrbitRadiusDest	= Rand::randFloat( mParentNode->mRadius * 0.5f, mParentNode->mRadius * 2.0f );
 	mOrbitPeriod		= Rand::randFloat( 25.0f, 150.0f );
 }
 
@@ -82,10 +82,9 @@ void Node::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp
 	mBbUp		= bbUp;
 	mTransPos	= mMatrix * mPos;
 	mSphere.setCenter( mTransPos );
-	if( mIsSelected ) mSphere.setRadius( mRadius );
-	else mSphere.setRadius( mRadius * 3.0f );
 	
-	mZoomPer	= constrain( 1.0f - abs( G_ZOOM-mGen+1.0f ), 0.0f, 1.0f );
+	mZoomPer	= constrain( 1.0f - abs( G_ZOOM-mGen+1.0f ), 0.0f, 0.75f );
+	mZoomPer *= mZoomPer;
 	if( mIsSelected ) mZoomPer = 1.0f;
 
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){

@@ -117,7 +117,7 @@ void NodeAlbum::drawPlanet()
 		gl::pushModelView();
 		gl::translate( mTransPos );
 		gl::color( mColor * 2.0f );
-		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.2f, 150 );
+		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.225f, 150 );
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
 	}

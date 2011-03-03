@@ -45,7 +45,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
 	
-	mRadius			= mRadius * pow( normPlayCount + 0.75f, 2.0f );
+	mRadius			= mRadius * pow( normPlayCount + 0.5f, 2.0f );
 	mOrbitPeriod	= mTrackLength;
 	mAxisAngle		= Rand::randFloat( 5.0f, 30.0f );
 	

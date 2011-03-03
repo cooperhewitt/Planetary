@@ -269,7 +269,8 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat )
 	Node *touchedNode = NULL;
 	mWorld.checkForSphereIntersect( touchedNode, ray, mat );
 	
-	mState.setSelectedNode(touchedNode);
+	if( touchedNode )
+		mState.setSelectedNode(touchedNode);
 }
 
 void KeplerApp::update()
@@ -302,7 +303,7 @@ void KeplerApp::updateCamera()
 	if( selectedNode ){
 		float radiusMulti = 6.0f - ( selectedNode->mGen );
 		
-		mCamDistDest	= ( selectedNode->mRadius * radiusMulti  );
+		mCamDistDest	= ( selectedNode->mRadius * pow( radiusMulti, 0.75f )  );
 		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
 		mZoomDest		= selectedNode->mGen;
 		
@@ -326,7 +327,7 @@ void KeplerApp::updateCamera()
 	if( mUiLayer.getShowWheel() ){
 		mFovDest = 120.0f;
 	} else {
-		mFovDest = 100.0f - G_ZOOM * 5.0f;
+		mFovDest = 110.0f - G_ZOOM * 5.0f;
 	}
 	mFov -= ( mFov - mFovDest ) * 0.2f;
 	
@@ -388,10 +389,8 @@ void KeplerApp::draw()
 	// PLANETS
 	Node *albumNode  = mState.getSelectedAlbumNode();
 	Node *artistNode = mState.getSelectedArtistNode();
-	if( artistNode && albumNode ){
+	if( artistNode ){
 		glEnable( GL_LIGHTING );
-		glEnable( GL_LIGHT0 );
-		glEnable( GL_LIGHT1 );
 		glEnable ( GL_COLOR_MATERIAL ) ;
 		glShadeModel(GL_SMOOTH);
 					
@@ -399,18 +398,22 @@ void KeplerApp::draw()
 		glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );
 		//glMaterialfv( GL_FRONT, GL_EMISSION, mat_emission );
 		
-		// LIGHT FROM ALBUM
-		Vec3f albumLightPos		= albumNode->mTransPos;
-		GLfloat albumLight[]	= { albumLightPos.x, albumLightPos.y, albumLightPos.z, 1.0f };
-		Color albumDiffuse		= albumNode->mGlowColor;
-		glLightfv( GL_LIGHT0, GL_POSITION, albumLight );
-		glLightfv( GL_LIGHT0, GL_DIFFUSE, albumDiffuse );
-
+		
+		if( albumNode ){
+			// LIGHT FROM ALBUM
+			glEnable( GL_LIGHT0 );
+			Vec3f albumLightPos		= albumNode->mTransPos;
+			GLfloat albumLight[]	= { albumLightPos.x, albumLightPos.y, albumLightPos.z, 1.0f };
+			Color albumDiffuse		= albumNode->mGlowColor;
+			glLightfv( GL_LIGHT0, GL_POSITION, albumLight );
+			glLightfv( GL_LIGHT0, GL_DIFFUSE, albumDiffuse );
+		}
+		
 		// LIGHT FROM ARTIST
+		glEnable( GL_LIGHT1 );
 		Vec3f artistLightPos	= artistNode->mTransPos;
 		GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
 		Color artistDiffuse		= artistNode->mGlowColor;
-
 		glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
 		glLightfv( GL_LIGHT1, GL_DIFFUSE, artistDiffuse );
 

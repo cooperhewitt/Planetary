@@ -25,8 +25,8 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string n
 	
 	float hue		= Rand::randFloat( 0.0f, 0.5f );
 	float sat		= 1.0f - sin( hue * 2.0f * M_PI );
-	mColor			= Color( CM_HSV, hue, sat * 0.25f, 1.0f );
-	mGlowColor		= Color( CM_HSV, hue, sat, 1.0f );
+	mColor			= Color( CM_HSV, hue, sat * 0.1f, 1.0f );
+	mGlowColor		= Color( CM_HSV, hue, sat + 0.2f, 1.0f );
 }
 
 void NodeArtist::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
@@ -49,7 +49,7 @@ void NodeArtist::drawStarGlow()
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
 		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 4.5f;
-		if( mIsSelected ) radius *= 2.5f;
+		if( mIsSelected ) radius *= 1.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 
@@ -78,6 +78,17 @@ void NodeArtist::drawOrbitalRings()
 
 void NodeArtist::drawPlanet()
 {
+	/*
+	if( mIsHighlighted ){
+		glDisable( GL_LIGHTING );
+		gl::pushModelView();
+		gl::translate( mTransPos );
+		gl::color( mColor * 1.5f );
+		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.2f, 150 );
+		gl::popModelView();
+		glEnable( GL_LIGHTING );
+	}*/
+	
 	Node::drawPlanet();
 }
 
