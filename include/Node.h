@@ -39,7 +39,7 @@ class Node {
 	void				drawOrthoName( const ci::CameraPersp &cam );
 	void				drawSphere();
 	virtual void		drawOrbitalRings();
-	virtual void		drawPlanet( std::vector< ci::gl::Texture*> texs );
+	virtual void		drawPlanet( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> texs );
 	virtual void		drawRings( ci::gl::Texture *tex );
 	void				checkForSphereIntersect( Node* &theNode, const ci::Ray &ray, ci::Matrix44f &mat );
 	virtual void		select();

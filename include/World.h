@@ -14,6 +14,7 @@
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 #include "CinderIPodPlayer.h"
+#include "cinder/Matrix.h"
 #include "Data.h"
 #include "Node.h"
 
@@ -35,7 +36,7 @@ class World {
 	void drawOrbitalRings();
 	void drawConstellation( const ci::Matrix44f &mat );
 	void buildConstellation();
-	void drawPlanets( std::vector< ci::gl::Texture*> texs );
+	void drawPlanets( const ci::Matrix44f &accelMatrix, std::vector< ci::gl::Texture*> texs );
 	void drawRings( ci::gl::Texture *tex );
 	
 	Data *mData;

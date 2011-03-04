@@ -80,7 +80,7 @@ void Node::createNameTexture()
 
 	if( mGen == G_TRACK_LEVEL ){
 		Surface8u planetSurface = Surface( 512, 256, true, SurfaceChannelOrder::RGBA );
-		Vec2i offset = Vec2i( 0.0f, 128 - mNameTex.getHeight() * 0.5f );
+		Vec2i offset = Vec2i( 0, 128 - mNameTex.getHeight() * 0.5f );
 		planetSurface.copyFrom( nameSurface, nameSurface.getBounds(), offset );
 	
 		mPlanetTex = gl::Texture( planetSurface );
@@ -190,10 +190,10 @@ void Node::drawOrbitalRings()
 {
 }
 
-void Node::drawPlanet( std::vector< gl::Texture*> texs )
+void Node::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> texs )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawPlanet( texs );
+		(*nodeIt)->drawPlanet( accelMatrix, texs );
 	}
 }
 

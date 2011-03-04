@@ -21,7 +21,7 @@ class NodeAlbum : public Node
 	void drawStar();
 	void drawStarGlow();
 	void drawOrbitalRings();
-	void drawPlanet( std::vector< ci::gl::Texture*> texs );
+	void drawPlanet( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> texs );
 	void drawRings( ci::gl::Texture *tex );
 	void select();
 	void setData( ci::ipod::PlaylistRef album );

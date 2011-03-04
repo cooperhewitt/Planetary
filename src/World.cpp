@@ -125,10 +125,10 @@ void World::drawOrbitalRings()
 	}
 }
 
-void World::drawPlanets( std::vector< gl::Texture*> texs )
+void World::drawPlanets( const Matrix44f &accelMatrix, std::vector< gl::Texture*> texs )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawPlanet( texs );
+		(*it)->drawPlanet( accelMatrix, texs );
 	}
 }
 

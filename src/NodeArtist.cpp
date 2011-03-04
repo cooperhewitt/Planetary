@@ -79,7 +79,7 @@ void NodeArtist::drawOrbitalRings()
 	}
 }
 
-void NodeArtist::drawPlanet( std::vector< gl::Texture*> texs )
+void NodeArtist::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> texs )
 {
 	/*
 	if( mIsHighlighted ){
@@ -110,7 +110,7 @@ void NodeArtist::drawPlanet( std::vector< gl::Texture*> texs )
 	}
 	
 	
-	Node::drawPlanet( texs );
+	Node::drawPlanet( accelMatrix, texs );
 }
 
 void NodeArtist::drawRings( gl::Texture *tex )

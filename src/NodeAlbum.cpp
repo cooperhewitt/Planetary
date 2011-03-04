@@ -107,7 +107,7 @@ void NodeAlbum::drawOrbitalRings()
 	}
 }
 
-void NodeAlbum::drawPlanet( std::vector< gl::Texture*> texs )
+void NodeAlbum::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> texs )
 {	
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
@@ -126,7 +126,7 @@ void NodeAlbum::drawPlanet( std::vector< gl::Texture*> texs )
 		glEnable( GL_LIGHTING );
 	}
 		
-	Node::drawPlanet( texs );
+	Node::drawPlanet( accelMatrix, texs );
 }
 
 void NodeAlbum::drawRings( gl::Texture *tex )

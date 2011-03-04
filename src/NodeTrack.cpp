@@ -37,7 +37,7 @@ NodeTrack::NodeTrack( Node *parent, int index, int numTracks, const Font &font, 
 	float invTrackPer = 1.0f/(float)mNumTracks;
 	float trackNumPer = (float)mIndex * invTrackPer;
 	
-	mOrbitRadiusDest = ( mParentNode->mRadius * 1.5f ) * trackNumPer + ( mParentNode->mRadius * 0.5f ) - Rand::randFloat( mParentNode->mRadius * 2.0f * invTrackPer );
+	mOrbitRadiusDest = ( mParentNode->mRadius * 1.5f ) * trackNumPer + ( mParentNode->mRadius * 0.5f ) + Rand::randFloat( mParentNode->mRadius * 2.0f * invTrackPer );
 	
 }
 
@@ -47,7 +47,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mTrack			= track;
 	mTrackLength	= (*mAlbum)[mIndex]->getLength();
 	mPlayCount		= (*mAlbum)[mIndex]->getPlayCount();
-	mAlbumArt		= mTrack->getArtwork( Vec2i( 256, 256 ) );
+	//mAlbumArt		= mTrack->getArtwork( Vec2i( 256, 256 ) );
 	
 	//normalize playcount data
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
@@ -140,17 +140,18 @@ void NodeTrack::drawStar()
 	}
 }
 
-void NodeTrack::drawPlanet( std::vector< gl::Texture*> texs )
+void NodeTrack::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> texs )
 {
 	gl::color( mColor );
 	gl::pushModelView();
 	gl::translate( mTransPos );
 	gl::rotate( mMatrix );
 	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 20.0f, mAxialTilt ) );
-	if( G_DEBUG )
-		mAlbumArt.enableAndBind();
-	else 
+	if( G_DEBUG ){
+		//mAlbumArt.enableAndBind();
+	} else {
 		texs[mPlanetTexIndex]->enableAndBind();
+	}
 	gl::drawSphere( Vec3f::zero(), mRadius * 0.375f, mSphereRes );
 	
 	
@@ -167,22 +168,24 @@ void NodeTrack::drawPlanet( std::vector< gl::Texture*> texs )
 		 gl::color( mAtmosphereColor );
 		 gl::drawSphere( Vec3f::zero(), mRadius * 0.387f, mSphereRes );
 		gl::popModelView();
-		
-
+	}
+	gl::popModelView();
+	
+	
+	// PLANET NAME TEXTURE
+	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
 		mPlanetTex.enableAndBind();
 		gl::pushModelView();
+		gl::translate( mTransPos );
 		gl::color( mParentNode->mParentNode->mGlowColor );
-		gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * -5.0f, mAxialTilt ) );
+		gl::rotate( accelMatrix );//Vec3f( 0.0f, app::getElapsedSeconds() * -5.0f, mAxialTilt ) );
 		gl::drawSphere( Vec3f::zero(), mRadius * 0.3925f, mSphereRes );
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
 
 		gl::disableAlphaBlending();
 	}
-	
-	
-	gl::popModelView();
 }
 
 void NodeTrack::drawRings( gl::Texture *tex )

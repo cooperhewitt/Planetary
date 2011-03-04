@@ -41,6 +41,7 @@ class KeplerApp : public AppCocoaTouch {
 	virtual void	touchesBegan( TouchEvent event );
 	virtual void	touchesMoved( TouchEvent event );
 	virtual void	touchesEnded( TouchEvent event );
+	virtual void	accelerated( AccelEvent event );
 	void			initTextures();
 	void			initFonts();
 	virtual void	update();
@@ -61,6 +62,9 @@ class KeplerApp : public AppCocoaTouch {
 	State			mState;
 	UiLayer			mUiLayer;
 	Data			mData;
+	
+	// ACCELEROMETER
+	Matrix44f		mAccelMatrix;
 	
 	// AUDIO
 	ipod::Player	mIpodPlayer;
@@ -106,6 +110,10 @@ class KeplerApp : public AppCocoaTouch {
 void KeplerApp::setup()
 {
 	Rand::randomize();
+	
+	// INIT ACCELEROMETER
+	enableAccelerometer();
+	mAccelMatrix		= Matrix44f();
 	
 	// ARCBALL
 	mMatrix	= Quatf();
@@ -215,6 +223,12 @@ void KeplerApp::touchesEnded( TouchEvent event )
 		}
 		mIsDragging = false;
 	}
+}
+
+void KeplerApp::accelerated( AccelEvent event )
+{
+	mAccelMatrix = event.getMatrix();
+	mAccelMatrix.invert();
 }
 
 void KeplerApp::initTextures()
@@ -446,7 +460,7 @@ void KeplerApp::draw()
 // PLANETS
 		gl::enableDepthRead();
 		gl::disableAlphaBlending();
-		mWorld.drawPlanets( mPlanetsTex );
+		mWorld.drawPlanets( mAccelMatrix, mPlanetsTex );
 		
 // RINGS
 		gl::enableAdditiveBlending();
