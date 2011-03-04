@@ -29,7 +29,7 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string nam
 	mGlowColor		= Color( CM_HSV, hue + 0.15f, sat, 1.0f );
 	
 	mOrbitRadiusDest = Rand::randFloat( mParentNode->mRadius * 0.5f, mParentNode->mRadius * 1.5f );
-	mIdealCameraDist = mRadius * 2.25f;	
+	mIdealCameraDist = mRadius * 2.0f;	
 
 }
 

@@ -33,7 +33,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font, std::string nam
 	mColor			= Color( CM_HSV, hue, sat, val );
 	mAtmosphereColor = Color( CM_HSV, Rand::randFloat(), 0.45f, 1.0f );
 	mOrbitRadiusDest = Rand::randFloat( mParentNode->mRadius * 0.5f, mParentNode->mRadius * 2.0f );
-	mIdealCameraDist = mSphere.getRadius() * 0.5f;
+	mIdealCameraDist = mRadius * 2.0f;
 }
 
 void NodeTrack::setData( TrackRef track, PlaylistRef album )
