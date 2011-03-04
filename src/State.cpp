@@ -46,23 +46,16 @@ void State::setSelectedNode( Node* node )
 		mSelectedNode = NULL;
 	}
 	else {
-		// clear currently selected node and all parents
-		Node *selection = mSelectedNode;
-		while( selection ) {
-			selection->deselect();
-			selection = selection->mParentNode;
+		// clear currently selected node
+		// assuming that the only thing that can be selected is at the same level or higher
+		if (mSelectedNode != NULL && mSelectedNode->mGen == node->mGen) {
+			mSelectedNode->deselect();
 		}
-		// ensure that the new selection hierarchy is selected
-		selection = node;
-		while( selection ) {
-			if ( !selection->mIsSelected ) {
-				selection->select();
-			}
-			selection = selection->mParentNode;
-		}
+		// ensure that the new selection is selected
+		node->select();
 		mSelectedNode = node;
 	}
-	// tell everyone the good news
+	// and then spread the good word
 	mCallbacksNodeSelected.call(mSelectedNode);
 }
 
