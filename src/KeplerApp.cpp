@@ -111,7 +111,7 @@ void KeplerApp::setup()
 	mMatrix	= Quatf();
 	mArcball.setWindowSize( getWindowSize() );
 	mArcball.setCenter( getWindowCenter() );
-	mArcball.setRadius( 300 );
+	mArcball.setRadius( 420 );
 	
 	
 	// CAMERA PERSP
@@ -194,7 +194,7 @@ void KeplerApp::touchesMoved( TouchEvent event )
 	mIsDragging = true;
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt )
 	{
-		mTouchThrowVel	= touchIt->getPos() - mTouchPos;
+		mTouchThrowVel	= ( touchIt->getPos() - mTouchPos );
 		mTouchVel		= mTouchThrowVel;
 		mTouchPos		= touchIt->getPos();
 		if( event.getTouches().size() == 1 )
@@ -316,11 +316,11 @@ void KeplerApp::update()
 void KeplerApp::updateArcball()
 {
 	if( mTouchThrowVel.length() > 10.0f && !mIsDragging ){
-		if( mTouchVel.length() > 1.0f ){
-			mTouchVel *= 0.99f;
+		//if( mTouchVel.length() > 1.0f ){
+			//mTouchVel *= 0.99f;
 			mArcball.mouseDown( mTouchPos );
 			mArcball.mouseDrag( mTouchPos + mTouchVel );
-		}
+		//}
 	}
 	
 	mMatrix = mArcball.getQuat();
