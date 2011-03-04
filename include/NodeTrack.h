@@ -16,7 +16,6 @@ class NodeTrack : public Node
 {
   public:
 	NodeTrack( Node *parent, int index, int numTracks, const ci::Font &font, std::string name );
-
 	void update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void drawStar();
 	void drawPlanet( std::vector< ci::gl::Texture*> texs );

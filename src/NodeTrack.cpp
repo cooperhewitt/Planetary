@@ -10,6 +10,7 @@
 #include "cinder/app/AppBasic.h"
 #include "NodeAlbum.h"
 #include "NodeTrack.h"
+#include "cinder/Text.h"
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
 #include "Globals.h"
@@ -21,7 +22,7 @@ using namespace std;
 
 NodeTrack::NodeTrack( Node *parent, int index, int numTracks, const Font &font, std::string name )
 	: Node( parent, index, font, name )
-{
+{	
 	mIsHighlighted	= true;
 	mSphereRes		= 16;
 	//mRadius			*= 0.75f;
@@ -33,9 +34,10 @@ NodeTrack::NodeTrack( Node *parent, int index, int numTracks, const Font &font, 
 	mColor			= Color( CM_HSV, hue, sat, val );
 	mAtmosphereColor = mParentNode->mColor;
 	mNumTracks		= numTracks;
-	float trackNumPer = (float)mIndex/(float)mNumTracks;
+	float invTrackPer = 1.0f/(float)mNumTracks;
+	float trackNumPer = (float)mIndex * invTrackPer;
 	
-	mOrbitRadiusDest = ( mParentNode->mRadius * 1.5f ) * trackNumPer + ( mParentNode->mRadius * 0.5f );
+	mOrbitRadiusDest = ( mParentNode->mRadius * 1.5f ) * trackNumPer + ( mParentNode->mRadius * 0.5f ) - Rand::randFloat( mParentNode->mRadius * 2.0f * invTrackPer );
 	
 }
 
@@ -133,7 +135,7 @@ void NodeTrack::drawStar()
 {
 	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
 		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, 1.0f ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 1.65f;
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 1.13;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 }
@@ -170,6 +172,7 @@ void NodeTrack::drawPlanet( std::vector< gl::Texture*> texs )
 		glDisable( GL_LIGHTING );
 		mPlanetTex.enableAndBind();
 		gl::pushModelView();
+		gl::color( mParentNode->mParentNode->mGlowColor );
 		gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * -5.0f, mAxialTilt ) );
 		gl::drawSphere( Vec3f::zero(), mRadius * 0.3925f, mSphereRes );
 		gl::popModelView();
