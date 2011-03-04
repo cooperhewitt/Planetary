@@ -19,7 +19,7 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeTrack::NodeTrack( Node *parent, int index, const Font &font, std::string name )
+NodeTrack::NodeTrack( Node *parent, int index, int numTracks, const Font &font, std::string name )
 	: Node( parent, index, font, name )
 {
 	mIsHighlighted	= true;
@@ -28,12 +28,15 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font, std::string nam
 	mIsPlaying		= false;
 	
 	float hue		= Rand::randFloat();
-	float sat		= Rand::randFloat( 0.2f, 0.7f);
-	float val		= Rand::randFloat( 0.7f, 1.0f);
+	float sat		= Rand::randFloat( 0.0f, 0.25f);
+	float val		= Rand::randFloat( 0.85f, 1.0f);
 	mColor			= Color( CM_HSV, hue, sat, val );
-	mAtmosphereColor = Color( CM_HSV, Rand::randFloat(), 0.45f, 1.0f );
-	mOrbitRadiusDest = Rand::randFloat( mParentNode->mRadius * 0.5f, mParentNode->mRadius * 2.0f );
-	mIdealCameraDist = mRadius * 2.0f;
+	mAtmosphereColor = mParentNode->mColor;
+	mNumTracks		= numTracks;
+	float trackNumPer = (float)mIndex/(float)mNumTracks;
+	
+	mOrbitRadiusDest = ( mParentNode->mRadius * 1.5f ) * trackNumPer + ( mParentNode->mRadius * 0.5f );
+	
 }
 
 void NodeTrack::setData( TrackRef track, PlaylistRef album )
@@ -42,16 +45,22 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mTrack			= track;
 	mTrackLength	= (*mAlbum)[mIndex]->getLength();
 	mPlayCount		= (*mAlbum)[mIndex]->getPlayCount();
+	mAlbumArt		= mTrack->getArtwork( Vec2i( 256, 256 ) );
 	
 	//normalize playcount data
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
-
-	mPlanetTexIndex = (int)( normPlayCount * G_NUM_PLANET_TYPES );
+	
+	if( mPlayCount == mParentNode->mHighestPlayCount )
+		mPlanetTexIndex = G_NUM_RINGED_TYPE;
+	else
+		mPlanetTexIndex = (int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
 		
 	mRadius			= mRadius * pow( normPlayCount + 0.5f, 2.0f );
+	mSphere			= Sphere( mPos, mRadius * 2.0f );
+	mIdealCameraDist = mRadius * 3.0f;
 	mOrbitPeriod	= mTrackLength;
-	mAxisAngle		= 0.0f;//Rand::randFloat( 5.0f, 30.0f );
+	mAxialTilt		= Rand::randFloat( 5.0f, 30.0f );
 	
 	mVerts			= new float[18];
 	mTexCoords		= new float[12];
@@ -120,32 +129,52 @@ void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	Node::update( mat, bbRight, bbUp );
 }
 
+void NodeTrack::drawStar()
+{
+	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
+		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, 1.0f ) );
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 1.65f;
+		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+	}
+}
+
 void NodeTrack::drawPlanet( std::vector< gl::Texture*> texs )
 {
 	gl::color( mColor );
 	gl::pushModelView();
 	gl::translate( mTransPos );
 	gl::rotate( mMatrix );
-	if( mPlanetTexIndex == G_NUM_PLANET_TYPES - 1 ){
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 10.0f, mAxisAngle ) );
-	} else {
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 50.0f, mAxisAngle ) );
-	}
-	texs[mPlanetTexIndex]->enableAndBind();
+	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 20.0f, mAxialTilt ) );
+	if( G_DEBUG )
+		mAlbumArt.enableAndBind();
+	else 
+		texs[mPlanetTexIndex]->enableAndBind();
 	gl::drawSphere( Vec3f::zero(), mRadius * 0.375f, mSphereRes );
 	
 	
 	if( mIsSelected ){
-		gl::enableAdditiveBlending();
 		texs[G_CLOUDS_TYPE]->enableAndBind();
-		gl::color( mAtmosphereColor );
-		gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * -25.0f, mAxisAngle ) );
-		gl::drawSphere( Vec3f::zero(), mRadius * 0.385f, mSphereRes );
 		
+		gl::pushModelView();
+		 gl::enableAlphaBlending();
+ 		 gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.35f ) );
+		 gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * 3.0f, mAxialTilt ) );
+		 gl::drawSphere( Vec3f::zero(), mRadius * 0.377f, mSphereRes );
+		
+		 gl::enableAdditiveBlending();
+		 gl::color( mAtmosphereColor );
+		 gl::drawSphere( Vec3f::zero(), mRadius * 0.387f, mSphereRes );
+		gl::popModelView();
+		
+
 		glDisable( GL_LIGHTING );
 		mPlanetTex.enableAndBind();
-		gl::drawSphere( Vec3f::zero(), mRadius * 0.395f, mSphereRes );
+		gl::pushModelView();
+		gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * -5.0f, mAxialTilt ) );
+		gl::drawSphere( Vec3f::zero(), mRadius * 0.3925f, mSphereRes );
+		gl::popModelView();
 		glEnable( GL_LIGHTING );
+
 		gl::disableAlphaBlending();
 	}
 	
@@ -159,8 +188,8 @@ void NodeTrack::drawRings( gl::Texture *tex )
 		gl::pushModelView();
 		gl::translate( mTransPos );
 		gl::rotate( mMatrix );
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 10.0f, mAxisAngle ) );
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.5f ) );
+		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 10.0f, mAxialTilt ) );
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		tex->enableAndBind();
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -176,12 +205,11 @@ void NodeTrack::drawRings( gl::Texture *tex )
 
 void NodeTrack::select()
 {
-	/*
+	
 	std::cout << "Index = " << mIndex << std::endl;
 	std::cout << "AlbumName = " << mAlbum->getAlbumTitle() << std::endl;
 	mPlayer->play( mAlbum, mIndex );
 	mIsPlaying = true;
-	*/
 	
 	Node::select();
 }

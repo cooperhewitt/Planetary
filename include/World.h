@@ -21,7 +21,7 @@ class World {
  public:
 	World();
 	void setData( Data *data ){ mData = data; }
-	void initNodes( const ci::Font &font );
+	void initNodes( ci::ipod::Player *player, const ci::Font &font );
 	void filterNodes();
 	void deselectAllNodes();
 	void checkForSphereIntersect( Node* &theNode, const ci::Ray &ray, ci::Matrix44f &mat );

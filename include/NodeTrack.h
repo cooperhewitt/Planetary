@@ -15,9 +15,10 @@
 class NodeTrack : public Node
 {
   public:
-	NodeTrack( Node *parent, int index, const ci::Font &font, std::string name );
+	NodeTrack( Node *parent, int index, int numTracks, const ci::Font &font, std::string name );
 
 	void update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	void drawStar();
 	void drawPlanet( std::vector< ci::gl::Texture*> texs );
 	void drawRings( ci::gl::Texture *tex );
 	void select();
@@ -28,16 +29,17 @@ class NodeTrack : public Node
 	float mTrackLength;
 	float mPlayCount;
 	double lastTime;
-	
+	int mNumTracks;
 	int mSphereRes;
 	
 	int mTotalVerts;
 	GLfloat *mVerts;
 	GLfloat *mTexCoords;
+	ci::gl::Texture mAlbumArt;
 	
 	ci::Color mAtmosphereColor;
 	
-	float mAxisAngle;
+	float mAxialTilt;
 	
 	bool mIsPlaying;
 };

@@ -27,13 +27,14 @@ World::World()
 
 }
 
-void World::initNodes( const Font &font )
+void World::initNodes( Player *player, const Font &font )
 {
 	int i=0;
 	for(vector<PlaylistRef>::iterator it = mData->mArtists.begin(); it != mData->mArtists.end(); ++it){
 		PlaylistRef artist	= *it;
 		string name			= artist->getArtistName();
 		NodeArtist *newNode = new NodeArtist( NULL, i, font, name );
+		newNode->setIPodPlayer( player );
 		mNodes.push_back( newNode );
 	}
 }

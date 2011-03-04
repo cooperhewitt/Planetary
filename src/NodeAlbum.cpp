@@ -29,7 +29,9 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string nam
 	mGlowColor		= Color( CM_HSV, hue + 0.15f, sat, 1.0f );
 	
 	mOrbitRadiusDest = Rand::randFloat( mParentNode->mRadius * 0.5f, mParentNode->mRadius * 1.5f );
-	mIdealCameraDist = mRadius * 2.0f;	
+	mIdealCameraDist = mRadius * 2.0f;
+	
+	mSphere			= Sphere( mPos, mRadius * 2.0f );
 
 }
 
@@ -114,7 +116,7 @@ void NodeAlbum::drawPlanet( std::vector< gl::Texture*> texs )
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.215f, 100 );
 		
-		gl::enableAlphaBlending();
+		gl::enableAdditiveBlending();
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.5f ) );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.220f, 100 );
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.25f ) );
@@ -141,7 +143,8 @@ void NodeAlbum::select()
 			TrackRef track		= *it;
 			string name			= track->getTitle();
 			std::cout << "trackname = " << name << std::endl;
-			NodeTrack *newNode	= new NodeTrack( this, i, mFont, name );
+			NodeTrack *newNode	= new NodeTrack( this, i, mAlbum->size(), mFont, name );
+			newNode->setIPodPlayer( mPlayer );
 			mChildNodes.push_back( newNode );
 			newNode->setData( track, mAlbum );
 			i++;

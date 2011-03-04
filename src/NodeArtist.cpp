@@ -28,6 +28,8 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string n
 	mColor			= Color( CM_HSV, hue, sat * 0.1f, 1.0f );
 	mGlowColor		= Color( CM_HSV, hue, sat + 0.2f, 1.0f );
 	mIdealCameraDist = mRadius * 2.0f;
+	
+	mSphere			= Sphere( mPos, mRadius * 5.0f );
 }
 
 void NodeArtist::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
@@ -126,7 +128,7 @@ void NodeArtist::select()
 			PlaylistRef album	= *it;
 			string name			= album->getAlbumTitle();
 			NodeAlbum *newNode = new NodeAlbum( this, i, mFont, name );
-			
+			newNode->setIPodPlayer( mPlayer );
 			mChildNodes.push_back( newNode );
 			newNode->setData( album );
 			i++;

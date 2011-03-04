@@ -6,6 +6,7 @@
 #include "cinder/Font.h"
 #include "cinder/Arcball.h"
 #include "cinder/ImageIo.h"
+#include "cinder/Rand.h"
 #include "Globals.h"
 #include "Easing.h"
 #include "World.h"
@@ -14,6 +15,8 @@
 #include "Data.h"
 #include "Breadcrumbs.h"
 #include "BreadcrumbEvent.h"
+#include "CinderIPod.h"
+#include "CinderIPodPlayer.h"
 #include <vector>
 #include <sstream>
 
@@ -51,10 +54,16 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
 	bool			onNodeSelected( Node *node );
 	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat );
+	bool			onPlayerStateChanged( ipod::Player *player );
+    bool			onPlayerTrackChanged( ipod::Player *player );
+	
 	World			mWorld;
 	State			mState;
 	UiLayer			mUiLayer;
 	Data			mData;
+	
+	// AUDIO
+	ipod::Player	mIpodPlayer;
 	
 	// BREADCRUMBS
 	Breadcrumbs		mBreadcrumbs;	
@@ -96,6 +105,8 @@ class KeplerApp : public AppCocoaTouch {
 
 void KeplerApp::setup()
 {
+	Rand::randomize();
+	
 	// ARCBALL
 	mMatrix	= Quatf();
 	mArcball.setWindowSize( getWindowSize() );
@@ -121,6 +132,11 @@ void KeplerApp::setup()
 	
 	// FONTS
 	initFonts();
+	
+	
+	// PLAYER
+	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
+    mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
 	
 	
 	// TOUCH VARS
@@ -157,7 +173,7 @@ void KeplerApp::setup()
 
 	// WORLD
 	mWorld.setData( &mData );
-	mWorld.initNodes( mFonts[4] );
+	mWorld.initNodes( &mIpodPlayer, mFonts[4] );
 }
 
 void KeplerApp::touchesBegan( TouchEvent event )
@@ -368,7 +384,6 @@ void KeplerApp::draw()
 	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
 	mSkyDome.enableAndBind();
 	gl::drawSphere( Vec3f::zero(), 2000.0f, 64 );
-	mSkyDome.disable();
 	gl::popModelView();
 	
 	
@@ -393,7 +408,7 @@ void KeplerApp::draw()
 	if( G_DEBUG ){
 		// VISUALIZE THE HIT AREA
 		glDisable( GL_TEXTURE_2D );
-		mWorld.drawSpheres();
+	//	mWorld.drawSpheres();
 	}
 	
 	
@@ -441,6 +456,7 @@ void KeplerApp::draw()
 	
 // ORBITS
 	gl::enableAdditiveBlending();
+	gl::enableDepthRead();
 	mWorld.drawOrbitalRings();
 	gl::disableDepthRead();
 
@@ -450,6 +466,9 @@ void KeplerApp::draw()
 	gl::setMatricesWindow( getWindowSize() );
 	gl::enableAdditiveBlending();
 	mWorld.drawOrthoNames( mCam );
+	
+	
+	
 	
 	glDisable( GL_TEXTURE_2D );
 	gl::disableAlphaBlending();
@@ -506,6 +525,25 @@ void KeplerApp::setParamsTex()
 }
 
 
+bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
+{	
+    console() << "Now Playing: " << player->getPlayingTrack()->getTitle() << endl;
+	
+    return false;
+}
+
+bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
+{
+    switch( player->getPlayState() ){
+        case ipod::Player::StatePlaying:
+            console() << "Playing..." << endl;
+            break;
+        case ipod::Player::StateStopped:
+            console() << "Stopped." << endl;
+            break;
+    }
+    return false;
+}
 
 
 CINDER_APP_COCOA_TOUCH( KeplerApp, RendererGl )

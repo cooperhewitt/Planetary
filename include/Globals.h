@@ -26,6 +26,7 @@ static const float G_INIT_CAM_DIST	= 175.0f;
 static const int G_NUM_PLANET_TYPES = 6;
 static const int G_CLOUDS_TYPE		= 6;
 static const int G_RING_TYPE		= 7;
+static const int G_NUM_RINGED_TYPE	= 5; // this is stupid... still thinking of best way to do planet textures
 
 
 // TODO: move into State.h

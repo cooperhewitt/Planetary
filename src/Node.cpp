@@ -28,7 +28,6 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 	createNameTexture();
 	
 	mTransPos			= mPos;
-	mSphere				= Sphere( mPos, mRadius * 3.0f );
 	
 	mStartAngle			= Rand::randFloat( TWO_PI );
 	mOrbitAngle			= mStartAngle;
@@ -65,6 +64,11 @@ void Node::initWithParent()
 	mOrbitPeriod		= Rand::randFloat( 25.0f, 150.0f );
 }
 
+void Node::setIPodPlayer( ci::ipod::Player *player )
+{
+	mPlayer = player;
+}
+
 void Node::createNameTexture()
 {
 	TextLayout layout;
@@ -93,8 +97,12 @@ void Node::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp
 	mSphere.setCenter( mTransPos );
 	
 	mZoomPer	= constrain( 1.0f - abs( G_ZOOM-mGen+1.0f ), 0.0f, 0.75f );
-	mZoomPer *= mZoomPer;
-	if( mIsSelected ) mZoomPer = 1.0f;
+	mZoomPer = pow( mZoomPer, 3.0f );
+	if( mGen == G_TRACK_LEVEL && mIsSelected ){
+		mZoomPer = 1.0f - mZoomPer;
+	} else if( mIsSelected ){
+		mZoomPer = 1.0f;
+	}
 
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->update( mat, bbRight, bbUp );
@@ -153,10 +161,7 @@ void Node::drawOrthoName( const CameraPersp &cam )
 		} else {
 			gl::color( ColorA( mColor, mZoomPer ) );
 		}
-		
-		if( mGen == G_TRACK_LEVEL ){
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f - mZoomPer ) );
-		}
+
 		
 		Vec2f offset = Vec2f( mRadius * 5.25f + mSphereScreenRadius * 0.2f, -mNameTex.getHeight() * 0.5f );
 		Vec2f pos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() ) + offset;

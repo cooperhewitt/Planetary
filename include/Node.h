@@ -29,6 +29,7 @@ class Node {
 	// METHODS
 	void				init();
 	void				initWithParent();
+	void				setIPodPlayer( ci::ipod::Player *player );
 	void				createNameTexture();
 	virtual void		update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	virtual void		updateGraphics( const ci::CameraPersp &cam );
@@ -43,6 +44,10 @@ class Node {
 	void				checkForSphereIntersect( Node* &theNode, const ci::Ray &ray, ci::Matrix44f &mat );
 	virtual void		select();
 	void				deselect();
+	
+	
+	ci::ipod::Player	*mPlayer;
+	
 	
 	int					mGen;
 	int					mIndex;
