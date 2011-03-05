@@ -75,7 +75,7 @@ void NodeAlbum::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 void NodeAlbum::drawStar()
 {
 	gl::color( mColor );
-	gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ) * 0.7f, 0.0f, mBbRight, mBbUp );
+	gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ) * 0.65f, 0.0f, mBbRight, mBbUp );
 	
 	Node::drawStar();
 }

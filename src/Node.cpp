@@ -80,7 +80,7 @@ void Node::createNameTexture()
 
 	if( mGen == G_TRACK_LEVEL ){
 		Surface8u planetSurface = Surface( 512, 256, true, SurfaceChannelOrder::RGBA );
-		Vec2i offset = Vec2i( 0, 128 - mNameTex.getHeight() * 0.5f );
+		Vec2i offset = Vec2i( 60, 128 - mNameTex.getHeight() * 0.5f );
 		planetSurface.copyFrom( nameSurface, nameSurface.getBounds(), offset );
 	
 		mPlanetTex = gl::Texture( planetSurface );
