@@ -24,6 +24,9 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string nam
 {
 	mIsHighlighted	= true;
 	float hue		= Rand::randFloat( 0.0f, 0.5f );
+	if( hue > 0.2f && hue < 0.4f ){
+		hue			= Rand::randFloat( 0.0f, 0.5f );
+	}
 	float sat		= 1.0f - sin( hue * 2.0f * M_PI );
 	mColor			= Color( CM_HSV, hue, sat * 0.5f, 1.0f );
 	mGlowColor		= Color( CM_HSV, hue + 0.15f, sat, 1.0f );
@@ -75,7 +78,7 @@ void NodeAlbum::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 void NodeAlbum::drawStar()
 {
 	gl::color( mColor );
-	gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ) * 0.65f, 0.0f, mBbRight, mBbUp );
+	gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ) * 0.66f, 0.0f, mBbRight, mBbUp );
 	
 	Node::drawStar();
 }
@@ -111,17 +114,19 @@ void NodeAlbum::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> te
 {	
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
+		glDisable( GL_TEXTURE_2D );
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+		gl::color( Color::white() );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.215f, 100 );
-		
+		/*
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.5f ) );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.220f, 100 );
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.25f ) );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.225f, 100 );
 		gl::disableAlphaBlending();
+		*/
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
 	}
@@ -134,6 +139,10 @@ void NodeAlbum::drawRings( gl::Texture *tex )
 	Node::drawRings( tex );
 }
 
+void NodeAlbum::drawAtmosphere()
+{
+	Node::drawAtmosphere();
+}
 
 void NodeAlbum::select()
 {

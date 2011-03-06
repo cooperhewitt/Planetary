@@ -23,6 +23,7 @@ class NodeArtist : public Node
 	void drawOrbitalRings();
 	void drawPlanet( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> texs );
 	void drawRings( ci::gl::Texture *tex );
+	void drawAtmosphere();
 	void select();
 	
 	ci::Vec3f mPosDest;

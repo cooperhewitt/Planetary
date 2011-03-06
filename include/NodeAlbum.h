@@ -23,6 +23,7 @@ class NodeAlbum : public Node
 	void drawOrbitalRings();
 	void drawPlanet( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> texs );
 	void drawRings( ci::gl::Texture *tex );
+	void drawAtmosphere();
 	void select();
 	void setData( ci::ipod::PlaylistRef album );
 	//void selectNextTrack( Node *nodeSelected, string trackName );

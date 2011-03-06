@@ -44,7 +44,7 @@ public:
 	void setHierarchy(vector<string> hierarchy);
 	const vector<string>& getHierarchy();
 	void update();
-	void draw();
+	void draw( float y );
 
 private:
 	
@@ -88,6 +88,9 @@ void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font) {
 	mSeparatorTexture = gl::Texture( layout.render( true, PREMULT ) );
 }
 
+// TODO: trigger only if finger has not been dragged? if you
+//		 spin the arcball and happen to release on top of a breadcrumb,
+//		 the breadcrumb touchEnded is triggered.
 bool Breadcrumbs::touchesEnded( TouchEvent event ) {
 	for (int i = 0; i < clickRects.size(); i++) {
 		if (clickRects[i].contains(event.getTouches()[0].getPos())) {
@@ -126,11 +129,10 @@ void Breadcrumbs::update() {
 	}
 }
 
-void Breadcrumbs::draw() {
+void Breadcrumbs::draw( float y ) {
 	gl::enableAlphaBlending(false);		
 	gl::color( Color::white() );
 	float x			= 25.0f;
-	float y			= getWindowHeight() - 28;
 	float margin	= 5;
 	clickRects.clear();
 	

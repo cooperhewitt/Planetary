@@ -38,6 +38,7 @@ class World {
 	void buildConstellation();
 	void drawPlanets( const ci::Matrix44f &accelMatrix, std::vector< ci::gl::Texture*> texs );
 	void drawRings( ci::gl::Texture *tex );
+	void drawAtmospheres();
 	
 	Data *mData;
 	

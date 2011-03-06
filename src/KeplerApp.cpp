@@ -98,10 +98,12 @@ class KeplerApp : public AppCocoaTouch {
 	
 	// TEXTURES
 	gl::Texture		mParamsTex;
+	gl::Texture		mAtmosphereTex;
 	gl::Texture		mStarTex;
 	gl::Texture		mStarGlowTex;
 	gl::Texture		mSkyDome;
 	gl::Texture		mDottedTex;
+	gl::Texture		mPanelTabTex, mPanelTabDownTex;
 	vector<gl::Texture*>	mPlanetsTex;
 	
 	float			mTime;
@@ -233,6 +235,9 @@ void KeplerApp::accelerated( AccelEvent event )
 
 void KeplerApp::initTextures()
 {
+	mPanelTabTex		= loadImage( loadResource( "panelTab.png" ) );
+	mPanelTabDownTex	= loadImage( loadResource( "panelTabDown.png" ) );
+	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
 	mStarTex			= loadImage( loadResource( "star.png" ) );
 	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
@@ -413,7 +418,6 @@ void KeplerApp::draw()
 	mWorld.drawStars();
 	mStarTex.disable();
 	
-	
 // CONSTELLATION
 	mDottedTex.enableAndBind();
 	mWorld.drawConstellation( mMatrix );
@@ -468,6 +472,13 @@ void KeplerApp::draw()
 		glDisable( GL_LIGHTING );
 	}
 	
+	
+// ATMOSPHERE
+	mAtmosphereTex.enableAndBind();
+	mWorld.drawAtmospheres();
+	mAtmosphereTex.disable();
+	
+	
 // ORBITS
 	gl::enableAdditiveBlending();
 	gl::enableDepthRead();
@@ -487,8 +498,8 @@ void KeplerApp::draw()
 	glDisable( GL_TEXTURE_2D );
 	gl::disableAlphaBlending();
 	gl::enableAlphaBlending();
-	mUiLayer.draw();
-	mBreadcrumbs.draw();
+	mUiLayer.draw( mPanelTabTex, mPanelTabDownTex );
+	mBreadcrumbs.draw( mUiLayer.getPanelYPos() + 5.0f );
 	mState.draw( mFonts[4] );
 	
 	//drawInfoPanel();

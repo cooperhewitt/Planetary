@@ -59,6 +59,12 @@ void UiLayer::setup( AppCocoaTouch *app )
 	mAlphaChar		= ' ';
 	mPrevAlphaChar	= ' ';
 	mShowWheel		= false;
+	
+	// PANEL AND TAB
+	mPanelRect			= Rectf( 0.0f, 0.0f, getWindowWidth(), 75.0f );
+	setPanelPos( Vec2f( 0.0f, getWindowHeight() ), true );
+	mIsPanelTabTouched	= false;
+	mIsPanelOpen		= false;
 }
 
 void UiLayer::initAlphaTextures( const Font &font )
@@ -80,10 +86,19 @@ bool UiLayer::touchesBegan( TouchEvent event )
 	std::cout << "UiLayer TouchesBegan" << std::endl;
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) {
 		mTouchPos = touchIt->getPos();
-		
+	}
+	
+	if( mIsPanelOpen ){
 		selectWheelItem( mTouchPos, false );
 	}
 	
+	if( mPanelTabRect.contains( mTouchPos ) ){
+		mPanelTabTouchYOffset = mPanelPos.y - mTouchPos.y;
+		mIsPanelTabTouched = true;
+	} else {
+		mIsPanelTabTouched = false;
+	}
+		
 	return false;
 }
 
@@ -91,8 +106,13 @@ bool UiLayer::touchesMoved( TouchEvent event )
 {
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) {
 		mTouchPos = touchIt->getPos();
-		
+	}
+	
+	if( mIsPanelOpen ){
 		selectWheelItem( mTouchPos, false );
+	}
+	if( mIsPanelTabTouched ){
+		setPanelPos( mTouchPos, false );
 	}
 
 	return false;
@@ -108,37 +128,73 @@ bool UiLayer::touchesEnded( TouchEvent event )
 		G_DEBUG = !G_DEBUG;
 	}
 	
-	selectWheelItem( mTouchPos, true );
+	if( mIsPanelOpen ){
+		selectWheelItem( mTouchPos, true );
+	}
+	
+	if( mIsPanelTabTouched ){
+		setPanelPos( mTouchPos, true );
+		mIsPanelTabTouched = false;
+	}
 	
 	return false;
 }
 
 
+void UiLayer::setPanelPos( const Vec2f &pos, bool doneDragging )
+{
+	mPanelPos			= Vec2f( 0.0f, pos.y + mPanelTabTouchYOffset );
+	float topYPos		= getWindowHeight() - mPanelRect.y2;
+	
+	if( mPanelPos.y < topYPos ){
+		mIsPanelOpen	= true;
+		mPanelPos.y		= topYPos;
+	} else if( mPanelPos.y > getWindowHeight() ) {
+		mIsPanelOpen	= false;
+		mPanelPos.y		= getWindowHeight();
+	}
+	
+	if( doneDragging ){
+		if( mPanelPos.y < getWindowHeight() - mPanelRect.y2 * 0.5f ){
+			mPanelPos.y = getWindowHeight() - mPanelRect.y2;
+			mIsPanelOpen = true;
+		} else {
+			mPanelPos.y = getWindowHeight();
+			mIsPanelOpen = false;
+		}
+
+	}
+	
+	mPanelTabRect		= Rectf( getWindowWidth() * 0.5f - 25.0f, mPanelPos.y - 50.0f, getWindowWidth() * 0.5f + 25.0f, mPanelPos.y );
+}
+
 void UiLayer::selectWheelItem( const Vec2f &pos, bool closeWheel )
 {
-	if( mShowWheel && ! mStripRect.contains( pos ) ){
-		Vec2f dir				= pos - getWindowCenter();
-		float distToCenter		= dir.length();
-		if( distToCenter > 250 && distToCenter < 350 ){
-			float touchAngle	= atan2( dir.y, dir.x ) + M_PI;				// RANGE 0 -> TWO_PI
-			float anglePer		= ( touchAngle + 0.11365f + M_PI )/(M_PI * 2.0f);
-			mAlphaIndex			= (int)( anglePer * 27 )%27;
-			mPrevAlphaChar		= mAlphaChar;
-			mAlphaChar			= mAlphaString.at( mAlphaIndex % mAlphaString.size() );
-			if( mPrevAlphaChar != mAlphaChar ){
-				mCallbacksAlphaCharSelected.call( this );
-			}
-			if( closeWheel ){
-				mShowWheel = false;
+	if( mShowWheel ){ 
+		if( ! mStripRect.contains( pos ) ){
+			Vec2f dir				= pos - getWindowCenter();
+			float distToCenter		= dir.length();
+			if( distToCenter > 250 && distToCenter < 350 ){
+				float touchAngle	= atan2( dir.y, dir.x ) + M_PI;				// RANGE 0 -> TWO_PI
+				float anglePer		= ( touchAngle + 0.11365f + M_PI )/(M_PI * 2.0f);
+				mAlphaIndex			= (int)( anglePer * 27 )%27;
+				mPrevAlphaChar		= mAlphaChar;
+				mAlphaChar			= mAlphaString.at( mAlphaIndex % mAlphaString.size() );
+				if( mPrevAlphaChar != mAlphaChar || closeWheel ){
+					mCallbacksAlphaCharSelected.call( this );
+				}
+				if( closeWheel ){
+					mShowWheel = false;
+				}
 			}
 		}
 	}
 }
 
-void UiLayer::draw()
+void UiLayer::draw( const gl::Texture &upTex, const gl::Texture &downTex )
 {
 	drawWheel();
-	drawStrip();
+	drawPanel( upTex, downTex );
 }
 
 void UiLayer::drawWheel()
@@ -167,13 +223,33 @@ void UiLayer::drawAlphaChar()
 	mAlphaTextures[mAlphaIndex].disable();
 }
 
-void UiLayer::drawStrip()
+void UiLayer::drawPanel( const gl::Texture &upTex, const gl::Texture &downTex )
 {
-	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.4f ) );
-	gl::drawSolidRect( mStripRect );
 	
-	gl::color( ColorA( 0.3f, 0.4f, 0.8f, 0.15f ) );
-	gl::drawLine( Vec2f( 0.0f, mStripRect.getY1() ), Vec2f( app::getWindowWidth(), mStripRect.getY1() ) );
+	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
+	gl::pushModelView();
+	gl::translate( mPanelPos );
+	gl::drawSolidRect( mPanelRect );
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.1f ) );
+	gl::drawLine( Vec2f::zero(), Vec2f( getWindowWidth(), 0.0f ) );
+	gl::popModelView();
 	
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.05f ) );
+	gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( getWindowWidth(), 1.0f ) );
+	gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( 1.0f, mPanelPos.y ) );
+	gl::drawLine( Vec2f( getWindowWidth(), 0.0f ), Vec2f( getWindowWidth(), mPanelPos.y ) );
+	
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+	if( mIsPanelOpen )
+		downTex.enableAndBind();
+	else
+		upTex.enableAndBind();
+	
+	gl::drawSolidRect( mPanelTabRect );
+	
+	if( mIsPanelOpen )
+		downTex.disable();
+	else
+		upTex.disable();
 }
 

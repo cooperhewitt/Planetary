@@ -24,9 +24,12 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string n
 	mPosDest		= Rand::randVec3f() * Rand::randFloat( 50.0f, 150.0f );
 	
 	float hue		= Rand::randFloat( 0.0f, 0.5f );
+	if( hue > 0.2f && hue < 0.4f ){
+		hue			= Rand::randFloat( 0.0f, 0.5f );
+	}
 	float sat		= 1.0f - sin( hue * 2.0f * M_PI );
-	mColor			= Color( CM_HSV, hue, sat * 0.1f, 1.0f );
-	mGlowColor		= Color( CM_HSV, hue, sat + 0.2f, 1.0f );
+	mColor			= Color( CM_HSV, hue, sat * 0.3f, 1.0f );
+	mGlowColor		= Color( CM_HSV, hue, sat + 0.3f, 1.0f );
 	mIdealCameraDist = mRadius * 2.0f;
 	
 	mSphere			= Sphere( mPos, mRadius * 5.0f );
@@ -42,7 +45,7 @@ void NodeArtist::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f
 void NodeArtist::drawStar()
 {
 	gl::color( mColor );
-	gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ) * 0.65f, 0.0f, mBbRight, mBbUp );
+	gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ) * 0.66f, 0.0f, mBbRight, mBbUp );
 
 	Node::drawStar();
 }
@@ -94,17 +97,19 @@ void NodeArtist::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> t
 	
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
+		glDisable( GL_TEXTURE_2D );
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		gl::color( mColor * 2.0f );
+		gl::color( Color::white() );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.215f, 100 );
-		
+		/*
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.5f ) );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.220f, 100 );
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.25f ) );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.225f, 100 );
 		gl::disableAlphaBlending();
+		*/
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
 	}
@@ -116,6 +121,11 @@ void NodeArtist::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> t
 void NodeArtist::drawRings( gl::Texture *tex )
 {
 	Node::drawRings( tex );
+}
+
+void NodeArtist::drawAtmosphere()
+{
+	Node::drawAtmosphere();
 }
 
 void NodeArtist::select()

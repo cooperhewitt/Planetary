@@ -16,47 +16,55 @@
 #include "cinder/Color.h"
 #include "cinder/Font.h"
 
-using namespace ci;
 
 class UiLayer {
  public:
 	UiLayer();
 	~UiLayer();
-	void	setup( app::AppCocoaTouch *app );
+	void	setup( ci::app::AppCocoaTouch *app );
 	void	initAlphaTextures( const ci::Font &font );
-	bool	touchesBegan( app::TouchEvent event );
-	bool	touchesMoved( app::TouchEvent event );
-	bool	touchesEnded( app::TouchEvent event );
-	void	selectWheelItem( const Vec2f &pos, bool closeWheel );
-	void	draw();
+	bool	touchesBegan( ci::app::TouchEvent event );
+	bool	touchesMoved( ci::app::TouchEvent event );
+	bool	touchesEnded( ci::app::TouchEvent event );
+	void	setPanelPos( const ci::Vec2f &pos, bool doneDragging );
+	void	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
+	void	draw( const ci::gl::Texture &upTex, const ci::gl::Texture &downTex );
 	void	drawWheel();
 	void	drawAlphaChar();
-	void	drawStrip();
+	void	drawPanel( const ci::gl::Texture &upTex, const ci::gl::Texture &downTex );
 	void	setShowWheel( bool b ){ mShowWheel = b; if ( mShowWheel ) mPrevAlphaChar = ' '; }
 	bool	getShowWheel(){ return mShowWheel; }
+	float	getPanelYPos(){ return mPanelPos.y; }
 	void	setAlphaChar( char c ){ mAlphaChar = c; }
 	char	getAlphaChar(){ return mAlphaChar; }
 
 	template<typename T>
-	CallbackId registerAlphaCharSelected( T *obj, bool ( T::*callback )( UiLayer* ) ){
+	ci::CallbackId registerAlphaCharSelected( T *obj, bool ( T::*callback )( UiLayer* ) ){
 		return mCallbacksAlphaCharSelected.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
 	
 	
  private:
-	app::AppCocoaTouch *mApp;
-	CallbackId		mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded;
-	Vec2f			mTouchPos;
+	ci::app::AppCocoaTouch *mApp;
+	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded;
+	ci::Vec2f		mTouchPos;
 	
-	Rectf			mStripRect;
+	ci::Vec2f		mPanelPos;				// XY position of the panel upper left corner
+	ci::Rectf		mPanelRect;				// Rect defining the panel width and height
+	ci::Rectf		mPanelTabRect;			// Rect defining the panel tab
+	bool			mIsPanelTabTouched;		// Is the Panel Tab currently being touched
+	bool			mIsPanelOpen;			// Is the Panel fully open
+	float			mPanelTabTouchYOffset;	// Accommodate the touch position y value
+	
+	ci::Rectf			mStripRect;
 	bool			mShowWheel;
 	std::string		mAlphaString;
 	int				mAlphaIndex;
 	char			mAlphaChar, mPrevAlphaChar;
 	
-	gl::Texture		mWheelTex;
+	ci::gl::Texture	mWheelTex;
 	std::vector<ci::gl::Texture> mAlphaTextures;
 	
-	CallbackMgr<bool(UiLayer*)> mCallbacksAlphaCharSelected;
+	ci::CallbackMgr<bool(UiLayer*)> mCallbacksAlphaCharSelected;
 };
 

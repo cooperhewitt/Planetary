@@ -131,11 +131,13 @@ void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	Node::update( mat, bbRight, bbUp );
 }
 
-void NodeTrack::drawStar()
+void NodeTrack::drawAtmosphere()
 {
 	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
-		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, 1.0f ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 1.13;
+		gl::disableDepthRead();
+		gl::disableDepthWrite();
+		gl::color( ColorA( mParentNode->mGlowColor, 1.0f ) );
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 0.875f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 }
@@ -160,13 +162,13 @@ void NodeTrack::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> te
 		
 		gl::pushModelView();
 		 gl::enableAlphaBlending();
- 		 gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.35f ) );
+ 		 gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.5f ) );
 		 gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * 3.0f, mAxialTilt ) );
 		 gl::drawSphere( Vec3f::zero(), mRadius * 0.377f, mSphereRes );
 		
 		 gl::enableAdditiveBlending();
 		 gl::color( mAtmosphereColor );
-		 gl::drawSphere( Vec3f::zero(), mRadius * 0.387f, mSphereRes );
+		 gl::drawSphere( Vec3f::zero(), mRadius * 0.4f, mSphereRes );
 		gl::popModelView();
 	}
 	gl::popModelView();

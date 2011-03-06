@@ -204,7 +204,12 @@ void Node::drawRings( gl::Texture *tex )
 	}
 }
 
-
+void Node::drawAtmosphere()
+{
+	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->drawAtmosphere();
+	}
+}
 
 
 void Node::checkForSphereIntersect( Node* &theNode, const Ray &ray, Matrix44f &mat )

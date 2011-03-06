@@ -41,6 +41,7 @@ class Node {
 	virtual void		drawOrbitalRings();
 	virtual void		drawPlanet( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> texs );
 	virtual void		drawRings( ci::gl::Texture *tex );
+	virtual void		drawAtmosphere();
 	void				checkForSphereIntersect( Node* &theNode, const ci::Ray &ray, ci::Matrix44f &mat );
 	virtual void		select();
 	void				deselect();

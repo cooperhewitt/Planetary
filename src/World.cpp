@@ -132,6 +132,13 @@ void World::drawPlanets( const Matrix44f &accelMatrix, std::vector< gl::Texture*
 	}
 }
 
+void World::drawAtmospheres()
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->drawAtmosphere();
+	}
+}
+
 void World::drawRings( gl::Texture *tex )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
