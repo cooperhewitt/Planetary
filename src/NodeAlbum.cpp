@@ -64,15 +64,14 @@ void NodeAlbum::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	double percentPlayed	= playbackTime/mOrbitPeriod;
 	double orbitAngle		= percentPlayed * TWO_PI + mStartAngle;
 	
-	mPosPrev	= mPos;
+	mPosPrev	= mTransPos;
 	
-	Vec3f oldPosRel = mPosRel;
 	mPosRel		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mPosRel;
-	mVel		= mPos - mPosPrev;
-	//mVel		= mPosRel - oldPosRel;
 
 	Node::update( mat, bbRight, bbUp );
+	
+	mVel		= mTransPos - mPosPrev;	
 }
 
 void NodeAlbum::drawStar()
