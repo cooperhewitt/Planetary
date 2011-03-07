@@ -95,7 +95,8 @@ void Node::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp
 	mBbUp		= bbUp;
 	mTransPos	= mMatrix * mPos;
 	mSphere.setCenter( mTransPos );
-	
+	mHitSphere.setCenter( mTransPos );
+		
 	mZoomPer	= constrain( 1.0f - abs( G_ZOOM-mGen+1.0f ), 0.0f, 0.75f );
 	mZoomPer = pow( mZoomPer, 3.0f );
 	if( mGen == G_TRACK_LEVEL && mIsSelected ){
@@ -165,7 +166,7 @@ void Node::drawOrthoName( const CameraPersp &cam )
 		}
 
 		
-		Vec2f offset = Vec2f( mSphereScreenRadius * 0.25f, -mNameTex.getHeight() * 0.5f );
+		Vec2f offset = Vec2f( mSphereScreenRadius * 0.4f, -mNameTex.getHeight() * 0.5f );
 		Vec2f pos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() ) + offset;
 
 		gl::draw( mNameTex, pos );
@@ -180,7 +181,7 @@ void Node::drawSphere()
 {
 	if( mIsHighlighted ){
 		gl::color( ColorA( mGlowColor, 0.05f ) );
-		gl::draw( mSphere, 16 );
+		gl::draw( mHitSphere, 16 );
 		
 		for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 			(*nodeIt)->drawSphere();
@@ -217,9 +218,9 @@ void Node::drawAtmosphere()
 void Node::checkForSphereIntersect( Node* &theNode, const Ray &ray, Matrix44f &mat )
 {
 	if( ! theNode ){
-		mSphere.setCenter( mat.transformPointAffine( mPos ) );
+		mHitSphere.setCenter( mat.transformPointAffine( mPos ) );
 
-		if( mSphere.intersects( ray ) && mIsHighlighted && ! mIsSelected ){
+		if( mHitSphere.intersects( ray ) && mIsHighlighted && ! mIsSelected ){
 			theNode			= this;
 			
 		} else {

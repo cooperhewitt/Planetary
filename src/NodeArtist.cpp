@@ -32,7 +32,8 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string n
 	mGlowColor		= Color( CM_HSV, hue, sat + 0.3f, 1.0f );
 	mIdealCameraDist = mRadius * 2.0f;
 	
-	mSphere			= Sphere( mPos, mRadius * 4.0f );
+	mSphere			= Sphere( mPos, 3.7f );
+	mHitSphere		= Sphere( mPos, 10.0f );
 }
 
 void NodeArtist::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )

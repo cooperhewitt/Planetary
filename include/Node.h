@@ -96,7 +96,8 @@ class Node {
 	ci::gl::Texture		mPlanetTex;			// TODO: this is a test.
 	
 	
-	ci::Sphere			mSphere;			// Sphere object used only for hit-testing
+	ci::Sphere			mSphere;			// Sphere used for name label alignment
+	ci::Sphere			mHitSphere;			// Sphere used for hit-tests
 	ci::Color			mColor;				// Color of the node
 	ci::Color			mGlowColor;			// Color of the star glow
 	

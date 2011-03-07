@@ -34,7 +34,8 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string nam
 	mOrbitRadiusDest = Rand::randFloat( mParentNode->mRadius * 0.5f, mParentNode->mRadius * 1.5f );
 	mIdealCameraDist = mRadius * 2.0f;
 	
-	mSphere			= Sphere( mPos, mRadius * 2.0f );
+	mSphere			= Sphere( mPos, mRadius * 1.8f );
+	mHitSphere		= Sphere( mPos, 0.2f );
 
 }
 

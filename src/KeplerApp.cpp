@@ -407,10 +407,17 @@ void KeplerApp::draw()
 	
 	gl::enableAdditiveBlending();
 	
-	// STARGLOWS
+// STARGLOWS
 	mStarGlowTex.enableAndBind();
 	mWorld.drawStarGlows();
 	mStarGlowTex.disable();
+	
+// ORBITS
+	gl::enableAdditiveBlending();
+	gl::enableDepthRead();
+	gl::disableDepthWrite();
+	mWorld.drawOrbitalRings();
+	gl::disableDepthRead();
 	
 // STARS
 	mStarTex.enableAndBind();
@@ -462,6 +469,7 @@ void KeplerApp::draw()
 		
 // PLANETS
 		gl::enableDepthRead();
+		gl::enableDepthWrite();
 		gl::disableAlphaBlending();
 		mWorld.drawPlanets( mAccelMatrix, mPlanetsTex );
 		
@@ -469,20 +477,17 @@ void KeplerApp::draw()
 		gl::enableAdditiveBlending();
 		mWorld.drawRings( mPlanetsTex[G_RING_TYPE] );
 		glDisable( GL_LIGHTING );
+		gl::disableDepthRead();
 	}
 	
 	
 // ATMOSPHERE
 	mAtmosphereTex.enableAndBind();
+	gl::disableDepthRead();
+	gl::disableDepthWrite();
 	mWorld.drawAtmospheres();
 	mAtmosphereTex.disable();
-	
-	
-// ORBITS
-	gl::enableAdditiveBlending();
-	gl::enableDepthRead();
-	mWorld.drawOrbitalRings();
-	gl::disableDepthRead();
+
 
 // NAMES
 	gl::disableDepthWrite();
