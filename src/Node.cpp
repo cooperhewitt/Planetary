@@ -28,7 +28,7 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 	createNameTexture();
 	
 	mTransPos			= mPos;
-	
+	mCamZVel			= 0.0f;
 	mStartAngle			= Rand::randFloat( TWO_PI );
 	mOrbitAngle			= mStartAngle;
 	mOrbitPeriod		= Rand::randFloat( 25.0f, 150.0f );
@@ -112,7 +112,9 @@ void Node::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp
 void Node::updateGraphics( const CameraPersp &cam )
 {
 	if( mIsHighlighted ){
-		mDistFromCamZAxis = cam.worldToEyeDepth( mTransPos );
+		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
+		mDistFromCamZAxis		= cam.worldToEyeDepth( mTransPos );
+		mCamZVel				= mDistFromCamZAxis - mPrevDistFromCamZAxis;
 		mDistFromCamZAxisPer = constrain( mDistFromCamZAxis * -0.35f, 0.0f, 1.0f );
 		mSphereScreenRadius = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() ) * 0.4f;
 	}
@@ -163,7 +165,7 @@ void Node::drawOrthoName( const CameraPersp &cam )
 		}
 
 		
-		Vec2f offset = Vec2f( mRadius * 5.25f + mSphereScreenRadius * 0.2f, -mNameTex.getHeight() * 0.5f );
+		Vec2f offset = Vec2f( mSphereScreenRadius * 0.25f, -mNameTex.getHeight() * 0.5f );
 		Vec2f pos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() ) + offset;
 
 		gl::draw( mNameTex, pos );

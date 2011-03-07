@@ -62,6 +62,7 @@ class Node {
 	ci::Vec3f			mPosPrev;			// previous global position
 	ci::Vec3f			mPosRel;			// relative position
 	ci::Vec3f			mVel;				// global velocity
+	float				mCamZVel;			// speed object is moving towards or away from camera
 	ci::Matrix44f		mMatrix;
 	ci::Vec3f			mBbRight, mBbUp;
 	
@@ -80,6 +81,7 @@ class Node {
 	float				mHighestPlayCount;	// Album: used to normalize track playcount data
 	float				mLowestPlayCount;	// Album: used to normalize track playcount data
 	float				mDistFromCamZAxis;	// Node's distance from Cam eye
+	float				mPrevDistFromCamZAxis;	// Node's previous distance from Cam eye
 	float				mDistFromCamZAxisPer; // normalized range.
 	float				mSphereScreenRadius;// mSphere radius in screenspace
 	float				mZoomPer;			// 0.0 to 1.0 to 0.0 based on zoom level vs mgen

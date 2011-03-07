@@ -86,7 +86,7 @@ void NodeAlbum::drawStar()
 void NodeAlbum::drawStarGlow()
 {
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
-		gl::color( ColorA( mGlowColor, min( mDistFromCamZAxisPer * 100.0f, 1.0f ) ) );
+		gl::color( ColorA( mGlowColor, min( mDistFromCamZAxisPer * 300.0f, 1.0f ) ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 3.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}

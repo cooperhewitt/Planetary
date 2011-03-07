@@ -59,7 +59,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 		mPlanetTexIndex = (int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
 		
 	mRadius			= mRadius * pow( normPlayCount + 0.5f, 2.0f );
-	mSphere			= Sphere( mPos, mRadius * 2.0f );
+	mSphere			= Sphere( mPos, mRadius * 4.0f );
 	mIdealCameraDist = mRadius * 3.0f;
 	mOrbitPeriod	= mTrackLength;
 	mAxialTilt		= Rand::randFloat( 5.0f, 30.0f );
