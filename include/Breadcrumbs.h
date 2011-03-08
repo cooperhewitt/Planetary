@@ -27,6 +27,7 @@ public:
 
 	Breadcrumbs() {
 		mApp = NULL;
+		mHeight = 0.0f;
 	}
 	
 	~Breadcrumbs() {
@@ -46,11 +47,14 @@ public:
 	const vector<string>& getHierarchy();
 	void update();
 	void draw( float y );
+	float getHeight() { return mHeight; }
 
 private:
 	
 	AppCocoaTouch *mApp;
 	Font mFont;
+	
+	float mHeight; // calculated in draw()
 	
 	vector<string> mPreviousHierarchy;
 	bool mHierarchyHasChanged;
@@ -149,7 +153,8 @@ void Breadcrumbs::draw( float y ) {
 	gl::enableAlphaBlending(false);		
 	gl::color( Color::white() );
 	float x			= 25.0f;
-	float margin	= 5;
+	float margin	= 5.0f;
+	mHeight = 0;
 	clickRects.clear();
 	
 	for( int i=0; i<mPreviousHierarchy.size(); i++ ){
@@ -163,6 +168,9 @@ void Breadcrumbs::draw( float y ) {
 		}
 		gl::draw( mTextures[i], Vec2f( x,y ) );			
 		clickRects.push_back( Rectf( x-margin, y-margin, x+mTextures[i].getWidth()+margin, y+mTextures[i].getHeight()+margin ) );
+		mHeight = max(mHeight, (float)(mTextures[i].getHeight()));
 		x += mTextures[i].getWidth() + margin*2;
 	}		
+	
+	mHeight += 2 * margin;
 }
