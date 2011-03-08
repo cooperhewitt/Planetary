@@ -28,7 +28,7 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string n
 		hue			= Rand::randFloat( 0.0f, 0.5f );
 	}
 	float sat		= 1.0f - sin( hue * 2.0f * M_PI );
-	mColor			= Color( CM_HSV, hue, sat * 0.3f, 1.0f );
+	mColor			= Color( CM_HSV, hue, sat * 0.2f, 1.0f );
 	mGlowColor		= Color( CM_HSV, hue, sat + 0.3f, 1.0f );
 	mIdealCameraDist = mRadius * 2.0f;
 	

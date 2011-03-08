@@ -77,19 +77,22 @@ public:
 		return false;
 	}
 	
-	void draw( float y )
+	void draw( const gl::Texture &play, const gl::Texture &forward, const gl::Texture &backward, float y )
 	{
 		prevDrawY = y;
 		
-		gl::color( Color::white() );
-		gl::drawSolidRect( Rectf(0, y, getWindowWidth(), y + 40.0f ) ); // TODO: make height settable in setup()?
+		gl::color( Color( 0.0f, 0.0f, 0.0f ) );
+		gl::drawSolidRect( Rectf(0, y, getWindowWidth(), y + 45.0f ) ); // TODO: make height settable in setup()?
 
 		touchRects.clear();
 		touchTypes.clear(); // technically touch types never changes, but whatever
-
-		Rectf prevButton( 10, y+10, 10+20, y+10+20 );
-		Rectf playButton( 40, y+10, 40+20, y+10+20 );
-		Rectf nextButton( 70, y+10, 70+20, y+10+20 );
+		
+		float bWidth = 40.0f;
+		float bHeight = 30.0f;
+		float x = 18.0f;
+		Rectf prevButton( x,				 y+7, x + bWidth,		 y+7+bHeight );
+		Rectf playButton( x + bWidth,		 y+7, x + bWidth * 2.0f, y+7+bHeight );
+		Rectf nextButton( x + bWidth * 2.0f, y+7, x + bWidth * 3.0f, y+7+bHeight );
 		
 		touchRects.push_back( prevButton );
 		touchTypes.push_back( PREVIOUS_TRACK );
@@ -99,13 +102,18 @@ public:
 		touchTypes.push_back( NEXT_TRACK );
 		
 		Color yellow( 1.0f, 1.0f, 0.0f );
+		Color blue( 0.2f, 0.2f, 0.5f );
+
+		gl::color( lastTouchedType == PREVIOUS_TRACK ? yellow : Color::white() );
+		backward.enableAndBind();
+		gl::drawSolidRect( prevButton );
 		
-		// TODO: I'm guessing textures go here?
-		gl::color( lastTouchedType == PREVIOUS_TRACK ? yellow : Color( 1.0f, 0.0f, 0.0f ) );
-		gl::drawSolidRect( prevButton );		
-		gl::color( lastTouchedType == PLAY_PAUSE ? yellow : Color( 0.0f, 1.0f, 0.0f ) );
-		gl::drawSolidRect( playButton );		
-		gl::color( lastTouchedType == NEXT_TRACK ? yellow : Color( 0.0f, 0.0f, 1.0f ) );
+		gl::color( lastTouchedType == PLAY_PAUSE ? yellow : Color::white() );
+		play.enableAndBind();
+		gl::drawSolidRect( playButton );
+		
+		gl::color( lastTouchedType == NEXT_TRACK ? yellow : Color::white() );
+		forward.enableAndBind();
 		gl::drawSolidRect( nextButton );
 	}
 	

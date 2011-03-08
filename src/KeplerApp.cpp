@@ -32,6 +32,8 @@ float G_ZOOM			= 0;
 bool G_DEBUG			= false;
 GLfloat mat_ambient[]	= { 0.02, 0.02, 0.05, 1.0 };
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
+GLfloat mat_specular[]	= { 1.0, 1.0, 1.0, 1.0 };
+GLfloat mat_shininess[]	= { 40.0 };
 
 float easeInOutQuad( double t, float b, float c, double d );
 Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
@@ -70,7 +72,11 @@ class KeplerApp : public AppCocoaTouch {
 	Matrix44f		mAccelMatrix;
 	
 	// AUDIO
-	ipod::Player	mIpodPlayer;
+	ipod::Player		mIpodPlayer;
+	ipod::PlaylistRef	mCurrentAlbum;
+	int					mCurrentTrackId;
+	double				mCurrentTrackPlayheadTime;
+	
 	
 	// BREADCRUMBS
 	Breadcrumbs		mBreadcrumbs;	
@@ -110,7 +116,8 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mStarGlowTex;
 	gl::Texture		mSkyDome;
 	gl::Texture		mDottedTex;
-	gl::Texture		mPanelTabTex, mPanelTabDownTex;
+	gl::Texture		mPanelUpTex, mPanelDownTex;
+	gl::Texture		mPlayTex, mForwardTex, mBackwardTex;
 	vector<gl::Texture*>	mPlanetsTex;
 	
 	float			mTime;
@@ -134,6 +141,9 @@ void KeplerApp::setup()
 	mArcball.setCenter( getWindowCenter() );
 	mArcball.setRadius( 420 );
 	
+	// AUDIO
+	mCurrentTrackId		= 1;
+	mCurrentTrackPlayheadTime = 0;
 	
 	// CAMERA PERSP
 	mCamDist			= G_INIT_CAM_DIST;
@@ -246,15 +256,19 @@ void KeplerApp::touchesEnded( TouchEvent event )
 
 void KeplerApp::accelerated( AccelEvent event )
 {
-	mAccelMatrix = event.getMatrix();
-	mAccelMatrix.invert();
+	Matrix44f newMatrix = event.getMatrix();
+	newMatrix.invert();
+	mAccelMatrix	= lerp( mAccelMatrix, newMatrix, 0.25f );
 }
 
 void KeplerApp::initTextures()
 {
 	mLoadingTex			= loadImage( loadResource( "loading.jpg" ) );
-	mPanelTabTex		= loadImage( loadResource( "panelTab.png" ) );
-	mPanelTabDownTex	= loadImage( loadResource( "panelTabDown.png" ) );
+	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
+	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
+	mPlayTex			= loadImage( loadResource( "play.png" ) );
+	mForwardTex			= loadImage( loadResource( "forward.png" ) );
+	mBackwardTex		= loadImage( loadResource( "backward.png" ) );
 	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
 	mStarTex			= loadImage( loadResource( "star.png" ) );
 	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
@@ -302,11 +316,42 @@ bool KeplerApp::onNodeSelected( Node *node )
 	mCamDistFrom	= mCamDist;	
 	mZoomFrom		= G_ZOOM;			
 	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
+	if( node ){
+		if( node->mGen == G_ALBUM_LEVEL ){
+			std::cout << "setting currentAlbum = " << node->mAlbum->getAlbumTitle() << std::endl;
+			mCurrentAlbum = node->mAlbum;
+		} else if( node->mGen == G_TRACK_LEVEL ){
+			std::cout << "setting currentTrackId = " << node->mIndex << std::endl;
+			mCurrentTrackId = node->mIndex;
+		}
+	}
+	
 	return false;
 }
 
 bool KeplerApp::onPlayControlsButtonPressed( PlayButton button )
 {
+	if( button == 3 ){	// prev track
+		mIpodPlayer.skipPrev();
+	} else if( button == 1 ){  // play/stop
+		/*
+		switch( mIpodPlayer.getPlayState() ){
+			case ipod::Player::StatePlaying:
+				mCurrentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
+				mIpodPlayer.stop();
+				break;
+			case ipod::Player::StateStopped:
+				mIpodPlayer.play( mCurrentAlbum, mCurrentTrackId );
+				mIpodPlayer.setPlayheadTime( mCurrentTrackPlayheadTime );
+				break;
+		}
+		*/
+
+	} else if( button == 2 ){  // next track
+		mIpodPlayer.skipNext();	
+	}
+	
+	
 	cout << "play button " << button << " pressed" << endl;
 	return false;
 }
@@ -374,6 +419,7 @@ void KeplerApp::update()
 	updateCamera();
 	mWorld.updateGraphics( mCam );
 	
+	mUiLayer.update();
 	mBreadcrumbs.update();
 	mPlayControls.update();
 }
@@ -388,7 +434,12 @@ void KeplerApp::updateArcball()
 		}
 	}
 	
-	mMatrix = mArcball.getQuat();
+	if( G_DEBUG ){
+		mMatrix = mAccelMatrix * mArcball.getQuat();
+	} else {
+		mMatrix = mArcball.getQuat();
+	}
+	
 }
 
 
@@ -454,7 +505,7 @@ void KeplerApp::draw()
 		
 		// DRAW SKYDOME
 		gl::pushModelView();
-		gl::rotate( mArcball.getQuat() );
+		gl::rotate( mMatrix );
 		gl::color( Color( 1.0f, 1.0f, 1.0f ) );
 		mSkyDome.enableAndBind();
 		gl::drawSphere( Vec3f::zero(), 2000.0f, 64 );
@@ -485,11 +536,11 @@ void KeplerApp::draw()
 		mWorld.drawConstellation( mMatrix );
 		mDottedTex.disable();
 				
-		if( G_DEBUG ){
+		/*if( G_DEBUG ){
 			// VISUALIZE THE HIT AREA
 			glDisable( GL_TEXTURE_2D );
 			mWorld.drawSpheres();
-		}
+		}*/
 		
 		
 		// PLANETS
@@ -497,12 +548,11 @@ void KeplerApp::draw()
 		Node *artistNode = mState.getSelectedArtistNode();
 		if( artistNode ){
 			glEnable( GL_LIGHTING );
-			glEnable ( GL_COLOR_MATERIAL ) ;
-			glShadeModel(GL_SMOOTH);
+			glEnable( GL_COLOR_MATERIAL ) ;
+			glShadeModel( GL_SMOOTH );
 						
 			glMaterialfv( GL_FRONT, GL_AMBIENT, mat_ambient );
 			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );
-			//glMaterialfv( GL_FRONT, GL_EMISSION, mat_emission );
 			
 			
 			if( albumNode ){
@@ -558,9 +608,9 @@ void KeplerApp::draw()
 		glDisable( GL_TEXTURE_2D );
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
-		mUiLayer.draw( mPanelTabTex, mPanelTabDownTex );
+		mUiLayer.draw( mPanelUpTex, mPanelDownTex );
 		mBreadcrumbs.draw( mUiLayer.getPanelYPos() + 5.0f );
-		mPlayControls.draw( mUiLayer.getPanelYPos() + mBreadcrumbs.getHeight() + 5.0f );
+		mPlayControls.draw( mPlayTex, mForwardTex, mBackwardTex, mUiLayer.getPanelYPos() + mBreadcrumbs.getHeight() + 10.0f );
 		mState.draw( mFonts[4] );
 		
 		//drawInfoPanel();
@@ -614,19 +664,36 @@ void KeplerApp::setParamsTex()
 
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	
-    console() << "Now Playing: " << player->getPlayingTrack()->getTitle() << endl;
+	/*
+	if( mCurrentAlbum ){
+		ipod::TrackRef currentTrack = mCurrentAlbum[mCurrentTrackId];
+		
+		if( player->getPlayingTrack() != currentTrack ){
+			cout << "player album ID = " << player->getPlayingTrack()->getAlbumId() << endl;
+			cout << "player artist ID = " << player->getPlayingTrack()->getArtistId() << endl;
+			
+			if( currentTrack ){
+				cout << "global album ID = " << currentTrack->getAlbumId() << endl;
+				cout << "global artist ID = " << currentTrack->getArtistId() << endl;
+			}
+			mState.setSelectedNode( currentAlbumNode->mChildNodes[mCurrentTrackId] );
+		}
+	}*/
 	
+	std::cout << "==================================================================" << std::endl;
+    //console() << "Now Playing: " << player->getPlayingTrack()->getTitle() << endl;
     return false;
 }
 
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {
+	std::cout << "onPlayerStateChanged()" << std::endl;
     switch( player->getPlayState() ){
         case ipod::Player::StatePlaying:
-            console() << "Playing..." << endl;
+            //console() << "Playing..." << endl;
             break;
         case ipod::Player::StateStopped:
-            console() << "Stopped." << endl;
+            //console() << "Stopped." << endl;
             break;
     }
     return false;

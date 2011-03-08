@@ -23,8 +23,6 @@ class NodeTrack : public Node
 	void select();
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
 	
-	ci::ipod::PlaylistRef mAlbum;
-	ci::ipod::TrackRef mTrack;
 	float mTrackLength;
 	float mPlayCount;
 	double lastTime;

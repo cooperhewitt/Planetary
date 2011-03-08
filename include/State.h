@@ -35,7 +35,7 @@ class State {
 	template<typename T>
 	CallbackId registerNodeSelected( T *obj, bool (T::*callback)(Node*) ){
 		return mCallbacksNodeSelected.registerCb(std::bind1st(std::mem_fun(callback), obj));
-	}	
+	}
 	
 	Node* getSelectedArtistNode() { 
 		return getNodeAtLevel(G_ARTIST_LEVEL);

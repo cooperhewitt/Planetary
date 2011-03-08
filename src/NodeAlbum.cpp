@@ -23,13 +23,16 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string nam
 	: Node( parent, index, font, name )
 {
 	mIsHighlighted	= true;
+
 	float hue		= Rand::randFloat( 0.0f, 0.5f );
 	if( hue > 0.2f && hue < 0.4f ){
 		hue			= Rand::randFloat( 0.0f, 0.5f );
 	}
 	float sat		= 1.0f - sin( hue * 2.0f * M_PI );
-	mColor			= Color( CM_HSV, hue, sat * 0.5f, 1.0f );
-	mGlowColor		= Color( CM_HSV, hue + 0.15f, sat, 1.0f );
+	mColor			= Color( CM_HSV, hue, sat * 0.2f, 1.0f );
+	mGlowColor		= Color( CM_HSV, hue, sat + 0.3f, 1.0f );
+	
+	
 	
 	mOrbitRadiusDest = Rand::randFloat( mParentNode->mRadius * 0.5f, mParentNode->mRadius * 1.5f );
 	mIdealCameraDist = mRadius * 2.0f;
@@ -42,6 +45,7 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string nam
 void NodeAlbum::setData( PlaylistRef album )
 {
 	mAlbum				= album;
+	mCurrentTrackIndex	= 0;
 	mHighestPlayCount	= 0;
 	mLowestPlayCount	= 10000;
 	int i=0;

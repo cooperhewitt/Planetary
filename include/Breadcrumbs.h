@@ -92,7 +92,7 @@ void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font ){
 	TextLayout layout;
 	layout.setFont( mFont );
 	layout.setColor( Color::white() );			
-	layout.addLine( " > " );
+	layout.addLine( "•" );
 	bool PREMULT = false;
 	mSeparatorTexture = gl::Texture( layout.render( true, PREMULT ) );
 }
@@ -153,24 +153,32 @@ void Breadcrumbs::draw( float y ) {
 	gl::enableAlphaBlending(false);		
 	gl::color( Color::white() );
 	float x			= 25.0f;
-	float margin	= 5.0f;
+	float xMargin	= 5.0f;
+	float yMargin	= 10.0f;
 	mHeight = 0;
 	clickRects.clear();
 	
 	for( int i=0; i<mPreviousHierarchy.size(); i++ ){
-		gl::color( Color( 1.0, 1.0, 1.0 ) );			
+		if( i == mPreviousHierarchy.size() - 1 ){
+			gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+		} else {
+			gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.4f ) );	
+		}
+				
 		if( i > 0 ){
 			gl::draw( mSeparatorTexture, Vec2f( x, y ) );			
-			x += mSeparatorTexture.getWidth() + margin*2;				
+			x += mSeparatorTexture.getWidth() + xMargin*2;				
 		}
+		/*
 		if( i == prevSelectedIndex ){
 			gl::color( Color( 0.3f, 0.4f, 1.0f ) );
 		}
+		*/
+		
 		gl::draw( mTextures[i], Vec2f( x,y ) );			
-		clickRects.push_back( Rectf( x-margin, y-margin, x+mTextures[i].getWidth()+margin, y+mTextures[i].getHeight()+margin ) );
+		clickRects.push_back( Rectf( x-xMargin, y-yMargin, x+mTextures[i].getWidth()+xMargin, y+mTextures[i].getHeight()+yMargin ) );
 		mHeight = max(mHeight, (float)(mTextures[i].getHeight()));
-		x += mTextures[i].getWidth() + margin*2;
+		x += mTextures[i].getWidth() + xMargin*2;
 	}		
-	
-	mHeight += 2 * margin;
+
 }

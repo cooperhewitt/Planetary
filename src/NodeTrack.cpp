@@ -29,7 +29,7 @@ NodeTrack::NodeTrack( Node *parent, int index, int numTracks, const Font &font, 
 	mIsPlaying		= false;
 	
 	float hue		= Rand::randFloat();
-	float sat		= Rand::randFloat( 0.0f, 0.25f);
+	float sat		= Rand::randFloat( 0.0f, 0.5f);
 	float val		= Rand::randFloat( 0.85f, 1.0f);
 	mColor			= Color( CM_HSV, hue, sat, val );
 	mGlowColor		= mColor;
@@ -171,6 +171,7 @@ void NodeTrack::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> te
 	gl::popModelView();
 	
 	
+	/*
 	// PLANET NAME TEXTURE
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
@@ -179,12 +180,15 @@ void NodeTrack::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> te
 		gl::translate( mTransPos );
 		gl::color( mParentNode->mParentNode->mGlowColor );
 		gl::rotate( accelMatrix );//Vec3f( 0.0f, app::getElapsedSeconds() * -5.0f, mAxialTilt ) );
-		gl::drawSphere( Vec3f::zero(), mRadius * 0.3925f, mSphereRes );
+		gl::drawSphere( Vec3f::zero(), mRadius * 0.41f, mSphereRes );
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
 
-		gl::disableAlphaBlending();
+		
 	}
+	*/
+	
+	gl::disableAlphaBlending();
 }
 
 void NodeTrack::drawRings( gl::Texture *tex )
@@ -210,9 +214,6 @@ void NodeTrack::drawRings( gl::Texture *tex )
 
 void NodeTrack::select()
 {
-	
-	std::cout << "Index = " << mIndex << std::endl;
-	std::cout << "AlbumName = " << mAlbum->getAlbumTitle() << std::endl;
 	mPlayer->play( mAlbum, mIndex );
 	mIsPlaying = true;
 	

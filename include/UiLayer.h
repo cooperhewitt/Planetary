@@ -26,8 +26,9 @@ class UiLayer {
 	bool	touchesBegan( ci::app::TouchEvent event );
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
-	void	setPanelPos( const ci::Vec2f &pos, bool doneDragging );
+	void	setPanelPos( float y, bool doneDragging );
 	void	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
+	void	update();
 	void	draw( const ci::gl::Texture &upTex, const ci::gl::Texture &downTex );
 	void	drawWheel();
 	void	drawAlphaChar();
@@ -48,12 +49,15 @@ class UiLayer {
 	ci::app::AppCocoaTouch *mApp;
 	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded;
 	ci::Vec2f		mTouchPos;
+	float			mPanelYPos, mPanelYPosDest;
+	float			mPanelOpenYPos, mPanelClosedYPos;
 	
 	ci::Vec2f		mPanelPos;				// XY position of the panel upper left corner
 	ci::Rectf		mPanelRect;				// Rect defining the panel width and height
 	ci::Rectf		mPanelTabRect;			// Rect defining the panel tab
 	bool			mIsPanelTabTouched;		// Is the Panel Tab currently being touched
 	bool			mIsPanelOpen;			// Is the Panel fully open
+	bool			mHasPanelBeenDragged;
 	float			mPanelTabTouchYOffset;	// Accommodate the touch position y value
 	
 	ci::Rectf		mStripRect;

@@ -62,9 +62,14 @@ void UiLayer::setup( AppCocoaTouch *app )
 	
 	// PANEL AND TAB
 	mPanelRect			= Rectf( 0.0f, 0.0f, getWindowWidth(), 75.0f );
-	setPanelPos( Vec2f( 0.0f, getWindowHeight() - mPanelRect.y2 ), true );
+	mPanelOpenYPos		= getWindowHeight() - mPanelRect.y2;
+	mPanelClosedYPos	= getWindowHeight();
+	mPanelYPos			= mPanelClosedYPos;
+	mPanelYPosDest		= mPanelOpenYPos;
+	setPanelPos( mPanelYPos, true );
 	mIsPanelTabTouched	= false;
 	mIsPanelOpen		= true;
+	mHasPanelBeenDragged = false;
 }
 
 void UiLayer::initAlphaTextures( const Font &font )
@@ -84,6 +89,8 @@ void UiLayer::initAlphaTextures( const Font &font )
 bool UiLayer::touchesBegan( TouchEvent event )
 {
 	std::cout << "UiLayer TouchesBegan" << std::endl;
+	
+	mHasPanelBeenDragged = false;
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) {
 		mTouchPos = touchIt->getPos();
 	}
@@ -112,7 +119,8 @@ bool UiLayer::touchesMoved( TouchEvent event )
 		selectWheelItem( mTouchPos, false );
 	}
 	if( mIsPanelTabTouched ){
-		setPanelPos( mTouchPos, false );
+		mHasPanelBeenDragged = true;
+		setPanelPos( mTouchPos.y, false );
 	}
 
 	return false;
@@ -133,39 +141,49 @@ bool UiLayer::touchesEnded( TouchEvent event )
 	}
 	
 	if( mIsPanelTabTouched ){
-		setPanelPos( mTouchPos, true );
-		mIsPanelTabTouched = false;
+		if( mHasPanelBeenDragged ){
+			setPanelPos( mTouchPos.y, true );
+			mIsPanelTabTouched		= false;
+			mHasPanelBeenDragged	= false;
+		} else {
+			if( mIsPanelOpen ){
+				mPanelYPosDest = mPanelClosedYPos;
+			} else {
+				mPanelYPosDest = mPanelOpenYPos;
+			}
+		}
+		
+		
 	}
 	
 	return false;
 }
 
 
-void UiLayer::setPanelPos( const Vec2f &pos, bool doneDragging )
+void UiLayer::setPanelPos( float y, bool doneDragging )
 {
-	mPanelPos			= Vec2f( 0.0f, pos.y + mPanelTabTouchYOffset );
-	float topYPos		= getWindowHeight() - mPanelRect.y2;
+	mPanelYPosDest		= y + mPanelTabTouchYOffset;
 	
-	if( mPanelPos.y < topYPos ){
+	// if the mPanel y position is outside of the max and min, clamp it
+	if( mPanelYPosDest <= mPanelOpenYPos ){
 		mIsPanelOpen	= true;
-		mPanelPos.y		= topYPos;
-	} else if( mPanelPos.y > getWindowHeight() ) {
+		mPanelYPosDest		= mPanelOpenYPos;
+		
+	} else if( mPanelYPosDest >= mPanelClosedYPos ) {
 		mIsPanelOpen	= false;
-		mPanelPos.y		= getWindowHeight();
+		mPanelYPosDest		= mPanelClosedYPos;
 	}
 	
+	
 	if( doneDragging ){
-		if( mPanelPos.y < getWindowHeight() - mPanelRect.y2 * 0.5f ){
-			mPanelPos.y = getWindowHeight() - mPanelRect.y2;
-			mIsPanelOpen = true;
+		if( mPanelYPos < mPanelOpenYPos + mPanelRect.y2 * 0.5f ){
+			mPanelYPosDest = mPanelOpenYPos;
 		} else {
-			mPanelPos.y = getWindowHeight();
-			mIsPanelOpen = false;
+			mPanelYPosDest = mPanelClosedYPos;
 		}
 
 	}
 	
-	mPanelTabRect		= Rectf( getWindowWidth() * 0.5f - 25.0f, mPanelPos.y - 50.0f, getWindowWidth() * 0.5f + 25.0f, mPanelPos.y );
 }
 
 void UiLayer::selectWheelItem( const Vec2f &pos, bool closeWheel )
@@ -189,6 +207,20 @@ void UiLayer::selectWheelItem( const Vec2f &pos, bool closeWheel )
 			}
 		}
 	}
+}
+
+void UiLayer::update()
+{
+	mPanelYPos -= ( mPanelYPos - mPanelYPosDest ) * 0.25f;
+	mPanelPos	= Vec2f( 0.0f, mPanelYPos );
+	
+	if( mPanelYPos < mPanelOpenYPos + mPanelRect.y2 * 0.5f ){
+		mIsPanelOpen = true;
+	} else {
+		mIsPanelOpen = false;
+	}
+	
+	mPanelTabRect	= Rectf( getWindowWidth() * 0.5f - 25.0f, mPanelPos.y - 50.0f, getWindowWidth() * 0.5f + 25.0f, mPanelPos.y + 0.5f );
 }
 
 void UiLayer::draw( const gl::Texture &upTex, const gl::Texture &downTex )
@@ -251,5 +283,6 @@ void UiLayer::drawPanel( const gl::Texture &upTex, const gl::Texture &downTex )
 		downTex.disable();
 	else
 		upTex.disable();
+
 }
 

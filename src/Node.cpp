@@ -262,6 +262,8 @@ void Node::select()
 
 void Node::deselect()
 {
+	// TODO: Instead of killing them right away, sentence them to die but only after
+	// their gen is 1.0 greater than the current zoom level. 
 	mIsSelected = false;
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		delete (*nodeIt);

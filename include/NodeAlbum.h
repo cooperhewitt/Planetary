@@ -27,6 +27,4 @@ class NodeAlbum : public Node
 	void select();
 	void setData( ci::ipod::PlaylistRef album );
 	//void selectNextTrack( Node *nodeSelected, string trackName );
-	
-	ci::ipod::PlaylistRef mAlbum;
 };
