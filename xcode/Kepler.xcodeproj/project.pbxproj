@@ -122,6 +122,7 @@
 		E25C8741131F14A5000780A3 /* NodeTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeTrack.h; path = ../include/NodeTrack.h; sourceTree = SOURCE_ROOT; };
 		E25C8742131F14B3000780A3 /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8743131F14B3000780A3 /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
+		E2A1FF8E132599290007F4DA /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../include/PlayControls.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -350,6 +351,7 @@
 			children = (
 				E1C60253131C4B3D0022246C /* BreadcrumbEvent.h */,
 				E1C60254131C4B3D0022246C /* Breadcrumbs.h */,
+				E2A1FF8E132599290007F4DA /* PlayControls.h */,
 			);
 			name = Ui;
 			sourceTree = "<group>";

@@ -13,6 +13,7 @@
 #include "UiLayer.h"
 #include "State.h"
 #include "Data.h"
+#include "PlayControls.h"
 #include "Breadcrumbs.h"
 #include "BreadcrumbEvent.h"
 #include "CinderIPod.h"
@@ -53,6 +54,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onAlphaCharStateChanged( State *state );
 	bool			onAlphaCharSelected( UiLayer *uiLayer );
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
+	bool			onPlayControlsButtonPressed ( PlayButton button );
 	bool			onNodeSelected( Node *node );
 	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat );
 	bool			onPlayerStateChanged( ipod::Player *player );
@@ -71,6 +73,9 @@ class KeplerApp : public AppCocoaTouch {
 	
 	// BREADCRUMBS
 	Breadcrumbs		mBreadcrumbs;	
+	
+	// PLAY CONTROLS
+	PlayControls	mPlayControls;
 	
 	// CAMERA PERSP
 	CameraPersp		mCam;
@@ -165,6 +170,9 @@ void KeplerApp::setup()
 	mBreadcrumbs.registerBreadcrumbSelected( this, &KeplerApp::onBreadcrumbSelected );
 	mBreadcrumbs.setHierarchy(mState.getHierarchy());
 	
+	// PLAY CONTROLS
+	mPlayControls.setup( this );
+	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
@@ -287,6 +295,12 @@ bool KeplerApp::onNodeSelected( Node *node )
 	return false;
 }
 
+bool KeplerApp::onPlayControlsButtonPressed( PlayButton button )
+{
+	cout << "play button " << button << " pressed" << endl;
+	return false;
+}
+
 bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 {
 	int level = event.getLevel();
@@ -330,6 +344,7 @@ void KeplerApp::update()
 	mWorld.updateGraphics( mCam );
 	
 	mBreadcrumbs.update();
+	mPlayControls.update();
 }
 
 void KeplerApp::updateArcball()
@@ -500,6 +515,7 @@ void KeplerApp::draw()
 	gl::enableAlphaBlending();
 	mUiLayer.draw( mPanelTabTex, mPanelTabDownTex );
 	mBreadcrumbs.draw( mUiLayer.getPanelYPos() + 5.0f );
+	mPlayControls.draw( mUiLayer.getPanelYPos() + mBreadcrumbs.getHeight() + 5.0f );
 	mState.draw( mFonts[4] );
 	
 	//drawInfoPanel();
