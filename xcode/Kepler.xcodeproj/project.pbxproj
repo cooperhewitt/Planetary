@@ -42,7 +42,7 @@
 		E17667DB13202F4D006A4C2E /* uranus.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D413202F4D006A4C2E /* uranus.jpg */; };
 		E17667DC13202F4D006A4C2E /* venus.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D513202F4D006A4C2E /* venus.jpg */; };
 		E17667DE13202FB7006A4C2E /* rings.png in Resources */ = {isa = PBXBuildFile; fileRef = E17667DD13202FB7006A4C2E /* rings.png */; };
-		E1A330381301013100CED126 /* cluster.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330351301013100CED126 /* cluster.png */; };
+		E1A330381301013100CED126 /* starAlternate.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330351301013100CED126 /* starAlternate.png */; };
 		E1A330391301013100CED126 /* starGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330361301013100CED126 /* starGlow.png */; };
 		E1A3303A1301013100CED126 /* star.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330371301013100CED126 /* star.png */; };
 		E1A332D0130105E700CED126 /* CinderIPod.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1A331FB130105E700CED126 /* CinderIPod.mm */; };
@@ -98,7 +98,7 @@
 		E17667D413202F4D006A4C2E /* uranus.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = uranus.jpg; sourceTree = "<group>"; };
 		E17667D513202F4D006A4C2E /* venus.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = venus.jpg; sourceTree = "<group>"; };
 		E17667DD13202FB7006A4C2E /* rings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rings.png; sourceTree = "<group>"; };
-		E1A330351301013100CED126 /* cluster.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cluster.png; path = ../resources/cluster.png; sourceTree = SOURCE_ROOT; };
+		E1A330351301013100CED126 /* starAlternate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = starAlternate.png; path = ../resources/starAlternate.png; sourceTree = SOURCE_ROOT; };
 		E1A330361301013100CED126 /* starGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = starGlow.png; path = ../resources/starGlow.png; sourceTree = SOURCE_ROOT; };
 		E1A330371301013100CED126 /* star.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = star.png; path = ../resources/star.png; sourceTree = SOURCE_ROOT; };
 		E1A331BF130105E600CED126 /* CinderIPod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPod.h; sourceTree = "<group>"; };
@@ -261,7 +261,7 @@
 				E17667CE13202F4D006A4C2E /* planets */,
 				E1555CA4131EEBEB0079B05A /* dotted.png */,
 				E1555A0A131E05140079B05A /* skydome.jpg */,
-				E1A330351301013100CED126 /* cluster.png */,
+				E1A330351301013100CED126 /* starAlternate.png */,
 				E1A330361301013100CED126 /* starGlow.png */,
 				E1A330371301013100CED126 /* star.png */,
 				E15C90AD1300B2A300FB8389 /* logo.png */,
@@ -452,7 +452,7 @@
 				E15C90B11300B2A300FB8389 /* UnitRoundedOT-Medi.otf in Resources */,
 				E15C90B21300B2A300FB8389 /* UnitRoundedOT-Ultra.otf in Resources */,
 				E15C90B91300B30100FB8389 /* wheel.png in Resources */,
-				E1A330381301013100CED126 /* cluster.png in Resources */,
+				E1A330381301013100CED126 /* starAlternate.png in Resources */,
 				E1A330391301013100CED126 /* starGlow.png in Resources */,
 				E1A3303A1301013100CED126 /* star.png in Resources */,
 				E1555A0B131E05140079B05A /* skydome.jpg in Resources */,

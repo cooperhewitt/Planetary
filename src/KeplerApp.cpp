@@ -112,7 +112,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mLoadingTex;
 	gl::Texture		mParamsTex;
 	gl::Texture		mAtmosphereTex;
-	gl::Texture		mStarTex;
+	gl::Texture		mStarTex, mStarAlternateTex;
 	gl::Texture		mStarGlowTex;
 	gl::Texture		mSkyDome;
 	gl::Texture		mDottedTex;
@@ -271,6 +271,7 @@ void KeplerApp::initTextures()
 	mBackwardTex		= loadImage( loadResource( "backward.png" ) );
 	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
 	mStarTex			= loadImage( loadResource( "star.png" ) );
+	mStarAlternateTex	= loadImage( loadResource( "starAlternate.png" ) );
 	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
@@ -527,9 +528,9 @@ void KeplerApp::draw()
 		gl::disableDepthRead();
 		
 	// STARS
-		mStarTex.enableAndBind();
+		mStarAlternateTex.enableAndBind();
 		mWorld.drawStars();
-		mStarTex.disable();
+		mStarAlternateTex.disable();
 		
 	// CONSTELLATION
 		mDottedTex.enableAndBind();
