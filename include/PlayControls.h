@@ -22,38 +22,61 @@ public:
 
 	void setup( AppCocoaTouch *app )
 	{
-		// TODO: remember app and callback ID so we can tidy up after ourselves?
-		app->registerTouchesEnded( this, &PlayControls::touchesEnded );
-		app->registerTouchesMoved( this, &PlayControls::touchesMoved );
-		app->registerTouchesBegan( this, &PlayControls::touchesBegan );
-		// TODO: listen to touches began/moved so we can do pressed states of buttons
+		mApp = app;
+		cbTouchesBegan = mApp->registerTouchesBegan( this, &PlayControls::touchesBegan );
+		cbTouchesEnded = 0;
+		cbTouchesMoved = 0;		
 		lastTouchedType = NO_BUTTON;
+		prevDrawY = 0;
 	}
 	
 	void update()
 	{
 		// TODO: update anything time based here, e.g. elapsed time of track playing
 		// or e.g. button animation
+
+		// clean up listeners here, because if we remove in touchesEnded then things get crazy
+		if (mApp->getActiveTouches().size() == 0 && cbTouchesEnded != 0) {
+			std::cout << " unregistering touches moved/ended in play controls " << endl;		
+			mApp->unregisterTouchesEnded( cbTouchesEnded );
+			mApp->unregisterTouchesMoved( cbTouchesMoved );
+			cbTouchesEnded = 0;
+			cbTouchesMoved = 0;
+		}		
 	}
 
 	bool touchesBegan( TouchEvent event )
 	{
+		std::cout << " entering touches began in play controls " << endl;
 		vector<TouchEvent::Touch> touches = event.getTouches();
-		lastTouchedType = findButtonUnderTouches(touches);
+		if (touches.size() > 0 && touches[0].getY() > prevDrawY) {
+			if (cbTouchesEnded == 0) {
+				cbTouchesEnded = mApp->registerTouchesEnded( this, &PlayControls::touchesEnded );
+				cbTouchesMoved = mApp->registerTouchesMoved( this, &PlayControls::touchesMoved );			
+			}
+			lastTouchedType = findButtonUnderTouches(touches);
+		}
+		else {
+			lastTouchedType = NO_BUTTON;
+		}
+		std::cout << " exiting touches began in play controls " << endl;
 		return false;
 	}
 
 	bool touchesMoved( TouchEvent event )
 	{
+		std::cout << " entering touches moved in play controls " << endl;		
 		vector<TouchEvent::Touch> touches = event.getTouches();
 		lastTouchedType = findButtonUnderTouches(touches);
+		std::cout << " exiting touches moved in play controls " << endl;		
 		return false;
 	}	
 	
 	bool touchesEnded( TouchEvent event )
 	{
+		std::cout << " entering touches ended in play controls " << endl;		
 		vector<TouchEvent::Touch> touches = event.getTouches();
-		if (lastTouchedType == findButtonUnderTouches(touches)) {
+		if (lastTouchedType != NO_BUTTON && lastTouchedType == findButtonUnderTouches(touches)) {
 			mCallbacksButtonPressed.call(lastTouchedType);
 		}
 		lastTouchedType = NO_BUTTON;
@@ -62,6 +85,7 @@ public:
 	
 	void draw( float y )
 	{
+		prevDrawY = y;
 		
 		gl::color( Color::white() );
 		gl::drawSolidRect( Rectf(0, y, getWindowWidth(), y + 40.0f ) ); // TODO: make height settable in setup()?
@@ -100,14 +124,24 @@ public:
 	
 private:
 					  
+	AppCocoaTouch *mApp;
+	
 	// updated by draw() so that we can test in touchesEnded
 	vector<Rectf> touchRects;
 	vector<PlayButton> touchTypes;
 	PlayButton lastTouchedType;
+	float prevDrawY;
 
+	CallbackId cbTouchesBegan;
+	CallbackId cbTouchesMoved;
+	CallbackId cbTouchesEnded;
+			
 	PlayButton findButtonUnderTouches(vector<TouchEvent::Touch> touches) {
 		for (int j = 0; j < touches.size(); j++) {
 			TouchEvent::Touch touch = touches[j];
+			if (touch.getY() < prevDrawY) {
+				continue;
+			}
 			for (int i = 0; i < touchRects.size(); i++) {
 				Rectf rect = touchRects[i];
 				if (rect.contains(touch.getPos())) {
