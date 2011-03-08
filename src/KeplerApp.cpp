@@ -70,6 +70,7 @@ class KeplerApp : public AppCocoaTouch {
 	
 	// ACCELEROMETER
 	Matrix44f		mAccelMatrix;
+	Matrix44f		mNewAccelMatrix;
 	
 	// AUDIO
 	ipod::Player		mIpodPlayer;
@@ -256,9 +257,8 @@ void KeplerApp::touchesEnded( TouchEvent event )
 
 void KeplerApp::accelerated( AccelEvent event )
 {
-	Matrix44f newMatrix = event.getMatrix();
-	newMatrix.invert();
-	mAccelMatrix	= lerp( mAccelMatrix, newMatrix, 0.25f );
+	mNewAccelMatrix = event.getMatrix();
+	mNewAccelMatrix.invert();
 }
 
 void KeplerApp::initTextures()
@@ -415,6 +415,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat )
 
 void KeplerApp::update()
 {
+	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.17f );
 	updateArcball();
 	mWorld.update( mMatrix, mBbRight, mBbUp );
 	updateCamera();
@@ -528,9 +529,9 @@ void KeplerApp::draw()
 		gl::disableDepthRead();
 		
 	// STARS
-		mStarAlternateTex.enableAndBind();
+		mStarTex.enableAndBind();
 		mWorld.drawStars();
-		mStarAlternateTex.disable();
+		mStarTex.disable();
 		
 	// CONSTELLATION
 		mDottedTex.enableAndBind();
