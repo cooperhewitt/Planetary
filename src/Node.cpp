@@ -25,6 +25,13 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 	} else {
 		init();
 	}
+	
+	std::cout << mName.size() << std::endl;
+	if( mName.size() == 0 ){
+		mName = "untitled";
+	}
+	
+	
 	createNameTexture();
 	
 	mTransPos			= mPos;
@@ -214,7 +221,23 @@ void Node::drawAtmosphere()
 	}
 }
 
+void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix44f &mat )
+{
+	mHitSphere.setCenter( mat.transformPointAffine( mPos ) );
 
+	if( mHitSphere.intersects( ray ) && mIsHighlighted && ! mIsSelected ){
+		std::cout << "HIT FOUND" << std::endl;
+		nodes.push_back( this );
+		
+	}
+	
+	vector<Node*>::iterator nodeIt;
+	for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->checkForSphereIntersect( nodes, ray, mat );
+	}
+}
+
+/*
 void Node::checkForSphereIntersect( Node* &theNode, const Ray &ray, Matrix44f &mat )
 {
 	if( ! theNode ){
@@ -231,6 +254,7 @@ void Node::checkForSphereIntersect( Node* &theNode, const Ray &ray, Matrix44f &m
 		}
 	}
 }
+*/
 
 void Node::select()
 {

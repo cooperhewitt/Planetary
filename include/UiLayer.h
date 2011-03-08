@@ -56,7 +56,7 @@ class UiLayer {
 	bool			mIsPanelOpen;			// Is the Panel fully open
 	float			mPanelTabTouchYOffset;	// Accommodate the touch position y value
 	
-	ci::Rectf			mStripRect;
+	ci::Rectf		mStripRect;
 	bool			mShowWheel;
 	std::string		mAlphaString;
 	int				mAlphaIndex;

@@ -25,7 +25,8 @@ class World {
 	void initNodes( ci::ipod::Player *player, const ci::Font &font );
 	void filterNodes();
 	void deselectAllNodes();
-	void checkForSphereIntersect( Node* &theNode, const ci::Ray &ray, ci::Matrix44f &mat );
+//	void checkForSphereIntersect( Node* &theNode, const ci::Ray &ray, ci::Matrix44f &mat );
+	void checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
 	void update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void updateGraphics( const ci::CameraPersp &cam );
 	void drawStars();

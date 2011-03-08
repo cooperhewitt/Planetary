@@ -48,8 +48,19 @@ void State::setSelectedNode( Node* node )
 	else {
 		// clear currently selected node
 		// assuming that the only thing that can be selected is at the same level or higher
-		if (mSelectedNode != NULL && mSelectedNode->mGen == node->mGen) {
-			mSelectedNode->deselect();
+		if( mSelectedNode != NULL && mSelectedNode->mGen >= node->mGen ){
+			
+			Node *parent = mSelectedNode;
+			while( parent->mGen > node->mGen ){
+				parent->deselect();
+				parent = parent->mParentNode;
+			}
+			
+			// TODO: if parent != NULL && parent->mGen == node->mGen
+			// this would happen if we had a track selected but then
+			// we selected a *different* artist
+			// right now that can happen but we should prevent it in
+			// selection code
 		}
 		// ensure that the new selection is selected
 		node->select();

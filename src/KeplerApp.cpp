@@ -314,11 +314,32 @@ bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 
 void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat )
 {
-	Node *touchedNode = NULL;
-	mWorld.checkForSphereIntersect( touchedNode, ray, mat );
-	
-	if( touchedNode )
-		mState.setSelectedNode(touchedNode);
+	vector<Node*> nodes;
+	mWorld.checkForSphereIntersect( nodes, ray, mat );
+
+	if( nodes.size() > 0 ){
+		Node *nodeWithHighestGen = *nodes.begin();
+		int highestGen = nodeWithHighestGen->mGen;
+		
+		vector<Node*>::iterator it;
+		for( it = nodes.begin(); it != nodes.end(); ++it ){
+			if( (*it)->mGen > highestGen ){
+				highestGen = (*it)->mGen;
+				nodeWithHighestGen = *it;
+			}
+		}
+		
+		
+		if( nodeWithHighestGen ){
+			if( highestGen == G_ARTIST_LEVEL ){
+				if( ! mState.getSelectedArtistNode() )
+					mState.setSelectedNode( nodeWithHighestGen );
+			} else {
+				mState.setSelectedNode( nodeWithHighestGen );
+			}
+
+		}
+	}
 }
 
 void KeplerApp::update()

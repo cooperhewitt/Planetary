@@ -57,12 +57,22 @@ void World::deselectAllNodes()
 		(*it)->mIsSelected = false;
 	}
 }
-
+/*
 void World::checkForSphereIntersect( Node* &theNode, const Ray &ray, Matrix44f &mat )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
 			(*it)->checkForSphereIntersect( theNode, ray, mat );
+		}
+	}
+}
+*/
+
+void World::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix44f &mat )
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		if( (*it)->mIsHighlighted ){
+			(*it)->checkForSphereIntersect( nodes, ray, mat );
 		}
 	}
 }

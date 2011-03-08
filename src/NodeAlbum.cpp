@@ -36,7 +36,6 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string nam
 	
 	mSphere			= Sphere( mPos, mRadius * 1.8f );
 	mHitSphere		= Sphere( mPos, 0.2f );
-
 }
 
 

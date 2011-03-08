@@ -40,6 +40,7 @@ public:
 	}	
 	
 	void setup( AppCocoaTouch *app, const Font &font);
+	bool touchesBegan( TouchEvent event );
 	bool touchesEnded( TouchEvent event );
 	void setHierarchy(vector<string> hierarchy);
 	const vector<string>& getHierarchy();
@@ -57,8 +58,10 @@ private:
 	vector<gl::Texture> mTextures;
 	gl::Texture mSeparatorTexture;
 	vector<Rectf> clickRects;
+	int touchesBeganRectIndex;
 	int prevSelectedIndex;
 	
+	CallbackId mCallbackTouchesBegan;
 	CallbackId mCallbackTouchesEnded;
 	
 	//////////////////////
@@ -68,13 +71,15 @@ private:
 	
 };
 
-void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font) {
+void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font ){
 	
 	if (mApp != NULL) {
-		mApp->unregisterTouchesEnded(mCallbackTouchesEnded);
+		mApp->unregisterTouchesEnded( mCallbackTouchesEnded );
+		mApp->unregisterTouchesEnded( mCallbackTouchesBegan );
 	}
-	mCallbackTouchesEnded = app->registerTouchesEnded(this, &Breadcrumbs::touchesEnded);
-	
+	mCallbackTouchesBegan = app->registerTouchesBegan( this, &Breadcrumbs::touchesBegan );
+	mCallbackTouchesEnded = app->registerTouchesEnded( this, &Breadcrumbs::touchesEnded );
+		
 	mApp = app;
 	mFont = font;
 	mHierarchyHasChanged = false;
@@ -88,16 +93,27 @@ void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font) {
 	mSeparatorTexture = gl::Texture( layout.render( true, PREMULT ) );
 }
 
-// TODO: trigger only if finger has not been dragged? if you
-//		 spin the arcball and happen to release on top of a breadcrumb,
-//		 the breadcrumb touchEnded is triggered.
-bool Breadcrumbs::touchesEnded( TouchEvent event ) {
-	for (int i = 0; i < clickRects.size(); i++) {
+bool Breadcrumbs::touchesBegan( TouchEvent event ) {
+	touchesBeganRectIndex = -1;
+	for( int i = 0; i < clickRects.size(); i++ ){
 		if (clickRects[i].contains(event.getTouches()[0].getPos())) {
-			prevSelectedIndex = i;
-			// !!! EVENT STUFF (notify listeners)
-			mCallbacksBreadcrumbSelected.call( BreadcrumbEvent( prevSelectedIndex, mPreviousHierarchy[i] ) );
-			return true;
+			touchesBeganRectIndex = i;
+		}
+	}
+	
+	std::cout << "touchesBeganRectIndex = " << touchesBeganRectIndex << std::endl;
+	return false;
+}
+
+bool Breadcrumbs::touchesEnded( TouchEvent event ) {
+	for( int i = 0; i < clickRects.size(); i++ ){
+		if (clickRects[i].contains(event.getTouches()[0].getPos())) {
+			if( i == touchesBeganRectIndex ){
+				prevSelectedIndex = i;
+				// !!! EVENT STUFF (notify listeners)
+				mCallbacksBreadcrumbSelected.call( BreadcrumbEvent( prevSelectedIndex, mPreviousHierarchy[i] ) );
+				return true;
+			}
 		}
 	}
 	return false;
