@@ -148,7 +148,7 @@ void World::drawRings( gl::Texture *tex )
 
 void World::drawConstellation( const Matrix44f &mat )
 {
-	if( mTotalVertices > 1 ){
+	if( mTotalVertices > 2 ){
 		float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.3f;
 		gl::pushModelView();
 		gl::rotate( mat );

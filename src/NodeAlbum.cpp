@@ -34,7 +34,8 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string nam
 	mOrbitRadiusDest = Rand::randFloat( mParentNode->mRadius * 0.5f, mParentNode->mRadius * 1.5f );
 	mIdealCameraDist = mRadius * 2.0f;
 	
-	mSphere			= Sphere( mPos, mRadius * 2.0f );
+	mSphere			= Sphere( mPos, mRadius * 1.8f );
+	mHitSphere		= Sphere( mPos, 0.2f );
 
 }
 
@@ -85,7 +86,7 @@ void NodeAlbum::drawStar()
 void NodeAlbum::drawStarGlow()
 {
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
-		gl::color( ColorA( mGlowColor, min( mDistFromCamZAxisPer * 100.0f, 1.0f ) ) );
+		gl::color( ColorA( mGlowColor, min( mDistFromCamZAxisPer * 300.0f, 1.0f ) ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 3.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}

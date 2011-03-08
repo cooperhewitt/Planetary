@@ -62,9 +62,9 @@ void UiLayer::setup( AppCocoaTouch *app )
 	
 	// PANEL AND TAB
 	mPanelRect			= Rectf( 0.0f, 0.0f, getWindowWidth(), 75.0f );
-	setPanelPos( Vec2f( 0.0f, getWindowHeight() ), true );
+	setPanelPos( Vec2f( 0.0f, getWindowHeight() - mPanelRect.y2 ), true );
 	mIsPanelTabTouched	= false;
-	mIsPanelOpen		= false;
+	mIsPanelOpen		= true;
 }
 
 void UiLayer::initAlphaTextures( const Font &font )

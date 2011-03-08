@@ -32,6 +32,7 @@ NodeTrack::NodeTrack( Node *parent, int index, int numTracks, const Font &font, 
 	float sat		= Rand::randFloat( 0.0f, 0.25f);
 	float val		= Rand::randFloat( 0.85f, 1.0f);
 	mColor			= Color( CM_HSV, hue, sat, val );
+	mGlowColor		= mColor;
 	mAtmosphereColor = mParentNode->mColor;
 	mNumTracks		= numTracks;
 	float invTrackPer = 1.0f/(float)mNumTracks;
@@ -59,7 +60,8 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 		mPlanetTexIndex = (int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
 		
 	mRadius			= mRadius * pow( normPlayCount + 0.5f, 2.0f );
-	mSphere			= Sphere( mPos, mRadius * 2.0f );
+	mSphere			= Sphere( mPos, mRadius * 3.0f );
+	mHitSphere		= Sphere( mPos, 0.01f );
 	mIdealCameraDist = mRadius * 3.0f;
 	mOrbitPeriod	= mTrackLength;
 	mAxialTilt		= Rand::randFloat( 5.0f, 30.0f );
@@ -135,8 +137,6 @@ void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 void NodeTrack::drawAtmosphere()
 {
 	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
-		gl::disableDepthRead();
-		gl::disableDepthWrite();
 		gl::color( ColorA( mParentNode->mGlowColor, 1.0f ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 0.875f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
@@ -150,11 +150,7 @@ void NodeTrack::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> te
 	gl::translate( mTransPos );
 	gl::rotate( mMatrix );
 	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 20.0f, mAxialTilt ) );
-	if( G_DEBUG ){
-		//mAlbumArt.enableAndBind();
-	} else {
-		texs[mPlanetTexIndex]->enableAndBind();
-	}
+	texs[mPlanetTexIndex]->enableAndBind();
 	gl::drawSphere( Vec3f::zero(), mRadius * 0.375f, mSphereRes );
 	
 	

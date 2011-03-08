@@ -144,7 +144,6 @@ void KeplerApp::setup()
 	mBbRight			= Vec3f::xAxis();
 	mBbUp				= Vec3f::yAxis();
 	
-	
 	// FONTS
 	initFonts();
 	
@@ -350,11 +349,11 @@ void KeplerApp::update()
 void KeplerApp::updateArcball()
 {
 	if( mTouchThrowVel.length() > 10.0f && !mIsDragging ){
-		//if( mTouchVel.length() > 1.0f ){
-			//mTouchVel *= 0.99f;
+		if( mTouchVel.length() > 1.0f ){
+			mTouchVel *= 0.99f;
 			mArcball.mouseDown( mTouchPos );
 			mArcball.mouseDrag( mTouchPos + mTouchVel );
-		//}
+		}
 	}
 	
 	mMatrix = mArcball.getQuat();
@@ -369,8 +368,8 @@ void KeplerApp::updateCamera()
 		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
 		mZoomDest		= selectedNode->mGen;
 		
-		if( selectedNode->mParentNode )
-			mCenterFrom		+= selectedNode->mParentNode->mVel;
+		mCenterFrom		+= selectedNode->mVel;
+		//mCamDistFrom	+= selectedNode->mCamZVel;
 
 	} else {
 		mCamDistDest	= G_INIT_CAM_DIST;
@@ -423,10 +422,17 @@ void KeplerApp::draw()
 	
 	gl::enableAdditiveBlending();
 	
-	// STARGLOWS
+// STARGLOWS
 	mStarGlowTex.enableAndBind();
 	mWorld.drawStarGlows();
 	mStarGlowTex.disable();
+	
+// ORBITS
+	gl::enableAdditiveBlending();
+	gl::enableDepthRead();
+	gl::disableDepthWrite();
+	mWorld.drawOrbitalRings();
+	gl::disableDepthRead();
 	
 // STARS
 	mStarTex.enableAndBind();
@@ -441,7 +447,7 @@ void KeplerApp::draw()
 	if( G_DEBUG ){
 		// VISUALIZE THE HIT AREA
 		glDisable( GL_TEXTURE_2D );
-	//	mWorld.drawSpheres();
+		mWorld.drawSpheres();
 	}
 	
 	
@@ -478,6 +484,7 @@ void KeplerApp::draw()
 		
 // PLANETS
 		gl::enableDepthRead();
+		gl::enableDepthWrite();
 		gl::disableAlphaBlending();
 		mWorld.drawPlanets( mAccelMatrix, mPlanetsTex );
 		
@@ -485,20 +492,17 @@ void KeplerApp::draw()
 		gl::enableAdditiveBlending();
 		mWorld.drawRings( mPlanetsTex[G_RING_TYPE] );
 		glDisable( GL_LIGHTING );
+		gl::disableDepthRead();
 	}
 	
 	
 // ATMOSPHERE
 	mAtmosphereTex.enableAndBind();
+	gl::disableDepthRead();
+	gl::disableDepthWrite();
 	mWorld.drawAtmospheres();
 	mAtmosphereTex.disable();
-	
-	
-// ORBITS
-	gl::enableAdditiveBlending();
-	gl::enableDepthRead();
-	mWorld.drawOrbitalRings();
-	gl::disableDepthRead();
+
 
 // NAMES
 	gl::disableDepthWrite();

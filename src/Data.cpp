@@ -55,5 +55,18 @@ void Data::filterArtistsByAlpha( char c )
 			
 			index ++;
 		}
+	} else {
+		int index = 0;
+		for( vector<ci::ipod::PlaylistRef>::iterator it = mArtists.begin(); it != mArtists.end(); ++it ){
+			string name		= (*it)->getArtistName();
+			char firstLetter = name[0];
+		
+			if( isdigit( firstLetter ) ){
+				std::cout << name << std::endl;
+				mFilteredArtists.push_back( index );
+			}
+			
+			index ++;
+		}
 	}
 }
