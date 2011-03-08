@@ -37,7 +37,6 @@ public:
 
 		// clean up listeners here, because if we remove in touchesEnded then things get crazy
 		if (mApp->getActiveTouches().size() == 0 && cbTouchesEnded != 0) {
-			std::cout << " unregistering touches moved/ended in play controls " << endl;		
 			mApp->unregisterTouchesEnded( cbTouchesEnded );
 			mApp->unregisterTouchesMoved( cbTouchesMoved );
 			cbTouchesEnded = 0;
@@ -47,7 +46,6 @@ public:
 
 	bool touchesBegan( TouchEvent event )
 	{
-		std::cout << " entering touches began in play controls " << endl;
 		vector<TouchEvent::Touch> touches = event.getTouches();
 		if (touches.size() > 0 && touches[0].getY() > prevDrawY) {
 			if (cbTouchesEnded == 0) {
@@ -59,22 +57,18 @@ public:
 		else {
 			lastTouchedType = NO_BUTTON;
 		}
-		std::cout << " exiting touches began in play controls " << endl;
 		return false;
 	}
 
 	bool touchesMoved( TouchEvent event )
 	{
-		std::cout << " entering touches moved in play controls " << endl;		
 		vector<TouchEvent::Touch> touches = event.getTouches();
 		lastTouchedType = findButtonUnderTouches(touches);
-		std::cout << " exiting touches moved in play controls " << endl;		
 		return false;
 	}	
 	
 	bool touchesEnded( TouchEvent event )
 	{
-		std::cout << " entering touches ended in play controls " << endl;		
 		vector<TouchEvent::Touch> touches = event.getTouches();
 		if (lastTouchedType != NO_BUTTON && lastTouchedType == findButtonUnderTouches(touches)) {
 			mCallbacksButtonPressed.call(lastTouchedType);
