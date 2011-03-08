@@ -51,7 +51,7 @@ void State::setSelectedNode( Node* node )
 		if( mSelectedNode != NULL && mSelectedNode->mGen >= node->mGen ){
 			
 			Node *parent = mSelectedNode;
-			while( parent->mGen > node->mGen ){
+			while( parent != NULL && parent->mGen >= node->mGen ){
 				parent->deselect();
 				parent = parent->mParentNode;
 			}

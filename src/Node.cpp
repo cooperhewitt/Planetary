@@ -26,7 +26,6 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 		init();
 	}
 	
-	std::cout << mName.size() << std::endl;
 	if( mName.size() == 0 ){
 		mName = "untitled";
 	}
