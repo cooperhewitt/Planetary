@@ -38,6 +38,7 @@ Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
 
 class KeplerApp : public AppCocoaTouch {
   public:
+	void			init();
 	virtual void	setup();
 	virtual void	touchesBegan( TouchEvent event );
 	virtual void	touchesMoved( TouchEvent event );
@@ -102,6 +103,7 @@ class KeplerApp : public AppCocoaTouch {
 	
 	
 	// TEXTURES
+	gl::Texture		mLoadingTex;
 	gl::Texture		mParamsTex;
 	gl::Texture		mAtmosphereTex;
 	gl::Texture		mStarTex;
@@ -112,10 +114,14 @@ class KeplerApp : public AppCocoaTouch {
 	vector<gl::Texture*>	mPlanetsTex;
 	
 	float			mTime;
+	
+	bool			mIsLoaded;
 };
 
 void KeplerApp::setup()
 {
+	mIsLoaded = false;
+	
 	Rand::randomize();
 	
 	// INIT ACCELEROMETER
@@ -182,8 +188,10 @@ void KeplerApp::setup()
 	mUiLayer.setup( this );
 	mUiLayer.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
 	mUiLayer.initAlphaTextures( mFonts[0] );
-	
-	
+}
+
+void KeplerApp::init()
+{
 	// DATA
 	mData.initArtists();
 	
@@ -191,6 +199,8 @@ void KeplerApp::setup()
 	// WORLD
 	mWorld.setData( &mData );
 	mWorld.initNodes( &mIpodPlayer, mFonts[4] );
+	
+	mIsLoaded = true;
 }
 
 void KeplerApp::touchesBegan( TouchEvent event )
@@ -242,6 +252,7 @@ void KeplerApp::accelerated( AccelEvent event )
 
 void KeplerApp::initTextures()
 {
+	mLoadingTex			= loadImage( loadResource( "loading.jpg" ) );
 	mPanelTabTex		= loadImage( loadResource( "panelTab.png" ) );
 	mPanelTabDownTex	= loadImage( loadResource( "panelTabDown.png" ) );
 	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
@@ -371,7 +382,7 @@ void KeplerApp::updateArcball()
 {
 	if( mTouchThrowVel.length() > 10.0f && !mIsDragging ){
 		if( mTouchVel.length() > 1.0f ){
-			mTouchVel *= 0.99f;
+			//mTouchVel *= 0.99f;
 			mArcball.mouseDown( mTouchPos );
 			mArcball.mouseDrag( mTouchPos + mTouchVel );
 		}
@@ -429,121 +440,131 @@ void KeplerApp::updateCamera()
 void KeplerApp::draw()
 {
 	gl::clear( Color( 0, 0, 0 ), true );
-	gl::enableDepthWrite();
-	gl::setMatrices( mCam );
-	
-	// DRAW SKYDOME
-	gl::pushModelView();
-	gl::rotate( mArcball.getQuat() );
-	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-	mSkyDome.enableAndBind();
-	gl::drawSphere( Vec3f::zero(), 2000.0f, 64 );
-	gl::popModelView();
-	
-	
-	gl::enableAdditiveBlending();
-	
-// STARGLOWS
-	mStarGlowTex.enableAndBind();
-	mWorld.drawStarGlows();
-	mStarGlowTex.disable();
-	
-// ORBITS
-	gl::enableAdditiveBlending();
-	gl::enableDepthRead();
-	gl::disableDepthWrite();
-	mWorld.drawOrbitalRings();
-	gl::disableDepthRead();
-	
-// STARS
-	mStarTex.enableAndBind();
-	mWorld.drawStars();
-	mStarTex.disable();
-	
-// CONSTELLATION
-	mDottedTex.enableAndBind();
-	mWorld.drawConstellation( mMatrix );
-	mDottedTex.disable();
-			
-	if( G_DEBUG ){
-		// VISUALIZE THE HIT AREA
-		glDisable( GL_TEXTURE_2D );
-		mWorld.drawSpheres();
-	}
-	
-	
-	// PLANETS
-	Node *albumNode  = mState.getSelectedAlbumNode();
-	Node *artistNode = mState.getSelectedArtistNode();
-	if( artistNode ){
-		glEnable( GL_LIGHTING );
-		glEnable ( GL_COLOR_MATERIAL ) ;
-		glShadeModel(GL_SMOOTH);
-					
-		glMaterialfv( GL_FRONT, GL_AMBIENT, mat_ambient );
-		glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );
-		//glMaterialfv( GL_FRONT, GL_EMISSION, mat_emission );
+	if( !mIsLoaded ){
+		mLoadingTex.enableAndBind();
+		gl::setMatricesWindow( getWindowSize() );
+		gl::drawSolidRect( getWindowBounds() );
+		mLoadingTex.disable();
+		
+		if( getElapsedFrames() == 150 )
+			init();
+	} else {
+		gl::enableDepthWrite();
+		gl::setMatrices( mCam );
+		
+		// DRAW SKYDOME
+		gl::pushModelView();
+		gl::rotate( mArcball.getQuat() );
+		gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+		mSkyDome.enableAndBind();
+		gl::drawSphere( Vec3f::zero(), 2000.0f, 64 );
+		gl::popModelView();
 		
 		
-		if( albumNode ){
-			// LIGHT FROM ALBUM
-			glEnable( GL_LIGHT0 );
-			Vec3f albumLightPos		= albumNode->mTransPos;
-			GLfloat albumLight[]	= { albumLightPos.x, albumLightPos.y, albumLightPos.z, 1.0f };
-			Color albumDiffuse		= albumNode->mGlowColor;
-			glLightfv( GL_LIGHT0, GL_POSITION, albumLight );
-			glLightfv( GL_LIGHT0, GL_DIFFUSE, albumDiffuse );
+		gl::enableAdditiveBlending();
+		
+	// STARGLOWS
+		mStarGlowTex.enableAndBind();
+		mWorld.drawStarGlows();
+		mStarGlowTex.disable();
+		
+	// ORBITS
+		gl::enableAdditiveBlending();
+		gl::enableDepthRead();
+		gl::disableDepthWrite();
+		mWorld.drawOrbitalRings();
+		gl::disableDepthRead();
+		
+	// STARS
+		mStarTex.enableAndBind();
+		mWorld.drawStars();
+		mStarTex.disable();
+		
+	// CONSTELLATION
+		mDottedTex.enableAndBind();
+		mWorld.drawConstellation( mMatrix );
+		mDottedTex.disable();
+				
+		if( G_DEBUG ){
+			// VISUALIZE THE HIT AREA
+			glDisable( GL_TEXTURE_2D );
+			mWorld.drawSpheres();
 		}
 		
-		// LIGHT FROM ARTIST
-		glEnable( GL_LIGHT1 );
-		Vec3f artistLightPos	= artistNode->mTransPos;
-		GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
-		Color artistDiffuse		= artistNode->mGlowColor;
-		glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
-		glLightfv( GL_LIGHT1, GL_DIFFUSE, artistDiffuse );
 		
-// PLANETS
-		gl::enableDepthRead();
-		gl::enableDepthWrite();
-		gl::disableAlphaBlending();
-		mWorld.drawPlanets( mAccelMatrix, mPlanetsTex );
+		// PLANETS
+		Node *albumNode  = mState.getSelectedAlbumNode();
+		Node *artistNode = mState.getSelectedArtistNode();
+		if( artistNode ){
+			glEnable( GL_LIGHTING );
+			glEnable ( GL_COLOR_MATERIAL ) ;
+			glShadeModel(GL_SMOOTH);
+						
+			glMaterialfv( GL_FRONT, GL_AMBIENT, mat_ambient );
+			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );
+			//glMaterialfv( GL_FRONT, GL_EMISSION, mat_emission );
+			
+			
+			if( albumNode ){
+				// LIGHT FROM ALBUM
+				glEnable( GL_LIGHT0 );
+				Vec3f albumLightPos		= albumNode->mTransPos;
+				GLfloat albumLight[]	= { albumLightPos.x, albumLightPos.y, albumLightPos.z, 1.0f };
+				Color albumDiffuse		= albumNode->mGlowColor;
+				glLightfv( GL_LIGHT0, GL_POSITION, albumLight );
+				glLightfv( GL_LIGHT0, GL_DIFFUSE, albumDiffuse );
+			}
+			
+			// LIGHT FROM ARTIST
+			glEnable( GL_LIGHT1 );
+			Vec3f artistLightPos	= artistNode->mTransPos;
+			GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
+			Color artistDiffuse		= artistNode->mGlowColor;
+			glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
+			glLightfv( GL_LIGHT1, GL_DIFFUSE, artistDiffuse );
+			
+	// PLANETS
+			gl::enableDepthRead();
+			gl::enableDepthWrite();
+			gl::disableAlphaBlending();
+			mWorld.drawPlanets( mAccelMatrix, mPlanetsTex );
+			
+	// RINGS
+			gl::enableAdditiveBlending();
+			mWorld.drawRings( mPlanetsTex[G_RING_TYPE] );
+			glDisable( GL_LIGHTING );
+			gl::disableDepthRead();
+		}
 		
-// RINGS
-		gl::enableAdditiveBlending();
-		mWorld.drawRings( mPlanetsTex[G_RING_TYPE] );
-		glDisable( GL_LIGHTING );
+		
+	// ATMOSPHERE
+		mAtmosphereTex.enableAndBind();
 		gl::disableDepthRead();
+		gl::disableDepthWrite();
+		mWorld.drawAtmospheres();
+		mAtmosphereTex.disable();
+
+
+	// NAMES
+		gl::disableDepthWrite();
+		glEnable( GL_TEXTURE_2D );
+		gl::setMatricesWindow( getWindowSize() );
+		gl::enableAdditiveBlending();
+		mWorld.drawOrthoNames( mCam );
+		
+		
+		
+		
+		glDisable( GL_TEXTURE_2D );
+		gl::disableAlphaBlending();
+		gl::enableAlphaBlending();
+		mUiLayer.draw( mPanelTabTex, mPanelTabDownTex );
+		mBreadcrumbs.draw( mUiLayer.getPanelYPos() + 5.0f );
+		mPlayControls.draw( mUiLayer.getPanelYPos() + mBreadcrumbs.getHeight() + 5.0f );
+		mState.draw( mFonts[4] );
+		
+		//drawInfoPanel();
 	}
-	
-	
-// ATMOSPHERE
-	mAtmosphereTex.enableAndBind();
-	gl::disableDepthRead();
-	gl::disableDepthWrite();
-	mWorld.drawAtmospheres();
-	mAtmosphereTex.disable();
-
-
-// NAMES
-	gl::disableDepthWrite();
-	glEnable( GL_TEXTURE_2D );
-	gl::setMatricesWindow( getWindowSize() );
-	gl::enableAdditiveBlending();
-	mWorld.drawOrthoNames( mCam );
-	
-	
-	
-	
-	glDisable( GL_TEXTURE_2D );
-	gl::disableAlphaBlending();
-	gl::enableAlphaBlending();
-	mUiLayer.draw( mPanelTabTex, mPanelTabDownTex );
-	mBreadcrumbs.draw( mUiLayer.getPanelYPos() + 5.0f );
-	mPlayControls.draw( mUiLayer.getPanelYPos() + mBreadcrumbs.getHeight() + 5.0f );
-	mState.draw( mFonts[4] );
-	
-	//drawInfoPanel();
 }
 
 
