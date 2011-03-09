@@ -57,7 +57,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onAlphaCharStateChanged( State *state );
 	bool			onAlphaCharSelected( UiLayer *uiLayer );
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
-	bool			onPlayControlsButtonPressed ( PlayButton button );
+	bool			onPlayControlsButtonPressed ( PlayControls::PlayButton button );
 	bool			onNodeSelected( Node *node );
 	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat );
 	bool			onPlayerStateChanged( ipod::Player *player );
@@ -75,9 +75,8 @@ class KeplerApp : public AppCocoaTouch {
 	// AUDIO
 	ipod::Player		mIpodPlayer;
 	ipod::PlaylistRef	mCurrentAlbum;
-	int					mCurrentTrackId;
-	double				mCurrentTrackPlayheadTime;
-	
+//	int					mCurrentTrackId;
+//	double				mCurrentTrackPlayheadTime;	
 	
 	// BREADCRUMBS
 	Breadcrumbs		mBreadcrumbs;	
@@ -118,7 +117,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mSkyDome;
 	gl::Texture		mDottedTex;
 	gl::Texture		mPanelUpTex, mPanelDownTex;
-	gl::Texture		mPlayTex, mForwardTex, mBackwardTex;
+	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex;
 	vector<gl::Texture*>	mPlanetsTex;
 	
 	float			mTime;
@@ -143,8 +142,10 @@ void KeplerApp::setup()
 	mArcball.setRadius( 420 );
 	
 	// AUDIO
-	mCurrentTrackId		= 1;
-	mCurrentTrackPlayheadTime = 0;
+//	mCurrentTrackId         = 1;
+//	mCurrentTrackPlayheadTime = 0;
+	// TODO: what about? something like this:
+	//mCurrentTrack = mIpodPlayer.getCurrentTrack();
 	
 	// CAMERA PERSP
 	mCamDist			= G_INIT_CAM_DIST;
@@ -187,7 +188,7 @@ void KeplerApp::setup()
 	mBreadcrumbs.setHierarchy(mState.getHierarchy());
 	
 	// PLAY CONTROLS
-	mPlayControls.setup( this );
+	mPlayControls.setup( this, mIpodPlayer.getPlayState() == ipod::Player::StatePlaying );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	
 	// STATE
@@ -267,6 +268,7 @@ void KeplerApp::initTextures()
 	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
 	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
 	mPlayTex			= loadImage( loadResource( "play.png" ) );
+	mPauseTex			= loadImage( loadResource( "pause.png" ) );
 	mForwardTex			= loadImage( loadResource( "forward.png" ) );
 	mBackwardTex		= loadImage( loadResource( "backward.png" ) );
 	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
@@ -317,38 +319,35 @@ bool KeplerApp::onNodeSelected( Node *node )
 	mCamDistFrom	= mCamDist;	
 	mZoomFrom		= G_ZOOM;			
 	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
-	if( node ){
-		if( node->mGen == G_ALBUM_LEVEL ){
-			std::cout << "setting currentAlbum = " << node->mAlbum->getAlbumTitle() << std::endl;
-			mCurrentAlbum = node->mAlbum;
-		} else if( node->mGen == G_TRACK_LEVEL ){
-			std::cout << "setting currentTrackId = " << node->mIndex << std::endl;
-			mCurrentTrackId = node->mIndex;
-		}
+
+	if( node != NULL && node->mGen == G_TRACK_LEVEL ){
+		mIpodPlayer.play( node->mAlbum, node->mIndex );
 	}
+//	if( node ){
+//		if( node->mGen == G_ALBUM_LEVEL ){
+//			std::cout << "setting currentAlbum = " << node->mAlbum->getAlbumTitle() << std::endl;
+//			mCurrentAlbum = node->mAlbum;
+//		} else if( node->mGen == G_TRACK_LEVEL ){
+//			std::cout << "setting currentTrackId = " << node->mIndex << std::endl;
+//			mCurrentTrackId = node->mIndex;
+//		}
+//	}
 	
 	return false;
 }
 
-bool KeplerApp::onPlayControlsButtonPressed( PlayButton button )
+bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 {
-	if( button == 3 ){	// prev track
+	if( button == PlayControls::PREVIOUS_TRACK ){	// prev track
 		mIpodPlayer.skipPrev();
-	} else if( button == 1 ){  // play/stop
-		/*
-		switch( mIpodPlayer.getPlayState() ){
-			case ipod::Player::StatePlaying:
-				mCurrentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
-				mIpodPlayer.stop();
-				break;
-			case ipod::Player::StateStopped:
-				mIpodPlayer.play( mCurrentAlbum, mCurrentTrackId );
-				mIpodPlayer.setPlayheadTime( mCurrentTrackPlayheadTime );
-				break;
+	} else if( button == PlayControls::PLAY_PAUSE ){  // play/stop
+		if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
+			mIpodPlayer.pause();
 		}
-		*/
-
-	} else if( button == 2 ){  // next track
+		else {
+			mIpodPlayer.play();
+		}
+	} else if( button == PlayControls::NEXT_TRACK ){  // next track
 		mIpodPlayer.skipNext();	
 	}
 	
@@ -497,10 +496,8 @@ void KeplerApp::draw()
 		mLoadingTex.enableAndBind();
 		gl::setMatricesWindow( getWindowSize() );
 		gl::drawSolidRect( getWindowBounds() );
-		mLoadingTex.disable();
-		
-		if( getElapsedFrames() == 150 )
-			init();
+		mLoadingTex.disable();		
+		init();
 	} else {
 		gl::enableDepthWrite();
 		gl::setMatrices( mCam );
@@ -612,7 +609,7 @@ void KeplerApp::draw()
 		gl::enableAlphaBlending();
 		mUiLayer.draw( mPanelUpTex, mPanelDownTex );
 		mBreadcrumbs.draw( mUiLayer.getPanelYPos() + 5.0f );
-		mPlayControls.draw( mPlayTex, mForwardTex, mBackwardTex, mUiLayer.getPanelYPos() + mBreadcrumbs.getHeight() + 10.0f );
+		mPlayControls.draw( mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mUiLayer.getPanelYPos() + mBreadcrumbs.getHeight() + 10.0f );
 		mState.draw( mFonts[4] );
 		
 		//drawInfoPanel();
@@ -666,6 +663,59 @@ void KeplerApp::setParamsTex()
 
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	
+	std::cout << "==================================================================" << std::endl;
+	console() << "track changed!" << endl;
+
+	if (player->getPlayState() == ipod::Player::StatePlaying) {
+		
+		// get refs to the currently playing things...
+		ipod::TrackRef playingTrack = player->getPlayingTrack();
+		ipod::PlaylistRef playingArtist = ipod::getArtist(playingTrack->getArtistId());
+		ipod::PlaylistRef playingAlbum = ipod::getAlbum(playingTrack->getAlbumId());
+
+		console() << "searching all our nodes for the new playing song..." << endl;
+		for (int i = 0; i < mWorld.mNodes.size(); i++) {
+			Node *artistNode = mWorld.mNodes[i];
+			if (artistNode->mName == playingArtist->getArtistName()) {
+				console() << "hey it's an artist we know!" << endl;
+				if (!artistNode->mIsSelected) {
+					console() << "and it needs to be selected!" << endl;
+					mState.setAlphaChar(artistNode->mName);
+					mState.setSelectedNode(artistNode);
+				}
+				for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+					Node *albumNode = artistNode->mChildNodes[j];
+					if (albumNode->mName == playingAlbum->getAlbumTitle()) {
+						console() << "and we know the album!" << endl;
+						if (!albumNode->mIsSelected) {
+							console() << "and the album needs to be selected" << endl;
+							mState.setSelectedNode(albumNode);
+						}
+						for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+							Node *trackNode = albumNode->mChildNodes[k];
+							if (trackNode->mTrack->getItemId() == playingTrack->getItemId()) {
+								console() << "and we know the track!" << endl;
+								if (!trackNode->mIsSelected) {
+									console() << "quick! select it!!!" << endl;
+									mState.setSelectedNode(trackNode);
+								}
+								break;
+							}
+						}								
+						break;
+					}
+//					else {
+//						console() << "new album from current artist, do something clever!" << endl;
+//					}
+				}
+				break;
+			}
+		}
+	}
+	else {
+		console() << "trackchanged but nothing's playing" << endl;
+	}
+	
 	/*
 	if( mCurrentAlbum ){
 		ipod::TrackRef currentTrack = mCurrentAlbum[mCurrentTrackId];
@@ -682,7 +732,6 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 		}
 	}*/
 	
-	std::cout << "==================================================================" << std::endl;
     //console() << "Now Playing: " << player->getPlayingTrack()->getTitle() << endl;
     return false;
 }
@@ -692,10 +741,16 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 	std::cout << "onPlayerStateChanged()" << std::endl;
     switch( player->getPlayState() ){
         case ipod::Player::StatePlaying:
-            //console() << "Playing..." << endl;
+            console() << "Playing..." << endl;
+			mPlayControls.setPlaying(true);
             break;
         case ipod::Player::StateStopped:
-            //console() << "Stopped." << endl;
+            console() << "Stopped." << endl;
+			mPlayControls.setPlaying(false);
+			break;
+        default:
+            console() << "Other!" << endl;
+			mPlayControls.setPlaying(false);
             break;
     }
     return false;

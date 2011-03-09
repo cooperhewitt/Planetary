@@ -38,5 +38,7 @@ class NodeTrack : public Node
 	
 	float mAxialTilt;
 	
-	bool mIsPlaying;
+	// TODO: we'd need to fix this so it gets unset when the track changes
+	// and so that it's set correctly when the track is initialized
+	//bool mIsPlaying;
 };

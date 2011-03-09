@@ -30,12 +30,32 @@ void State::draw( const Font &font )
 void State::setAlphaChar( char c )
 {
 	std::cout << "State::setAlphaChar " << c << std::endl;
-	mAlphaChar = c;
-	mCallbacksAlphaCharStateChanged.call( this );
+	if (mAlphaChar != c) {
+		mAlphaChar = c;
+		mCallbacksAlphaCharStateChanged.call( this );
+	}
+}
+
+void State::setAlphaChar( const string &name )
+{
+	char firstLetter = name[0];	
+	if (name.size() > 3) {
+		string the = name.substr( 0, 4 );
+		if( the == "The " || the == "the " ){
+			firstLetter = name[4];
+		}	
+	}
+	else if (isdigit(firstLetter)) {
+		firstLetter = '#';
+	}
+	setAlphaChar(firstLetter);
 }
 
 void State::setSelectedNode( Node* node )
 {
+	if (node == mSelectedNode) {
+		return;
+	}
 	if (node == NULL) {
 		// clear currently selected node and all parents
 		Node *selection = mSelectedNode;

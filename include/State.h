@@ -22,9 +22,11 @@ class State {
  public:
 	State();
 	void draw( const ci::Font &font);
+	
 	// Alpha char for filtering artist name
 	char getAlphaChar(){ return mAlphaChar; }
 	void setAlphaChar( char c );
+	void setAlphaChar( const string &artistName );
 	template<typename T>
 	CallbackId registerAlphaCharStateChanged( T *obj, bool ( T::*callback )( State* ) ){
 		return mCallbacksAlphaCharStateChanged.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
@@ -37,12 +39,9 @@ class State {
 		return mCallbacksNodeSelected.registerCb(std::bind1st(std::mem_fun(callback), obj));
 	}
 	
-	Node* getSelectedArtistNode() { 
-		return getNodeAtLevel(G_ARTIST_LEVEL);
-	}
-	Node* getSelectedAlbumNode() { 
-		return getNodeAtLevel(G_ALBUM_LEVEL);
-	}
+	// TODO: should these use casts to get NodeArtist/NodeAlbum out?
+	Node* getSelectedArtistNode() { return getNodeAtLevel(G_ARTIST_LEVEL); }
+	Node* getSelectedAlbumNode() { return getNodeAtLevel(G_ALBUM_LEVEL); }
 	
 	Node* getNodeAtLevel(int level) {
 		if ( mSelectedNode != NULL && mSelectedNode->mGen >= level ) {
@@ -56,16 +55,12 @@ class State {
 	}
 
 	std::vector<std::string> getHierarchy();
-	//std::map<u_int8_t, Node*> mMapOfNodes;
- private:
+
+private:
 	CallbackMgr<bool(State*)> mCallbacksAlphaCharStateChanged;	
 	CallbackMgr<bool(Node*)> mCallbacksNodeSelected;
 
-	// Keep track of selected NODES and levels
 	Node			*mSelectedNode;
-	//Node			*mPrevSelectedNode;
-	
-	
 	char mAlphaChar;
 };
 

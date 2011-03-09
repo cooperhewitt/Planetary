@@ -26,7 +26,7 @@ NodeTrack::NodeTrack( Node *parent, int index, int numTracks, const Font &font, 
 	mIsHighlighted	= true;
 	mSphereRes		= 16;
 	//mRadius			*= 0.75f;
-	mIsPlaying		= false;
+	//mIsPlaying		= false;
 	
 	float hue		= Rand::randFloat();
 	float sat		= Rand::randFloat( 0.0f, 0.5f);
@@ -214,8 +214,8 @@ void NodeTrack::drawRings( gl::Texture *tex )
 
 void NodeTrack::select()
 {
-	mPlayer->play( mAlbum, mIndex );
-	mIsPlaying = true;
+//	mPlayer->play( mAlbum, mIndex );
+//	mIsPlaying = true;
 	
 	Node::select();
 }

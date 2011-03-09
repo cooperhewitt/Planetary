@@ -14,13 +14,12 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-// TODO: should enum be a member of PlayControls?
-enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK };
-
 class PlayControls {
 public:
 
-	void setup( AppCocoaTouch *app )
+	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK };	
+	
+	void setup( AppCocoaTouch *app, bool initialPlayState )
 	{
 		mApp = app;
 		cbTouchesBegan = mApp->registerTouchesBegan( this, &PlayControls::touchesBegan );
@@ -28,6 +27,7 @@ public:
 		cbTouchesMoved = 0;		
 		lastTouchedType = NO_BUTTON;
 		prevDrawY = 0;
+		mIsPlaying = initialPlayState;
 	}
 	
 	void update()
@@ -77,7 +77,16 @@ public:
 		return false;
 	}
 	
-	void draw( const gl::Texture &play, const gl::Texture &forward, const gl::Texture &backward, float y )
+	void setPlaying(bool playing) {
+		mIsPlaying = playing;
+	}
+	
+	bool isPlaying()
+	{
+		return mIsPlaying;
+	}
+	
+	void draw( const gl::Texture &play, const gl::Texture &pause, const gl::Texture &forward, const gl::Texture &backward, float y )
 	{
 		prevDrawY = y;
 		
@@ -109,7 +118,12 @@ public:
 		gl::drawSolidRect( prevButton );
 		
 		gl::color( lastTouchedType == PLAY_PAUSE ? yellow : Color::white() );
-		play.enableAndBind();
+		if (mIsPlaying) {
+			pause.enableAndBind();
+		}
+		else {
+			play.enableAndBind();
+		}
 		gl::drawSolidRect( playButton );
 		
 		gl::color( lastTouchedType == NEXT_TRACK ? yellow : Color::white() );
@@ -133,6 +147,7 @@ private:
 	vector<PlayButton> touchTypes;
 	PlayButton lastTouchedType;
 	float prevDrawY;
+	bool mIsPlaying;
 
 	CallbackId cbTouchesBegan;
 	CallbackId cbTouchesMoved;
