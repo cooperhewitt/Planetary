@@ -30,7 +30,7 @@ using std::stringstream;
 
 //int G_CURRENT_LEVEL		= 0;
 float G_ZOOM			= 0;
-bool G_DEBUG			= true;
+bool G_DEBUG			= false;
 GLfloat mat_ambient[]	= { 0.02, 0.02, 0.05, 1.0 };
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 GLfloat mat_specular[]	= { 1.0, 1.0, 1.0, 1.0 };
@@ -127,7 +127,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mSkyDome;
 	gl::Texture		mDottedTex;
 	gl::Texture		mPanelUpTex, mPanelDownTex;
-	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex;
+	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex;
 	vector<gl::Texture*> mPlanetsTex;
 	vector<gl::Texture*> mCloudsTex;
 	
@@ -188,9 +188,9 @@ void KeplerApp::setup()
 	mIsPinching			= false;
 	mTime				= getElapsedSeconds();
 	mPinchRecognizer.init(this);
-    mPinchRecognizer.registerBegan(this, &KeplerApp::onPinchBegan);
-    mPinchRecognizer.registerMoved(this, &KeplerApp::onPinchMoved);
-    mPinchRecognizer.registerEnded(this, &KeplerApp::onPinchEnded);
+    mPinchRecognizer.registerBegan( this, &KeplerApp::onPinchBegan );
+    mPinchRecognizer.registerMoved( this, &KeplerApp::onPinchMoved );
+    mPinchRecognizer.registerEnded( this, &KeplerApp::onPinchEnded );
 	
 	
 	// TEXTURES
@@ -278,16 +278,37 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 {
 	mIsPinching = true;
     mPinchRays = event.getTouchRays( mCam );
-	mArcball.mouseDown( event.getTranslation() );
+	
+	mTouchThrowVel	= Vec2f::zero();
+	vector<TouchEvent::Touch> touches = event.getTouches();
+	Vec2f averageTouchPos;
+	for( vector<TouchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
+		averageTouchPos += it->getPos();
+	}
+	averageTouchPos /= touches.size();
+	mTouchPos = averageTouchPos;
+	
+	mArcball.mouseDown( mTouchPos );
     return false;
 }
 
 bool KeplerApp::onPinchMoved( PinchEvent event )
 {
     mPinchRays = event.getTouchRays( mCam );
-    //mMatrix = event.getTransformDelta( mCam, mCam.getEyePoint().distance( Vec3f::zero() ) ) * mMatrix;
 	mFovDest += ( 1.0f - event.getScaleDelta() ) * 50.0f;
-	mArcball.mouseDrag( event.getTranslation() );
+	
+	vector<TouchEvent::Touch> touches = event.getTouches();
+	Vec2f averageTouchPos;
+	for( vector<TouchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
+		averageTouchPos += it->getPos();
+	}
+	averageTouchPos /= touches.size();
+	
+	mTouchThrowVel	= ( averageTouchPos - mTouchPos );
+	mTouchVel		= mTouchThrowVel;
+	mTouchPos		= averageTouchPos;
+	
+	mArcball.mouseDrag( averageTouchPos );
     return false;
 }
 
@@ -313,6 +334,8 @@ void KeplerApp::initTextures()
 	mPauseTex			= loadImage( loadResource( "pause.png" ) );
 	mForwardTex			= loadImage( loadResource( "forward.png" ) );
 	mBackwardTex		= loadImage( loadResource( "backward.png" ) );
+	mDebugTex			= loadImage( loadResource( "debug.png" ) );
+	mDebugOnTex			= loadImage( loadResource( "debugOn.png" ) );
 	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
 	mStarTex			= loadImage( loadResource( "star.png" ) );
 	mStarAlternateTex	= loadImage( loadResource( "starAlternate.png" ) );
@@ -396,6 +419,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayButton button )
 
 	} else if( button == NEXT_TRACK ){  // next track
 		mIpodPlayer.skipNext();	
+	} else if( button == DEBUG ){  // next track
+		G_DEBUG = !G_DEBUG;
 	}
 	
 	
@@ -669,7 +694,7 @@ void KeplerApp::draw()
 		gl::enableAlphaBlending();
 		mUiLayer.draw( mPanelUpTex, mPanelDownTex );
 		mBreadcrumbs.draw( mUiLayer.getPanelYPos() + 5.0f );
-		mPlayControls.draw( mPlayTex, mForwardTex, mBackwardTex, mUiLayer.getPanelYPos() + mBreadcrumbs.getHeight() + 10.0f );
+		mPlayControls.draw( mPlayTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex, mUiLayer.getPanelYPos() + mBreadcrumbs.getHeight() + 10.0f );
 		mState.draw( mFont );
 		
 		//drawInfoPanel();

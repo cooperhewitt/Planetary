@@ -130,11 +130,6 @@ bool UiLayer::touchesEnded( TouchEvent event )
 		mTouchPos = touchIt->getPos();
 	}
 	
-	if( mTouchPos.x < 50.0f && mTouchPos.y < 50.0f ){
-		G_DEBUG = !G_DEBUG;
-		std::cout << G_DEBUG << std::endl;
-	}
-	
 	selectWheelItem( mTouchPos, true );
 	
 	if( mIsPanelTabTouched ){

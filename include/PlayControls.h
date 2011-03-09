@@ -15,7 +15,7 @@ using namespace ci::app;
 using namespace std;
 
 // TODO: should enum be a member of PlayControls?
-enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK };
+enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, DEBUG };
 
 class PlayControls {
 public:
@@ -77,7 +77,7 @@ public:
 		return false;
 	}
 	
-	void draw( const gl::Texture &play, const gl::Texture &forward, const gl::Texture &backward, float y )
+	void draw( const gl::Texture &play, const gl::Texture &forward, const gl::Texture &backward, const gl::Texture &debug, const gl::Texture &debugOn, float y )
 	{
 		prevDrawY = y;
 		
@@ -89,10 +89,12 @@ public:
 		
 		float bWidth = 40.0f;
 		float bHeight = 30.0f;
+
 		float x = 18.0f;
 		Rectf prevButton( x,				 y+7, x + bWidth,		 y+7+bHeight );
 		Rectf playButton( x + bWidth,		 y+7, x + bWidth * 2.0f, y+7+bHeight );
 		Rectf nextButton( x + bWidth * 2.0f, y+7, x + bWidth * 3.0f, y+7+bHeight );
+		Rectf debugButton( app::getWindowWidth() - x - 60.0f, y+7, app::getWindowWidth() - x, y+7+bHeight );
 		
 		touchRects.push_back( prevButton );
 		touchTypes.push_back( PREVIOUS_TRACK );
@@ -100,6 +102,8 @@ public:
 		touchTypes.push_back( PLAY_PAUSE );
 		touchRects.push_back( nextButton );
 		touchTypes.push_back( NEXT_TRACK );
+		touchRects.push_back( debugButton );
+		touchTypes.push_back( DEBUG );
 		
 		Color yellow( 1.0f, 1.0f, 0.0f );
 		Color blue( 0.2f, 0.2f, 0.5f );
@@ -115,6 +119,15 @@ public:
 		gl::color( lastTouchedType == NEXT_TRACK ? yellow : Color::white() );
 		forward.enableAndBind();
 		gl::drawSolidRect( nextButton );
+		
+		
+		gl::color( lastTouchedType == NEXT_TRACK ? yellow : Color::white() );
+		if( G_DEBUG ){
+			debugOn.enableAndBind();
+		} else {
+			debug.enableAndBind();
+		}
+		gl::drawSolidRect( debugButton );
 	}
 	
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
