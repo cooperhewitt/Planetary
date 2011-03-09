@@ -145,7 +145,7 @@ void World::drawPlanets( Matrix44f accelMatrix, vector<gl::Texture*> planets )
 void World::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawPlanet( accelMatrix, clouds );
+		(*it)->drawClouds( accelMatrix, clouds );
 	}
 }
 

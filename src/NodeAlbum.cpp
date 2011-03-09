@@ -113,7 +113,7 @@ void NodeAlbum::drawOrbitalRings()
 	}
 }
 
-void NodeAlbum::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets, vector<gl::Texture*> clouds )
+void NodeAlbum::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets )
 {	
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
@@ -122,19 +122,11 @@ void NodeAlbum::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets,
 		gl::translate( mTransPos );
 		gl::color( Color::white() );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.215f, 100 );
-		/*
-		gl::enableAdditiveBlending();
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.5f ) );
-		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.220f, 100 );
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.25f ) );
-		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.225f, 100 );
-		gl::disableAlphaBlending();
-		*/
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
 	}
 		
-	Node::drawPlanet( accelMatrix, planets, clouds );
+	Node::drawPlanet( accelMatrix, planets );
 }
 
 void NodeAlbum::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
@@ -154,7 +146,7 @@ void NodeAlbum::drawAtmosphere()
 
 void NodeAlbum::select()
 {
-	if (!mIsSelected) {
+	if( !mIsSelected && mChildNodes.size() == 0 ){
 		int i=0;
 		for( Playlist::Iter it = mAlbum->begin(); it != mAlbum->end(); ++it ){
 			TrackRef track		= *it;

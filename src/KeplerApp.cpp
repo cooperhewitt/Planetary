@@ -34,7 +34,7 @@ bool G_DEBUG			= true;
 GLfloat mat_ambient[]	= { 0.02, 0.02, 0.05, 1.0 };
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 GLfloat mat_specular[]	= { 1.0, 1.0, 1.0, 1.0 };
-GLfloat mat_shininess[]	= { 50.0 };
+GLfloat mat_shininess[]	= { 40.0 };
 
 float easeInOutQuad( double t, float b, float c, double d );
 Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
@@ -278,6 +278,7 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 {
 	mIsPinching = true;
     mPinchRays = event.getTouchRays( mCam );
+	mArcball.mouseDown( event.getTranslation() );
     return false;
 }
 
@@ -285,7 +286,8 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 {
     mPinchRays = event.getTouchRays( mCam );
     //mMatrix = event.getTransformDelta( mCam, mCam.getEyePoint().distance( Vec3f::zero() ) ) * mMatrix;
-	mFovDest += ( 1.0f - event.getScaleDelta() ) * 30.0f;
+	mFovDest += ( 1.0f - event.getScaleDelta() ) * 50.0f;
+	mArcball.mouseDrag( event.getTranslation() );
     return false;
 }
 
@@ -515,8 +517,8 @@ void KeplerApp::updateCamera()
 		mFovDest = 130.0f;
 	}
 	
-	mFovDest = constrain( mFovDest, 60.0f, 130.0f );
-	mFov -= ( mFov - mFovDest ) * 0.2f;
+	mFovDest = constrain( mFovDest, 45.0f, 130.0f );
+	mFov -= ( mFov - mFovDest ) * 0.4f;
 	
 	if( mFovDest == 130.0f && ! mUiLayer.getShowWheel() ){
 		mUiLayer.setShowWheel( true );
@@ -548,8 +550,7 @@ void KeplerApp::draw()
 		gl::drawSolidRect( getWindowBounds() );
 		mLoadingTex.disable();
 		
-		if( getElapsedFrames() == 150 )
-			init();
+		init();
 	} else {
 		gl::enableDepthWrite();
 		gl::setMatrices( mCam );
@@ -616,20 +617,20 @@ void KeplerApp::draw()
 				glEnable( GL_LIGHT0 );
 				Vec3f albumLightPos		= albumNode->mTransPos;
 				GLfloat albumLight[]	= { albumLightPos.x, albumLightPos.y, albumLightPos.z, 1.0f };
-				Color albumDiffuse		= albumNode->mGlowColor;
+				Color albumDiffuse		= albumNode->mColor;
 				glLightfv( GL_LIGHT0, GL_POSITION, albumLight );
 				glLightfv( GL_LIGHT0, GL_DIFFUSE, albumDiffuse );
-				glLightfv( GL_LIGHT0, GL_SPECULAR, Color::white() );
+				glLightfv( GL_LIGHT0, GL_SPECULAR, albumDiffuse );
 			}
 			
 			// LIGHT FROM ARTIST
 			glEnable( GL_LIGHT1 );
 			Vec3f artistLightPos	= artistNode->mTransPos;
 			GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
-			Color artistDiffuse		= artistNode->mGlowColor;
+			Color artistDiffuse		= artistNode->mColor;
 			glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
 			glLightfv( GL_LIGHT1, GL_DIFFUSE, artistDiffuse );
-			glLightfv( GL_LIGHT1, GL_SPECULAR, Color::white() );
+			glLightfv( GL_LIGHT1, GL_SPECULAR, artistDiffuse );
 				
 	// PLANETS
 			mWorld.drawPlanets( mAccelMatrix, mPlanetsTex );

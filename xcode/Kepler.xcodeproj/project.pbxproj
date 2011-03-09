@@ -37,6 +37,7 @@
 		E127698C1326E18A00E1FC3F /* clouds4.png in Resources */ = {isa = PBXBuildFile; fileRef = E12769821326E18A00E1FC3F /* clouds4.png */; };
 		E127698D1326E18A00E1FC3F /* clouds5.png in Resources */ = {isa = PBXBuildFile; fileRef = E12769831326E18A00E1FC3F /* clouds5.png */; };
 		E1276B13132716D300E1FC3F /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276B12132716D300E1FC3F /* pause.png */; };
+		E1276CA5132764DB00E1FC3F /* Orbiter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1276CA4132764DB00E1FC3F /* Orbiter.cpp */; };
 		E1555A0B131E05140079B05A /* skydome.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1555A0A131E05140079B05A /* skydome.jpg */; };
 		E1555CA5131EEBEB0079B05A /* dotted.png in Resources */ = {isa = PBXBuildFile; fileRef = E1555CA4131EEBEB0079B05A /* dotted.png */; };
 		E1555E7A131F2C560079B05A /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1555E79131F2C560079B05A /* Node.cpp */; };
@@ -95,6 +96,8 @@
 		E12769821326E18A00E1FC3F /* clouds4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds4.png; sourceTree = "<group>"; };
 		E12769831326E18A00E1FC3F /* clouds5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds5.png; sourceTree = "<group>"; };
 		E1276B12132716D300E1FC3F /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = pause.png; path = ../resources/ui/pause.png; sourceTree = SOURCE_ROOT; };
+		E1276CA4132764DB00E1FC3F /* Orbiter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Orbiter.cpp; path = ../src/Orbiter.cpp; sourceTree = SOURCE_ROOT; };
+		E1276CA6132764E900E1FC3F /* Orbiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Orbiter.h; path = ../include/Orbiter.h; sourceTree = SOURCE_ROOT; };
 		E1555A0A131E05140079B05A /* skydome.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = skydome.jpg; path = ../resources/skydome.jpg; sourceTree = SOURCE_ROOT; };
 		E1555CA4131EEBEB0079B05A /* dotted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dotted.png; path = ../resources/dotted.png; sourceTree = SOURCE_ROOT; };
 		E1555E78131F2C4A0079B05A /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../include/Node.h; sourceTree = SOURCE_ROOT; };
@@ -363,6 +366,7 @@
 				E25C872D131F1420000780A3 /* NodeArtist.cpp */,
 				E25C8742131F14B3000780A3 /* NodeAlbum.cpp */,
 				E25C8743131F14B3000780A3 /* NodeTrack.cpp */,
+				E1276CA4132764DB00E1FC3F /* Orbiter.cpp */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -374,6 +378,7 @@
 				E25C872B131F1415000780A3 /* NodeArtist.h */,
 				E25C8740131F14A5000780A3 /* NodeAlbum.h */,
 				E25C8741131F14A5000780A3 /* NodeTrack.h */,
+				E1276CA6132764E900E1FC3F /* Orbiter.h */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -510,6 +515,7 @@
 				E25C8744131F14B3000780A3 /* NodeAlbum.cpp in Sources */,
 				E25C8745131F14B3000780A3 /* NodeTrack.cpp in Sources */,
 				E1555E7A131F2C560079B05A /* Node.cpp in Sources */,
+				E1276CA5132764DB00E1FC3F /* Orbiter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
