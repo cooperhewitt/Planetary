@@ -28,9 +28,9 @@ NodeTrack::NodeTrack( Node *parent, int index, int numTracks, const Font &font, 
 	//mRadius			*= 0.75f;
 	mIsPlaying		= false;
 	
-	float hue		= Rand::randFloat();
-	float sat		= Rand::randFloat( 0.0f, 0.5f);
-	float val		= Rand::randFloat( 0.85f, 1.0f);
+	float hue		= Rand::randFloat( 0.15f, 0.75f );
+	float sat		= Rand::randFloat( 0.15f, 0.25f );
+	float val		= Rand::randFloat( 0.85f, 1.00f );
 	mColor			= Color( CM_HSV, hue, sat, val );
 	mGlowColor		= mColor;
 	mAtmosphereColor = mParentNode->mColor;
@@ -48,16 +48,22 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mTrack			= track;
 	mTrackLength	= (*mAlbum)[mIndex]->getLength();
 	mPlayCount		= (*mAlbum)[mIndex]->getPlayCount();
-	//mAlbumArt		= mTrack->getArtwork( Vec2i( 256, 256 ) );
+	mStarRating		= (*mAlbum)[mIndex]->getStarRating();
+	if( mStarRating == 0 ) mStarRating = 3;
+
+	/*
+	mAlbumArt		= mTrack->getArtwork( Vec2i( 256, 256 ) );
+	if( !mAlbumArt ){
+		mAlbumArt	= gl::Texture( 256, 256 );
+	}
+	*/
 	
 	//normalize playcount data
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
 	
-	if( mPlayCount == mParentNode->mHighestPlayCount )
-		mPlanetTexIndex = G_NUM_RINGED_TYPE;
-	else
-		mPlanetTexIndex = (int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
+	mPlanetTexIndex = (int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
+	mCloudTexIndex  = mStarRating - 1;
 		
 	mRadius			= mRadius * pow( normPlayCount + 0.5f, 2.0f );
 	mSphere			= Sphere( mPos, mRadius * 3.0f );
@@ -143,31 +149,32 @@ void NodeTrack::drawAtmosphere()
 	}
 }
 
-void NodeTrack::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> texs )
+void NodeTrack::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets, vector<gl::Texture*> clouds )
 {
+	gl::disableAlphaBlending();
 	gl::color( mColor );
 	gl::pushModelView();
 	gl::translate( mTransPos );
 	gl::rotate( mMatrix );
 	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 20.0f, mAxialTilt ) );
-	texs[mPlanetTexIndex]->enableAndBind();
+	planets[mPlanetTexIndex]->enableAndBind();
 	gl::drawSphere( Vec3f::zero(), mRadius * 0.375f, mSphereRes );
-	
-	
+		
 	if( mIsSelected ){
-		texs[G_CLOUDS_TYPE]->enableAndBind();
-		
+		gl::enableAlphaBlending();
+		clouds[mPlanetTexIndex]->enableAndBind();
 		gl::pushModelView();
-		 gl::enableAlphaBlending();
- 		 gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.5f ) );
-		 gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * 3.0f, mAxialTilt ) );
-		 gl::drawSphere( Vec3f::zero(), mRadius * 0.377f, mSphereRes );
-		
-		 gl::enableAdditiveBlending();
-		 gl::color( mAtmosphereColor );
-		 gl::drawSphere( Vec3f::zero(), mRadius * 0.4f, mSphereRes );
+		gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.5f ) );
+		gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * 3.0f, mAxialTilt ) );
+		gl::drawSphere( Vec3f::zero(), mRadius * 0.38f, mSphereRes );
+
+		gl::enableAdditiveBlending();
+		gl::color( mAtmosphereColor );
+		gl::drawSphere( Vec3f::zero(), mRadius * 0.39f, mSphereRes );
+		 
 		gl::popModelView();
 	}
+	
 	gl::popModelView();
 	
 	
@@ -187,8 +194,6 @@ void NodeTrack::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> te
 		
 	}
 	*/
-	
-	gl::disableAlphaBlending();
 }
 
 void NodeTrack::drawRings( gl::Texture *tex )

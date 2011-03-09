@@ -95,9 +95,8 @@ bool UiLayer::touchesBegan( TouchEvent event )
 		mTouchPos = touchIt->getPos();
 	}
 	
-	if( mIsPanelOpen ){
-		selectWheelItem( mTouchPos, false );
-	}
+	selectWheelItem( mTouchPos, false );
+
 	
 	if( mPanelTabRect.contains( mTouchPos ) ){
 		mPanelTabTouchYOffset = mPanelPos.y - mTouchPos.y;
@@ -115,9 +114,8 @@ bool UiLayer::touchesMoved( TouchEvent event )
 		mTouchPos = touchIt->getPos();
 	}
 	
-	if( mIsPanelOpen ){
-		selectWheelItem( mTouchPos, false );
-	}
+	selectWheelItem( mTouchPos, false );
+
 	if( mIsPanelTabTouched ){
 		mHasPanelBeenDragged = true;
 		setPanelPos( mTouchPos.y, false );
@@ -134,11 +132,10 @@ bool UiLayer::touchesEnded( TouchEvent event )
 	
 	if( mTouchPos.x < 50.0f && mTouchPos.y < 50.0f ){
 		G_DEBUG = !G_DEBUG;
+		std::cout << G_DEBUG << std::endl;
 	}
 	
-	if( mIsPanelOpen ){
-		selectWheelItem( mTouchPos, true );
-	}
+	selectWheelItem( mTouchPos, true );
 	
 	if( mIsPanelTabTouched ){
 		if( mHasPanelBeenDragged ){
@@ -152,8 +149,6 @@ bool UiLayer::touchesEnded( TouchEvent event )
 				mPanelYPosDest = mPanelOpenYPos;
 			}
 		}
-		
-		
 	}
 	
 	return false;
@@ -203,6 +198,7 @@ void UiLayer::selectWheelItem( const Vec2f &pos, bool closeWheel )
 				}
 				if( closeWheel ){
 					mShowWheel = false;
+					mCallbacksWheelClosed.call( this );
 				}
 			}
 		}

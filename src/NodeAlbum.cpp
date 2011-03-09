@@ -113,7 +113,7 @@ void NodeAlbum::drawOrbitalRings()
 	}
 }
 
-void NodeAlbum::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> texs )
+void NodeAlbum::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets, vector<gl::Texture*> clouds )
 {	
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
@@ -134,7 +134,12 @@ void NodeAlbum::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> te
 		glEnable( GL_LIGHTING );
 	}
 		
-	Node::drawPlanet( accelMatrix, texs );
+	Node::drawPlanet( accelMatrix, planets, clouds );
+}
+
+void NodeAlbum::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
+{
+	Node::drawClouds( accelMatrix, clouds );
 }
 
 void NodeAlbum::drawRings( gl::Texture *tex )

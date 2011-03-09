@@ -26,6 +26,17 @@
 		E12766601325E49F00E1FC3F /* forward.png in Resources */ = {isa = PBXBuildFile; fileRef = E127665D1325E49F00E1FC3F /* forward.png */; };
 		E12766611325E49F00E1FC3F /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = E127665E1325E49F00E1FC3F /* play.png */; };
 		E12768231326275C00E1FC3F /* panelDown.png in Resources */ = {isa = PBXBuildFile; fileRef = E12768221326275C00E1FC3F /* panelDown.png */; };
+		E12769841326E18A00E1FC3F /* 11.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E127697A1326E18A00E1FC3F /* 11.jpg */; };
+		E12769851326E18A00E1FC3F /* 21.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E127697B1326E18A00E1FC3F /* 21.jpg */; };
+		E12769861326E18A00E1FC3F /* 31.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E127697C1326E18A00E1FC3F /* 31.jpg */; };
+		E12769871326E18A00E1FC3F /* 41.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E127697D1326E18A00E1FC3F /* 41.jpg */; };
+		E12769881326E18A00E1FC3F /* 51.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E127697E1326E18A00E1FC3F /* 51.jpg */; };
+		E12769891326E18A00E1FC3F /* clouds1.png in Resources */ = {isa = PBXBuildFile; fileRef = E127697F1326E18A00E1FC3F /* clouds1.png */; };
+		E127698A1326E18A00E1FC3F /* clouds3.png in Resources */ = {isa = PBXBuildFile; fileRef = E12769801326E18A00E1FC3F /* clouds3.png */; };
+		E127698B1326E18A00E1FC3F /* clouds2.png in Resources */ = {isa = PBXBuildFile; fileRef = E12769811326E18A00E1FC3F /* clouds2.png */; };
+		E127698C1326E18A00E1FC3F /* clouds4.png in Resources */ = {isa = PBXBuildFile; fileRef = E12769821326E18A00E1FC3F /* clouds4.png */; };
+		E127698D1326E18A00E1FC3F /* clouds5.png in Resources */ = {isa = PBXBuildFile; fileRef = E12769831326E18A00E1FC3F /* clouds5.png */; };
+		E1276B13132716D300E1FC3F /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276B12132716D300E1FC3F /* pause.png */; };
 		E1555A0B131E05140079B05A /* skydome.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1555A0A131E05140079B05A /* skydome.jpg */; };
 		E1555CA5131EEBEB0079B05A /* dotted.png in Resources */ = {isa = PBXBuildFile; fileRef = E1555CA4131EEBEB0079B05A /* dotted.png */; };
 		E1555E7A131F2C560079B05A /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1555E79131F2C560079B05A /* Node.cpp */; };
@@ -34,13 +45,6 @@
 		E15C90B21300B2A300FB8389 /* UnitRoundedOT-Ultra.otf in Resources */ = {isa = PBXBuildFile; fileRef = E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */; };
 		E15C90B71300B2F900FB8389 /* UiLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E15C90B61300B2F900FB8389 /* UiLayer.cpp */; };
 		E15C90B91300B30100FB8389 /* wheel.png in Resources */ = {isa = PBXBuildFile; fileRef = E15C90B81300B30100FB8389 /* wheel.png */; };
-		E17667D613202F4D006A4C2E /* clouds.png in Resources */ = {isa = PBXBuildFile; fileRef = E17667CF13202F4D006A4C2E /* clouds.png */; };
-		E17667D713202F4D006A4C2E /* jupiter.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D013202F4D006A4C2E /* jupiter.jpg */; };
-		E17667D813202F4D006A4C2E /* mars.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D113202F4D006A4C2E /* mars.jpg */; };
-		E17667D913202F4D006A4C2E /* pluto.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D213202F4D006A4C2E /* pluto.jpg */; };
-		E17667DA13202F4D006A4C2E /* saturn.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D313202F4D006A4C2E /* saturn.jpg */; };
-		E17667DB13202F4D006A4C2E /* uranus.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D413202F4D006A4C2E /* uranus.jpg */; };
-		E17667DC13202F4D006A4C2E /* venus.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E17667D513202F4D006A4C2E /* venus.jpg */; };
 		E17667DE13202FB7006A4C2E /* rings.png in Resources */ = {isa = PBXBuildFile; fileRef = E17667DD13202FB7006A4C2E /* rings.png */; };
 		E1A330381301013100CED126 /* starAlternate.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330351301013100CED126 /* starAlternate.png */; };
 		E1A330391301013100CED126 /* starGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330361301013100CED126 /* starGlow.png */; };
@@ -80,6 +84,17 @@
 		E127665D1325E49F00E1FC3F /* forward.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = forward.png; path = ../resources/ui/forward.png; sourceTree = SOURCE_ROOT; };
 		E127665E1325E49F00E1FC3F /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = play.png; path = ../resources/ui/play.png; sourceTree = SOURCE_ROOT; };
 		E12768221326275C00E1FC3F /* panelDown.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = panelDown.png; path = ../resources/ui/panelDown.png; sourceTree = SOURCE_ROOT; };
+		E127697A1326E18A00E1FC3F /* 11.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 11.jpg; sourceTree = "<group>"; };
+		E127697B1326E18A00E1FC3F /* 21.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 21.jpg; sourceTree = "<group>"; };
+		E127697C1326E18A00E1FC3F /* 31.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 31.jpg; sourceTree = "<group>"; };
+		E127697D1326E18A00E1FC3F /* 41.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 41.jpg; sourceTree = "<group>"; };
+		E127697E1326E18A00E1FC3F /* 51.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 51.jpg; sourceTree = "<group>"; };
+		E127697F1326E18A00E1FC3F /* clouds1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds1.png; sourceTree = "<group>"; };
+		E12769801326E18A00E1FC3F /* clouds3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds3.png; sourceTree = "<group>"; };
+		E12769811326E18A00E1FC3F /* clouds2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds2.png; sourceTree = "<group>"; };
+		E12769821326E18A00E1FC3F /* clouds4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds4.png; sourceTree = "<group>"; };
+		E12769831326E18A00E1FC3F /* clouds5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds5.png; sourceTree = "<group>"; };
+		E1276B12132716D300E1FC3F /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = pause.png; path = ../resources/ui/pause.png; sourceTree = SOURCE_ROOT; };
 		E1555A0A131E05140079B05A /* skydome.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = skydome.jpg; path = ../resources/skydome.jpg; sourceTree = SOURCE_ROOT; };
 		E1555CA4131EEBEB0079B05A /* dotted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dotted.png; path = ../resources/dotted.png; sourceTree = SOURCE_ROOT; };
 		E1555E78131F2C4A0079B05A /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../include/Node.h; sourceTree = SOURCE_ROOT; };
@@ -90,13 +105,6 @@
 		E15C90B51300B2F100FB8389 /* UiLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UiLayer.h; path = ../include/UiLayer.h; sourceTree = SOURCE_ROOT; };
 		E15C90B61300B2F900FB8389 /* UiLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UiLayer.cpp; path = ../src/UiLayer.cpp; sourceTree = SOURCE_ROOT; };
 		E15C90B81300B30100FB8389 /* wheel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wheel.png; path = ../resources/ui/wheel.png; sourceTree = SOURCE_ROOT; };
-		E17667CF13202F4D006A4C2E /* clouds.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds.png; sourceTree = "<group>"; };
-		E17667D013202F4D006A4C2E /* jupiter.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = jupiter.jpg; sourceTree = "<group>"; };
-		E17667D113202F4D006A4C2E /* mars.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = mars.jpg; sourceTree = "<group>"; };
-		E17667D213202F4D006A4C2E /* pluto.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = pluto.jpg; sourceTree = "<group>"; };
-		E17667D313202F4D006A4C2E /* saturn.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = saturn.jpg; sourceTree = "<group>"; };
-		E17667D413202F4D006A4C2E /* uranus.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = uranus.jpg; sourceTree = "<group>"; };
-		E17667D513202F4D006A4C2E /* venus.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = venus.jpg; sourceTree = "<group>"; };
 		E17667DD13202FB7006A4C2E /* rings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rings.png; sourceTree = "<group>"; };
 		E1A330351301013100CED126 /* starAlternate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = starAlternate.png; path = ../resources/starAlternate.png; sourceTree = SOURCE_ROOT; };
 		E1A330361301013100CED126 /* starGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = starGlow.png; path = ../resources/starGlow.png; sourceTree = SOURCE_ROOT; };
@@ -243,6 +251,7 @@
 		E12766401325E28900E1FC3F /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				E1276B12132716D300E1FC3F /* pause.png */,
 				E127665C1325E49F00E1FC3F /* backward.png */,
 				E127665D1325E49F00E1FC3F /* forward.png */,
 				E127665E1325E49F00E1FC3F /* play.png */,
@@ -282,15 +291,18 @@
 		E17667CE13202F4D006A4C2E /* planets */ = {
 			isa = PBXGroup;
 			children = (
+				E127697A1326E18A00E1FC3F /* 11.jpg */,
+				E127697B1326E18A00E1FC3F /* 21.jpg */,
+				E127697C1326E18A00E1FC3F /* 31.jpg */,
+				E127697D1326E18A00E1FC3F /* 41.jpg */,
+				E127697E1326E18A00E1FC3F /* 51.jpg */,
+				E127697F1326E18A00E1FC3F /* clouds1.png */,
+				E12769811326E18A00E1FC3F /* clouds2.png */,
+				E12769801326E18A00E1FC3F /* clouds3.png */,
+				E12769821326E18A00E1FC3F /* clouds4.png */,
+				E12769831326E18A00E1FC3F /* clouds5.png */,
 				E127628E13233F1F00E1FC3F /* atmosphere.png */,
 				E17667DD13202FB7006A4C2E /* rings.png */,
-				E17667CF13202F4D006A4C2E /* clouds.png */,
-				E17667D013202F4D006A4C2E /* jupiter.jpg */,
-				E17667D113202F4D006A4C2E /* mars.jpg */,
-				E17667D213202F4D006A4C2E /* pluto.jpg */,
-				E17667D313202F4D006A4C2E /* saturn.jpg */,
-				E17667D413202F4D006A4C2E /* uranus.jpg */,
-				E17667D513202F4D006A4C2E /* venus.jpg */,
 			);
 			name = planets;
 			path = ../resources/planets;
@@ -457,13 +469,6 @@
 				E1A3303A1301013100CED126 /* star.png in Resources */,
 				E1555A0B131E05140079B05A /* skydome.jpg in Resources */,
 				E1555CA5131EEBEB0079B05A /* dotted.png in Resources */,
-				E17667D613202F4D006A4C2E /* clouds.png in Resources */,
-				E17667D713202F4D006A4C2E /* jupiter.jpg in Resources */,
-				E17667D813202F4D006A4C2E /* mars.jpg in Resources */,
-				E17667D913202F4D006A4C2E /* pluto.jpg in Resources */,
-				E17667DA13202F4D006A4C2E /* saturn.jpg in Resources */,
-				E17667DB13202F4D006A4C2E /* uranus.jpg in Resources */,
-				E17667DC13202F4D006A4C2E /* venus.jpg in Resources */,
 				E17667DE13202FB7006A4C2E /* rings.png in Resources */,
 				E1276241132314EB00E1FC3F /* panelUp.png in Resources */,
 				E127628F13233F1F00E1FC3F /* atmosphere.png in Resources */,
@@ -472,6 +477,17 @@
 				E12766601325E49F00E1FC3F /* forward.png in Resources */,
 				E12766611325E49F00E1FC3F /* play.png in Resources */,
 				E12768231326275C00E1FC3F /* panelDown.png in Resources */,
+				E12769841326E18A00E1FC3F /* 11.jpg in Resources */,
+				E12769851326E18A00E1FC3F /* 21.jpg in Resources */,
+				E12769861326E18A00E1FC3F /* 31.jpg in Resources */,
+				E12769871326E18A00E1FC3F /* 41.jpg in Resources */,
+				E12769881326E18A00E1FC3F /* 51.jpg in Resources */,
+				E12769891326E18A00E1FC3F /* clouds1.png in Resources */,
+				E127698A1326E18A00E1FC3F /* clouds3.png in Resources */,
+				E127698B1326E18A00E1FC3F /* clouds2.png in Resources */,
+				E127698C1326E18A00E1FC3F /* clouds4.png in Resources */,
+				E127698D1326E18A00E1FC3F /* clouds5.png in Resources */,
+				E1276B13132716D300E1FC3F /* pause.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

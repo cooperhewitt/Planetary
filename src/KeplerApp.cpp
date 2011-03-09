@@ -18,6 +18,7 @@
 #include "BreadcrumbEvent.h"
 #include "CinderIPod.h"
 #include "CinderIPodPlayer.h"
+#include "PinchRecognizer.h"
 #include <vector>
 #include <sstream>
 
@@ -29,11 +30,11 @@ using std::stringstream;
 
 //int G_CURRENT_LEVEL		= 0;
 float G_ZOOM			= 0;
-bool G_DEBUG			= false;
+bool G_DEBUG			= true;
 GLfloat mat_ambient[]	= { 0.02, 0.02, 0.05, 1.0 };
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 GLfloat mat_specular[]	= { 1.0, 1.0, 1.0, 1.0 };
-GLfloat mat_shininess[]	= { 40.0 };
+GLfloat mat_shininess[]	= { 50.0 };
 
 float easeInOutQuad( double t, float b, float c, double d );
 Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
@@ -47,7 +48,6 @@ class KeplerApp : public AppCocoaTouch {
 	virtual void	touchesEnded( TouchEvent event );
 	virtual void	accelerated( AccelEvent event );
 	void			initTextures();
-	void			initFonts();
 	virtual void	update();
 	void			updateArcball();
 	void			updateCamera();
@@ -56,6 +56,7 @@ class KeplerApp : public AppCocoaTouch {
 	void			setParamsTex();
 	bool			onAlphaCharStateChanged( State *state );
 	bool			onAlphaCharSelected( UiLayer *uiLayer );
+	bool			onWheelClosed( UiLayer *uiLayer );
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
 	bool			onPlayControlsButtonPressed ( PlayButton button );
 	bool			onNodeSelected( Node *node );
@@ -99,7 +100,8 @@ class KeplerApp : public AppCocoaTouch {
 	
 	
 	// FONTS
-	vector<Font>	mFonts;
+	Font			mFont;
+	Font			mFontBig;
 	
 	
 	// MULTITOUCH
@@ -107,6 +109,13 @@ class KeplerApp : public AppCocoaTouch {
 	Vec2f			mTouchThrowVel;
 	Vec2f			mTouchVel;
 	bool			mIsDragging;
+	bool			mIsPinching;
+	bool			onPinchBegan( PinchEvent event );
+    bool			onPinchMoved( PinchEvent event );
+    bool			onPinchEnded( PinchEvent event );
+    vector<Ray>		mPinchRays;
+    PinchRecognizer mPinchRecognizer;
+
 	
 	
 	// TEXTURES
@@ -118,8 +127,9 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mSkyDome;
 	gl::Texture		mDottedTex;
 	gl::Texture		mPanelUpTex, mPanelDownTex;
-	gl::Texture		mPlayTex, mForwardTex, mBackwardTex;
-	vector<gl::Texture*>	mPlanetsTex;
+	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex;
+	vector<gl::Texture*> mPlanetsTex;
+	vector<gl::Texture*> mCloudsTex;
 	
 	float			mTime;
 	
@@ -162,8 +172,8 @@ void KeplerApp::setup()
 	mBbUp				= Vec3f::yAxis();
 	
 	// FONTS
-	initFonts();
-	
+	mFont				= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 16 );
+	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
 	
 	// PLAYER
 	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
@@ -175,14 +185,19 @@ void KeplerApp::setup()
 	mTouchThrowVel		= Vec2f::zero();
 	mTouchVel			= Vec2f::zero();
 	mIsDragging			= false;
+	mIsPinching			= false;
 	mTime				= getElapsedSeconds();
+	mPinchRecognizer.init(this);
+    mPinchRecognizer.registerBegan(this, &KeplerApp::onPinchBegan);
+    mPinchRecognizer.registerMoved(this, &KeplerApp::onPinchMoved);
+    mPinchRecognizer.registerEnded(this, &KeplerApp::onPinchEnded);
 	
 	
 	// TEXTURES
 	initTextures();
 	
 	// BREADCRUMBS
-	mBreadcrumbs.setup( this, mFonts[3] );
+	mBreadcrumbs.setup( this, mFont );
 	mBreadcrumbs.registerBreadcrumbSelected( this, &KeplerApp::onBreadcrumbSelected );
 	mBreadcrumbs.setHierarchy(mState.getHierarchy());
 	
@@ -194,11 +209,11 @@ void KeplerApp::setup()
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
 	mState.registerNodeSelected( this, &KeplerApp::onNodeSelected );
 	
-	
 	// UILAYER
 	mUiLayer.setup( this );
 	mUiLayer.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
-	mUiLayer.initAlphaTextures( mFonts[0] );
+	mUiLayer.registerWheelClosed( this, &KeplerApp::onWheelClosed );
+	mUiLayer.initAlphaTextures( mFontBig );
 }
 
 void KeplerApp::init()
@@ -209,7 +224,7 @@ void KeplerApp::init()
 
 	// WORLD
 	mWorld.setData( &mData );
-	mWorld.initNodes( &mIpodPlayer, mFonts[4] );
+	mWorld.initNodes( &mIpodPlayer, mFont );
 	
 	mIsLoaded = true;
 }
@@ -232,11 +247,13 @@ void KeplerApp::touchesMoved( TouchEvent event )
 	mIsDragging = true;
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt )
 	{
-		mTouchThrowVel	= ( touchIt->getPos() - mTouchPos );
-		mTouchVel		= mTouchThrowVel;
-		mTouchPos		= touchIt->getPos();
-		if( event.getTouches().size() == 1 )
-			mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
+		if( event.getTouches().size() == 1 ){
+			mTouchThrowVel	= ( touchIt->getPos() - mTouchPos );
+			mTouchVel		= mTouchThrowVel;
+			mTouchPos		= touchIt->getPos();
+			if( event.getTouches().size() == 1 )
+				mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
+		}
 	}
 }
 
@@ -244,15 +261,39 @@ void KeplerApp::touchesEnded( TouchEvent event )
 {
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt )
 	{
-		mTouchPos = touchIt->getPos();
-		if( ! mUiLayer.getShowWheel() && ! mIsDragging ){
-			float u			= mTouchPos.x / (float) getWindowWidth();
-			float v			= mTouchPos.y / (float) getWindowHeight();
-			Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
-			checkForNodeTouch( touchRay, mMatrix );
+		if( event.getTouches().size() == 1 ){
+			mTouchPos = touchIt->getPos();
+			if( ! mUiLayer.getShowWheel() && ! mIsDragging ){
+				float u			= mTouchPos.x / (float) getWindowWidth();
+				float v			= mTouchPos.y / (float) getWindowHeight();
+				Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
+				checkForNodeTouch( touchRay, mMatrix );
+			}
+			mIsDragging = false;
 		}
-		mIsDragging = false;
 	}
+}
+
+bool KeplerApp::onPinchBegan( PinchEvent event )
+{
+	mIsPinching = true;
+    mPinchRays = event.getTouchRays( mCam );
+    return false;
+}
+
+bool KeplerApp::onPinchMoved( PinchEvent event )
+{
+    mPinchRays = event.getTouchRays( mCam );
+    //mMatrix = event.getTransformDelta( mCam, mCam.getEyePoint().distance( Vec3f::zero() ) ) * mMatrix;
+	mFovDest += ( 1.0f - event.getScaleDelta() ) * 30.0f;
+    return false;
+}
+
+bool KeplerApp::onPinchEnded( PinchEvent event )
+{
+	mIsPinching = false;
+    mPinchRays.clear();
+    return false;
 }
 
 void KeplerApp::accelerated( AccelEvent event )
@@ -267,6 +308,7 @@ void KeplerApp::initTextures()
 	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
 	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
 	mPlayTex			= loadImage( loadResource( "play.png" ) );
+	mPauseTex			= loadImage( loadResource( "pause.png" ) );
 	mForwardTex			= loadImage( loadResource( "forward.png" ) );
 	mBackwardTex		= loadImage( loadResource( "backward.png" ) );
 	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
@@ -277,23 +319,25 @@ void KeplerApp::initTextures()
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
 	mParamsTex			= gl::Texture( 768, 75 );
-	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "pluto.jpg" ) ) ) );
-	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "venus.jpg" ) ) ) );
-	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "mars.jpg" ) ) ) );
-	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "uranus.jpg" ) ) ) );
-	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "jupiter.jpg" ) ) ) );
-	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "saturn.jpg" ) ) ) );
-	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "clouds.png" ) ) ) );
+	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
+	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "21.jpg" ) ) ) );
+	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "31.jpg" ) ) ) );
+	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "41.jpg" ) ) ) );
+	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "51.jpg" ) ) ) );
 	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "rings.png" ) ) ) );
+	mCloudsTex.push_back( new gl::Texture( loadImage( loadResource( "clouds1.png" ) ) ) );
+	mCloudsTex.push_back( new gl::Texture( loadImage( loadResource( "clouds2.png" ) ) ) );
+	mCloudsTex.push_back( new gl::Texture( loadImage( loadResource( "clouds3.png" ) ) ) );
+	mCloudsTex.push_back( new gl::Texture( loadImage( loadResource( "clouds4.png" ) ) ) );
+	mCloudsTex.push_back( new gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
+	
 }
 
-void KeplerApp::initFonts()
+bool KeplerApp::onWheelClosed( UiLayer *uiLayer )
 {
-	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 ) );
-	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 64 ) );
-	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 28 ) );
-	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 16 ) );
-	mFonts.push_back( Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 16 ) );
+	std::cout << "wheel closed" << std::endl;
+	mFovDest = 100.0f;
+	return false;
 }
 
 bool KeplerApp::onAlphaCharSelected( UiLayer *uiLayer )
@@ -332,9 +376,9 @@ bool KeplerApp::onNodeSelected( Node *node )
 
 bool KeplerApp::onPlayControlsButtonPressed( PlayButton button )
 {
-	if( button == 3 ){	// prev track
+	if( button == PREVIOUS_TRACK ){	// prev track
 		mIpodPlayer.skipPrev();
-	} else if( button == 1 ){  // play/stop
+	} else if( button == PLAY_PAUSE ){  // play/stop
 		/*
 		switch( mIpodPlayer.getPlayState() ){
 			case ipod::Player::StatePlaying:
@@ -348,7 +392,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayButton button )
 		}
 		*/
 
-	} else if( button == 2 ){  // next track
+	} else if( button == NEXT_TRACK ){  // next track
 		mIpodPlayer.skipNext();	
 	}
 	
@@ -466,15 +510,20 @@ void KeplerApp::updateCamera()
 		}
 	}
 	
-	
-	
 	// UPDATE FOV
 	if( mUiLayer.getShowWheel() ){
-		mFovDest = 120.0f;
-	} else {
-		mFovDest = 100.0f - G_ZOOM * 5.0f;
+		mFovDest = 130.0f;
 	}
+	
+	mFovDest = constrain( mFovDest, 60.0f, 130.0f );
 	mFov -= ( mFov - mFovDest ) * 0.2f;
+	
+	if( mFovDest == 130.0f && ! mUiLayer.getShowWheel() ){
+		mUiLayer.setShowWheel( true );
+		mWorld.deselectAllNodes();
+		mState.setSelectedNode( NULL );
+		mState.setAlphaChar( ' ' );
+	}
 	
 	double p	= constrain( getElapsedSeconds()-mTime, 0.0, G_DURATION );
 	mCenter		= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, G_DURATION );
@@ -549,13 +598,18 @@ void KeplerApp::draw()
 		Node *albumNode  = mState.getSelectedAlbumNode();
 		Node *artistNode = mState.getSelectedArtistNode();
 		if( artistNode ){
+			gl::enableDepthRead();
+			gl::enableDepthWrite();
+			gl::disableAlphaBlending();
+			
 			glEnable( GL_LIGHTING );
-			glEnable( GL_COLOR_MATERIAL ) ;
+			glEnable( GL_COLOR_MATERIAL );
 			glShadeModel( GL_SMOOTH );
 						
 			glMaterialfv( GL_FRONT, GL_AMBIENT, mat_ambient );
 			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );
-			
+			glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular );
+			glMaterialfv( GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess );
 			
 			if( albumNode ){
 				// LIGHT FROM ALBUM
@@ -565,6 +619,7 @@ void KeplerApp::draw()
 				Color albumDiffuse		= albumNode->mGlowColor;
 				glLightfv( GL_LIGHT0, GL_POSITION, albumLight );
 				glLightfv( GL_LIGHT0, GL_DIFFUSE, albumDiffuse );
+				glLightfv( GL_LIGHT0, GL_SPECULAR, Color::white() );
 			}
 			
 			// LIGHT FROM ARTIST
@@ -574,12 +629,13 @@ void KeplerApp::draw()
 			Color artistDiffuse		= artistNode->mGlowColor;
 			glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
 			glLightfv( GL_LIGHT1, GL_DIFFUSE, artistDiffuse );
-			
+			glLightfv( GL_LIGHT1, GL_SPECULAR, Color::white() );
+				
 	// PLANETS
-			gl::enableDepthRead();
-			gl::enableDepthWrite();
-			gl::disableAlphaBlending();
 			mWorld.drawPlanets( mAccelMatrix, mPlanetsTex );
+		
+	// CLOUDS
+			mWorld.drawClouds( mAccelMatrix, mCloudsTex );
 			
 	// RINGS
 			gl::enableAdditiveBlending();
@@ -613,7 +669,7 @@ void KeplerApp::draw()
 		mUiLayer.draw( mPanelUpTex, mPanelDownTex );
 		mBreadcrumbs.draw( mUiLayer.getPanelYPos() + 5.0f );
 		mPlayControls.draw( mPlayTex, mForwardTex, mBackwardTex, mUiLayer.getPanelYPos() + mBreadcrumbs.getHeight() + 10.0f );
-		mState.draw( mFonts[4] );
+		mState.draw( mFont );
 		
 		//drawInfoPanel();
 	}
@@ -635,7 +691,7 @@ void KeplerApp::drawInfoPanel()
 void KeplerApp::setParamsTex()
 {
 	TextLayout layout;	
-	layout.setFont( mFonts[4] );
+	layout.setFont( mFont );
 	layout.setColor( Color( 0.3f, 0.3f, 1.0f ) );
 
 	int currentLevel = G_HOME_LEVEL;

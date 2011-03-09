@@ -199,10 +199,17 @@ void Node::drawOrbitalRings()
 {
 }
 
-void Node::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> texs )
+void Node::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawPlanet( accelMatrix, texs );
+		(*nodeIt)->drawPlanet( accelMatrix, planets );
+	}
+}
+
+void Node::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
+{
+	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->drawClouds( accelMatrix, clouds );
 	}
 }
 

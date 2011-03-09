@@ -23,10 +23,9 @@ static const int G_TRACK_LEVEL		= 4;
 static const int G_NUM_LEVELS		= 5;
 
 static const float G_INIT_CAM_DIST	= 175.0f;
-static const int G_NUM_PLANET_TYPES = 6;
-static const int G_CLOUDS_TYPE		= 6;
-static const int G_RING_TYPE		= 7;
-static const int G_NUM_RINGED_TYPE	= 5; // this is stupid... still thinking of best way to do planet textures
+static const int G_NUM_PLANET_TYPES = 5;
+static const int G_RING_TYPE		= 5;
+static const int G_NUM_CLOUD_TYPES	= 5;
 
 
 // TODO: move into State.h

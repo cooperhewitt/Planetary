@@ -44,6 +44,11 @@ class UiLayer {
 		return mCallbacksAlphaCharSelected.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
 	
+	template<typename T>
+	ci::CallbackId registerWheelClosed( T *obj, bool ( T::*callback )( UiLayer* ) ){
+		return mCallbacksWheelClosed.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
+	}
+	
 	
  private:
 	ci::app::AppCocoaTouch *mApp;
@@ -70,5 +75,6 @@ class UiLayer {
 	std::vector<ci::gl::Texture> mAlphaTextures;
 	
 	ci::CallbackMgr<bool(UiLayer*)> mCallbacksAlphaCharSelected;
+	ci::CallbackMgr<bool(UiLayer*)> mCallbacksWheelClosed;
 };
 
