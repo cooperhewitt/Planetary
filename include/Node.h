@@ -39,7 +39,8 @@ class Node {
 	void				drawOrthoName( const ci::CameraPersp &cam );
 	void				drawSphere();
 	virtual void		drawOrbitalRings();
-	virtual void		drawPlanet( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> texs );
+	virtual void		drawPlanet( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> planets );
+	virtual void		drawClouds( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> clouds );
 	virtual void		drawRings( ci::gl::Texture *tex );
 	virtual void		drawAtmosphere();
 	void				checkForSphereIntersect( vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
@@ -88,7 +89,8 @@ class Node {
 	float				mDistFromCamZAxisPer; // normalized range.
 	float				mSphereScreenRadius;// mSphere radius in screenspace
 	float				mZoomPer;			// 0.0 to 1.0 to 0.0 based on zoom level vs mgen
-	int					mPlanetTexIndex;	// Which of the planet textures are used
+	int					mPlanetTexIndex;	// Which of the planet textures is used
+	int					mCloudTexIndex;		// Which of the cloud textures is used
 	float				mIdealCameraDist;	// Ideal distance from node to camera
 	
 	// NAME

@@ -83,19 +83,8 @@ void NodeArtist::drawOrbitalRings()
 	}
 }
 
-void NodeArtist::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> texs )
+void NodeArtist::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets )
 {
-	/*
-	if( mIsHighlighted ){
-		glDisable( GL_LIGHTING );
-		gl::pushModelView();
-		gl::translate( mTransPos );
-		gl::color( mColor * 1.5f );
-		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.2f, 150 );
-		gl::popModelView();
-		glEnable( GL_LIGHTING );
-	}*/
-	
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
 		glDisable( GL_TEXTURE_2D );
@@ -103,20 +92,16 @@ void NodeArtist::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> t
 		gl::translate( mTransPos );
 		gl::color( Color::white() );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.215f, 100 );
-		/*
-		gl::enableAdditiveBlending();
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.5f ) );
-		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.220f, 100 );
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.25f ) );
-		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.225f, 100 );
-		gl::disableAlphaBlending();
-		*/
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
 	}
 	
-	
-	Node::drawPlanet( accelMatrix, texs );
+	Node::drawPlanet( accelMatrix, planets );
+}
+
+void NodeArtist::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
+{
+	Node::drawClouds( accelMatrix, clouds );
 }
 
 void NodeArtist::drawRings( gl::Texture *tex )

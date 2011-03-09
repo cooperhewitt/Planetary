@@ -122,7 +122,7 @@ void Node::updateGraphics( const CameraPersp &cam )
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
 		mDistFromCamZAxis		= cam.worldToEyeDepth( mTransPos );
 		mCamZVel				= mDistFromCamZAxis - mPrevDistFromCamZAxis;
-		mDistFromCamZAxisPer = constrain( mDistFromCamZAxis * -0.35f, 0.0f, 1.0f );
+		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * -0.35f, 0.0f, 1.0f );
 		mSphereScreenRadius = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() ) * 0.4f;
 	}
 	
@@ -199,10 +199,17 @@ void Node::drawOrbitalRings()
 {
 }
 
-void Node::drawPlanet( Matrix44f accelMatrix, std::vector< gl::Texture*> texs )
+void Node::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawPlanet( accelMatrix, texs );
+		(*nodeIt)->drawPlanet( accelMatrix, planets );
+	}
+}
+
+void Node::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
+{
+	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->drawClouds( accelMatrix, clouds );
 	}
 }
 
