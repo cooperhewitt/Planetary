@@ -21,6 +21,7 @@ State::State()
 {
 	mAlphaChar = ' ';
 	mSelectedNode = NULL;
+	mPlayingNode = NULL;
 }
 
 void State::draw( const Font &font )
@@ -115,3 +116,18 @@ vector<string> State::getHierarchy()
 	
 	return hierarchy;
 }
+
+void State::setPlayingNode(NodeTrack* node)
+{
+	if (mPlayingNode == node) {
+		return;
+	}
+	if (mPlayingNode != NULL) {
+		mPlayingNode->setPlaying(false);
+	}
+	mPlayingNode = node;
+	if (mPlayingNode != NULL) {
+		mPlayingNode->setPlaying(true);
+	}
+}
+
