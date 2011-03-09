@@ -38,6 +38,8 @@
 		E127698D1326E18A00E1FC3F /* clouds5.png in Resources */ = {isa = PBXBuildFile; fileRef = E12769831326E18A00E1FC3F /* clouds5.png */; };
 		E1276B13132716D300E1FC3F /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276B12132716D300E1FC3F /* pause.png */; };
 		E1276CA5132764DB00E1FC3F /* Orbiter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1276CA4132764DB00E1FC3F /* Orbiter.cpp */; };
+		E1276DE81328117E00E1FC3F /* debug.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276DE71328117E00E1FC3F /* debug.png */; };
+		E1276DEE132812FD00E1FC3F /* debugOn.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276DED132812FD00E1FC3F /* debugOn.png */; };
 		E1555A0B131E05140079B05A /* skydome.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1555A0A131E05140079B05A /* skydome.jpg */; };
 		E1555CA5131EEBEB0079B05A /* dotted.png in Resources */ = {isa = PBXBuildFile; fileRef = E1555CA4131EEBEB0079B05A /* dotted.png */; };
 		E1555E7A131F2C560079B05A /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1555E79131F2C560079B05A /* Node.cpp */; };
@@ -99,6 +101,8 @@
 		E1276B12132716D300E1FC3F /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = pause.png; path = ../resources/ui/pause.png; sourceTree = SOURCE_ROOT; };
 		E1276CA4132764DB00E1FC3F /* Orbiter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Orbiter.cpp; path = ../src/Orbiter.cpp; sourceTree = SOURCE_ROOT; };
 		E1276CA6132764E900E1FC3F /* Orbiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Orbiter.h; path = ../include/Orbiter.h; sourceTree = SOURCE_ROOT; };
+		E1276DE71328117E00E1FC3F /* debug.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug.png; path = ../resources/ui/debug.png; sourceTree = SOURCE_ROOT; };
+		E1276DED132812FD00E1FC3F /* debugOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debugOn.png; path = ../resources/ui/debugOn.png; sourceTree = SOURCE_ROOT; };
 		E1555A0A131E05140079B05A /* skydome.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = skydome.jpg; path = ../resources/skydome.jpg; sourceTree = SOURCE_ROOT; };
 		E1555CA4131EEBEB0079B05A /* dotted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dotted.png; path = ../resources/dotted.png; sourceTree = SOURCE_ROOT; };
 		E1555E78131F2C4A0079B05A /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../include/Node.h; sourceTree = SOURCE_ROOT; };
@@ -257,6 +261,8 @@
 			isa = PBXGroup;
 			children = (
 				E2CB0723132747A500C05DC5 /* pause.png */,
+				E1276DED132812FD00E1FC3F /* debugOn.png */,
+				E1276DE71328117E00E1FC3F /* debug.png */,
 				E1276B12132716D300E1FC3F /* pause.png */,
 				E127665C1325E49F00E1FC3F /* backward.png */,
 				E127665D1325E49F00E1FC3F /* forward.png */,
@@ -497,6 +503,8 @@
 				E127698C1326E18A00E1FC3F /* clouds4.png in Resources */,
 				E127698D1326E18A00E1FC3F /* clouds5.png in Resources */,
 				E1276B13132716D300E1FC3F /* pause.png in Resources */,
+				E1276DE81328117E00E1FC3F /* debug.png in Resources */,
+				E1276DEE132812FD00E1FC3F /* debugOn.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
