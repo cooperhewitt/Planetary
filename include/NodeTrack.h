@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Node.h"
+#include "Node.h"on
 #include "Orbiter.h"
 #include "cinder/Vector.h"
 
@@ -25,7 +25,7 @@ class NodeTrack : public Node
 	void drawRings( ci::gl::Texture *tex );
 	void drawOrbiters();
 	void drawAtmosphere();
-	void select();
+	void setPlaying(bool playing);
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
 	
 	std::vector<Orbiter> mOrbiters;
@@ -46,7 +46,5 @@ class NodeTrack : public Node
 	float		mAxialTilt;
 	float		mCamDistAlpha;
 	
-	// TODO: we'd need to fix this so it gets unset when the track changes
-	// and so that it's set correctly when the track is initialized
-	bool mIsPlaying;
+	bool 		mIsPlaying;
 };

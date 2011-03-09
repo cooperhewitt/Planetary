@@ -803,6 +803,9 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 									console() << "quick! select it!!!" << endl;
 									mState.setSelectedNode(trackNode);
 								}
+								// FIXME: what's the proper C++ way to do this?
+								NodeTrack *scaryCastNode = (NodeTrack*)trackNode;
+								mState.setPlayingNode(scaryCastNode);
 								break;
 							}
 						}								
@@ -817,6 +820,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 		}
 	}
 	else {
+		// FIXME: when we pause we'll stop drawing orbits because of this, which is probably the wrong behavior
+		mState.setPlayingNode(NULL);
 		console() << "trackchanged but nothing's playing" << endl;
 	}
 	

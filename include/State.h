@@ -15,6 +15,7 @@
 #include "cinder/gl/Texture.h"
 #include "Globals.h"
 #include "Node.h"
+#include "NodeTrack.h"
 
 using namespace ci;
 
@@ -53,6 +54,9 @@ class State {
 		}
 		return NULL;
 	}
+	
+	void setPlayingNode(NodeTrack* node);
+	// TODO: getter and events for mPlayingNode?
 
 	std::vector<std::string> getHierarchy();
 
@@ -60,7 +64,8 @@ private:
 	CallbackMgr<bool(State*)> mCallbacksAlphaCharStateChanged;	
 	CallbackMgr<bool(Node*)> mCallbacksNodeSelected;
 
-	Node			*mSelectedNode;
+	Node *mSelectedNode;
+	NodeTrack *mPlayingNode;
 	char mAlphaChar;
 };
 

@@ -246,11 +246,7 @@ void NodeTrack::drawOrbiters()
 	}
 }
 
-void NodeTrack::select()
+void NodeTrack::setPlaying(bool playing)
 {
-//	mPlayer->play( mAlbum, mIndex );
-//	mIsPlaying = true;
-	
-	Node::select();
+	mIsPlaying = playing;
 }
-
