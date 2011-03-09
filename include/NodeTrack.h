@@ -30,24 +30,23 @@ class NodeTrack : public Node
 	
 	std::vector<Orbiter> mOrbiters;
 	
-	float mTrackLength;
-	int mPlayCount;
-	int mStarRating;
-	double lastTime;
-	int mNumTracks;
-	float mSphereRes;
+	float		mTrackLength;
+	int			mPlayCount;
+	int			mStarRating;
+	int			mNumTracks;
+	float		mSphereRes;
 	
-	int mTotalVerts;
-	GLfloat *mVerts;
-	GLfloat *mTexCoords;
+	int			mTotalVerts;
+	GLfloat		*mVerts;
+	GLfloat		*mTexCoords;
 	ci::gl::Texture mAlbumArt;
 	
-	ci::Color mAtmosphereColor;
+	ci::Color	mAtmosphereColor;
 	
-	float mAxialTilt;
-	float mCamDistAlpha;
+	float		mAxialTilt;
+	float		mCamDistAlpha;
 	
 	// TODO: we'd need to fix this so it gets unset when the track changes
 	// and so that it's set correctly when the track is initialized
-	//bool mIsPlaying;
+	bool mIsPlaying;
 };

@@ -105,8 +105,8 @@ void NodeAlbum::drawOrbitalRings()
 		gl::rotate( mMatrix );
 		for( vector<Node*>::iterator c = mChildNodes.begin(); c != mChildNodes.end(); ++c ){
 			float r = (*c)->mOrbitRadius;
-			
-			gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
+			if( (*c)->mIsPlaying ) gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
+			else gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
 			gl::drawStrokedCircle( Vec2f::zero(), r, 150 );
 		}
 		gl::popModelView();

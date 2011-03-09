@@ -135,7 +135,7 @@ public:
 		gl::drawSolidRect( nextButton );
 		
 		
-		gl::color( lastTouchedType == NEXT_TRACK ? yellow : Color::white() );
+		gl::color( lastTouchedType == DEBUG ? yellow : Color::white() );
 		if( G_DEBUG ){
 			debugOn.enableAndBind();
 		} else {

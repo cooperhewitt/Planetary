@@ -154,7 +154,7 @@ void Breadcrumbs::draw( float y ) {
 	gl::color( Color::white() );
 	float x			= 25.0f;
 	float xMargin	= 5.0f;
-	float yMargin	= 10.0f;
+	float yMargin	= 20.0f;
 	mHeight = 0;
 	clickRects.clear();
 	

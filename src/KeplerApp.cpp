@@ -34,7 +34,7 @@ bool G_DEBUG			= false;
 GLfloat mat_ambient[]	= { 0.02, 0.02, 0.05, 1.0 };
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 GLfloat mat_specular[]	= { 1.0, 1.0, 1.0, 1.0 };
-GLfloat mat_shininess[]	= { 40.0 };
+GLfloat mat_shininess[]	= { 100.0 };
 
 float easeInOutQuad( double t, float b, float c, double d );
 Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
@@ -51,6 +51,7 @@ class KeplerApp : public AppCocoaTouch {
 	virtual void	update();
 	void			updateArcball();
 	void			updateCamera();
+	void			updatePlayhead();
 	virtual void	draw();
 	void			drawInfoPanel();
 	void			setParamsTex();
@@ -76,8 +77,9 @@ class KeplerApp : public AppCocoaTouch {
 	// AUDIO
 	ipod::Player		mIpodPlayer;
 	ipod::PlaylistRef	mCurrentAlbum;
+	double				mCurrentTrackPlayheadTime;	
 //	int					mCurrentTrackId;
-//	double				mCurrentTrackPlayheadTime;	
+
 	
 	// BREADCRUMBS
 	Breadcrumbs		mBreadcrumbs;	
@@ -491,6 +493,8 @@ void KeplerApp::update()
 	mUiLayer.update();
 	mBreadcrumbs.update();
 	mPlayControls.update();
+	
+	updatePlayhead();
 }
 
 void KeplerApp::updateArcball()
@@ -538,15 +542,17 @@ void KeplerApp::updateCamera()
 		mFovDest = 130.0f;
 	}
 	
-	mFovDest = constrain( mFovDest, 45.0f, 130.0f );
+	mFovDest = constrain( mFovDest, 75.0f, 130.0f );
 	mFov -= ( mFov - mFovDest ) * 0.4f;
 	
+	/*
 	if( mFovDest == 130.0f && ! mUiLayer.getShowWheel() ){
 		mUiLayer.setShowWheel( true );
 		mWorld.deselectAllNodes();
 		mState.setSelectedNode( NULL );
 		mState.setAlphaChar( ' ' );
 	}
+	*/
 	
 	double p	= constrain( getElapsedSeconds()-mTime, 0.0, G_DURATION );
 	mCenter		= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, G_DURATION );
@@ -560,6 +566,22 @@ void KeplerApp::updateCamera()
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.0001f, 4000.0f );
 	mCam.lookAt( mEye, mCenter, mUp );
 	mCam.getBillboardVectors( &mBbRight, &mBbUp );
+}
+
+void KeplerApp::updatePlayhead()
+{
+	if( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
+		mCurrentTrackPlayheadTime	= mIpodPlayer.getPlayheadTime();
+		ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
+		Node* selectedNode = mState.getSelectedNode();
+		
+		if( selectedNode != NULL ){
+			ipod::TrackRef selectedTrack = selectedNode->mTrack;
+			if( selectedTrack != NULL && selectedTrack->getItemId() == playingTrack->getItemId() ){
+				/* update orbit line */
+			}
+		}
+	}
 }
 
 void KeplerApp::draw()
@@ -631,8 +653,8 @@ void KeplerApp::draw()
 						
 			glMaterialfv( GL_FRONT, GL_AMBIENT, mat_ambient );
 			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );
-			glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular );
-			glMaterialfv( GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess );
+			//glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular );
+			//glMaterialfv( GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess );
 			
 			if( albumNode ){
 				// LIGHT FROM ALBUM
@@ -642,7 +664,7 @@ void KeplerApp::draw()
 				Color albumDiffuse		= albumNode->mColor;
 				glLightfv( GL_LIGHT0, GL_POSITION, albumLight );
 				glLightfv( GL_LIGHT0, GL_DIFFUSE, albumDiffuse );
-				glLightfv( GL_LIGHT0, GL_SPECULAR, albumDiffuse );
+			//	glLightfv( GL_LIGHT0, GL_SPECULAR, albumDiffuse );
 			}
 			
 			// LIGHT FROM ARTIST
@@ -652,7 +674,7 @@ void KeplerApp::draw()
 			Color artistDiffuse		= artistNode->mColor;
 			glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
 			glLightfv( GL_LIGHT1, GL_DIFFUSE, artistDiffuse );
-			glLightfv( GL_LIGHT1, GL_SPECULAR, artistDiffuse );
+			//glLightfv( GL_LIGHT1, GL_SPECULAR, artistDiffuse );
 				
 	// PLANETS
 			mWorld.drawPlanets( mAccelMatrix, mPlanetsTex );
