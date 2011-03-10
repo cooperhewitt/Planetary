@@ -116,6 +116,7 @@ class KeplerApp : public AppCocoaTouch {
     bool			onPinchEnded( PinchEvent event );
     vector<Ray>		mPinchRays;
     PinchRecognizer mPinchRecognizer;
+	float			mPinchScale;
 
 	
 	
@@ -178,10 +179,6 @@ void KeplerApp::setup()
 	mFont				= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 16 );
 	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
 	
-	// PLAYER
-	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
-    mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
-	
 	
 	// TOUCH VARS
 	mTouchPos			= Vec2f::zero();
@@ -217,6 +214,11 @@ void KeplerApp::setup()
 	mUiLayer.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
 	mUiLayer.registerWheelClosed( this, &KeplerApp::onWheelClosed );
 	mUiLayer.initAlphaTextures( mFontBig );
+	
+	
+	// PLAYER
+	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
+    mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
 }
 
 void KeplerApp::init()
@@ -240,9 +242,10 @@ void KeplerApp::touchesBegan( TouchEvent event )
 		mTouchPos		= touchIt->getPos();
 		mTouchThrowVel	= Vec2f::zero();
 		mIsDragging		= false;
-		if( event.getTouches().size() == 1 )
+		if( event.getTouches().size() == 1 && !mIsPinching )
 			mArcball.mouseDown( Vec2f( mTouchPos.x, mTouchPos.y ) );
 	}
+	mIsPinching = false;
 }
 
 void KeplerApp::touchesMoved( TouchEvent event )
@@ -250,7 +253,7 @@ void KeplerApp::touchesMoved( TouchEvent event )
 	mIsDragging = true;
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt )
 	{
-		if( event.getTouches().size() == 1 ){
+		if( event.getTouches().size() == 1 && !mIsPinching ){
 			mTouchThrowVel	= ( touchIt->getPos() - mTouchPos );
 			mTouchVel		= mTouchThrowVel;
 			mTouchPos		= touchIt->getPos();
@@ -264,7 +267,7 @@ void KeplerApp::touchesEnded( TouchEvent event )
 {
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt )
 	{
-		if( event.getTouches().size() == 1 ){
+		if( event.getTouches().size() == 1 && !mIsPinching ){
 			mTouchPos = touchIt->getPos();
 			if( ! mUiLayer.getShowWheel() && ! mIsDragging ){
 				float u			= mTouchPos.x / (float) getWindowWidth();
@@ -279,6 +282,7 @@ void KeplerApp::touchesEnded( TouchEvent event )
 
 bool KeplerApp::onPinchBegan( PinchEvent event )
 {
+	mPinchScale = 1.0f;
 	mIsPinching = true;
     mPinchRays = event.getTouchRays( mCam );
 	
@@ -296,7 +300,7 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 }
 
 bool KeplerApp::onPinchMoved( PinchEvent event )
-{
+{	
     mPinchRays = event.getTouchRays( mCam );
 	mFovDest += ( 1.0f - event.getScaleDelta() ) * 50.0f;
 	
@@ -311,13 +315,22 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	mTouchVel		= mTouchThrowVel;
 	mTouchPos		= averageTouchPos;
 	
+	mPinchScale		= event.getScale();
+	
 	mArcball.mouseDrag( averageTouchPos );
     return false;
 }
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
-	mIsPinching = false;
+	if( mPinchScale < 0.5 ){
+		Node *selected = mState.getSelectedNode();
+		if( selected ){
+			mState.setSelectedNode( selected->mParentNode );
+			mFovDest = 100.0f;
+		}
+	}
+	
     mPinchRays.clear();
     return false;
 }
