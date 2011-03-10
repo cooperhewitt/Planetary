@@ -86,6 +86,7 @@ class KeplerApp : public AppCocoaTouch {
 	
 	// PLAY CONTROLS
 	PlayControls	mPlayControls;
+	float			mPlayheadPer;	// song percent complete 
 	
 	// CAMERA PERSP
 	CameraPersp		mCam;
@@ -132,8 +133,9 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mDottedTex;
 	gl::Texture		mPanelUpTex, mPanelDownTex;
 	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex;
-	vector<gl::Texture*> mPlanetsTex;
-	vector<gl::Texture*> mCloudsTex;
+	vector<gl::Texture> mButtonsTex;
+	vector<gl::Texture> mPlanetsTex;
+	vector<gl::Texture> mCloudsTex;
 	
 	float			mTime;
 	
@@ -175,7 +177,7 @@ void KeplerApp::setup()
 	mUp					= Vec3f::yAxis();
 	mFov				= 90.0f;
 	mFovDest			= 90.0f;
-	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 4000.0f );
+	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 1000.0f );
 	mBbRight			= Vec3f::xAxis();
 	mBbUp				= Vec3f::yAxis();
 	
@@ -298,7 +300,7 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 	averageTouchPos /= touches.size();
 	mTouchPos = averageTouchPos;
 	
-	mArcball.mouseDown( mTouchPos );
+	//mArcball.mouseDown( mTouchPos );
     return false;
 }
 
@@ -309,8 +311,8 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	if( G_ZOOM < G_ARTIST_LEVEL ){
 		mFovDest += ( 1.0f - event.getScaleDelta() ) * 50.0f;
 	} else {
-		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -1.5f + 1.0f;
-		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.25f, 4.1f );
+		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -3.5f + 1.0f;
+		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.25f, 4.5f );
 	}
 	
 	vector<TouchEvent::Touch> touches = event.getTouches();
@@ -320,20 +322,20 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	}
 	averageTouchPos /= touches.size();
 	
-	mTouchThrowVel	= ( averageTouchPos - mTouchPos );
-	mTouchVel		= mTouchThrowVel;
+	//mTouchThrowVel	= ( averageTouchPos - mTouchPos );
+	//mTouchVel		= mTouchThrowVel;
 	mTouchPos		= averageTouchPos;
 	
 	mPinchScale		= event.getScale();
 	
-	mArcball.mouseDrag( averageTouchPos );
+	//mArcball.mouseDrag( averageTouchPos );
     return false;
 }
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
 	std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
-	if( mCamDistPinchOffset > 4.0f ){
+	if( mCamDistPinchOffset > 4.4f ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
 			mState.setSelectedNode( selected->mParentNode );
@@ -357,12 +359,6 @@ void KeplerApp::initTextures()
 	mLoadingTex			= loadImage( loadResource( "loading.jpg" ) );
 	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
 	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
-	mPlayTex			= loadImage( loadResource( "play.png" ) );
-	mPauseTex			= loadImage( loadResource( "pause.png" ) );
-	mForwardTex			= loadImage( loadResource( "forward.png" ) );
-	mBackwardTex		= loadImage( loadResource( "backward.png" ) );
-	mDebugTex			= loadImage( loadResource( "debug.png" ) );
-	mDebugOnTex			= loadImage( loadResource( "debugOn.png" ) );
 	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
 	mStarTex			= loadImage( loadResource( "star.png" ) );
 	mStarAlternateTex	= loadImage( loadResource( "starAlternate.png" ) );
@@ -371,17 +367,23 @@ void KeplerApp::initTextures()
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
 	mParamsTex			= gl::Texture( 768, 75 );
-	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
-	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "21.jpg" ) ) ) );
-	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "31.jpg" ) ) ) );
-	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "41.jpg" ) ) ) );
-	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "51.jpg" ) ) ) );
-	mPlanetsTex.push_back( new gl::Texture( loadImage( loadResource( "rings.png" ) ) ) );
-	mCloudsTex.push_back( new gl::Texture( loadImage( loadResource( "clouds1.png" ) ) ) );
-	mCloudsTex.push_back( new gl::Texture( loadImage( loadResource( "clouds2.png" ) ) ) );
-	mCloudsTex.push_back( new gl::Texture( loadImage( loadResource( "clouds3.png" ) ) ) );
-	mCloudsTex.push_back( new gl::Texture( loadImage( loadResource( "clouds4.png" ) ) ) );
-	mCloudsTex.push_back( new gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "play.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "pause.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "prev.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "next.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debug.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOn.png" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "21.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "31.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "41.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "51.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "rings.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds1.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds2.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds3.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds4.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
 	
 }
 
@@ -610,9 +612,14 @@ void KeplerApp::updatePlayhead()
 		mCurrentTrackPlayheadTime	= mIpodPlayer.getPlayheadTime();
 		ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
 		Node* selectedNode = mState.getSelectedNode();
-		
-		if( selectedNode != NULL ){
-			ipod::TrackRef selectedTrack = selectedNode->mTrack;
+		// FIXME: Whats the alternative to this method?
+		NodeTrack *scaryCastNode = (NodeTrack*)selectedNode;
+
+
+		if( scaryCastNode != NULL ){
+			ipod::TrackRef selectedTrack = scaryCastNode->mTrack;
+			mPlayheadPer = mCurrentTrackPlayheadTime/scaryCastNode->mTrackLength;
+			
 			if( selectedTrack != NULL && selectedTrack->getItemId() == playingTrack->getItemId() ){
 				/* update orbit line */
 			}
@@ -640,7 +647,7 @@ void KeplerApp::draw()
 		gl::rotate( mMatrix );
 		gl::color( Color( 1.0f, 1.0f, 1.0f ) );
 		mSkyDome.enableAndBind();
-		gl::drawSphere( Vec3f::zero(), 2000.0f, 64 );
+		gl::drawSphere( Vec3f::zero(), 990.0f, 64 );
 		gl::popModelView();
 		
 		
@@ -742,7 +749,7 @@ void KeplerApp::draw()
 		gl::enableAlphaBlending();
 		mUiLayer.draw( mPanelUpTex, mPanelDownTex );
 		mBreadcrumbs.draw( mUiLayer.getPanelYPos() + 5.0f );
-		mPlayControls.draw( mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex, mUiLayer.getPanelYPos() + mBreadcrumbs.getHeight() + 10.0f );
+		mPlayControls.draw( mButtonsTex, mUiLayer.getPanelYPos() + mBreadcrumbs.getHeight() + 10.0f, mPlayheadPer );
 		mState.draw( mFont );
 		
 		//drawInfoPanel();

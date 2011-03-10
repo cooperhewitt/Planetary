@@ -17,7 +17,8 @@ using namespace std;
 class PlayControls {
 public:
 
-	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, DEBUG };	
+	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, DEBUG };
+	enum ButtonTexId { TEX_PLAY, TEX_PAUSE, TEX_PREV, TEX_NEXT, TEX_DEBUG, TEX_DEBUGON };
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState )
 	{
@@ -86,7 +87,7 @@ public:
 		return mIsPlaying;
 	}
 	
-	void draw( const gl::Texture &play, const gl::Texture &pause, const gl::Texture &forward, const gl::Texture &backward, const gl::Texture &debug, const gl::Texture &debugOn, float y )
+	void draw( const vector<gl::Texture> &texs, float y, float playheadPer )
 	{
 		prevDrawY = y;
 		
@@ -98,13 +99,25 @@ public:
 		
 		float bWidth = 40.0f;
 		float bHeight = 30.0f;
+	
 
+		// TODO: make these members?
 		float x = 18.0f;
 		Rectf prevButton( x,				 y+7, x + bWidth,		 y+7+bHeight );
 		Rectf playButton( x + bWidth,		 y+7, x + bWidth * 2.0f, y+7+bHeight );
 		Rectf nextButton( x + bWidth * 2.0f, y+7, x + bWidth * 3.0f, y+7+bHeight );
 		Rectf debugButton( app::getWindowWidth() - x - 60.0f, y+7, app::getWindowWidth() - x, y+7+bHeight );
 		
+		float sliderWidth		= 400.0f;
+		float sliderHeight		= 15.0f;
+		float halfSliderWidth	= sliderWidth * 0.5f;
+		float windowHalfWidth	= app::getWindowWidth() * 0.5f;
+		float x1 = windowHalfWidth - halfSliderWidth;
+		float x2 = windowHalfWidth + halfSliderWidth;
+		float x3 = x1 + sliderWidth * playheadPer;
+		Rectf playheadSliderBg(  x1,	 y+14, x2,		y+14+sliderHeight );
+		Rectf playheadSliderBar( x1 + 1, y+15, x3 - 1,  y+13+sliderHeight );
+						
 		touchRects.push_back( prevButton );
 		touchTypes.push_back( PREVIOUS_TRACK );
 		touchRects.push_back( playButton );
@@ -118,30 +131,29 @@ public:
 		Color blue( 0.2f, 0.2f, 0.5f );
 
 		gl::color( lastTouchedType == PREVIOUS_TRACK ? yellow : Color::white() );
-		backward.enableAndBind();
+		texs[ TEX_PREV ].enableAndBind();
 		gl::drawSolidRect( prevButton );
 		
 		gl::color( lastTouchedType == PLAY_PAUSE ? yellow : Color::white() );
-		if (mIsPlaying) {
-			pause.enableAndBind();
-		}
-		else {
-			play.enableAndBind();
-		}
+		if (mIsPlaying) texs[ TEX_PAUSE ].enableAndBind();
+		else			texs[ TEX_PLAY ].enableAndBind();
 		gl::drawSolidRect( playButton );
 		
 		gl::color( lastTouchedType == NEXT_TRACK ? yellow : Color::white() );
-		forward.enableAndBind();
+		texs[ TEX_NEXT ].enableAndBind();
 		gl::drawSolidRect( nextButton );
 		
-		
 		gl::color( lastTouchedType == DEBUG ? yellow : Color::white() );
-		if( G_DEBUG ){
-			debugOn.enableAndBind();
-		} else {
-			debug.enableAndBind();
-		}
+		if( G_DEBUG )	texs[ TEX_DEBUGON ].enableAndBind();
+		else			texs[ TEX_DEBUG ].enableAndBind();
 		gl::drawSolidRect( debugButton );
+		
+		glDisable( GL_TEXTURE_2D );
+		gl::color( ColorA( 0.1f, 0.2f, 0.5f, 0.25f ) );
+		gl::drawSolidRect( playheadSliderBg );
+		
+		gl::color( ColorA( 0.3f, 0.4f, 1.0f, 1.0f ) );
+		gl::drawSolidRect( playheadSliderBar );
 	}
 	
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)

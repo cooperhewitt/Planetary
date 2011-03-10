@@ -22,8 +22,8 @@
 		E1276241132314EB00E1FC3F /* panelUp.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276240132314EB00E1FC3F /* panelUp.png */; };
 		E127628F13233F1F00E1FC3F /* atmosphere.png in Resources */ = {isa = PBXBuildFile; fileRef = E127628E13233F1F00E1FC3F /* atmosphere.png */; };
 		E12765A31325B74700E1FC3F /* loading.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E12765A21325B74700E1FC3F /* loading.jpg */; };
-		E127665F1325E49F00E1FC3F /* backward.png in Resources */ = {isa = PBXBuildFile; fileRef = E127665C1325E49F00E1FC3F /* backward.png */; };
-		E12766601325E49F00E1FC3F /* forward.png in Resources */ = {isa = PBXBuildFile; fileRef = E127665D1325E49F00E1FC3F /* forward.png */; };
+		E127665F1325E49F00E1FC3F /* prev.png in Resources */ = {isa = PBXBuildFile; fileRef = E127665C1325E49F00E1FC3F /* prev.png */; };
+		E12766601325E49F00E1FC3F /* next.png in Resources */ = {isa = PBXBuildFile; fileRef = E127665D1325E49F00E1FC3F /* next.png */; };
 		E12766611325E49F00E1FC3F /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = E127665E1325E49F00E1FC3F /* play.png */; };
 		E12768231326275C00E1FC3F /* panelDown.png in Resources */ = {isa = PBXBuildFile; fileRef = E12768221326275C00E1FC3F /* panelDown.png */; };
 		E12769841326E18A00E1FC3F /* 11.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E127697A1326E18A00E1FC3F /* 11.jpg */; };
@@ -83,8 +83,8 @@
 		E1276240132314EB00E1FC3F /* panelUp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = panelUp.png; path = ../resources/ui/panelUp.png; sourceTree = SOURCE_ROOT; };
 		E127628E13233F1F00E1FC3F /* atmosphere.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = atmosphere.png; path = ../resources/atmosphere.png; sourceTree = SOURCE_ROOT; };
 		E12765A21325B74700E1FC3F /* loading.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = loading.jpg; path = ../resources/loading.jpg; sourceTree = SOURCE_ROOT; };
-		E127665C1325E49F00E1FC3F /* backward.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = backward.png; path = ../resources/ui/backward.png; sourceTree = SOURCE_ROOT; };
-		E127665D1325E49F00E1FC3F /* forward.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = forward.png; path = ../resources/ui/forward.png; sourceTree = SOURCE_ROOT; };
+		E127665C1325E49F00E1FC3F /* prev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = prev.png; path = ../resources/ui/prev.png; sourceTree = SOURCE_ROOT; };
+		E127665D1325E49F00E1FC3F /* next.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = next.png; path = ../resources/ui/next.png; sourceTree = SOURCE_ROOT; };
 		E127665E1325E49F00E1FC3F /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = play.png; path = ../resources/ui/play.png; sourceTree = SOURCE_ROOT; };
 		E12768221326275C00E1FC3F /* panelDown.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = panelDown.png; path = ../resources/ui/panelDown.png; sourceTree = SOURCE_ROOT; };
 		E127697A1326E18A00E1FC3F /* 11.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 11.jpg; sourceTree = "<group>"; };
@@ -261,8 +261,8 @@
 				E1276DED132812FD00E1FC3F /* debugOn.png */,
 				E1276DE71328117E00E1FC3F /* debug.png */,
 				E1276B12132716D300E1FC3F /* pause.png */,
-				E127665C1325E49F00E1FC3F /* backward.png */,
-				E127665D1325E49F00E1FC3F /* forward.png */,
+				E127665C1325E49F00E1FC3F /* prev.png */,
+				E127665D1325E49F00E1FC3F /* next.png */,
 				E127665E1325E49F00E1FC3F /* play.png */,
 				E1276240132314EB00E1FC3F /* panelUp.png */,
 				E12768221326275C00E1FC3F /* panelDown.png */,
@@ -484,8 +484,8 @@
 				E1276241132314EB00E1FC3F /* panelUp.png in Resources */,
 				E127628F13233F1F00E1FC3F /* atmosphere.png in Resources */,
 				E12765A31325B74700E1FC3F /* loading.jpg in Resources */,
-				E127665F1325E49F00E1FC3F /* backward.png in Resources */,
-				E12766601325E49F00E1FC3F /* forward.png in Resources */,
+				E127665F1325E49F00E1FC3F /* prev.png in Resources */,
+				E12766601325E49F00E1FC3F /* next.png in Resources */,
 				E12766611325E49F00E1FC3F /* play.png in Resources */,
 				E12768231326275C00E1FC3F /* panelDown.png in Resources */,
 				E12769841326E18A00E1FC3F /* 11.jpg in Resources */,
