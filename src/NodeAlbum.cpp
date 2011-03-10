@@ -163,7 +163,7 @@ void NodeAlbum::select()
 			string name			= track->getTitle();
 			std::cout << "trackname = " << name << std::endl;
 			NodeTrack *newNode	= new NodeTrack( this, i, mFont, name );
-			newNode->setIPodPlayer( mPlayer );
+			//newNode->setIPodPlayer( mPlayer );
 			mChildNodes.push_back( newNode );
 			newNode->setData( track, mAlbum );
 			i++;
