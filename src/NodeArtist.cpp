@@ -112,7 +112,6 @@ void NodeArtist::select()
 			PlaylistRef album	= *it;
 			string name			= album->getAlbumTitle();
 			NodeAlbum *newNode = new NodeAlbum( this, i, mFont, name );
-			newNode->setIPodPlayer( mPlayer );
 			mChildNodes.push_back( newNode );
 			newNode->setData( album );
 			i++;

@@ -71,11 +71,6 @@ void Node::initWithParent()
 	mOrbitPeriod		= Rand::randFloat( 25.0f, 150.0f );
 }
 
-void Node::setIPodPlayer( ci::ipod::Player *player )
-{
-	mPlayer = player;
-}
-
 void Node::createNameTexture()
 {
 	TextLayout layout;

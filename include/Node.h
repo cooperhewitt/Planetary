@@ -29,7 +29,6 @@ class Node {
 	// METHODS
 	void				init();
 	void				initWithParent();
-	void				setIPodPlayer( ci::ipod::Player *player );
 	void				createNameTexture();
 	virtual void		update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	virtual void		updateGraphics( const ci::CameraPersp &cam );
@@ -49,7 +48,6 @@ class Node {
 	void				deselect();
 	
 	
-	ci::ipod::Player	*mPlayer;
 	ci::ipod::PlaylistRef mAlbum;
 	int					mCurrentTrackIndex;
 	ci::ipod::TrackRef  mTrack;

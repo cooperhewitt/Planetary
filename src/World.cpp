@@ -34,7 +34,6 @@ void World::initNodes( Player *player, const Font &font )
 		PlaylistRef artist	= *it;
 		string name			= artist->getArtistName();
 		NodeArtist *newNode = new NodeArtist( NULL, i, font, name );
-		newNode->setIPodPlayer( player );
 		mNodes.push_back( newNode );
 	}
 }
