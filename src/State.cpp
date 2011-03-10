@@ -134,6 +134,11 @@ vector<string> State::getHierarchy()
 	return hierarchy;
 }
 
+NodeTrack* State::getPlayingNode()
+{
+	return mPlayingNode;
+}
+
 void State::setPlayingNode(NodeTrack* node)
 {
 	if (mPlayingNode == node) {
@@ -146,5 +151,6 @@ void State::setPlayingNode(NodeTrack* node)
 	if (mPlayingNode != NULL) {
 		mPlayingNode->setPlaying(true);
 	}
+	mCallbacksNodePlaying.call(mPlayingNode);
 }
 
