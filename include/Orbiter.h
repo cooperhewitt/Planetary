@@ -11,6 +11,9 @@
 
 #include "NodeTrack.h"
 #include "cinder/Vector.h"
+#include <vector>
+
+using std::vector;
 
 class NodeTrack;
 
@@ -18,12 +21,14 @@ class Orbiter
 {
   public:
 	Orbiter( NodeTrack *parent, int index );
-	void update( const ci::Vec3f &pos );
+	void update( const ci::Matrix44f &mat, const ci::Vec3f &pos );
 	void draw( const ci::Matrix44f &mat, const ci::Vec3f &pos, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	
   private:
 	NodeTrack *mParent;
 	ci::Vec3f mPos;
+	int mTailLength;
+	std::vector<ci::Vec3f> mTailPos;
 	ci::Vec3f mVel;
 	ci::Vec3f mAcc;
 	ci::Vec3f mAxis;

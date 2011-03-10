@@ -34,7 +34,7 @@ bool G_DEBUG			= false;
 GLfloat mat_ambient[]	= { 0.02, 0.02, 0.05, 1.0 };
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 GLfloat mat_specular[]	= { 1.0, 1.0, 1.0, 1.0 };
-GLfloat mat_shininess[]	= { 100.0 };
+GLfloat mat_shininess[]	= { 50.0 };
 
 float easeInOutQuad( double t, float b, float c, double d );
 Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
@@ -246,10 +246,10 @@ void KeplerApp::touchesBegan( TouchEvent event )
 	mIsDragging = false;
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) 
 	{
-		mTouchPos		= touchIt->getPos();
-		mTouchThrowVel	= Vec2f::zero();
-		mIsDragging		= false;
-		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.4f )
+		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.2f )
+			mTouchPos		= touchIt->getPos();
+			mTouchThrowVel	= Vec2f::zero();
+			
 			mArcball.mouseDown( Vec2f( mTouchPos.x, mTouchPos.y ) );
 	}
 }
@@ -259,12 +259,11 @@ void KeplerApp::touchesMoved( TouchEvent event )
 	mIsDragging = true;
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt )
 	{
-		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.4f ){
+		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.2f ){
 			mTouchThrowVel	= ( touchIt->getPos() - mTouchPos );
 			mTouchVel		= mTouchThrowVel;
 			mTouchPos		= touchIt->getPos();
-			if( event.getTouches().size() == 1 )
-				mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
+			mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
 		}
 	}
 }
@@ -273,7 +272,7 @@ void KeplerApp::touchesEnded( TouchEvent event )
 {
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt )
 	{
-		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.4f ){
+		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.2f ){
 			mTouchPos = touchIt->getPos();
 			if( ! mUiLayer.getShowWheel() && ! mIsDragging ){
 				float u			= mTouchPos.x / (float) getWindowWidth();
@@ -300,7 +299,6 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 	averageTouchPos /= touches.size();
 	mTouchPos = averageTouchPos;
 	
-	//mArcball.mouseDown( mTouchPos );
     return false;
 }
 
@@ -327,8 +325,6 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	mTouchPos		= averageTouchPos;
 	
 	mPinchScale		= event.getScale();
-	
-	//mArcball.mouseDrag( averageTouchPos );
     return false;
 }
 
@@ -466,6 +462,7 @@ bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 	int level = event.getLevel();
 	if( level == G_HOME_LEVEL ){				// BACK TO HOME
 		mUiLayer.setShowWheel( !mUiLayer.getShowWheel() );
+		if( mUiLayer.getShowWheel() ) mFovDest = 130.0f;
 		mWorld.deselectAllNodes();
 		mState.setSelectedNode( NULL );
 		mState.setAlphaChar( ' ' );
@@ -578,18 +575,20 @@ void KeplerApp::updateCamera()
 	}
 	
 	// UPDATE FOV
-	if( mUiLayer.getShowWheel() ){
-		mFovDest = 130.0f;
-	}
+
 	
-	mFovDest = constrain( mFovDest, 75.0f, 130.0f );
+	mFovDest = constrain( mFovDest, 75.0f, 135.0f );
 	mFov -= ( mFov - mFovDest ) * 0.4f;
 	
-	if( mFovDest == 130.0f && ! mUiLayer.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
+	if( mFovDest >= 130.0f && ! mUiLayer.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
 		mUiLayer.setShowWheel( true );
-		mWorld.deselectAllNodes();
-		mState.setSelectedNode( NULL );
-		mState.setAlphaChar( ' ' );
+		//mWorld.deselectAllNodes();
+		//mState.setSelectedNode( NULL );
+		//mState.setAlphaChar( ' ' );
+	} else if( mFovDest < 130.0f ){
+		if( mUiLayer.getShowWheel() )
+			mState.setAlphaChar( mState.getAlphaChar() );
+		mUiLayer.setShowWheel( false );
 	}
 	
 	double p		= constrain( getElapsedSeconds()-mTime, 0.0, G_DURATION );
@@ -677,30 +676,28 @@ void KeplerApp::draw()
 			glEnable( GL_COLOR_MATERIAL );
 			glShadeModel( GL_SMOOTH );
 						
-			glMaterialfv( GL_FRONT, GL_AMBIENT, mat_ambient );
+			//glMaterialfv( GL_FRONT, GL_AMBIENT, mat_ambient );
 			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );
-			//glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular );
-			//glMaterialfv( GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess );
+			glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular );
+			glMaterialfv( GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess );
 			
 			if( albumNode ){
 				// LIGHT FROM ALBUM
 				glEnable( GL_LIGHT0 );
 				Vec3f albumLightPos		= albumNode->mTransPos;
 				GLfloat albumLight[]	= { albumLightPos.x, albumLightPos.y, albumLightPos.z, 1.0f };
-				Color albumDiffuse		= albumNode->mColor;
 				glLightfv( GL_LIGHT0, GL_POSITION, albumLight );
-				glLightfv( GL_LIGHT0, GL_DIFFUSE, albumDiffuse );
-			//	glLightfv( GL_LIGHT0, GL_SPECULAR, albumDiffuse );
+				glLightfv( GL_LIGHT0, GL_DIFFUSE, albumNode->mGlowColor );
+				glLightfv( GL_LIGHT0, GL_SPECULAR, Color::white() );
 			}
 			
 			// LIGHT FROM ARTIST
 			glEnable( GL_LIGHT1 );
 			Vec3f artistLightPos	= artistNode->mTransPos;
-			GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
-			Color artistDiffuse		= artistNode->mColor;
+			GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 0.35f };
 			glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT1, GL_DIFFUSE, artistDiffuse );
-			//glLightfv( GL_LIGHT1, GL_SPECULAR, artistDiffuse );
+			glLightfv( GL_LIGHT1, GL_DIFFUSE, artistNode->mGlowColor );
+			//glLightfv( GL_LIGHT1, GL_SPECULAR, Color::white() );
 				
 	// PLANETS
 			mWorld.drawPlanets( mAccelMatrix, mPlanetsTex );

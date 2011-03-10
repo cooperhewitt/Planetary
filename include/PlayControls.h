@@ -151,7 +151,7 @@ public:
 		gl::color( ColorA( 0.1f, 0.2f, 0.5f, 0.25f ) );
 		gl::drawSolidRect( playheadSliderBg );
 		
-		gl::color( ColorA( 0.3f, 0.4f, 1.0f, 1.0f ) );
+		gl::color( ColorA( 0.4353f, 0.7647f, 0.9176f, 1.0f ) );
 		gl::drawSolidRect( playheadSliderBar );
 	}
 	

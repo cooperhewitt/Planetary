@@ -45,8 +45,9 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mTrackLength	= (*mAlbum)[mIndex]->getLength();
 	mPlayCount		= (*mAlbum)[mIndex]->getPlayCount();
 	mStarRating		= (*mAlbum)[mIndex]->getStarRating();
+	
 	/*
-	for( int i=0; i<mStarRating * 10; i++ ){
+	for( int i=0; i<mStarRating * 4; i++ ){
 		mOrbiters.push_back( Orbiter( this, i ) );
 	}
 	*/
@@ -152,10 +153,10 @@ void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	}
 	mSphereIntRes = mSphereRes * 2 + 1;
 	
-	if( mStarRating > 0 ){
+	if( mStarRating > 0 && mIsSelected ){
 		vector<Orbiter>::iterator it;
 		for( it = mOrbiters.begin(); it != mOrbiters.end(); ++it ){
-			it->update( mTransPos );
+			it->update( mat, mTransPos );
 		}
 	}
 }
@@ -182,11 +183,10 @@ void NodeTrack::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Textu
 	planets[mPlanetTexIndex].enableAndBind();
 	gl::drawSphere( Vec3f::zero(), mRadius * 0.3735f, mSphereIntRes );
 	
-	drawOrbiters();
-	
 	gl::popModelView();
 	
-	
+    if( mIsSelected )
+		drawOrbiters();
 }
 
 void NodeTrack::drawClouds( const Matrix44f &accelMatrix, const vector<gl::Texture> &clouds )
