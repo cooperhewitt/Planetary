@@ -759,7 +759,7 @@ void KeplerApp::setParamsTex()
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	
 	std::cout << "==================================================================" << std::endl;
-	console() << "track changed!" << endl;
+	console() << "track changed!" << std::endl;
 
 	if (player->getPlayState() == ipod::Player::StatePlaying) {
 		
