@@ -108,12 +108,11 @@ public:
 		Rectf nextButton( x + bWidth * 2.0f, y+7, x + bWidth * 3.0f, y+7+bHeight );
 		Rectf debugButton( app::getWindowWidth() - x - 60.0f, y+7, app::getWindowWidth() - x, y+7+bHeight );
 		
-		float sliderWidth		= 400.0f;
+		float sliderWidth		= 200.0f;
 		float sliderHeight		= 15.0f;
-		float halfSliderWidth	= sliderWidth * 0.5f;
 		float windowHalfWidth	= app::getWindowWidth() * 0.5f;
-		float x1 = windowHalfWidth - halfSliderWidth;
-		float x2 = windowHalfWidth + halfSliderWidth;
+		float x1 = windowHalfWidth - sliderWidth;
+		float x2 = windowHalfWidth;
 		float x3 = x1 + sliderWidth * playheadPer;
 		Rectf playheadSliderBg(  x1,	 y+14, x2,		y+14+sliderHeight );
 		Rectf playheadSliderBar( x1 + 1, y+15, x3 - 1,  y+13+sliderHeight );

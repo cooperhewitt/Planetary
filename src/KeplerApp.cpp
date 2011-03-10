@@ -608,22 +608,12 @@ void KeplerApp::updateCamera()
 
 void KeplerApp::updatePlayhead()
 {
-	if( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
+	Node *currentlyPlayingNode = mState.getPlayingNode();
+	NodeTrack *currentlyPlayingNodeTrack = (NodeTrack*)currentlyPlayingNode;
+	//if( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
+	if( currentlyPlayingNodeTrack ){
 		mCurrentTrackPlayheadTime	= mIpodPlayer.getPlayheadTime();
-		ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
-		Node* selectedNode = mState.getSelectedNode();
-		// FIXME: Whats the alternative to this method?
-		NodeTrack *scaryCastNode = (NodeTrack*)selectedNode;
-
-
-		if( scaryCastNode != NULL ){
-			ipod::TrackRef selectedTrack = scaryCastNode->mTrack;
-			mPlayheadPer = mCurrentTrackPlayheadTime/scaryCastNode->mTrackLength;
-			
-			if( selectedTrack != NULL && selectedTrack->getItemId() == playingTrack->getItemId() ){
-				/* update orbit line */
-			}
-		}
+		mPlayheadPer = mCurrentTrackPlayheadTime/currentlyPlayingNodeTrack->mTrackLength;
 	}
 }
 

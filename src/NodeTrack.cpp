@@ -20,7 +20,7 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeTrack::NodeTrack( Node *parent, int index, int numTracks, const Font &font, std::string name )
+NodeTrack::NodeTrack( Node *parent, int index, const Font &font, std::string name )
 	: Node( parent, index, font, name )
 {	
 	mIsHighlighted	= true;
@@ -28,11 +28,13 @@ NodeTrack::NodeTrack( Node *parent, int index, int numTracks, const Font &font, 
 	//mRadius			*= 0.75f;
 	mIsPlaying		= false;
 	
-	mNumTracks		= numTracks;
-	float invTrackPer = 1.0f/(float)mNumTracks;
+	float invTrackPer = 1.0f/(float)mParentNode->mNumTracks;
 	float trackNumPer = (float)mIndex * invTrackPer;
 	
-	mOrbitRadiusDest = ( mParentNode->mRadius * 1.5f ) * trackNumPer + ( mParentNode->mRadius * 0.5f ) + Rand::randFloat( mParentNode->mRadius * 2.0f * invTrackPer );
+	float minAmt		= mParentNode->mRadius * 0.5f;
+	float maxAmt		= mParentNode->mRadius * 2.0f;
+	float deltaAmt		= maxAmt - minAmt;
+	mOrbitRadiusDest	= minAmt + deltaAmt * trackNumPer + Rand::randFloat( mParentNode->mRadius * 2.0f * invTrackPer );
 	
 }
 

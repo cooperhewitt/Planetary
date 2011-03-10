@@ -32,19 +32,26 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string nam
 	mColor			= Color( CM_HSV, hue, sat * 0.2f, 1.0f );
 	mGlowColor		= Color( CM_HSV, hue, sat + 0.3f, 1.0f );
 	
+	float invAlbumPer = 1.0f/(float)mParentNode->mNumAlbums;
+	float albumNumPer = (float)mIndex * invAlbumPer;
 	
-	
-	mOrbitRadiusDest = Rand::randFloat( mParentNode->mRadius * 0.5f, mParentNode->mRadius * 1.5f );
+	float minAmt		= mParentNode->mRadius * 0.5f;
+	float maxAmt		= mParentNode->mRadius * 2.0f;
+	float deltaAmt		= maxAmt - minAmt;
+	mOrbitRadiusDest	= minAmt + deltaAmt * albumNumPer + Rand::randFloat( mParentNode->mRadius * 2.0f * invAlbumPer );
+
 	mIdealCameraDist = mRadius * 2.0f;
 	
 	mSphere			= Sphere( mPos, mRadius * 1.8f );
 	mHitSphere		= Sphere( mPos, 0.2f );
+	
 }
 
 
 void NodeAlbum::setData( PlaylistRef album )
 {
 	mAlbum				= album;
+	mNumTracks			= mAlbum->size();
 	mCurrentTrackIndex	= 0;
 	mHighestPlayCount	= 0;
 	mLowestPlayCount	= 10000;
@@ -155,12 +162,14 @@ void NodeAlbum::select()
 			TrackRef track		= *it;
 			string name			= track->getTitle();
 			std::cout << "trackname = " << name << std::endl;
-			NodeTrack *newNode	= new NodeTrack( this, i, mAlbum->size(), mFont, name );
+			NodeTrack *newNode	= new NodeTrack( this, i, mFont, name );
 			newNode->setIPodPlayer( mPlayer );
 			mChildNodes.push_back( newNode );
 			newNode->setData( track, mAlbum );
 			i++;
 		}
+		
+		
 	}	
 	Node::select();
 }

@@ -106,6 +106,7 @@ void NodeArtist::select()
 {
 	if (!mIsSelected) {
 		vector<ipod::PlaylistRef> albumsBySelectedArtist = getAlbumsWithArtist( mName );
+		mNumAlbums = albumsBySelectedArtist.size();
 		
 		int i=0;
 		for(vector<PlaylistRef>::iterator it = albumsBySelectedArtist.begin(); it != albumsBySelectedArtist.end(); ++it){
@@ -117,6 +118,7 @@ void NodeArtist::select()
 			newNode->setData( album );
 			i++;
 		}
+		
 	}
 	Node::select();
 }

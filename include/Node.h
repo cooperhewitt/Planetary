@@ -53,6 +53,8 @@ class Node {
 	ci::ipod::PlaylistRef mAlbum;
 	int					mCurrentTrackIndex;
 	ci::ipod::TrackRef  mTrack;
+	int					mNumAlbums;
+	int					mNumTracks;
 	
 	int					mGen;
 	int					mIndex;
