@@ -391,8 +391,17 @@ bool KeplerApp::onNodeSelected( Node *node )
 	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
 
 	if( node != NULL && node->mGen == G_TRACK_LEVEL ){
-		mIpodPlayer.play( node->mAlbum, node->mIndex );
+		if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
+			ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
+			if ( node->mTrack->getItemId() != playingTrack->getItemId() ) {
+				mIpodPlayer.play( node->mAlbum, node->mIndex );
+			}
+		}
+		else {
+			mIpodPlayer.play( node->mAlbum, node->mIndex );			
+		}
 	}
+	
 //	if( node ){
 //		if( node->mGen == G_ALBUM_LEVEL ){
 //			std::cout << "setting currentAlbum = " << node->mAlbum->getAlbumTitle() << std::endl;
