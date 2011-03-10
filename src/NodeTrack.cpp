@@ -26,7 +26,7 @@ NodeTrack::NodeTrack( Node *parent, int index, int numTracks, const Font &font, 
 	mIsHighlighted	= true;
 	mSphereRes		= 16;
 	//mRadius			*= 0.75f;
-	//mIsPlaying		= false;
+	mIsPlaying		= false;
 	
 	mNumTracks		= numTracks;
 	float invTrackPer = 1.0f/(float)mNumTracks;
@@ -231,6 +231,20 @@ void NodeTrack::drawRings( gl::Texture *tex )
 		tex->disable();
 		gl::popModelView();
 	}
+}
+
+void NodeTrack::drawOrbitRing()
+{
+
+	gl::pushModelView();
+	gl::translate( mParentNode->mTransPos );
+	gl::rotate( mMatrix );
+
+	if( mIsPlaying ) gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
+	else			 gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
+	gl::drawStrokedCircle( Vec2f::zero(), mOrbitRadius, 150 );
+
+	gl::popModelView();
 }
 
 void NodeTrack::drawOrbiters()

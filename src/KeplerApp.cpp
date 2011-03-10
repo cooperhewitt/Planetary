@@ -554,23 +554,22 @@ void KeplerApp::updateCamera()
 	mFovDest = constrain( mFovDest, 75.0f, 130.0f );
 	mFov -= ( mFov - mFovDest ) * 0.4f;
 	
-	/*
-	if( mFovDest == 130.0f && ! mUiLayer.getShowWheel() ){
+	
+	if( mFovDest == 130.0f && ! mUiLayer.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
 		mUiLayer.setShowWheel( true );
 		mWorld.deselectAllNodes();
 		mState.setSelectedNode( NULL );
 		mState.setAlphaChar( ' ' );
 	}
-	*/
 	
-	double p	= constrain( getElapsedSeconds()-mTime, 0.0, G_DURATION );
-	mCenter		= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, G_DURATION );
-	mCamDist	= easeInOutQuad( p, mCamDistFrom, mCamDistDest - mCamDistFrom, G_DURATION );
-	G_ZOOM		= easeInOutQuad( p, mZoomFrom, mZoomDest - mZoomFrom, G_DURATION );
+	double p		= constrain( getElapsedSeconds()-mTime, 0.0, G_DURATION );
+	mCenter			= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, G_DURATION );
+	mCamDist		= easeInOutQuad( p, mCamDistFrom, mCamDistDest - mCamDistFrom, G_DURATION );
+	G_ZOOM			= easeInOutQuad( p, mZoomFrom, mZoomDest - mZoomFrom, G_DURATION );
 	
-	Vec3f prevEye		= mEye;
-	mEye				= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist );
-	mCamVel				= mEye - prevEye;
+	Vec3f prevEye	= mEye;
+	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist );
+	mCamVel			= mEye - prevEye;
 	
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.0001f, 4000.0f );
 	mCam.lookAt( mEye, mCenter, mUp );
@@ -608,7 +607,7 @@ void KeplerApp::draw()
 		gl::enableDepthWrite();
 		gl::setMatrices( mCam );
 		
-		// DRAW SKYDOME
+	// DRAW SKYDOME
 		gl::pushModelView();
 		gl::rotate( mMatrix );
 		gl::color( Color( 1.0f, 1.0f, 1.0f ) );
@@ -628,7 +627,7 @@ void KeplerApp::draw()
 		gl::enableAdditiveBlending();
 		gl::enableDepthRead();
 		gl::disableDepthWrite();
-		mWorld.drawOrbitalRings();
+		mWorld.drawOrbitRings();
 		gl::disableDepthRead();
 		
 	// STARS
@@ -640,15 +639,8 @@ void KeplerApp::draw()
 		mDottedTex.enableAndBind();
 		mWorld.drawConstellation( mMatrix );
 		mDottedTex.disable();
-				
-		/*if( G_DEBUG ){
-			// VISUALIZE THE HIT AREA
-			glDisable( GL_TEXTURE_2D );
-			mWorld.drawSpheres();
-		}*/
 		
-		
-		// PLANETS
+	// PLANETS
 		Node *albumNode  = mState.getSelectedAlbumNode();
 		Node *artistNode = mState.getSelectedArtistNode();
 		if( artistNode ){
@@ -697,7 +689,6 @@ void KeplerApp::draw()
 			glDisable( GL_LIGHTING );
 			gl::disableDepthRead();
 		}
-		
 		
 	// ATMOSPHERE
 		mAtmosphereTex.enableAndBind();
@@ -855,7 +846,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 }
 
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
-{
+{	
 	std::cout << "onPlayerStateChanged()" << std::endl;
     switch( player->getPlayState() ){
         case ipod::Player::StatePlaying:

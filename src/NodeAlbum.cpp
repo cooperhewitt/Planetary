@@ -73,6 +73,9 @@ void NodeAlbum::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	mPosRel		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mPosRel;
 
+	if( mIsSelected ) mHitSphere.setRadius( 0.02f );
+	else mHitSphere.setRadius( 0.2f );
+
 	Node::update( mat, bbRight, bbUp );
 	
 	mVel		= mTransPos - mPosPrev;	
@@ -97,20 +100,20 @@ void NodeAlbum::drawStarGlow()
 	Node::drawStarGlow();
 }
 
-void NodeAlbum::drawOrbitalRings()
+void NodeAlbum::drawOrbitRing()
 {
-	if( mIsSelected ){
-		gl::pushModelView();
-		gl::translate( mTransPos );
-		gl::rotate( mMatrix );
-		for( vector<Node*>::iterator c = mChildNodes.begin(); c != mChildNodes.end(); ++c ){
-			float r = (*c)->mOrbitRadius;
-			if( (*c)->mIsPlaying ) gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
-			else gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
-			gl::drawStrokedCircle( Vec2f::zero(), r, 150 );
-		}
-		gl::popModelView();
-	}
+	gl::pushModelView();
+	gl::translate( mParentNode->mTransPos );
+	gl::rotate( mMatrix );
+	
+	if( mIsSelected )   gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
+	else				gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
+	
+	gl::drawStrokedCircle( Vec2f::zero(), mOrbitRadius, 150 );
+
+	gl::popModelView();
+	
+	Node::drawOrbitRing();
 }
 
 void NodeAlbum::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets )

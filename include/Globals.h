@@ -11,7 +11,7 @@
 
 static const double TWO_PI			= M_PI * 2.0;
 
-static const double G_DURATION				= 2.0;
+static const double G_DURATION		= 2.5;
 
 // TODO: enum for these?
 // TODO: move into State.h?

@@ -195,8 +195,11 @@ void Node::drawSphere()
 	}
 }
 
-void Node::drawOrbitalRings()
+void Node::drawOrbitRing()
 {
+	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->drawOrbitRing();
+	}
 }
 
 void Node::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets )

@@ -20,7 +20,7 @@ class NodeAlbum : public Node
 	void update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void drawStar();
 	void drawStarGlow();
-	void drawOrbitalRings();
+	void drawOrbitRing();
 	void drawPlanet( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> planets );
 	void drawClouds( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> clouds );
 	void drawRings( ci::gl::Texture *tex );
