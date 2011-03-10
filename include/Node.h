@@ -38,7 +38,7 @@ class Node {
 	void				drawName();
 	void				drawOrthoName( const ci::CameraPersp &cam );
 	void				drawSphere();
-	virtual void		drawOrbitalRings();
+	virtual void		drawOrbitRing();
 	virtual void		drawPlanet( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> planets );
 	virtual void		drawClouds( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> clouds );
 	virtual void		drawRings( ci::gl::Texture *tex );

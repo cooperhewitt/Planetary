@@ -128,10 +128,10 @@ void World::drawSpheres()
 	}
 }
 
-void World::drawOrbitalRings()
+void World::drawOrbitRings()
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawOrbitalRings();
+		(*it)->drawOrbitRing();
 	}
 }
 

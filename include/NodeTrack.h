@@ -23,6 +23,7 @@ class NodeTrack : public Node
 	void drawPlanet( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> planets );
 	void drawClouds( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> clouds );
 	void drawRings( ci::gl::Texture *tex );
+	void drawOrbitRing();
 	void drawOrbiters();
 	void drawAtmosphere();
 	void setPlaying(bool playing);

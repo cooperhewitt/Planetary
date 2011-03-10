@@ -34,7 +34,7 @@ class World {
 	void drawNames();
 	void drawOrthoNames( const ci::CameraPersp &cam );
 	void drawSpheres();
-	void drawOrbitalRings();
+	void drawOrbitRings();
 	void drawConstellation( const ci::Matrix44f &mat );
 	void buildConstellation();
 	void drawPlanets( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> planets );

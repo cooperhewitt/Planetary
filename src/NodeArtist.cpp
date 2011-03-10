@@ -39,6 +39,9 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string n
 void NodeArtist::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	mPos -= ( mPos - mPosDest ) * 0.1f;
+	if( mIsSelected ) mHitSphere.setRadius( 0.5f );
+	else mHitSphere.setRadius( 10.0f );
+	
 	
 	Node::update( mat, bbRight, bbUp );
 }
@@ -63,24 +66,9 @@ void NodeArtist::drawStarGlow()
 	Node::drawStarGlow();
 }
 
-void NodeArtist::drawOrbitalRings()
+void NodeArtist::drawOrbitRing()
 {
-	if( mIsSelected ){
-		gl::pushModelView();
-		gl::translate( mTransPos );
-		gl::rotate( mMatrix );
-		for( vector<Node*>::iterator c = mChildNodes.begin(); c != mChildNodes.end(); ++c ){
-			float r = (*c)->mOrbitRadius;
-			
-			gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
-			gl::drawStrokedCircle( Vec2f::zero(), r, 150 );
-		}
-		gl::popModelView();
-		
-		for( vector<Node*>::iterator c = mChildNodes.begin(); c != mChildNodes.end(); ++c ){
-			(*c)->drawOrbitalRings();
-		}
-	}
+	Node::drawOrbitRing();
 }
 
 void NodeArtist::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets )
