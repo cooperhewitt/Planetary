@@ -331,7 +331,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
 	std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
-	if( mCamDistPinchOffset > 4.4f ){
+	if( mCamDistPinchOffset > 4.2f ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
 			mState.setSelectedNode( selected->mParentNode );
@@ -678,26 +678,30 @@ void KeplerApp::draw()
 						
 			//glMaterialfv( GL_FRONT, GL_AMBIENT, mat_ambient );
 			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );
+			
+			
+			// LIGHT FROM ARTIST
+			glEnable( GL_LIGHT0 );
+			Vec3f artistLightPos	= artistNode->mTransPos;
+			GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
+			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
+			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor, 0.4f ) );
+			//glLightfv( GL_LIGHT0, GL_SPECULAR, Color::white() );
+			
+			
 			glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular );
 			glMaterialfv( GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess );
 			
 			if( albumNode ){
 				// LIGHT FROM ALBUM
-				glEnable( GL_LIGHT0 );
+				glEnable( GL_LIGHT1 );
 				Vec3f albumLightPos		= albumNode->mTransPos;
 				GLfloat albumLight[]	= { albumLightPos.x, albumLightPos.y, albumLightPos.z, 1.0f };
-				glLightfv( GL_LIGHT0, GL_POSITION, albumLight );
-				glLightfv( GL_LIGHT0, GL_DIFFUSE, albumNode->mGlowColor );
-				glLightfv( GL_LIGHT0, GL_SPECULAR, Color::white() );
+				glLightfv( GL_LIGHT1, GL_POSITION, albumLight );
+				glLightfv( GL_LIGHT1, GL_DIFFUSE, albumNode->mGlowColor );
+				glLightfv( GL_LIGHT1, GL_SPECULAR, Color::white() );
 			}
-			
-			// LIGHT FROM ARTIST
-			glEnable( GL_LIGHT1 );
-			Vec3f artistLightPos	= artistNode->mTransPos;
-			GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 0.35f };
-			glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT1, GL_DIFFUSE, artistNode->mGlowColor );
-			//glLightfv( GL_LIGHT1, GL_SPECULAR, Color::white() );
+		
 				
 	// PLANETS
 			mWorld.drawPlanets( mAccelMatrix, mPlanetsTex );
