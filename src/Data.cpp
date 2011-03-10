@@ -29,12 +29,12 @@ void Data::initArtists()
 	mArtists	= getArtists();
 }
 
-// TODO: make the # char select artists with a leading numeral in the name
 void Data::filterArtistsByAlpha( char c )
 {
 	mFilteredArtists.clear();
 	if( c != '#' ){
-		char cLower = static_cast<char> ( tolower ( c ) );
+		char cLower = static_cast<char> ( tolower( c ) );
+		char cUpper = static_cast<char> ( toupper( c ) );
 		
 		int index = 0;
 		for( vector<ci::ipod::PlaylistRef>::iterator it = mArtists.begin(); it != mArtists.end(); ++it ){
@@ -48,8 +48,7 @@ void Data::filterArtistsByAlpha( char c )
 				firstLetter = name[0];
 			}
 		
-			if( firstLetter == c || firstLetter == cLower ){
-				std::cout << name << std::endl;
+			if( firstLetter == cUpper || firstLetter == cLower ){
 				mFilteredArtists.push_back( index );
 			}
 			

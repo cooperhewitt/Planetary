@@ -33,6 +33,7 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 	
 	createNameTexture();
 	
+	mScreenPos			= Vec2f::zero();
 	mTransPos			= mPos;
 	mCamZVel			= 0.0f;
 	mStartAngle			= Rand::randFloat( TWO_PI );
@@ -63,7 +64,7 @@ void Node::init()
 void Node::initWithParent()
 {
 	mGen				= mParentNode->mGen + 1;
-	mRadius				= mParentNode->mRadius * 0.05f;
+	mRadius				= mParentNode->mRadius * 0.02f;
 	mPos				= mParentNode->mPos;
 	mPosPrev			= mParentNode->mPos;
 	mVel				= mParentNode->mVel;
@@ -162,24 +163,24 @@ void Node::drawName()
 	}
 }
 
-void Node::drawOrthoName( const CameraPersp &cam )
+void Node::drawOrthoName( const CameraPersp &cam, float pinchAlphaOffset )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
 		if( mIsSelected ){
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, mZoomPer ) );
+			gl::color( ColorA( 1.0f, 1.0f, 1.0f, mZoomPer * pinchAlphaOffset ) );
 		} else {
-			gl::color( ColorA( mColor, mZoomPer ) );
+			gl::color( ColorA( mColor, mZoomPer * pinchAlphaOffset ) );
 		}
 
 		
 		Vec2f offset = Vec2f( mSphereScreenRadius * 0.4f, -mNameTex.getHeight() * 0.5f );
-		Vec2f pos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() ) + offset;
+		mScreenPos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() ) + offset;
 
-		gl::draw( mNameTex, pos );
+		gl::draw( mNameTex, mScreenPos );
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrthoName( cam );
+		(*nodeIt)->drawOrthoName( cam, pinchAlphaOffset );
 	}
 }
 
@@ -237,7 +238,6 @@ void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix
 	if( mHitSphere.intersects( ray ) && mIsHighlighted && ! mIsSelected ){
 		std::cout << "HIT FOUND" << std::endl;
 		nodes.push_back( this );
-		
 	}
 	
 	vector<Node*>::iterator nodeIt;
@@ -246,24 +246,20 @@ void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix
 	}
 }
 
-/*
-void Node::checkForSphereIntersect( Node* &theNode, const Ray &ray, Matrix44f &mat )
+void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-	if( ! theNode ){
-		mHitSphere.setCenter( mat.transformPointAffine( mPos ) );
-
-		if( mHitSphere.intersects( ray ) && mIsHighlighted && ! mIsSelected ){
-			theNode			= this;
-			
-		} else {
-			vector<Node*>::iterator nodeIt;
-			for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-				(*nodeIt)->checkForSphereIntersect( theNode, ray, mat );
-			}
-		}
+	Rectf r = Rectf( mScreenPos.x, mScreenPos.y, mScreenPos.x + mNameTex.getWidth(), mScreenPos.y + mNameTex.getHeight() );
+	
+	if( r.contains( pos ) && mIsHighlighted && ! mIsSelected ){
+		std::cout << "HIT FOUND" << std::endl;
+		nodes.push_back( this );
+	}
+	
+	vector<Node*>::iterator nodeIt;
+	for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->checkForNameTouch( nodes, pos );
 	}
 }
-*/
 
 void Node::select()
 {

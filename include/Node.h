@@ -36,15 +36,15 @@ class Node {
 	virtual void		drawStar();
 	virtual void		drawStarGlow();
 	void				drawName();
-	void				drawOrthoName( const ci::CameraPersp &cam );
+	void				drawOrthoName( const ci::CameraPersp &cam, float pinchAlphaOffset );
 	void				drawSphere();
 	virtual void		drawOrbitRing();
 	virtual void		drawPlanet( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> planets );
 	virtual void		drawClouds( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> clouds );
 	virtual void		drawRings( ci::gl::Texture *tex );
 	virtual void		drawAtmosphere();
-	void				checkForSphereIntersect( vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
-//	void				checkForSphereIntersect( Node* &theNode, const ci::Ray &ray, ci::Matrix44f &mat );
+	void				checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
+	void				checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
 	virtual void		select();
 	void				deselect();
 	
@@ -63,6 +63,7 @@ class Node {
 	// POSITION/VELOCITY
 	ci::Vec3f			mPos;				// global position
 	ci::Vec3f			mTransPos;			// global position * mMatrix
+	ci::Vec2f			mScreenPos;			// screen position
 	ci::Vec3f			mPosPrev;			// previous global position
 	ci::Vec3f			mPosRel;			// relative position
 	ci::Vec3f			mVel;				// global velocity

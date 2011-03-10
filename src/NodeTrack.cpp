@@ -70,7 +70,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mGlowColor		= mColor;
 	mAtmosphereColor = mParentNode->mColor;
 	
-	mRadius			= mRadius * pow( normPlayCount + 0.5f, 2.0f );
+	mRadius			= mRadius * pow( normPlayCount + 0.25f, 2.0f );
 	mSphere			= Sphere( mPos, mRadius * 3.0f );
 	mHitSphere		= Sphere( mPos, 0.01f );
 	mIdealCameraDist = mRadius * 3.0f;
@@ -142,13 +142,13 @@ void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	mVel		= mTransPos - mPosPrev;	
 
 	if( mIsSelected ){
-		mSphereRes		-= ( mSphereRes - 33 ) * 0.05f;
+		mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
 		mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.05f;
 	} else {
-		mSphereRes		-= ( mSphereRes - 15 ) * 0.05f;
+		mSphereRes		-= ( mSphereRes - 7 ) * 0.1f;
 		mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.05f;
 	}
-
+	mSphereIntRes = mSphereRes * 2 + 1;
 	
 	if( mStarRating > 0 ){
 		vector<Orbiter>::iterator it;
@@ -177,7 +177,7 @@ void NodeTrack::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets 
 	gl::disableAlphaBlending();
 	gl::color( mColor );
 	planets[mPlanetTexIndex]->enableAndBind();
-	gl::drawSphere( Vec3f::zero(), mRadius * 0.3735f, (int)mSphereRes );
+	gl::drawSphere( Vec3f::zero(), mRadius * 0.3735f, mSphereIntRes );
 	
 	drawOrbiters();
 	
@@ -201,12 +201,12 @@ void NodeTrack::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
 		// if this node is selected, draw the shadow layer too
 		if( mIsSelected ){
 			gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha ) );
-			gl::drawSphere( Vec3f::zero(), mRadius * 0.38f, (int)mSphereRes );
+			gl::drawSphere( Vec3f::zero(), mRadius * 0.38f, mSphereIntRes );
 		}
 
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mColor, mCamDistAlpha ) );
-		gl::drawSphere( Vec3f::zero(), mRadius * 0.385f, (int)mSphereRes );
+		gl::drawSphere( Vec3f::zero(), mRadius * 0.385f, mSphereIntRes );
 		 
 		gl::popModelView();
 	}

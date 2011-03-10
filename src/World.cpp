@@ -57,16 +57,15 @@ void World::deselectAllNodes()
 		(*it)->mIsSelected = false;
 	}
 }
-/*
-void World::checkForSphereIntersect( Node* &theNode, const Ray &ray, Matrix44f &mat )
+
+void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
-			(*it)->checkForSphereIntersect( theNode, ray, mat );
+			(*it)->checkForNameTouch( nodes, pos );
 		}
 	}
 }
-*/
 
 void World::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix44f &mat )
 {
@@ -112,11 +111,11 @@ void World::drawNames()
 	}
 }
 
-void World::drawOrthoNames( const CameraPersp &cam )
+void World::drawOrthoNames( const CameraPersp &cam, float pinchAlphaOffset )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
-			(*it)->drawOrthoName( cam );
+			(*it)->drawOrthoName( cam, pinchAlphaOffset );
 		}
 	}
 }
@@ -191,15 +190,15 @@ void World::buildConstellation()
 	//mConstellationColors.clear();
 	
 	// CREATE DATA FOR CONSTELLATION
-	vector<float> distances;
+	vector<float> distances;	// used for tex coords of the dotted line
 	for( vector<int>::iterator it1 = mData->mFilteredArtists.begin(); it1 != mData->mFilteredArtists.end(); ++it1 ){
-		Node *child1 = mNodes[(*it1)];
+		Node *child1 = mNodes[*it1];
 		float shortestDist = 1000.0f;
 		Node *nearestChild;
 		
 		vector<int>::iterator it2 = it1;
 		for( ++it2; it2 != mData->mFilteredArtists.end(); ++it2 ) {
-			Node *child2 = mNodes[(*it2)];
+			Node *child2 = mNodes[*it2];
 			
 			Vec3f dirBetweenChildren = child1->mPos - child2->mPos;
 			float distBetweenChildren = dirBetweenChildren.length();

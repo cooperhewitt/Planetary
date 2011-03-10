@@ -36,6 +36,7 @@ class NodeTrack : public Node
 	int			mStarRating;
 	int			mNumTracks;
 	float		mSphereRes;
+	int			mSphereIntRes;
 	
 	int			mTotalVerts;
 	GLfloat		*mVerts;

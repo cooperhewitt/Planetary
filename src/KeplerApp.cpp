@@ -61,7 +61,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
 	bool			onPlayControlsButtonPressed ( PlayControls::PlayButton button );
 	bool			onNodeSelected( Node *node );
-	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat );
+	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos );
 	bool			onPlayerStateChanged( ipod::Player *player );
     bool			onPlayerTrackChanged( ipod::Player *player );
 	
@@ -94,6 +94,7 @@ class KeplerApp : public AppCocoaTouch {
 	Vec3f			mCamVel;
 	Vec3f			mCenterDest, mCenterFrom;
 	float			mCamDist, mCamDistDest, mCamDistFrom;
+	float			mCamDistPinchOffset, mCamDistPinchOffsetDest;
 	float			mZoomFrom, mZoomDest;
 	Arcball			mArcball;
 	Matrix44f		mMatrix;
@@ -110,13 +111,14 @@ class KeplerApp : public AppCocoaTouch {
 	Vec2f			mTouchThrowVel;
 	Vec2f			mTouchVel;
 	bool			mIsDragging;
-	bool			mIsPinching;
 	bool			onPinchBegan( PinchEvent event );
     bool			onPinchMoved( PinchEvent event );
     bool			onPinchEnded( PinchEvent event );
     vector<Ray>		mPinchRays;
     PinchRecognizer mPinchRecognizer;
 	float			mPinchScale;
+	float			mTimeSincePinchEnded;
+	float			mTimePinchEnded;
 
 	
 	
@@ -163,6 +165,8 @@ void KeplerApp::setup()
 	// CAMERA PERSP
 	mCamDist			= G_INIT_CAM_DIST;
 	mCamDistDest		= mCamDist;
+	mCamDistPinchOffset	= 1.0f;
+	mCamDistPinchOffsetDest = 1.0f;
 	mCamDistFrom		= mCamDist;
 	mEye				= Vec3f( 0.0f, 0.0f, mCamDist );
 	mCenter				= Vec3f::zero();
@@ -185,8 +189,9 @@ void KeplerApp::setup()
 	mTouchThrowVel		= Vec2f::zero();
 	mTouchVel			= Vec2f::zero();
 	mIsDragging			= false;
-	mIsPinching			= false;
 	mTime				= getElapsedSeconds();
+	mTimePinchEnded		= 0.0f;
+	mTimeSincePinchEnded = 0.0f;
 	mPinchRecognizer.init(this);
     mPinchRecognizer.registerBegan( this, &KeplerApp::onPinchBegan );
     mPinchRecognizer.registerMoved( this, &KeplerApp::onPinchMoved );
@@ -242,10 +247,9 @@ void KeplerApp::touchesBegan( TouchEvent event )
 		mTouchPos		= touchIt->getPos();
 		mTouchThrowVel	= Vec2f::zero();
 		mIsDragging		= false;
-		if( event.getTouches().size() == 1 && !mIsPinching )
+		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.4f )
 			mArcball.mouseDown( Vec2f( mTouchPos.x, mTouchPos.y ) );
 	}
-	mIsPinching = false;
 }
 
 void KeplerApp::touchesMoved( TouchEvent event )
@@ -253,7 +257,7 @@ void KeplerApp::touchesMoved( TouchEvent event )
 	mIsDragging = true;
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt )
 	{
-		if( event.getTouches().size() == 1 && !mIsPinching ){
+		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.4f ){
 			mTouchThrowVel	= ( touchIt->getPos() - mTouchPos );
 			mTouchVel		= mTouchThrowVel;
 			mTouchPos		= touchIt->getPos();
@@ -267,13 +271,13 @@ void KeplerApp::touchesEnded( TouchEvent event )
 {
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt )
 	{
-		if( event.getTouches().size() == 1 && !mIsPinching ){
+		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.4f ){
 			mTouchPos = touchIt->getPos();
 			if( ! mUiLayer.getShowWheel() && ! mIsDragging ){
 				float u			= mTouchPos.x / (float) getWindowWidth();
 				float v			= mTouchPos.y / (float) getWindowHeight();
 				Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
-				checkForNodeTouch( touchRay, mMatrix );
+				checkForNodeTouch( touchRay, mMatrix, mTouchPos );
 			}
 			mIsDragging = false;
 		}
@@ -283,7 +287,6 @@ void KeplerApp::touchesEnded( TouchEvent event )
 bool KeplerApp::onPinchBegan( PinchEvent event )
 {
 	mPinchScale = 1.0f;
-	mIsPinching = true;
     mPinchRays = event.getTouchRays( mCam );
 	
 	mTouchThrowVel	= Vec2f::zero();
@@ -302,7 +305,13 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 bool KeplerApp::onPinchMoved( PinchEvent event )
 {	
     mPinchRays = event.getTouchRays( mCam );
-	mFovDest += ( 1.0f - event.getScaleDelta() ) * 50.0f;
+	
+	if( G_ZOOM < G_ARTIST_LEVEL ){
+		mFovDest += ( 1.0f - event.getScaleDelta() ) * 50.0f;
+	} else {
+		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -1.5f + 1.0f;
+		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.25f, 4.1f );
+	}
 	
 	vector<TouchEvent::Touch> touches = event.getTouches();
 	Vec2f averageTouchPos;
@@ -323,14 +332,16 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
-	if( mPinchScale < 0.5 ){
+	std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
+	if( mCamDistPinchOffset > 4.0f ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
 			mState.setSelectedNode( selected->mParentNode );
 			mFovDest = 100.0f;
+			mCamDistPinchOffsetDest = 1.0f;
 		}
 	}
-	
+	mTimePinchEnded = getElapsedSeconds();
     mPinchRays.clear();
     return false;
 }
@@ -474,10 +485,11 @@ bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 	return false;
 }
 
-void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat )
+void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos )
 {
 	vector<Node*> nodes;
-	mWorld.checkForSphereIntersect( nodes, ray, mat );
+	//mWorld.checkForSphereIntersect( nodes, ray, mat );
+	mWorld.checkForNameTouch( nodes, pos );
 
 	if( nodes.size() > 0 ){
 		Node *nodeWithHighestGen = *nodes.begin();
@@ -506,6 +518,8 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat )
 
 void KeplerApp::update()
 {
+	mTimeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
+	
 	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.17f );
 	updateArcball();
 	mWorld.update( mMatrix, mBbRight, mBbUp );
@@ -522,11 +536,11 @@ void KeplerApp::update()
 void KeplerApp::updateArcball()
 {
 	if( mTouchThrowVel.length() > 10.0f && !mIsDragging ){
-		if( mTouchVel.length() > 1.0f ){
+		//if( mTouchVel.length() > 1.0f ){
 			//mTouchVel *= 0.99f;
 			mArcball.mouseDown( mTouchPos );
 			mArcball.mouseDrag( mTouchPos + mTouchVel );
-		}
+		//}
 	}
 	
 	if( G_DEBUG ){
@@ -540,9 +554,11 @@ void KeplerApp::updateArcball()
 
 void KeplerApp::updateCamera()
 {
+	mCamDistPinchOffset -= ( mCamDistPinchOffset - mCamDistPinchOffsetDest ) * 0.2f;
+	
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){
-		mCamDistDest	= selectedNode->mIdealCameraDist;
+		mCamDistDest	= selectedNode->mIdealCameraDist * mCamDistPinchOffset;
 		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
 		mZoomDest		= selectedNode->mGen;
 		
@@ -550,7 +566,7 @@ void KeplerApp::updateCamera()
 		//mCamDistFrom	+= selectedNode->mCamZVel;
 
 	} else {
-		mCamDistDest	= G_INIT_CAM_DIST;
+		mCamDistDest	= G_INIT_CAM_DIST * mCamDistPinchOffset;
 		mCenterDest		= mMatrix.transformPointAffine( Vec3f::zero() );
 
 		mZoomDest		= G_HOME_LEVEL;
@@ -566,7 +582,6 @@ void KeplerApp::updateCamera()
 	
 	mFovDest = constrain( mFovDest, 75.0f, 130.0f );
 	mFov -= ( mFov - mFovDest ) * 0.4f;
-	
 	
 	if( mFovDest == 130.0f && ! mUiLayer.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
 		mUiLayer.setShowWheel( true );
@@ -716,7 +731,8 @@ void KeplerApp::draw()
 		glEnable( GL_TEXTURE_2D );
 		gl::setMatricesWindow( getWindowSize() );
 		gl::enableAdditiveBlending();
-		mWorld.drawOrthoNames( mCam );
+		float pinchAlphaOffset = constrain( 1.0f - ( mCamDistPinchOffset - 3.0f ), 0.0f, 1.0f );
+		mWorld.drawOrthoNames( mCam, pinchAlphaOffset );
 		
 		
 		
