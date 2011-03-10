@@ -34,7 +34,7 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string nam
 	
 	
 	
-	mOrbitRadiusDest = Rand::randFloat( mParentNode->mRadius * 0.25f, mParentNode->mRadius * 1.5f );
+	mOrbitRadiusDest = Rand::randFloat( mParentNode->mRadius * 0.5f, mParentNode->mRadius * 1.5f );
 	mIdealCameraDist = mRadius * 2.0f;
 	
 	mSphere			= Sphere( mPos, mRadius * 1.8f );
@@ -116,7 +116,7 @@ void NodeAlbum::drawOrbitRing()
 	Node::drawOrbitRing();
 }
 
-void NodeAlbum::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets )
+void NodeAlbum::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Texture> &planets )
 {	
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
@@ -132,12 +132,12 @@ void NodeAlbum::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets 
 	Node::drawPlanet( accelMatrix, planets );
 }
 
-void NodeAlbum::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
+void NodeAlbum::drawClouds( const Matrix44f &accelMatrix, const vector<gl::Texture> &clouds )
 {
 	Node::drawClouds( accelMatrix, clouds );
 }
 
-void NodeAlbum::drawRings( gl::Texture *tex )
+void NodeAlbum::drawRings( const gl::Texture &tex )
 {
 	Node::drawRings( tex );
 }

@@ -37,9 +37,9 @@ class World {
 	void drawOrbitRings();
 	void drawConstellation( const ci::Matrix44f &mat );
 	void buildConstellation();
-	void drawPlanets( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> planets );
-	void drawClouds( ci::Matrix44f accelMatrix, std::vector< ci::gl::Texture*> clouds );
-	void drawRings( ci::gl::Texture *tex );
+	void drawPlanets( const ci::Matrix44f accelMatrix, const std::vector< ci::gl::Texture> &planets );
+	void drawClouds( const ci::Matrix44f accelMatrix, const std::vector< ci::gl::Texture> &clouds );
+	void drawRings( const ci::gl::Texture &tex );
 	void drawAtmospheres();
 	
 	Data *mData;

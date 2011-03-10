@@ -71,7 +71,7 @@ void NodeArtist::drawOrbitRing()
 	Node::drawOrbitRing();
 }
 
-void NodeArtist::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets )
+void NodeArtist::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Texture> &planets )
 {
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
@@ -87,12 +87,12 @@ void NodeArtist::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets
 	Node::drawPlanet( accelMatrix, planets );
 }
 
-void NodeArtist::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
+void NodeArtist::drawClouds( const Matrix44f &accelMatrix, const vector<gl::Texture> &clouds )
 {
 	Node::drawClouds( accelMatrix, clouds );
 }
 
-void NodeArtist::drawRings( gl::Texture *tex )
+void NodeArtist::drawRings( const gl::Texture &tex )
 {
 	Node::drawRings( tex );
 }

@@ -198,21 +198,21 @@ void Node::drawOrbitRing()
 	}
 }
 
-void Node::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets )
+void Node::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Texture> &planets )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->drawPlanet( accelMatrix, planets );
 	}
 }
 
-void Node::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
+void Node::drawClouds( const Matrix44f &accelMatrix, const vector<gl::Texture> &clouds )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->drawClouds( accelMatrix, clouds );
 	}
 }
 
-void Node::drawRings( gl::Texture *tex )
+void Node::drawRings( const gl::Texture &tex )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->drawRings( tex );
@@ -243,7 +243,7 @@ void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix
 
 void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-	Rectf r = Rectf( mScreenPos.x, mScreenPos.y, mScreenPos.x + mNameTex.getWidth(), mScreenPos.y + mNameTex.getHeight() );
+	Rectf r = Rectf( mScreenPos.x - 15, mScreenPos.y - 5, mScreenPos.x + mNameTex.getWidth() + 5, mScreenPos.y + mNameTex.getHeight() + 5 );
 	
 	if( r.contains( pos ) && mIsHighlighted && ! mIsSelected ){
 		std::cout << "HIT FOUND" << std::endl;

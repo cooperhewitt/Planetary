@@ -70,7 +70,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mGlowColor		= mColor;
 	mAtmosphereColor = mParentNode->mColor;
 	
-	mRadius			= mRadius * pow( normPlayCount + 0.25f, 2.0f );
+	mRadius			= mRadius * pow( normPlayCount + 0.5f, 2.0f );
 	mSphere			= Sphere( mPos, mRadius * 3.0f );
 	mHitSphere		= Sphere( mPos, 0.01f );
 	mIdealCameraDist = mRadius * 3.0f;
@@ -161,13 +161,14 @@ void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 void NodeTrack::drawAtmosphere()
 {
 	if( mCamDistAlpha > 0.05f ){
+		Vec3f perp = mBbRight.cross( mBbUp );
 		gl::color( ColorA( mParentNode->mColor, mCamDistAlpha ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 0.875f;
-		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+		gl::drawBillboard( mTransPos + perp * mRadius * 0.1f, radius, 0.0f, mBbRight, mBbUp );
 	}
 }
 
-void NodeTrack::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets )
+void NodeTrack::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Texture> &planets )
 {	
 	gl::pushModelView();
 	gl::translate( mTransPos );
@@ -176,7 +177,7 @@ void NodeTrack::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets 
 	
 	gl::disableAlphaBlending();
 	gl::color( mColor );
-	planets[mPlanetTexIndex]->enableAndBind();
+	planets[mPlanetTexIndex].enableAndBind();
 	gl::drawSphere( Vec3f::zero(), mRadius * 0.3735f, mSphereIntRes );
 	
 	drawOrbiters();
@@ -186,7 +187,7 @@ void NodeTrack::drawPlanet( Matrix44f accelMatrix, vector<gl::Texture*> planets 
 	
 }
 
-void NodeTrack::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
+void NodeTrack::drawClouds( const Matrix44f &accelMatrix, const vector<gl::Texture> &clouds )
 {
 	if( mCamDistAlpha > 0.05f ){
 		gl::pushModelView();
@@ -197,12 +198,9 @@ void NodeTrack::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
 		
-		clouds[mCloudTexIndex]->enableAndBind();
-		// if this node is selected, draw the shadow layer too
-		if( mIsSelected ){
-			gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha ) );
-			gl::drawSphere( Vec3f::zero(), mRadius * 0.38f, mSphereIntRes );
-		}
+		clouds[mCloudTexIndex].enableAndBind();
+		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha ) );
+		gl::drawSphere( Vec3f::zero(), mRadius * 0.38f, mSphereIntRes );
 
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mColor, mCamDistAlpha ) );
@@ -212,7 +210,7 @@ void NodeTrack::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
 	}
 }
 
-void NodeTrack::drawRings( gl::Texture *tex )
+void NodeTrack::drawRings( const gl::Texture &tex )
 {
 	if( mPlanetTexIndex == G_NUM_PLANET_TYPES - 1 ){
 		gl::pushModelView();
@@ -220,7 +218,7 @@ void NodeTrack::drawRings( gl::Texture *tex )
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 10.0f, mAxialTilt ) );
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
-		tex->enableAndBind();
+		tex.enableAndBind();
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glVertexPointer( 3, GL_FLOAT, 0, mVerts );
@@ -228,14 +226,13 @@ void NodeTrack::drawRings( gl::Texture *tex )
 		glDrawArrays( GL_TRIANGLES, 0, 6 );
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		tex->disable();
+		tex.disable();
 		gl::popModelView();
 	}
 }
 
 void NodeTrack::drawOrbitRing()
 {
-
 	gl::pushModelView();
 	gl::translate( mParentNode->mTransPos );
 	gl::rotate( mMatrix );

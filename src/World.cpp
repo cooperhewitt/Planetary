@@ -133,14 +133,14 @@ void World::drawOrbitRings()
 	}
 }
 
-void World::drawPlanets( Matrix44f accelMatrix, vector<gl::Texture*> planets )
+void World::drawPlanets( const Matrix44f accelMatrix, const vector<gl::Texture> &planets )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->drawPlanet( accelMatrix, planets );
 	}
 }
 
-void World::drawClouds( Matrix44f accelMatrix, vector<gl::Texture*> clouds )
+void World::drawClouds( const Matrix44f accelMatrix, const vector<gl::Texture> &clouds )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->drawClouds( accelMatrix, clouds );
@@ -154,7 +154,7 @@ void World::drawAtmospheres()
 	}
 }
 
-void World::drawRings( gl::Texture *tex )
+void World::drawRings( const gl::Texture &tex )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->drawRings( tex );
