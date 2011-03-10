@@ -7,7 +7,7 @@
  *
  */
 
-
+#include <deque>
 #include "State.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Rect.h"
@@ -67,22 +67,39 @@ void State::setSelectedNode( Node* node )
 		mSelectedNode = NULL;
 	}
 	else {
-		// clear currently selected node
-		// assuming that the only thing that can be selected is at the same level or higher
-		if( mSelectedNode != NULL && mSelectedNode->mGen >= node->mGen ){
-			
-			Node *parent = mSelectedNode;
-			while( parent != NULL && parent->mGen >= node->mGen ){
-				parent->deselect();
-				parent = parent->mParentNode;
-			}
-			
-			// TODO: if parent != NULL && parent->mGen == node->mGen
-			// this would happen if we had a track selected but then
-			// we selected a *different* artist
-			// right now that can happen but we should prevent it in
-			// selection code
+		
+		// deque so we can push_front instead of messing with reverse()
+		deque<Node*> currentChain;
+		deque<Node*> nextChain;
+		
+		Node* current = mSelectedNode;
+		while (current != NULL) {
+			currentChain.push_front(current);
+			current = current->mParentNode;
 		}
+
+		Node* next = node;
+		while (next != NULL) {
+			nextChain.push_front(next);
+			next = next->mParentNode;
+		}
+
+		vector<bool> sharedAncestor;
+		for (int i = 0; i < currentChain.size(); i++) {
+			if (nextChain.size() - 1 < i) {
+				sharedAncestor.push_back(false);
+			}
+			else {
+				sharedAncestor.push_back(currentChain[i] == nextChain[i]);
+			}
+		}
+		
+		for (int i = currentChain.size() - 1; i >= 0; i--) {
+			if (!sharedAncestor[i]) {
+				currentChain[i]->deselect();
+			}
+		}
+		
 		// ensure that the new selection is selected
 		node->select();
 		mSelectedNode = node;
