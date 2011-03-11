@@ -36,14 +36,14 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string n
 	mHitSphere		= Sphere( mPos, 10.0f );
 }
 
-void NodeArtist::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
+void NodeArtist::update( const Matrix44f &mat )
 {
 	mPos -= ( mPos - mPosDest ) * 0.1f;
 	if( mIsSelected ) mHitSphere.setRadius( 0.5f );
 	else mHitSphere.setRadius( 10.0f );
 	
 	
-	Node::update( mat, bbRight, bbUp );
+	Node::update( mat );
 }
 
 void NodeArtist::drawStar()

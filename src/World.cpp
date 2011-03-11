@@ -75,17 +75,17 @@ void World::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matri
 	}
 }
 
-void World::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
+void World::update( const Matrix44f &mat )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->update( mat, bbRight, bbUp );
+		(*it)->update( mat );
 	}
 }
 
-void World::updateGraphics( const CameraPersp &cam )
+void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->updateGraphics( cam );
+		(*it)->updateGraphics( cam, bbRight, bbUp );
 	}
 }
 
@@ -199,7 +199,7 @@ void World::buildConstellation()
 		for( ++it2; it2 != mData->mFilteredArtists.end(); ++it2 ) {
 			Node *child2 = mNodes[*it2];
 			
-			Vec3f dirBetweenChildren = child1->mPos - child2->mPos;
+			Vec3f dirBetweenChildren = child1->mPosDest - child2->mPosDest;
 			float distBetweenChildren = dirBetweenChildren.length();
 			if( distBetweenChildren < shortestDist ){
 				shortestDist = distBetweenChildren;
@@ -208,8 +208,8 @@ void World::buildConstellation()
 		}
 		
 		distances.push_back( shortestDist * 0.35f );
-		mConstellation.push_back( child1->mPos );
-		mConstellation.push_back( nearestChild->mPos );
+		mConstellation.push_back( child1->mPosDest );
+		mConstellation.push_back( nearestChild->mPosDest );
 		
 		//mConstellationColors.push_back( ColorA( child1->mGlowColor, 0.3f ) );
 		//mConstellationColors.push_back( ColorA( nearestChild->mGlowColor, 0.3f ) );

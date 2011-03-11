@@ -89,12 +89,10 @@ void Node::createNameTexture()
 	}
 }
 
-void Node::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
+void Node::update( const Matrix44f &mat )
 {
 	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.02f;
 	mMatrix		= mat;
-	mBbRight	= bbRight;
-	mBbUp		= bbUp;
 	mTransPos	= mMatrix * mPos;
 	mSphere.setCenter( mTransPos );
 	mHitSphere.setCenter( mTransPos );
@@ -108,12 +106,15 @@ void Node::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp
 	}
 
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->update( mat, bbRight, bbUp );
+		(*nodeIt)->update( mat );
 	}
 }
 
-void Node::updateGraphics( const CameraPersp &cam )
+void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp )
 {
+	mBbRight	= bbRight;
+	mBbUp		= bbUp;
+	
 	if( mIsHighlighted ){
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
 		mDistFromCamZAxis		= cam.worldToEyeDepth( mTransPos );
@@ -123,7 +124,7 @@ void Node::updateGraphics( const CameraPersp &cam )
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->updateGraphics( cam );
+		(*nodeIt)->updateGraphics( cam, bbRight, bbUp );
 	}
 }
 

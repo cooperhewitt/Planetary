@@ -130,7 +130,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mTexCoords[t++]		= 1.0f;
 }
 
-void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
+void NodeTrack::update( const Matrix44f &mat )
 {	
 	double playbackTime		= app::getElapsedSeconds();
 	double percentPlayed	= playbackTime/mOrbitPeriod;
@@ -140,7 +140,7 @@ void NodeTrack::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	mPosRel		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mPosRel;
 
-	Node::update( mat, bbRight, bbUp );
+	Node::update( mat );
 	
 	mVel		= mTransPos - mPosPrev;	
 
@@ -239,10 +239,17 @@ void NodeTrack::drawOrbitRing()
 	gl::translate( mParentNode->mTransPos );
 	gl::rotate( mMatrix );
 
-	if( mIsPlaying ) gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
-	else			 gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
-	gl::drawStrokedCircle( Vec2f::zero(), mOrbitRadius, 150 );
 
+	int ringRes;
+	if( mIsPlaying ){
+		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
+		ringRes = 300;
+	} else {
+		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
+		ringRes = 150;
+	}
+	
+	gl::drawStrokedCircle( Vec2f::zero(), mOrbitRadius, ringRes );
 	gl::popModelView();
 }
 

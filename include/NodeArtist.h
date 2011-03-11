@@ -17,7 +17,7 @@ class NodeArtist : public Node
   public:
 	NodeArtist( Node *parent, int index, const ci::Font &font, std::string name );
 	
-	void update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	void update( const ci::Matrix44f &mat );
 	void drawStar();
 	void drawStarGlow();
 	void drawOrbitRing();
@@ -26,6 +26,4 @@ class NodeArtist : public Node
 	void drawRings( const ci::gl::Texture &tex );
 	void drawAtmosphere();
 	void select();
-	
-	ci::Vec3f mPosDest;
 };

@@ -30,8 +30,8 @@ class Node {
 	void				init();
 	void				initWithParent();
 	void				createNameTexture();
-	virtual void		update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	virtual void		updateGraphics( const ci::CameraPersp &cam );
+	virtual void		update( const ci::Matrix44f &mat );
+	virtual void		updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	virtual void		drawStar();
 	virtual void		drawStarGlow();
 	void				drawName();
@@ -62,6 +62,7 @@ class Node {
 	
 	// POSITION/VELOCITY
 	ci::Vec3f			mPos;				// global position
+	ci::Vec3f			mPosDest;			// artist node final position
 	ci::Vec3f			mTransPos;			// global position * mMatrix
 	ci::Vec2f			mScreenPos;			// screen position
 	ci::Vec3f			mPosPrev;			// previous global position

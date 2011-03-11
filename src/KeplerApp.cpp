@@ -1,3 +1,5 @@
+// TODO: Supernova glow for when a node is tapped? Some sort of flash?
+
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/app/Renderer.h"
 #include "cinder/Surface.h"
@@ -132,6 +134,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mSkyDome;
 	gl::Texture		mDottedTex;
 	gl::Texture		mPanelUpTex, mPanelDownTex;
+	gl::Texture		mSliderBgTex;
 	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex;
 	vector<gl::Texture> mButtonsTex;
 	vector<gl::Texture> mPlanetsTex;
@@ -310,7 +313,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		mFovDest += ( 1.0f - event.getScaleDelta() ) * 50.0f;
 	} else {
 		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -3.5f + 1.0f;
-		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.25f, 4.5f );
+		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.45f, 4.5f );
 	}
 	
 	vector<TouchEvent::Touch> touches = event.getTouches();
@@ -355,6 +358,7 @@ void KeplerApp::initTextures()
 	mLoadingTex			= loadImage( loadResource( "loading.jpg" ) );
 	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
 	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
+	mSliderBgTex		= loadImage( loadResource( "sliderBg.png" ) );
 	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
 	mStarTex			= loadImage( loadResource( "star.png" ) );
 	mStarAlternateTex	= loadImage( loadResource( "starAlternate.png" ) );
@@ -521,9 +525,9 @@ void KeplerApp::update()
 	
 	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.17f );
 	updateArcball();
-	mWorld.update( mMatrix, mBbRight, mBbUp );
+	mWorld.update( mMatrix );
 	updateCamera();
-	mWorld.updateGraphics( mCam );
+	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 	
 	mUiLayer.update();
 	mBreadcrumbs.update();
@@ -685,7 +689,7 @@ void KeplerApp::draw()
 			Vec3f artistLightPos	= artistNode->mTransPos;
 			GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor, 0.4f ) );
+			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 0.4f ) );
 			//glLightfv( GL_LIGHT0, GL_SPECULAR, Color::white() );
 			
 			
@@ -698,7 +702,7 @@ void KeplerApp::draw()
 				Vec3f albumLightPos		= albumNode->mTransPos;
 				GLfloat albumLight[]	= { albumLightPos.x, albumLightPos.y, albumLightPos.z, 1.0f };
 				glLightfv( GL_LIGHT1, GL_POSITION, albumLight );
-				glLightfv( GL_LIGHT1, GL_DIFFUSE, albumNode->mGlowColor );
+				glLightfv( GL_LIGHT1, GL_DIFFUSE, ColorA( ( albumNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
 				glLightfv( GL_LIGHT1, GL_SPECULAR, Color::white() );
 			}
 		
@@ -739,8 +743,8 @@ void KeplerApp::draw()
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
 		mUiLayer.draw( mPanelUpTex, mPanelDownTex );
-		mBreadcrumbs.draw( mUiLayer.getPanelYPos() + 5.0f );
-		mPlayControls.draw( mButtonsTex, mUiLayer.getPanelYPos() + mBreadcrumbs.getHeight() + 10.0f, mPlayheadPer );
+		mBreadcrumbs.draw( 2.0f );//mUiLayer.getPanelYPos() + 5.0f );
+		mPlayControls.draw( mButtonsTex, mSliderBgTex, mUiLayer.getPanelYPos(), mPlayheadPer );
 		mState.draw( mFont );
 		
 		//drawInfoPanel();

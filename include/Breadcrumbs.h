@@ -149,8 +149,16 @@ void Breadcrumbs::update() {
 	}
 }
 
-void Breadcrumbs::draw( float y ) {
-	gl::enableAlphaBlending(false);		
+void Breadcrumbs::draw( float y )
+{
+	gl::color( Color::black() );
+	gl::drawSolidRect( Rectf( 0.0f, 0.0f, app::getWindowWidth(), 24.0f ) );
+	
+	gl::enableAdditiveBlending();
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.1f ) );
+	gl::drawLine( Vec2f( 1.0f, 24.0f ), Vec2f( getWindowWidth(), 24.0f ) );
+
+	gl::enableAlphaBlending(false);
 	gl::color( Color::white() );
 	float x			= 25.0f;
 	float xMargin	= 5.0f;

@@ -69,7 +69,7 @@ void NodeAlbum::setData( PlaylistRef album )
 }
 
 
-void NodeAlbum::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
+void NodeAlbum::update( const Matrix44f &mat )
 {
 	double playbackTime		= app::getElapsedSeconds();
 	double percentPlayed	= playbackTime/mOrbitPeriod;
@@ -83,7 +83,7 @@ void NodeAlbum::update( const Matrix44f &mat, const Vec3f &bbRight, const Vec3f 
 	if( mIsSelected ) mHitSphere.setRadius( 0.02f );
 	else mHitSphere.setRadius( 0.2f );
 
-	Node::update( mat, bbRight, bbUp );
+	Node::update( mat );
 	
 	mVel		= mTransPos - mPosPrev;	
 }
@@ -113,10 +113,16 @@ void NodeAlbum::drawOrbitRing()
 	gl::translate( mParentNode->mTransPos );
 	gl::rotate( mMatrix );
 	
-	if( mIsSelected )   gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
-	else				gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
+	int ringRes;
+	if( mIsSelected ){
+		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
+		ringRes = 300;
+	} else {
+		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
+		ringRes = 150;
+	}
 	
-	gl::drawStrokedCircle( Vec2f::zero(), mOrbitRadius, 150 );
+	gl::drawStrokedCircle( Vec2f::zero(), mOrbitRadius, ringRes );
 
 	gl::popModelView();
 	

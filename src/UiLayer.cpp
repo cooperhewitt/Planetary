@@ -253,14 +253,10 @@ void UiLayer::drawPanel( const gl::Texture &upTex, const gl::Texture &downTex )
 	gl::pushModelView();
 	gl::translate( mPanelPos );
 	gl::drawSolidRect( mPanelRect );
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.1f ) );
-	gl::drawLine( Vec2f::zero(), Vec2f( getWindowWidth(), 0.0f ) );
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.15f ) );
+	gl::drawLine( Vec2f( 0.0f, 0.0f ), Vec2f( getWindowWidth(), 0.0f ) );
 	gl::popModelView();
 	
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.05f ) );
-	gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( getWindowWidth(), 1.0f ) );
-	gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( 1.0f, mPanelPos.y ) );
-	gl::drawLine( Vec2f( getWindowWidth(), 0.0f ), Vec2f( getWindowWidth(), mPanelPos.y ) );
 	
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	if( mIsPanelOpen )

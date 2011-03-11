@@ -17,7 +17,7 @@ class NodeAlbum : public Node
   public:
 	NodeAlbum( Node *parent, int index, const ci::Font &font, std::string name );
 	
-	void update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	void update( const ci::Matrix44f &mat );
 	void drawStar();
 	void drawStarGlow();
 	void drawOrbitRing();

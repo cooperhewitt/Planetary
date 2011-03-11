@@ -27,8 +27,8 @@ class World {
 	void deselectAllNodes();
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
 	void checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
-	void update( const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	void updateGraphics( const ci::CameraPersp &cam );
+	void update( const ci::Matrix44f &mat );
+	void updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void drawStars();
 	void drawStarGlows();
 	void drawNames();
@@ -48,7 +48,7 @@ class World {
 	std::vector<ci::gl::Texture> mNameTextures;
 	
 	std::vector<ci::Vec3f> mConstellation;
-	std::vector<ci::ColorA> mConstellationColors;
+	std::vector<float> mConstellationDistances;
 	int mTotalVertices;
 	GLfloat *mVerts;
 	GLfloat *mTexCoords;

@@ -87,7 +87,7 @@ public:
 		return mIsPlaying;
 	}
 	
-	void draw( const vector<gl::Texture> &texs, float y, float playheadPer )
+	void draw( const vector<gl::Texture> &texs, const gl::Texture &sliderBgTex, float y, float playheadPer )
 	{
 		prevDrawY = y;
 		
@@ -102,20 +102,27 @@ public:
 	
 
 		// TODO: make these members?
-		float x = 18.0f;
-		Rectf prevButton( x,				 y+7, x + bWidth,		 y+7+bHeight );
-		Rectf playButton( x + bWidth,		 y+7, x + bWidth * 2.0f, y+7+bHeight );
-		Rectf nextButton( x + bWidth * 2.0f, y+7, x + bWidth * 3.0f, y+7+bHeight );
-		Rectf debugButton( app::getWindowWidth() - x - 60.0f, y+7, app::getWindowWidth() - x, y+7+bHeight );
+		float x = getWindowWidth() * 0.5f - bWidth * 1.5f;
+		float y1 = y + 5;
+		float y2 = y1 + bHeight;
+		Rectf prevButton( x,				 y1, x + bWidth,		y2 );
+		Rectf playButton( x + bWidth,		 y1, x + bWidth * 2.0f, y2 );
+		Rectf nextButton( x + bWidth * 2.0f, y1, x + bWidth * 3.0f, y2 );
+		Rectf debugButton( app::getWindowWidth() - x - 60.0f, y1, app::getWindowWidth() - x, y2 );
 		
-		float sliderWidth		= 200.0f;
-		float sliderHeight		= 15.0f;
-		float windowHalfWidth	= app::getWindowWidth() * 0.5f;
-		float x1 = windowHalfWidth - sliderWidth;
-		float x2 = windowHalfWidth;
-		float x3 = x1 + sliderWidth * playheadPer;
-		Rectf playheadSliderBg(  x1,	 y+14, x2,		y+14+sliderHeight );
-		Rectf playheadSliderBar( x1 + 1, y+15, x3 - 1,  y+13+sliderHeight );
+		float sliderWidth	= getWindowWidth();
+		float sliderHeight	= 16.0f;
+		float bgx1			= 0.0f;
+		float bgx2			= sliderWidth;
+		float bgy1			= getWindowHeight() - sliderHeight - 2;
+		float bgy2			= bgy1 + sliderHeight;
+		float fgx1 = bgx1 + 5;
+		float fgy1 = bgy1 + 5;
+		float fgx2 = fgx1 + ( sliderWidth - 5 ) * playheadPer;
+		float fgy2 = bgy2 - 5;
+		
+		Rectf playheadSliderBg(  bgx1, bgy1, bgx2, bgy2 );
+		Rectf playheadSliderBar( fgx1, fgy1, fgx2, fgy2 );
 						
 		touchRects.push_back( prevButton );
 		touchTypes.push_back( PREVIOUS_TRACK );
@@ -147,11 +154,13 @@ public:
 		else			texs[ TEX_DEBUG ].enableAndBind();
 		gl::drawSolidRect( debugButton );
 		
-		glDisable( GL_TEXTURE_2D );
-		gl::color( ColorA( 0.1f, 0.2f, 0.5f, 0.25f ) );
+		gl::color( Color::white() );
+		sliderBgTex.enableAndBind();
 		gl::drawSolidRect( playheadSliderBg );
 		
-		gl::color( ColorA( 0.4353f, 0.7647f, 0.9176f, 1.0f ) );
+		glDisable( GL_TEXTURE_2D );
+		
+		gl::color( ColorA( 0.4353f, 0.7647f, 0.9176f, 0.5f ) );
 		gl::drawSolidRect( playheadSliderBar );
 	}
 	
