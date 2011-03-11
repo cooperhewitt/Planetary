@@ -48,5 +48,6 @@ class NodeTrack : public Node
 	float		mAxialTilt;
 	float		mCamDistAlpha;
 	
+	bool		mHasRings;
 	bool 		mIsPlaying;
 };

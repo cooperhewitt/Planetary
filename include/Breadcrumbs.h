@@ -46,7 +46,7 @@ public:
 	void setHierarchy(vector<string> hierarchy);
 	const vector<string>& getHierarchy();
 	void update();
-	void draw( float y );
+	void draw();
 	float getHeight() { return mHeight; }
 
 private:
@@ -149,18 +149,19 @@ void Breadcrumbs::update() {
 	}
 }
 
-void Breadcrumbs::draw( float y )
+void Breadcrumbs::draw()
 {
-	gl::color( Color::black() );
+	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.75f ) );
 	gl::drawSolidRect( Rectf( 0.0f, 0.0f, app::getWindowWidth(), 24.0f ) );
 	
-	gl::enableAdditiveBlending();
+	gl::enableAlphaBlending();
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.1f ) );
-	gl::drawLine( Vec2f( 1.0f, 24.0f ), Vec2f( getWindowWidth(), 24.0f ) );
+	gl::drawLine( Vec2f( 1.0f, 25.0f ), Vec2f( getWindowWidth(), 25.0f ) );
 
 	gl::enableAlphaBlending(false);
 	gl::color( Color::white() );
 	float x			= 25.0f;
+	float y			= 2.0f;
 	float xMargin	= 5.0f;
 	float yMargin	= 20.0f;
 	mHeight = 0;
@@ -168,9 +169,9 @@ void Breadcrumbs::draw( float y )
 	
 	for( int i=0; i<mPreviousHierarchy.size(); i++ ){
 		if( i == mPreviousHierarchy.size() - 1 ){
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			gl::color( Color( 1.0f, 1.0f, 1.0f ) );
 		} else {
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.4f ) );	
+			gl::color( Color( 24/255.0f, 167/255.0f, 240/255.0f ) );	
 		}
 				
 		if( i > 0 ){

@@ -55,6 +55,7 @@ class KeplerApp : public AppCocoaTouch {
 	void			updateCamera();
 	void			updatePlayhead();
 	virtual void	draw();
+	void			drawLoader();
 	void			drawInfoPanel();
 	void			setParamsTex();
 	bool			onAlphaCharStateChanged( State *state );
@@ -79,7 +80,8 @@ class KeplerApp : public AppCocoaTouch {
 	// AUDIO
 	ipod::Player		mIpodPlayer;
 	ipod::PlaylistRef	mCurrentAlbum;
-	double				mCurrentTrackPlayheadTime;	
+	double				mCurrentTrackPlayheadTime;
+	double				mCurrentTrackLength;
 //	int					mCurrentTrackId;
 
 	
@@ -107,6 +109,7 @@ class KeplerApp : public AppCocoaTouch {
 	// FONTS
 	Font			mFont;
 	Font			mFontBig;
+	Font			mFontSmall;
 	
 	
 	// MULTITOUCH
@@ -187,7 +190,7 @@ void KeplerApp::setup()
 	// FONTS
 	mFont				= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 16 );
 	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
-	
+	mFontSmall			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 13 );	
 	
 	// TOUCH VARS
 	mTouchPos			= Vec2f::zero();
@@ -207,7 +210,7 @@ void KeplerApp::setup()
 	initTextures();
 	
 	// BREADCRUMBS
-	mBreadcrumbs.setup( this, mFont );
+	mBreadcrumbs.setup( this, mFontSmall );
 	mBreadcrumbs.registerBreadcrumbSelected( this, &KeplerApp::onBreadcrumbSelected );
 	mBreadcrumbs.setHierarchy(mState.getHierarchy());
 	
@@ -280,7 +283,9 @@ void KeplerApp::touchesEnded( TouchEvent event )
 	{
 		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.2f ){
 			mTouchPos = touchIt->getPos();
-			if( ! mUiLayer.getShowWheel() && ! mIsDragging ){
+			
+			// if the nav wheel isnt showing and you havent been dragging and your touch is above the uiLayer panel
+			if( ! mUiLayer.getShowWheel() && ! mIsDragging && mTouchPos.y < mUiLayer.getPanelYPos() ){
 				float u			= mTouchPos.x / (float) getWindowWidth();
 				float v			= mTouchPos.y / (float) getWindowHeight();
 				Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
@@ -624,27 +629,51 @@ void KeplerApp::updatePlayhead()
 	//if( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
 	if( currentlyPlayingNodeTrack ){
 		mCurrentTrackPlayheadTime	= mIpodPlayer.getPlayheadTime();
-		mPlayheadPer = mCurrentTrackPlayheadTime/currentlyPlayingNodeTrack->mTrackLength;
+		mCurrentTrackLength			= currentlyPlayingNodeTrack->mTrackLength;
 	}
+}
+
+
+void KeplerApp::drawLoader()
+{
+	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+	mLoadingTex.enableAndBind();
+	gl::setMatricesWindow( getWindowSize() );
+	gl::drawSolidRect( getWindowBounds() );
+	mLoadingTex.disable();
+	
+	gl::enableAdditiveBlending();
+	float xCenter = getWindowWidth() * 0.5f;
+	float yCenter = getWindowHeight() * 0.5f;
+
+	Rectf bigRect = Rectf( xCenter - 50, yCenter - 50, xCenter + 50, yCenter + 50 );
+	mStarGlowTex.enableAndBind();
+	gl::drawSolidRect( bigRect );
+	mStarGlowTex.disable();
+	
+	Rectf rect = Rectf( xCenter - 28, yCenter - 28, xCenter + 28, yCenter + 28 );
+	mStarTex.enableAndBind();
+	gl::drawSolidRect( rect );
+	
+	float smallOffset	= cos( getElapsedSeconds() + 1.0f ) * 22.0f;
+	Rectf smallRect		= Rectf( xCenter - 4.0f + smallOffset, yCenter - 4.0f, xCenter + 4.0f + smallOffset, yCenter + 4.0f );
+	//float mediumOffset	= ( getElapsedSeconds() - 3.0f ) * 10.0f;	
+	//Rectf mediumRect	= Rectf( xCenter - 25.0f + mediumOffset * 2.5f, yCenter - 25.0f, xCenter + 25.0f + mediumOffset * 2.5f, yCenter + 25.0f );
+	gl::color( Color( 0.0f, 0.0f, 0.0f ) );
+	gl::disableAlphaBlending();
+	gl::enableAlphaBlending();
+	gl::drawSolidRect( smallRect );
+	//gl::drawSolidRect( mediumRect );
+	mStarTex.disable();
+	
+	gl::disableAlphaBlending();
 }
 
 void KeplerApp::draw()
 {
 	gl::clear( Color( 0, 0, 0 ), true );
 	if( !mIsLoaded ){
-		mLoadingTex.enableAndBind();
-		gl::setMatricesWindow( getWindowSize() );
-		
-		// egregious loading animation
-		// no progress available from Data yet, workin on it
-		gl::pushModelView();
-		gl::translate( getWindowSize()/2.0 );
-		gl::rotate(TWO_PI * getElapsedSeconds());
-		gl::translate( -getWindowSize()/2.0 );
-		gl::drawSolidRect( getWindowBounds() );
-		gl::popModelView();
-
-		mLoadingTex.disable();
+		drawLoader();
 		
 		init();
 	} else {
@@ -705,7 +734,7 @@ void KeplerApp::draw()
 			Vec3f artistLightPos	= artistNode->mTransPos;
 			GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 0.4f ) );
+			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 0.2f ) );
 			//glLightfv( GL_LIGHT0, GL_SPECULAR, Color::white() );
 			
 			
@@ -759,8 +788,8 @@ void KeplerApp::draw()
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
 		mUiLayer.draw( mPanelUpTex, mPanelDownTex );
-		mBreadcrumbs.draw( 2.0f );//mUiLayer.getPanelYPos() + 5.0f );
-		mPlayControls.draw( mButtonsTex, mSliderBgTex, mUiLayer.getPanelYPos(), mPlayheadPer );
+		mBreadcrumbs.draw();//mUiLayer.getPanelYPos() + 5.0f );
+		mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );
 		mState.draw( mFont );
 		
 		//drawInfoPanel();

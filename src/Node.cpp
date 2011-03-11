@@ -34,6 +34,7 @@ Node::Node( Node *parent, int index, const Font &font, std::string name )
 	createNameTexture();
 	
 	mScreenPos			= Vec2f::zero();
+	mEclipsePer			= 1.0f;
 	mTransPos			= mPos;
 	mCamZVel			= 0.0f;
 	mStartAngle			= Rand::randFloat( TWO_PI );
@@ -91,19 +92,27 @@ void Node::createNameTexture()
 
 void Node::update( const Matrix44f &mat )
 {
-	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.02f;
+	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
 	mMatrix		= mat;
 	mTransPos	= mMatrix * mPos;
 	mSphere.setCenter( mTransPos );
 	mHitSphere.setCenter( mTransPos );
-		
-	mZoomPer	= constrain( 1.0f - abs( G_ZOOM-mGen+1.0f ), 0.0f, 0.75f );
+	
+	mZoomPer = constrain( 1.0f - abs( G_ZOOM-mGen+1.0f ), 0.0f, 0.75f );
 	mZoomPer = pow( mZoomPer, 3.0f );
-	if( mGen == G_TRACK_LEVEL && mIsSelected ){
-		mZoomPer = 1.0f - mZoomPer;
-	} else if( mIsSelected ){
-		mZoomPer = 1.0f;
+		
+	if( mIsSelected ){
+		float screenPosLength = mScreenPos.distance( app::getWindowCenter() );
+		if( screenPosLength > 0.0 )
+			mEclipsePer = math<float>::min( 1.0f/(screenPosLength/20.0f), 5.0f );
+		
+		if( mGen == G_TRACK_LEVEL ){
+			mZoomPer = 1.0f - mZoomPer;
+		} else {
+			mZoomPer = 1.0f;
+		}
 	}
+
 
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->update( mat );
@@ -170,9 +179,9 @@ void Node::drawOrthoName( const CameraPersp &cam, float pinchAlphaOffset )
 
 		
 		Vec2f offset = Vec2f( mSphereScreenRadius * 0.4f, -mNameTex.getHeight() * 0.5f );
-		mScreenPos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() ) + offset;
-
-		gl::draw( mNameTex, mScreenPos );
+		mScreenPos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
+		
+		gl::draw( mNameTex, mScreenPos + offset );
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
@@ -244,7 +253,7 @@ void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix
 
 void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-	Rectf r = Rectf( mScreenPos.x - 15, mScreenPos.y - 5, mScreenPos.x + mNameTex.getWidth() + 5, mScreenPos.y + mNameTex.getHeight() + 5 );
+	Rectf r = Rectf( mScreenPos.x - 20, mScreenPos.y - 10, mScreenPos.x + mNameTex.getWidth() + 10, mScreenPos.y + mNameTex.getHeight() + 10 );
 	
 	if( r.contains( pos ) && mIsHighlighted && ! mIsSelected ){
 		std::cout << "HIT FOUND" << std::endl;

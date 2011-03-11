@@ -65,6 +65,7 @@ class Node {
 	ci::Vec3f			mPosDest;			// artist node final position
 	ci::Vec3f			mTransPos;			// global position * mMatrix
 	ci::Vec2f			mScreenPos;			// screen position
+	float				mEclipsePer;		// ECLIPSE!
 	ci::Vec3f			mPosPrev;			// previous global position
 	ci::Vec3f			mPosRel;			// relative position
 	ci::Vec3f			mVel;				// global velocity
@@ -104,7 +105,7 @@ class Node {
 	
 	
 	ci::Sphere			mSphere;			// Sphere used for name label alignment
-	ci::Sphere			mHitSphere;			// Sphere used for hit-tests
+	//ci::Sphere			mHitSphere;			// Sphere used for hit-tests
 	ci::Color			mColor;				// Color of the node
 	ci::Color			mGlowColor;			// Color of the star glow
 	

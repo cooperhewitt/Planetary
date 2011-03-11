@@ -57,7 +57,7 @@ class UiLayer {
 	float			mPanelYPos, mPanelYPosDest;
 	float			mPanelOpenYPos, mPanelClosedYPos;
 	
-	ci::Vec2f		mPanelPos;				// XY position of the panel upper left corner
+	ci::Vec2i		mPanelPos;				// XY position of the panel upper left corner
 	ci::Rectf		mPanelRect;				// Rect defining the panel width and height
 	ci::Rectf		mPanelTabRect;			// Rect defining the panel tab
 	bool			mIsPanelTabTouched;		// Is the Panel Tab currently being touched

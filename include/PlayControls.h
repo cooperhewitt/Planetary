@@ -10,10 +10,21 @@
 #pragma once
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/app/TouchEvent.h"
+#include "cinder/Text.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
+
+#include <sstream>
+
+template <class T>
+inline std::string to_string( const T& t )
+{
+	std::stringstream ss;
+	ss << t;
+	return ss.str();
+}
 
 class PlayControls {
 public:
@@ -21,15 +32,20 @@ public:
 	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, DEBUG };
 	enum ButtonTexId { TEX_PLAY, TEX_PAUSE, TEX_PREV, TEX_NEXT, TEX_DEBUG, TEX_DEBUGON };
 	
+	
 	void setup( AppCocoaTouch *app, bool initialPlayState )
 	{
-		mApp = app;
-		cbTouchesBegan = mApp->registerTouchesBegan( this, &PlayControls::touchesBegan );
-		cbTouchesEnded = 0;
-		cbTouchesMoved = 0;		
+		mApp			= app;
+		cbTouchesBegan	= mApp->registerTouchesBegan( this, &PlayControls::touchesBegan );
+		cbTouchesEnded	= 0;
+		cbTouchesMoved	= 0;		
 		lastTouchedType = NO_BUTTON;
-		prevDrawY = 0;
-		mIsPlaying = initialPlayState;
+		prevDrawY		= 0;
+		mIsPlaying		= initialPlayState;
+		mBlueGlow		= Color( 20/255.0f, 163/255.0f, 240/255.0f );
+		mMinutes		= 0;
+		mSeconds		= 60;
+		mPrevSeconds	= 0;
 	}
 	
 	void update()
@@ -88,7 +104,7 @@ public:
 		return mIsPlaying;
 	}
 	
-	void draw( const vector<gl::Texture> &texs, const gl::Texture &sliderBgTex, float y, float playheadPer )
+	void draw( const vector<gl::Texture> &texs, const gl::Texture &sliderBgTex, const Font &font, float y, float currentTime, float totalTime )
 	{
 		prevDrawY = y;
 		
@@ -98,8 +114,8 @@ public:
 		touchRects.clear();
 		touchTypes.clear(); // technically touch types never changes, but whatever
 		
-		float bWidth = 40.0f;
-		float bHeight = 30.0f;
+		float bWidth = 50.0f;
+		float bHeight = 40.0f;
 	
 
 		// TODO: make these members?
@@ -109,18 +125,24 @@ public:
 		Rectf prevButton( x,				 y1, x + bWidth,		y2 );
 		Rectf playButton( x + bWidth,		 y1, x + bWidth * 2.0f, y2 );
 		Rectf nextButton( x + bWidth * 2.0f, y1, x + bWidth * 3.0f, y2 );
-		Rectf debugButton( app::getWindowWidth() - x - 60.0f, y1, app::getWindowWidth() - x, y2 );
+		Rectf debugButton( getWindowWidth() - 60.0f, y1, getWindowWidth(), y2 );
 		
-		float sliderWidth	= getWindowWidth();
-		float sliderHeight	= 16.0f;
-		float bgx1			= 0.0f;
-		float bgx2			= sliderWidth;
-		float bgy1			= getWindowHeight() - sliderHeight - 2;
+		float sliderWidth	= sliderBgTex.getWidth();
+		float sliderHeight	= sliderBgTex.getHeight();
+		float sliderInset	= ( getWindowWidth() - sliderWidth ) * 0.5f;
+		float playheadPer	= 0.0f;
+		if( totalTime > 0.0f ){
+			 playheadPer = currentTime/totalTime;
+		}
+		float playheadX		= ( sliderWidth - 12 ) * playheadPer;
+		float bgx1			= sliderInset;
+		float bgx2			= bgx1 + sliderWidth;
+		float bgy1			= y + 75.0f - sliderHeight - 10;
 		float bgy2			= bgy1 + sliderHeight;
-		float fgx1 = bgx1 + 5;
-		float fgy1 = bgy1 + 5;
-		float fgx2 = fgx1 + ( sliderWidth - 5 ) * playheadPer;
-		float fgy2 = bgy2 - 5;
+		float fgx1			= bgx1 + 7;
+		float fgx2			= fgx1 + playheadX;
+		float fgy1			= bgy1 + 7;
+		float fgy2			= bgy2 - 7;
 		
 		Rectf playheadSliderBg(  bgx1, bgy1, bgx2, bgy2 );
 		Rectf playheadSliderBar( fgx1, fgy1, fgx2, fgy2 );
@@ -134,35 +156,85 @@ public:
 		touchRects.push_back( debugButton );
 		touchTypes.push_back( DEBUG );
 		
-		Color yellow( 1.0f, 1.0f, 0.0f );
 		Color blue( 0.2f, 0.2f, 0.5f );
-
-		gl::color( lastTouchedType == PREVIOUS_TRACK ? yellow : Color::white() );
+		
+// PREV
+		gl::color( lastTouchedType == PREVIOUS_TRACK ? blue : Color::white() );
 		texs[ TEX_PREV ].enableAndBind();
 		gl::drawSolidRect( prevButton );
-		
-		gl::color( lastTouchedType == PLAY_PAUSE ? yellow : Color::white() );
+// PLAY/PAUSE		
+		gl::color( lastTouchedType == PLAY_PAUSE ? blue : Color::white() );
 		if (mIsPlaying) texs[ TEX_PAUSE ].enableAndBind();
 		else			texs[ TEX_PLAY ].enableAndBind();
 		gl::drawSolidRect( playButton );
-		
-		gl::color( lastTouchedType == NEXT_TRACK ? yellow : Color::white() );
+// NEXT		
+		gl::color( lastTouchedType == NEXT_TRACK ? blue : Color::white() );
 		texs[ TEX_NEXT ].enableAndBind();
 		gl::drawSolidRect( nextButton );
-		
-		gl::color( lastTouchedType == DEBUG ? yellow : Color::white() );
+// ACCEL		
+		gl::color( lastTouchedType == DEBUG ? blue : Color::white() );
 		if( G_DEBUG )	texs[ TEX_DEBUGON ].enableAndBind();
 		else			texs[ TEX_DEBUG ].enableAndBind();
 		gl::drawSolidRect( debugButton );
-		
+
+// SLIDER BG		
 		gl::color( Color::white() );
 		sliderBgTex.enableAndBind();
 		gl::drawSolidRect( playheadSliderBg );
+
+// CURRENT TIME
+		mMinutes		= floor( currentTime/60 );
+		mPrevSeconds	= mSeconds;
+		mSeconds		= (int)currentTime%60;
 		
+		mMinutesTotal	= floor( totalTime/60 );
+		mSecondsTotal	= (int)totalTime%60;
+		
+		double timeLeft = totalTime - currentTime;
+		mMinutesLeft	= floor( timeLeft/60 );
+		mSecondsLeft	= (int)timeLeft%60;
+		if( mSeconds != mPrevSeconds ){
+			string minsStr = to_string( mMinutes );
+			string secsStr = to_string( mSeconds );
+			if( minsStr.length() == 1 ) minsStr = "0" + minsStr;
+			if( secsStr.length() == 1 ) secsStr = "0" + secsStr;		
+			stringstream ss;
+			ss << minsStr << ":" << secsStr;
+			TextLayout layout;
+			layout.setFont( font );
+			layout.setColor( ColorA( mBlueGlow, 0.5f ) );
+			layout.addLine( ss.str() );
+			mCurrentTimeTex = layout.render( true, false );
+			
+			
+			
+			minsStr = to_string( mMinutesLeft );
+			secsStr = to_string( mSecondsLeft );
+			if( minsStr.length() == 1 ) minsStr = "0" + minsStr;
+			if( secsStr.length() == 1 ) secsStr = "0" + secsStr;		
+			
+			ss.str("");
+			ss << "-" << minsStr << ":" << secsStr;
+			TextLayout layout2;
+			layout2.setFont( font );
+			layout2.setColor( ColorA( mBlueGlow, 0.5f ) );
+			layout2.addLine( ss.str() );
+			mRemainingTimeTex = layout2.render( true, false );
+		}
+		gl::draw( mCurrentTimeTex,		Vec2f( 28.0f, bgy1-1 ) );
+		gl::draw( mRemainingTimeTex,	Vec2f( bgx2 + 7.0f, bgy1-1 ) );
+		
+// SLIDER PER
 		glDisable( GL_TEXTURE_2D );
+		gl::color( Color( mBlueGlow * 0.25f ) );
+		gl::drawSolidRect( Rectf( playheadSliderBar.x1-1, playheadSliderBar.y1-1, playheadSliderBar.x2+1, playheadSliderBar.y2+1 ) );
 		
-		gl::color( ColorA( 0.4353f, 0.7647f, 0.9176f, 0.5f ) );
+		gl::color( Color( mBlueGlow * 0.5) );
 		gl::drawSolidRect( playheadSliderBar );
+		
+		gl::color( Color( mBlueGlow ) );
+		gl::drawSolidRect( Rectf( playheadSliderBar.x1+1, playheadSliderBar.y1+1, playheadSliderBar.x2-1, playheadSliderBar.y2-1 ) );
+		
 	}
 	
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
@@ -182,7 +254,13 @@ private:
 	PlayButton lastTouchedType;
 	float prevDrawY;
 	bool mIsPlaying;
-
+	Color mBlueGlow;
+	int mMinutes, mMinutesTotal, mMinutesLeft;
+	int mSeconds, mSecondsTotal, mSecondsLeft;
+	int mPrevSeconds;
+	gl::Texture mCurrentTimeTex;
+	gl::Texture mRemainingTimeTex;
+	
 	CallbackId cbTouchesBegan;
 	CallbackId cbTouchesMoved;
 	CallbackId cbTouchesEnded;
