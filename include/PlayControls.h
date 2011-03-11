@@ -30,7 +30,7 @@ class PlayControls {
 public:
 
 	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, DEBUG };
-	enum ButtonTexId { TEX_PLAY, TEX_PAUSE, TEX_PREV, TEX_NEXT, TEX_DEBUG, TEX_DEBUGON };
+	enum ButtonTexId { TEX_PLAY, TEX_PAUSE, TEX_PREV, TEX_NEXT, TEX_DEBUG, TEX_DEBUGON, TEX_HIGHLIGHT };
 	
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState )
@@ -103,7 +103,8 @@ public:
 	{
 		return mIsPlaying;
 	}
-	
+
+
 	void draw( const vector<gl::Texture> &texs, const gl::Texture &sliderBgTex, const Font &font, float y, float currentTime, float totalTime )
 	{
 		prevDrawY = y;
@@ -159,26 +160,28 @@ public:
 		Color blue( 0.2f, 0.2f, 0.5f );
 		
 // PREV
-		gl::color( lastTouchedType == PREVIOUS_TRACK ? blue : Color::white() );
+		gl::color( Color::white() );
 		texs[ TEX_PREV ].enableAndBind();
 		gl::drawSolidRect( prevButton );
+		
+		
 // PLAY/PAUSE		
-		gl::color( lastTouchedType == PLAY_PAUSE ? blue : Color::white() );
 		if (mIsPlaying) texs[ TEX_PAUSE ].enableAndBind();
 		else			texs[ TEX_PLAY ].enableAndBind();
 		gl::drawSolidRect( playButton );
+		
+		
 // NEXT		
-		gl::color( lastTouchedType == NEXT_TRACK ? blue : Color::white() );
 		texs[ TEX_NEXT ].enableAndBind();
 		gl::drawSolidRect( nextButton );
+		
+		
 // ACCEL		
-		gl::color( lastTouchedType == DEBUG ? blue : Color::white() );
 		if( G_DEBUG )	texs[ TEX_DEBUGON ].enableAndBind();
 		else			texs[ TEX_DEBUG ].enableAndBind();
 		gl::drawSolidRect( debugButton );
 
 // SLIDER BG		
-		gl::color( Color::white() );
 		sliderBgTex.enableAndBind();
 		gl::drawSolidRect( playheadSliderBg );
 
@@ -234,6 +237,8 @@ public:
 		
 		gl::color( Color( mBlueGlow ) );
 		gl::drawSolidRect( Rectf( playheadSliderBar.x1+1, playheadSliderBar.y1+1, playheadSliderBar.x2-1, playheadSliderBar.y2-1 ) );
+		
+		
 		
 	}
 	

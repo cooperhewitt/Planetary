@@ -119,13 +119,6 @@ void World::drawOrthoNames( const CameraPersp &cam, float pinchAlphaOffset )
 	}
 }
 
-void World::drawSpheres()
-{
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawSphere();
-	}
-}
-
 void World::drawOrbitRings()
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){

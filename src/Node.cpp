@@ -96,7 +96,6 @@ void Node::update( const Matrix44f &mat )
 	mMatrix		= mat;
 	mTransPos	= mMatrix * mPos;
 	mSphere.setCenter( mTransPos );
-	mHitSphere.setCenter( mTransPos );
 	
 	mZoomPer = constrain( 1.0f - abs( G_ZOOM-mGen+1.0f ), 0.0f, 0.75f );
 	mZoomPer = pow( mZoomPer, 3.0f );
@@ -104,7 +103,7 @@ void Node::update( const Matrix44f &mat )
 	if( mIsSelected ){
 		float screenPosLength = mScreenPos.distance( app::getWindowCenter() );
 		if( screenPosLength > 0.0 )
-			mEclipsePer = math<float>::min( 1.0f/(screenPosLength/20.0f), 5.0f );
+			mEclipsePer = math<float>::min( 1.0f/(screenPosLength/100.0f), 5.0f );
 		
 		if( mGen == G_TRACK_LEVEL ){
 			mZoomPer = 1.0f - mZoomPer;
@@ -189,18 +188,6 @@ void Node::drawOrthoName( const CameraPersp &cam, float pinchAlphaOffset )
 	}
 }
 
-void Node::drawSphere()
-{
-	if( mIsHighlighted ){
-		gl::color( ColorA( mGlowColor, 0.05f ) );
-		gl::draw( mHitSphere, 16 );
-		
-		for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-			(*nodeIt)->drawSphere();
-		}
-	}
-}
-
 void Node::drawOrbitRing()
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
@@ -238,9 +225,9 @@ void Node::drawAtmosphere()
 
 void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix44f &mat )
 {
-	mHitSphere.setCenter( mat.transformPointAffine( mPos ) );
+	mSphere.setCenter( mat.transformPointAffine( mPos ) );
 
-	if( mHitSphere.intersects( ray ) && mIsHighlighted && ! mIsSelected ){
+	if( mSphere.intersects( ray ) && mIsHighlighted && ! mIsSelected ){
 		std::cout << "HIT FOUND" << std::endl;
 		nodes.push_back( this );
 	}

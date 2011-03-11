@@ -30,13 +30,11 @@ using namespace ci::app;
 using namespace std;
 using std::stringstream;
 
-//int G_CURRENT_LEVEL		= 0;
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
-GLfloat mat_ambient[]	= { 0.02, 0.02, 0.05, 1.0 };
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 GLfloat mat_specular[]	= { 1.0, 1.0, 1.0, 1.0 };
-GLfloat mat_shininess[]	= { 50.0 };
+GLfloat mat_shininess[]	= { 128.0 };
 
 float easeInOutQuad( double t, float b, float c, double d );
 Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
@@ -138,7 +136,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mDottedTex;
 	gl::Texture		mPanelUpTex, mPanelDownTex;
 	gl::Texture		mSliderBgTex;
-	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex;
+	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex, mHighlightTex;
 	vector<gl::Texture> mButtonsTex;
 	vector<gl::Texture> mPlanetsTex;
 	vector<gl::Texture> mCloudsTex;
@@ -152,7 +150,7 @@ void KeplerApp::setup()
 {
 	mIsLoaded = false;
 	
-	Rand::randomize();
+	//Rand::randomize();
 	
 	// INIT ACCELEROMETER
 	enableAccelerometer();
@@ -321,7 +319,15 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		mFovDest += ( 1.0f - event.getScaleDelta() ) * 50.0f;
 	} else {
 		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -3.5f + 1.0f;
-		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.45f, 4.5f );
+		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.375f, 4.5f );
+		
+		
+		// if the pinch will trigger a level change, mess with the FOV to signal the impending change.
+		if( mCamDistPinchOffsetDest > 4.2f ){
+			mFovDest = 130.0f;//( 1.0f - event.getScaleDelta() ) * 20.0f;
+		} else {
+			mFovDest = 100.0f;
+		}
 	}
 	
 	vector<TouchEvent::Touch> touches = event.getTouches();
@@ -381,6 +387,7 @@ void KeplerApp::initTextures()
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "next.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debug.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOn.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "highlight.png" ) ) ) );	
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "21.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "31.jpg" ) ) ) );
@@ -595,7 +602,7 @@ void KeplerApp::updateCamera()
 
 	
 	mFovDest = constrain( mFovDest, 75.0f, 135.0f );
-	mFov -= ( mFov - mFovDest ) * 0.4f;
+	mFov -= ( mFov - mFovDest ) * 0.175f;
 	
 	if( mFovDest >= 130.0f && ! mUiLayer.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
 		mUiLayer.setShowWheel( true );
@@ -655,7 +662,7 @@ void KeplerApp::drawLoader()
 	mStarTex.enableAndBind();
 	gl::drawSolidRect( rect );
 	
-	float smallOffset	= cos( getElapsedSeconds() + 1.0f ) * 22.0f;
+	float smallOffset	= cos( getElapsedSeconds() * 0.5f + 2.0f ) * 22.0f;
 	Rectf smallRect		= Rectf( xCenter - 4.0f + smallOffset, yCenter - 4.0f, xCenter + 4.0f + smallOffset, yCenter + 4.0f );
 	//float mediumOffset	= ( getElapsedSeconds() - 3.0f ) * 10.0f;	
 	//Rectf mediumRect	= Rectf( xCenter - 25.0f + mediumOffset * 2.5f, yCenter - 25.0f, xCenter + 25.0f + mediumOffset * 2.5f, yCenter + 25.0f );
@@ -735,7 +742,7 @@ void KeplerApp::draw()
 			GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
 			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 0.2f ) );
-			//glLightfv( GL_LIGHT0, GL_SPECULAR, Color::white() );
+			glLightfv( GL_LIGHT0, GL_SPECULAR, Color::black() );
 			
 			
 			glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular );

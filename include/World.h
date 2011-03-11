@@ -33,7 +33,6 @@ class World {
 	void drawStarGlows();
 	void drawNames();
 	void drawOrthoNames( const ci::CameraPersp &cam, float pinchAlphaOffset );
-	void drawSpheres();
 	void drawOrbitRings();
 	void drawConstellation( const ci::Matrix44f &mat );
 	void buildConstellation();

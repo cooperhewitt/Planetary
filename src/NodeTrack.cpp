@@ -81,7 +81,6 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	
 	mRadius			= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0002f ) * 0.3735f;
 	mSphere			= Sphere( mPos, mRadius * 7.0f );
-	mHitSphere		= Sphere( mPos, 0.01f );
 	mIdealCameraDist = 0.004;//mRadius * 10.0f;
 	mOrbitPeriod	= mTrackLength;
 	mAxialTilt		= Rand::randFloat( 5.0f, 30.0f );
@@ -187,7 +186,7 @@ void NodeTrack::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Textu
 	gl::disableAlphaBlending();
 
 	float c = 1.0f;
-	if( mIsPlaying ) c = 1.0f - mParentNode->mEclipsePer * 0.5f;
+	if( G_ZOOM == G_TRACK_LEVEL ) c = 1.0f - mParentNode->mEclipsePer * 0.35f;
 	gl::color( mColor * c );
 	
 	planets[mPlanetTexIndex].enableAndBind();
@@ -218,7 +217,7 @@ void NodeTrack::drawClouds( const Matrix44f &accelMatrix, const vector<gl::Textu
 
 		gl::enableAdditiveBlending();
 		float c = 1.0f;
-		if( mIsPlaying ) c = 1.0f - mParentNode->mEclipsePer * 0.5f;
+		if( G_ZOOM == G_TRACK_LEVEL ) c = 1.0f - mParentNode->mEclipsePer * 0.35f;
 		gl::color( ColorA( mColor * c, mCamDistAlpha ) );
 		gl::drawSphere( Vec3f::zero(), mRadius + 0.00002f, mSphereIntRes );
 		 

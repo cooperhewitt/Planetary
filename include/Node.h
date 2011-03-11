@@ -36,7 +36,6 @@ class Node {
 	virtual void		drawStarGlow();
 	void				drawName();
 	void				drawOrthoName( const ci::CameraPersp &cam, float pinchAlphaOffset );
-	void				drawSphere();
 	virtual void		drawOrbitRing();
 	virtual void		drawPlanet( const ci::Matrix44f &accelMatrix, const std::vector< ci::gl::Texture> &planets );
 	virtual void		drawClouds( const ci::Matrix44f &accelMatrix, const std::vector< ci::gl::Texture> &clouds );
@@ -59,6 +58,8 @@ class Node {
 	Node				*mParentNode;
 	std::vector<Node*>	mChildNodes;
 	
+	int					mAge;
+	int					mBirthPause;
 	
 	// POSITION/VELOCITY
 	ci::Vec3f			mPos;				// global position

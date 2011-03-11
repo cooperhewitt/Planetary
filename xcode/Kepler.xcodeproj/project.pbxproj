@@ -60,6 +60,7 @@
 		E1C6FFF3131847A40022246C /* Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C6FFF2131847A40022246C /* Data.cpp */; };
 		E1E663701317887F00E5E4B9 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E6636F1317887F00E5E4B9 /* State.cpp */; };
 		E1F2D83113296A70009A2309 /* sliderBg.png in Resources */ = {isa = PBXBuildFile; fileRef = E1F2D83013296A70009A2309 /* sliderBg.png */; };
+		E1F2DBDD132A1D7B009A2309 /* highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = E1F2DBDC132A1D7B009A2309 /* highlight.png */; };
 		E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C872D131F1420000780A3 /* NodeArtist.cpp */; };
 		E25C8744131F14B3000780A3 /* NodeAlbum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8742131F14B3000780A3 /* NodeAlbum.cpp */; };
 		E25C8745131F14B3000780A3 /* NodeTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8743131F14B3000780A3 /* NodeTrack.cpp */; };
@@ -135,6 +136,7 @@
 		E1E6636E1317887600E5E4B9 /* State.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../include/State.h; sourceTree = SOURCE_ROOT; };
 		E1E6636F1317887F00E5E4B9 /* State.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = State.cpp; path = ../src/State.cpp; sourceTree = SOURCE_ROOT; };
 		E1F2D83013296A70009A2309 /* sliderBg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = sliderBg.png; path = ../resources/ui/sliderBg.png; sourceTree = SOURCE_ROOT; };
+		E1F2DBDC132A1D7B009A2309 /* highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = highlight.png; path = ../resources/ui/highlight.png; sourceTree = SOURCE_ROOT; };
 		E1FC74B3130B256D007FE9D6 /* DoubleTapEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DoubleTapEvent.h; sourceTree = "<group>"; };
 		E1FC74B4130B256D007FE9D6 /* PhasedGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhasedGestureRecognizer.h; sourceTree = "<group>"; };
 		E1FC74B5130B256D007FE9D6 /* PinchRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinchRecognizer.h; sourceTree = "<group>"; };
@@ -260,6 +262,7 @@
 		E12766401325E28900E1FC3F /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				E1F2DBDC132A1D7B009A2309 /* highlight.png */,
 				E1F2D83013296A70009A2309 /* sliderBg.png */,
 				E1276DED132812FD00E1FC3F /* debugOn.png */,
 				E1276DE71328117E00E1FC3F /* debug.png */,
@@ -505,6 +508,7 @@
 				E1276DE81328117E00E1FC3F /* debug.png in Resources */,
 				E1276DEE132812FD00E1FC3F /* debugOn.png in Resources */,
 				E1F2D83113296A70009A2309 /* sliderBg.png in Resources */,
+				E1F2DBDD132A1D7B009A2309 /* highlight.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -29,6 +29,5 @@ static const int G_NUM_CLOUD_TYPES	= 5;
 
 
 // TODO: move into State.h
-//extern int	G_CURRENT_LEVEL;
 extern float G_ZOOM;
 extern bool G_DEBUG;

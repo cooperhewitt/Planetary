@@ -21,7 +21,8 @@ using namespace std;
 NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string name )
 	: Node( parent, index, font, name )
 {
-	mPosDest		= Rand::randVec3f() * Rand::randFloat( 50.0f, 150.0f );
+	mPos			= Rand::randVec3f() * Rand::randFloat( 50.0f, 150.0f );
+	mPosDest		= mPos;
 	
 	float hue		= Rand::randFloat( 0.0f, 0.5f );
 	if( hue > 0.2f && hue < 0.4f ){
@@ -33,14 +34,15 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string n
 	mIdealCameraDist = mRadius * 2.0f;
 	
 	mSphere			= Sphere( mPos, 3.65f );
-	mHitSphere		= Sphere( mPos, 10.0f );
+	
+	mAge			= 0.0f;
+	mBirthPause		= Rand::randFloat( 50.0f );
 }
 
 void NodeArtist::update( const Matrix44f &mat )
 {
 	mPos -= ( mPos - mPosDest ) * 0.1f;
-	if( mIsSelected ) mHitSphere.setRadius( 0.5f );
-	else mHitSphere.setRadius( 10.0f );
+	mAge ++;
 	
 	
 	Node::update( mat );
@@ -48,9 +50,11 @@ void NodeArtist::update( const Matrix44f &mat )
 
 void NodeArtist::drawStar()
 {
-	gl::color( mColor );
-	gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ) * 0.66f, 0.0f, mBbRight, mBbUp );
-
+	if( mAge > mBirthPause ){
+		gl::color( mColor );
+		gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ) * 0.66f, 0.0f, mBbRight, mBbUp );
+	}
+	
 	Node::drawStar();
 }
 
@@ -59,7 +63,8 @@ void NodeArtist::drawStarGlow()
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
 		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 8.5f;
-		radius *= ( mEclipsePer * 0.05f + 1.0f );
+		if( G_ZOOM == G_TRACK_LEVEL )
+			radius *= ( mEclipsePer * 0.05f + 1.0f );
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 

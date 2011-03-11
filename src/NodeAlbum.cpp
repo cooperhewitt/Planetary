@@ -43,7 +43,6 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, std::string nam
 	mIdealCameraDist = mRadius * 2.0f;
 	
 	mSphere			= Sphere( mPos, mRadius * 1.6f );
-	mHitSphere		= Sphere( mPos, 0.2f );
 	
 }
 
@@ -80,9 +79,6 @@ void NodeAlbum::update( const Matrix44f &mat )
 	mPosRel		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mPosRel;
 
-	if( mIsSelected ) mHitSphere.setRadius( 0.02f );
-	else mHitSphere.setRadius( 0.2f );
-
 	Node::update( mat );
 	
 	mVel		= mTransPos - mPosPrev;	
@@ -101,7 +97,8 @@ void NodeAlbum::drawStarGlow()
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
 		gl::color( ColorA( mGlowColor, min( mDistFromCamZAxisPer * 300.0f, 1.0f ) ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 3.5f;
-		radius *= ( mEclipsePer * 0.25f + 1.0f );
+		if( G_ZOOM == G_TRACK_LEVEL )
+			radius *= ( mEclipsePer * 0.25f + 1.0f );
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 	
