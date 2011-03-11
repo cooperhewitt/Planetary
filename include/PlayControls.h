@@ -7,6 +7,7 @@
  *
  */
 
+#pragma once
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/app/TouchEvent.h"
 

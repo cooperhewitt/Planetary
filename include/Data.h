@@ -8,18 +8,24 @@
  */
 
 #pragma once 
+#include <Foundation/NSAutoReleasePool.h>
 #include "cinder/gl/Texture.h"
 #include "CinderIPodPlayer.h"
-
-using std::stringstream;
-using std::vector;
 
 class Data {
   public:
 	Data();
+	bool update();
 	void initArtists();
 	void filterArtistsByAlpha( char c );
 	
 	std::vector<ci::ipod::PlaylistRef> mArtists;
 	std::vector<int> mFilteredArtists;
+	
+  private:
+	void backgroundInitArtists();
+	bool isIniting;
+	std::vector<ci::ipod::PlaylistRef> pending;
+	
+	
 };
