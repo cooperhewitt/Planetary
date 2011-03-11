@@ -12,6 +12,7 @@
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Text.h"
+#include "cinder/Thread.h"
 #include "Data.h"
 #include "Globals.h"
 #include <boost/algorithm/string.hpp>   
@@ -26,7 +27,29 @@ Data::Data()
 
 void Data::initArtists()
 {
-	mArtists	= getArtists();
+//	mArtists	= getArtists();
+	isIniting = true;
+	std::thread loaderThread( &Data::backgroundInitArtists, this );	
+}
+
+void Data::backgroundInitArtists()
+{
+	NSAutoreleasePool *autoreleasepool = [[NSAutoreleasePool alloc] init];
+	pending = getArtists();
+	std::cout << "got " << pending.size() << " artists" << std::endl;
+    [autoreleasepool release];	
+	isIniting = false;
+}
+
+bool Data::update()
+{
+	if (!isIniting && pending.size() > 0) {
+		// TODO: time this, is it OK in one frame?
+		mArtists.insert(mArtists.end(),pending.begin(),pending.end());
+		pending.clear();
+		return true;
+	}
+	return false;
 }
 
 void Data::filterArtistsByAlpha( char c )

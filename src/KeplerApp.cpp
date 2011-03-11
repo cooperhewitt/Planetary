@@ -233,15 +233,18 @@ void KeplerApp::setup()
 
 void KeplerApp::init()
 {
-	// DATA
-	mData.initArtists();
+	static bool inited = false;
 	
-
-	// WORLD
-	mWorld.setData( &mData );
-	mWorld.initNodes( &mIpodPlayer, mFont );
+	if (!inited) {
+		// DATA
+		mData.initArtists();
 	
-	mIsLoaded = true;
+		// WORLD
+		mWorld.setData( &mData );
+		//mWorld.initNodes( &mIpodPlayer, mFont );
+		
+		inited = true;
+	}
 }
 
 void KeplerApp::touchesBegan( TouchEvent event )
@@ -521,6 +524,11 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &
 
 void KeplerApp::update()
 {
+	if (mData.update()) {
+		mWorld.initNodes( &mIpodPlayer, mFont );
+		mIsLoaded = true;
+	}
+	
 	mTimeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
 	
 	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.17f );
@@ -626,7 +634,15 @@ void KeplerApp::draw()
 	if( !mIsLoaded ){
 		mLoadingTex.enableAndBind();
 		gl::setMatricesWindow( getWindowSize() );
+		
+		// egregious loading animation
+		// no progress available from Data yet, workin on it
+		gl::pushModelView();
+		gl::translate( getWindowSize()/2.0 );
+		gl::rotate(TWO_PI * getElapsedSeconds());
+		gl::translate( -getWindowSize()/2.0 );
 		gl::drawSolidRect( getWindowBounds() );
+		gl::popModelView();
 
 		mLoadingTex.disable();
 		

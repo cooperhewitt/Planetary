@@ -9,6 +9,8 @@
  
  // Equations as interpreted by Robert Penner.
  
+#pragma once
+
 #include "cinder/Vector.h"
 
 float easeInOutQuad( double t, float b, float c, double d )
