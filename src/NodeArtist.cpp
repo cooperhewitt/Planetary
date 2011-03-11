@@ -21,8 +21,9 @@ using namespace std;
 NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string name )
 	: Node( parent, index, font, name )
 {
-	mPos			= Rand::randVec3f() * Rand::randFloat( 50.0f, 150.0f );
-	mPosDest		= mPos;
+	mPosDest		= Rand::randVec3f() * Rand::randFloat( 50.0f, 150.0f );
+	mPos			= mPosDest + Rand::randVec3f() * 25.0f;
+	
 	
 	float hue		= Rand::randFloat( 0.0f, 0.5f );
 	if( hue > 0.2f && hue < 0.4f ){
@@ -37,6 +38,9 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string n
 	
 	mAge			= 0.0f;
 	mBirthPause		= Rand::randFloat( 50.0f );
+	
+	mRadiusDest		= mRadius * 0.66f;
+	mRadius			= 0.0f;
 }
 
 void NodeArtist::update( const Matrix44f &mat )
@@ -44,15 +48,15 @@ void NodeArtist::update( const Matrix44f &mat )
 	mPos -= ( mPos - mPosDest ) * 0.1f;
 	mAge ++;
 	
-	
 	Node::update( mat );
 }
 
 void NodeArtist::drawStar()
 {
 	if( mAge > mBirthPause ){
+		mRadius -= ( mRadius - mRadiusDest ) * 0.1f;
 		gl::color( mColor );
-		gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ) * 0.66f, 0.0f, mBbRight, mBbUp );
+		gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ), 0.0f, mBbRight, mBbUp );
 	}
 	
 	Node::drawStar();
@@ -60,11 +64,11 @@ void NodeArtist::drawStar()
 
 void NodeArtist::drawStarGlow()
 {
-	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
+	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f || mAge == mBirthPause ){
 		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 8.5f;
+		Vec2f radius = Vec2f( mRadiusDest, mRadiusDest ) * 8.5f;
 		if( G_ZOOM == G_TRACK_LEVEL )
-			radius *= ( mEclipsePer * 0.05f + 1.0f );
+			radius *= ( mEclipsePer * 0.2f + 1.0f );
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 
@@ -83,8 +87,12 @@ void NodeArtist::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Text
 		glDisable( GL_TEXTURE_2D );
 		gl::pushModelView();
 		gl::translate( mTransPos );
+		//float amt = mEclipsePer * 0.25f + 0.75f;
+		//gl::color( ColorA( mGlowColor.r + amt, mGlowColor.g + amt, mGlowColor.b + amt, 1.0f ) );
 		gl::color( Color::white() );
-		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.215f, 100 );
+		float radius = mRadius * 0.33f;
+		gl::enableAlphaBlending();
+		gl::drawSolidCircle( Vec2f::zero(), radius, 100 );
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
 	}

@@ -135,6 +135,8 @@ void NodeAlbum::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Textu
 		gl::pushModelView();
 		gl::translate( mTransPos );
 		gl::color( Color::white() );
+		//float amt = mEclipsePer * 0.25f + 0.75f;
+		//gl::color( ColorA( mGlowColor.r + amt, mGlowColor.g + amt, mGlowColor.b + amt, 1.0f ) );
 		gl::drawSolidCircle( Vec2f::zero(), mRadius * 0.215f, 100 );
 		gl::popModelView();
 		glEnable( GL_LIGHTING );

@@ -78,8 +78,9 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mColor			= Color( CM_HSV, hue, sat, val );
 	mGlowColor		= mColor;
 	mAtmosphereColor = mParentNode->mColor;
+	mEclipseColor	= mColor;
 	
-	mRadius			= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0002f ) * 0.3735f;
+	mRadius			= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0003f ) * 0.3735f;
 	mSphere			= Sphere( mPos, mRadius * 7.0f );
 	mIdealCameraDist = 0.004;//mRadius * 10.0f;
 	mOrbitPeriod	= mTrackLength;
@@ -145,10 +146,6 @@ void NodeTrack::update( const Matrix44f &mat )
 	mPosRel		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mPosRel;
 
-	Node::update( mat );
-	
-	mVel		= mTransPos - mPosPrev;	
-
 	if( mIsSelected ){
 		mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
 		mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.05f;
@@ -164,6 +161,15 @@ void NodeTrack::update( const Matrix44f &mat )
 			it->update( mat, mTransPos );
 		}
 	}
+	
+	float c = 1.0f;
+	if( G_ZOOM == G_TRACK_LEVEL ) c = 1.0f - ( mParentNode->mEclipsePer * 0.35f ) - ( mParentNode->mParentNode->mEclipsePer * 0.35f );
+	mEclipseColor = mColor * c;
+	
+	
+	Node::update( mat );
+	
+	mVel		= mTransPos - mPosPrev;	
 }
 
 void NodeTrack::drawAtmosphere()
@@ -184,11 +190,8 @@ void NodeTrack::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Textu
 	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 20.0f, mAxialTilt ) );
 	
 	gl::disableAlphaBlending();
-
-	float c = 1.0f;
-	if( G_ZOOM == G_TRACK_LEVEL ) c = 1.0f - mParentNode->mEclipsePer * 0.35f;
-	gl::color( mColor * c );
 	
+	gl::color( mEclipseColor );
 	planets[mPlanetTexIndex].enableAndBind();
 	gl::drawSphere( Vec3f::zero(), mRadius, mSphereIntRes );
 	
@@ -213,13 +216,11 @@ void NodeTrack::drawClouds( const Matrix44f &accelMatrix, const vector<gl::Textu
 		
 		clouds[mCloudTexIndex].enableAndBind();
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.66f ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.00001f, mSphereIntRes );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.000006f, mSphereIntRes );
 
 		gl::enableAdditiveBlending();
-		float c = 1.0f;
-		if( G_ZOOM == G_TRACK_LEVEL ) c = 1.0f - mParentNode->mEclipsePer * 0.35f;
-		gl::color( ColorA( mColor * c, mCamDistAlpha ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.00002f, mSphereIntRes );
+		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.000012f, mSphereIntRes );
 		 
 		gl::popModelView();
 	}

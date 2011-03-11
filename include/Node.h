@@ -78,6 +78,7 @@ class Node {
 	// CHARACTERISTICS
 	float				mMass;
 	float				mRadius;			// Radius of the Node
+	float				mRadiusDest;		// Destination radius
 	float				mGlowRadius;		// Radius of the glow image
 	float				mOrbitAngle;		// Current angle in relation to the parentNode
 	float				mStartAngle;		// Starting angle in relation to the parentNode

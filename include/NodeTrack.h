@@ -44,6 +44,7 @@ class NodeTrack : public Node
 	ci::gl::Texture mAlbumArt;
 	
 	ci::Color	mAtmosphereColor;
+	ci::Color	mEclipseColor;
 	
 	float		mAxialTilt;
 	float		mCamDistAlpha;

@@ -192,8 +192,8 @@ void KeplerApp::setup()
 	
 	// TOUCH VARS
 	mTouchPos			= Vec2f::zero();
-	mTouchThrowVel		= Vec2f::zero();
-	mTouchVel			= Vec2f::zero();
+	mTouchThrowVel		= Vec2f( 4.0f, 4.0f );
+	mTouchVel			= Vec2f( 2.0f, 2.0f );
 	mIsDragging			= false;
 	mTime				= getElapsedSeconds();
 	mTimePinchEnded		= 0.0f;
@@ -558,7 +558,7 @@ void KeplerApp::update()
 
 void KeplerApp::updateArcball()
 {
-	if( mTouchThrowVel.length() > 10.0f && !mIsDragging ){
+	if( mTouchThrowVel.length() > 5.0f && !mIsDragging ){
 		//if( mTouchVel.length() > 1.0f ){
 			//mTouchVel *= 0.99f;
 			mArcball.mouseDown( mTouchPos );
@@ -618,6 +618,7 @@ void KeplerApp::updateCamera()
 	double p		= constrain( getElapsedSeconds()-mTime, 0.0, G_DURATION );
 	mCenter			= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, G_DURATION );
 	mCamDist		= easeInOutQuad( p, mCamDistFrom, mCamDistDest - mCamDistFrom, G_DURATION );
+	mCamDist		= min( mCamDist, G_INIT_CAM_DIST );
 	G_ZOOM			= easeInOutQuad( p, mZoomFrom, mZoomDest - mZoomFrom, G_DURATION );
 	
 	Vec3f prevEye	= mEye;
