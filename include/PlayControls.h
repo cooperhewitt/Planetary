@@ -29,11 +29,8 @@ inline std::string to_string( const T& t )
 class PlayControls {
 public:
 
-	// TODO: rename DEBUG_BUTTON --> ACCEL
-	// TODO: button class / data structure?
-	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, DEBUG_BUTTON };
-	enum ButtonTexId { TEX_PLAY, TEX_PAUSE, TEX_PREV, TEX_NEXT, TEX_DEBUG, TEX_DEBUGON, TEX_HIGHLIGHT };
-	
+	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, ACCEL };
+	enum ButtonTexId { TEX_PLAY, TEX_PAUSE, TEX_PREV, TEX_NEXT, TEX_DEBUG, TEX_DEBUGON, TEX_HIGHLIGHT };	
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState )
 	{
@@ -128,7 +125,7 @@ public:
 		Rectf prevButton( x,				 y1, x + bWidth,		y2 );
 		Rectf playButton( x + bWidth,		 y1, x + bWidth * 2.0f, y2 );
 		Rectf nextButton( x + bWidth * 2.0f, y1, x + bWidth * 3.0f, y2 );
-		Rectf debugButton( getWindowWidth() - 60.0f, y1, getWindowWidth(), y2 );
+		Rectf debugButton( getWindowWidth() - 65.0f, y1, getWindowWidth() - 15.0f, y2 );
 		
 		float sliderWidth	= sliderBgTex.getWidth();
 		float sliderHeight	= sliderBgTex.getHeight();
@@ -157,7 +154,7 @@ public:
 		touchRects.push_back( nextButton );
 		touchTypes.push_back( NEXT_TRACK );
 		touchRects.push_back( debugButton );
-		touchTypes.push_back( DEBUG_BUTTON );
+		touchTypes.push_back( ACCEL );
 		
 		Color blue( 0.2f, 0.2f, 0.5f );
 		

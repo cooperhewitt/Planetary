@@ -161,7 +161,7 @@ void Breadcrumbs::draw()
 	gl::enableAlphaBlending(false);
 	gl::color( Color::white() );
 	float x			= 25.0f;
-	float y			= 2.0f;
+	float y			= 3.0f;
 	float xMargin	= 5.0f;
 	float yMargin	= 20.0f;
 	mHeight = 0;

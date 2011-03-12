@@ -66,7 +66,8 @@ void NodeArtist::drawStarGlow()
 {
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f || mAge == mBirthPause ){
 		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
-		Vec2f radius = Vec2f( mRadiusDest, mRadiusDest ) * 8.5f;
+		// if in alpha view, make highlighted artists flicker
+		Vec2f radius = Vec2f( mRadiusDest, mRadiusDest ) * ( 8.5f + math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f ) * Rand::randFloat( 12.0f, 15.0f ) );
 		if( G_ZOOM == G_TRACK_LEVEL )
 			radius *= ( mEclipsePer * 0.2f + 1.0f );
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );

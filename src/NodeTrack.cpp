@@ -62,6 +62,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	}
 	*/
 	
+	
 	//normalize playcount data
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
@@ -83,7 +84,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mEclipseColor	= mColor;
 	
 	mRadius			= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0003f ) * 0.3735f;
-	mSphere			= Sphere( mPos, mRadius * 7.0f );
+	mSphere			= Sphere( mPos, mRadius * 8.5f );
 	mIdealCameraDist = 0.004;//mRadius * 10.0f;
 	mOrbitPeriod	= mTrackLength;
 	mAxialTilt		= Rand::randFloat( 5.0f, 30.0f );
@@ -165,7 +166,7 @@ void NodeTrack::update( const Matrix44f &mat )
 	}
 	
 	float c = 1.0f;
-	if( G_ZOOM == G_TRACK_LEVEL ) c = 1.0f - ( mParentNode->mEclipsePer * 0.35f ) - ( mParentNode->mParentNode->mEclipsePer * 0.35f );
+	if( G_ZOOM == G_TRACK_LEVEL && mIsSelected ) c = 1.0f - ( mParentNode->mEclipsePer * 0.35f ) - ( mParentNode->mParentNode->mEclipsePer * 0.35f );
 	mEclipseColor = mColor * c;
 	
 	
