@@ -56,6 +56,9 @@ void Data::filterArtistsByAlpha( char c )
 {
 	mFilteredArtists.clear();
 	if( c != '#' ){
+		
+		float startTime = app::App::get()->getElapsedSeconds();
+		
 		char cLower = static_cast<char> ( tolower( c ) );
 		char cUpper = static_cast<char> ( toupper( c ) );
 		
@@ -77,6 +80,9 @@ void Data::filterArtistsByAlpha( char c )
 			
 			index ++;
 		}
+		
+		std::cout << "filtered artists in " << (app::App::get()->getElapsedSeconds()-startTime) << std::endl;
+		
 	} else {
 		int index = 0;
 		for( vector<ci::ipod::PlaylistRef>::iterator it = mArtists.begin(); it != mArtists.end(); ++it ){

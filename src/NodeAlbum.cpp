@@ -54,8 +54,9 @@ void NodeAlbum::setData( PlaylistRef album )
 	mCurrentTrackIndex	= 0;
 	mHighestPlayCount	= 0;
 	mLowestPlayCount	= 10000;
-	int i=0;
-	for(Playlist::Iter it = mAlbum->begin(); it != mAlbum->end(); ++it){
+//	int i=0;
+//	for(Playlist::Iter it = mAlbum->begin(); it != mAlbum->end(); ++it){
+	for (int i = 0; i < mNumTracks; i++) {
 		float numPlays = (*mAlbum)[i]->getPlayCount();
 		if( numPlays < mLowestPlayCount )
 			mLowestPlayCount = numPlays;
@@ -163,9 +164,11 @@ void NodeAlbum::drawAtmosphere()
 void NodeAlbum::select()
 {
 	if( !mIsSelected && mChildNodes.size() == 0 ){
-		int i=0;
-		for( Playlist::Iter it = mAlbum->begin(); it != mAlbum->end(); ++it ){
-			TrackRef track		= *it;
+		//int i=0;
+		//for( Playlist::Iter it = mAlbum->begin(); it != mAlbum->end(); ++it ){
+		for (int i = 0; i < mNumTracks; i++) {
+			//TrackRef track		= *it;
+			TrackRef track		= (*mAlbum)[i];
 			string name			= track->getTitle();
 			std::cout << "trackname = " << name << std::endl;
 			NodeTrack *newNode	= new NodeTrack( this, i, mFont, name );
