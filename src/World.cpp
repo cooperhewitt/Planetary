@@ -29,13 +29,18 @@ World::World()
 
 void World::initNodes( Player *player, const Font &font )
 {
+	float t = App::get()->getElapsedSeconds();
+	
 	int i=0;
 	for(vector<PlaylistRef>::iterator it = mData->mArtists.begin(); it != mData->mArtists.end(); ++it){
 		PlaylistRef artist	= *it;
-		string name			= artist->getArtistName();
-		NodeArtist *newNode = new NodeArtist( NULL, i, font, name );
+		NodeArtist *newNode = new NodeArtist( NULL, i, font );
+		newNode->setData(artist);
 		mNodes.push_back( newNode );
 	}
+	
+	cout << (App::get()->getElapsedSeconds() - t) << " seconds to World::initNodes" << endl;
+
 }
 
 void World::filterNodes()

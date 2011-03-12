@@ -17,21 +17,21 @@
 using namespace ci;
 using namespace std;
 
-Node::Node( Node *parent, int index, const Font &font, std::string name )
-	: mParentNode( parent ), mIndex( index ), mFont( font ), mName( name )
+Node::Node( Node *parent, int index, const Font &font )
+	: mParentNode( parent ), mIndex( index ), mFont( font )
 {
 	if( mParentNode ){
 		initWithParent();
 	} else {
 		init();
 	}
+
+	// TODO: restore this behavior
+	//if( mName.size() == 0 ){
+	//	mName = "untitled";
+	//}
 	
-	if( mName.size() == 0 ){
-		mName = "untitled";
-	}
-	
-	
-	createNameTexture();
+	//createNameTexture();
 	
 	mScreenPos			= Vec2f::zero();
 	mEclipsePer			= 1.0f;
@@ -77,7 +77,7 @@ void Node::createNameTexture()
 	TextLayout layout;
 	layout.setFont( mFont );
 	layout.setColor( Color( 1.0f, 1.0f, 1.0f ) );
-	layout.addLine( mName );
+	layout.addLine( getName() );
 	Surface8u nameSurface	= Surface8u( layout.render( true, false ) );
 	mNameTex				= gl::Texture( nameSurface );
 
@@ -154,8 +154,10 @@ void Node::drawStarGlow()
 // DEPRECATED
 void Node::drawName()
 {	
-	
 	if( mIsHighlighted ){
+		if (mNameTex == NULL) {
+			createNameTexture();
+		}
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, mZoomPer ) );
 		mNameTex.enableAndBind();
 		Vec3f pos	= mTransPos + mBbRight * ( mNameTex.getWidth() * 0.075f );
@@ -176,6 +178,9 @@ void Node::drawOrthoName( const CameraPersp &cam, float pinchAlphaOffset )
 			gl::color( ColorA( mColor, mZoomPer * pinchAlphaOffset ) );
 		}
 
+		if (mNameTex == NULL) {
+			createNameTexture();
+		}
 		
 		Vec2f offset = Vec2f( mSphereScreenRadius * 0.4f, -mNameTex.getHeight() * 0.5f );
 		mScreenPos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
@@ -240,16 +245,19 @@ void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix
 
 void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-	Rectf r = Rectf( mScreenPos.x - 20, mScreenPos.y - 10, mScreenPos.x + mNameTex.getWidth() + 10, mScreenPos.y + mNameTex.getHeight() + 10 );
-	
-	if( r.contains( pos ) && mIsHighlighted && ! mIsSelected ){
-		std::cout << "HIT FOUND" << std::endl;
-		nodes.push_back( this );
-	}
-	
-	vector<Node*>::iterator nodeIt;
-	for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->checkForNameTouch( nodes, pos );
+	if (mNameTex != NULL) {
+		
+		Rectf r = Rectf( mScreenPos.x - 20, mScreenPos.y - 10, mScreenPos.x + mNameTex.getWidth() + 10, mScreenPos.y + mNameTex.getHeight() + 10 );
+		
+		if( r.contains( pos ) && mIsHighlighted && ! mIsSelected ){
+			std::cout << "HIT FOUND" << std::endl;
+			nodes.push_back( this );
+		}
+		
+		vector<Node*>::iterator nodeIt;
+		for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+			(*nodeIt)->checkForNameTouch( nodes, pos );
+		}
 	}
 }
 

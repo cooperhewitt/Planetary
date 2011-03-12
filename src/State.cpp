@@ -114,7 +114,7 @@ vector<string> State::getHierarchy()
 	if( mSelectedNode != NULL ){
 		Node *parent = mSelectedNode;
 		while( parent != NULL ){
-			hierarchy.push_back( parent->mName );
+			hierarchy.push_back( parent->getName() );
 			parent = parent->mParentNode;
 		}		
 	}

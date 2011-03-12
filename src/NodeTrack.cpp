@@ -20,8 +20,8 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeTrack::NodeTrack( Node *parent, int index, const Font &font, std::string name )
-	: Node( parent, index, font, name )
+NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
+	: Node( parent, index, font )
 {	
 	mIsHighlighted	= true;
 	mSphereRes		= 16;
@@ -29,7 +29,9 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font, std::string nam
 	mIsPlaying		= false;
 	mHasRings		= false;
 	
-	float invTrackPer = 1.0f/(float)mParentNode->mNumTracks;
+	// FIXME: bad C++?
+	float numTracks = ((NodeAlbum*)mParentNode)->mNumTracks;
+	float invTrackPer = 1.0f/numTracks;
 	float trackNumPer = (float)mIndex * invTrackPer;
 	
 	float minAmt		= mParentNode->mRadius * 0.5f;
@@ -283,4 +285,9 @@ void NodeTrack::drawOrbiters()
 void NodeTrack::setPlaying(bool playing)
 {
 	mIsPlaying = playing;
+}
+
+string NodeTrack::getName()
+{
+	return mTrack->getTitle();
 }
