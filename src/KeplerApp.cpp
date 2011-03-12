@@ -192,8 +192,8 @@ void KeplerApp::setup()
 	
 	// TOUCH VARS
 	mTouchPos			= Vec2f::zero();
-	mTouchThrowVel		= Vec2f( 4.0f, 4.0f );
-	mTouchVel			= Vec2f( 2.0f, 2.0f );
+	mTouchThrowVel		= Vec2f::zero();
+	mTouchVel			= Vec2f::zero();
 	mIsDragging			= false;
 	mTime				= getElapsedSeconds();
 	mTimePinchEnded		= 0.0f;
@@ -369,6 +369,8 @@ void KeplerApp::accelerated( AccelEvent event )
 
 void KeplerApp::initTextures()
 {
+	float t = getElapsedSeconds();
+	cout << "before load time = " << t << endl;
 	mLoadingTex			= loadImage( loadResource( "loading.jpg" ) );
 	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
 	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
@@ -399,6 +401,8 @@ void KeplerApp::initTextures()
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds3.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds4.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
+	t = getElapsedSeconds();
+	cout << "after load time = " << t << endl;
 	
 }
 
@@ -469,7 +473,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 		}
 	} else if( button == PlayControls::NEXT_TRACK ){
 		mIpodPlayer.skipNext();	
-	} else if( button == PlayControls::DEBUG ){
+	} else if( button == PlayControls::ACCEL ){
 		G_DEBUG = !G_DEBUG;
 	}
 	cout << "play button " << button << " pressed" << endl;
@@ -485,12 +489,14 @@ bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 		mWorld.deselectAllNodes();
 		mState.setSelectedNode( NULL );
 		mState.setAlphaChar( ' ' );
+		mCamDistPinchOffsetDest = 1.0f;
 	}
 	else if( level == G_ALPHA_LEVEL ){			// BACK TO ALPHA FILTER
 		mWorld.deselectAllNodes();
 		mData.filterArtistsByAlpha( mState.getAlphaChar() );
 		mWorld.filterNodes();
 		mState.setSelectedNode(NULL);
+		mCamDistPinchOffsetDest = 1.0f;
 	}
 	else if( level >= G_ARTIST_LEVEL ){			// BACK TO ARTIST/ALBUM/TRACK
 		// get Artist, Album or Track from selectedNode
@@ -549,7 +555,7 @@ void KeplerApp::update()
 	updateCamera();
 	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 	
-	mUiLayer.update();
+	mUiLayer.update( mFov );
 	mBreadcrumbs.update();
 	mPlayControls.update();
 	
@@ -599,11 +605,10 @@ void KeplerApp::updateCamera()
 	}
 	
 	// UPDATE FOV
-
-	
 	mFovDest = constrain( mFovDest, 75.0f, 135.0f );
 	mFov -= ( mFov - mFovDest ) * 0.175f;
 	
+
 	if( mFovDest >= 130.0f && ! mUiLayer.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
 		mUiLayer.setShowWheel( true );
 		//mWorld.deselectAllNodes();
@@ -614,6 +619,7 @@ void KeplerApp::updateCamera()
 			mState.setAlphaChar( mState.getAlphaChar() );
 		mUiLayer.setShowWheel( false );
 	}
+
 	
 	double p		= constrain( getElapsedSeconds()-mTime, 0.0, G_DURATION );
 	mCenter			= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, G_DURATION );
@@ -801,6 +807,10 @@ void KeplerApp::draw()
 		mState.draw( mFont );
 		
 		//drawInfoPanel();
+		
+		if( getElapsedFrames()%30 == 0 ){
+			cout << "fps = " << getAverageFps() << endl;
+		}
 	}
 }
 

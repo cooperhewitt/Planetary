@@ -59,6 +59,7 @@ void UiLayer::setup( AppCocoaTouch *app )
 	mAlphaChar		= ' ';
 	mPrevAlphaChar	= ' ';
 	mShowWheel		= false;
+	mWheelScale		= 1.0f;
 	
 	// PANEL AND TAB
 	mPanelRect			= Rectf( 0.0f, 0.0f, getWindowWidth(), 75.0f );
@@ -200,8 +201,16 @@ void UiLayer::selectWheelItem( const Vec2f &pos, bool closeWheel )
 	}
 }
 
-void UiLayer::update()
+void UiLayer::update( float fov )
 {
+	//mWheelScale = ( ( 130.0f - fov ) / 30.0f );
+	
+	if( getShowWheel() ){
+		mWheelScale -= ( mWheelScale - 0.0f ) * 0.2f;
+	} else {
+		mWheelScale -= ( mWheelScale - 1.0f ) * 0.2f;	
+	}
+		
 	mPanelYPos -= ( mPanelYPos - mPanelYPosDest ) * 0.25f;
 	mPanelPos	= Vec2f( 0.0f, mPanelYPos );
 	
@@ -222,10 +231,17 @@ void UiLayer::draw( const gl::Texture &upTex, const gl::Texture &downTex )
 
 void UiLayer::drawWheel()
 {
-	if( mShowWheel ){
-		gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+	if( mWheelScale < 1.0f ){
 		mWheelTex.enableAndBind();
-		gl::drawSolidRect( getWindowBounds() );
+		gl::pushModelView();
+		gl::translate( getWindowCenter() );
+		
+		gl::scale( Vec3f( mWheelScale + 1.0f, mWheelScale + 1.0f, 1.0f ) );
+		Rectf r = Rectf( -getWindowWidth() * 0.5f, -getWindowHeight() * 0.5f, getWindowWidth() * 0.5f, getWindowHeight() * 0.5f );
+		float c = 1.0f - mWheelScale;
+		gl::color( ColorA( c, c, c, c ) );
+		gl::drawSolidRect( r );
+		gl::popModelView();
 		mWheelTex.disable();
 		
 		if( mAlphaChar != ' ' )
@@ -240,7 +256,7 @@ void UiLayer::drawAlphaChar()
 	float x = getWindowWidth() * 0.5f;
 	float y = getWindowHeight() * 0.5f;
 		
-	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f - mWheelScale ) );
 	mAlphaTextures[mAlphaIndex].enableAndBind();
 	gl::drawSolidRect( Rectf( x - w, y - h, x + w, y + h ) );
 	mAlphaTextures[mAlphaIndex].disable();

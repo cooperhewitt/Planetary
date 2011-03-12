@@ -103,7 +103,7 @@ void Node::update( const Matrix44f &mat )
 	if( mIsSelected ){
 		float screenPosLength = mScreenPos.distance( app::getWindowCenter() );
 		if( screenPosLength > 0.0 )
-			mEclipsePer = math<float>::min( 1.0f/(screenPosLength/100.0f), 5.0f );
+			mEclipsePer = math<float>::min( 1.0f/(screenPosLength/200.0f), 5.0f );
 		
 		if( mGen == G_TRACK_LEVEL ){
 			mZoomPer = 1.0f - mZoomPer;
