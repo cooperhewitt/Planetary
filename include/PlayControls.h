@@ -30,8 +30,7 @@ class PlayControls {
 public:
 
 	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, ACCEL };
-	enum ButtonTexId { TEX_PLAY, TEX_PAUSE, TEX_PREV, TEX_NEXT, TEX_DEBUG, TEX_DEBUGON, TEX_HIGHLIGHT };
-	
+	enum ButtonTexId { TEX_PLAY, TEX_PAUSE, TEX_PREV, TEX_NEXT, TEX_DEBUG, TEX_DEBUGON, TEX_HIGHLIGHT };	
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState )
 	{

@@ -48,6 +48,7 @@ class KeplerApp : public AppCocoaTouch {
 	virtual void	touchesEnded( TouchEvent event );
 	virtual void	accelerated( AccelEvent event );
 	void			initTextures();
+	void			initFonts();
 	virtual void	update();
 	void			updateArcball();
 	void			updateCamera();
@@ -190,7 +191,7 @@ void KeplerApp::setup()
 	mFont				= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 16 );
 	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
 	mFontSmall			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 14 );	
-	
+
 	// TOUCH VARS
 	mTouchPos			= Vec2f::zero();
 	mTouchThrowVel		= Vec2f::zero();
@@ -204,6 +205,8 @@ void KeplerApp::setup()
     mPinchRecognizer.registerMoved( this, &KeplerApp::onPinchMoved );
     mPinchRecognizer.registerEnded( this, &KeplerApp::onPinchEnded );
 	
+	// FONTS
+	initFonts();
 	
 	// TEXTURES
 	initTextures();
@@ -368,6 +371,13 @@ void KeplerApp::accelerated( AccelEvent event )
 	mNewAccelMatrix.invert();
 }
 
+void KeplerApp::initFonts()
+{
+	mFont				= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 16 );
+	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
+	mFontSmall			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 13 );	
+}
+
 void KeplerApp::initTextures()
 {
 	float t = getElapsedSeconds();
@@ -447,15 +457,16 @@ bool KeplerApp::onNodeSelected( Node *node )
 	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
 
 	if( node != NULL && node->mGen == G_TRACK_LEVEL ){
+		// FIXME: is this a bad OOP thing or is there a cleaner/safer C++ way to handle it?
+		NodeTrack* trackNode = (NodeTrack*)node;
 		if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
 			ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
-			if ( node->mTrack->getItemId() != playingTrack->getItemId() ) {
-				mIpodPlayer.play( node->mAlbum, node->mIndex );
+			if ( trackNode->mTrack->getItemId() != playingTrack->getItemId() ) {
+				mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
 			}
 		}
 		else {
-			mIpodPlayer.play( node->mAlbum, node->mIndex );
-			mUiLayer.setShowWheel( false );		
+			mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
 		}
 	}
 	
@@ -650,12 +661,9 @@ void KeplerApp::updateCamera()
 
 void KeplerApp::updatePlayhead()
 {
-	Node *currentlyPlayingNode = mState.getPlayingNode();
-	NodeTrack *currentlyPlayingNodeTrack = (NodeTrack*)currentlyPlayingNode;
-	//if( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
-	if( currentlyPlayingNodeTrack ){
+	if( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
 		mCurrentTrackPlayheadTime	= mIpodPlayer.getPlayheadTime();
-		mCurrentTrackLength			= currentlyPlayingNodeTrack->mTrackLength;
+		mCurrentTrackLength			= mIpodPlayer.getPlayingTrack()->getLength();
 	}
 }
 
@@ -883,35 +891,36 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 		ipod::PlaylistRef playingArtist = ipod::getArtist(playingTrack->getArtistId());
 		ipod::PlaylistRef playingAlbum = ipod::getAlbum(playingTrack->getAlbumId());
 
+		// FIXME: do all this getName() stuff with getId()
+		
 		console() << "searching all our nodes for the new playing song..." << endl;
 		for (int i = 0; i < mWorld.mNodes.size(); i++) {
 			Node *artistNode = mWorld.mNodes[i];
-			if (artistNode->mName == playingArtist->getArtistName()) {
+			if (artistNode->getName() == playingArtist->getArtistName()) {
 				console() << "hey it's an artist we know!" << endl;
 				if (!artistNode->mIsSelected) {
 					console() << "and it needs to be selected!" << endl;
-					mState.setAlphaChar(artistNode->mName);
+					mState.setAlphaChar(artistNode->getName());
 					mState.setSelectedNode(artistNode);
 				}
 				for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
 					Node *albumNode = artistNode->mChildNodes[j];
-					if (albumNode->mName == playingAlbum->getAlbumTitle()) {
+					if (albumNode->getName() == playingAlbum->getAlbumTitle()) {
 						console() << "and we know the album!" << endl;
 						if (!albumNode->mIsSelected) {
 							console() << "and the album needs to be selected" << endl;
 							mState.setSelectedNode(albumNode);
 						}
 						for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-							Node *trackNode = albumNode->mChildNodes[k];
+							// FIXME: what's the proper C++ way to do this?
+							NodeTrack *trackNode = (NodeTrack*)(albumNode->mChildNodes[k]);
 							if (trackNode->mTrack->getItemId() == playingTrack->getItemId()) {
 								console() << "and we know the track!" << endl;
 								if (!trackNode->mIsSelected) {
 									console() << "quick! select it!!!" << endl;
 									mState.setSelectedNode(trackNode);
 								}
-								// FIXME: what's the proper C++ way to do this?
-								NodeTrack *scaryCastNode = (NodeTrack*)trackNode;
-								mState.setPlayingNode(scaryCastNode);
+								mState.setPlayingNode(trackNode);
 								break;
 							}
 						}								

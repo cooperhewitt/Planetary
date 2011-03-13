@@ -15,7 +15,7 @@
 class NodeAlbum : public Node
 {
   public:
-	NodeAlbum( Node *parent, int index, const ci::Font &font, std::string name );
+	NodeAlbum( Node *parent, int index, const ci::Font &font );
 	
 	void update( const ci::Matrix44f &mat );
 	void drawStar();
@@ -27,5 +27,12 @@ class NodeAlbum : public Node
 	void drawAtmosphere();
 	void select();
 	void setData( ci::ipod::PlaylistRef album );
-	//void selectNextTrack( Node *nodeSelected, string trackName );
+	string getName();
+
+	// TODO: should this be private?
+	int mNumTracks;
+
+  private:
+	ci::ipod::PlaylistRef mAlbum;
+	
 };

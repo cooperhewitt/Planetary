@@ -22,9 +22,9 @@ using std::vector;
 
 class Node {
   public:
-	Node();
-	~Node(){ deselect(); }
-	Node( Node *parent, int index, const ci::Font &font, std::string name );
+
+	Node( Node *parent, int index, const ci::Font &font );
+	virtual ~Node(){ deselect(); }	
 	
 	// METHODS
 	void				init();
@@ -45,13 +45,10 @@ class Node {
 	void				checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
 	virtual void		select();
 	void				deselect();
-	
-	
-	ci::ipod::PlaylistRef mAlbum;
-	int					mCurrentTrackIndex;
-	ci::ipod::TrackRef  mTrack;
-	int					mNumAlbums;
-	int					mNumTracks;
+	virtual string		getName()=0; // Name of the node is provided by subclasses
+
+// TODO: clean up interface and enable privates!
+//private:
 	
 	int					mGen;
 	int					mIndex;
@@ -99,12 +96,10 @@ class Node {
 	float				mIdealCameraDist;	// Ideal distance from node to camera
 	
 	// NAME
-	std::string			mName;				// Name of the node
 	ci::Font			mFont;
-
 	ci::gl::Texture		mNameTex;			// Texture of the name
+
 	ci::gl::Texture		mPlanetTex;			// TODO: this is a test.
-	
 	
 	ci::Sphere			mSphere;			// Sphere used for name label alignment
 	//ci::Sphere			mHitSphere;			// Sphere used for hit-tests

@@ -35,7 +35,27 @@ void Data::initArtists()
 void Data::backgroundInitArtists()
 {
 	NSAutoreleasePool *autoreleasepool = [[NSAutoreleasePool alloc] init];
-	pending = getArtists();
+	
+//	float t = app::App::get()->getElapsedSeconds();
+//	ci::ipod::PlaylistRef tracks = getAllTracks();
+//	std::cout << (app::App::get()->getElapsedSeconds()-t) << " seconds to get all tracks" << std::endl;
+//	
+//	t = app::App::get()->getElapsedSeconds();
+//	int numTracks = tracks->size();
+//	map<string,bool> uniqueArtists;
+//	for (int i = 0; i < numTracks; i++) {
+//		string artist = (*tracks)[i]->getArtist();
+//		if (uniqueArtists[artist]) {
+//			continue;
+//		}
+//		else {
+//			uniqueArtists[artist] = true;
+//			pending.push_back(getArtist((*tracks)[i]->getArtistId()));
+//		}
+//	}
+//	std::cout << (app::App::get()->getElapsedSeconds()-t) << " seconds to derive artists" << std::endl;
+	
+	pending = getArtists();		
 	std::cout << "got " << pending.size() << " artists" << std::endl;
     [autoreleasepool release];	
 	isIniting = false;

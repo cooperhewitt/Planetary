@@ -18,8 +18,8 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeArtist::NodeArtist( Node *parent, int index, const Font &font, std::string name )
-	: Node( parent, index, font, name )
+NodeArtist::NodeArtist( Node *parent, int index, const Font &font )
+	: Node( parent, index, font )
 {
 	mPosDest		= Rand::randVec3f() * Rand::randFloat( 50.0f, 150.0f );
 	mPos			= mPosDest + Rand::randVec3f() * 25.0f;
@@ -119,14 +119,14 @@ void NodeArtist::drawAtmosphere()
 void NodeArtist::select()
 {
 	if (!mIsSelected) {
-		vector<ipod::PlaylistRef> albumsBySelectedArtist = getAlbumsWithArtist( mName );
+		// TODO: switch this to use artist ID
+		vector<ipod::PlaylistRef> albumsBySelectedArtist = getAlbumsWithArtist( mPlaylist->getArtistName() );
 		mNumAlbums = albumsBySelectedArtist.size();
 		
 		int i=0;
 		for(vector<PlaylistRef>::iterator it = albumsBySelectedArtist.begin(); it != albumsBySelectedArtist.end(); ++it){
 			PlaylistRef album	= *it;
-			string name			= album->getAlbumTitle();
-			NodeAlbum *newNode = new NodeAlbum( this, i, mFont, name );
+			NodeAlbum *newNode = new NodeAlbum( this, i, mFont );
 			mChildNodes.push_back( newNode );
 			newNode->setData( album );
 			i++;
@@ -134,4 +134,14 @@ void NodeArtist::select()
 		
 	}
 	Node::select();
+}
+
+void NodeArtist::setData( PlaylistRef playlist )
+{
+	mPlaylist = playlist;
+}
+
+string NodeArtist::getName()
+{
+	return mPlaylist->getArtistName();
 }

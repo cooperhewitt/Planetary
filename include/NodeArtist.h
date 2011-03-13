@@ -15,7 +15,7 @@
 class NodeArtist : public Node
 {
   public:
-	NodeArtist( Node *parent, int index, const ci::Font &font, std::string name );
+	NodeArtist( Node *parent, int index, const ci::Font &font );
 	
 	void update( const ci::Matrix44f &mat );
 	void drawStar();
@@ -26,4 +26,12 @@ class NodeArtist : public Node
 	void drawRings( const ci::gl::Texture &tex );
 	void drawAtmosphere();
 	void select();
+	string getName();
+	void setData( ci::ipod::PlaylistRef playlist );
+
+	int mNumAlbums;
+
+  private:
+	ci::ipod::PlaylistRef mPlaylist;
+	
 };
