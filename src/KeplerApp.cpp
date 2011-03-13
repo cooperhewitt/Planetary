@@ -139,6 +139,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex, mHighlightTex;
 	vector<gl::Texture> mButtonsTex;
 	vector<gl::Texture> mPlanetsTex;
+    gl::Texture     mRingsTex;
 	vector<gl::Texture> mCloudsTex;
 	
 	float			mTime;
@@ -188,7 +189,7 @@ void KeplerApp::setup()
 	// FONTS
 	mFont				= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 16 );
 	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
-	mFontSmall			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 13 );	
+	mFontSmall			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 14 );	
 	
 	// TOUCH VARS
 	mTouchPos			= Vec2f::zero();
@@ -323,7 +324,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		
 		
 		// if the pinch will trigger a level change, mess with the FOV to signal the impending change.
-		if( mCamDistPinchOffsetDest > 4.2f ){
+		if( mCamDistPinchOffsetDest > 4.1f ){
 			mFovDest = 130.0f;//( 1.0f - event.getScaleDelta() ) * 20.0f;
 		} else {
 			mFovDest = 100.0f;
@@ -348,7 +349,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
 	std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
-	if( mCamDistPinchOffset > 4.2f ){
+	if( mCamDistPinchOffset > 4.1f ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
 			mState.setSelectedNode( selected->mParentNode );
@@ -390,12 +391,22 @@ void KeplerApp::initTextures()
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debug.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOn.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "highlight.png" ) ) ) );	
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
+    mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "12.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "13.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "21.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "22.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "23.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "31.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "32.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "33.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "41.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "42.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "43.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "51.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "rings.png" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "52.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "53.jpg" ) ) ) );
+	mRingsTex           = loadImage( loadResource( "rings.png" ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds1.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds2.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds3.png" ) ) ) );
@@ -443,7 +454,8 @@ bool KeplerApp::onNodeSelected( Node *node )
 			}
 		}
 		else {
-			mIpodPlayer.play( node->mAlbum, node->mIndex );			
+			mIpodPlayer.play( node->mAlbum, node->mIndex );
+			mUiLayer.setShowWheel( false );		
 		}
 	}
 	
@@ -555,7 +567,7 @@ void KeplerApp::update()
 	updateCamera();
 	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 	
-	mUiLayer.update( mFov );
+	mUiLayer.update( mFov, mTimeSincePinchEnded );
 	mBreadcrumbs.update();
 	mPlayControls.update();
 	
@@ -774,7 +786,7 @@ void KeplerApp::draw()
 			
 	// RINGS
 			gl::enableAdditiveBlending();
-			mWorld.drawRings( mPlanetsTex[G_RING_TYPE] );
+			mWorld.drawRings( mRingsTex );
 			glDisable( GL_LIGHTING );
 			gl::disableDepthRead();
 		}
@@ -808,7 +820,7 @@ void KeplerApp::draw()
 		
 		//drawInfoPanel();
 		
-		if( getElapsedFrames()%30 == 0 ){
+		if( getElapsedFrames()%120 == 0 ){
 			cout << "fps = " << getAverageFps() << endl;
 		}
 	}
@@ -918,6 +930,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 		mState.setPlayingNode(NULL);
 		console() << "trackchanged but nothing's playing" << endl;
 	}
+	
+	
 	
 	/*
 	if( mCurrentAlbum ){

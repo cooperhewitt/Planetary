@@ -60,6 +60,7 @@ void UiLayer::setup( AppCocoaTouch *app )
 	mPrevAlphaChar	= ' ';
 	mShowWheel		= false;
 	mWheelScale		= 1.0f;
+	mTimeSincePinchEnded = 0.0f;
 	
 	// PANEL AND TAB
 	mPanelRect			= Rectf( 0.0f, 0.0f, getWindowWidth(), 75.0f );
@@ -114,7 +115,7 @@ bool UiLayer::touchesMoved( TouchEvent event )
 	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) {
 		mTouchPos = touchIt->getPos();
 	}
-	
+
 	selectWheelItem( mTouchPos, false );
 
 	if( mIsPanelTabTouched ){
@@ -179,7 +180,7 @@ void UiLayer::setPanelPos( float y, bool doneDragging )
 
 void UiLayer::selectWheelItem( const Vec2f &pos, bool closeWheel )
 {
-	if( mShowWheel ){ 
+	if( mShowWheel && mTimeSincePinchEnded > 0.5f ){ 
 		if( ! mStripRect.contains( pos ) ){
 			Vec2f dir				= pos - getWindowCenter();
 			float distToCenter		= dir.length();
@@ -201,8 +202,9 @@ void UiLayer::selectWheelItem( const Vec2f &pos, bool closeWheel )
 	}
 }
 
-void UiLayer::update( float fov )
+void UiLayer::update( float fov, float timeSincePinchEnded )
 {
+	mTimeSincePinchEnded = timeSincePinchEnded;
 	//mWheelScale = ( ( 130.0f - fov ) / 30.0f );
 	
 	if( getShowWheel() ){

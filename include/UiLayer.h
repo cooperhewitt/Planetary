@@ -28,7 +28,7 @@ class UiLayer {
 	bool	touchesEnded( ci::app::TouchEvent event );
 	void	setPanelPos( float y, bool doneDragging );
 	void	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
-	void	update( float fov );
+	void	update( float fov, float timeSincePinchEnded );
 	void	draw( const ci::gl::Texture &upTex, const ci::gl::Texture &downTex );
 	void	drawWheel();
 	void	drawAlphaChar();
@@ -64,6 +64,7 @@ class UiLayer {
 	bool			mIsPanelOpen;			// Is the Panel fully open
 	bool			mHasPanelBeenDragged;
 	float			mPanelTabTouchYOffset;	// Accommodate the touch position y value
+	float			mTimeSincePinchEnded;
 	
 	ci::Rectf		mStripRect;
 	bool			mShowWheel;

@@ -63,8 +63,6 @@ void NodeAlbum::setData( PlaylistRef album )
 		
 		if( numPlays > mHighestPlayCount )
 			mHighestPlayCount = numPlays;
-			
-		i++;
 	}
 }
 
@@ -175,7 +173,6 @@ void NodeAlbum::select()
 			//newNode->setIPodPlayer( mPlayer );
 			mChildNodes.push_back( newNode );
 			newNode->setData( track, mAlbum );
-			i++;
 		}
 		
 		

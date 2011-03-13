@@ -65,10 +65,18 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
 	
+    /*
+	std::cout << "playCount = " << mPlayCount << std::endl;
+	std::cout << "highestPlayCount = " << mParentNode->mHighestPlayCount << std::endl;
+	std::cout << "lowestPlayCount = " << mParentNode->mLowestPlayCount << std::endl;
+	std::cout << "normPlayCount = " << normPlayCount << std::endl;
+	*/
+    
 	// try making own texture for ringed planet. texture stripe, maybe from album art?
-	
-	mPlanetTexIndex = (int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
-	mCloudTexIndex  = mPlanetTexIndex;
+	mPlanetTexIndex = mIndex%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
+	mCloudTexIndex  = Rand::randInt( G_NUM_CLOUD_TYPES );
+   // mPlanetTexIndex *= G_NUM_PLANET_TYPE_OPTIONS + Rand::randInt( G_NUM_PLANET_TYPE_OPTIONS );
+
 	
 	if( mParentNode->mHighestPlayCount == mPlayCount && mPlayCount > 5 )
 		mHasRings = true;
@@ -81,7 +89,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mAtmosphereColor = mParentNode->mColor;
 	mEclipseColor	= mColor;
 	
-	mRadius			= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0003f ) * 0.3735f;
+	mRadius			= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0003f ) * 0.75;
 	mSphere			= Sphere( mPos, mRadius * 8.5f );
 	mIdealCameraDist = 0.004;//mRadius * 10.0f;
 	mOrbitPeriod	= mTrackLength;
