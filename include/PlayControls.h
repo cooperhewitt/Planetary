@@ -70,6 +70,7 @@ public:
 				cbTouchesMoved = mApp->registerTouchesMoved( this, &PlayControls::touchesMoved );			
 			}
 			lastTouchedType = findButtonUnderTouches(touches);
+			return true;
 		}
 		else {
 			lastTouchedType = NO_BUTTON;

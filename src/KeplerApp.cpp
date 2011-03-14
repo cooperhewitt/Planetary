@@ -17,7 +17,6 @@
 #include "Data.h"
 #include "PlayControls.h"
 #include "Breadcrumbs.h"
-#include "BreadcrumbEvent.h"
 #include "CinderIPod.h"
 #include "CinderIPodPlayer.h"
 #include "PinchRecognizer.h"
@@ -116,7 +115,7 @@ class KeplerApp : public AppCocoaTouch {
 	
 	// MULTITOUCH
 	Vec2f			mTouchPos;
-	Vec2f			mTouchThrowVel;
+	Vec2f			mTouchThrowVel; // TODO: what's the difference between mTouchVel and mTouchThrowVel?
 	Vec2f			mTouchVel;
 	bool			mIsDragging;
 	bool			onPinchBegan( PinchEvent event );
@@ -125,7 +124,6 @@ class KeplerApp : public AppCocoaTouch {
     vector<Ray>		mPinchRays;
     PinchRecognizer mPinchRecognizer;
 	float			mPinchScale;
-	float			mTimeSincePinchEnded;
 	float			mTimePinchEnded;
 
 	// PARTICLES
@@ -203,7 +201,6 @@ void KeplerApp::setup()
 	mIsDragging			= false;
 	mTime				= getElapsedSeconds();
 	mTimePinchEnded		= 0.0f;
-	mTimeSincePinchEnded = 0.0f;
 	mPinchRecognizer.init(this);
     mPinchRecognizer.registerBegan( this, &KeplerApp::onPinchBegan );
     mPinchRecognizer.registerMoved( this, &KeplerApp::onPinchMoved );
@@ -261,47 +258,47 @@ void KeplerApp::init()
 
 void KeplerApp::touchesBegan( TouchEvent event )
 {	
-	mIsDragging = false;
-	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) 
-	{
-		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.2f )
-			mTouchPos		= touchIt->getPos();
-			mTouchThrowVel	= Vec2f::zero();
-			
-			mArcball.mouseDown( Vec2f( mTouchPos.x, mTouchPos.y ) );
+	mIsDragging = false;	
+	const vector<TouchEvent::Touch> touches = getActiveTouches();
+	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
+	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ) {
+		mTouchPos		= touches.begin()->getPos();
+		mTouchThrowVel	= Vec2f::zero();	
+		mTouchVel		= Vec2f::zero();
+		mArcball.mouseDown( Vec2f( mTouchPos.x, mTouchPos.y ) );
 	}
 }
 
 void KeplerApp::touchesMoved( TouchEvent event )
 {
-	mIsDragging = true;
-	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt )
-	{
-		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.2f ){
-			mTouchThrowVel	= ( touchIt->getPos() - mTouchPos );
-			mTouchVel		= mTouchThrowVel;
-			mTouchPos		= touchIt->getPos();
-			mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
-		}
+	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
+	const vector<TouchEvent::Touch> touches = getActiveTouches();
+	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){
+		mIsDragging = true;
+		Vec2f currentPos = touches.begin()->getPos();
+		mTouchThrowVel	= ( currentPos - touches.begin()->getPrevPos() );
+		mTouchVel		= mTouchThrowVel;
+		mTouchPos		= currentPos;
+		mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
 	}
 }
 
 void KeplerApp::touchesEnded( TouchEvent event )
 {
-	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt )
-	{
-		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.2f ){
-			mTouchPos = touchIt->getPos();
-			
-			// if the nav wheel isnt showing and you havent been dragging and your touch is above the uiLayer panel
-			if( ! mUiLayer.getShowWheel() && ! mIsDragging && mTouchPos.y < mUiLayer.getPanelYPos() ){
-				float u			= mTouchPos.x / (float) getWindowWidth();
-				float v			= mTouchPos.y / (float) getWindowHeight();
-				Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
-				checkForNodeTouch( touchRay, mMatrix, mTouchPos );
-			}
-			mIsDragging = false;
+	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
+	const vector<TouchEvent::Touch> touches = event.getTouches();
+	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){
+		mTouchPos = touches.begin()->getPos();		
+		// if the nav wheel isnt showing and you havent been dragging and your touch is above the uiLayer panel
+		if( ! mUiLayer.getShowWheel() && ! mIsDragging && mTouchPos.y < mUiLayer.getPanelYPos() ){
+			float u			= mTouchPos.x / (float) getWindowWidth();
+			float v			= mTouchPos.y / (float) getWindowHeight();
+			Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
+			checkForNodeTouch( touchRay, mMatrix, mTouchPos );
 		}
+	}
+	if (getActiveTouches().size() != 1) {
+		mIsDragging = false;
 	}
 }
 
@@ -311,10 +308,10 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
     mPinchRays = event.getTouchRays( mCam );
 	
 	mTouchThrowVel	= Vec2f::zero();
-	vector<TouchEvent::Touch> touches = event.getTouches();
+	vector<PinchEvent::Touch> touches = event.getTouches();
 	Vec2f averageTouchPos;
-	for( vector<TouchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
-		averageTouchPos += it->getPos();
+	for( vector<PinchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
+		averageTouchPos += it->mPos;
 	}
 	averageTouchPos /= touches.size();
 	mTouchPos = averageTouchPos;
@@ -341,10 +338,10 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		}
 	}
 	
-	vector<TouchEvent::Touch> touches = event.getTouches();
+	vector<PinchEvent::Touch> touches = event.getTouches();
 	Vec2f averageTouchPos;
-	for( vector<TouchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
-		averageTouchPos += it->getPos();
+	for( vector<PinchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
+		averageTouchPos += it->mPos;
 	}
 	averageTouchPos /= touches.size();
 	
@@ -353,6 +350,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	mTouchPos		= averageTouchPos;
 	
 	mPinchScale		= event.getScale();
+	cout << "pinch scale: " << mPinchScale << endl;
     return false;
 }
 
@@ -585,9 +583,7 @@ void KeplerApp::update()
 		mWorld.initNodes( &mIpodPlayer, mFont );
 		mIsLoaded = true;
 	}
-	
-	mTimeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
-	
+		
 	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.17f );
 	updateArcball();
 	mWorld.update( mMatrix );
