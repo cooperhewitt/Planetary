@@ -27,7 +27,7 @@ public:
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
 	void	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
-	void	update( float fov );
+	void	update( float fov, float timeSincePinchEnded );
 	void	draw();
 	void	drawWheel();
 	void	drawAlphaChar();
@@ -51,7 +51,9 @@ private:
 	ci::app::AppCocoaTouch *mApp;
 	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded;
 	ci::Vec2f		mTouchPos;
-	
+
+	float			mTimeSincePinchEnded;
+
 	bool			mShowWheel;
 	std::string		mAlphaString;
 	int				mAlphaIndex;

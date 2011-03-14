@@ -103,7 +103,7 @@ bool AlphaWheel::touchesEnded( TouchEvent event )
 
 void AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 {
-	if( mShowWheel ){ 
+	if( mShowWheel && mTimeSincePinchEnded > 0.5f){ 
 		Vec2f dir				= pos - getWindowCenter();
 		float distToCenter		= dir.length();
 		if( distToCenter > 250 && distToCenter < 350 ){
@@ -123,8 +123,10 @@ void AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 	}
 }
 
-void AlphaWheel::update( float fov )
+void AlphaWheel::update( float fov, float timeSincePinchEnded )
 {
+	mTimeSincePinchEnded = timeSincePinchEnded;
+	
 	//mWheelScale = ( ( 130.0f - fov ) / 30.0f );
 	if( getShowWheel() ){
 		mWheelScale -= ( mWheelScale - 0.0f ) * 0.2f;
