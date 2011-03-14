@@ -113,7 +113,7 @@ class KeplerApp : public AppCocoaTouch {
 	
 	// MULTITOUCH
 	Vec2f			mTouchPos;
-	Vec2f			mTouchThrowVel;
+	Vec2f			mTouchThrowVel; // TODO: what's the difference between mTouchVel and mTouchThrowVel?
 	Vec2f			mTouchVel;
 	bool			mIsDragging;
 	bool			onPinchBegan( PinchEvent event );
@@ -122,10 +122,7 @@ class KeplerApp : public AppCocoaTouch {
     vector<Ray>		mPinchRays;
     PinchRecognizer mPinchRecognizer;
 	float			mPinchScale;
-	float			mTimeSincePinchEnded;
 	float			mTimePinchEnded;
-
-	
 	
 	// TEXTURES
 	gl::Texture		mLoadingTex;
@@ -193,7 +190,6 @@ void KeplerApp::setup()
 	mIsDragging			= false;
 	mTime				= getElapsedSeconds();
 	mTimePinchEnded		= 0.0f;
-	mTimeSincePinchEnded = 0.0f;
 	mPinchRecognizer.init(this);
     mPinchRecognizer.registerBegan( this, &KeplerApp::onPinchBegan );
     mPinchRecognizer.registerMoved( this, &KeplerApp::onPinchMoved );
@@ -250,20 +246,23 @@ void KeplerApp::touchesBegan( TouchEvent event )
 {	
 	mIsDragging = false;	
 	const vector<TouchEvent::Touch> touches = getActiveTouches();
-	if( touches.size() == 1 && mTimeSincePinchEnded > 0.2f ) {
+	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
+	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ) {
 		mTouchPos		= touches.begin()->getPos();
-		mTouchThrowVel	= Vec2f::zero();			
+		mTouchThrowVel	= Vec2f::zero();	
+		mTouchVel		= Vec2f::zero();
 		mArcball.mouseDown( Vec2f( mTouchPos.x, mTouchPos.y ) );
 	}
 }
 
 void KeplerApp::touchesMoved( TouchEvent event )
 {
+	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
 	const vector<TouchEvent::Touch> touches = getActiveTouches();
-	if( touches.size() == 1 && mTimeSincePinchEnded > 0.2f ){
+	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){
 		mIsDragging = true;
 		Vec2f currentPos = touches.begin()->getPos();
-		mTouchThrowVel	= ( currentPos - mTouchPos );
+		mTouchThrowVel	= ( currentPos - touches.begin()->getPrevPos() );
 		mTouchVel		= mTouchThrowVel;
 		mTouchPos		= currentPos;
 		mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
@@ -272,8 +271,9 @@ void KeplerApp::touchesMoved( TouchEvent event )
 
 void KeplerApp::touchesEnded( TouchEvent event )
 {
+	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
 	const vector<TouchEvent::Touch> touches = event.getTouches();
-	if( touches.size() == 1 && mTimeSincePinchEnded > 0.2f ){
+	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){
 		mTouchPos = touches.begin()->getPos();		
 		// if the nav wheel isnt showing and you havent been dragging and your touch is above the uiLayer panel
 		if( ! mUiLayer.getShowWheel() && ! mIsDragging && mTouchPos.y < mUiLayer.getPanelYPos() ){
@@ -550,9 +550,7 @@ void KeplerApp::update()
 		mWorld.initNodes( &mIpodPlayer, mFont );
 		mIsLoaded = true;
 	}
-	
-	mTimeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
-	
+		
 	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.17f );
 	updateArcball();
 	mWorld.update( mMatrix );
