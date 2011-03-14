@@ -45,6 +45,11 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font )
 
 void NodeArtist::update( const Matrix44f &mat )
 {
+    float screenPosLength = mScreenPos.distance( app::getWindowCenter() );
+    if( screenPosLength > 0.0 )
+        mEclipsePer = math<float>::min( 1.0f/(screenPosLength/200.0f), 7.5f );
+    
+    
 	mPos -= ( mPos - mPosDest ) * 0.1f;
 	mAge ++;
 	
@@ -64,12 +69,17 @@ void NodeArtist::drawStar()
 
 void NodeArtist::drawStarGlow()
 {
-	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f || mAge == mBirthPause ){
+	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
 		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
 		// if in alpha view, make highlighted artists flicker
 		Vec2f radius = Vec2f( mRadiusDest, mRadiusDest ) * ( 8.5f + math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f ) * Rand::randFloat( 12.0f, 15.0f ) );
-		if( G_ZOOM == G_TRACK_LEVEL )
-			radius *= ( mEclipsePer * 0.2f + 1.0f );
+		if( G_ZOOM >= G_ALBUM_LEVEL ){
+            if( mIsSelected ){
+                radius *= ( mEclipsePer * 0.3f + 1.0f );
+            } else {
+                radius *= math<float>::max( 1.0f - mEclipsePer * 0.4f, 0.0f );
+            }
+        }
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 

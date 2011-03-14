@@ -29,8 +29,8 @@ inline std::string to_string( const T& t )
 class PlayControls {
 public:
 
-	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, ACCEL };
-	enum ButtonTexId { TEX_PLAY, TEX_PAUSE, TEX_PREV, TEX_NEXT, TEX_DEBUG, TEX_DEBUGON, TEX_HIGHLIGHT };	
+	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, ACCEL, DBUG };
+	enum ButtonTexId { TEX_PLAY, TEX_PAUSE, TEX_PREV, TEX_NEXT, TEX_ACCEL_OFF, TEX_ACCEL_ON, TEX_DEBUG_OFF, TEX_DEBUG_ON };	
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState )
 	{
@@ -126,7 +126,8 @@ public:
 		Rectf prevButton( x,				 y1, x + bWidth,		y2 );
 		Rectf playButton( x + bWidth,		 y1, x + bWidth * 2.0f, y2 );
 		Rectf nextButton( x + bWidth * 2.0f, y1, x + bWidth * 3.0f, y2 );
-		Rectf debugButton( getWindowWidth() - 65.0f, y1, getWindowWidth() - 15.0f, y2 );
+		Rectf accelButton( getWindowWidth() - 65.0f, y1, getWindowWidth() - 15.0f, y2 );
+		Rectf debugButton( 15.0f, y1, 65.0f, y2 );
 		
 		float sliderWidth	= sliderBgTex.getWidth();
 		float sliderHeight	= sliderBgTex.getHeight();
@@ -154,9 +155,10 @@ public:
 		touchTypes.push_back( PLAY_PAUSE );
 		touchRects.push_back( nextButton );
 		touchTypes.push_back( NEXT_TRACK );
-		touchRects.push_back( debugButton );
+		touchRects.push_back( accelButton );
 		touchTypes.push_back( ACCEL );
-		
+		touchRects.push_back( debugButton );
+		touchTypes.push_back( DBUG );
 		Color blue( 0.2f, 0.2f, 0.5f );
 		
 // PREV
@@ -177,10 +179,15 @@ public:
 		
 		
 // ACCEL		
-		if( G_DEBUG )	texs[ TEX_DEBUGON ].enableAndBind();
-		else			texs[ TEX_DEBUG ].enableAndBind();
-		gl::drawSolidRect( debugButton );
+		if( G_ACCEL )	texs[ TEX_ACCEL_ON ].enableAndBind();
+		else			texs[ TEX_ACCEL_OFF ].enableAndBind();
+		gl::drawSolidRect( accelButton );
 
+// DBUG		
+		if( G_DEBUG )	texs[ TEX_DEBUG_ON ].enableAndBind();
+		else			texs[ TEX_DEBUG_OFF ].enableAndBind();
+		gl::drawSolidRect( debugButton );
+        
 // SLIDER BG		
 		sliderBgTex.enableAndBind();
 		gl::drawSolidRect( playheadSliderBg );

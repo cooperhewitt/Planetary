@@ -125,7 +125,7 @@ vector<string> State::getHierarchy()
 		hierarchy.push_back( s );
 	}
 	
-	hierarchy.push_back("Kepler");
+	hierarchy.push_back("Planetary");
 	
 	if (hierarchy.size() > 1) {
 		reverse( hierarchy.begin(), hierarchy.end() );

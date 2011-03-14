@@ -34,5 +34,9 @@ class NodeAlbum : public Node
 
   private:
 	ci::ipod::PlaylistRef mAlbum;
+    float       mAxialVel;
+    
+    ci::Color	mAtmosphereColor;
+	ci::Color	mEclipseColor;
 	
 };

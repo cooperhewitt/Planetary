@@ -28,7 +28,6 @@ class UiLayer {
 	void	setPanelPos( float y, bool doneDragging );
 	void	update();
 	void	draw( const ci::gl::Texture &upTex, const ci::gl::Texture &downTex );
-	void	drawPanel( const ci::gl::Texture &upTex, const ci::gl::Texture &downTex );
 	float	getPanelYPos(){ return mPanelPos.y; }	
 	
  private:

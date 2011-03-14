@@ -38,11 +38,16 @@
 		E127698D1326E18A00E1FC3F /* clouds5.png in Resources */ = {isa = PBXBuildFile; fileRef = E12769831326E18A00E1FC3F /* clouds5.png */; };
 		E1276B13132716D300E1FC3F /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276B12132716D300E1FC3F /* pause.png */; };
 		E1276CA5132764DB00E1FC3F /* Orbiter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1276CA4132764DB00E1FC3F /* Orbiter.cpp */; };
-		E1276DE81328117E00E1FC3F /* debug.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276DE71328117E00E1FC3F /* debug.png */; };
-		E1276DEE132812FD00E1FC3F /* debugOn.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276DED132812FD00E1FC3F /* debugOn.png */; };
+		E1276DE81328117E00E1FC3F /* accelOff.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276DE71328117E00E1FC3F /* accelOff.png */; };
+		E1276DEE132812FD00E1FC3F /* accelOn.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276DED132812FD00E1FC3F /* accelOn.png */; };
 		E1276E7A132821AA00E1FC3F /* CinderIPod.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1276E5B132821AA00E1FC3F /* CinderIPod.mm */; };
 		E1276E7B132821AA00E1FC3F /* CinderIPodPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1276E5C132821AA00E1FC3F /* CinderIPodPlayer.mm */; };
 		E1276E7C132821AA00E1FC3F /* CinderIPodPlayerImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1276E5D132821AA00E1FC3F /* CinderIPodPlayerImpl.mm */; };
+		E1363D16132C3EE800115512 /* 12.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1363D12132C3EE800115512 /* 12.jpg */; };
+		E1363D17132C3EE800115512 /* 32.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1363D13132C3EE800115512 /* 32.jpg */; };
+		E1363D18132C3EE800115512 /* 42.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1363D14132C3EE800115512 /* 42.jpg */; };
+		E1363D19132C3EE800115512 /* 52.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1363D15132C3EE800115512 /* 52.jpg */; };
+		E1363D1B132C3F6F00115512 /* 22.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1363D1A132C3F6F00115512 /* 22.jpg */; };
 		E1555A0B131E05140079B05A /* skydome.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1555A0A131E05140079B05A /* skydome.jpg */; };
 		E1555CA5131EEBEB0079B05A /* dotted.png in Resources */ = {isa = PBXBuildFile; fileRef = E1555CA4131EEBEB0079B05A /* dotted.png */; };
 		E1555E7A131F2C560079B05A /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1555E79131F2C560079B05A /* Node.cpp */; };
@@ -51,7 +56,16 @@
 		E15C90B21300B2A300FB8389 /* UnitRoundedOT-Ultra.otf in Resources */ = {isa = PBXBuildFile; fileRef = E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */; };
 		E15C90B71300B2F900FB8389 /* UiLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E15C90B61300B2F900FB8389 /* UiLayer.cpp */; };
 		E15C90B91300B30100FB8389 /* wheel.png in Resources */ = {isa = PBXBuildFile; fileRef = E15C90B81300B30100FB8389 /* wheel.png */; };
+		E167C8D5132EAFBE00CB496E /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E167C8D3132EAFBE00CB496E /* Particle.cpp */; };
+		E167C8D6132EAFBE00CB496E /* ParticleController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E167C8D4132EAFBE00CB496E /* ParticleController.cpp */; };
 		E17667DE13202FB7006A4C2E /* rings.png in Resources */ = {isa = PBXBuildFile; fileRef = E17667DD13202FB7006A4C2E /* rings.png */; };
+		E19EA667132C78D800CEE740 /* 13.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E19EA662132C78D800CEE740 /* 13.jpg */; };
+		E19EA668132C78D800CEE740 /* 23.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E19EA663132C78D800CEE740 /* 23.jpg */; };
+		E19EA669132C78D800CEE740 /* 33.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E19EA664132C78D800CEE740 /* 33.jpg */; };
+		E19EA66A132C78D800CEE740 /* 43.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E19EA665132C78D800CEE740 /* 43.jpg */; };
+		E19EA66B132C78D800CEE740 /* 53.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E19EA666132C78D800CEE740 /* 53.jpg */; };
+		E19EA680132DBABA00CEE740 /* debugOff.png in Resources */ = {isa = PBXBuildFile; fileRef = E19EA67E132DBABA00CEE740 /* debugOff.png */; };
+		E19EA681132DBABA00CEE740 /* debugOn.png in Resources */ = {isa = PBXBuildFile; fileRef = E19EA67F132DBABA00CEE740 /* debugOn.png */; };
 		E1A330381301013100CED126 /* starAlternate.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330351301013100CED126 /* starAlternate.png */; };
 		E1A330391301013100CED126 /* starGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330361301013100CED126 /* starGlow.png */; };
 		E1A3303A1301013100CED126 /* star.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330371301013100CED126 /* star.png */; };
@@ -103,14 +117,19 @@
 		E1276B12132716D300E1FC3F /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = pause.png; path = ../resources/ui/pause.png; sourceTree = SOURCE_ROOT; };
 		E1276CA4132764DB00E1FC3F /* Orbiter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Orbiter.cpp; path = ../src/Orbiter.cpp; sourceTree = SOURCE_ROOT; };
 		E1276CA6132764E900E1FC3F /* Orbiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Orbiter.h; path = ../include/Orbiter.h; sourceTree = SOURCE_ROOT; };
-		E1276DE71328117E00E1FC3F /* debug.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug.png; path = ../resources/ui/debug.png; sourceTree = SOURCE_ROOT; };
-		E1276DED132812FD00E1FC3F /* debugOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debugOn.png; path = ../resources/ui/debugOn.png; sourceTree = SOURCE_ROOT; };
+		E1276DE71328117E00E1FC3F /* accelOff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = accelOff.png; path = ../resources/ui/accelOff.png; sourceTree = SOURCE_ROOT; };
+		E1276DED132812FD00E1FC3F /* accelOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = accelOn.png; path = ../resources/ui/accelOn.png; sourceTree = SOURCE_ROOT; };
 		E1276E49132821AA00E1FC3F /* CinderIPod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPod.h; sourceTree = "<group>"; };
 		E1276E4A132821AA00E1FC3F /* CinderIPodPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPodPlayer.h; sourceTree = "<group>"; };
 		E1276E4B132821AA00E1FC3F /* CinderIPodPlayerImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPodPlayerImpl.h; sourceTree = "<group>"; };
 		E1276E5B132821AA00E1FC3F /* CinderIPod.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CinderIPod.mm; sourceTree = "<group>"; };
 		E1276E5C132821AA00E1FC3F /* CinderIPodPlayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CinderIPodPlayer.mm; sourceTree = "<group>"; };
 		E1276E5D132821AA00E1FC3F /* CinderIPodPlayerImpl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CinderIPodPlayerImpl.mm; sourceTree = "<group>"; };
+		E1363D12132C3EE800115512 /* 12.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 12.jpg; sourceTree = "<group>"; };
+		E1363D13132C3EE800115512 /* 32.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 32.jpg; sourceTree = "<group>"; };
+		E1363D14132C3EE800115512 /* 42.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 42.jpg; sourceTree = "<group>"; };
+		E1363D15132C3EE800115512 /* 52.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 52.jpg; sourceTree = "<group>"; };
+		E1363D1A132C3F6F00115512 /* 22.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 22.jpg; sourceTree = "<group>"; };
 		E1555A0A131E05140079B05A /* skydome.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = skydome.jpg; path = ../resources/skydome.jpg; sourceTree = SOURCE_ROOT; };
 		E1555CA4131EEBEB0079B05A /* dotted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dotted.png; path = ../resources/dotted.png; sourceTree = SOURCE_ROOT; };
 		E1555E78131F2C4A0079B05A /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../include/Node.h; sourceTree = SOURCE_ROOT; };
@@ -121,7 +140,18 @@
 		E15C90B51300B2F100FB8389 /* UiLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UiLayer.h; path = ../include/UiLayer.h; sourceTree = SOURCE_ROOT; };
 		E15C90B61300B2F900FB8389 /* UiLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UiLayer.cpp; path = ../src/UiLayer.cpp; sourceTree = SOURCE_ROOT; };
 		E15C90B81300B30100FB8389 /* wheel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wheel.png; path = ../resources/ui/wheel.png; sourceTree = SOURCE_ROOT; };
+		E167C8D1132EAFAB00CB496E /* Particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Particle.h; path = ../include/Particle.h; sourceTree = "<group>"; };
+		E167C8D2132EAFAB00CB496E /* ParticleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParticleController.h; path = ../include/ParticleController.h; sourceTree = "<group>"; };
+		E167C8D3132EAFBE00CB496E /* Particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Particle.cpp; path = ../src/Particle.cpp; sourceTree = "<group>"; };
+		E167C8D4132EAFBE00CB496E /* ParticleController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleController.cpp; path = ../src/ParticleController.cpp; sourceTree = "<group>"; };
 		E17667DD13202FB7006A4C2E /* rings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rings.png; sourceTree = "<group>"; };
+		E19EA662132C78D800CEE740 /* 13.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 13.jpg; sourceTree = "<group>"; };
+		E19EA663132C78D800CEE740 /* 23.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 23.jpg; sourceTree = "<group>"; };
+		E19EA664132C78D800CEE740 /* 33.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 33.jpg; sourceTree = "<group>"; };
+		E19EA665132C78D800CEE740 /* 43.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 43.jpg; sourceTree = "<group>"; };
+		E19EA666132C78D800CEE740 /* 53.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 53.jpg; sourceTree = "<group>"; };
+		E19EA67E132DBABA00CEE740 /* debugOff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debugOff.png; path = ../resources/ui/debugOff.png; sourceTree = "<group>"; };
+		E19EA67F132DBABA00CEE740 /* debugOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debugOn.png; path = ../resources/ui/debugOn.png; sourceTree = "<group>"; };
 		E1A330351301013100CED126 /* starAlternate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = starAlternate.png; path = ../resources/starAlternate.png; sourceTree = SOURCE_ROOT; };
 		E1A330361301013100CED126 /* starGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = starGlow.png; path = ../resources/starGlow.png; sourceTree = SOURCE_ROOT; };
 		E1A330371301013100CED126 /* star.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = star.png; path = ../resources/star.png; sourceTree = SOURCE_ROOT; };
@@ -184,6 +214,8 @@
 				E1C600041318490F0022246C /* World.cpp */,
 				E1E6636F1317887F00E5E4B9 /* State.cpp */,
 				E1C6FFF2131847A40022246C /* Data.cpp */,
+				E167C8D4132EAFBE00CB496E /* ParticleController.cpp */,
+				E167C8D3132EAFBE00CB496E /* Particle.cpp */,
 				E1C601831318926C0022246C /* Nodes */,
 			);
 			name = Source;
@@ -197,6 +229,8 @@
 				E1C60003131848FB0022246C /* World.h */,
 				E1E6636E1317887600E5E4B9 /* State.h */,
 				E1C6FFF11318479A0022246C /* Data.h */,
+				E167C8D2132EAFAB00CB496E /* ParticleController.h */,
+				E167C8D1132EAFAB00CB496E /* Particle.h */,
 				E1C60184131892750022246C /* Nodes */,
 			);
 			name = Headers;
@@ -265,8 +299,10 @@
 			children = (
 				E1F2DBDC132A1D7B009A2309 /* highlight.png */,
 				E1F2D83013296A70009A2309 /* sliderBg.png */,
-				E1276DED132812FD00E1FC3F /* debugOn.png */,
-				E1276DE71328117E00E1FC3F /* debug.png */,
+				E1276DE71328117E00E1FC3F /* accelOff.png */,
+				E1276DED132812FD00E1FC3F /* accelOn.png */,
+				E19EA67E132DBABA00CEE740 /* debugOff.png */,
+				E19EA67F132DBABA00CEE740 /* debugOn.png */,
 				E1276B12132716D300E1FC3F /* pause.png */,
 				E127665C1325E49F00E1FC3F /* prev.png */,
 				E127665D1325E49F00E1FC3F /* next.png */,
@@ -338,10 +374,20 @@
 			isa = PBXGroup;
 			children = (
 				E127697A1326E18A00E1FC3F /* 11.jpg */,
+				E1363D12132C3EE800115512 /* 12.jpg */,
+				E19EA662132C78D800CEE740 /* 13.jpg */,
 				E127697B1326E18A00E1FC3F /* 21.jpg */,
+				E1363D1A132C3F6F00115512 /* 22.jpg */,
+				E19EA663132C78D800CEE740 /* 23.jpg */,
 				E127697C1326E18A00E1FC3F /* 31.jpg */,
+				E1363D13132C3EE800115512 /* 32.jpg */,
+				E19EA664132C78D800CEE740 /* 33.jpg */,
 				E127697D1326E18A00E1FC3F /* 41.jpg */,
+				E1363D14132C3EE800115512 /* 42.jpg */,
+				E19EA665132C78D800CEE740 /* 43.jpg */,
 				E127697E1326E18A00E1FC3F /* 51.jpg */,
+				E1363D15132C3EE800115512 /* 52.jpg */,
+				E19EA666132C78D800CEE740 /* 53.jpg */,
 				E127697F1326E18A00E1FC3F /* clouds1.png */,
 				E12769811326E18A00E1FC3F /* clouds2.png */,
 				E12769801326E18A00E1FC3F /* clouds3.png */,
@@ -516,10 +562,22 @@
 				E127698C1326E18A00E1FC3F /* clouds4.png in Resources */,
 				E127698D1326E18A00E1FC3F /* clouds5.png in Resources */,
 				E1276B13132716D300E1FC3F /* pause.png in Resources */,
-				E1276DE81328117E00E1FC3F /* debug.png in Resources */,
-				E1276DEE132812FD00E1FC3F /* debugOn.png in Resources */,
+				E1276DE81328117E00E1FC3F /* accelOff.png in Resources */,
+				E1276DEE132812FD00E1FC3F /* accelOn.png in Resources */,
 				E1F2D83113296A70009A2309 /* sliderBg.png in Resources */,
 				E1F2DBDD132A1D7B009A2309 /* highlight.png in Resources */,
+				E1363D16132C3EE800115512 /* 12.jpg in Resources */,
+				E1363D17132C3EE800115512 /* 32.jpg in Resources */,
+				E1363D18132C3EE800115512 /* 42.jpg in Resources */,
+				E1363D19132C3EE800115512 /* 52.jpg in Resources */,
+				E1363D1B132C3F6F00115512 /* 22.jpg in Resources */,
+				E19EA667132C78D800CEE740 /* 13.jpg in Resources */,
+				E19EA668132C78D800CEE740 /* 23.jpg in Resources */,
+				E19EA669132C78D800CEE740 /* 33.jpg in Resources */,
+				E19EA66A132C78D800CEE740 /* 43.jpg in Resources */,
+				E19EA66B132C78D800CEE740 /* 53.jpg in Resources */,
+				E19EA680132DBABA00CEE740 /* debugOff.png in Resources */,
+				E19EA681132DBABA00CEE740 /* debugOn.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -544,6 +602,8 @@
 				E1276E7B132821AA00E1FC3F /* CinderIPodPlayer.mm in Sources */,
 				E1276E7C132821AA00E1FC3F /* CinderIPodPlayerImpl.mm in Sources */,
 				E2171061132ECF7300ADCC17 /* AlphaWheel.cpp in Sources */,
+				E167C8D5132EAFBE00CB496E /* Particle.cpp in Sources */,
+				E167C8D6132EAFBE00CB496E /* ParticleController.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -564,7 +624,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				INFOPLIST_FILE = "Kepler-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				"OTHER_LDFLAGS[sdk=iphoneos*][arch=*]" = (
 					"\"$(CINDER_PATH)/lib/libcinder-iphone_d.a\"",
 					"-lz",
@@ -592,7 +652,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				INFOPLIST_FILE = "Kepler-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				"OTHER_LDFLAGS[sdk=iphoneos*][arch=*]" = (
 					"\"$(CINDER_PATH)/lib/libcinder-iphone.a\"",
 					"-lz",

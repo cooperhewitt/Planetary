@@ -109,7 +109,7 @@ void Data::filterArtistsByAlpha( char c )
 			string name		= (*it)->getArtistName();
 			char firstLetter = name[0];
 		
-			if( isdigit( firstLetter ) ){
+			if( !isalpha( firstLetter ) ){
 				std::cout << name << std::endl;
 				mFilteredArtists.push_back( index );
 			}

@@ -24,10 +24,14 @@ static const int G_NUM_LEVELS		= 5;
 
 static const float G_INIT_CAM_DIST	= 175.0f;
 static const int G_NUM_PLANET_TYPES = 5;
-static const int G_RING_TYPE		= 5;
+static const int G_NUM_PLANET_TYPE_OPTIONS = 3;
 static const int G_NUM_CLOUD_TYPES	= 5;
+
+static const float G_MIN_FOV = 80.0f;
+static const float G_MAX_FOV = 135.0f;
 
 
 // TODO: move into State.h
 extern float G_ZOOM;
 extern bool G_DEBUG;
+extern bool G_ACCEL;

@@ -25,7 +25,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 {	
 	mIsHighlighted	= true;
 	mSphereRes		= 16;
-	//mRadius			*= 0.75f;
+	mRadius			*= 4.0f;
 	mIsPlaying		= false;
 	mHasRings		= false;
 	
@@ -34,10 +34,10 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	float invTrackPer = 1.0f/numTracks;
 	float trackNumPer = (float)mIndex * invTrackPer;
 	
-	float minAmt		= mParentNode->mRadius * 0.5f;
-	float maxAmt		= mParentNode->mRadius * 2.0f;
+	float minAmt		= mParentNode->mRadius * 2.0f;
+	float maxAmt		= mParentNode->mRadius * 8.0f;
 	float deltaAmt		= maxAmt - minAmt;
-	mOrbitRadiusDest	= minAmt + deltaAmt * trackNumPer + Rand::randFloat( mParentNode->mRadius * 2.0f * invTrackPer );
+	mOrbitRadiusDest	= minAmt + deltaAmt * trackNumPer + Rand::randFloat( maxAmt * invTrackPer );
 	
 }
 
@@ -67,10 +67,18 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
 	
+    /*
+	std::cout << "playCount = " << mPlayCount << std::endl;
+	std::cout << "highestPlayCount = " << mParentNode->mHighestPlayCount << std::endl;
+	std::cout << "lowestPlayCount = " << mParentNode->mLowestPlayCount << std::endl;
+	std::cout << "normPlayCount = " << normPlayCount << std::endl;
+	*/
+    
 	// try making own texture for ringed planet. texture stripe, maybe from album art?
-	
-	mPlanetTexIndex = (int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
-	mCloudTexIndex  = mPlanetTexIndex;
+	mPlanetTexIndex = mIndex%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
+	mCloudTexIndex  = Rand::randInt( G_NUM_CLOUD_TYPES );
+   // mPlanetTexIndex *= G_NUM_PLANET_TYPE_OPTIONS + Rand::randInt( G_NUM_PLANET_TYPE_OPTIONS );
+
 	
 	if( mParentNode->mHighestPlayCount == mPlayCount && mPlayCount > 5 )
 		mHasRings = true;
@@ -83,11 +91,12 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mAtmosphereColor = mParentNode->mColor;
 	mEclipseColor	= mColor;
 	
-	mRadius			= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0003f ) * 0.3735f;
+	mRadius			= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0003f ) * 0.75;
 	mSphere			= Sphere( mPos, mRadius * 8.5f );
 	mIdealCameraDist = 0.004;//mRadius * 10.0f;
 	mOrbitPeriod	= mTrackLength;
 	mAxialTilt		= Rand::randFloat( 5.0f, 30.0f );
+    mAxialVel       = Rand::randFloat( 10.0f, 45.0f );
 	
 	mVerts			= new float[18];
 	mTexCoords		= new float[12];
@@ -145,18 +154,17 @@ void NodeTrack::update( const Matrix44f &mat )
 	double percentPlayed	= playbackTime/mOrbitPeriod;
 	double orbitAngle		= percentPlayed * TWO_PI + mStartAngle;
 	
-	mPosPrev	= mTransPos;
-	mPosRel		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
-	mPos		= mParentNode->mPos + mPosRel;
+	mPrevPos	= mTransPos;
+	mRelPos		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
+	mPos		= mParentNode->mPos + mRelPos;
 
 	if( mIsSelected ){
-		mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
+		mSphereRes		-= ( mSphereRes - 32 ) * 0.1f;
 		mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.05f;
 	} else {
-		mSphereRes		-= ( mSphereRes - 7 ) * 0.1f;
+		mSphereRes		-= ( mSphereRes - 14 ) * 0.1f;
 		mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.05f;
 	}
-	mSphereIntRes = mSphereRes * 2 + 1;
 	
 	if( mStarRating > 0 && mIsSelected ){
 		vector<Orbiter>::iterator it;
@@ -166,13 +174,13 @@ void NodeTrack::update( const Matrix44f &mat )
 	}
 	
 	float c = 1.0f;
-	if( G_ZOOM == G_TRACK_LEVEL && mIsSelected ) c = 1.0f - ( mParentNode->mEclipsePer * 0.35f ) - ( mParentNode->mParentNode->mEclipsePer * 0.35f );
+	if( G_ZOOM == G_TRACK_LEVEL && mIsSelected ) c = 1.0f - ( mParentNode->mParentNode->mEclipsePer * 0.35f );
 	mEclipseColor = mColor * c;
 	
 	
 	Node::update( mat );
 	
-	mVel		= mTransPos - mPosPrev;	
+	mVel		= mTransPos - mPrevPos;	
 }
 
 void NodeTrack::drawAtmosphere()
@@ -180,7 +188,7 @@ void NodeTrack::drawAtmosphere()
 	if( mCamDistAlpha > 0.05f && mPlanetTexIndex > 0 ){
 		Vec3f perp = mBbRight.cross( mBbUp );
 		gl::color( ColorA( mParentNode->mColor, mCamDistAlpha + mParentNode->mEclipsePer ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 2.35f;
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 2.0f;
 		gl::drawBillboard( mTransPos + perp * mRadius * 0.1f, radius, 0.0f, mBbRight, mBbUp );
 	}
 }
@@ -190,13 +198,13 @@ void NodeTrack::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Textu
 	gl::pushModelView();
 	gl::translate( mTransPos );
 	gl::rotate( mMatrix );
-	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 20.0f, mAxialTilt ) );
+	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, mAxialTilt ) );
 	
 	gl::disableAlphaBlending();
 	
 	gl::color( mEclipseColor );
 	planets[mPlanetTexIndex].enableAndBind();
-	gl::drawSphere( Vec3f::zero(), mRadius, mSphereIntRes );
+	gl::drawSphere( Vec3f::zero(), mRadius, (int)mSphereRes );
 	
 	gl::popModelView();
 	
@@ -210,20 +218,17 @@ void NodeTrack::drawClouds( const Matrix44f &accelMatrix, const vector<gl::Textu
 		gl::pushModelView();
 		gl::translate( mTransPos );
 		gl::rotate( mMatrix );
-		if( mPlanetTexIndex == 1 ) // jupiter
-			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 20.0f, mAxialTilt ) );
-		else 
-			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 12.0f, mAxialTilt ) );
+		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.6f, mAxialTilt ) );
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
 		
 		clouds[mCloudTexIndex].enableAndBind();
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.66f ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.000006f, mSphereIntRes );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.000006f, (int)mSphereRes );
 
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.000012f, mSphereIntRes );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.000012f, (int)mSphereRes );
 		 
 		gl::popModelView();
 	}

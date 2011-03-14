@@ -108,18 +108,11 @@ void World::drawStarGlows()
 	}
 }
 
-void World::drawNames()
-{
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawName();
-	}
-}
-
-void World::drawOrthoNames( const CameraPersp &cam, float pinchAlphaOffset )
+void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
-			(*it)->drawOrthoName( cam, pinchAlphaOffset );
+			(*it)->drawName( cam, pinchAlphaOffset );
 		}
 	}
 }

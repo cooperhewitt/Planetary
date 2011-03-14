@@ -34,8 +34,7 @@ class Node {
 	virtual void		updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	virtual void		drawStar();
 	virtual void		drawStarGlow();
-	void				drawName();
-	void				drawOrthoName( const ci::CameraPersp &cam, float pinchAlphaOffset );
+	void				drawName( const ci::CameraPersp &cam, float pinchAlphaOffset );
 	virtual void		drawOrbitRing();
 	virtual void		drawPlanet( const ci::Matrix44f &accelMatrix, const std::vector< ci::gl::Texture> &planets );
 	virtual void		drawClouds( const ci::Matrix44f &accelMatrix, const std::vector< ci::gl::Texture> &clouds );
@@ -62,10 +61,14 @@ class Node {
 	ci::Vec3f			mPos;				// global position
 	ci::Vec3f			mPosDest;			// artist node final position
 	ci::Vec3f			mTransPos;			// global position * mMatrix
+    std::vector<ci::Vec3f> mTransPosVector;
+    ci::Vec3f           mTransPrevPos;
 	ci::Vec2f			mScreenPos;			// screen position
+    ci::Vec2f           mScreenPrevPos;
+    ci::Vec2f           mScreenVel;
 	float				mEclipsePer;		// ECLIPSE!
-	ci::Vec3f			mPosPrev;			// previous global position
-	ci::Vec3f			mPosRel;			// relative position
+	ci::Vec3f			mPrevPos;			// previous global position
+	ci::Vec3f			mRelPos;			// relative position
 	ci::Vec3f			mVel;				// global velocity
 	float				mCamZVel;			// speed object is moving towards or away from camera
 	ci::Matrix44f		mMatrix;
@@ -102,7 +105,8 @@ class Node {
 	ci::gl::Texture		mPlanetTex;			// TODO: this is a test.
 	
 	ci::Sphere			mSphere;			// Sphere used for name label alignment
-	//ci::Sphere			mHitSphere;			// Sphere used for hit-tests
+    float               mSphereRes;
+    float               mCamDistAlpha;
 	ci::Color			mColor;				// Color of the node
 	ci::Color			mGlowColor;			// Color of the star glow
 	
