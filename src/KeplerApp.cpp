@@ -591,7 +591,7 @@ void KeplerApp::update()
 	updateCamera();
 	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 	
-	mUiLayer.update( mFov, mTimeSincePinchEnded );
+	mUiLayer.update( mFov, getElapsedSeconds() - mTimePinchEnded );
 	mBreadcrumbs.update();
 	mPlayControls.update();
 	
