@@ -248,47 +248,43 @@ void KeplerApp::init()
 
 void KeplerApp::touchesBegan( TouchEvent event )
 {	
-	mIsDragging = false;
-	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) 
-	{
-		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.2f )
-			mTouchPos		= touchIt->getPos();
-			mTouchThrowVel	= Vec2f::zero();
-			
-			mArcball.mouseDown( Vec2f( mTouchPos.x, mTouchPos.y ) );
+	mIsDragging = false;	
+	const vector<TouchEvent::Touch> touches = getActiveTouches();
+	if( touches.size() == 1 && mTimeSincePinchEnded > 0.2f ) {
+		mTouchPos		= touches.begin()->getPos();
+		mTouchThrowVel	= Vec2f::zero();			
+		mArcball.mouseDown( Vec2f( mTouchPos.x, mTouchPos.y ) );
 	}
 }
 
 void KeplerApp::touchesMoved( TouchEvent event )
 {
-	mIsDragging = true;
-	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt )
-	{
-		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.2f ){
-			mTouchThrowVel	= ( touchIt->getPos() - mTouchPos );
-			mTouchVel		= mTouchThrowVel;
-			mTouchPos		= touchIt->getPos();
-			mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
-		}
+	const vector<TouchEvent::Touch> touches = getActiveTouches();
+	if( touches.size() == 1 && mTimeSincePinchEnded > 0.2f ){
+		mIsDragging = true;
+		Vec2f currentPos = touches.begin()->getPos();
+		mTouchThrowVel	= ( currentPos - mTouchPos );
+		mTouchVel		= mTouchThrowVel;
+		mTouchPos		= currentPos;
+		mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
 	}
 }
 
 void KeplerApp::touchesEnded( TouchEvent event )
 {
-	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt )
-	{
-		if( event.getTouches().size() == 1 && mTimeSincePinchEnded > 0.2f ){
-			mTouchPos = touchIt->getPos();
-			
-			// if the nav wheel isnt showing and you havent been dragging and your touch is above the uiLayer panel
-			if( ! mUiLayer.getShowWheel() && ! mIsDragging && mTouchPos.y < mUiLayer.getPanelYPos() ){
-				float u			= mTouchPos.x / (float) getWindowWidth();
-				float v			= mTouchPos.y / (float) getWindowHeight();
-				Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
-				checkForNodeTouch( touchRay, mMatrix, mTouchPos );
-			}
-			mIsDragging = false;
+	const vector<TouchEvent::Touch> touches = event.getTouches();
+	if( touches.size() == 1 && mTimeSincePinchEnded > 0.2f ){
+		mTouchPos = touches.begin()->getPos();		
+		// if the nav wheel isnt showing and you havent been dragging and your touch is above the uiLayer panel
+		if( ! mUiLayer.getShowWheel() && ! mIsDragging && mTouchPos.y < mUiLayer.getPanelYPos() ){
+			float u			= mTouchPos.x / (float) getWindowWidth();
+			float v			= mTouchPos.y / (float) getWindowHeight();
+			Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
+			checkForNodeTouch( touchRay, mMatrix, mTouchPos );
 		}
+	}
+	if (getActiveTouches().size() != 1) {
+		mIsDragging = false;
 	}
 }
 
@@ -298,10 +294,10 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
     mPinchRays = event.getTouchRays( mCam );
 	
 	mTouchThrowVel	= Vec2f::zero();
-	vector<TouchEvent::Touch> touches = event.getTouches();
+	vector<PinchEvent::Touch> touches = event.getTouches();
 	Vec2f averageTouchPos;
-	for( vector<TouchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
-		averageTouchPos += it->getPos();
+	for( vector<PinchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
+		averageTouchPos += it->mPos;
 	}
 	averageTouchPos /= touches.size();
 	mTouchPos = averageTouchPos;
@@ -328,10 +324,10 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		}
 	}
 	
-	vector<TouchEvent::Touch> touches = event.getTouches();
+	vector<PinchEvent::Touch> touches = event.getTouches();
 	Vec2f averageTouchPos;
-	for( vector<TouchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
-		averageTouchPos += it->getPos();
+	for( vector<PinchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
+		averageTouchPos += it->mPos;
 	}
 	averageTouchPos /= touches.size();
 	
@@ -340,6 +336,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	mTouchPos		= averageTouchPos;
 	
 	mPinchScale		= event.getScale();
+	cout << "pinch scale: " << mPinchScale << endl;
     return false;
 }
 
