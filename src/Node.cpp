@@ -119,7 +119,6 @@ void Node::update( const Matrix44f &mat )
 		}
 	}
 
-
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->update( mat );
 	}
@@ -135,10 +134,12 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 		mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.05f;
 	}
     
+    mScreenPos      = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
     
-	mBbRight	= bbRight;
-	mBbUp		= bbUp;
+	mBbRight        = bbRight;
+	mBbUp           = bbUp;
 	
+    
 	if( mIsHighlighted ){
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
 		mDistFromCamZAxis		= cam.worldToEyeDepth( mTransPos );
@@ -180,10 +181,6 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 		}
 		
 		Vec2f offset = Vec2f( mSphereScreenRadius * 0.4f, -mNameTex.getHeight() * 0.5f );
-		mScreenPos      = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
-	//	mScreenPrevPos  = cam.worldToScreen( mPosPrev, app::getWindowWidth(), app::getWindowHeight() );
-    //  mScreenVel      = mScreenPrevPos - mScreenPos;
-        
 		gl::draw( mNameTex, mScreenPos + offset );
 	}
 	
