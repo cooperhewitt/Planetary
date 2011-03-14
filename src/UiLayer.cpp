@@ -106,7 +106,7 @@ bool UiLayer::touchesBegan( TouchEvent event )
 		mIsPanelTabTouched = false;
 	}
 		
-	return false;
+	return mIsPanelTabTouched;
 }
 
 bool UiLayer::touchesMoved( TouchEvent event )
@@ -122,7 +122,7 @@ bool UiLayer::touchesMoved( TouchEvent event )
 		setPanelPos( mTouchPos.y, false );
 	}
 
-	return false;
+	return mIsPanelTabTouched;
 }
 
 bool UiLayer::touchesEnded( TouchEvent event )
@@ -147,7 +147,7 @@ bool UiLayer::touchesEnded( TouchEvent event )
 		}
 	}
 	
-	return false;
+	return mIsPanelTabTouched;
 }
 
 

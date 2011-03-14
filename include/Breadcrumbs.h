@@ -15,11 +15,27 @@
 #include "cinder/Text.h"
 #include "cinder/Font.h"
 #include "cinder/app/TouchEvent.h"
-#include "BreadcrumbEvent.h"
+#include "cinder/app/Event.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
+
+class BreadcrumbEvent : public ci::app::Event {
+private:
+	std::string mLabel;
+	int mLevel;
+public:	
+	BreadcrumbEvent( int level, std::string label ): ci::app::Event(), mLevel(level), mLabel(label) {
+	}
+	~BreadcrumbEvent() { }
+	int getLevel() {
+		return mLevel;
+	}
+	std::string getLabel() {
+		return mLabel;
+	}
+};
 
 class Breadcrumbs {
 
