@@ -51,16 +51,6 @@ void UiLayer::setup( AppCocoaTouch *app )
 	int y2 = getWindowHeight();
 	mStripRect			 = Rectf( x1, y1, x2, y2 );
 	
-	// Textures
-	mWheelTex		= gl::Texture( loadImage( loadResource( "wheel.png" ) ) );
-	
-	mAlphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
-	mAlphaIndex		= 0;
-	mAlphaChar		= ' ';
-	mPrevAlphaChar	= ' ';
-	mShowWheel		= false;
-	mWheelScale		= 1.0f;
-	
 	// PANEL AND TAB
 	mPanelRect			= Rectf( 0.0f, 0.0f, getWindowWidth(), 75.0f );
 	mPanelOpenYPos		= getWindowHeight() - mPanelRect.y2;
@@ -72,33 +62,15 @@ void UiLayer::setup( AppCocoaTouch *app )
 	mIsPanelOpen		= true;
 	mHasPanelBeenDragged = false;
 }
-
-void UiLayer::initAlphaTextures( const Font &font )
-{
-	for( int i=0; i<mAlphaString.length(); i++ ){
-		TextLayout layout;	
-		layout.setFont( font );
-		layout.setColor( ColorA( 1.0f, 1.0f, 1.0f, 0.3f ) );
-		stringstream s;
-		s.str("");
-		s << mAlphaString[i];
-		layout.addCenteredLine( s.str() );
-		mAlphaTextures.push_back( gl::Texture( layout.render( true, false ) ) );
-	}
-}
  
 bool UiLayer::touchesBegan( TouchEvent event )
 {
 	std::cout << "UiLayer TouchesBegan" << std::endl;
 	
 	mHasPanelBeenDragged = false;
-	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) {
-		mTouchPos = touchIt->getPos();
-	}
-	
-	selectWheelItem( mTouchPos, false );
 
-	
+	mTouchPos = event.getTouches().begin()->getPos();
+
 	if( mPanelTabRect.contains( mTouchPos ) ){
 		mPanelTabTouchYOffset = mPanelPos.y - mTouchPos.y;
 		mIsPanelTabTouched = true;
@@ -111,11 +83,7 @@ bool UiLayer::touchesBegan( TouchEvent event )
 
 bool UiLayer::touchesMoved( TouchEvent event )
 {
-	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) {
-		mTouchPos = touchIt->getPos();
-	}
-	
-	selectWheelItem( mTouchPos, false );
+	mTouchPos = event.getTouches().begin()->getPos();
 
 	if( mIsPanelTabTouched ){
 		mHasPanelBeenDragged = true;
@@ -127,11 +95,9 @@ bool UiLayer::touchesMoved( TouchEvent event )
 
 bool UiLayer::touchesEnded( TouchEvent event )
 {
-	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) {
-		mTouchPos = touchIt->getPos();
+	if (event.getTouches().size() > 0) {
+		mTouchPos = event.getTouches().begin()->getPos();
 	}
-	
-	selectWheelItem( mTouchPos, true );
 	
 	if( mIsPanelTabTouched ){
 		if( mHasPanelBeenDragged ){
@@ -177,40 +143,8 @@ void UiLayer::setPanelPos( float y, bool doneDragging )
 	
 }
 
-void UiLayer::selectWheelItem( const Vec2f &pos, bool closeWheel )
+void UiLayer::update()
 {
-	if( mShowWheel ){ 
-		if( ! mStripRect.contains( pos ) ){
-			Vec2f dir				= pos - getWindowCenter();
-			float distToCenter		= dir.length();
-			if( distToCenter > 250 && distToCenter < 350 ){
-				float touchAngle	= atan2( dir.y, dir.x ) + M_PI;				// RANGE 0 -> TWO_PI
-				float anglePer		= ( touchAngle + 0.11365f + M_PI )/(M_PI * 2.0f);
-				mAlphaIndex			= (int)( anglePer * 27 )%27;
-				mPrevAlphaChar		= mAlphaChar;
-				mAlphaChar			= mAlphaString.at( mAlphaIndex % mAlphaString.size() );
-				if( mPrevAlphaChar != mAlphaChar || closeWheel ){
-					mCallbacksAlphaCharSelected.call( this );
-				}
-				if( closeWheel ){
-					mShowWheel = false;
-					mCallbacksWheelClosed.call( this );
-				}
-			}
-		}
-	}
-}
-
-void UiLayer::update( float fov )
-{
-	//mWheelScale = ( ( 130.0f - fov ) / 30.0f );
-	
-	if( getShowWheel() ){
-		mWheelScale -= ( mWheelScale - 0.0f ) * 0.2f;
-	} else {
-		mWheelScale -= ( mWheelScale - 1.0f ) * 0.2f;	
-	}
-		
 	mPanelYPos -= ( mPanelYPos - mPanelYPosDest ) * 0.25f;
 	mPanelPos	= Vec2f( 0.0f, mPanelYPos );
 	
@@ -224,47 +158,7 @@ void UiLayer::update( float fov )
 }
 
 void UiLayer::draw( const gl::Texture &upTex, const gl::Texture &downTex )
-{
-	drawWheel();
-	drawPanel( upTex, downTex );
-}
-
-void UiLayer::drawWheel()
-{
-	if( mWheelScale < 1.0f ){
-		mWheelTex.enableAndBind();
-		gl::pushModelView();
-		gl::translate( getWindowCenter() );
-		
-		gl::scale( Vec3f( mWheelScale + 1.0f, mWheelScale + 1.0f, 1.0f ) );
-		Rectf r = Rectf( -getWindowWidth() * 0.5f, -getWindowHeight() * 0.5f, getWindowWidth() * 0.5f, getWindowHeight() * 0.5f );
-		float c = 1.0f - mWheelScale;
-		gl::color( ColorA( c, c, c, c ) );
-		gl::drawSolidRect( r );
-		gl::popModelView();
-		mWheelTex.disable();
-		
-		if( mAlphaChar != ' ' )
-			drawAlphaChar();
-	}
-}
-
-void UiLayer::drawAlphaChar()
-{
-	float w = mAlphaTextures[mAlphaIndex].getWidth() * 0.5f;
-	float h = mAlphaTextures[mAlphaIndex].getHeight() * 0.5f;
-	float x = getWindowWidth() * 0.5f;
-	float y = getWindowHeight() * 0.5f;
-		
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f - mWheelScale ) );
-	mAlphaTextures[mAlphaIndex].enableAndBind();
-	gl::drawSolidRect( Rectf( x - w, y - h, x + w, y + h ) );
-	mAlphaTextures[mAlphaIndex].disable();
-}
-
-void UiLayer::drawPanel( const gl::Texture &upTex, const gl::Texture &downTex )
-{
-	
+{	
 	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
 	gl::pushModelView();
 	gl::translate( Vec2i( mPanelPos ) );

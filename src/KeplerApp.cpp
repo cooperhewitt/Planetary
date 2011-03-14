@@ -13,6 +13,7 @@
 #include "Easing.h"
 #include "World.h"
 #include "UiLayer.h"
+#include "AlphaWheel.h"
 #include "State.h"
 #include "Data.h"
 #include "PlayControls.h"
@@ -57,8 +58,8 @@ class KeplerApp : public AppCocoaTouch {
 	void			drawInfoPanel();
 	void			setParamsTex();
 	bool			onAlphaCharStateChanged( State *state );
-	bool			onAlphaCharSelected( UiLayer *uiLayer );
-	bool			onWheelClosed( UiLayer *uiLayer );
+	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
+	bool			onWheelClosed( AlphaWheel *alphaWheel );
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
 	bool			onPlayControlsButtonPressed ( PlayControls::PlayButton button );
 	bool			onNodeSelected( Node *node );
@@ -68,6 +69,7 @@ class KeplerApp : public AppCocoaTouch {
 	
 	World			mWorld;
 	State			mState;
+	AlphaWheel		mAlphaWheel;
 	UiLayer			mUiLayer;
 	Data			mData;
 	
@@ -204,22 +206,24 @@ void KeplerApp::setup()
 	mBreadcrumbs.setup( this, mFontSmall );
 	mBreadcrumbs.registerBreadcrumbSelected( this, &KeplerApp::onBreadcrumbSelected );
 	mBreadcrumbs.setHierarchy(mState.getHierarchy());
+
+	// ALPHA WHEEL
+	mAlphaWheel.setup( this );
+	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
+	mAlphaWheel.registerWheelClosed( this, &KeplerApp::onWheelClosed );
+	mAlphaWheel.initAlphaTextures( mFontBig );	
 	
 	// PLAY CONTROLS
 	mPlayControls.setup( this, mIpodPlayer.getPlayState() == ipod::Player::StatePlaying );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
-	
+
+	// UILAYER
+	mUiLayer.setup( this );
+		
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
 	mState.registerNodeSelected( this, &KeplerApp::onNodeSelected );
-	
-	// UILAYER
-	mUiLayer.setup( this );
-	mUiLayer.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
-	mUiLayer.registerWheelClosed( this, &KeplerApp::onWheelClosed );
-	mUiLayer.initAlphaTextures( mFontBig );
-	
-	
+		
 	// PLAYER
 	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
     mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
@@ -275,7 +279,7 @@ void KeplerApp::touchesEnded( TouchEvent event )
 	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){
 		mTouchPos = touches.begin()->getPos();		
 		// if the nav wheel isnt showing and you havent been dragging and your touch is above the uiLayer panel
-		if( ! mUiLayer.getShowWheel() && ! mIsDragging && mTouchPos.y < mUiLayer.getPanelYPos() ){
+		if( ! mAlphaWheel.getShowWheel() && ! mIsDragging && mTouchPos.y < mUiLayer.getPanelYPos() ){
 			float u			= mTouchPos.x / (float) getWindowWidth();
 			float v			= mTouchPos.y / (float) getWindowHeight();
 			Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
@@ -407,16 +411,16 @@ void KeplerApp::initTextures()
 	
 }
 
-bool KeplerApp::onWheelClosed( UiLayer *uiLayer )
+bool KeplerApp::onWheelClosed( AlphaWheel *alphaWheel )
 {
 	std::cout << "wheel closed" << std::endl;
 	mFovDest = 100.0f;
 	return false;
 }
 
-bool KeplerApp::onAlphaCharSelected( UiLayer *uiLayer )
+bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 {
-	mState.setAlphaChar( uiLayer->getAlphaChar() );
+	mState.setAlphaChar( alphaWheel->getAlphaChar() );
 	return false;
 }
 
@@ -487,8 +491,8 @@ bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 {
 	int level = event.getLevel();
 	if( level == G_HOME_LEVEL ){				// BACK TO HOME
-		mUiLayer.setShowWheel( !mUiLayer.getShowWheel() );
-		if( mUiLayer.getShowWheel() ) mFovDest = 130.0f;
+		mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );
+		if( mAlphaWheel.getShowWheel() ) mFovDest = 130.0f;
 		mWorld.deselectAllNodes();
 		mState.setSelectedNode( NULL );
 		mState.setAlphaChar( ' ' );
@@ -556,7 +560,8 @@ void KeplerApp::update()
 	updateCamera();
 	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 	
-	mUiLayer.update( mFov );
+	mUiLayer.update();
+	mAlphaWheel.update( mFov );
 	mBreadcrumbs.update();
 	mPlayControls.update();
 	
@@ -610,15 +615,15 @@ void KeplerApp::updateCamera()
 	mFov -= ( mFov - mFovDest ) * 0.175f;
 	
 
-	if( mFovDest >= 130.0f && ! mUiLayer.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
-		mUiLayer.setShowWheel( true );
+	if( mFovDest >= 130.0f && ! mAlphaWheel.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
+		mAlphaWheel.setShowWheel( true );
 		//mWorld.deselectAllNodes();
 		//mState.setSelectedNode( NULL );
 		//mState.setAlphaChar( ' ' );
 	} else if( mFovDest < 130.0f ){
-		if( mUiLayer.getShowWheel() )
+		if( mAlphaWheel.getShowWheel() )
 			mState.setAlphaChar( mState.getAlphaChar() );
-		mUiLayer.setShowWheel( false );
+		mAlphaWheel.setShowWheel( false );
 	}
 
 	
@@ -800,6 +805,7 @@ void KeplerApp::draw()
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
 		mUiLayer.draw( mPanelUpTex, mPanelDownTex );
+		mAlphaWheel.draw();
 		mBreadcrumbs.draw();//mUiLayer.getPanelYPos() + 5.0f );
 		mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );
 		mState.draw( mFont );
