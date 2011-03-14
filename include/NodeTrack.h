@@ -42,8 +42,6 @@ private:
 	int			mPlayCount;
 	int			mStarRating;
 	int			mNumTracks;
-	float		mSphereRes;
-	int			mSphereIntRes;
 	
 	int			mTotalVerts;
 	GLfloat		*mVerts;
@@ -54,7 +52,7 @@ private:
 	ci::Color	mEclipseColor;
 	
 	float		mAxialTilt;
-	float		mCamDistAlpha;
+    float       mAxialVel;
 	
 	bool		mHasRings;
 	bool 		mIsPlaying;

@@ -21,6 +21,7 @@
 #include "CinderIPod.h"
 #include "CinderIPodPlayer.h"
 #include "PinchRecognizer.h"
+#include "ParticleController.h"
 #include <vector>
 #include <sstream>
 
@@ -32,6 +33,8 @@ using std::stringstream;
 
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
+bool G_ACCEL            = false;
+
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 GLfloat mat_specular[]	= { 1.0, 1.0, 1.0, 1.0 };
 GLfloat mat_shininess[]	= { 128.0 };
@@ -125,7 +128,8 @@ class KeplerApp : public AppCocoaTouch {
 	float			mTimeSincePinchEnded;
 	float			mTimePinchEnded;
 
-	
+	// PARTICLES
+    ParticleController mParticleController;
 	
 	// TEXTURES
 	gl::Texture		mLoadingTex;
@@ -152,7 +156,7 @@ void KeplerApp::setup()
 {
 	mIsLoaded = false;
 	
-	//Rand::randomize();
+	Rand::randomize();
 	
 	// INIT ACCELEROMETER
 	enableAccelerometer();
@@ -181,8 +185,8 @@ void KeplerApp::setup()
 	mCenterDest			= mCenter;
 	mCenterFrom			= mCenter;
 	mUp					= Vec3f::yAxis();
-	mFov				= 90.0f;
-	mFovDest			= 90.0f;
+	mFov				= 80.0f;
+	mFovDest			= 80.0f;
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 1000.0f );
 	mBbRight			= Vec3f::xAxis();
 	mBbUp				= Vec3f::yAxis();
@@ -210,6 +214,9 @@ void KeplerApp::setup()
 	
 	// TEXTURES
 	initTextures();
+    
+    // PARTICLES
+    mParticleController.addParticles( 250 );
 	
 	// BREADCRUMBS
 	mBreadcrumbs.setup( this, mFontSmall );
@@ -323,14 +330,14 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		mFovDest += ( 1.0f - event.getScaleDelta() ) * 50.0f;
 	} else {
 		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -3.5f + 1.0f;
-		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.375f, 4.5f );
+		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 4.5f );
 		
 		
 		// if the pinch will trigger a level change, mess with the FOV to signal the impending change.
 		if( mCamDistPinchOffsetDest > 4.1f ){
 			mFovDest = 130.0f;//( 1.0f - event.getScaleDelta() ) * 20.0f;
 		} else {
-			mFovDest = 100.0f;
+			mFovDest = 90.0f;
 		}
 	}
 	
@@ -356,7 +363,7 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
 			mState.setSelectedNode( selected->mParentNode );
-			mFovDest = 100.0f;
+			mFovDest = 90.0f;
 			mCamDistPinchOffsetDest = 1.0f;
 		}
 	}
@@ -380,6 +387,12 @@ void KeplerApp::initFonts()
 
 void KeplerApp::initTextures()
 {
+    gl::Texture::Format format;
+	format.enableMipmapping( true );			
+	ImageSourceRef img = loadImage( loadResource( "star.png" ) );
+	if(img) mStarTex = gl::Texture( img, format );
+    
+    
 	float t = getElapsedSeconds();
 	cout << "before load time = " << t << endl;
 	mLoadingTex			= loadImage( loadResource( "loading.jpg" ) );
@@ -387,7 +400,7 @@ void KeplerApp::initTextures()
 	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
 	mSliderBgTex		= loadImage( loadResource( "sliderBg.png" ) );
 	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
-	mStarTex			= loadImage( loadResource( "star.png" ) );
+	//mStarTex			= loadImage( loadResource( "star.png" ) );
 	mStarAlternateTex	= loadImage( loadResource( "starAlternate.png" ) );
 	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
@@ -398,9 +411,10 @@ void KeplerApp::initTextures()
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "pause.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "prev.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "next.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debug.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOn.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "highlight.png" ) ) ) );	
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accelOff.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accelOn.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOff.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOn.png" ) ) ) );	
     mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "12.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "13.jpg" ) ) ) );
@@ -497,6 +511,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 	} else if( button == PlayControls::NEXT_TRACK ){
 		mIpodPlayer.skipNext();	
 	} else if( button == PlayControls::ACCEL ){
+		G_ACCEL = !G_ACCEL;
+	} else if( button == PlayControls::DBUG ){
 		G_DEBUG = !G_DEBUG;
 	}
 	cout << "play button " << button << " pressed" << endl;
@@ -575,6 +591,7 @@ void KeplerApp::update()
 	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.17f );
 	updateArcball();
 	mWorld.update( mMatrix );
+    mParticleController.update( mState.getSelectedNode() );
 	updateCamera();
 	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 	
@@ -595,7 +612,7 @@ void KeplerApp::updateArcball()
 		//}
 	}
 	
-	if( G_DEBUG ){
+	if( G_ACCEL ){
 		mMatrix = mAccelMatrix * mArcball.getQuat();
 	} else {
 		mMatrix = mArcball.getQuat();
@@ -628,7 +645,7 @@ void KeplerApp::updateCamera()
 	}
 	
 	// UPDATE FOV
-	mFovDest = constrain( mFovDest, 75.0f, 135.0f );
+	mFovDest = constrain( mFovDest, G_MIN_FOV, G_MAX_FOV );
 	mFov -= ( mFov - mFovDest ) * 0.175f;
 	
 
@@ -725,30 +742,15 @@ void KeplerApp::draw()
 		
 		gl::enableAdditiveBlending();
 		
-	// STARGLOWS
-		mStarGlowTex.enableAndBind();
-		mWorld.drawStarGlows();
-		mStarGlowTex.disable();
-		
-	// ORBITS
-		gl::enableAdditiveBlending();
-		gl::enableDepthRead();
-		gl::disableDepthWrite();
-		mWorld.drawOrbitRings();
-		gl::disableDepthRead();
-		
+
 	// STARS
 		mStarTex.enableAndBind();
 		mWorld.drawStars();
 		mStarTex.disable();
-		
-	// CONSTELLATION
-		mDottedTex.enableAndBind();
-		mWorld.drawConstellation( mMatrix );
-		mDottedTex.disable();
-		
+
+        
 	// PLANETS
-		Node *albumNode  = mState.getSelectedAlbumNode();
+		//Node *albumNode  = mState.getSelectedAlbumNode();
 		Node *artistNode = mState.getSelectedArtistNode();
 		if( artistNode ){
 			gl::enableDepthRead();
@@ -760,21 +762,19 @@ void KeplerApp::draw()
 			glShadeModel( GL_SMOOTH );
 						
 			//glMaterialfv( GL_FRONT, GL_AMBIENT, mat_ambient );
-			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );
-			
-			
+			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );		
+			//glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular );
+			//glMaterialfv( GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess );		
+            
 			// LIGHT FROM ARTIST
 			glEnable( GL_LIGHT0 );
 			Vec3f artistLightPos	= artistNode->mTransPos;
 			GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
 			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 0.2f ) );
-			glLightfv( GL_LIGHT0, GL_SPECULAR, Color::black() );
-			
-			
-			glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular );
-			glMaterialfv( GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess );
-			
+			//glLightfv( GL_LIGHT0, GL_SPECULAR, Color::white() );
+    
+			/*
 			if( albumNode ){
 				// LIGHT FROM ALBUM
 				glEnable( GL_LIGHT1 );
@@ -784,7 +784,7 @@ void KeplerApp::draw()
 				glLightfv( GL_LIGHT1, GL_DIFFUSE, ColorA( ( albumNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
 				glLightfv( GL_LIGHT1, GL_SPECULAR, Color::white() );
 			}
-		
+            */
 				
 	// PLANETS
 			mWorld.drawPlanets( mAccelMatrix, mPlanetsTex );
@@ -793,19 +793,43 @@ void KeplerApp::draw()
 			mWorld.drawClouds( mAccelMatrix, mCloudsTex );
 			
 	// RINGS
+
 			gl::enableAdditiveBlending();
-			mWorld.drawRings( mRingsTex );
+//			mWorld.drawRings( mRingsTex );
 			glDisable( GL_LIGHTING );
 			gl::disableDepthRead();
 		}
+
+        
+    // STARGLOWS
+		mStarGlowTex.enableAndBind();
+		mWorld.drawStarGlows();
+		mStarGlowTex.disable();
+		
+    // ORBITS
+		gl::enableAdditiveBlending();
+		gl::enableDepthRead();
+		gl::disableDepthWrite();
+		mWorld.drawOrbitRings();
+        // PARTICLES
+       // mParticleController.draw();
+		gl::disableDepthRead();
+		
+    // CONSTELLATION
+		mDottedTex.enableAndBind();
+		mWorld.drawConstellation( mMatrix );
+		mDottedTex.disable();
+        
+        
 		
 	// ATMOSPHERE
 		mAtmosphereTex.enableAndBind();
-		gl::disableDepthRead();
-		gl::disableDepthWrite();
-		mWorld.drawAtmospheres();
+		gl::enableDepthRead();
+		gl::enableDepthWrite();
+//		mWorld.drawAtmospheres();
 		mAtmosphereTex.disable();
-
+        gl::disableDepthRead();
+		gl::disableDepthWrite();
 
 	// NAMES
 		gl::disableDepthWrite();
@@ -813,12 +837,12 @@ void KeplerApp::draw()
 		gl::setMatricesWindow( getWindowSize() );
 		gl::enableAdditiveBlending();
 		float pinchAlphaOffset = constrain( 1.0f - ( mCamDistPinchOffset - 3.0f ), 0.0f, 1.0f );
-		mWorld.drawOrthoNames( mCam, pinchAlphaOffset );
-		
-		
-		
+		mWorld.drawNames( mCam, pinchAlphaOffset );
+
 		
 		glDisable( GL_TEXTURE_2D );
+        
+        
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
 		mUiLayer.draw( mPanelUpTex, mPanelDownTex );
@@ -826,7 +850,8 @@ void KeplerApp::draw()
 		mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );
 		mState.draw( mFont );
 		
-		//drawInfoPanel();
+        if( G_DEBUG )
+            drawInfoPanel();
 		
 		if( getElapsedFrames()%120 == 0 ){
 			cout << "fps = " << getAverageFps() << endl;
@@ -843,15 +868,16 @@ void KeplerApp::drawInfoPanel()
 		setParamsTex();
 	}
 	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-	gl::draw( mParamsTex, Vec2f( 0.0f, 0.0f ) );
+	gl::draw( mParamsTex, Vec2f( 23.0f, 25.0f ) );
 }
 
 
 void KeplerApp::setParamsTex()
 {
+    stringstream s;
 	TextLayout layout;	
-	layout.setFont( mFont );
-	layout.setColor( Color( 0.3f, 0.3f, 1.0f ) );
+	layout.setFont( mFontSmall );
+	layout.setColor( Color( 1.0f, 0.0f, 0.0f ) );
 
 	int currentLevel = G_HOME_LEVEL;
 	if (mState.getSelectedNode()) {
@@ -861,7 +887,7 @@ void KeplerApp::setParamsTex()
 		currentLevel = G_ALPHA_LEVEL;
 	}
 	
-	stringstream s;
+	
 	s.str("");
 	s << " CURRENT LEVEL: " << currentLevel;
 	layout.addLine( s.str() );
@@ -872,7 +898,6 @@ void KeplerApp::setParamsTex()
 	
 	s.str("");
 	s << " ZOOM LEVEL: " << G_ZOOM;
-	layout.setColor( Color( 0.0f, 1.0f, 1.0f ) );
 	layout.addLine( s.str() );
 	
 	mParamsTex = gl::Texture( layout.render( true, false ) );

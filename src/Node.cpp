@@ -36,6 +36,10 @@ Node::Node( Node *parent, int index, const Font &font )
 	mScreenPos			= Vec2f::zero();
 	mEclipsePer			= 1.0f;
 	mTransPos			= mPos;
+    mTransPrevPos       = mPos;
+    for( int i=0; i<50; i++ ){
+        mTransPosVector.push_back( mTransPos );
+    }
 	mCamZVel			= 0.0f;
 	mStartAngle			= Rand::randFloat( TWO_PI );
 	mOrbitAngle			= mStartAngle;
@@ -56,7 +60,7 @@ void Node::init()
 	mGen				= G_ARTIST_LEVEL;
 	mRadius				= 2.0f;
 	mPos				= Rand::randVec3f();
-	mPosPrev			= mPos;
+	mPrevPos			= mPos;
 	mVel				= Vec3f::zero();
 	mOrbitRadiusDest	= 0.0f;
 	mOrbitPeriod		= 0.0f;
@@ -67,7 +71,7 @@ void Node::initWithParent()
 	mGen				= mParentNode->mGen + 1;
 	mRadius				= mParentNode->mRadius * 0.02f;
 	mPos				= mParentNode->mPos;
-	mPosPrev			= mParentNode->mPos;
+	mPrevPos			= mParentNode->mPos;
 	mVel				= mParentNode->mVel;
 	mOrbitPeriod		= Rand::randFloat( 25.0f, 150.0f );
 }
@@ -93,18 +97,21 @@ void Node::createNameTexture()
 void Node::update( const Matrix44f &mat )
 {
 	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
-	mMatrix		= mat;
-	mTransPos	= mMatrix * mPos;
+	mMatrix         = mat;
+    mTransPrevPos	= mTransPos;
+	mTransPos       = mMatrix * mPos;
+    
+    for( int i=49; i>0; i-- ){
+        mTransPosVector[i] = mTransPosVector[i-1];
+    }
+    mTransPosVector[0] = mTransPos;
+    
 	mSphere.setCenter( mTransPos );
 	
 	mZoomPer = constrain( 1.0f - abs( G_ZOOM-mGen+1.0f ), 0.0f, 0.75f );
 	mZoomPer = pow( mZoomPer, 3.0f );
 		
 	if( mIsSelected ){
-		float screenPosLength = mScreenPos.distance( app::getWindowCenter() );
-		if( screenPosLength > 0.0 )
-			mEclipsePer = math<float>::min( 1.0f/(screenPosLength/200.0f), 7.5f );
-		
 		if( mGen == G_TRACK_LEVEL ){
 			mZoomPer = 1.0f - mZoomPer;
 		} else {
@@ -120,6 +127,15 @@ void Node::update( const Matrix44f &mat )
 
 void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp )
 {
+    if( mIsSelected ){
+		mSphereRes		-= ( mSphereRes - 32 ) * 0.1f;
+		mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.05f;
+	} else {
+		mSphereRes		-= ( mSphereRes - 14 ) * 0.1f;
+		mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.05f;
+	}
+    
+    
 	mBbRight	= bbRight;
 	mBbUp		= bbUp;
 	
@@ -150,26 +166,7 @@ void Node::drawStarGlow()
 	}
 }
 
-
-// DEPRECATED
-void Node::drawName()
-{	
-	if( mIsHighlighted ){
-		if (mNameTex == NULL) {
-			createNameTexture();
-		}
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, mZoomPer ) );
-		mNameTex.enableAndBind();
-		Vec3f pos	= mTransPos + mBbRight * ( mNameTex.getWidth() * 0.075f );
-		Vec2f size	= Vec2f( mNameTex.getWidth(), mNameTex.getHeight() );
-		gl::drawBillboard( pos, size, 0.0f, mBbRight, mBbUp );
-		for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-			(*nodeIt)->drawName();
-		}
-	}
-}
-
-void Node::drawOrthoName( const CameraPersp &cam, float pinchAlphaOffset )
+void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
 		if( mIsSelected ){
@@ -183,13 +180,15 @@ void Node::drawOrthoName( const CameraPersp &cam, float pinchAlphaOffset )
 		}
 		
 		Vec2f offset = Vec2f( mSphereScreenRadius * 0.4f, -mNameTex.getHeight() * 0.5f );
-		mScreenPos = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
-		
+		mScreenPos      = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
+	//	mScreenPrevPos  = cam.worldToScreen( mPosPrev, app::getWindowWidth(), app::getWindowHeight() );
+    //  mScreenVel      = mScreenPrevPos - mScreenPos;
+        
 		gl::draw( mNameTex, mScreenPos + offset );
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrthoName( cam, pinchAlphaOffset );
+		(*nodeIt)->drawName( cam, pinchAlphaOffset );
 	}
 }
 
@@ -247,7 +246,7 @@ void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
 	if (mNameTex != NULL) {
 		
-		Rectf r = Rectf( mScreenPos.x - 20, mScreenPos.y - 10, mScreenPos.x + mNameTex.getWidth() + 10, mScreenPos.y + mNameTex.getHeight() + 10 );
+		Rectf r = Rectf( mScreenPos.x - 20, mScreenPos.y - 15, mScreenPos.x + mNameTex.getWidth() + 10, mScreenPos.y + mNameTex.getHeight() + 15 );
 		
 		if( r.contains( pos ) && mIsHighlighted && ! mIsSelected ){
 			std::cout << "HIT FOUND" << std::endl;
