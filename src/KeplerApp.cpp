@@ -17,7 +17,6 @@
 #include "Data.h"
 #include "PlayControls.h"
 #include "Breadcrumbs.h"
-#include "BreadcrumbEvent.h"
 #include "CinderIPod.h"
 #include "CinderIPodPlayer.h"
 #include "PinchRecognizer.h"
