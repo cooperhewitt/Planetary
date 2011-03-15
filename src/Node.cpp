@@ -126,21 +126,22 @@ void Node::update( const Matrix44f &mat )
 
 void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp )
 {
-    if( mIsSelected ){
-		mSphereRes		-= ( mSphereRes - 32 ) * 0.1f;
-		mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.05f;
-	} else {
-		mSphereRes		-= ( mSphereRes - 14 ) * 0.1f;
-		mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.05f;
-	}
+    if( mGen >= G_ALBUM_LEVEL ){
+        if( mIsSelected ){
+            mSphereRes		-= ( mSphereRes - 32 ) * 0.1f;
+            mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.05f;
+        } else {
+            mSphereRes		-= ( mSphereRes - 14 ) * 0.1f;
+            mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.05f;
+        }
+    }
     
-    mScreenPos      = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
-    
-	mBbRight        = bbRight;
-	mBbUp           = bbUp;
+	mBbRight            = bbRight;
+	mBbUp               = bbUp;
 	
     
 	if( mIsHighlighted ){
+        mScreenPos              = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
 		mDistFromCamZAxis		= cam.worldToEyeDepth( mTransPos );
 		mCamZVel				= mDistFromCamZAxis - mPrevDistFromCamZAxis;
@@ -149,7 +150,7 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->updateGraphics( cam, bbRight, bbUp );
+		(*nodeIt)->updateGraphics( cam, mBbRight, mBbUp );
 	}
 }
 
