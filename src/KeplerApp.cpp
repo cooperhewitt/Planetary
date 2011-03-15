@@ -354,7 +354,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	mTouchPos		= averageTouchPos;
 	
 	mPinchScale		= event.getScale();
-	cout << "pinch scale: " << mPinchScale << endl;
+	//cout << "pinch scale: " << mPinchScale << endl;
     return false;
 }
 
@@ -370,6 +370,7 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 		}
 	}
 	mTimePinchEnded = getElapsedSeconds();
+	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );	
     mPinchRays.clear();
     return false;
 }
@@ -596,7 +597,7 @@ void KeplerApp::update()
 	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 	
 	mUiLayer.update();
-	mAlphaWheel.update( mFov, getElapsedSeconds() - mTimePinchEnded );
+	mAlphaWheel.update( mFov );
 	mBreadcrumbs.update();
 	mPlayControls.update();
 	
@@ -651,14 +652,17 @@ void KeplerApp::updateCamera()
 	
 
 	if( mFovDest >= 130.0f && ! mAlphaWheel.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
-		mAlphaWheel.setShowWheel( true );
+		if (!mAlphaWheel.getShowWheel()) {
+			mAlphaWheel.setShowWheel( true );
+		}
 		//mWorld.deselectAllNodes();
 		//mState.setSelectedNode( NULL );
 		//mState.setAlphaChar( ' ' );
 	} else if( mFovDest < 130.0f ){
-		if( mAlphaWheel.getShowWheel() )
-			mState.setAlphaChar( mState.getAlphaChar() );
-		mAlphaWheel.setShowWheel( false );
+		if( mAlphaWheel.getShowWheel() ) {
+//			mState.setAlphaChar( mState.getAlphaChar() );
+			mAlphaWheel.setShowWheel( false );
+		}
 	}
 
 	
@@ -835,12 +839,13 @@ void KeplerApp::draw()
 		mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );
 		mState.draw( mFont );
 		
-        if( G_DEBUG )
+        if( G_DEBUG ) {
             drawInfoPanel();
-		
-		if( getElapsedFrames()%120 == 0 ){
-			cout << "fps = " << getAverageFps() << endl;
 		}
+		
+//		if( getElapsedFrames()%120 == 0 ){
+//			cout << "fps = " << getAverageFps() << endl;
+//		}
 	}
 }
 

@@ -78,7 +78,7 @@ bool UiLayer::touchesBegan( TouchEvent event )
 		mIsPanelTabTouched = false;
 	}
 		
-	return mIsPanelTabTouched;
+	return false; //mIsPanelTabTouched;
 }
 
 bool UiLayer::touchesMoved( TouchEvent event )
@@ -90,7 +90,7 @@ bool UiLayer::touchesMoved( TouchEvent event )
 		setPanelPos( mTouchPos.y, false );
 	}
 
-	return mIsPanelTabTouched;
+	return false;// mIsPanelTabTouched;
 }
 
 bool UiLayer::touchesEnded( TouchEvent event )
@@ -104,7 +104,7 @@ bool UiLayer::touchesEnded( TouchEvent event )
 			setPanelPos( mTouchPos.y, true );
 			mIsPanelTabTouched		= false;
 			mHasPanelBeenDragged	= false;
-		} else {
+		} else if( mPanelTabRect.contains( mTouchPos ) ){
 			if( mIsPanelOpen ){
 				mPanelYPosDest = mPanelClosedYPos;
 			} else {
@@ -113,7 +113,7 @@ bool UiLayer::touchesEnded( TouchEvent event )
 		}
 	}
 	
-	return mIsPanelTabTouched;
+	return false; //mIsPanelTabTouched;
 }
 
 
