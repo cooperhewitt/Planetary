@@ -196,7 +196,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 		}
 		
 		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, mSphereScreenRadius * -0.25f );
-		Vec2f pos2 = mScreenPos + Vec2f( mSphereScreenRadius * 0.45f, mSphereScreenRadius * -0.45f );
+		Vec2f pos2 = mScreenPos + Vec2f( mSphereScreenRadius * 0.35f, mSphereScreenRadius * -0.35f );
 
 		gl::draw( mNameTex, pos2 + Vec2f( 3.0f, -13.0f ) );
 		gl::color( ColorA( 0.1f, 0.2f, 0.5f, 0.2f * mZoomPer * pinchAlphaOffset ) );

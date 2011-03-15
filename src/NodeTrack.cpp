@@ -27,7 +27,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	mRadius				*= 4.0f;
 	
 	// FIXME: bad C++?
-	float numTracks		= ((NodeAlbum*)mParentNode)->mNumTracks + 1.0f;
+	float numTracks		= ((NodeAlbum*)mParentNode)->mNumTracks + 2.0f;
 	float invTrackPer	= 1.0f/numTracks;
 	float trackNumPer	= (float)mIndex * invTrackPer;
 	

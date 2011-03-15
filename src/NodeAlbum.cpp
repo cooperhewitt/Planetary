@@ -34,7 +34,7 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	mGlowColor		= Color( CM_HSV, hue, sat + 0.3f, 1.0f );
 	
 	// FIXME: bad c++?
-	float numAlbums = ((NodeArtist*)mParentNode)->mNumAlbums + 1.0f;
+	float numAlbums = ((NodeArtist*)mParentNode)->mNumAlbums + 2.0f;
 	
 	float invAlbumPer = 1.0f/(float)numAlbums;
 	float albumNumPer = (float)mIndex * invAlbumPer;
