@@ -22,6 +22,7 @@ class World {
  public:
 	World();
 	void setData( Data *data ){ mData = data; }
+	void initRingVertexArray();
 	void initNodes( ci::ipod::Player *player, const ci::Font &font );
 	void filterNodes();
 	void deselectAllNodes();
@@ -50,4 +51,7 @@ class World {
 	GLfloat *mVerts;
 	GLfloat *mTexCoords;
 	GLfloat *mColors;
+	
+	GLfloat *mRingVertsLowRes;
+	GLfloat *mRingVertsHighRes;
 };

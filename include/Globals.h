@@ -30,6 +30,9 @@ static const int G_NUM_CLOUD_TYPES	= 5;
 static const float G_MIN_FOV = 80.0f;
 static const float G_MAX_FOV = 135.0f;
 
+static const int G_RING_LOW_RES = 250;
+static const int G_RING_HIGH_RES = 500;
+
 
 // TODO: move into State.h
 extern float G_ZOOM;

@@ -20,7 +20,7 @@ class NodeArtist : public Node
 	void update( const ci::Matrix44f &mat );
 	void drawStar();
 	void drawStarGlow();
-	void drawOrbitRing(){ Node::drawOrbitRing(); }
+	void drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes ){ Node::drawOrbitRing( ringVertsLowRes, ringVertsHighRes ); }
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds ){ Node::drawClouds( clouds ); }
 	void drawRings( const ci::gl::Texture &tex ){ Node::drawRings( tex ); }
@@ -28,6 +28,7 @@ class NodeArtist : public Node
 	string getName();
 	void setData( ci::ipod::PlaylistRef playlist );
 
+    // TODO: should this be private?
 	int mNumAlbums;
 
   private:

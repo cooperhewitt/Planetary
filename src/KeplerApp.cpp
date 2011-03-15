@@ -44,11 +44,11 @@ class KeplerApp : public AppCocoaTouch {
   public:
 	void			init();
 	virtual void	setup();
+	void			initTextures();
 	virtual void	touchesBegan( TouchEvent event );
 	virtual void	touchesMoved( TouchEvent event );
 	virtual void	touchesEnded( TouchEvent event );
 	virtual void	accelerated( AccelEvent event );
-	void			initTextures();
 	virtual void	update();
 	void			updateArcball();
 	void			updateCamera();
@@ -241,6 +241,65 @@ void KeplerApp::setup()
     mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
 }
 
+
+void KeplerApp::initTextures()
+{
+	/* THIS DIDNT SEEM TO WORK (OR MAYBE IT JUST DIDNT MAKE MUCH OF A DIFFERENCE)
+    gl::Texture::Format format;
+	format.enableMipmapping( true );			
+	ImageSourceRef img = loadImage( loadResource( "star.png" ) );
+	if(img) mStarTex = gl::Texture( img, format );
+    */
+	
+	float t = getElapsedSeconds();
+	cout << "before load time = " << t << endl;
+	mLoadingTex			= loadImage( loadResource( "loading.jpg" ) );
+	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
+	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
+	mSliderBgTex		= loadImage( loadResource( "sliderBg.png" ) );
+	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
+	mStarTex			= loadImage( loadResource( "star.png" ) );
+	mStarAlternateTex	= loadImage( loadResource( "starAlternate.png" ) );
+	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
+	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
+	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
+	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
+	mParamsTex			= gl::Texture( 768, 75 );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "play.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "pause.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "prev.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "next.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accelOff.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accelOn.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOff.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOn.png" ) ) ) );	
+    mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "12.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "13.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "21.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "22.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "23.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "31.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "32.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "33.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "41.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "42.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "43.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "51.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "52.jpg" ) ) ) );
+	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "53.jpg" ) ) ) );
+	mRingsTex           = loadImage( loadResource( "rings.png" ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds1.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds2.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds3.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds4.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
+	t = getElapsedSeconds();
+	cout << "after load time = " << t << endl;
+	
+}
+
+
 void KeplerApp::init()
 {
 	static bool inited = false;
@@ -376,62 +435,6 @@ void KeplerApp::accelerated( AccelEvent event )
 {
 	mNewAccelMatrix = event.getMatrix();
 	mNewAccelMatrix.invert();
-}
-
-void KeplerApp::initTextures()
-{
-    gl::Texture::Format format;
-	format.enableMipmapping( true );			
-	ImageSourceRef img = loadImage( loadResource( "star.png" ) );
-	if(img) mStarTex = gl::Texture( img, format );
-    
-    
-	float t = getElapsedSeconds();
-	cout << "before load time = " << t << endl;
-	mLoadingTex			= loadImage( loadResource( "loading.jpg" ) );
-	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
-	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
-	mSliderBgTex		= loadImage( loadResource( "sliderBg.png" ) );
-	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
-	//mStarTex			= loadImage( loadResource( "star.png" ) );
-	mStarAlternateTex	= loadImage( loadResource( "starAlternate.png" ) );
-	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
-	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
-	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
-	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
-	mParamsTex			= gl::Texture( 768, 75 );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "play.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "pause.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "prev.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "next.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accelOff.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accelOn.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOff.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOn.png" ) ) ) );	
-    mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "12.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "13.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "21.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "22.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "23.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "31.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "32.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "33.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "41.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "42.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "43.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "51.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "52.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "53.jpg" ) ) ) );
-	mRingsTex           = loadImage( loadResource( "rings.png" ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds1.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds2.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds3.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds4.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
-	t = getElapsedSeconds();
-	cout << "after load time = " << t << endl;
-	
 }
 
 bool KeplerApp::onWheelClosed( AlphaWheel *alphaWheel )
@@ -574,8 +577,9 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &
 
 void KeplerApp::update()
 {
-	if (mData.update()) {
+	if( mData.update() ){
 		mWorld.initNodes( &mIpodPlayer, mFont );
+		mWorld.initRingVertexArray();
 		mIsLoaded = true;
 	}
 		

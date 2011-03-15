@@ -37,7 +37,7 @@ class Node {
 	virtual void		drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	virtual void		drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	virtual void		drawRings( const ci::gl::Texture &tex );
-	virtual void		drawOrbitRing();
+	virtual void		drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void				drawName( const ci::CameraPersp &cam, float pinchAlphaOffset );
 	void				checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
 	void				checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );

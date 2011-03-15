@@ -40,8 +40,27 @@ void World::initNodes( Player *player, const Font &font )
 	}
 	
 	cout << (App::get()->getElapsedSeconds() - t) << " seconds to World::initNodes" << endl;
-
 }
+
+void World::initRingVertexArray()
+{
+	mRingVertsLowRes	= new float[ G_RING_LOW_RES*2 ]; // X,Y
+	for( int i=0; i<G_RING_LOW_RES; i++ ){
+		float per				= (float)i/(float)(G_RING_LOW_RES-1);
+		float angle				= per * TWO_PI;
+		mRingVertsLowRes[i*2+0]	= cos( angle );
+		mRingVertsLowRes[i*2+1]	= sin( angle );
+	}
+	
+	mRingVertsHighRes	= new float[ G_RING_HIGH_RES*2 ]; // X,Y
+	for( int i=0; i<G_RING_HIGH_RES; i++ ){
+		float per					= (float)i/(float)(G_RING_HIGH_RES-1);
+		float angle					= per * TWO_PI;
+		mRingVertsHighRes[i*2+0]	= cos( angle );
+		mRingVertsHighRes[i*2+1]	= sin( angle );
+	}
+}
+
 
 void World::filterNodes()
 {
@@ -120,7 +139,7 @@ void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset )
 void World::drawOrbitRings()
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawOrbitRing();
+		(*it)->drawOrbitRing( mRingVertsLowRes, mRingVertsHighRes );
 	}
 }
 

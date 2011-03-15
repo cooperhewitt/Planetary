@@ -23,21 +23,21 @@ using namespace std;
 NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	: Node( parent, index, font )
 {	
-	mIsHighlighted	= true;
-	mRadius			*= 4.0f;
+	mIsHighlighted		= true;
+	mRadius				*= 4.0f;
 	
 	// FIXME: bad C++?
-	float numTracks = ((NodeAlbum*)mParentNode)->mNumTracks;
-	float invTrackPer = 1.0f/numTracks;
-	float trackNumPer = (float)mIndex * invTrackPer;
+	float numTracks		= ((NodeAlbum*)mParentNode)->mNumTracks;
+	float invTrackPer	= 1.0f/numTracks;
+	float trackNumPer	= (float)mIndex * invTrackPer;
 	
 	float minAmt		= mParentNode->mRadius * 2.0f;
 	float maxAmt		= mParentNode->mRadius * 8.0f;
 	float deltaAmt		= maxAmt - minAmt;
 	mOrbitRadiusDest	= minAmt + deltaAmt * trackNumPer + Rand::randFloat( maxAmt * invTrackPer );
 	
-    mIsPlaying		= false;
-	mHasRings		= false;
+    mIsPlaying			= false;
+	mHasRings			= false;
 	
 }
 
@@ -70,21 +70,22 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	if( mParentNode->mHighestPlayCount == mPlayCount && mPlayCount > 5 )
 		mHasRings = true;
 	
-	float hue		= Rand::randFloat( 0.15f, 0.75f );
-	float sat		= Rand::randFloat( 0.15f, 0.25f );
-	float val		= Rand::randFloat( 0.85f, 1.00f );
-	mColor			= Color( CM_HSV, hue, sat, val );
-	mGlowColor		= mColor;
-	mEclipseColor	= mColor;
+	float hue			= Rand::randFloat( 0.15f, 0.75f );
+	float sat			= Rand::randFloat( 0.15f, 0.25f );
+	float val			= Rand::randFloat( 0.85f, 1.00f );
+	mColor				= Color( CM_HSV, hue, sat, val );
+	mGlowColor			= mColor;
+	mEclipseColor		= mColor;
 	
-	mRadius			= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0003f ) * 0.75;
-	mSphere			= Sphere( mPos, mRadius * 7.5f );
-	mIdealCameraDist = 0.004;//mRadius * 10.0f;
-	mOrbitPeriod	= mTrackLength;
-	mAxialTilt		= Rand::randFloat( 5.0f, 30.0f );
-    mAxialVel       = Rand::randFloat( 10.0f, 45.0f );
+	mRadius				= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0003f ) * 0.75;
+	mSphere				= Sphere( mPos, mRadius * 7.5f );
+	mIdealCameraDist	= 0.004f;
+	mOrbitPeriod		= mTrackLength;
+	mAxialTilt			= Rand::randFloat( 5.0f, 30.0f );
+    mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
 	
-	initVertexArray();
+    // TODO: no reason why every track should init this vertex array
+	//initVertexArray();
 }
 
 void NodeTrack::initVertexArray()
@@ -174,7 +175,6 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 	gl::color( mEclipseColor );
 	planets[mPlanetTexIndex].enableAndBind();
 	gl::drawSphere( Vec3f::zero(), mRadius, mSphereResInt );
-	
 	gl::popModelView();
 }
 
@@ -195,10 +195,10 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
 		gl::drawSphere( Vec3f::zero(), mRadius + 0.000012f, mSphereResInt );
-		 
 		gl::popModelView();
 	}
 }
+
 
 void NodeTrack::drawRings( const gl::Texture &tex )
 {
@@ -221,30 +221,31 @@ void NodeTrack::drawRings( const gl::Texture &tex )
 	}
 }
 
-void NodeTrack::drawOrbitRing()
+
+void NodeTrack::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
-	gl::pushModelView();
-	gl::translate( mParentNode->mTransPos );
-	gl::rotate( mMatrix );
-
-
-	int ringRes;
-	if( mIsPlaying ){
+	if( mIsSelected ){
 		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
-		ringRes = 300;
 	} else {
 		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
-		ringRes = 150;
 	}
-	
-	gl::drawStrokedCircle( Vec2f::zero(), mOrbitRadius, ringRes );
+	gl::pushModelView();
+	gl::translate( mParentNode->mTransPos );
+	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
+	gl::rotate( mMatrix );
+	glEnableClientState( GL_VERTEX_ARRAY );
+	glVertexPointer( 2, GL_FLOAT, 0, ringVertsLowRes );
+	glDrawArrays( GL_LINE_STRIP, 0, G_RING_LOW_RES );
+	glDisableClientState( GL_VERTEX_ARRAY );
 	gl::popModelView();
 }
+
 
 void NodeTrack::setPlaying(bool playing)
 {
 	mIsPlaying = playing;
 }
+
 
 string NodeTrack::getName()
 {

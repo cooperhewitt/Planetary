@@ -171,10 +171,10 @@ void Node::drawRings( const gl::Texture &tex )
 	}
 }
 
-void Node::drawOrbitRing()
+void Node::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrbitRing();
+		(*nodeIt)->drawOrbitRing( ringVertsLowRes, ringVertsHighRes );
 	}
 }
 
@@ -199,8 +199,6 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 		(*nodeIt)->drawName( cam, pinchAlphaOffset );
 	}
 }
-
-
 
 void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix44f &mat )
 {

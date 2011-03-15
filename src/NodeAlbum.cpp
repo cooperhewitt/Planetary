@@ -100,26 +100,24 @@ void NodeAlbum::update( const Matrix44f &mat )
 }
 
 
-void NodeAlbum::drawOrbitRing()
+void NodeAlbum::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
-	gl::pushModelView();
-	gl::translate( mParentNode->mTransPos );
-	gl::rotate( mMatrix );
-	
-	int ringRes;
 	if( mIsSelected ){
 		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
-		ringRes = 300;
 	} else {
 		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
-		ringRes = 150;
 	}
-	
-	gl::drawStrokedCircle( Vec2f::zero(), mOrbitRadius, ringRes );
-
+	gl::pushModelView();
+	gl::translate( mParentNode->mTransPos );
+	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
+	gl::rotate( mMatrix );
+	glEnableClientState( GL_VERTEX_ARRAY );
+	glVertexPointer( 2, GL_FLOAT, 0, ringVertsHighRes );
+	glDrawArrays( GL_LINE_STRIP, 0, G_RING_HIGH_RES );
+	glDisableClientState( GL_VERTEX_ARRAY );
 	gl::popModelView();
 	
-	Node::drawOrbitRing();
+	Node::drawOrbitRing( ringVertsLowRes, ringVertsHighRes );
 }
 
 void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
