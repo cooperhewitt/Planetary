@@ -20,11 +20,10 @@ class NodeArtist : public Node
 	void update( const ci::Matrix44f &mat );
 	void drawStar();
 	void drawStarGlow();
-	void drawOrbitRing();
-	void drawPlanet( const ci::Matrix44f &accelMatrix, const std::vector< ci::gl::Texture> &planets );
-	void drawClouds( const ci::Matrix44f &accelMatrix, const std::vector< ci::gl::Texture> &clouds );
-	void drawRings( const ci::gl::Texture &tex );
-	void drawAtmosphere();
+	void drawOrbitRing(){ Node::drawOrbitRing(); }
+	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
+	void drawClouds( const std::vector< ci::gl::Texture> &clouds ){ Node::drawClouds( clouds ); }
+	void drawRings( const ci::gl::Texture &tex ){ Node::drawRings( tex ); }
 	void select();
 	string getName();
 	void setData( ci::ipod::PlaylistRef playlist );

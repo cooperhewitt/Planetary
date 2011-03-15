@@ -33,14 +33,12 @@ Node::Node( Node *parent, int index, const Font &font )
 	
 	//createNameTexture();
 	
+    mZoomPer            = 0.0f;
+    
 	mScreenPos			= Vec2f::zero();
 	mEclipsePer			= 1.0f;
 	mTransPos			= mPos;
-    mTransPrevPos       = mPos;
-    for( int i=0; i<50; i++ ){
-        mTransPosVector.push_back( mTransPos );
-    }
-	mCamZVel			= 0.0f;
+
 	mStartAngle			= Rand::randFloat( TWO_PI );
 	mOrbitAngle			= mStartAngle;
 	mOrbitPeriod		= Rand::randFloat( 25.0f, 150.0f );
@@ -50,6 +48,9 @@ Node::Node( Node *parent, int index, const Font &font )
 	mDistFromCamZAxis	= 1000.0f;
 	mDistFromCamZAxisPer = 1.0f;
 	mPlanetTexIndex		= 0;
+    
+    mSphereRes          = 12;
+    mSphereResInt       = 12;
 		
 	mIsSelected			= false;
 	mIsHighlighted		= false;
@@ -84,40 +85,21 @@ void Node::createNameTexture()
 	layout.addLine( getName() );
 	Surface8u nameSurface	= Surface8u( layout.render( true, false ) );
 	mNameTex				= gl::Texture( nameSurface );
-
-	if( mGen == G_TRACK_LEVEL ){
-		Surface8u planetSurface = Surface( 512, 256, true, SurfaceChannelOrder::RGBA );
-		Vec2i offset = Vec2i( 60, 128 - mNameTex.getHeight() * 0.5f );
-		planetSurface.copyFrom( nameSurface, nameSurface.getBounds(), offset );
-	
-		mPlanetTex = gl::Texture( planetSurface );
-	}
 }
 
 void Node::update( const Matrix44f &mat )
 {
 	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
 	mMatrix         = mat;
-    mTransPrevPos	= mTransPos;
 	mTransPos       = mMatrix * mPos;
     
-    for( int i=49; i>0; i-- ){
-        mTransPosVector[i] = mTransPosVector[i-1];
-    }
-    mTransPosVector[0] = mTransPos;
-    
 	mSphere.setCenter( mTransPos );
-	
-	mZoomPer = constrain( 1.0f - abs( G_ZOOM-mGen+1.0f ), 0.0f, 0.75f );
-	mZoomPer = pow( mZoomPer, 3.0f );
-		
-	if( mIsSelected ){
-		if( mGen == G_TRACK_LEVEL ){
-			mZoomPer = 1.0f - mZoomPer;
-		} else {
-			mZoomPer = 1.0f;
-		}
-	}
+
+    if( mIsSelected ){
+        mZoomPer    = 1.0f;
+    } else {
+        mZoomPer    = constrain( 1.0f - abs( G_ZOOM - mGen + 1.0f ), 0.0f, 1.0f );
+    }
 
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->update( mat );
@@ -126,27 +108,27 @@ void Node::update( const Matrix44f &mat )
 
 void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp )
 {
+	mBbRight = bbRight;
+	mBbUp    = bbUp;
+    
     if( mGen >= G_ALBUM_LEVEL ){
         if( mIsSelected ){
-            mSphereRes		-= ( mSphereRes - 32 ) * 0.1f;
-            mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.05f;
+            mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
+            mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.1f;
         } else {
-            mSphereRes		-= ( mSphereRes - 14 ) * 0.1f;
-            mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.05f;
+            mSphereRes		-= ( mSphereRes - 6 ) * 0.1f;
+            mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.1f;
         }
+        
+        mSphereResInt       = (int)mSphereRes * 2;
     }
-    
-	mBbRight            = bbRight;
-	mBbUp               = bbUp;
-	
     
 	if( mIsHighlighted ){
         mScreenPos              = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
 		mDistFromCamZAxis		= cam.worldToEyeDepth( mTransPos );
-		mCamZVel				= mDistFromCamZAxis - mPrevDistFromCamZAxis;
 		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * -0.35f, 0.0f, 1.0f );
-		mSphereScreenRadius = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() ) * 0.4f;
+		mSphereScreenRadius     = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() ) * 0.4f;
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
@@ -165,6 +147,34 @@ void Node::drawStarGlow()
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->drawStarGlow();
+	}
+}
+
+void Node::drawPlanet( const vector<gl::Texture> &planets )
+{
+	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->drawPlanet( planets );
+	}
+}
+
+void Node::drawClouds( const vector<gl::Texture> &clouds )
+{
+	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->drawClouds( clouds );
+	}
+}
+
+void Node::drawRings( const gl::Texture &tex )
+{
+	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->drawRings( tex );
+	}
+}
+
+void Node::drawOrbitRing()
+{
+	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->drawOrbitRing();
 	}
 }
 
@@ -190,40 +200,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 	}
 }
 
-void Node::drawOrbitRing()
-{
-	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrbitRing();
-	}
-}
 
-void Node::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Texture> &planets )
-{
-	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawPlanet( accelMatrix, planets );
-	}
-}
-
-void Node::drawClouds( const Matrix44f &accelMatrix, const vector<gl::Texture> &clouds )
-{
-	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawClouds( accelMatrix, clouds );
-	}
-}
-
-void Node::drawRings( const gl::Texture &tex )
-{
-	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawRings( tex );
-	}
-}
-
-void Node::drawAtmosphere()
-{
-	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawAtmosphere();
-	}
-}
 
 void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix44f &mat )
 {

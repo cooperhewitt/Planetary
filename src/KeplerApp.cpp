@@ -36,8 +36,6 @@ bool G_DEBUG			= false;
 bool G_ACCEL            = false;
 
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
-GLfloat mat_specular[]	= { 1.0, 1.0, 1.0, 1.0 };
-GLfloat mat_shininess[]	= { 128.0 };
 
 float easeInOutQuad( double t, float b, float c, double d );
 Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
@@ -51,13 +49,13 @@ class KeplerApp : public AppCocoaTouch {
 	virtual void	touchesEnded( TouchEvent event );
 	virtual void	accelerated( AccelEvent event );
 	void			initTextures();
-	void			initFonts();
 	virtual void	update();
 	void			updateArcball();
 	void			updateCamera();
 	void			updatePlayhead();
 	virtual void	draw();
 	void			drawLoader();
+    void            drawScene();
 	void			drawInfoPanel();
 	void			setParamsTex();
 	bool			onAlphaCharStateChanged( State *state );
@@ -157,7 +155,12 @@ void KeplerApp::setup()
 	mIsLoaded = false;
 	
 	Rand::randomize();
+
 	
+    // TEXTURES
+	initTextures();
+    
+    
 	// INIT ACCELEROMETER
 	enableAccelerometer();
 	mAccelMatrix		= Matrix44f();
@@ -192,9 +195,9 @@ void KeplerApp::setup()
 	mBbUp				= Vec3f::yAxis();
 	
 	// FONTS
-	mFont				= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 16 );
+	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
 	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
-	mFontSmall			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 14 );	
+	mFontSmall			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 13 );	
 
 	// TOUCH VARS
 	mTouchPos			= Vec2f::zero();
@@ -207,12 +210,6 @@ void KeplerApp::setup()
     mPinchRecognizer.registerBegan( this, &KeplerApp::onPinchBegan );
     mPinchRecognizer.registerMoved( this, &KeplerApp::onPinchMoved );
     mPinchRecognizer.registerEnded( this, &KeplerApp::onPinchEnded );
-	
-	// FONTS
-	initFonts();
-	
-	// TEXTURES
-	initTextures();
     
     // PARTICLES
     mParticleController.addParticles( 250 );
@@ -379,13 +376,6 @@ void KeplerApp::accelerated( AccelEvent event )
 {
 	mNewAccelMatrix = event.getMatrix();
 	mNewAccelMatrix.invert();
-}
-
-void KeplerApp::initFonts()
-{
-	mFont				= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 16 );
-	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
-	mFontSmall			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 13 );	
 }
 
 void KeplerApp::initTextures()
@@ -634,7 +624,6 @@ void KeplerApp::updateCamera()
 		mZoomDest		= selectedNode->mGen;
 		
 		mCenterFrom		+= selectedNode->mVel;
-		//mCamDistFrom	+= selectedNode->mCamZVel;
 
 	} else {
 		mCamDistDest	= G_INIT_CAM_DIST * mCamDistPinchOffset;
@@ -733,120 +722,111 @@ void KeplerApp::draw()
 		
 		init();
 	} else {
-		gl::enableDepthWrite();
-		gl::setMatrices( mCam );
-		
+		drawScene();
+	}
+}
+
+void KeplerApp::drawScene()
+{
+    gl::enableDepthWrite();
+    gl::setMatrices( mCam );
+    
 	// DRAW SKYDOME
-		gl::pushModelView();
-		gl::rotate( mMatrix );
-		gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-		mSkyDome.enableAndBind();
-		gl::drawSphere( Vec3f::zero(), 990.0f, 64 );
-		gl::popModelView();
-		
-		
-		gl::enableAdditiveBlending();
-		
-
+    gl::pushModelView();
+    gl::rotate( mMatrix );
+    gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+    mSkyDome.enableAndBind();
+    gl::drawSphere( Vec3f::zero(), 990.0f, 16 );
+    gl::popModelView();
+    
+    
+    gl::enableAdditiveBlending();
+    
+    
 	// STARS
-		mStarTex.enableAndBind();
-		mWorld.drawStars();
-		mStarTex.disable();
-
-        
+    mStarTex.enableAndBind();
+    mWorld.drawStars();
+    mStarTex.disable();
+    
+    
 	// PLANETS
-		//Node *albumNode  = mState.getSelectedAlbumNode();
-		Node *artistNode = mState.getSelectedArtistNode();
-		if( artistNode ){
-			gl::enableDepthRead();
-			gl::enableDepthWrite();
-			gl::disableAlphaBlending();
-			
-			glEnable( GL_LIGHTING );
-			glEnable( GL_COLOR_MATERIAL );
-			glShadeModel( GL_SMOOTH );
-						
-			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
-            
-			// LIGHT FROM ARTIST
-			glEnable( GL_LIGHT0 );
-			Vec3f artistLightPos	= artistNode->mTransPos;
-			GLfloat artistLight[]	= { artistLightPos.x, artistLightPos.y, artistLightPos.z, 1.0f };
-			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 0.2f ) );
-
-				
-	// PLANETS
-			mWorld.drawPlanets( mAccelMatrix, mPlanetsTex );
-		
-	// CLOUDS
-			mWorld.drawClouds( mAccelMatrix, mCloudsTex );
-			
-	// RINGS
-
-			gl::enableAdditiveBlending();
-//			mWorld.drawRings( mRingsTex );
-			glDisable( GL_LIGHTING );
-			gl::disableDepthRead();
-		}
-
+    //Node *albumNode  = mState.getSelectedAlbumNode();
+    Node *artistNode = mState.getSelectedArtistNode();
+    if( artistNode ){
+        gl::enableDepthRead();
+        gl::disableAlphaBlending();
         
-    // STARGLOWS
-		mStarGlowTex.enableAndBind();
-		mWorld.drawStarGlows();
-		mStarGlowTex.disable();
-		
-    // ORBITS
-		gl::enableAdditiveBlending();
-		gl::enableDepthRead();
-		gl::disableDepthWrite();
-		mWorld.drawOrbitRings();
-		gl::disableDepthRead();
-		
-    // CONSTELLATION
-		mDottedTex.enableAndBind();
-		mWorld.drawConstellation( mMatrix );
-		mDottedTex.disable();
+        glEnable( GL_LIGHTING );
+        glEnable( GL_COLOR_MATERIAL );
+        glShadeModel( GL_SMOOTH );
+        
+        glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
+        
+        // LIGHT FROM ARTIST
+        glEnable( GL_LIGHT0 );
+        Vec3f lightPos          = artistNode->mTransPos;
+        GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
+        glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
+        glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
         
         
+        // PLANETS
+        mWorld.drawPlanets( mPlanetsTex );
 		
-	// ATMOSPHERE
-		mAtmosphereTex.enableAndBind();
-		gl::enableDepthRead();
-		gl::enableDepthWrite();
-//		mWorld.drawAtmospheres();
-		mAtmosphereTex.disable();
+        // CLOUDS
+        mWorld.drawClouds( mCloudsTex );
+        
+        // RINGS
+        gl::enableAdditiveBlending();
+        //			mWorld.drawRings( mRingsTex );
+        glDisable( GL_LIGHTING );
         gl::disableDepthRead();
-		gl::disableDepthWrite();
+    }
+    
+    
+    // STARGLOWS
+    mStarGlowTex.enableAndBind();
+    mWorld.drawStarGlows();
+    mStarGlowTex.disable();
+    
+    
+    gl::disableDepthWrite();
+    
+    
+    // ORBITS
+    gl::enableAdditiveBlending();
+    gl::enableDepthRead();
+    mWorld.drawOrbitRings();
+    gl::disableDepthRead();
+    
+    // CONSTELLATION
+    mDottedTex.enableAndBind();
+    mWorld.drawConstellation( mMatrix );
+    mDottedTex.disable();
 
 	// NAMES
-		gl::disableDepthWrite();
-		glEnable( GL_TEXTURE_2D );
-		gl::setMatricesWindow( getWindowSize() );
-		gl::enableAdditiveBlending();
-		float pinchAlphaOffset = constrain( 1.0f - ( mCamDistPinchOffset - 3.0f ), 0.0f, 1.0f );
-		mWorld.drawNames( mCam, pinchAlphaOffset );
-
-		
-		glDisable( GL_TEXTURE_2D );
-        
-        
-		gl::disableAlphaBlending();
-		gl::enableAlphaBlending();
-		mUiLayer.draw( mPanelUpTex, mPanelDownTex );
-		mAlphaWheel.draw();
-		mBreadcrumbs.draw();//mUiLayer.getPanelYPos() + 5.0f );
-		mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );
-		mState.draw( mFont );
-		
-        if( G_DEBUG ) {
-            drawInfoPanel();
-		}
-		
-//		if( getElapsedFrames()%120 == 0 ){
-//			cout << "fps = " << getAverageFps() << endl;
-//		}
-	}
+    gl::disableDepthWrite();
+    glEnable( GL_TEXTURE_2D );
+    gl::setMatricesWindow( getWindowSize() );
+    gl::enableAdditiveBlending();
+    float pinchAlphaOffset = constrain( 1.0f - ( mCamDistPinchOffset - 3.0f ), 0.0f, 1.0f );
+    mWorld.drawNames( mCam, pinchAlphaOffset );
+    
+    
+    glDisable( GL_TEXTURE_2D );
+    
+    
+    gl::disableAlphaBlending();
+    gl::enableAlphaBlending();
+    mUiLayer.draw( mPanelUpTex, mPanelDownTex );
+    mAlphaWheel.draw();
+    mBreadcrumbs.draw();//mUiLayer.getPanelYPos() + 5.0f );
+    mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );
+    mState.draw( mFont );
+    
+    if( G_DEBUG ) {
+        drawInfoPanel();
+    }
 }
 
 

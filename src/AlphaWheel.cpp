@@ -85,7 +85,7 @@ bool AlphaWheel::touchesMoved( TouchEvent event )
 	vector<TouchEvent::Touch> touches = AppCocoaTouch::get()->getActiveTouches();
 	
 	if (touches.size() == 1) {
-		std::cout << "touchesMoved, selectWheelItem" << std::endl;
+		//std::cout << "touchesMoved, selectWheelItem" << std::endl;
 		mTouchPos = touches.begin()->getPos();
 		selectWheelItem( mTouchPos, false );
 	}	
@@ -109,7 +109,7 @@ bool AlphaWheel::touchesEnded( TouchEvent event )
 void AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 {
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
-	std::cout << " selectWheelItem (time since pinch: " << timeSincePinchEnded << ")" << std::endl;
+	//std::cout << " selectWheelItem (time since pinch: " << timeSincePinchEnded << ")" << std::endl;
 	if( mShowWheel && timeSincePinchEnded > 0.5f ){ 
 		Vec2f dir				= pos - getWindowCenter();
 		float distToCenter		= dir.length();

@@ -65,10 +65,12 @@ void NodeArtist::drawStar()
 void NodeArtist::drawStarGlow()
 {
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
-		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
-        
+        float zoomOffset    = math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
+        float alpha         = mDistFromCamZAxisPer;
+        gl::color( ColorA( mGlowColor, alpha ) );
+
 		// if in alpha view, make highlighted artists flicker
-        float flickerAmt = ( 8.5f + math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f ) * Rand::randFloat( 12.0f, 15.0f ) );
+        float flickerAmt = ( 8.5f + zoomOffset * Rand::randFloat( 12.0f, 15.0f ) );
 		Vec2f radius = Vec2f( mRadiusDest, mRadiusDest ) * flickerAmt;
         
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
@@ -77,12 +79,7 @@ void NodeArtist::drawStarGlow()
 	Node::drawStarGlow();
 }
 
-void NodeArtist::drawOrbitRing()
-{
-	Node::drawOrbitRing();
-}
-
-void NodeArtist::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Texture> &planets )
+void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 {
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
@@ -99,22 +96,7 @@ void NodeArtist::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Text
 		glEnable( GL_LIGHTING );
 	}
 	
-	Node::drawPlanet( accelMatrix, planets );
-}
-
-void NodeArtist::drawClouds( const Matrix44f &accelMatrix, const vector<gl::Texture> &clouds )
-{
-	Node::drawClouds( accelMatrix, clouds );
-}
-
-void NodeArtist::drawRings( const gl::Texture &tex )
-{
-	Node::drawRings( tex );
-}
-
-void NodeArtist::drawAtmosphere()
-{
-	Node::drawAtmosphere();
+	Node::drawPlanet( planets );
 }
 
 void NodeArtist::select()

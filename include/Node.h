@@ -34,12 +34,11 @@ class Node {
 	virtual void		updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	virtual void		drawStar();
 	virtual void		drawStarGlow();
-	void				drawName( const ci::CameraPersp &cam, float pinchAlphaOffset );
-	virtual void		drawOrbitRing();
-	virtual void		drawPlanet( const ci::Matrix44f &accelMatrix, const std::vector< ci::gl::Texture> &planets );
-	virtual void		drawClouds( const ci::Matrix44f &accelMatrix, const std::vector< ci::gl::Texture> &clouds );
+	virtual void		drawPlanet( const std::vector< ci::gl::Texture> &planets );
+	virtual void		drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	virtual void		drawRings( const ci::gl::Texture &tex );
-	virtual void		drawAtmosphere();
+	virtual void		drawOrbitRing();
+	void				drawName( const ci::CameraPersp &cam, float pinchAlphaOffset );
 	void				checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
 	void				checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
 	virtual void		select();
@@ -54,46 +53,52 @@ class Node {
 	Node				*mParentNode;
 	std::vector<Node*>	mChildNodes;
 	
-	int					mAge;
-	int					mBirthPause;
-	
 	// POSITION/VELOCITY
 	ci::Vec3f			mPos;				// global position
 	ci::Vec3f			mPosDest;			// artist node final position
 	ci::Vec3f			mTransPos;			// global position * mMatrix
-    std::vector<ci::Vec3f> mTransPosVector;
-    ci::Vec3f           mTransPrevPos;
 	ci::Vec2f			mScreenPos;			// screen position
-    ci::Vec2f           mScreenPrevPos;
-    ci::Vec2f           mScreenVel;
 	float				mEclipsePer;		// ECLIPSE!
 	ci::Vec3f			mPrevPos;			// previous global position
 	ci::Vec3f			mRelPos;			// relative position
 	ci::Vec3f			mVel;				// global velocity
-	float				mCamZVel;			// speed object is moving towards or away from camera
 	ci::Matrix44f		mMatrix;
 	ci::Vec3f			mBbRight, mBbUp;
 	
 	
-	// CHARACTERISTICS
-	float				mMass;
+// CHARACTERISTICS
+    
+// RADII
 	float				mRadius;			// Radius of the Node
 	float				mRadiusDest;		// Destination radius
 	float				mGlowRadius;		// Radius of the glow image
-	float				mOrbitAngle;		// Current angle in relation to the parentNode
+    
+// ORBIT
 	float				mStartAngle;		// Starting angle in relation to the parentNode
+	float				mOrbitAngle;		// Current angle in relation to the parentNode
 	float				mOrbitRadius;		// Current distance from parentNode
 	float				mOrbitRadiusDest;	// Final distance from parentNode
 	float				mOrbitPeriod;		// Time in seconds to orbit parentNode
+    
+// ROTATION
 	float				mAngularVelocity;	// Change in angle per frame
-	float				mPercentPlayed;		// Track: percent of playback (perhaps this can be pulled directly from player?)
-	float				mHighestPlayCount;	// Album: used to normalize track playcount data
-	float				mLowestPlayCount;	// Album: used to normalize track playcount data
+    float               mAxialTilt;         // Planetary axis
+    float               mAxialVel;          // Speed of rotation around mAxialTilt axis;
+    
+// DIST FROM CAMERA
 	float				mDistFromCamZAxis;	// Node's distance from Cam eye
 	float				mPrevDistFromCamZAxis;	// Node's previous distance from Cam eye
 	float				mDistFromCamZAxisPer; // normalized range.
-	float				mSphereScreenRadius;// mSphere radius in screenspace
-	float				mZoomPer;			// 0.0 to 1.0 to 0.0 based on zoom level vs mgen
+    float               mCamDistAlpha;      // Transparency change based on dist to camera
+    
+// MUSIC LIB DATA
+	float				mPercentPlayed;		// Track: percent of playback (perhaps this can be pulled directly from player?)
+	float				mHighestPlayCount;	// Album: used to normalize track playcount data
+	float				mLowestPlayCount;	// Album: used to normalize track playcount data
+
+
+    float               mZoomPer;           // 0.0 to 1.0 based on G_ZOOM vs mGen   
+    
 	int					mPlanetTexIndex;	// Which of the planet textures is used
 	int					mCloudTexIndex;		// Which of the cloud textures is used
 	float				mIdealCameraDist;	// Ideal distance from node to camera
@@ -101,15 +106,19 @@ class Node {
 	// NAME
 	ci::Font			mFont;
 	ci::gl::Texture		mNameTex;			// Texture of the name
-
-	ci::gl::Texture		mPlanetTex;			// TODO: this is a test.
 	
 	ci::Sphere			mSphere;			// Sphere used for name label alignment
-    float               mSphereRes;
-    float               mCamDistAlpha;
+	float				mSphereScreenRadius;// mSphere radius in screenspace
+    float               mSphereRes, mSphereResInt;
+   
+    
+// COLORS
 	ci::Color			mColor;				// Color of the node
 	ci::Color			mGlowColor;			// Color of the star glow
-	
+	ci::Color           mEclipseColor;      // Color during eclipse
+    
+	int					mAge;
+	int					mBirthPause;
 	bool				mIsSelected;		// Node has been chosen
 	bool				mIsHighlighted;		// Node is able to be chosen
 };

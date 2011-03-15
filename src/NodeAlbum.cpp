@@ -49,7 +49,6 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	
     mRadius         *= 0.25f;
 	mSphere			= Sphere( mPos, mRadius * 7.5f );
-    mSphereRes      = 16;
 }
 
 
@@ -59,7 +58,6 @@ void NodeAlbum::setData( PlaylistRef album )
 	mNumTracks			= mAlbum->size();
 	mHighestPlayCount	= 0;
 	mLowestPlayCount	= 10000;
-    mAtmosphereColor    = mParentNode->mColor;
 	mEclipseColor       = mColor;
 
     mAxialVel       = Rand::randFloat( 10.0f, 45.0f );
@@ -82,21 +80,12 @@ void NodeAlbum::update( const Matrix44f &mat )
 	double playbackTime		= app::getElapsedSeconds();
 	double percentPlayed	= playbackTime/mOrbitPeriod;
 	double orbitAngle		= percentPlayed * TWO_PI + mStartAngle;
-	
-    if( mIsSelected ){
-		mSphereRes		-= ( mSphereRes - 32 ) * 0.1f;
-		mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.05f;
-	} else {
-		mSphereRes		-= ( mSphereRes - 14 ) * 0.1f;
-		mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.05f;
-	}
-    
     
 	mPrevPos	= mTransPos;
 	
 	mRelPos		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mRelPos;
-
+    
     float eclipseDist = 1.0f;
     if( mIsSelected && mParentNode->mDistFromCamZAxisPer > 0.0f ){
         float dist = mScreenPos.distance( mParentNode->mScreenPos );
@@ -104,35 +93,12 @@ void NodeAlbum::update( const Matrix44f &mat )
     }
 	mEclipseColor = mColor * eclipseDist;
     
+    
 	Node::update( mat );
 	
 	mVel		= mTransPos - mPrevPos;	
 }
 
-void NodeAlbum::drawStar()
-{
-    /*
-	gl::color( mColor );
-	gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ) * 0.66f, 0.0f, mBbRight, mBbUp );
-	*/
-    
-	Node::drawStar();
-}
-
-void NodeAlbum::drawStarGlow()
-{
-    /*
-	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
-		gl::color( ColorA( mGlowColor, min( mDistFromCamZAxisPer * 300.0f, 1.0f ) ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 3.5f;
-		if( G_ZOOM == G_TRACK_LEVEL )
-			radius *= ( mEclipsePer * 0.25f + 1.0f );
-		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
-	}
-    */
-	
-	Node::drawStarGlow();
-}
 
 void NodeAlbum::drawOrbitRing()
 {
@@ -156,7 +122,7 @@ void NodeAlbum::drawOrbitRing()
 	Node::drawOrbitRing();
 }
 
-void NodeAlbum::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Texture> &planets )
+void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 {	
     gl::pushModelView();
 	gl::translate( mTransPos );
@@ -167,52 +133,36 @@ void NodeAlbum::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Textu
 	
 	gl::color( mEclipseColor );
 	planets[mPlanetTexIndex].enableAndBind();
-	gl::drawSphere( Vec3f::zero(), mRadius, (int)mSphereRes );
+	gl::drawSphere( Vec3f::zero(), mRadius, mSphereResInt );
 	
 	gl::popModelView();
     
-	Node::drawPlanet( accelMatrix, planets );
+	Node::drawPlanet( planets );
 }
 
-void NodeAlbum::drawClouds( const Matrix44f &accelMatrix, const vector<gl::Texture> &clouds )
+void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 {
     if( mCamDistAlpha > 0.05f ){
 		gl::pushModelView();
 		gl::translate( mTransPos );
 		gl::rotate( mMatrix );
         gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, 0.0f ) );
+        
+        clouds[mCloudTexIndex].enableAndBind();
+        
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
-		
-		clouds[mCloudTexIndex].enableAndBind();
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.66f ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.0001f, (int)mSphereRes );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.0001f, mSphereResInt );
         
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.00025f, (int)mSphereRes );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.00025f, mSphereResInt );
         
 		gl::popModelView();
 	}
     
-	Node::drawClouds( accelMatrix, clouds );
-}
-
-void NodeAlbum::drawRings( const gl::Texture &tex )
-{
-	Node::drawRings( tex );
-}
-
-void NodeAlbum::drawAtmosphere()
-{
-    if( mCamDistAlpha > 0.05f && mPlanetTexIndex > 0 ){
-		Vec3f perp = mBbRight.cross( mBbUp );
-		gl::color( ColorA( mParentNode->mColor, mCamDistAlpha ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 0.68f;
-		gl::drawBillboard( mTransPos + perp * mRadius * 0.1f, radius, 0.0f, mBbRight, mBbUp );
-	}
-    
-	Node::drawAtmosphere();
+	Node::drawClouds( clouds );
 }
 
 void NodeAlbum::select()

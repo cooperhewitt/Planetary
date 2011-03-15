@@ -24,10 +24,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	: Node( parent, index, font )
 {	
 	mIsHighlighted	= true;
-	mSphereRes		= 16;
 	mRadius			*= 4.0f;
-	mIsPlaying		= false;
-	mHasRings		= false;
 	
 	// FIXME: bad C++?
 	float numTracks = ((NodeAlbum*)mParentNode)->mNumTracks;
@@ -38,6 +35,9 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	float maxAmt		= mParentNode->mRadius * 8.0f;
 	float deltaAmt		= maxAmt - minAmt;
 	mOrbitRadiusDest	= minAmt + deltaAmt * trackNumPer + Rand::randFloat( maxAmt * invTrackPer );
+	
+    mIsPlaying		= false;
+	mHasRings		= false;
 	
 }
 
@@ -50,12 +50,6 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mStarRating		= (*mAlbum)[mIndex]->getStarRating();
 	
 	/*
-	for( int i=0; i<mStarRating * 4; i++ ){
-		mOrbiters.push_back( Orbiter( this, i ) );
-	}
-	*/
-
-	/*
 	mAlbumArt		= mTrack->getArtwork( Vec2i( 256, 256 ) );
 	if( !mAlbumArt ){
 		mAlbumArt	= gl::Texture( 256, 256 );
@@ -66,15 +60,8 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	//normalize playcount data
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
-	
-    /*
-	std::cout << "playCount = " << mPlayCount << std::endl;
-	std::cout << "highestPlayCount = " << mParentNode->mHighestPlayCount << std::endl;
-	std::cout << "lowestPlayCount = " << mParentNode->mLowestPlayCount << std::endl;
-	std::cout << "normPlayCount = " << normPlayCount << std::endl;
-	*/
     
-	// try making own texture for ringed planet. texture stripe, maybe from album art?
+	// TODO: try making own texture for ringed planet. texture stripe, maybe from album art?
 	mPlanetTexIndex = mIndex%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
 	mCloudTexIndex  = Rand::randInt( G_NUM_CLOUD_TYPES );
    // mPlanetTexIndex *= G_NUM_PLANET_TYPE_OPTIONS + Rand::randInt( G_NUM_PLANET_TYPE_OPTIONS );
@@ -88,17 +75,21 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	float val		= Rand::randFloat( 0.85f, 1.00f );
 	mColor			= Color( CM_HSV, hue, sat, val );
 	mGlowColor		= mColor;
-	mAtmosphereColor = mParentNode->mColor;
 	mEclipseColor	= mColor;
 	
 	mRadius			= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0003f ) * 0.75;
-	mSphere			= Sphere( mPos, mRadius * 8.5f );
+	mSphere			= Sphere( mPos, mRadius * 7.5f );
 	mIdealCameraDist = 0.004;//mRadius * 10.0f;
 	mOrbitPeriod	= mTrackLength;
 	mAxialTilt		= Rand::randFloat( 5.0f, 30.0f );
     mAxialVel       = Rand::randFloat( 10.0f, 45.0f );
 	
-	mVerts			= new float[18];
+	initVertexArray();
+}
+
+void NodeTrack::initVertexArray()
+{
+    mVerts			= new float[18];
 	mTexCoords		= new float[12];
 	int i = 0;
 	int t = 0;
@@ -118,7 +109,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mVerts[i++]			= corner.z;
 	mTexCoords[t++]		= 1.0f;
 	mTexCoords[t++]		= 0.0f;
-
+    
 	corner			= Vec3f( w, 0.0f, w );	
 	mVerts[i++]			= corner.x;
 	mVerts[i++]			= corner.y;
@@ -139,7 +130,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mVerts[i++]			= corner.z;
 	mTexCoords[t++]		= 1.0f;
 	mTexCoords[t++]		= 1.0f;
-
+    
 	corner			= Vec3f( -w, 0.0f, w );	
 	mVerts[i++]			= corner.x;
 	mVerts[i++]			= corner.y;
@@ -157,21 +148,6 @@ void NodeTrack::update( const Matrix44f &mat )
 	mPrevPos	= mTransPos;
 	mRelPos		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mRelPos;
-
-	if( mIsSelected ){
-		mSphereRes		-= ( mSphereRes - 32 ) * 0.1f;
-		mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.05f;
-	} else {
-		mSphereRes		-= ( mSphereRes - 14 ) * 0.1f;
-		mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.05f;
-	}
-	
-	if( mStarRating > 0 && mIsSelected ){
-		vector<Orbiter>::iterator it;
-		for( it = mOrbiters.begin(); it != mOrbiters.end(); ++it ){
-			it->update( mat, mTransPos );
-		}
-	}
 	
     float eclipseDist = 1.0f;
     if( mIsSelected && mParentNode->mParentNode->mDistFromCamZAxisPer > 0.0f ){
@@ -186,17 +162,7 @@ void NodeTrack::update( const Matrix44f &mat )
 	mVel		= mTransPos - mPrevPos;	
 }
 
-void NodeTrack::drawAtmosphere()
-{
-	if( mCamDistAlpha > 0.05f && mPlanetTexIndex > 0 ){
-		Vec3f perp = mBbRight.cross( mBbUp );
-		gl::color( ColorA( mParentNode->mColor, mCamDistAlpha + mParentNode->mEclipsePer ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 2.0f;
-		gl::drawBillboard( mTransPos + perp * mRadius * 0.1f, radius, 0.0f, mBbRight, mBbUp );
-	}
-}
-
-void NodeTrack::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Texture> &planets )
+void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 {	
 	gl::pushModelView();
 	gl::translate( mTransPos );
@@ -207,15 +173,12 @@ void NodeTrack::drawPlanet( const Matrix44f &accelMatrix, const vector<gl::Textu
 	
 	gl::color( mEclipseColor );
 	planets[mPlanetTexIndex].enableAndBind();
-	gl::drawSphere( Vec3f::zero(), mRadius, (int)mSphereRes );
+	gl::drawSphere( Vec3f::zero(), mRadius, mSphereResInt );
 	
 	gl::popModelView();
-	
-    if( mIsSelected )
-		drawOrbiters();
 }
 
-void NodeTrack::drawClouds( const Matrix44f &accelMatrix, const vector<gl::Texture> &clouds )
+void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 {
 	if( mCamDistAlpha > 0.05f ){
 		gl::pushModelView();
@@ -227,11 +190,11 @@ void NodeTrack::drawClouds( const Matrix44f &accelMatrix, const vector<gl::Textu
 		
 		clouds[mCloudTexIndex].enableAndBind();
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.66f ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.000006f, (int)mSphereRes );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.000006f, mSphereResInt );
 
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.000012f, (int)mSphereRes );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.000012f, mSphereResInt );
 		 
 		gl::popModelView();
 	}
@@ -276,19 +239,6 @@ void NodeTrack::drawOrbitRing()
 	
 	gl::drawStrokedCircle( Vec2f::zero(), mOrbitRadius, ringRes );
 	gl::popModelView();
-}
-
-void NodeTrack::drawOrbiters()
-{
-	if( mStarRating > 0 ){
-		float index = 0.0f;
-		vector<Orbiter>::iterator it;
-		for( it = mOrbiters.begin(); it != mOrbiters.end(); ++it ){
-			it->draw( mMatrix, mTransPos, mBbRight, mBbUp );
-			
-			index ++;
-		}
-	}
 }
 
 void NodeTrack::setPlaying(bool playing)
