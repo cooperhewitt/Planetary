@@ -27,11 +27,12 @@ public:
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
 	void	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
-	void	update( float fov, float timeSincePinchEnded );
+	void	update( float fov );
+	void	setTimePinchEnded( float timePinchEnded );
 	void	draw();
 	void	drawWheel();
 	void	drawAlphaChar();
-	void	setShowWheel( bool b ){ mShowWheel = b; if ( mShowWheel ) mPrevAlphaChar = ' '; }
+	void	setShowWheel( bool b ){ std::cout << " show wheel " << b << std::endl; mShowWheel = b; if ( mShowWheel ) mPrevAlphaChar = ' '; }
 	bool	getShowWheel(){ return mShowWheel; }
 	void	setAlphaChar( char c ){ mAlphaChar = c; }
 	char	getAlphaChar(){ return mAlphaChar; }
@@ -52,7 +53,7 @@ private:
 	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded;
 	ci::Vec2f		mTouchPos;
 
-	float			mTimeSincePinchEnded;
+	float			mTimePinchEnded;
 
 	bool			mShowWheel;
 	std::string		mAlphaString;

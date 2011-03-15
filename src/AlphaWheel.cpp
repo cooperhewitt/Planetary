@@ -69,33 +69,38 @@ bool AlphaWheel::touchesBegan( TouchEvent event )
 {
 	std::cout << "AlphaWheel TouchesBegan" << std::endl;
 	
-	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) {
-		mTouchPos = touchIt->getPos();
+	vector<TouchEvent::Touch> touches = AppCocoaTouch::get()->getActiveTouches();
+
+	if (touches.size() == 1) {
+		std::cout << "touchesBegan, selectWheelItem" << std::endl;
+		mTouchPos = touches.begin()->getPos();
+		selectWheelItem( mTouchPos, false );
 	}
-	
-	selectWheelItem( mTouchPos, false );
 	
 	return false;
 }
 
 bool AlphaWheel::touchesMoved( TouchEvent event )
 {
-	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) {
-		mTouchPos = touchIt->getPos();
-	}
+	vector<TouchEvent::Touch> touches = AppCocoaTouch::get()->getActiveTouches();
 	
-	selectWheelItem( mTouchPos, false );
+	if (touches.size() == 1) {
+		std::cout << "touchesMoved, selectWheelItem" << std::endl;
+		mTouchPos = touches.begin()->getPos();
+		selectWheelItem( mTouchPos, false );
+	}	
 	
 	return false;
 }
 
 bool AlphaWheel::touchesEnded( TouchEvent event )
-{
-	for( vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt ) {
-		mTouchPos = touchIt->getPos();
-	}
+{	
+	vector<TouchEvent::Touch> touches = AppCocoaTouch::get()->getActiveTouches();
 	
-	selectWheelItem( mTouchPos, true );
+	if (touches.size() == 0) {
+		std::cout << "touchesEnded, selectWheelItem" << std::endl;
+		selectWheelItem( mTouchPos, true );
+	}
 	
 	return false;
 }
@@ -103,7 +108,9 @@ bool AlphaWheel::touchesEnded( TouchEvent event )
 
 void AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 {
-	if( mShowWheel && mTimeSincePinchEnded > 0.5f){ 
+	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
+	std::cout << " selectWheelItem (time since pinch: " << timeSincePinchEnded << ")" << std::endl;
+	if( mShowWheel && timeSincePinchEnded > 0.5f ){ 
 		Vec2f dir				= pos - getWindowCenter();
 		float distToCenter		= dir.length();
 		if( distToCenter > 250 && distToCenter < 350 ){
@@ -115,18 +122,21 @@ void AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 			if( mPrevAlphaChar != mAlphaChar || closeWheel ){
 				mCallbacksAlphaCharSelected.call( this );
 			}
-			if( closeWheel ){
-				mShowWheel = false;
-				mCallbacksWheelClosed.call( this );
-			}
 		}
+		if( closeWheel ){
+			mShowWheel = false;
+			mCallbacksWheelClosed.call( this );
+		}		
 	}
 }
 
-void AlphaWheel::update( float fov, float timeSincePinchEnded )
+void AlphaWheel::setTimePinchEnded( float timePinchEnded )
 {
-	mTimeSincePinchEnded = timeSincePinchEnded;
-	
+	mTimePinchEnded = timePinchEnded;	
+}
+
+void AlphaWheel::update( float fov )
+{
 	//mWheelScale = ( ( 130.0f - fov ) / 30.0f );
 	if( getShowWheel() ){
 		mWheelScale -= ( mWheelScale - 0.0f ) * 0.2f;
