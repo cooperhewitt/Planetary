@@ -153,7 +153,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
         
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.0004f, mSphereResInt );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.0008f, mSphereResInt );
         
 		gl::popModelView();
 	}

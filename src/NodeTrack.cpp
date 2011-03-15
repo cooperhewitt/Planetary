@@ -79,7 +79,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	
 	mRadius				= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0003f ) * 0.75;
 	mSphere				= Sphere( mPos, mRadius * 7.5f );
-	mIdealCameraDist	= 0.004f;
+	mIdealCameraDist	= 0.008f;
 	mOrbitPeriod		= mTrackLength;
 	mAxialTilt			= Rand::randFloat( 5.0f, 30.0f );
     mAxialVel			= Rand::randFloat( 10.0f, 45.0f );

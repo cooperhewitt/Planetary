@@ -193,11 +193,14 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 			createNameTexture();
 		}
 		
-		Vec2f offset = Vec2f( mSphereScreenRadius * 0.4f, -mNameTex.getHeight() * 0.5f );
-		offset += Vec2f( 20.0f, -20.0f );
-		gl::draw( mNameTex, mScreenPos + offset );
+		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, mSphereScreenRadius * -0.25f );
+		Vec2f pos2 = mScreenPos + Vec2f( mSphereScreenRadius * 0.45f, mSphereScreenRadius * -0.45f );
+
+		gl::draw( mNameTex, pos2 + Vec2f( 3.0f, -13.0f ) );
 		gl::color( ColorA( 0.1f, 0.2f, 0.5f, 0.2f * mZoomPer * pinchAlphaOffset ) );
-		gl::drawLine( mScreenPos + offset + Vec2f( -2.0f, 12.0f ), mScreenPos + Vec2f( mSphereScreenRadius * 0.3f, 0.0f ) );
+		
+		
+		gl::drawLine( pos1, pos2 );
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
@@ -224,7 +227,9 @@ void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
 	if (mNameTex != NULL) {
 		
-		Rectf r = Rectf( mScreenPos.x, mScreenPos.y - 35, mScreenPos.x + mNameTex.getWidth() + 30, mScreenPos.y + mNameTex.getHeight() + -5 );
+		Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.6f, mSphereScreenRadius * -0.6f );
+		
+		Rectf r = Rectf( p.x, p.y - 35, p.x + mNameTex.getWidth() + 30, p.y + mNameTex.getHeight() + -5 );
 		
 		if( r.contains( pos ) && mIsHighlighted && ! mIsSelected ){
 			std::cout << "HIT FOUND" << std::endl;

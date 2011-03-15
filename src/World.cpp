@@ -167,7 +167,7 @@ void World::drawOrbitRings()
 void World::drawConstellation( const Matrix44f &mat )
 {
 	if( mTotalVertices > 2 ){
-		float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.15f;
+		//float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.15f;
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glEnableClientState( GL_COLOR_ARRAY );
