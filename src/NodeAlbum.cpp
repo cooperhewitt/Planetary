@@ -97,10 +97,12 @@ void NodeAlbum::update( const Matrix44f &mat )
 	mRelPos		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mRelPos;
 
-    float c = 1.0f;
-    // TODO: make this ease in and out
-	if( G_ZOOM == G_ALBUM_LEVEL && mIsSelected ) c = 1.0f - ( mParentNode->mEclipsePer * 0.35f );
-	mEclipseColor = mColor * c;
+    float eclipseDist = 1.0f;
+    if( mIsSelected && mParentNode->mDistFromCamZAxisPer > 0.0f ){
+        float dist = mScreenPos.distance( mParentNode->mScreenPos );
+        eclipseDist = constrain( dist/200.0f, 0.0f, 1.0f );
+    }
+	mEclipseColor = mColor * eclipseDist;
     
 	Node::update( mat );
 	
