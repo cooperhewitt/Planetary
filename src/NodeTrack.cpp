@@ -173,9 +173,12 @@ void NodeTrack::update( const Matrix44f &mat )
 		}
 	}
 	
-	float c = 1.0f;
-	if( G_ZOOM == G_TRACK_LEVEL && mIsSelected ) c = 1.0f - ( mParentNode->mParentNode->mEclipsePer * 0.35f );
-	mEclipseColor = mColor * c;
+    float eclipseDist = 1.0f;
+    if( mIsSelected && mParentNode->mParentNode->mDistFromCamZAxisPer > 0.0f ){
+        float dist = mScreenPos.distance( mParentNode->mParentNode->mScreenPos );
+        eclipseDist = constrain( dist/200.0f, 0.0f, 1.0f );
+    }
+	mEclipseColor = mColor * eclipseDist;
 	
 	
 	Node::update( mat );

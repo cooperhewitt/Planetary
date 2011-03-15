@@ -77,7 +77,7 @@ void NodeArtist::drawStarGlow()
         float flickerAmt = ( 8.5f + math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f ) * Rand::randFloat( 12.0f, 15.0f ) );
 		Vec2f radius = Vec2f( mRadiusDest, mRadiusDest ) * flickerAmt;
         
-        /*
+        
 		if( G_ZOOM >= G_ALBUM_LEVEL ){
             if( mIsSelected ){
                 radius *= ( mEclipsePer * 0.3f + 1.0f );
@@ -85,7 +85,7 @@ void NodeArtist::drawStarGlow()
                 radius *= math<float>::max( 1.0f - mEclipsePer * 0.4f, 0.0f );
             }
         }
-        */
+        
         
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}

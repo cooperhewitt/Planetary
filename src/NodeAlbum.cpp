@@ -98,8 +98,9 @@ void NodeAlbum::update( const Matrix44f &mat )
 	mPos		= mParentNode->mPos + mRelPos;
 
     float eclipseDist = 1.0f;
-    if( mIsSelected ){
-        eclipseDist = 1.0f / mScreenPos.distance( mParentNode->mScreenPos );
+    if( mIsSelected && mParentNode->mDistFromCamZAxisPer > 0.0f ){
+        float dist = mScreenPos.distance( mParentNode->mScreenPos );
+        eclipseDist = constrain( dist/200.0f, 0.0f, 1.0f );
     }
 	mEclipseColor = mColor * eclipseDist;
     
