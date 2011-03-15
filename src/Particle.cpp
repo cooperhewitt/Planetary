@@ -13,68 +13,62 @@ Particle::Particle()
 Particle::Particle( int index, Vec3f pos, Vec3f vel )
 {
 	mIndex			= index;
-	mPos			= pos;
-	mVel			= vel;
-	mVelNormal		= mVel;
-	mAcc			= Vec3f::zero();
-	
-	mMaxSpeed		= Rand::randFloat( 2.5f, 4.0f );
-	mMaxSpeedSqrd	= mMaxSpeed * mMaxSpeed;
-	mMinSpeed		= Rand::randFloat( 1.0f, 1.5f );
-	mMinSpeedSqrd	= mMinSpeed * mMinSpeed;
 	mColor			= ColorA( 1.0f, 1.0f, 1.0f, 1.0f );
-		
-	mDecay			= 0.0f;
-	mRadius			= 1.0f;
-	mLength			= 5.0f;
 	
-	mAge			= 0;
-	mLifespan       = Rand::randInt( 5, 20 );
+	mLifespan       = Rand::randInt( 35, 65 );
 	mIsDead			= false;
+	
+	setup();
 }
 
-
-void Particle::update( Node *node )
+void Particle::setup()
 {
-    mPos += mVel;
+	mPos		= Rand::randVec3f() * 0.4f;
+	mPrevPos	= mPos;
+	mVel		= mPos * Rand::randFloat( 0.005f, 0.025f );
+	mAcc		= Rand::randVec3f() * 0.01f;
+	mDecay		= 0.98f;
+	mAge		= 0;
+	mAgePer		= 0.0f;
+	mRadius		= Rand::randFloat( 0.01f, 0.1f );
+}
+
+void Particle::pullToCenter( Node *trackNode )
+{
+	if( trackNode ){
+		Vec3f dirToCenter = mPos - trackNode->mRelPos;
+		float distToCenterSqrd = dirToCenter.lengthSquared();
+		
+		if( distToCenterSqrd > 0.00001f ){
+			dirToCenter.normalize();
+			float pullStrength = 1.75f;
+			mVel -= dirToCenter * ( ( distToCenterSqrd - 0.00001f ) * pullStrength );
+		}
+	}
+}
+
+void Particle::update()
+{
+	mAgePer = ( 0.5f - (float)mAge/(float)mLifespan ) * 2.0f;
+	//mVel += mAcc;
+	mPrevPos = mPos;
+    mPos += mVel * mAgePer;// * velScale;
    // mVel *= mDecay;
    // mDecay -= ( mDecay - 0.99f ) * 0.1f;
 
     mAge ++;
-    if( mAge > mLifespan && node ){
-        mAge = 0;
-        mVel = node->mVel;
-        mPos = node->mTransPos + mVel + Rand::randVec3f() * Rand::randFloat( 0.001f, 0.002f );
+    if( mAge > mLifespan ){
+        setup();		
     }
-}
-
-void Particle::limitSpeed()
-{
-	float maxSpeed = mMaxSpeed;// + mCrowdFactor;
-	float maxSpeedSqrd = maxSpeed * maxSpeed;
-	
-	float vLengthSqrd = mVel.lengthSquared();
-	if( vLengthSqrd > maxSpeedSqrd ){
-		mVel = mVelNormal * maxSpeed;
-		
-	}/* else if( vLengthSqrd < mMinSpeedSqrd ){
-		mVel = mVelNormal * mMinSpeed;
-	}*/
 }
 
 void Particle::draw()
 {
-    gl::drawLine( mPos, mPos - mVel );
+    gl::drawLine( mPos, mPrevPos );
 }
 
-void Particle::drawScreenSpace()
+void Particle::drawScreenspace( const Vec3f &sUp, const Vec3f &sRight )
 {
-	gl::drawSolidRect( Rectf( mPos.x - 10.01f, mPos.y - 10.01f, mPos.x + 10.01f, mPos.y + 10.01f ) );
-}
-
-void Particle::drawLines()
-{
-    gl::color( Color( CM_HSV, Rand::randFloat(), 0.5f, 1.0f ) );
-    gl::drawLine( mPos, mPos - mVel * 3.0f );
+	gl::drawBillboard( mPos, Vec2f( mRadius, mRadius ), 0.0f, sUp, sRight );
 }
 

@@ -2,6 +2,7 @@
 #include "cinder/Rand.h"
 #include "cinder/Vector.h"
 #include "ParticleController.h"
+#include "Globals.h"
 
 using namespace ci;
 using std::list;
@@ -11,36 +12,53 @@ ParticleController::ParticleController()
 }
 
 
-void ParticleController::update( Node *node )
+
+void ParticleController::pullToCenter( Node *node )
+{
+	for( list<Particle>::iterator p = mParticles.begin(); p != mParticles.end(); ++p ){
+		p->pullToCenter( node );
+	}
+}
+
+void ParticleController::update()
 {
 	for( list<Particle>::iterator p = mParticles.begin(); p != mParticles.end(); ){
 		if( p->mIsDead ){
 			p = mParticles.erase( p );
 		} else {
-			p->update( node );
+			p->update();
 			++p;
 		}
 	}
 }
 
 
-void ParticleController::draw()
+void ParticleController::draw( Node *node, const Matrix44f &mat )
 {	
-	gl::color( ColorA( 0.05f, 0.1f, 0.5f, 0.5f ) );
+	gl::pushModelView();
+	if( node ){
+		gl::color( ColorA( node->mGlowColor, 0.075f ) ); // 0.2f
+		gl::translate( node->mTransPos );
+		gl::rotate( mat );
+	}
 	for( list<Particle>::iterator p = mParticles.begin(); p != mParticles.end(); ++p ){
 		p->draw();
 	}
+	gl::popModelView();
 }
 
-
-void ParticleController::drawLines()
+void ParticleController::drawScreenspace( Node *node, const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
 {	
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
-	for( list<Particle>::iterator p = mParticles.begin(); p != mParticles.end(); ++p ){
-		p->drawLines();
+	gl::pushModelView();
+	if( node ){
+		gl::color( ColorA( node->mGlowColor, 0.15f ) ); // 0.2f
+		gl::translate( node->mTransPos );
 	}
+	for( list<Particle>::iterator p = mParticles.begin(); p != mParticles.end(); ++p ){
+		p->drawScreenspace( bbRight, bbUp );
+	}
+	gl::popModelView();
 }
-
 
 void ParticleController::addParticles( int amt )
 {

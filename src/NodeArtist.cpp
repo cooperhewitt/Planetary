@@ -54,8 +54,15 @@ void NodeArtist::update( const Matrix44f &mat )
 void NodeArtist::drawStar()
 {
 	if( mAge > mBirthPause ){
-		mRadius -= ( mRadius - mRadiusDest ) * 0.1f;
-		gl::color( mColor );
+		if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
+			mRadius -= ( mRadius - 0.25f ) * 0.1f;
+			mRadius += Rand::randFloat( -0.1f, 0.1f );
+			gl::color( ColorA( mColor, 0.7f ) );
+		} else {
+			mRadius -= ( mRadius - mRadiusDest ) * 0.1f;
+			gl::color( mColor );
+		}
+		
 		gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ), 0.0f, mBbRight, mBbUp );
 	}
 	
@@ -66,12 +73,13 @@ void NodeArtist::drawStarGlow()
 {
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
         float zoomOffset    = math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
+		
         float alpha         = mDistFromCamZAxisPer;
         gl::color( ColorA( mGlowColor, alpha ) );
 
 		// if in alpha view, make highlighted artists flicker
         float flickerAmt = ( 8.5f + zoomOffset * Rand::randFloat( 12.0f, 15.0f ) );
-		Vec2f radius = Vec2f( mRadiusDest, mRadiusDest ) * flickerAmt;
+		Vec2f radius = Vec2f( mRadius, mRadius ) * flickerAmt;
         
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}

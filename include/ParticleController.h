@@ -7,9 +7,10 @@
 class ParticleController {
  public:
 	ParticleController();
-	void update( Node *node );
-	void draw();
-	void drawLines();
+	void pullToCenter( Node *node );
+	void update();
+	void draw( Node *node, const ci::Matrix44f &mat );
+	void drawScreenspace( Node *node, const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void addParticles( int amt );
 	void removeParticles( int amt );
 	

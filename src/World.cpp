@@ -127,22 +127,6 @@ void World::drawStarGlows()
 	}
 }
 
-void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset )
-{
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		if( (*it)->mIsHighlighted ){
-			(*it)->drawName( cam, pinchAlphaOffset );
-		}
-	}
-}
-
-void World::drawOrbitRings()
-{
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawOrbitRing( mRingVertsLowRes, mRingVertsHighRes );
-	}
-}
-
 void World::drawPlanets( const vector<gl::Texture> &planets )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
@@ -164,24 +148,61 @@ void World::drawRings( const gl::Texture &tex )
 	}
 }
 
+void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset )
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		if( (*it)->mIsHighlighted ){
+			(*it)->drawName( cam, pinchAlphaOffset );
+		}
+	}
+}
+
+void World::drawOrbitRings()
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->drawOrbitRing( mRingVertsLowRes, mRingVertsHighRes );
+	}
+}
+
 void World::drawConstellation( const Matrix44f &mat )
 {
 	if( mTotalVertices > 2 ){
-		float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.3f;
-		gl::pushModelView();
-		gl::rotate( mat );
-		gl::color( ColorA( 0.5f, 0.6f, 1.0f, zoomPer ) );
+		float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.15f;
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		//glEnableClientState( GL_COLOR_ARRAY );
+		glEnableClientState( GL_COLOR_ARRAY );
 		glVertexPointer( 3, GL_FLOAT, 0, mVerts );
 		glTexCoordPointer( 2, GL_FLOAT, 0, mTexCoords );
-		//glColorPointer( 4, GL_FLOAT, 0, mColors );
+		glColorPointer( 4, GL_FLOAT, 0, mColors );
+		
+		gl::pushModelView();
+		gl::translate( Vec3f( 0.0f, 0.0f, 0.02f ) );
+		gl::rotate( mat );
+		//gl::color( ColorA( 0.15f, 0.2f, 0.4f, zoomPer ) );
 		glDrawArrays( GL_LINES, 0, mTotalVertices );
-		glDisableClientState( GL_VERTEX_ARRAY );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );		
-		//glDisableClientState( GL_COLOR_ARRAY );
 		gl::popModelView();
+		
+		
+		gl::pushModelView();
+		gl::translate( Vec3f( 0.0f, 0.02f, 0.0f ) );
+		gl::rotate( mat );
+		//gl::color( ColorA( 0.1f, 0.5f, 0.02f, zoomPer ) );
+		glDrawArrays( GL_LINES, 0, mTotalVertices );
+		gl::popModelView();
+		
+		
+		gl::pushModelView();
+		gl::translate( Vec3f( 0.02f, 0.0f, 0.0f ) );
+		gl::rotate( mat );
+		//gl::color( ColorA( 0.5f, 0.1f, 0.02f, zoomPer ) );
+		glDrawArrays( GL_LINES, 0, mTotalVertices );
+		gl::popModelView();
+		
+		
+		
+		glDisableClientState( GL_VERTEX_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );	
+		glDisableClientState( GL_COLOR_ARRAY );
 	}
 }
 
@@ -189,7 +210,7 @@ void World::drawConstellation( const Matrix44f &mat )
 void World::buildConstellation()
 {
 	mConstellation.clear();
-	//mConstellationColors.clear();
+	mConstellationColors.clear();
 	
 	// CREATE DATA FOR CONSTELLATION
 	vector<float> distances;	// used for tex coords of the dotted line
@@ -210,21 +231,21 @@ void World::buildConstellation()
 			}
 		}
 		
-		distances.push_back( shortestDist * 0.35f );
+		distances.push_back( shortestDist );
 		mConstellation.push_back( child1->mPosDest );
 		mConstellation.push_back( nearestChild->mPosDest );
 		
-		//mConstellationColors.push_back( ColorA( child1->mGlowColor, 0.3f ) );
-		//mConstellationColors.push_back( ColorA( nearestChild->mGlowColor, 0.3f ) );
+		mConstellationColors.push_back( ColorA( child1->mGlowColor, 0.05f ) );
+		mConstellationColors.push_back( ColorA( nearestChild->mGlowColor, 0.05f ) );
 	}
 	
 	mTotalVertices	= mConstellation.size();
 	mVerts			= new float[mTotalVertices*3];
 	mTexCoords		= new float[mTotalVertices*2];
-	//mColors			= new float[mTotalVertices*4];
+	mColors			= new float[mTotalVertices*4];
 	int vIndex = 0;
 	int tIndex = 0;
-	//int cIndex = 0;
+	int cIndex = 0;
 	int distancesIndex = 0;
 	for( int i=0; i<mTotalVertices; i++ ){
 		Vec3f pos			= mConstellation[i];
@@ -236,16 +257,16 @@ void World::buildConstellation()
 			mTexCoords[tIndex++]	= 0.0f;
 			mTexCoords[tIndex++]	= 0.5f;
 		} else {
-			mTexCoords[tIndex++]	= distances[distancesIndex];
+			mTexCoords[tIndex++]	= distances[distancesIndex] * 10.0f;
 			mTexCoords[tIndex++]	= 0.5f;
 			distancesIndex ++;
 		}
-		/*
+		
 		ColorA c			= mConstellationColors[i];
 		mColors[cIndex++]	= c.r;
 		mColors[cIndex++]	= c.g;
 		mColors[cIndex++]	= c.b;
 		mColors[cIndex++]	= c.a;
-		*/
+		
 	}
 }

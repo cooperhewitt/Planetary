@@ -46,6 +46,7 @@ class World {
 	std::vector<ci::gl::Texture> mNameTextures;
 	
 	std::vector<ci::Vec3f> mConstellation;
+	std::vector<ci::ColorA> mConstellationColors;
 	std::vector<float> mConstellationDistances;
 	int mTotalVertices;
 	GLfloat *mVerts;

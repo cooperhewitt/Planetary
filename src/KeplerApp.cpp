@@ -139,6 +139,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mDottedTex;
 	gl::Texture		mPanelUpTex, mPanelDownTex;
 	gl::Texture		mSliderBgTex;
+	gl::Texture		mSmokeTex;
 	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex, mHighlightTex;
 	vector<gl::Texture> mButtonsTex;
 	vector<gl::Texture> mPlanetsTex;
@@ -212,7 +213,7 @@ void KeplerApp::setup()
     mPinchRecognizer.registerEnded( this, &KeplerApp::onPinchEnded );
     
     // PARTICLES
-    mParticleController.addParticles( 250 );
+    mParticleController.addParticles( G_NUM_PARTICLES );
 	
 	// BREADCRUMBS
 	mBreadcrumbs.setup( this, mFontSmall );
@@ -262,6 +263,7 @@ void KeplerApp::initTextures()
 	mStarAlternateTex	= loadImage( loadResource( "starAlternate.png" ) );
 	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
+	mSmokeTex			= loadImage( loadResource( "smoke.png" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
 	mParamsTex			= gl::Texture( 768, 75 );
@@ -586,7 +588,8 @@ void KeplerApp::update()
 	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.17f );
 	updateArcball();
 	mWorld.update( mMatrix );
-    mParticleController.update( mState.getSelectedNode() );
+	//mParticleController.pullToCenter( mState.getPlayingNode() );
+    mParticleController.update();
 	updateCamera();
 	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 	
@@ -796,18 +799,24 @@ void KeplerApp::drawScene()
     
     gl::disableDepthWrite();
     
-    
     // ORBITS
     gl::enableAdditiveBlending();
     gl::enableDepthRead();
     mWorld.drawOrbitRings();
-    gl::disableDepthRead();
+
+	// PARTICLES
+	//mParticleController.draw( mState.getSelectedArtistNode(), mMatrix );
+	mStarTex.enableAndBind();
+	mParticleController.drawScreenspace( mState.getSelectedArtistNode(), mMatrix, mBbRight, mBbUp );
+	mStarTex.disable();
     
     // CONSTELLATION
     mDottedTex.enableAndBind();
     mWorld.drawConstellation( mMatrix );
     mDottedTex.disable();
 
+	gl::disableDepthRead();
+	
 	// NAMES
     gl::disableDepthWrite();
     glEnable( GL_TEXTURE_2D );

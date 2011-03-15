@@ -165,13 +165,11 @@ void NodeTrack::update( const Matrix44f &mat )
 
 void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 {	
+	gl::disableAlphaBlending();
 	gl::pushModelView();
 	gl::translate( mTransPos );
 	gl::rotate( mMatrix );
 	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, mAxialTilt ) );
-	
-	gl::disableAlphaBlending();
-	
 	gl::color( mEclipseColor );
 	planets[mPlanetTexIndex].enableAndBind();
 	gl::drawSphere( Vec3f::zero(), mRadius, mSphereResInt );

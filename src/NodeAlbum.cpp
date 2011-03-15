@@ -44,10 +44,10 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	float deltaAmt		= maxAmt - minAmt;
 	mOrbitRadiusDest	= minAmt + deltaAmt * albumNumPer + Rand::randFloat( maxAmt * invAlbumPer );
 
-	mIdealCameraDist = mRadius * 2.0f;
+	mIdealCameraDist = mRadius * 6.0f;
     mPlanetTexIndex = 0;
 	
-    mRadius         *= 0.25f;
+    mRadius         *= 0.85f;
 	mSphere			= Sphere( mPos, mRadius * 7.5f );
 }
 
@@ -122,17 +122,15 @@ void NodeAlbum::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighR
 
 void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 {	
+	gl::disableAlphaBlending();
+	
     gl::pushModelView();
 	gl::translate( mTransPos );
 	gl::rotate( mMatrix );
 	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, 0.0f ) );
-	
-	gl::disableAlphaBlending();
-	
 	gl::color( mEclipseColor );
 	planets[mPlanetTexIndex].enableAndBind();
 	gl::drawSphere( Vec3f::zero(), mRadius, mSphereResInt );
-	
 	gl::popModelView();
     
 	Node::drawPlanet( planets );
@@ -151,11 +149,11 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.66f ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.0001f, mSphereResInt );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.00025f, mSphereResInt );
         
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.00025f, mSphereResInt );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.0004f, mSphereResInt );
         
 		gl::popModelView();
 	}
