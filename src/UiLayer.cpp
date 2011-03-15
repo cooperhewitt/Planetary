@@ -104,7 +104,7 @@ bool UiLayer::touchesEnded( TouchEvent event )
 			setPanelPos( mTouchPos.y, true );
 			mIsPanelTabTouched		= false;
 			mHasPanelBeenDragged	= false;
-		} else {
+		} else if( mPanelTabRect.contains( mTouchPos ) ){
 			if( mIsPanelOpen ){
 				mPanelYPosDest = mPanelClosedYPos;
 			} else {
