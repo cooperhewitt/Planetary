@@ -184,7 +184,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
 		if( mIsSelected ){
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, mZoomPer * pinchAlphaOffset ) );
+			gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		} else {
 			gl::color( ColorA( mColor, mZoomPer * pinchAlphaOffset ) );
 		}

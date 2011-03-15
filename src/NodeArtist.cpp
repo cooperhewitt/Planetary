@@ -96,7 +96,7 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 		gl::translate( mTransPos );
 		//float amt = mEclipsePer * 0.25f + 0.75f;
 		//gl::color( ColorA( mGlowColor.r + amt, mGlowColor.g + amt, mGlowColor.b + amt, 1.0f ) );
-		gl::color( Color::white() );
+		gl::color( ( mGlowColor + Color::white() ) * 0.5f );
 		float radius = mRadius * 0.33f;
 		gl::enableAlphaBlending();
 		gl::drawSolidCircle( Vec2f::zero(), radius, 100 );

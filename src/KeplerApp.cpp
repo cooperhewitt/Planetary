@@ -622,7 +622,7 @@ void KeplerApp::updateArcball()
 
 void KeplerApp::updateCamera()
 {
-	mCamDistPinchOffset -= ( mCamDistPinchOffset - mCamDistPinchOffsetDest ) * 0.2f;
+	mCamDistPinchOffset -= ( mCamDistPinchOffset - mCamDistPinchOffsetDest ) * 0.4f;
 	
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){
@@ -644,7 +644,7 @@ void KeplerApp::updateCamera()
 	
 	// UPDATE FOV
 	mFovDest = constrain( mFovDest, G_MIN_FOV, G_MAX_FOV );
-	mFov -= ( mFov - mFovDest ) * 0.175f;
+	mFov -= ( mFov - mFovDest ) * 0.275f;
 	
 
 	if( mFovDest >= 130.0f && ! mAlphaWheel.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){

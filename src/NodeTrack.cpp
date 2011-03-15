@@ -188,11 +188,11 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 		
 		clouds[mCloudTexIndex].enableAndBind();
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.66f ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.000006f, mSphereResInt );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.0000125f, mSphereResInt );
 
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.000012f, mSphereResInt );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.000025f, mSphereResInt );
 		gl::popModelView();
 	}
 }
