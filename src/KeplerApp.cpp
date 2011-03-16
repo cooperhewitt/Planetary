@@ -34,6 +34,8 @@ using std::stringstream;
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
 bool G_ACCEL            = false;
+bool G_IS_IPAD2			= true;
+int G_NUM_PARTICLES		= 250;
 
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 
@@ -139,7 +141,6 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mDottedTex;
 	gl::Texture		mPanelUpTex, mPanelDownTex;
 	gl::Texture		mSliderBgTex;
-	gl::Texture		mSmokeTex;
 	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex, mHighlightTex;
 	vector<gl::Texture> mButtonsTex;
 	vector<gl::Texture> mPlanetsTex;
@@ -153,6 +154,11 @@ class KeplerApp : public AppCocoaTouch {
 
 void KeplerApp::setup()
 {
+	if( G_IS_IPAD2 ){
+		G_NUM_PARTICLES = 500;
+	}
+	
+	
 	mIsLoaded = false;
 	
 	Rand::randomize();
@@ -263,7 +269,6 @@ void KeplerApp::initTextures()
 	mStarAlternateTex	= loadImage( loadResource( "starAlternate.png" ) );
 	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
-	mSmokeTex			= loadImage( loadResource( "smoke.png" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
 	mParamsTex			= gl::Texture( 768, 75 );
@@ -387,6 +392,9 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	
 	if( G_ZOOM < G_ARTIST_LEVEL ){
 		mFovDest += ( 1.0f - event.getScaleDelta() ) * 50.0f;
+		
+		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -3.5f + 1.0f;
+		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 4.5f );
 	} else {
 		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -3.5f + 1.0f;
 		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 4.5f );
@@ -774,7 +782,7 @@ void KeplerApp::drawScene()
         Vec3f lightPos          = artistNode->mTransPos;
         GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
         glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-        glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
+        glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() * 2.5f ), 1.0f ) );
         
         
         // PLANETS
@@ -802,14 +810,14 @@ void KeplerApp::drawScene()
     // ORBITS
     gl::enableAdditiveBlending();
     gl::enableDepthRead();
-    mWorld.drawOrbitRings();
+    mWorld.drawOrbitRings( mState.getPlayingNode() );
 
 	// PARTICLES
 	//mParticleController.draw( mState.getSelectedArtistNode(), mMatrix );
 	if( mState.getSelectedArtistNode() ){
-		mStarTex.enableAndBind();
+		mStarGlowTex.enableAndBind();
 		mParticleController.drawScreenspace( mState.getSelectedArtistNode(), mMatrix, mBbRight, mBbUp );
-		mStarTex.disable();
+		mStarGlowTex.disable();
 	}
     
     // CONSTELLATION

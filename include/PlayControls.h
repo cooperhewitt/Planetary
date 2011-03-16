@@ -203,6 +203,7 @@ public:
 		double timeLeft = totalTime - currentTime;
 		mMinutesLeft	= floor( timeLeft/60 );
 		mSecondsLeft	= (int)timeLeft%60;
+		
 		if( mSeconds != mPrevSeconds ){
 			string minsStr = to_string( mMinutes );
 			string secsStr = to_string( mSeconds );
@@ -233,6 +234,7 @@ public:
 		}
 		gl::draw( mCurrentTimeTex,		Vec2f( 28.0f, bgy1-1 ) );
 		gl::draw( mRemainingTimeTex,	Vec2f( bgx2 + 7.0f, bgy1-1 ) );
+		
 		
 // SLIDER PER
 		glDisable( GL_TEXTURE_2D );

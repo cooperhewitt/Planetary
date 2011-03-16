@@ -51,11 +51,11 @@ void ParticleController::drawScreenspace( Node *node, const Matrix44f &mat, cons
 {	
 	gl::pushModelView();
 	if( node ){
-		gl::color( ColorA( node->mGlowColor, 0.15f ) ); // 0.2f
+		gl::color( ColorA( node->mGlowColor, 0.35f ) ); // 0.2f
 		gl::translate( node->mTransPos );
 	}
 	for( list<Particle>::iterator p = mParticles.begin(); p != mParticles.end(); ++p ){
-		p->drawScreenspace( bbRight, bbUp );
+		p->drawScreenspace( mat, bbRight, bbUp );
 	}
 	gl::popModelView();
 }

@@ -21,17 +21,18 @@ using namespace std;
 NodeArtist::NodeArtist( Node *parent, int index, const Font &font )
 	: Node( parent, index, font )
 {
-	mPosDest		= Rand::randVec3f() * Rand::randFloat( 50.0f, 150.0f );
+	mPosDest		= Rand::randVec3f() * Rand::randFloat( 50.0f, 200.0f );
 	mPos			= mPosDest + Rand::randVec3f() * 25.0f;
 	
 	
-	float hue		= Rand::randFloat( 0.0f, 0.5f );
-	if( hue > 0.2f && hue < 0.4f ){
-		hue			= Rand::randFloat( 0.0f, 0.5f );
+	mHue			= Rand::randFloat( 0.0f, 0.66f );
+	if( mHue > 0.2f && mHue < 0.35f ){
+		mHue		= Rand::randFloat( 0.0f, 0.66f );
 	}
-	float sat		= 1.0f - sin( hue * 2.0f * M_PI );
-	mColor			= Color( CM_HSV, hue, sat * 0.2f, 1.0f );
-	mGlowColor		= Color( CM_HSV, hue, sat + 0.3f, 1.0f );
+	mSat			= 1.0f - sin( mHue * 1.3f * M_PI );
+	mColor			= Color( CM_HSV, mHue, mSat * 0.2f, 1.0f );
+	mGlowColor		= Color( CM_HSV, mHue, mSat + 0.3f, 1.0f );
+	mDepthDiskColor = Color( CM_HSV, mHue, mSat, 1.0f );
 	mIdealCameraDist = mRadius * 2.0f;
 	
 	mSphere			= Sphere( mPos, 3.65f );
@@ -56,7 +57,7 @@ void NodeArtist::drawStar()
 	if( mAge > mBirthPause ){
 		if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
 			mRadius -= ( mRadius - 0.25f ) * 0.1f;
-			mRadius += Rand::randFloat( -0.1f, 0.1f );
+			mRadius += Rand::randFloat( 0.0125f, 0.065f );
 			gl::color( ColorA( mColor, 0.7f ) );
 		} else {
 			mRadius -= ( mRadius - mRadiusDest ) * 0.1f;
@@ -89,7 +90,6 @@ void NodeArtist::drawStarGlow()
 
 void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 {
-	/*
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
 		glDisable( GL_TEXTURE_2D );
@@ -97,13 +97,13 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 		gl::translate( mTransPos );
 		//float amt = mEclipsePer * 0.25f + 0.75f;
 		//gl::color( ColorA( mGlowColor.r + amt, mGlowColor.g + amt, mGlowColor.b + amt, 1.0f ) );
-		gl::color( ( mGlowColor + Color::white() ) * 0.5f );
-		float radius = mRadius * 0.33f;
-		gl::enableAlphaBlending();
-		gl::drawSolidCircle( Vec2f::zero(), radius, 100 );
+		gl::color( mDepthDiskColor );
+		float radius = mRadius * 0.3f;
+		gl::enableAdditiveBlending();
+		gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
-	}*/
+	}
 	
 	Node::drawPlanet( planets );
 }

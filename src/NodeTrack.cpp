@@ -34,7 +34,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	float minAmt		= mParentNode->mRadius * 2.0f;
 	float maxAmt		= mParentNode->mRadius * 8.0f;
 	float deltaAmt		= maxAmt - minAmt;
-	mOrbitRadiusDest	= minAmt + deltaAmt * trackNumPer + Rand::randFloat( maxAmt * invTrackPer );
+	mOrbitRadiusDest	= minAmt + deltaAmt * trackNumPer + Rand::randFloat( maxAmt * invTrackPer * 0.75f );
 	
     mIsPlaying			= false;
 	mHasRings			= false;
@@ -83,6 +83,8 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mOrbitPeriod		= mTrackLength;
 	mAxialTilt			= Rand::randFloat( 5.0f, 30.0f );
     mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
+	
+	mOrbitLineAlpha		= 0.1f + normPlayCount * 0.2f;
 	
     // TODO: no reason why every track should init this vertex array
 	//initVertexArray();
@@ -220,12 +222,13 @@ void NodeTrack::drawRings( const gl::Texture &tex )
 }
 
 
-void NodeTrack::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void NodeTrack::drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
-	if( mIsSelected ){
-		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
+	// TODO: TrackId should be compared?
+	if( this == playingNode ){
+		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f ) );
 	} else {
-		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.2f ) );
+		gl::color( ColorA( 0.15f, 0.2f, 0.4f, mOrbitLineAlpha ) );
 	}
 	gl::pushModelView();
 	gl::translate( mParentNode->mTransPos );

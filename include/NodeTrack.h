@@ -21,7 +21,7 @@ class NodeTrack : public Node
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex );
-	void drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
+	void drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void setPlaying(bool playing);
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
 	string getName();

@@ -18,6 +18,8 @@
 #include "cinder/Camera.h"
 #include <vector>
 
+class NodeTrack;
+
 using std::vector;
 
 class Node {
@@ -37,7 +39,7 @@ class Node {
 	virtual void		drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	virtual void		drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	virtual void		drawRings( const ci::gl::Texture &tex );
-	virtual void		drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
+	virtual void		drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void				drawName( const ci::CameraPersp &cam, float pinchAlphaOffset );
 	void				checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
 	void				checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
@@ -79,7 +81,8 @@ class Node {
 	float				mOrbitRadius;		// Current distance from parentNode
 	float				mOrbitRadiusDest;	// Final distance from parentNode
 	float				mOrbitPeriod;		// Time in seconds to orbit parentNode
-    
+    float				mOrbitLineAlpha;	// Alpha of the orbit line based on playcount
+	
 // ROTATION
 	float				mAngularVelocity;	// Change in angle per frame
     float               mAxialTilt;         // Planetary axis

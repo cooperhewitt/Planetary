@@ -15,7 +15,7 @@ Particle::Particle( int index, Vec3f pos, Vec3f vel )
 	mIndex			= index;
 	mColor			= ColorA( 1.0f, 1.0f, 1.0f, 1.0f );
 	
-	mLifespan       = Rand::randInt( 35, 65 );
+	mLifespan       = Rand::randInt( 35, 75 );
 	mIsDead			= false;
 	
 	setup();
@@ -23,14 +23,14 @@ Particle::Particle( int index, Vec3f pos, Vec3f vel )
 
 void Particle::setup()
 {
-	mPos		= Rand::randVec3f() * 0.4f;
+	mPos		= Rand::randVec3f() * 0.375f;
 	mPrevPos	= mPos;
 	mVel		= mPos * Rand::randFloat( 0.0025f, 0.005f );
 	mAcc		= Rand::randVec3f() * 0.01f;
 	mDecay		= 0.98f;
 	mAge		= 0;
 	mAgePer		= 0.0f;
-	mRadius		= Rand::randFloat( 0.01f, 0.1f );
+	mRadius		= Rand::randFloat( 0.025f, 0.25f );
 }
 
 void Particle::pullToCenter( Node *trackNode )
@@ -67,8 +67,12 @@ void Particle::draw()
     gl::drawLine( mPos, mPrevPos );
 }
 
-void Particle::drawScreenspace( const Vec3f &sUp, const Vec3f &sRight )
+void Particle::drawScreenspace( const Matrix44f &mat, const Vec3f &sUp, const Vec3f &sRight )
 {
-	gl::drawBillboard( mPos, Vec2f( mRadius, mRadius ) * mAgePer, 0.0f, sUp, sRight );
+	gl::pushModelView();
+	gl::translate( mat * mPos );
+	float r = sin( mAgePer * M_PI ) * mRadius;
+	gl::drawBillboard( Vec3f::zero(), Vec2f( r, r ), 0.0f, sUp, sRight );
+	gl::popModelView();
 }
 
