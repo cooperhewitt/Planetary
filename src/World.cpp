@@ -157,10 +157,17 @@ void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset )
 	}
 }
 
-void World::drawOrbitRings()
+void World::drawOrbitRings( NodeTrack *playingNode )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawOrbitRing( mRingVertsLowRes, mRingVertsHighRes );
+		(*it)->drawOrbitRing( playingNode, mRingVertsLowRes, mRingVertsHighRes );
+	}
+}
+
+void World::drawTouchHighlights()
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->drawTouchHighlight();
 	}
 }
 

@@ -1,5 +1,3 @@
-// TODO: Supernova glow for when a node is tapped? Some sort of flash?
-
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/app/Renderer.h"
 #include "cinder/Surface.h"
@@ -34,6 +32,8 @@ using std::stringstream;
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
 bool G_ACCEL            = false;
+bool G_IS_IPAD2			= true;
+int G_NUM_PARTICLES		= 250;
 
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 
@@ -115,7 +115,6 @@ class KeplerApp : public AppCocoaTouch {
 	
 	// MULTITOUCH
 	Vec2f			mTouchPos;
-	Vec2f			mTouchThrowVel; // TODO: what's the difference between mTouchVel and mTouchThrowVel?
 	Vec2f			mTouchVel;
 	bool			mIsDragging;
 	bool			onPinchBegan( PinchEvent event );
@@ -125,7 +124,7 @@ class KeplerApp : public AppCocoaTouch {
     PinchRecognizer mPinchRecognizer;
 	float			mPinchScale;
 	float			mTimePinchEnded;
-
+	
 	// PARTICLES
     ParticleController mParticleController;
 	
@@ -139,7 +138,6 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mDottedTex;
 	gl::Texture		mPanelUpTex, mPanelDownTex;
 	gl::Texture		mSliderBgTex;
-//	gl::Texture		mSmokeTex;
 	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex, mHighlightTex;
 	vector<gl::Texture> mButtonsTex;
 	vector<gl::Texture> mPlanetsTex;
@@ -153,6 +151,11 @@ class KeplerApp : public AppCocoaTouch {
 
 void KeplerApp::setup()
 {
+	if( G_IS_IPAD2 ){
+		G_NUM_PARTICLES = 500;
+	}
+	
+	
 	mIsLoaded = false;
 	
 	Rand::randomize();
@@ -202,7 +205,6 @@ void KeplerApp::setup()
 
 	// TOUCH VARS
 	mTouchPos			= Vec2f::zero();
-	mTouchThrowVel		= Vec2f::zero();
 	mTouchVel			= Vec2f::zero();
 	mIsDragging			= false;
 	mTime				= getElapsedSeconds();
@@ -263,7 +265,6 @@ void KeplerApp::initTextures()
 	mStarAlternateTex	= loadImage( loadResource( "starAlternate.png" ) );
 	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
-	//mSmokeTex			= loadImage( loadResource( "smoke.png" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
 	mParamsTex			= gl::Texture( 768, 75 );
@@ -325,7 +326,6 @@ void KeplerApp::touchesBegan( TouchEvent event )
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
 	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ) {
 		mTouchPos		= touches.begin()->getPos();
-		mTouchThrowVel	= Vec2f::zero();	
 		mTouchVel		= Vec2f::zero();
 		mArcball.mouseDown( Vec2f( mTouchPos.x, mTouchPos.y ) );
 	}
@@ -338,8 +338,7 @@ void KeplerApp::touchesMoved( TouchEvent event )
 	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){
 		mIsDragging = true;
 		Vec2f currentPos = touches.begin()->getPos();
-		mTouchThrowVel	= ( currentPos - touches.begin()->getPrevPos() );
-		mTouchVel		= mTouchThrowVel;
+		mTouchVel		= ( currentPos - touches.begin()->getPrevPos() );
 		mTouchPos		= currentPos;
 		mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
 	}
@@ -369,7 +368,7 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 	mPinchScale = 1.0f;
     mPinchRays = event.getTouchRays( mCam );
 	
-	mTouchThrowVel	= Vec2f::zero();
+	mTouchVel	= Vec2f::zero();
 	vector<PinchEvent::Touch> touches = event.getTouches();
 	Vec2f averageTouchPos;
 	for( vector<PinchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
@@ -386,7 +385,8 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
     mPinchRays = event.getTouchRays( mCam );
 	
 	if( G_ZOOM < G_ARTIST_LEVEL ){
-		mFovDest += ( 1.0f - event.getScaleDelta() ) * 50.0f;
+		mFovDest += ( 1.0f - event.getScaleDelta() ) * 100.0f;
+		
 	} else {
 		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -3.5f + 1.0f;
 		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 4.5f );
@@ -468,7 +468,11 @@ bool KeplerApp::onNodeSelected( Node *node )
 	mCenterFrom		= mCenter;
 	mCamDistFrom	= mCamDist;	
 	mZoomFrom		= G_ZOOM;			
-	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
+	mBreadcrumbs.setHierarchy( mState.getHierarchy() );
+	
+	if( node && node->mGen > G_ZOOM ){
+		node->wasTapped();
+	}
 
 	if( node != NULL && node->mGen == G_TRACK_LEVEL ){
 		cout << "node selected!" << endl;
@@ -618,12 +622,9 @@ void KeplerApp::update()
 
 void KeplerApp::updateArcball()
 {
-	if( mTouchThrowVel.length() > 5.0f && !mIsDragging ){
-		//if( mTouchVel.length() > 1.0f ){
-			//mTouchVel *= 0.99f;
-			mArcball.mouseDown( mTouchPos );
-			mArcball.mouseDrag( mTouchPos + mTouchVel );
-		//}
+	if( mTouchVel.length() > 5.0f && !mIsDragging ){
+		mArcball.mouseDown( mTouchPos );
+		mArcball.mouseDrag( mTouchPos + mTouchVel );
 	}
 	
 	if( G_ACCEL ){
@@ -722,7 +723,7 @@ void KeplerApp::drawLoader()
 	mStarTex.enableAndBind();
 	gl::drawSolidRect( rect );
 	
-	float smallOffset	= cos( getElapsedSeconds() * 0.5f + 2.0f ) * 22.0f;
+	float smallOffset	= cos( getElapsedSeconds() * 0.3f + 2.0f ) * 30.0f;
 	Rectf smallRect		= Rectf( xCenter - 4.0f + smallOffset, yCenter - 4.0f, xCenter + 4.0f + smallOffset, yCenter + 4.0f );
 	//float mediumOffset	= ( getElapsedSeconds() - 3.0f ) * 10.0f;	
 	//Rectf mediumRect	= Rectf( xCenter - 25.0f + mediumOffset * 2.5f, yCenter - 25.0f, xCenter + 25.0f + mediumOffset * 2.5f, yCenter + 25.0f );
@@ -789,7 +790,7 @@ void KeplerApp::drawScene()
         Vec3f lightPos          = artistNode->mTransPos;
         GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
         glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-        glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
+        glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() * 2.5f ), 1.0f ) );
         
         
         // PLANETS
@@ -809,6 +810,7 @@ void KeplerApp::drawScene()
     // STARGLOWS
     mStarGlowTex.enableAndBind();
     mWorld.drawStarGlows();
+	mWorld.drawTouchHighlights();
     mStarGlowTex.disable();
     
     
@@ -817,14 +819,14 @@ void KeplerApp::drawScene()
     // ORBITS
     gl::enableAdditiveBlending();
     gl::enableDepthRead();
-    mWorld.drawOrbitRings();
+    mWorld.drawOrbitRings( mState.getPlayingNode() );
 
 	// PARTICLES
 	//mParticleController.draw( mState.getSelectedArtistNode(), mMatrix );
 	if( mState.getSelectedArtistNode() ){
-		mStarTex.enableAndBind();
+		mStarGlowTex.enableAndBind();
 		mParticleController.drawScreenspace( mState.getSelectedArtistNode(), mMatrix, mBbRight, mBbUp );
-		mStarTex.disable();
+		mStarGlowTex.disable();
 	}
     
     // CONSTELLATION

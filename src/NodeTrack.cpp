@@ -34,7 +34,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	float minAmt		= mParentNode->mRadius * 2.0f;
 	float maxAmt		= mParentNode->mRadius * 8.0f;
 	float deltaAmt		= maxAmt - minAmt;
-	mOrbitRadiusDest	= minAmt + deltaAmt * trackNumPer + Rand::randFloat( maxAmt * invTrackPer );
+	mOrbitRadiusDest	= minAmt + deltaAmt * trackNumPer + Rand::randFloat( maxAmt * invTrackPer * 0.75f );
 	
     mIsPlaying			= false;
 	mHasRings			= false;
@@ -83,6 +83,8 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mOrbitPeriod		= mTrackLength;
 	mAxialTilt			= Rand::randFloat( 5.0f, 30.0f );
     mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
+	
+	mOrbitLineAlpha		= 0.1f + normPlayCount * 0.2f;
 	
     // TODO: no reason why every track should init this vertex array
 	//initVertexArray();
@@ -188,11 +190,11 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 		
 		clouds[mCloudTexIndex].enableAndBind();
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.66f ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.0000125f, mSphereResInt );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.000025f, mSphereResInt );
 
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.000025f, mSphereResInt );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.00005f, mSphereResInt );
 		gl::popModelView();
 	}
 }
@@ -220,12 +222,13 @@ void NodeTrack::drawRings( const gl::Texture &tex )
 }
 
 
-void NodeTrack::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void NodeTrack::drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
-	if( mIsSelected ){
-		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
+	// TODO: TrackId should be compared?
+	if( mIsPlaying ){
+		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f ) );
 	} else {
-		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.2f ) );
+		gl::color( ColorA( 0.15f, 0.2f, 0.4f, mOrbitLineAlpha ) );
 	}
 	gl::pushModelView();
 	gl::translate( mParentNode->mTransPos );
@@ -247,5 +250,7 @@ void NodeTrack::setPlaying(bool playing)
 
 string NodeTrack::getName()
 {
-	return mTrack->getTitle();
+	string name = mTrack->getTitle();
+	if( name.size() < 1 ) name = "Untitled";
+	return name;
 }

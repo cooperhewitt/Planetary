@@ -12,7 +12,7 @@ class Particle {
 	void pullToCenter( Node *trackNode );
 	void update();
 	void draw();
-	void drawScreenspace( const ci::Vec3f &sUp, const ci::Vec3f &sRight );
+	void drawScreenspace( const ci::Matrix44f &mat, const ci::Vec3f &sUp, const ci::Vec3f &sRight );
 	
 	int			mIndex;
 	ci::Vec3f	mPos, mPrevPos;

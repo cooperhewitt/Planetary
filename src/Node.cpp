@@ -52,6 +52,8 @@ Node::Node( Node *parent, int index, const Font &font )
     mSphereRes          = 12;
     mSphereResInt       = 12;
 		
+	mHighlightStrength	= 0.0f;
+	mIsTapped			= false;
 	mIsSelected			= false;
 	mIsHighlighted		= false;
 }
@@ -117,7 +119,7 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
     
     if( mGen >= G_ALBUM_LEVEL ){
         if( mIsSelected ){
-            mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
+            mSphereRes		-= ( mSphereRes - 20 ) * 0.1f;
             mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.1f;
         } else {
             mSphereRes		-= ( mSphereRes - 8 ) * 0.1f;
@@ -175,10 +177,10 @@ void Node::drawRings( const gl::Texture &tex )
 	}
 }
 
-void Node::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void Node::drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrbitRing( ringVertsLowRes, ringVertsHighRes );
+		(*nodeIt)->drawOrbitRing( playingNode, ringVertsLowRes, ringVertsHighRes );
 	}
 }
 
@@ -195,18 +197,59 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 			createNameTexture();
 		}
 		
-		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, mSphereScreenRadius * -0.25f );
-		Vec2f pos2 = mScreenPos + Vec2f( mSphereScreenRadius * 0.35f, mSphereScreenRadius * -0.35f );
-
-		gl::draw( mNameTex, pos2 + Vec2f( 3.0f, -13.0f ) );
+//		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.265f, mSphereScreenRadius * -0.265f );
+//		Vec2f pos2 = mScreenPos + Vec2f( mSphereScreenRadius * 0.5f, mSphereScreenRadius * -0.5f );
+		
+		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.3f, 0.0f );
+		Vec2f pos2 = pos1 + Vec2f( 15.0f, 0.0f );
+		
+		gl::pushModelView();
+		gl::translate( pos2 + Vec2f( 2.0f, -10.0f ) );
+		if( mIsSelected ){
+			float s = mZoomPer * 0.5f + 1.0f;
+			gl::scale( Vec3f( s, s, 1.0f ) );
+		}
+		gl::draw( mNameTex, Vec2f::zero() );
+		gl::popModelView();
+		
 		gl::color( ColorA( 0.1f, 0.2f, 0.5f, 0.2f * mZoomPer * pinchAlphaOffset ) );
-		
-		
 		gl::drawLine( pos1, pos2 );
+		
+		/*
+		if( mIsSelected ){
+			gl::color( ColorA( 0.1f, 0.2f, 0.5f, 0.65f * pinchAlphaOffset ) );
+			if( mGen == G_TRACK_LEVEL ){
+				gl::drawStrokedCircle( mScreenPos, mSphereScreenRadius * 0.375f );
+			} else if( mGen == G_ALBUM_LEVEL ){
+				gl::drawStrokedCircle( mScreenPos, mSphereScreenRadius * 0.675f );
+			}
+		}
+		*/
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->drawName( cam, pinchAlphaOffset );
+	}
+}
+
+void Node::drawTouchHighlight()
+{
+	if( mIsHighlighted ){
+		if( mIsTapped ){
+			gl::color( ColorA( mColor, mHighlightStrength ) );
+			Vec2f radius = Vec2f( mRadius * 25.0f, mRadius * 25.0f );
+			
+			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+			mHighlightStrength -= ( mHighlightStrength - 0.0f ) * 0.15f;
+		}
+		
+		if( mHighlightStrength < 0.01f ){
+			mIsTapped = false;
+		}
+
+		for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+			(*nodeIt)->drawTouchHighlight();
+		}
 	}
 }
 
@@ -229,9 +272,9 @@ void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
 	if (mNameTex != NULL) {
 		
-		Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.6f, mSphereScreenRadius * -0.6f );
+		Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
 		
-		Rectf r = Rectf( p.x, p.y - 35, p.x + mNameTex.getWidth() + 30, p.y + mNameTex.getHeight() + -5 );
+		Rectf r = Rectf( p.x - 50, p.y - 10, p.x + mNameTex.getWidth() + 50, p.y + mNameTex.getHeight() + 10 );
 		
 		if( r.contains( pos ) && mIsHighlighted && ! mIsSelected ){
 			std::cout << "HIT FOUND" << std::endl;

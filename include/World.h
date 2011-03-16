@@ -17,6 +17,7 @@
 #include "cinder/Matrix.h"
 #include "Data.h"
 #include "Node.h"
+#include "NodeTrack.h"
 
 class World {
  public:
@@ -33,8 +34,9 @@ class World {
 	void drawStars();
 	void drawStarGlows();
 	void drawNames( const ci::CameraPersp &cam, float pinchAlphaOffset );
-	void drawOrbitRings();
+	void drawOrbitRings( NodeTrack *playingNode );
 	void drawConstellation( const ci::Matrix44f &mat );
+	void drawTouchHighlights();
 	void buildConstellation();
 	void drawPlanets( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );

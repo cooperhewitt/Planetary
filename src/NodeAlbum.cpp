@@ -24,14 +24,6 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	: Node( parent, index, font )
 {
 	mIsHighlighted	= true;
-
-	float hue		= Rand::randFloat( 0.0f, 0.5f );
-	if( hue > 0.2f && hue < 0.4f ){
-		hue			= Rand::randFloat( 0.0f, 0.5f );
-	}
-	float sat		= 1.0f - sin( hue * 2.0f * M_PI );
-	mColor			= Color( CM_HSV, hue, sat * 0.2f, 1.0f );
-	mGlowColor		= Color( CM_HSV, hue, sat + 0.3f, 1.0f );
 	
 	// FIXME: bad c++?
 	float numAlbums = ((NodeArtist*)mParentNode)->mNumAlbums + 2.0f;
@@ -42,7 +34,7 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	float minAmt		= mParentNode->mRadiusDest * 1.0f;
 	float maxAmt		= mParentNode->mRadiusDest * 3.0f;
 	float deltaAmt		= maxAmt - minAmt;
-	mOrbitRadiusDest	= minAmt + deltaAmt * albumNumPer + Rand::randFloat( maxAmt * invAlbumPer );
+	mOrbitRadiusDest	= minAmt + deltaAmt * albumNumPer + Rand::randFloat( maxAmt * invAlbumPer * 0.35f );
 
 	mIdealCameraDist = mRadius * 6.0f;
     mPlanetTexIndex = 0;
@@ -58,11 +50,16 @@ void NodeAlbum::setData( PlaylistRef album )
 	mNumTracks			= mAlbum->size();
 	mHighestPlayCount	= 0;
 	mLowestPlayCount	= 10000;
+	
+	float hue			= Rand::randFloat( 0.15f, 0.75f );
+	float sat			= Rand::randFloat( 0.15f, 0.25f );
+	float val			= Rand::randFloat( 0.85f, 1.00f );
+	mColor				= Color( CM_HSV, hue, sat, val );
 	mEclipseColor       = mColor;
 
     mAxialVel       = Rand::randFloat( 10.0f, 45.0f );
     
-    mPlanetTexIndex = mIndex%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
+    mPlanetTexIndex = ( mIndex + 6 )%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
 	mCloudTexIndex  = Rand::randInt( G_NUM_CLOUD_TYPES );
 
 	for (int i = 0; i < mNumTracks; i++) {
@@ -100,7 +97,7 @@ void NodeAlbum::update( const Matrix44f &mat )
 }
 
 
-void NodeAlbum::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void NodeAlbum::drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
 	if( mIsSelected ){
 		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
@@ -117,7 +114,7 @@ void NodeAlbum::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighR
 	glDisableClientState( GL_VERTEX_ARRAY );
 	gl::popModelView();
 	
-	Node::drawOrbitRing( ringVertsLowRes, ringVertsHighRes );
+	Node::drawOrbitRing( playingNode, ringVertsLowRes, ringVertsHighRes );
 }
 
 void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
@@ -178,5 +175,7 @@ void NodeAlbum::select()
 
 string NodeAlbum::getName()
 {
-	return mAlbum->getAlbumTitle();
+	string name = mAlbum->getAlbumTitle();
+	if( name.size() < 1 ) name = "Untitled";
+	return name;
 }

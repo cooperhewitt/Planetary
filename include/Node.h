@@ -18,6 +18,8 @@
 #include "cinder/Camera.h"
 #include <vector>
 
+class NodeTrack;
+
 using std::vector;
 
 class Node {
@@ -27,23 +29,25 @@ class Node {
 	virtual ~Node(){ deselect(); }	
 	
 	// METHODS
-	void				init();
-	void				initWithParent();
-	void				createNameTexture();
-	virtual void		update( const ci::Matrix44f &mat );
-	virtual void		updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	virtual void		drawStar();
-	virtual void		drawStarGlow();
-	virtual void		drawPlanet( const std::vector< ci::gl::Texture> &planets );
-	virtual void		drawClouds( const std::vector< ci::gl::Texture> &clouds );
-	virtual void		drawRings( const ci::gl::Texture &tex );
-	virtual void		drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
-	void				drawName( const ci::CameraPersp &cam, float pinchAlphaOffset );
-	void				checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
-	void				checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
-	virtual void		select();
-	void				deselect();
-	virtual string		getName()=0; // Name of the node is provided by subclasses
+	void			init();
+	void			initWithParent();
+	void			createNameTexture();
+	virtual void	update( const ci::Matrix44f &mat );
+	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	virtual void	drawStar();
+	virtual void	drawStarGlow();
+	virtual void	drawPlanet( const std::vector< ci::gl::Texture> &planets );
+	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds );
+	virtual void	drawRings( const ci::gl::Texture &tex );
+	virtual void	drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
+	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset );
+	void			wasTapped(){ mIsTapped = true; mHighlightStrength = 1.0f; }
+	void			drawTouchHighlight();
+	void			checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
+	void			checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
+	virtual void	select();
+	void			deselect();
+	virtual string	getName()=0; // Name of the node is provided by subclasses
 
 // TODO: clean up interface and enable privates!
 //private:
@@ -79,7 +83,8 @@ class Node {
 	float				mOrbitRadius;		// Current distance from parentNode
 	float				mOrbitRadiusDest;	// Final distance from parentNode
 	float				mOrbitPeriod;		// Time in seconds to orbit parentNode
-    
+    float				mOrbitLineAlpha;	// Alpha of the orbit line based on playcount
+	
 // ROTATION
 	float				mAngularVelocity;	// Change in angle per frame
     float               mAxialTilt;         // Planetary axis
@@ -119,6 +124,8 @@ class Node {
     
 	int					mAge;
 	int					mBirthPause;
+	bool				mIsTapped;			// Highlight when tapped
+	float				mHighlightStrength;	// Falloff for the highlight glow
 	bool				mIsSelected;		// Node has been chosen
 	bool				mIsHighlighted;		// Node is able to be chosen
 };
