@@ -59,6 +59,7 @@ Node::Node( Node *parent, int index, const Font &font )
 void Node::init()
 {
 	mGen				= G_ARTIST_LEVEL;
+	mRadiusDest			= 2.0f;
 	mRadius				= 2.0f;
 	mPos				= Rand::randVec3f();
 	mPrevPos			= mPos;
@@ -70,7 +71,8 @@ void Node::init()
 void Node::initWithParent()
 {
 	mGen				= mParentNode->mGen + 1;
-	mRadius				= mParentNode->mRadius * 0.02f;
+	mRadiusDest			= mParentNode->mRadiusDest * 0.02f;
+	mRadius				= mRadiusDest;
 	mPos				= mParentNode->mPos;
 	mPrevPos			= mParentNode->mPos;
 	mVel				= mParentNode->mVel;
@@ -118,7 +120,7 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
             mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
             mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.1f;
         } else {
-            mSphereRes		-= ( mSphereRes - 6 ) * 0.1f;
+            mSphereRes		-= ( mSphereRes - 8 ) * 0.1f;
             mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.1f;
         }
         
@@ -194,7 +196,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 		}
 		
 		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, mSphereScreenRadius * -0.25f );
-		Vec2f pos2 = mScreenPos + Vec2f( mSphereScreenRadius * 0.45f, mSphereScreenRadius * -0.45f );
+		Vec2f pos2 = mScreenPos + Vec2f( mSphereScreenRadius * 0.35f, mSphereScreenRadius * -0.35f );
 
 		gl::draw( mNameTex, pos2 + Vec2f( 3.0f, -13.0f ) );
 		gl::color( ColorA( 0.1f, 0.2f, 0.5f, 0.2f * mZoomPer * pinchAlphaOffset ) );

@@ -58,7 +58,6 @@
 		E15C90B91300B30100FB8389 /* wheel.png in Resources */ = {isa = PBXBuildFile; fileRef = E15C90B81300B30100FB8389 /* wheel.png */; };
 		E167C8D5132EAFBE00CB496E /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E167C8D3132EAFBE00CB496E /* Particle.cpp */; };
 		E167C8D6132EAFBE00CB496E /* ParticleController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E167C8D4132EAFBE00CB496E /* ParticleController.cpp */; };
-		E167C8F9132F541400CB496E /* smoke.png in Resources */ = {isa = PBXBuildFile; fileRef = E167C8F8132F541400CB496E /* smoke.png */; };
 		E17667DE13202FB7006A4C2E /* rings.png in Resources */ = {isa = PBXBuildFile; fileRef = E17667DD13202FB7006A4C2E /* rings.png */; };
 		E19EA667132C78D800CEE740 /* 13.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E19EA662132C78D800CEE740 /* 13.jpg */; };
 		E19EA668132C78D800CEE740 /* 23.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E19EA663132C78D800CEE740 /* 23.jpg */; };
@@ -145,7 +144,6 @@
 		E167C8D2132EAFAB00CB496E /* ParticleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParticleController.h; path = ../include/ParticleController.h; sourceTree = "<group>"; };
 		E167C8D3132EAFBE00CB496E /* Particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Particle.cpp; path = ../src/Particle.cpp; sourceTree = "<group>"; };
 		E167C8D4132EAFBE00CB496E /* ParticleController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleController.cpp; path = ../src/ParticleController.cpp; sourceTree = "<group>"; };
-		E167C8F8132F541400CB496E /* smoke.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = smoke.png; path = ../resources/smoke.png; sourceTree = "<group>"; };
 		E17667DD13202FB7006A4C2E /* rings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rings.png; sourceTree = "<group>"; };
 		E19EA662132C78D800CEE740 /* 13.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 13.jpg; sourceTree = "<group>"; };
 		E19EA663132C78D800CEE740 /* 23.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 23.jpg; sourceTree = "<group>"; };
@@ -349,7 +347,6 @@
 		E1555CA2131EEBD10079B05A /* Images */ = {
 			isa = PBXGroup;
 			children = (
-				E167C8F8132F541400CB496E /* smoke.png */,
 				E12766401325E28900E1FC3F /* ui */,
 				E12765A21325B74700E1FC3F /* loading.jpg */,
 				E17667CE13202F4D006A4C2E /* planets */,
@@ -581,7 +578,6 @@
 				E19EA66B132C78D800CEE740 /* 53.jpg in Resources */,
 				E19EA680132DBABA00CEE740 /* debugOff.png in Resources */,
 				E19EA681132DBABA00CEE740 /* debugOn.png in Resources */,
-				E167C8F9132F541400CB496E /* smoke.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -679,7 +675,8 @@
 				CINDER_PATH = "$(CINDER_PATH_$(USER))";
 				CINDER_PATH_robert = ../../../../cinder_master;
 				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Robert Hodgin (Y2B24ZQA53)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
@@ -688,7 +685,7 @@
 				HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/boost\"";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "90BFB82E-496C-4A03-A9E5-9E4D44AFC55F";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
 				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" include";
@@ -702,7 +699,8 @@
 				CINDER_PATH = "$(CINDER_PATH_$(USER))";
 				CINDER_PATH_robert = ../../../../cinder_master;
 				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Robert Hodgin (Y2B24ZQA53)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -710,7 +708,7 @@
 				HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/boost\"";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "90BFB82E-496C-4A03-A9E5-9E4D44AFC55F";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
 				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" include";

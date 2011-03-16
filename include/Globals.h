@@ -33,7 +33,7 @@ static const float G_MAX_FOV     = 135.0f;
 static const int G_RING_LOW_RES	 = 250;
 static const int G_RING_HIGH_RES = 500;
 
-static const int G_NUM_PARTICLES = 250;
+static const int G_NUM_PARTICLES = 500;
 
 
 // TODO: move into State.h

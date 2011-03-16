@@ -182,7 +182,7 @@ void World::drawConstellation( const Matrix44f &mat )
 		glDrawArrays( GL_LINES, 0, mTotalVertices );
 		gl::popModelView();
 		
-		
+		/*
 		gl::pushModelView();
 		gl::translate( Vec3f( 0.0f, 0.02f, 0.0f ) );
 		gl::rotate( mat );
@@ -197,7 +197,7 @@ void World::drawConstellation( const Matrix44f &mat )
 		//gl::color( ColorA( 0.5f, 0.1f, 0.02f, zoomPer ) );
 		glDrawArrays( GL_LINES, 0, mTotalVertices );
 		gl::popModelView();
-		
+		*/
 		
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
@@ -235,8 +235,8 @@ void World::buildConstellation()
 		mConstellation.push_back( child1->mPosDest );
 		mConstellation.push_back( nearestChild->mPosDest );
 		
-		mConstellationColors.push_back( ColorA( child1->mGlowColor, 0.05f ) );
-		mConstellationColors.push_back( ColorA( nearestChild->mGlowColor, 0.05f ) );
+		mConstellationColors.push_back( ColorA( child1->mGlowColor, 0.15f ) );
+		mConstellationColors.push_back( ColorA( nearestChild->mGlowColor, 0.15f ) );
 	}
 	
 	mTotalVertices	= mConstellation.size();

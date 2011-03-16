@@ -600,7 +600,7 @@ void KeplerApp::update()
 		mIsLoaded = true;
 	}
 		
-	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.17f );
+	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
 	updateArcball();
 	mWorld.update( mMatrix );
 	//mParticleController.pullToCenter( mState.getPlayingNode() );
@@ -659,7 +659,7 @@ void KeplerApp::updateCamera()
 	
 	// UPDATE FOV
 	mFovDest = constrain( mFovDest, G_MIN_FOV, G_MAX_FOV );
-	mFov -= ( mFov - mFovDest ) * 0.275f;
+	mFov -= ( mFov - mFovDest ) * 0.15f;
 	
 
 	if( mFovDest >= 130.0f && ! mAlphaWheel.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
@@ -821,9 +821,11 @@ void KeplerApp::drawScene()
 
 	// PARTICLES
 	//mParticleController.draw( mState.getSelectedArtistNode(), mMatrix );
-	mStarTex.enableAndBind();
-	mParticleController.drawScreenspace( mState.getSelectedArtistNode(), mMatrix, mBbRight, mBbUp );
-	mStarTex.disable();
+	if( mState.getSelectedArtistNode() ){
+		mStarTex.enableAndBind();
+		mParticleController.drawScreenspace( mState.getSelectedArtistNode(), mMatrix, mBbRight, mBbUp );
+		mStarTex.disable();
+	}
     
     // CONSTELLATION
     mDottedTex.enableAndBind();

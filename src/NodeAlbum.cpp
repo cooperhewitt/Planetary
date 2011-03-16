@@ -34,13 +34,13 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	mGlowColor		= Color( CM_HSV, hue, sat + 0.3f, 1.0f );
 	
 	// FIXME: bad c++?
-	float numAlbums = ((NodeArtist*)mParentNode)->mNumAlbums;
+	float numAlbums = ((NodeArtist*)mParentNode)->mNumAlbums + 2.0f;
 	
 	float invAlbumPer = 1.0f/(float)numAlbums;
 	float albumNumPer = (float)mIndex * invAlbumPer;
 	
-	float minAmt		= mParentNode->mRadius * 1.0f;
-	float maxAmt		= mParentNode->mRadius * 3.0f;
+	float minAmt		= mParentNode->mRadiusDest * 1.0f;
+	float maxAmt		= mParentNode->mRadiusDest * 3.0f;
 	float deltaAmt		= maxAmt - minAmt;
 	mOrbitRadiusDest	= minAmt + deltaAmt * albumNumPer + Rand::randFloat( maxAmt * invAlbumPer );
 
@@ -105,7 +105,7 @@ void NodeAlbum::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighR
 	if( mIsSelected ){
 		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
 	} else {
-		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
+		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.2f ) );
 	}
 	gl::pushModelView();
 	gl::translate( mParentNode->mTransPos );

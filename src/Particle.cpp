@@ -25,7 +25,7 @@ void Particle::setup()
 {
 	mPos		= Rand::randVec3f() * 0.4f;
 	mPrevPos	= mPos;
-	mVel		= mPos * Rand::randFloat( 0.005f, 0.025f );
+	mVel		= mPos * Rand::randFloat( 0.0025f, 0.005f );
 	mAcc		= Rand::randVec3f() * 0.01f;
 	mDecay		= 0.98f;
 	mAge		= 0;
@@ -49,10 +49,10 @@ void Particle::pullToCenter( Node *trackNode )
 
 void Particle::update()
 {
-	mAgePer = ( 0.5f - (float)mAge/(float)mLifespan ) * 2.0f;
+	mAgePer = 1.0f - (float)mAge/(float)mLifespan;
 	//mVel += mAcc;
 	mPrevPos = mPos;
-    mPos += mVel * mAgePer;// * velScale;
+    mPos += mVel;// * mAgePer;// * velScale;
    // mVel *= mDecay;
    // mDecay -= ( mDecay - 0.99f ) * 0.1f;
 
@@ -69,6 +69,6 @@ void Particle::draw()
 
 void Particle::drawScreenspace( const Vec3f &sUp, const Vec3f &sRight )
 {
-	gl::drawBillboard( mPos, Vec2f( mRadius, mRadius ), 0.0f, sUp, sRight );
+	gl::drawBillboard( mPos, Vec2f( mRadius, mRadius ) * mAgePer, 0.0f, sUp, sRight );
 }
 

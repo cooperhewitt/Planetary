@@ -27,7 +27,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	mRadius				*= 4.0f;
 	
 	// FIXME: bad C++?
-	float numTracks		= ((NodeAlbum*)mParentNode)->mNumTracks;
+	float numTracks		= ((NodeAlbum*)mParentNode)->mNumTracks + 2.0f;
 	float invTrackPer	= 1.0f/numTracks;
 	float trackNumPer	= (float)mIndex * invTrackPer;
 	
@@ -225,7 +225,7 @@ void NodeTrack::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighR
 	if( mIsSelected ){
 		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
 	} else {
-		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.15f ) );
+		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.2f ) );
 	}
 	gl::pushModelView();
 	gl::translate( mParentNode->mTransPos );
