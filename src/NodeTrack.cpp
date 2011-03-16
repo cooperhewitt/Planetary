@@ -190,11 +190,11 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 		
 		clouds[mCloudTexIndex].enableAndBind();
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.66f ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.0000125f, mSphereResInt );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.000025f, mSphereResInt );
 
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.000025f, mSphereResInt );
+		gl::drawSphere( Vec3f::zero(), mRadius + 0.00005f, mSphereResInt );
 		gl::popModelView();
 	}
 }
@@ -225,7 +225,7 @@ void NodeTrack::drawRings( const gl::Texture &tex )
 void NodeTrack::drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
 	// TODO: TrackId should be compared?
-	if( this == playingNode ){
+	if( mIsPlaying ){
 		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f ) );
 	} else {
 		gl::color( ColorA( 0.15f, 0.2f, 0.4f, mOrbitLineAlpha ) );
@@ -250,5 +250,7 @@ void NodeTrack::setPlaying(bool playing)
 
 string NodeTrack::getName()
 {
-	return mTrack->getTitle();
+	string name = mTrack->getTitle();
+	if( name.size() < 1 ) name = "Untitled";
+	return name;
 }

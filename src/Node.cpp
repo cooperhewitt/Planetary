@@ -52,6 +52,8 @@ Node::Node( Node *parent, int index, const Font &font )
     mSphereRes          = 12;
     mSphereResInt       = 12;
 		
+	mHighlightStrength	= 0.0f;
+	mIsTapped			= false;
 	mIsSelected			= false;
 	mIsHighlighted		= false;
 }
@@ -117,7 +119,7 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
     
     if( mGen >= G_ALBUM_LEVEL ){
         if( mIsSelected ){
-            mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
+            mSphereRes		-= ( mSphereRes - 20 ) * 0.1f;
             mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.1f;
         } else {
             mSphereRes		-= ( mSphereRes - 8 ) * 0.1f;
@@ -198,8 +200,8 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 //		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.265f, mSphereScreenRadius * -0.265f );
 //		Vec2f pos2 = mScreenPos + Vec2f( mSphereScreenRadius * 0.5f, mSphereScreenRadius * -0.5f );
 		
-		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.265f, 0.0f );
-		Vec2f pos2 = pos1 + Vec2f( 20.0f, 0.0f );
+		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.3f, 0.0f );
+		Vec2f pos2 = pos1 + Vec2f( 15.0f, 0.0f );
 		
 		gl::pushModelView();
 		gl::translate( pos2 + Vec2f( 2.0f, -10.0f ) );
@@ -230,6 +232,27 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 	}
 }
 
+void Node::drawTouchHighlight()
+{
+	if( mIsHighlighted ){
+		if( mIsTapped ){
+			gl::color( ColorA( mColor, mHighlightStrength ) );
+			Vec2f radius = Vec2f( mRadius * 25.0f, mRadius * 25.0f );
+			
+			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+			mHighlightStrength -= ( mHighlightStrength - 0.0f ) * 0.15f;
+		}
+		
+		if( mHighlightStrength < 0.01f ){
+			mIsTapped = false;
+		}
+
+		for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+			(*nodeIt)->drawTouchHighlight();
+		}
+	}
+}
+
 void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix44f &mat )
 {
 	mSphere.setCenter( mat.transformPointAffine( mPos ) );
@@ -249,9 +272,9 @@ void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
 	if (mNameTex != NULL) {
 		
-		Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.6f, mSphereScreenRadius * -0.6f );
+		Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
 		
-		Rectf r = Rectf( p.x - 50, p.y - 35, p.x + mNameTex.getWidth() + 30, p.y + mNameTex.getHeight() + -5 );
+		Rectf r = Rectf( p.x - 50, p.y - 10, p.x + mNameTex.getWidth() + 50, p.y + mNameTex.getHeight() + 10 );
 		
 		if( r.contains( pos ) && mIsHighlighted && ! mIsSelected ){
 			std::cout << "HIT FOUND" << std::endl;

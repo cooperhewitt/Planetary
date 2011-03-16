@@ -135,5 +135,7 @@ void NodeArtist::setData( PlaylistRef playlist )
 
 string NodeArtist::getName()
 {
-	return mPlaylist->getArtistName();
+	string name = mPlaylist->getArtistName();
+	if( name.size() < 1 ) name = "Untitled";
+	return name;
 }

@@ -36,6 +36,7 @@ class World {
 	void drawNames( const ci::CameraPersp &cam, float pinchAlphaOffset );
 	void drawOrbitRings( NodeTrack *playingNode );
 	void drawConstellation( const ci::Matrix44f &mat );
+	void drawTouchHighlights();
 	void buildConstellation();
 	void drawPlanets( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );

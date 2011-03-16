@@ -1,5 +1,3 @@
-// TODO: Supernova glow for when a node is tapped? Some sort of flash?
-
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/app/Renderer.h"
 #include "cinder/Surface.h"
@@ -117,7 +115,6 @@ class KeplerApp : public AppCocoaTouch {
 	
 	// MULTITOUCH
 	Vec2f			mTouchPos;
-	Vec2f			mTouchThrowVel; // TODO: what's the difference between mTouchVel and mTouchThrowVel?
 	Vec2f			mTouchVel;
 	bool			mIsDragging;
 	bool			onPinchBegan( PinchEvent event );
@@ -127,7 +124,7 @@ class KeplerApp : public AppCocoaTouch {
     PinchRecognizer mPinchRecognizer;
 	float			mPinchScale;
 	float			mTimePinchEnded;
-
+	
 	// PARTICLES
     ParticleController mParticleController;
 	
@@ -208,7 +205,6 @@ void KeplerApp::setup()
 
 	// TOUCH VARS
 	mTouchPos			= Vec2f::zero();
-	mTouchThrowVel		= Vec2f::zero();
 	mTouchVel			= Vec2f::zero();
 	mIsDragging			= false;
 	mTime				= getElapsedSeconds();
@@ -330,7 +326,6 @@ void KeplerApp::touchesBegan( TouchEvent event )
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
 	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ) {
 		mTouchPos		= touches.begin()->getPos();
-		mTouchThrowVel	= Vec2f::zero();	
 		mTouchVel		= Vec2f::zero();
 		mArcball.mouseDown( Vec2f( mTouchPos.x, mTouchPos.y ) );
 	}
@@ -343,8 +338,7 @@ void KeplerApp::touchesMoved( TouchEvent event )
 	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){
 		mIsDragging = true;
 		Vec2f currentPos = touches.begin()->getPos();
-		mTouchThrowVel	= ( currentPos - touches.begin()->getPrevPos() );
-		mTouchVel		= mTouchThrowVel;
+		mTouchVel		= ( currentPos - touches.begin()->getPrevPos() );
 		mTouchPos		= currentPos;
 		mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
 	}
@@ -374,7 +368,7 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 	mPinchScale = 1.0f;
     mPinchRays = event.getTouchRays( mCam );
 	
-	mTouchThrowVel	= Vec2f::zero();
+	mTouchVel	= Vec2f::zero();
 	vector<PinchEvent::Touch> touches = event.getTouches();
 	Vec2f averageTouchPos;
 	for( vector<PinchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
@@ -391,7 +385,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
     mPinchRays = event.getTouchRays( mCam );
 	
 	if( G_ZOOM < G_ARTIST_LEVEL ){
-		mFovDest += ( 1.0f - event.getScaleDelta() ) * 50.0f;
+		mFovDest += ( 1.0f - event.getScaleDelta() ) * 100.0f;
 		
 	} else {
 		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -3.5f + 1.0f;
@@ -472,7 +466,11 @@ bool KeplerApp::onNodeSelected( Node *node )
 	mCenterFrom		= mCenter;
 	mCamDistFrom	= mCamDist;	
 	mZoomFrom		= G_ZOOM;			
-	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
+	mBreadcrumbs.setHierarchy( mState.getHierarchy() );
+	
+	if( node && node->mGen > G_ZOOM ){
+		node->wasTapped();
+	}
 
 	if( node != NULL && node->mGen == G_TRACK_LEVEL ){
 		// FIXME: is this a bad OOP thing or is there a cleaner/safer C++ way to handle it?
@@ -609,12 +607,9 @@ void KeplerApp::update()
 
 void KeplerApp::updateArcball()
 {
-	if( mTouchThrowVel.length() > 5.0f && !mIsDragging ){
-		//if( mTouchVel.length() > 1.0f ){
-			//mTouchVel *= 0.99f;
-			mArcball.mouseDown( mTouchPos );
-			mArcball.mouseDrag( mTouchPos + mTouchVel );
-		//}
+	if( mTouchVel.length() > 5.0f && !mIsDragging ){
+		mArcball.mouseDown( mTouchPos );
+		mArcball.mouseDrag( mTouchPos + mTouchVel );
 	}
 	
 	if( G_ACCEL ){
@@ -800,6 +795,7 @@ void KeplerApp::drawScene()
     // STARGLOWS
     mStarGlowTex.enableAndBind();
     mWorld.drawStarGlows();
+	mWorld.drawTouchHighlights();
     mStarGlowTex.disable();
     
     

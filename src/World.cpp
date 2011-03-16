@@ -164,6 +164,13 @@ void World::drawOrbitRings( NodeTrack *playingNode )
 	}
 }
 
+void World::drawTouchHighlights()
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->drawTouchHighlight();
+	}
+}
+
 void World::drawConstellation( const Matrix44f &mat )
 {
 	if( mTotalVertices > 2 ){

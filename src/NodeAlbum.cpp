@@ -175,5 +175,7 @@ void NodeAlbum::select()
 
 string NodeAlbum::getName()
 {
-	return mAlbum->getAlbumTitle();
+	string name = mAlbum->getAlbumTitle();
+	if( name.size() < 1 ) name = "Untitled";
+	return name;
 }
