@@ -89,6 +89,7 @@ void NodeArtist::drawStarGlow()
 
 void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 {
+	/*
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
 		glDisable( GL_TEXTURE_2D );
@@ -102,7 +103,7 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 		gl::drawSolidCircle( Vec2f::zero(), radius, 100 );
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
-	}
+	}*/
 	
 	Node::drawPlanet( planets );
 }

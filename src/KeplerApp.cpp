@@ -707,7 +707,7 @@ void KeplerApp::drawLoader()
 	mStarTex.enableAndBind();
 	gl::drawSolidRect( rect );
 	
-	float smallOffset	= cos( getElapsedSeconds() * 0.5f + 2.0f ) * 22.0f;
+	float smallOffset	= cos( getElapsedSeconds() * 0.3f + 2.0f ) * 30.0f;
 	Rectf smallRect		= Rectf( xCenter - 4.0f + smallOffset, yCenter - 4.0f, xCenter + 4.0f + smallOffset, yCenter + 4.0f );
 	//float mediumOffset	= ( getElapsedSeconds() - 3.0f ) * 10.0f;	
 	//Rectf mediumRect	= Rectf( xCenter - 25.0f + mediumOffset * 2.5f, yCenter - 25.0f, xCenter + 25.0f + mediumOffset * 2.5f, yCenter + 25.0f );
