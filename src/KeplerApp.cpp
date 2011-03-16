@@ -393,8 +393,6 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	if( G_ZOOM < G_ARTIST_LEVEL ){
 		mFovDest += ( 1.0f - event.getScaleDelta() ) * 50.0f;
 		
-		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -3.5f + 1.0f;
-		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 4.5f );
 	} else {
 		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -3.5f + 1.0f;
 		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 4.5f );
