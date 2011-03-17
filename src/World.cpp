@@ -174,7 +174,8 @@ void World::drawTouchHighlights()
 void World::drawConstellation( const Matrix44f &mat )
 {
 	if( mTotalVertices > 2 ){
-		//float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.15f;
+		float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.15f;
+		
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glEnableClientState( GL_COLOR_ARRAY );
@@ -183,29 +184,10 @@ void World::drawConstellation( const Matrix44f &mat )
 		glColorPointer( 4, GL_FLOAT, 0, mColors );
 		
 		gl::pushModelView();
-		gl::translate( Vec3f( 0.0f, 0.0f, 0.02f ) );
 		gl::rotate( mat );
-		//gl::color( ColorA( 0.15f, 0.2f, 0.4f, zoomPer ) );
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, zoomPer ) );
 		glDrawArrays( GL_LINES, 0, mTotalVertices );
 		gl::popModelView();
-		
-		/*
-		gl::pushModelView();
-		gl::translate( Vec3f( 0.0f, 0.02f, 0.0f ) );
-		gl::rotate( mat );
-		//gl::color( ColorA( 0.1f, 0.5f, 0.02f, zoomPer ) );
-		glDrawArrays( GL_LINES, 0, mTotalVertices );
-		gl::popModelView();
-		
-		
-		gl::pushModelView();
-		gl::translate( Vec3f( 0.02f, 0.0f, 0.0f ) );
-		gl::rotate( mat );
-		//gl::color( ColorA( 0.5f, 0.1f, 0.02f, zoomPer ) );
-		glDrawArrays( GL_LINES, 0, mTotalVertices );
-		gl::popModelView();
-		*/
-		
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );	

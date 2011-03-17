@@ -26,11 +26,6 @@ Node::Node( Node *parent, int index, const Font &font )
 		init();
 	}
 
-	// TODO: restore this behavior
-	//if( mName.size() == 0 ){
-	//	mName = "untitled";
-	//}
-	
 	//createNameTexture();
 	
     mZoomPer            = 0.0f;

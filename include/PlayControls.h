@@ -29,8 +29,8 @@ inline std::string to_string( const T& t )
 class PlayControls {
 public:
 
-	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, ACCEL, DBUG };
-	enum ButtonTexId { TEX_PLAY, TEX_PLAY_ON, TEX_PAUSE, TEX_PAUSE_ON, TEX_PREV, TEX_PREV_ON, TEX_NEXT, TEX_NEXT_ON, TEX_ACCEL_OFF, TEX_ACCEL_ON, TEX_DEBUG_OFF, TEX_DEBUG_ON, TEX_SLIDER_BUTTON };	
+	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, ACCEL, DBUG, DRAW_RINGS, DRAW_STARS, DRAW_PLANETS };
+	enum ButtonTexId { TEX_PLAY, TEX_PLAY_ON, TEX_PAUSE, TEX_PAUSE_ON, TEX_PREV, TEX_PREV_ON, TEX_NEXT, TEX_NEXT_ON, TEX_ACCEL_OFF, TEX_ACCEL_ON, TEX_DEBUG_OFF, TEX_DEBUG_ON, TEX_SLIDER_BUTTON, TEX_DRAW_RINGS, TEX_DRAW_STARS, TEX_DRAW_PLANETS };	
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState )
 	{
@@ -45,6 +45,7 @@ public:
 		mMinutes		= 0;
 		mSeconds		= 60;
 		mPrevSeconds	= 0;
+		mIsDraggingPlayhead = false;
 	}
 	
 	void update()
@@ -70,6 +71,10 @@ public:
 				cbTouchesMoved = mApp->registerTouchesMoved( this, &PlayControls::touchesMoved );			
 			}
 			lastTouchedType = findButtonUnderTouches(touches);
+			
+			if( lastTouchedType == SLIDER ){
+				mIsDraggingPlayhead = true;
+			}
 			return true;
 		}
 		else {
@@ -82,6 +87,10 @@ public:
 	{
 		vector<TouchEvent::Touch> touches = event.getTouches();
 		lastTouchedType = findButtonUnderTouches(touches);
+		
+		if( mIsDraggingPlayhead ){
+			mCallbacksPlayheadMoved.call(lastTouchedType);
+		}
 		return false;
 	}	
 	
@@ -92,6 +101,7 @@ public:
 			mCallbacksButtonPressed.call(lastTouchedType);
 		}
 		lastTouchedType = NO_BUTTON;
+		mIsDraggingPlayhead = false;
 		return false;
 	}
 	
@@ -128,6 +138,9 @@ public:
 		Rectf nextButton( x + bWidth * 2.0f, y1, x + bWidth * 3.0f, y2 );
 		Rectf accelButton( getWindowWidth() - 65.0f, y1, getWindowWidth() - 15.0f, y2 );
 		Rectf debugButton( 15.0f, y1, 65.0f, y2 );
+		Rectf drawRingsButton( 65.0f, y1, 115.0f, y2 );
+		Rectf drawStarsButton( 115.0f, y1, 165.0f, y2 );
+		Rectf drawPlanetsButton( 165.0f, y1, 215.0f, y2 );
 		
 		float sliderWidth	= sliderBgTex.getWidth();
 		float sliderHeight	= sliderBgTex.getHeight();
@@ -163,6 +176,12 @@ public:
 		touchTypes.push_back( ACCEL );
 		touchRects.push_back( debugButton );
 		touchTypes.push_back( DBUG );
+		touchRects.push_back( drawRingsButton );
+		touchTypes.push_back( DRAW_RINGS );
+		touchRects.push_back( drawStarsButton );
+		touchTypes.push_back( DRAW_STARS );
+		touchRects.push_back( drawPlanetsButton );
+		touchTypes.push_back( DRAW_PLANETS );
 		Color blue( 0.2f, 0.2f, 0.5f );
 		
 // PREV
@@ -198,7 +217,24 @@ public:
 		if( G_DEBUG )	texs[ TEX_DEBUG_ON ].enableAndBind();
 		else			texs[ TEX_DEBUG_OFF ].enableAndBind();
 		gl::drawSolidRect( debugButton );
-        
+		
+// DRAW RINGS
+		if( lastTouchedType == DRAW_RINGS ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+		else								gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
+		texs[ TEX_DRAW_RINGS ].enableAndBind();
+		gl::drawSolidRect( drawRingsButton );
+// DRAW STARS
+		if( lastTouchedType == DRAW_STARS ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+		else								gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
+		texs[ TEX_DRAW_STARS ].enableAndBind();
+		gl::drawSolidRect( drawStarsButton );
+// DRAW PLANETS	
+		if( lastTouchedType == DRAW_PLANETS )   gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+		else									gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
+		texs[ TEX_DRAW_PLANETS ].enableAndBind();
+		gl::drawSolidRect( drawPlanetsButton );
+		
+		
 // SLIDER BG		
 		sliderBgTex.enableAndBind();
 		gl::drawSolidRect( playheadSliderBg );
@@ -269,6 +305,12 @@ public:
 	CallbackId registerButtonPressed( T *obj, bool (T::*callback)(PlayButton) )
 	{
 		return mCallbacksButtonPressed.registerCb(std::bind1st(std::mem_fun(callback), obj));
+	}
+	
+	template<typename T>
+	CallbackId registerPlayheadMoved( T *obj, bool (T::*callback)(PlayButton) )
+	{
+		return mCallbacksPlayheadMoved.registerCb(std::bind1st(std::mem_fun(callback), obj));
 	}	
 	
 private:
@@ -285,6 +327,9 @@ private:
 	int mMinutes, mMinutesTotal, mMinutesLeft;
 	int mSeconds, mSecondsTotal, mSecondsLeft;
 	int mPrevSeconds;
+	
+	double mPlayheadPer;
+	bool mIsDraggingPlayhead;
 	gl::Texture mCurrentTimeTex;
 	gl::Texture mRemainingTimeTex;
 	
@@ -310,5 +355,6 @@ private:
 	
 	// !!! EVENT STUFF (keep track of listeners)
 	CallbackMgr<bool(PlayButton)> mCallbacksButtonPressed;
+	CallbackMgr<bool(PlayButton)> mCallbacksPlayheadMoved;
 	
 };

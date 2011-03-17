@@ -63,6 +63,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onWheelClosed( AlphaWheel *alphaWheel );
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
 	bool			onPlayControlsButtonPressed ( PlayControls::PlayButton button );
+	bool			onPlayControlsPlayheadMoved ( PlayControls::PlayButton button );
 	bool			onNodeSelected( Node *node );
 	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos );
 	bool			onPlayerStateChanged( ipod::Player *player );
@@ -148,6 +149,9 @@ class KeplerApp : public AppCocoaTouch {
 	float			mTime;
 	
 	bool			mIsLoaded;
+	bool			mIsDrawingRings;
+	bool			mIsDrawingStars;
+	bool			mIsDrawingPlanets;
 };
 
 void KeplerApp::setup()
@@ -158,7 +162,9 @@ void KeplerApp::setup()
 	
 	
 	mIsLoaded = false;
-	
+	mIsDrawingRings = true;
+	mIsDrawingStars = true;
+	mIsDrawingPlanets = true;
 	Rand::randomize();
 
 	
@@ -232,6 +238,7 @@ void KeplerApp::setup()
 	// PLAY CONTROLS
 	mPlayControls.setup( this, mIpodPlayer.getPlayState() == ipod::Player::StatePlaying );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
+	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
 
 	// UILAYER
 	mUiLayer.setup( this );
@@ -282,6 +289,9 @@ void KeplerApp::initTextures()
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOff.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOn.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "sliderButton.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawLines.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawStars.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawPlanets.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUp.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUpOn.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelDown.png" ) ) ) );
@@ -521,6 +531,14 @@ bool KeplerApp::onNodeSelected( Node *node )
 	return false;
 }
 
+bool KeplerApp::onPlayControlsPlayheadMoved( PlayControls::PlayButton button )
+{	
+	std::cout << "onPlayControlsPlayheadMoved()" << std::endl;
+	double time = 0;
+	mIpodPlayer.setPlayheadTime( time );
+    return false;
+}
+
 bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 {
 	if( button == PlayControls::PREVIOUS_TRACK ){
@@ -541,6 +559,12 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 		G_ACCEL = !G_ACCEL;
 	} else if( button == PlayControls::DBUG ){
 		G_DEBUG = !G_DEBUG;
+	} else if( button == PlayControls::DRAW_RINGS ){
+		mIsDrawingRings = !mIsDrawingRings;
+	} else if( button == PlayControls::DRAW_STARS ){
+		mIsDrawingStars = !mIsDrawingStars;
+	} else if( button == PlayControls::DRAW_PLANETS ){
+		mIsDrawingPlanets = !mIsDrawingPlanets;
 	}
 	cout << "play button " << button << " pressed" << endl;
 	return false;
@@ -776,61 +800,69 @@ void KeplerApp::drawScene()
     gl::enableAdditiveBlending();
     
     
-	// STARS
-    mStarTex.enableAndBind();
-    mWorld.drawStars();
-    mStarTex.disable();
+	if( mIsDrawingStars ){
+		// STARS
+		mStarTex.enableAndBind();
+		mWorld.drawStars();
+		mStarTex.disable();
+	}
     
     
-	// PLANETS
-    //Node *albumNode  = mState.getSelectedAlbumNode();
-    Node *artistNode = mState.getSelectedArtistNode();
-    if( artistNode ){
-        gl::enableDepthRead();
-        gl::disableAlphaBlending();
-        
-        glEnable( GL_LIGHTING );
-        glEnable( GL_COLOR_MATERIAL );
-        glShadeModel( GL_SMOOTH );
-        
-        glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
-        
-        // LIGHT FROM ARTIST
-        glEnable( GL_LIGHT0 );
-        Vec3f lightPos          = artistNode->mTransPos;
-        GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
-        glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-        glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() * 2.5f ), 1.0f ) );
-        
-        
-        // PLANETS
-        mWorld.drawPlanets( mPlanetsTex );
-		
-        // CLOUDS
-        mWorld.drawClouds( mCloudsTex );
-        
-        // RINGS
-        gl::enableAdditiveBlending();
-        //			mWorld.drawRings( mRingsTex );
-        glDisable( GL_LIGHTING );
-        gl::disableDepthRead();
-    }
+	
+	if( mIsDrawingPlanets ){
+		// PLANETS
+		//Node *albumNode  = mState.getSelectedAlbumNode();
+		Node *artistNode = mState.getSelectedArtistNode();
+		if( artistNode ){
+			gl::enableDepthRead();
+			gl::disableAlphaBlending();
+			
+			glEnable( GL_LIGHTING );
+			glEnable( GL_COLOR_MATERIAL );
+			glShadeModel( GL_SMOOTH );
+			
+			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
+			
+			// LIGHT FROM ARTIST
+			glEnable( GL_LIGHT0 );
+			Vec3f lightPos          = artistNode->mTransPos;
+			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
+			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
+			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() * 1.75f ), 1.0f ) );
+			
+			
+			// PLANETS
+			mWorld.drawPlanets( mPlanetsTex );
+			
+			// CLOUDS
+			mWorld.drawClouds( mCloudsTex );
+			
+			// RINGS
+			gl::enableAdditiveBlending();
+			//			mWorld.drawRings( mRingsTex );
+			glDisable( GL_LIGHTING );
+			gl::disableDepthRead();
+		}
+	}
     
-    
-    // STARGLOWS
-    mStarGlowTex.enableAndBind();
-    mWorld.drawStarGlows();
-	mWorld.drawTouchHighlights();
-    mStarGlowTex.disable();
+    if( mIsDrawingStars ){
+		// STARGLOWS
+		mStarGlowTex.enableAndBind();
+		mWorld.drawStarGlows();
+		mWorld.drawTouchHighlights();
+		mStarGlowTex.disable();
+	}
     
     
     gl::disableDepthWrite();
     
-    // ORBITS
-    gl::enableAdditiveBlending();
-    gl::enableDepthRead();
-    mWorld.drawOrbitRings( mState.getPlayingNode() );
-
+	if( mIsDrawingRings ){
+		// ORBITS
+		gl::enableAdditiveBlending();
+		gl::enableDepthRead();
+		mWorld.drawOrbitRings( mState.getPlayingNode() );
+	}
+	
 	// PARTICLES
 	//mParticleController.draw( mState.getSelectedArtistNode(), mMatrix );
 	if( mState.getSelectedArtistNode() ){
@@ -839,21 +871,25 @@ void KeplerApp::drawScene()
 		mStarGlowTex.disable();
 	}
     
-    // CONSTELLATION
-    mDottedTex.enableAndBind();
-    mWorld.drawConstellation( mMatrix );
-    mDottedTex.disable();
+	
+	if( mIsDrawingRings ){
+		// CONSTELLATION
+		mDottedTex.enableAndBind();
+		mWorld.drawConstellation( mMatrix );
+		mDottedTex.disable();
+	}
 
 	gl::disableDepthRead();
 	
-	// NAMES
-    gl::disableDepthWrite();
-    glEnable( GL_TEXTURE_2D );
-    gl::setMatricesWindow( getWindowSize() );
-    gl::enableAdditiveBlending();
-    float pinchAlphaOffset = constrain( 1.0f - ( mCamDistPinchOffset - 3.0f ), 0.0f, 1.0f );
-    mWorld.drawNames( mCam, pinchAlphaOffset );
-    
+	
+		// NAMES
+		gl::disableDepthWrite();
+		glEnable( GL_TEXTURE_2D );
+		gl::setMatricesWindow( getWindowSize() );
+		gl::enableAdditiveBlending();
+		float pinchAlphaOffset = constrain( 1.0f - ( mCamDistPinchOffset - 3.0f ), 0.0f, 1.0f );
+		mWorld.drawNames( mCam, pinchAlphaOffset );
+
     
     glDisable( GL_TEXTURE_2D );
     
@@ -1019,6 +1055,7 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
     }
     return false;
 }
+
 
 
 CINDER_APP_COCOA_TOUCH( KeplerApp, RendererGl )

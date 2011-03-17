@@ -95,8 +95,6 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 		glDisable( GL_TEXTURE_2D );
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		//float amt = mEclipsePer * 0.25f + 0.75f;
-		//gl::color( ColorA( mGlowColor.r + amt, mGlowColor.g + amt, mGlowColor.b + amt, 1.0f ) );
 		gl::color( mDepthDiskColor );
 		float radius = mRadius * 0.3f;
 		gl::enableAdditiveBlending();
