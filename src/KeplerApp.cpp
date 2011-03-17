@@ -471,6 +471,8 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 
 bool KeplerApp::onNodeSelected( Node *node )
 {
+	cout << "node selected!" << endl;
+	
 	mTime			= getElapsedSeconds();
 	mCenterFrom		= mCenter;
 	mCamDistFrom	= mCamDist;	
@@ -482,17 +484,27 @@ bool KeplerApp::onNodeSelected( Node *node )
 	}
 
 	if( node != NULL && node->mGen == G_TRACK_LEVEL ){
+		cout << "node selected!" << endl;
 		// FIXME: is this a bad OOP thing or is there a cleaner/safer C++ way to handle it?
 		NodeTrack* trackNode = (NodeTrack*)node;
 		if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
+			cout << "nothing already playing" << endl;
 			ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
 			if ( trackNode->mTrack->getItemId() != playingTrack->getItemId() ) {
+				cout << "telling player to play it" << endl;
 				mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
+			}
+			else {
+				cout << "already playing it" << endl;				
 			}
 		}
 		else {
+			cout << "telling player to play it" << endl;
 			mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
 		}
+	}
+	else {
+		cout << "node null or not track level!" << endl;
 	}
 	
 //	if( node ){
@@ -513,10 +525,13 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 	if( button == PlayControls::PREVIOUS_TRACK ){
 		mIpodPlayer.skipPrev();
 	} else if( button == PlayControls::PLAY_PAUSE ){
+		cout << "play/pause pressed" << endl;
 		if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
+			cout << "already playing, so asking for pause" << endl;
 			mIpodPlayer.pause();
 		}
 		else {
+			cout << "not already playing, so asking for play" << endl;
 			mIpodPlayer.play();
 		}
 	} else if( button == PlayControls::NEXT_TRACK ){

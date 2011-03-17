@@ -1,4 +1,6 @@
 # Mac OS X cruft
+*.xcworkspace
+*xcuserdata
 *.perspectivev3
 *.pbxuser
 *.mode1v3
