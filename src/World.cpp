@@ -234,7 +234,7 @@ void World::buildConstellation()
 	mColors			= new float[mTotalVertices*4];
 	int vIndex = 0;
 	int tIndex = 0;
-	int cIndex = 0;
+	//int cIndex = 0;
 	int distancesIndex = 0;
 	for( int i=0; i<mTotalVertices; i++ ){
 		Vec3f pos			= mConstellation[i];

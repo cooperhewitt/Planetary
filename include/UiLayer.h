@@ -32,6 +32,7 @@ class UiLayer {
 	void	update();
 	void	draw( const std::vector<ci::gl::Texture> &texs );
 	float	getPanelYPos(){ return mPanelPos.y; }	
+    ci::Rectf getPanelTabRect() { return mPanelTabRect; }
 	
  private:
 	ci::app::AppCocoaTouch *mApp;

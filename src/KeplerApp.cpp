@@ -121,6 +121,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onPinchBegan( PinchEvent event );
     bool			onPinchMoved( PinchEvent event );
     bool			onPinchEnded( PinchEvent event );
+    bool            keepTouchForPinching( TouchEvent::Touch touch );
     vector<Ray>		mPinchRays;
     PinchRecognizer mPinchRecognizer;
 	float			mPinchScale;
@@ -222,21 +223,18 @@ void KeplerApp::setup()
     mPinchRecognizer.registerBegan( this, &KeplerApp::onPinchBegan );
     mPinchRecognizer.registerMoved( this, &KeplerApp::onPinchMoved );
     mPinchRecognizer.registerEnded( this, &KeplerApp::onPinchEnded );
+    mPinchRecognizer.setKeepTouchCallback( this, &KeplerApp::keepTouchForPinching );
     
     // PARTICLES
     mParticleController.addParticles( G_NUM_PARTICLES );
 	
+    // NB:- order of UI init is important to register callbacks in correct order
+    
 	// BREADCRUMBS
 	mBreadcrumbs.setup( this, mFontSmall );
 	mBreadcrumbs.registerBreadcrumbSelected( this, &KeplerApp::onBreadcrumbSelected );
 	mBreadcrumbs.setHierarchy(mState.getHierarchy());
 
-	// ALPHA WHEEL
-	mAlphaWheel.setup( this );
-	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
-	mAlphaWheel.registerWheelClosed( this, &KeplerApp::onWheelClosed );
-	mAlphaWheel.initAlphaTextures( mFontBig );	
-	
 	// PLAY CONTROLS
 	mPlayControls.setup( this, mIpodPlayer.getPlayState() == ipod::Player::StatePlaying );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
@@ -244,7 +242,13 @@ void KeplerApp::setup()
 
 	// UILAYER
 	mUiLayer.setup( this );
-		
+
+    // ALPHA WHEEL
+	mAlphaWheel.setup( this );
+	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
+	mAlphaWheel.registerWheelClosed( this, &KeplerApp::onWheelClosed );
+	mAlphaWheel.initAlphaTextures( mFontBig );	
+	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
 	mState.registerNodeSelected( this, &KeplerApp::onNodeSelected );
@@ -253,7 +257,6 @@ void KeplerApp::setup()
 	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
     mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
 }
-
 
 void KeplerApp::initTextures()
 {
@@ -346,9 +349,11 @@ void KeplerApp::touchesBegan( TouchEvent event )
 	const vector<TouchEvent::Touch> touches = getActiveTouches();
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
 	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ) {
-		mTouchPos		= touches.begin()->getPos();
-		mTouchVel		= Vec2f::zero();
-		mArcball.mouseDown( Vec2f( mTouchPos.x, mTouchPos.y ) );
+        if (keepTouchForPinching(*touches.begin())) {
+            mTouchPos		= touches.begin()->getPos();
+            mTouchVel		= Vec2f::zero();
+            mArcball.mouseDown( Vec2f( mTouchPos.x, mTouchPos.y ) );
+        }
 	}
 }
 
@@ -357,11 +362,13 @@ void KeplerApp::touchesMoved( TouchEvent event )
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
 	const vector<TouchEvent::Touch> touches = getActiveTouches();
 	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){
-		mIsDragging = true;
-		Vec2f currentPos = touches.begin()->getPos();
-		mTouchVel		= ( currentPos - touches.begin()->getPrevPos() );
-		mTouchPos		= currentPos;
-		mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
+        if (keepTouchForPinching(*touches.begin())) {
+            mIsDragging = true;
+            Vec2f currentPos = touches.begin()->getPos();
+            mTouchVel		= ( currentPos - touches.begin()->getPrevPos() );
+            mTouchPos		= currentPos;
+            mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
+        }
 	}
 }
 
@@ -370,14 +377,16 @@ void KeplerApp::touchesEnded( TouchEvent event )
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
 	const vector<TouchEvent::Touch> touches = event.getTouches();
 	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){
-		mTouchPos = touches.begin()->getPos();		
-		// if the nav wheel isnt showing and you havent been dragging and your touch is above the uiLayer panel
-		if( ! mAlphaWheel.getShowWheel() && ! mIsDragging && mTouchPos.y < mUiLayer.getPanelYPos() ){
-			float u			= mTouchPos.x / (float) getWindowWidth();
-			float v			= mTouchPos.y / (float) getWindowHeight();
-			Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
-			checkForNodeTouch( touchRay, mMatrix, mTouchPos );
-		}
+        if (keepTouchForPinching(*touches.begin())) {
+            mTouchPos = touches.begin()->getPos();		
+            // if the nav wheel isnt showing and you havent been dragging and your touch is above the uiLayer panel
+            if( ! mAlphaWheel.getShowWheel() && ! mIsDragging && mTouchPos.y < mUiLayer.getPanelYPos() ){
+                float u			= mTouchPos.x / (float) getWindowWidth();
+                float v			= mTouchPos.y / (float) getWindowHeight();
+                Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
+                checkForNodeTouch( touchRay, mMatrix, mTouchPos );
+            }
+        }
 	}
 	if (getActiveTouches().size() != 1) {
 		mIsDragging = false;
@@ -452,6 +461,11 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );	
     mPinchRays.clear();
     return false;
+}
+
+bool KeplerApp::keepTouchForPinching( TouchEvent::Touch touch )
+{
+    return touch.getY() < mUiLayer.getPanelYPos() && touch.getY() > mBreadcrumbs.getHeight() && !mUiLayer.getPanelTabRect().contains(touch.getPos());
 }
 
 void KeplerApp::accelerated( AccelEvent event )
