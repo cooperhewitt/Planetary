@@ -158,7 +158,7 @@ class KeplerApp : public AppCocoaTouch {
 void KeplerApp::setup()
 {
 	if( G_IS_IPAD2 ){
-		G_NUM_PARTICLES = 500;
+		G_NUM_PARTICLES = 350;
 	}
 	
 	
@@ -406,7 +406,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
     mPinchRays = event.getTouchRays( mCam );
 	
 	if( G_ZOOM < G_ARTIST_LEVEL ){
-		mFovDest += ( 1.0f - event.getScaleDelta() ) * 100.0f;
+		mFovDest += ( 1.0f - event.getScaleDelta() ) * 150.0f;
 		
 	} else {
 		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -3.5f + 1.0f;
@@ -534,7 +534,6 @@ bool KeplerApp::onNodeSelected( Node *node )
 
 bool KeplerApp::onPlayControlsPlayheadMoved( PlayControls::PlayButton button )
 {	
-	std::cout << "onPlayControlsPlayheadMoved()" << std::endl;
 	double dragPer = mPlayControls.getPlayheadPer();
 	
 	ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
@@ -825,8 +824,8 @@ void KeplerApp::drawScene()
 			gl::disableAlphaBlending();
 			
 			glEnable( GL_LIGHTING );
-			glEnable( GL_COLOR_MATERIAL );
-			glShadeModel( GL_SMOOTH );
+			//glEnable( GL_COLOR_MATERIAL );
+			//glShadeModel( GL_SMOOTH );
 			
 			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
 			
@@ -835,7 +834,7 @@ void KeplerApp::drawScene()
 			Vec3f lightPos          = artistNode->mTransPos;
 			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() * 1.75f ), 1.0f ) );
+			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() * 0.5f ), 1.0f ) );
 			
 			
 // PLANETS
@@ -843,13 +842,9 @@ void KeplerApp::drawScene()
 			
 // CLOUDS
 			mWorld.drawClouds( mCloudsTex );
-			
-// RINGS
-			gl::enableAdditiveBlending();
-			//			mWorld.drawRings( mRingsTex );
 		}
 	}
-    
+	gl::enableAdditiveBlending();   
 	glDisable( GL_LIGHTING );
 	gl::disableDepthRead();
 	
@@ -880,9 +875,9 @@ void KeplerApp::drawScene()
 	
 // CONSTELLATION
 	if( mIsDrawingRings ){
-		mDottedTex.enableAndBind();
+		//mDottedTex.enableAndBind();
 		mWorld.drawConstellation( mMatrix );
-		mDottedTex.disable();
+		//mDottedTex.disable();
 	}
 
 	gl::disableDepthRead();

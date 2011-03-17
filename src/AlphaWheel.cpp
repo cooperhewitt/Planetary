@@ -172,7 +172,7 @@ void AlphaWheel::drawAlphaChar()
 	float x = getWindowWidth() * 0.5f;
 	float y = getWindowHeight() * 0.5f;
 	
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f - mWheelScale ) );
+	gl::color( ColorA( 0.1f, 0.2f, 0.6f, 1.0f - mWheelScale ) );
 	mAlphaTextures[mAlphaIndex].enableAndBind();
 	gl::drawSolidRect( Rectf( x - w, y - h, x + w, y + h ) );
 	mAlphaTextures[mAlphaIndex].disable();

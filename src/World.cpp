@@ -174,24 +174,24 @@ void World::drawTouchHighlights()
 void World::drawConstellation( const Matrix44f &mat )
 {
 	if( mTotalVertices > 2 ){
-		float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.15f;
+		float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.2f;
 		
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glEnableClientState( GL_COLOR_ARRAY );
+		//glEnableClientState( GL_COLOR_ARRAY );
 		glVertexPointer( 3, GL_FLOAT, 0, mVerts );
 		glTexCoordPointer( 2, GL_FLOAT, 0, mTexCoords );
-		glColorPointer( 4, GL_FLOAT, 0, mColors );
+		//glColorPointer( 4, GL_FLOAT, 0, mColors );
 		
 		gl::pushModelView();
 		gl::rotate( mat );
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, zoomPer ) );
+		gl::color( ColorA( 0.12f, 0.25f, 0.85f, zoomPer ) );
 		glDrawArrays( GL_LINES, 0, mTotalVertices );
 		gl::popModelView();
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );	
-		glDisableClientState( GL_COLOR_ARRAY );
+		//glDisableClientState( GL_COLOR_ARRAY );
 	}
 }
 
@@ -199,7 +199,7 @@ void World::drawConstellation( const Matrix44f &mat )
 void World::buildConstellation()
 {
 	mConstellation.clear();
-	mConstellationColors.clear();
+	//mConstellationColors.clear();
 	
 	// CREATE DATA FOR CONSTELLATION
 	vector<float> distances;	// used for tex coords of the dotted line
@@ -224,8 +224,8 @@ void World::buildConstellation()
 		mConstellation.push_back( child1->mPosDest );
 		mConstellation.push_back( nearestChild->mPosDest );
 		
-		mConstellationColors.push_back( ColorA( child1->mGlowColor, 0.15f ) );
-		mConstellationColors.push_back( ColorA( nearestChild->mGlowColor, 0.15f ) );
+		//mConstellationColors.push_back( ColorA( child1->mGlowColor, 0.15f ) );
+		//mConstellationColors.push_back( ColorA( nearestChild->mGlowColor, 0.15f ) );
 	}
 	
 	mTotalVertices	= mConstellation.size();
@@ -246,16 +246,16 @@ void World::buildConstellation()
 			mTexCoords[tIndex++]	= 0.0f;
 			mTexCoords[tIndex++]	= 0.5f;
 		} else {
-			mTexCoords[tIndex++]	= distances[distancesIndex] * 10.0f;
+			mTexCoords[tIndex++]	= distances[distancesIndex] * 0.5f;
 			mTexCoords[tIndex++]	= 0.5f;
 			distancesIndex ++;
 		}
-		
+		/*
 		ColorA c			= mConstellationColors[i];
 		mColors[cIndex++]	= c.r;
 		mColors[cIndex++]	= c.g;
 		mColors[cIndex++]	= c.b;
 		mColors[cIndex++]	= c.a;
-		
+		*/
 	}
 }

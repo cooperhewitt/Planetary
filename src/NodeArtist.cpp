@@ -64,7 +64,9 @@ void NodeArtist::drawStar()
 			gl::color( mColor );
 		}
 		
-		gl::drawBillboard( mTransPos, Vec2f( mRadius, mRadius ), 0.0f, mBbRight, mBbUp );
+		float radius    = mRadius;
+		if( mIsHighlighted ) radius += math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f ) * 2.0f;
+		gl::drawBillboard( mTransPos, Vec2f( radius, radius ), 0.0f, mBbRight, mBbUp );
 	}
 	
 	Node::drawStar();

@@ -114,10 +114,10 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
     
     if( mGen >= G_ALBUM_LEVEL ){
         if( mIsSelected ){
-            mSphereRes		-= ( mSphereRes - 20 ) * 0.1f;
+            mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
             mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.1f;
         } else {
-            mSphereRes		-= ( mSphereRes - 8 ) * 0.1f;
+            mSphereRes		-= ( mSphereRes - 6 ) * 0.1f;
             mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.1f;
         }
         
@@ -193,13 +193,13 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 		}
 		
 //		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.265f, mSphereScreenRadius * -0.265f );
-//		Vec2f pos2 = mScreenPos + Vec2f( mSphereScreenRadius * 0.5f, mSphereScreenRadius * -0.5f );
+//		Vec2f pos2 = mScreenPos + Vec2f( 10.0f, -6.67f );
 		
-		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.3f, 0.0f );
-		Vec2f pos2 = pos1 + Vec2f( 15.0f, 0.0f );
+		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.35f, 0.0f );
+		Vec2f pos2 = pos1 + Vec2f( 10.0f, 0.0f );
 		
 		gl::pushModelView();
-		gl::translate( pos2 + Vec2f( 2.0f, -10.0f ) );
+		gl::translate( pos2 + Vec2f( 2.0f, -8.0f ) );
 		if( mIsSelected ){
 			float s = mZoomPer * 0.5f + 1.0f;
 			gl::scale( Vec3f( s, s, 1.0f ) );
@@ -207,8 +207,11 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 		gl::draw( mNameTex, Vec2f::zero() );
 		gl::popModelView();
 		
-		gl::color( ColorA( 0.1f, 0.2f, 0.5f, 0.2f * mZoomPer * pinchAlphaOffset ) );
+		/*
+		glDisable( GL_TEXTURE_2D );
+		gl::color( ColorA( 0.1f, 0.2f, 0.5f, 0.4f * mZoomPer * pinchAlphaOffset ) );
 		gl::drawLine( pos1, pos2 );
+		*/
 		
 		/*
 		if( mIsSelected ){
@@ -269,7 +272,7 @@ void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 		
 		Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
 		
-		Rectf r = Rectf( p.x - 50, p.y - 10, p.x + mNameTex.getWidth() + 50, p.y + mNameTex.getHeight() + 10 );
+		Rectf r = Rectf( p.x - 25, p.y - 10, p.x + mNameTex.getWidth() + 10, p.y + mNameTex.getHeight() + 10 );
 		
 		if( r.contains( pos ) && mIsHighlighted && ! mIsSelected ){
 			std::cout << "HIT FOUND" << std::endl;
