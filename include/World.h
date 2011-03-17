@@ -31,6 +31,8 @@ class World {
 	void checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
 	void update( const ci::Matrix44f &mat );
 	void updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	void buildStarsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	void drawStarsVertexArray( const ci::Matrix44f &mat );
 	void drawStars();
 	void drawStarGlows();
 	void drawNames( const ci::CameraPersp &cam, float pinchAlphaOffset );
@@ -57,4 +59,9 @@ class World {
 	
 	GLfloat *mRingVertsLowRes;
 	GLfloat *mRingVertsHighRes;
+	
+	int mTotalStarVertices;
+	GLfloat *mStarVerts;
+	GLfloat *mStarTexCoords;
+	GLfloat *mStarColors;
 };

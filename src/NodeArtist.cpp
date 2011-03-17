@@ -49,25 +49,29 @@ void NodeArtist::update( const Matrix44f &mat )
 	mPos -= ( mPos - mPosDest ) * 0.1f;
 	mAge ++;
 	
+	if( mAge > mBirthPause ){
+		if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
+			mRadius -= ( mRadius - 0.25f ) * 0.1f;
+			mRadius += Rand::randFloat( 0.0125f, 0.065f );
+		} else {
+			mRadius -= ( mRadius - mRadiusDest ) * 0.1f;
+		}
+	}
+	
 	Node::update( mat );
 }
 
 void NodeArtist::drawStar()
 {
-	if( mAge > mBirthPause ){
-		if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
-			mRadius -= ( mRadius - 0.25f ) * 0.1f;
-			mRadius += Rand::randFloat( 0.0125f, 0.065f );
-			gl::color( ColorA( mColor, 0.7f ) );
-		} else {
-			mRadius -= ( mRadius - mRadiusDest ) * 0.1f;
-			gl::color( mColor );
-		}
-		
-		float radius    = mRadius;
-		if( mIsHighlighted ) radius += math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f ) * 2.0f;
-		gl::drawBillboard( mTransPos, Vec2f( radius, radius ), 0.0f, mBbRight, mBbUp );
+	if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
+		gl::color( ColorA( mColor, 0.7f ) );
+	} else {
+		gl::color( mColor );
 	}
+	
+	float radius    = mRadius;
+	if( mIsHighlighted ) radius += math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f ) * 2.0f;
+	gl::drawBillboard( mTransPos, Vec2f( radius, radius ), 0.0f, mBbRight, mBbUp );
 	
 	Node::drawStar();
 }
