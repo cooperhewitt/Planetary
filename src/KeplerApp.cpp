@@ -666,9 +666,10 @@ void KeplerApp::update()
     mParticleController.update();
 	updateCamera();
 	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
-	if( mIsLoaded )
-		mWorld.buildStarsVertexArray( mBbRight, mBbUp );
-	
+	if( mIsLoaded ){
+		mWorld.buildStarsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
+		mWorld.buildStarGlowsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
+	}
 	mUiLayer.update();
 	mAlphaWheel.update( mFov );
 	mBreadcrumbs.update();
@@ -868,7 +869,8 @@ void KeplerApp::drawScene()
 // STARGLOWS
     if( mIsDrawingStars ){
 		mStarGlowTex.enableAndBind();
-		mWorld.drawStarGlows();
+		mWorld.drawStarGlowsVertexArray( mMatrix );
+		//mWorld.drawStarGlows();
 		mWorld.drawTouchHighlights();
 		mStarGlowTex.disable();
 	}

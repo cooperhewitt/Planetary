@@ -34,6 +34,8 @@ class World {
 	void buildStarsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void drawStarsVertexArray( const ci::Matrix44f &mat );
 	void drawStars();
+	void buildStarGlowsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	void drawStarGlowsVertexArray( const ci::Matrix44f &mat );
 	void drawStarGlows();
 	void drawNames( const ci::CameraPersp &cam, float pinchAlphaOffset );
 	void drawOrbitRings( NodeTrack *playingNode );
@@ -53,6 +55,7 @@ class World {
 	std::vector<ci::ColorA> mConstellationColors;
 	std::vector<float> mConstellationDistances;
 	int mTotalVertices;
+	int mPrevTotalVertices;
 	GLfloat *mVerts;
 	GLfloat *mTexCoords;
 	GLfloat *mColors;
@@ -65,4 +68,10 @@ class World {
 	GLfloat *mStarVerts;
 	GLfloat *mStarTexCoords;
 	GLfloat *mStarColors;
+	
+	int mTotalStarGlowVertices;
+    int mPrevTotalStarGlowVertices; // so we only recreate frames
+	GLfloat *mStarGlowVerts;
+	GLfloat *mStarGlowTexCoords;
+	GLfloat *mStarGlowColors;
 };
