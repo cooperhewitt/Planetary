@@ -106,10 +106,10 @@ bool UiLayer::touchesEnded( TouchEvent event )
 	}
 	
 	if( mIsPanelTabTouched ){
+        mIsPanelTabTouched = false;
 		if( mHasPanelBeenDragged ){
+			mHasPanelBeenDragged = false;
 			setPanelPos( mTouchPos.y, true );
-			mIsPanelTabTouched		= false;
-			mHasPanelBeenDragged	= false;
 		} else if( mPanelTabRect.contains( mTouchPos ) ){
 			if( mIsPanelOpen ){
 				mPanelYPosDest = mPanelClosedYPos;
@@ -145,15 +145,19 @@ void UiLayer::setPanelPos( float y, bool doneDragging )
 		} else {
 			mPanelYPosDest = mPanelClosedYPos;
 		}
-
 	}
 	
 }
 
 void UiLayer::update()
 {
-	mPanelYPos -= ( mPanelYPos - mPanelYPosDest ) * 0.25f;
-	mPanelPos	= Vec2f( 0.0f, mPanelYPos );
+	if( mIsPanelTabTouched ){
+        mPanelYPos  = mPanelYPosDest;
+    }
+    else {
+        mPanelYPos -= ( mPanelYPos - mPanelYPosDest ) * 0.25f;
+    }
+    mPanelPos	= Vec2f( 0.0f, mPanelYPos );
 	
 	if( mPanelYPos < mPanelOpenYPos + mPanelRect.y2 * 0.5f ){
 		mIsPanelOpen = true;
@@ -182,24 +186,17 @@ void UiLayer::draw( const vector<gl::Texture> &texs )
 	
 	
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
-	
-	if( mLastTouchedType == PANEL_BUTTON ){
-		if( mIsPanelOpen ) texs[TEX_PANEL_DOWN_ON].enableAndBind();
-		else texs[TEX_PANEL_UP_ON].enableAndBind();
+
+    int texIndex = -1;
+	if( mIsPanelTabTouched ){
+		if( mIsPanelOpen ) texIndex = TEX_PANEL_DOWN_ON;
+		else texIndex = TEX_PANEL_UP_ON;
 	} else {
-		if( mIsPanelOpen ) texs[TEX_PANEL_DOWN].enableAndBind();
-		else texs[TEX_PANEL_UP].enableAndBind();
+		if( mIsPanelOpen ) texIndex = TEX_PANEL_DOWN;
+		else texIndex = TEX_PANEL_UP;
 	}
-	
+    
+    texs[texIndex].enableAndBind();
 	gl::drawSolidRect( mPanelTabRect );
-	
-	if( mLastTouchedType == PANEL_BUTTON ){
-		if( mIsPanelOpen ) texs[TEX_PANEL_DOWN_ON].disable();
-		else texs[TEX_PANEL_UP_ON].disable();
-	} else {
-		if( mIsPanelOpen ) texs[TEX_PANEL_DOWN].disable();
-		else texs[TEX_PANEL_UP].disable();
-	}
-
-
+    texs[texIndex].disable();
 }
