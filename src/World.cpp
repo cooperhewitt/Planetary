@@ -24,7 +24,10 @@ using namespace std;
 
 World::World()
 {
-
+    mPrevTotalStarVertices = -1;
+    mStarVerts			   = NULL;
+    mStarTexCoords		   = NULL;
+    
 }
 
 void World::initNodes( Player *player, const Font &font )
@@ -116,8 +119,15 @@ void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const 
 void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	mTotalStarVertices	= mData->mArtists.size() * 6;	// 6 = 2 triangles per quad
-	mStarVerts			= new float[mTotalStarVertices*3];
-	mStarTexCoords		= new float[mTotalStarVertices*2];
+
+    if (mTotalStarVertices != mPrevTotalStarVertices) {
+        if (mStarVerts != NULL) delete[] mStarVerts; 
+        mStarVerts			= new float[mTotalStarVertices*3];
+        if (mStarTexCoords != NULL) delete[] mStarTexCoords; 
+        mStarTexCoords		= new float[mTotalStarVertices*2];
+        mPrevTotalStarVertices = mTotalStarVertices;
+    }
+    
 	//mStarColors			= new float[mTotalStarVertices*4];
 	int vIndex = 0;
 	int tIndex = 0;

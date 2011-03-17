@@ -61,6 +61,7 @@ class World {
 	GLfloat *mRingVertsHighRes;
 	
 	int mTotalStarVertices;
+    int mPrevTotalStarVertices; // so we only recreate frames
 	GLfloat *mStarVerts;
 	GLfloat *mStarTexCoords;
 	GLfloat *mStarColors;
