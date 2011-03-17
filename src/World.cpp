@@ -113,6 +113,92 @@ void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const 
 	}
 }
 
+void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
+{
+	mTotalStarVertices	= mData->mArtists.size() * 6;	// 6 = 2 triangles per quad
+	mStarVerts			= new float[mTotalStarVertices*3];
+	mStarTexCoords		= new float[mTotalStarVertices*2];
+	//mStarColors			= new float[mTotalStarVertices*4];
+	int vIndex = 0;
+	int tIndex = 0;
+	//int cIndex = 0;
+	
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		Vec3f pos				= (*it)->mPos;
+		Vec3f p1				= pos - bbRight - bbUp;
+		Vec3f p2				= pos + bbRight - bbUp;
+		Vec3f p3				= pos - bbRight + bbUp;
+		Vec3f p4				= pos + bbRight + bbUp;
+
+		float radius			= (*it)->mRadius;
+		
+		float x1				= pos.x - radius;
+		float x2				= pos.x + radius;
+		float y1				= pos.y - radius;
+		float y2				= pos.y + radius;
+		float z					= pos.z;
+		
+		float u1				= 0.0f;
+		float u2				= 1.0f;
+		float v1				= 0.0f;
+		float v2				= 1.0f;
+		
+		mStarVerts[vIndex++]		= x1;
+		mStarVerts[vIndex++]		= y1;
+		mStarVerts[vIndex++]		= z;
+		mStarTexCoords[tIndex++]	= u1;
+		mStarTexCoords[tIndex++]	= v1;
+		
+		mStarVerts[vIndex++]		= x2;
+		mStarVerts[vIndex++]		= y1;
+		mStarVerts[vIndex++]		= z;
+		mStarTexCoords[tIndex++]	= u2;
+		mStarTexCoords[tIndex++]	= v1;
+		
+		mStarVerts[vIndex++]		= x1;
+		mStarVerts[vIndex++]		= y2;
+		mStarVerts[vIndex++]		= z;
+		mStarTexCoords[tIndex++]	= u1;
+		mStarTexCoords[tIndex++]	= v2;
+		
+		mStarVerts[vIndex++]		= x2;
+		mStarVerts[vIndex++]		= y1;
+		mStarVerts[vIndex++]		= z;
+		mStarTexCoords[tIndex++]	= u2;
+		mStarTexCoords[tIndex++]	= v1;
+		
+		mStarVerts[vIndex++]		= x1;
+		mStarVerts[vIndex++]		= y2;
+		mStarVerts[vIndex++]		= z;
+		mStarTexCoords[tIndex++]	= u1;
+		mStarTexCoords[tIndex++]	= v2;
+		
+		mStarVerts[vIndex++]		= x2;
+		mStarVerts[vIndex++]		= y2;
+		mStarVerts[vIndex++]		= z;
+		mStarTexCoords[tIndex++]	= u2;
+		mStarTexCoords[tIndex++]	= v2;
+	}
+}
+
+void World::drawStarsVertexArray( const Matrix44f &mat )
+{
+	glEnableClientState( GL_VERTEX_ARRAY );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+
+	glVertexPointer( 3, GL_FLOAT, 0, mStarVerts );
+	glTexCoordPointer( 2, GL_FLOAT, 0, mStarTexCoords );
+
+	gl::pushModelView();
+	gl::rotate( mat );
+	gl::color( ColorA( 1, 1, 1, 1 ) );
+	glDrawArrays( GL_TRIANGLES, 0, mTotalStarVertices );
+	gl::popModelView();
+	
+	glDisableClientState( GL_VERTEX_ARRAY );
+	glDisableClientState( GL_TEXTURE_COORD_ARRAY );	
+}
+
 void World::drawStars()
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
