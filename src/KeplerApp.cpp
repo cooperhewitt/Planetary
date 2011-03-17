@@ -118,10 +118,12 @@ class KeplerApp : public AppCocoaTouch {
 	Vec2f			mTouchPos;
 	Vec2f			mTouchVel;
 	bool			mIsDragging;
+    bool            mIsTouching; // set true in touchesBegan if there's one touch and it's in-world
 	bool			onPinchBegan( PinchEvent event );
     bool			onPinchMoved( PinchEvent event );
     bool			onPinchEnded( PinchEvent event );
     bool            keepTouchForPinching( TouchEvent::Touch touch );
+    bool            positionTouchesWorld( Vec2f pos );
     vector<Ray>		mPinchRays;
     PinchRecognizer mPinchRecognizer;
 	float			mPinchScale;
@@ -217,6 +219,7 @@ void KeplerApp::setup()
 	mTouchPos			= Vec2f::zero();
 	mTouchVel			= Vec2f::zero();
 	mIsDragging			= false;
+    mIsTouching         = false;
 	mTime				= getElapsedSeconds();
 	mTimePinchEnded		= 0.0f;
 	mPinchRecognizer.init(this);
@@ -345,40 +348,47 @@ void KeplerApp::init()
 
 void KeplerApp::touchesBegan( TouchEvent event )
 {	
-	mIsDragging = false;	
+	mIsDragging = false;
 	const vector<TouchEvent::Touch> touches = getActiveTouches();
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
-	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ) {
-        if (keepTouchForPinching(*touches.begin())) {
-            mTouchPos		= touches.begin()->getPos();
-            mTouchVel		= Vec2f::zero();
-            mArcball.mouseDown( Vec2f( mTouchPos.x, mTouchPos.y ) );
-        }
+	if( touches.size() == 1 && timeSincePinchEnded > 0.2f && keepTouchForPinching(*touches.begin()) ) {
+        mIsTouching = true;
+        mTouchPos		= touches.begin()->getPos();
+        mTouchVel		= Vec2f::zero();
+        mArcball.mouseDown( mTouchPos );
 	}
+    else {
+        mIsTouching = false;
+    }
 }
 
 void KeplerApp::touchesMoved( TouchEvent event )
 {
-	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
-	const vector<TouchEvent::Touch> touches = getActiveTouches();
-	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){
-        if (keepTouchForPinching(*touches.begin())) {
-            mIsDragging = true;
+    if ( mIsTouching ) {
+        float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
+        const vector<TouchEvent::Touch> touches = getActiveTouches();
+        if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){
             Vec2f currentPos = touches.begin()->getPos();
-            mTouchVel		= ( currentPos - touches.begin()->getPrevPos() );
-            mTouchPos		= currentPos;
-            mArcball.mouseDrag( Vec2f( mTouchPos.x, mTouchPos.y ) );
+            Vec2f prevPos = touches.begin()->getPrevPos();        
+            if (positionTouchesWorld(currentPos) && positionTouchesWorld(prevPos)) {
+                mIsDragging = true;
+                mTouchVel		= currentPos - prevPos;
+                mTouchPos		= currentPos;
+                mArcball.mouseDrag( mTouchPos );
+            }
         }
-	}
+    }
 }
 
 void KeplerApp::touchesEnded( TouchEvent event )
 {
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
 	const vector<TouchEvent::Touch> touches = event.getTouches();
-	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){
-        if (keepTouchForPinching(*touches.begin())) {
-            mTouchPos = touches.begin()->getPos();		
+	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){        
+        Vec2f currentPos = touches.begin()->getPos();
+        Vec2f prevPos = touches.begin()->getPrevPos();        
+        if (positionTouchesWorld(currentPos) && positionTouchesWorld(prevPos)) {
+            mTouchPos = currentPos;
             // if the nav wheel isnt showing and you havent been dragging and your touch is above the uiLayer panel
             if( ! mAlphaWheel.getShowWheel() && ! mIsDragging && mTouchPos.y < mUiLayer.getPanelYPos() ){
                 float u			= mTouchPos.x / (float) getWindowWidth();
@@ -390,6 +400,7 @@ void KeplerApp::touchesEnded( TouchEvent event )
 	}
 	if (getActiveTouches().size() != 1) {
 		mIsDragging = false;
+        mIsTouching = false;
 	}
 }
 
@@ -465,7 +476,12 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 
 bool KeplerApp::keepTouchForPinching( TouchEvent::Touch touch )
 {
-    return touch.getY() < mUiLayer.getPanelYPos() && touch.getY() > mBreadcrumbs.getHeight() && !mUiLayer.getPanelTabRect().contains(touch.getPos());
+    return positionTouchesWorld(touch.getPos());
+}
+
+bool KeplerApp::positionTouchesWorld( Vec2f pos )
+{
+    return pos.y < mUiLayer.getPanelYPos() && pos.y > mBreadcrumbs.getHeight() && !mUiLayer.getPanelTabRect().contains(pos);
 }
 
 void KeplerApp::accelerated( AccelEvent event )
