@@ -140,6 +140,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mSliderBgTex;
 	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex, mHighlightTex;
 	vector<gl::Texture> mButtonsTex;
+	vector<gl::Texture> mPanelButtonsTex;
 	vector<gl::Texture> mPlanetsTex;
     gl::Texture     mRingsTex;
 	vector<gl::Texture> mCloudsTex;
@@ -269,13 +270,21 @@ void KeplerApp::initTextures()
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
 	mParamsTex			= gl::Texture( 768, 75 );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "play.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "playOn.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "pause.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "pauseOn.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "prev.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "prevOn.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "next.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "nextOn.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accelOff.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accelOn.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOff.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOn.png" ) ) ) );	
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOn.png" ) ) ) );
+	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUp.png" ) ) ) );
+	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUpOn.png" ) ) ) );
+	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelDown.png" ) ) ) );
+	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelDownOn.png" ) ) ) );
     mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "12.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "13.jpg" ) ) ) );
@@ -835,7 +844,7 @@ void KeplerApp::drawScene()
     
     gl::disableAlphaBlending();
     gl::enableAlphaBlending();
-    mUiLayer.draw( mPanelUpTex, mPanelDownTex );
+    mUiLayer.draw( mPanelButtonsTex );
     mAlphaWheel.draw();
     mBreadcrumbs.draw();//mUiLayer.getPanelYPos() + 5.0f );
     mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );

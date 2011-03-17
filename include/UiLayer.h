@@ -15,19 +15,22 @@
 #include "cinder/Rect.h"
 #include "cinder/Color.h"
 #include "cinder/Font.h"
-
+#include <vector>
 
 class UiLayer {
  public:
 	UiLayer();
 	~UiLayer();
+	enum	PlayButton { NO_BUTTON, PANEL_BUTTON };
+	enum	ButtonTexId { TEX_PANEL_UP, TEX_PANEL_UP_ON, TEX_PANEL_DOWN, TEX_PANEL_DOWN_ON };
+	
 	void	setup( ci::app::AppCocoaTouch *app );
 	bool	touchesBegan( ci::app::TouchEvent event );
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
 	void	setPanelPos( float y, bool doneDragging );
 	void	update();
-	void	draw( const ci::gl::Texture &upTex, const ci::gl::Texture &downTex );
+	void	draw( const std::vector<ci::gl::Texture> &texs );
 	float	getPanelYPos(){ return mPanelPos.y; }	
 	
  private:
@@ -44,6 +47,8 @@ class UiLayer {
 	bool			mIsPanelOpen;			// Is the Panel fully open
 	bool			mHasPanelBeenDragged;
 	float			mPanelTabTouchYOffset;	// Accommodate the touch position y value
+	int				mCountSinceLastTouch;
+	PlayButton		mLastTouchedType;
 	
 	ci::Rectf		mStripRect;
 };

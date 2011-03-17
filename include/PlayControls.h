@@ -30,7 +30,7 @@ class PlayControls {
 public:
 
 	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, ACCEL, DBUG };
-	enum ButtonTexId { TEX_PLAY, TEX_PAUSE, TEX_PREV, TEX_NEXT, TEX_ACCEL_OFF, TEX_ACCEL_ON, TEX_DEBUG_OFF, TEX_DEBUG_ON };	
+	enum ButtonTexId { TEX_PLAY, TEX_PLAY_ON, TEX_PAUSE, TEX_PAUSE_ON, TEX_PREV, TEX_PREV_ON, TEX_NEXT, TEX_NEXT_ON, TEX_ACCEL_OFF, TEX_ACCEL_ON, TEX_DEBUG_OFF, TEX_DEBUG_ON };	
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState )
 	{
@@ -163,18 +163,25 @@ public:
 		
 // PREV
 		gl::color( Color::white() );
-		texs[ TEX_PREV ].enableAndBind();
+		if( lastTouchedType == PREVIOUS_TRACK ) texs[ TEX_PREV_ON ].enableAndBind();
+		else texs[ TEX_PREV ].enableAndBind();
 		gl::drawSolidRect( prevButton );
 		
 		
 // PLAY/PAUSE		
-		if (mIsPlaying) texs[ TEX_PAUSE ].enableAndBind();
-		else			texs[ TEX_PLAY ].enableAndBind();
+		if (mIsPlaying){
+			if( lastTouchedType == PLAY_PAUSE ) texs[ TEX_PAUSE_ON ].enableAndBind();
+			else texs[ TEX_PAUSE ].enableAndBind();
+		} else {
+			if( lastTouchedType == PLAY_PAUSE ) texs[ TEX_PLAY_ON ].enableAndBind();
+			else texs[ TEX_PLAY ].enableAndBind();
+		}
 		gl::drawSolidRect( playButton );
 		
 		
 // NEXT		
-		texs[ TEX_NEXT ].enableAndBind();
+		if( lastTouchedType == NEXT_TRACK ) texs[ TEX_NEXT_ON ].enableAndBind();
+		else texs[ TEX_NEXT ].enableAndBind();
 		gl::drawSolidRect( nextButton );
 		
 		

@@ -45,22 +45,24 @@ void UiLayer::setup( AppCocoaTouch *app )
 	mCbTouchesEnded = mApp->registerTouchesEnded( this, &UiLayer::touchesEnded );
 	
 	// Rects
-	int x1 = 0.0f;
-	int y1 = getWindowHeight() - NAV_H;
-	int x2 = getWindowWidth();
-	int y2 = getWindowHeight();
-	mStripRect			 = Rectf( x1, y1, x2, y2 );
+	int x1		= 0.0f;
+	int y1		= getWindowHeight() - NAV_H;
+	int x2		= getWindowWidth();
+	int y2		= getWindowHeight();
+	mStripRect	= Rectf( x1, y1, x2, y2 );
 	
 	// PANEL AND TAB
-	mPanelRect			= Rectf( 0.0f, 0.0f, getWindowWidth(), 75.0f );
-	mPanelOpenYPos		= getWindowHeight() - mPanelRect.y2;
-	mPanelClosedYPos	= getWindowHeight();
-	mPanelYPos			= mPanelClosedYPos;
-	mPanelYPosDest		= mPanelOpenYPos;
+	mPanelRect				= Rectf( 0.0f, 0.0f, getWindowWidth(), 75.0f );
+	mPanelOpenYPos			= getWindowHeight() - mPanelRect.y2;
+	mPanelClosedYPos		= getWindowHeight();
+	mPanelYPos				= mPanelClosedYPos;
+	mPanelYPosDest			= mPanelOpenYPos;
 	setPanelPos( mPanelYPos, true );
-	mIsPanelTabTouched	= false;
-	mIsPanelOpen		= true;
-	mHasPanelBeenDragged = false;
+	mIsPanelTabTouched		= false;
+	mIsPanelOpen			= true;
+	mHasPanelBeenDragged	= false;
+	mCountSinceLastTouch	= 0;
+	mLastTouchedType		= NO_BUTTON;
 }
  
 bool UiLayer::touchesBegan( TouchEvent event )
@@ -74,9 +76,12 @@ bool UiLayer::touchesBegan( TouchEvent event )
 	if( mPanelTabRect.contains( mTouchPos ) ){
 		mPanelTabTouchYOffset = mPanelPos.y - mTouchPos.y;
 		mIsPanelTabTouched = true;
+		mLastTouchedType = PANEL_BUTTON;
 	} else {
 		mIsPanelTabTouched = false;
+		mLastTouchedType = NO_BUTTON;
 	}
+	mCountSinceLastTouch = 0;
 		
 	return false; //mIsPanelTabTouched;
 }
@@ -89,6 +94,7 @@ bool UiLayer::touchesMoved( TouchEvent event )
 		mHasPanelBeenDragged = true;
 		setPanelPos( mTouchPos.y, false );
 	}
+	mCountSinceLastTouch = 0;
 
 	return false;// mIsPanelTabTouched;
 }
@@ -112,6 +118,7 @@ bool UiLayer::touchesEnded( TouchEvent event )
 			}
 		}
 	}
+	mCountSinceLastTouch = 0;
 	
 	return false; //mIsPanelTabTouched;
 }
@@ -155,9 +162,15 @@ void UiLayer::update()
 	}
 	
 	mPanelTabRect	= Rectf( getWindowWidth() * 0.5f - 25.0f, mPanelPos.y - 50.0f, getWindowWidth() * 0.5f + 25.0f, mPanelPos.y + 0.5f );
+	
+	mCountSinceLastTouch ++;
+	
+	if( mCountSinceLastTouch > 6 ){
+		mLastTouchedType = NO_BUTTON;
+	}
 }
 
-void UiLayer::draw( const gl::Texture &upTex, const gl::Texture &downTex )
+void UiLayer::draw( const vector<gl::Texture> &texs )
 {	
 	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
 	gl::pushModelView();
@@ -169,17 +182,17 @@ void UiLayer::draw( const gl::Texture &upTex, const gl::Texture &downTex )
 	
 	
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
-	if( mIsPanelOpen )
-		downTex.enableAndBind();
-	else
-		upTex.enableAndBind();
+	
+	if( mLastTouchedType == PANEL_BUTTON ){
+		if( mIsPanelOpen ) texs[TEX_PANEL_DOWN_ON].enableAndBind();
+		else texs[TEX_PANEL_UP_ON].enableAndBind();
+	} else {
+		if( mIsPanelOpen ) texs[TEX_PANEL_DOWN].enableAndBind();
+		else texs[TEX_PANEL_UP].enableAndBind();
+	}
 	
 	gl::drawSolidRect( mPanelTabRect );
-	
-	if( mIsPanelOpen )
-		downTex.disable();
-	else
-		upTex.disable();
+
 
 }
 
