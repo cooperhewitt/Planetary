@@ -195,7 +195,7 @@ void KeplerApp::setup()
 	mUp					= Vec3f::yAxis();
 	mFov				= 80.0f;
 	mFovDest			= 80.0f;
-	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 1000.0f );
+	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 1200.0f );
 	mBbRight			= Vec3f::xAxis();
 	mBbUp				= Vec3f::yAxis();
 	
@@ -281,6 +281,7 @@ void KeplerApp::initTextures()
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accelOn.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOff.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOn.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "sliderButton.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUp.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUpOn.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelDown.png" ) ) ) );
@@ -768,7 +769,7 @@ void KeplerApp::drawScene()
     gl::rotate( mMatrix );
     gl::color( Color( 1.0f, 1.0f, 1.0f ) );
     mSkyDome.enableAndBind();
-    gl::drawSphere( Vec3f::zero(), 990.0f, 16 );
+    gl::drawSphere( Vec3f::zero(), 1100.0f, 24 );
     gl::popModelView();
     
     
@@ -859,8 +860,9 @@ void KeplerApp::drawScene()
     
     gl::disableAlphaBlending();
     gl::enableAlphaBlending();
+	
+	mAlphaWheel.draw();
     mUiLayer.draw( mPanelButtonsTex );
-    mAlphaWheel.draw();
     mBreadcrumbs.draw();//mUiLayer.getPanelYPos() + 5.0f );
     mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );
     mState.draw( mFont );

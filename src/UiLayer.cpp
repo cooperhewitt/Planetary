@@ -192,6 +192,14 @@ void UiLayer::draw( const vector<gl::Texture> &texs )
 	}
 	
 	gl::drawSolidRect( mPanelTabRect );
+	
+	if( mLastTouchedType == PANEL_BUTTON ){
+		if( mIsPanelOpen ) texs[TEX_PANEL_DOWN_ON].disable();
+		else texs[TEX_PANEL_UP_ON].disable();
+	} else {
+		if( mIsPanelOpen ) texs[TEX_PANEL_DOWN].disable();
+		else texs[TEX_PANEL_UP].disable();
+	}
 
 
 }

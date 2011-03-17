@@ -30,7 +30,7 @@ class PlayControls {
 public:
 
 	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, ACCEL, DBUG };
-	enum ButtonTexId { TEX_PLAY, TEX_PLAY_ON, TEX_PAUSE, TEX_PAUSE_ON, TEX_PREV, TEX_PREV_ON, TEX_NEXT, TEX_NEXT_ON, TEX_ACCEL_OFF, TEX_ACCEL_ON, TEX_DEBUG_OFF, TEX_DEBUG_ON };	
+	enum ButtonTexId { TEX_PLAY, TEX_PLAY_ON, TEX_PAUSE, TEX_PAUSE_ON, TEX_PREV, TEX_PREV_ON, TEX_NEXT, TEX_NEXT_ON, TEX_ACCEL_OFF, TEX_ACCEL_ON, TEX_DEBUG_OFF, TEX_DEBUG_ON, TEX_SLIDER_BUTTON };	
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState )
 	{
@@ -148,6 +148,8 @@ public:
 		
 		Rectf playheadSliderBg(  bgx1, bgy1, bgx2, bgy2 );
 		Rectf playheadSliderBar( fgx1, fgy1, fgx2, fgy2 );
+		
+		Rectf sliderButton( fgx2 - 8.0f, ( fgy1 + fgy2 ) * 0.5f - 8.0f, fgx2 + 8.0f, ( fgy1 + fgy2 ) * 0.5f + 8.0f );
 						
 		touchRects.push_back( prevButton );
 		touchTypes.push_back( PREVIOUS_TRACK );
@@ -155,6 +157,8 @@ public:
 		touchTypes.push_back( PLAY_PAUSE );
 		touchRects.push_back( nextButton );
 		touchTypes.push_back( NEXT_TRACK );
+		touchRects.push_back( sliderButton );
+		touchTypes.push_back( SLIDER );
 		touchRects.push_back( accelButton );
 		touchTypes.push_back( ACCEL );
 		touchRects.push_back( debugButton );
@@ -254,8 +258,10 @@ public:
 		gl::color( Color( mBlueGlow ) );
 		gl::drawSolidRect( Rectf( playheadSliderBar.x1+1, playheadSliderBar.y1+1, playheadSliderBar.x2-1, playheadSliderBar.y2-1 ) );
 		
-		
-		
+		gl::color( Color::white() );
+		texs[TEX_SLIDER_BUTTON].enableAndBind();
+		gl::drawSolidRect( sliderButton );
+		texs[TEX_SLIDER_BUTTON].disable();
 	}
 	
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
