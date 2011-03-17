@@ -38,8 +38,7 @@
 		E127698D1326E18A00E1FC3F /* clouds5.png in Resources */ = {isa = PBXBuildFile; fileRef = E12769831326E18A00E1FC3F /* clouds5.png */; };
 		E1276B13132716D300E1FC3F /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276B12132716D300E1FC3F /* pause.png */; };
 		E1276CA5132764DB00E1FC3F /* Orbiter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1276CA4132764DB00E1FC3F /* Orbiter.cpp */; };
-		E1276DE81328117E00E1FC3F /* accelOff.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276DE71328117E00E1FC3F /* accelOff.png */; };
-		E1276DEE132812FD00E1FC3F /* accelOn.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276DED132812FD00E1FC3F /* accelOn.png */; };
+		E1276DE81328117E00E1FC3F /* accel.png in Resources */ = {isa = PBXBuildFile; fileRef = E1276DE71328117E00E1FC3F /* accel.png */; };
 		E1276E7A132821AA00E1FC3F /* CinderIPod.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1276E5B132821AA00E1FC3F /* CinderIPod.mm */; };
 		E1276E7B132821AA00E1FC3F /* CinderIPodPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1276E5C132821AA00E1FC3F /* CinderIPodPlayer.mm */; };
 		E1276E7C132821AA00E1FC3F /* CinderIPodPlayerImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1276E5D132821AA00E1FC3F /* CinderIPodPlayerImpl.mm */; };
@@ -64,8 +63,7 @@
 		E19EA669132C78D800CEE740 /* 33.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E19EA664132C78D800CEE740 /* 33.jpg */; };
 		E19EA66A132C78D800CEE740 /* 43.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E19EA665132C78D800CEE740 /* 43.jpg */; };
 		E19EA66B132C78D800CEE740 /* 53.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E19EA666132C78D800CEE740 /* 53.jpg */; };
-		E19EA680132DBABA00CEE740 /* debugOff.png in Resources */ = {isa = PBXBuildFile; fileRef = E19EA67E132DBABA00CEE740 /* debugOff.png */; };
-		E19EA681132DBABA00CEE740 /* debugOn.png in Resources */ = {isa = PBXBuildFile; fileRef = E19EA67F132DBABA00CEE740 /* debugOn.png */; };
+		E19EA680132DBABA00CEE740 /* debug.png in Resources */ = {isa = PBXBuildFile; fileRef = E19EA67E132DBABA00CEE740 /* debug.png */; };
 		E1A330381301013100CED126 /* starAlternate.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330351301013100CED126 /* starAlternate.png */; };
 		E1A330391301013100CED126 /* starGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330361301013100CED126 /* starGlow.png */; };
 		E1A3303A1301013100CED126 /* star.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330371301013100CED126 /* star.png */; };
@@ -80,6 +78,7 @@
 		E1A78BE91331CDBC00F3AE92 /* drawLines.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A78BE61331CDBC00F3AE92 /* drawLines.png */; };
 		E1A78BEA1331CDBC00F3AE92 /* drawPlanets.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A78BE71331CDBC00F3AE92 /* drawPlanets.png */; };
 		E1A78BEB1331CDBC00F3AE92 /* drawStars.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A78BE81331CDBC00F3AE92 /* drawStars.png */; };
+		E1A78BED1331E71000F3AE92 /* drawText.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A78BEC1331E71000F3AE92 /* drawText.png */; };
 		E1C600051318490F0022246C /* World.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C600041318490F0022246C /* World.cpp */; };
 		E1C6FFF3131847A40022246C /* Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C6FFF2131847A40022246C /* Data.cpp */; };
 		E1E663701317887F00E5E4B9 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E6636F1317887F00E5E4B9 /* State.cpp */; };
@@ -127,8 +126,7 @@
 		E1276B12132716D300E1FC3F /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = pause.png; path = ../resources/ui/pause.png; sourceTree = SOURCE_ROOT; };
 		E1276CA4132764DB00E1FC3F /* Orbiter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Orbiter.cpp; path = ../src/Orbiter.cpp; sourceTree = SOURCE_ROOT; };
 		E1276CA6132764E900E1FC3F /* Orbiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Orbiter.h; path = ../include/Orbiter.h; sourceTree = SOURCE_ROOT; };
-		E1276DE71328117E00E1FC3F /* accelOff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = accelOff.png; path = ../resources/ui/accelOff.png; sourceTree = SOURCE_ROOT; };
-		E1276DED132812FD00E1FC3F /* accelOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = accelOn.png; path = ../resources/ui/accelOn.png; sourceTree = SOURCE_ROOT; };
+		E1276DE71328117E00E1FC3F /* accel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = accel.png; path = ../resources/ui/accel.png; sourceTree = SOURCE_ROOT; };
 		E1276E49132821AA00E1FC3F /* CinderIPod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPod.h; sourceTree = "<group>"; };
 		E1276E4A132821AA00E1FC3F /* CinderIPodPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPodPlayer.h; sourceTree = "<group>"; };
 		E1276E4B132821AA00E1FC3F /* CinderIPodPlayerImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPodPlayerImpl.h; sourceTree = "<group>"; };
@@ -160,8 +158,7 @@
 		E19EA664132C78D800CEE740 /* 33.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 33.jpg; sourceTree = "<group>"; };
 		E19EA665132C78D800CEE740 /* 43.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 43.jpg; sourceTree = "<group>"; };
 		E19EA666132C78D800CEE740 /* 53.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 53.jpg; sourceTree = "<group>"; };
-		E19EA67E132DBABA00CEE740 /* debugOff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debugOff.png; path = ../resources/ui/debugOff.png; sourceTree = "<group>"; };
-		E19EA67F132DBABA00CEE740 /* debugOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debugOn.png; path = ../resources/ui/debugOn.png; sourceTree = "<group>"; };
+		E19EA67E132DBABA00CEE740 /* debug.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug.png; path = ../resources/ui/debug.png; sourceTree = "<group>"; };
 		E1A330351301013100CED126 /* starAlternate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = starAlternate.png; path = ../resources/starAlternate.png; sourceTree = SOURCE_ROOT; };
 		E1A330361301013100CED126 /* starGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = starGlow.png; path = ../resources/starGlow.png; sourceTree = SOURCE_ROOT; };
 		E1A330371301013100CED126 /* star.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = star.png; path = ../resources/star.png; sourceTree = SOURCE_ROOT; };
@@ -178,6 +175,7 @@
 		E1A78BE61331CDBC00F3AE92 /* drawLines.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = drawLines.png; path = ../resources/ui/drawLines.png; sourceTree = "<group>"; };
 		E1A78BE71331CDBC00F3AE92 /* drawPlanets.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = drawPlanets.png; path = ../resources/ui/drawPlanets.png; sourceTree = "<group>"; };
 		E1A78BE81331CDBC00F3AE92 /* drawStars.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = drawStars.png; path = ../resources/ui/drawStars.png; sourceTree = "<group>"; };
+		E1A78BEC1331E71000F3AE92 /* drawText.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = drawText.png; path = ../resources/ui/drawText.png; sourceTree = "<group>"; };
 		E1C60003131848FB0022246C /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = World.h; path = ../include/World.h; sourceTree = SOURCE_ROOT; };
 		E1C600041318490F0022246C /* World.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = World.cpp; path = ../src/World.cpp; sourceTree = SOURCE_ROOT; };
 		E1C60254131C4B3D0022246C /* Breadcrumbs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Breadcrumbs.h; path = ../include/Breadcrumbs.h; sourceTree = SOURCE_ROOT; };
@@ -320,10 +318,8 @@
 				E1F2DBDC132A1D7B009A2309 /* highlight.png */,
 				E1F2D83013296A70009A2309 /* sliderBg.png */,
 				E1A78BCD13319A3900F3AE92 /* sliderButton.png */,
-				E1276DE71328117E00E1FC3F /* accelOff.png */,
-				E1276DED132812FD00E1FC3F /* accelOn.png */,
-				E19EA67E132DBABA00CEE740 /* debugOff.png */,
-				E19EA67F132DBABA00CEE740 /* debugOn.png */,
+				E1276DE71328117E00E1FC3F /* accel.png */,
+				E19EA67E132DBABA00CEE740 /* debug.png */,
 				E1276B12132716D300E1FC3F /* pause.png */,
 				E1A78BC21331822400F3AE92 /* pauseOn.png */,
 				E127665C1325E49F00E1FC3F /* prev.png */,
@@ -374,6 +370,7 @@
 		E1555CA2131EEBD10079B05A /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				E1A78BEC1331E71000F3AE92 /* drawText.png */,
 				E1A78BE61331CDBC00F3AE92 /* drawLines.png */,
 				E1A78BE71331CDBC00F3AE92 /* drawPlanets.png */,
 				E1A78BE81331CDBC00F3AE92 /* drawStars.png */,
@@ -592,8 +589,7 @@
 				E127698C1326E18A00E1FC3F /* clouds4.png in Resources */,
 				E127698D1326E18A00E1FC3F /* clouds5.png in Resources */,
 				E1276B13132716D300E1FC3F /* pause.png in Resources */,
-				E1276DE81328117E00E1FC3F /* accelOff.png in Resources */,
-				E1276DEE132812FD00E1FC3F /* accelOn.png in Resources */,
+				E1276DE81328117E00E1FC3F /* accel.png in Resources */,
 				E1F2D83113296A70009A2309 /* sliderBg.png in Resources */,
 				E1F2DBDD132A1D7B009A2309 /* highlight.png in Resources */,
 				E1363D16132C3EE800115512 /* 12.jpg in Resources */,
@@ -606,8 +602,7 @@
 				E19EA669132C78D800CEE740 /* 33.jpg in Resources */,
 				E19EA66A132C78D800CEE740 /* 43.jpg in Resources */,
 				E19EA66B132C78D800CEE740 /* 53.jpg in Resources */,
-				E19EA680132DBABA00CEE740 /* debugOff.png in Resources */,
-				E19EA681132DBABA00CEE740 /* debugOn.png in Resources */,
+				E19EA680132DBABA00CEE740 /* debug.png in Resources */,
 				E1A78BC51331822500F3AE92 /* nextOn.png in Resources */,
 				E1A78BC61331822500F3AE92 /* pauseOn.png in Resources */,
 				E1A78BC71331822500F3AE92 /* playOn.png in Resources */,
@@ -618,6 +613,7 @@
 				E1A78BE91331CDBC00F3AE92 /* drawLines.png in Resources */,
 				E1A78BEA1331CDBC00F3AE92 /* drawPlanets.png in Resources */,
 				E1A78BEB1331CDBC00F3AE92 /* drawStars.png in Resources */,
+				E1A78BED1331E71000F3AE92 /* drawText.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

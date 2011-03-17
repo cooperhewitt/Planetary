@@ -152,6 +152,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			mIsDrawingRings;
 	bool			mIsDrawingStars;
 	bool			mIsDrawingPlanets;
+	bool			mIsDrawingText;
 };
 
 void KeplerApp::setup()
@@ -165,6 +166,7 @@ void KeplerApp::setup()
 	mIsDrawingRings = true;
 	mIsDrawingStars = true;
 	mIsDrawingPlanets = true;
+	mIsDrawingText	= true;
 	Rand::randomize();
 
 	
@@ -284,14 +286,13 @@ void KeplerApp::initTextures()
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "prevOn.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "next.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "nextOn.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accelOff.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accelOn.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOff.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debugOn.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accel.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debug.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "sliderButton.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawLines.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawStars.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawLines.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawPlanets.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawText.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUp.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUpOn.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelDown.png" ) ) ) );
@@ -534,8 +535,13 @@ bool KeplerApp::onNodeSelected( Node *node )
 bool KeplerApp::onPlayControlsPlayheadMoved( PlayControls::PlayButton button )
 {	
 	std::cout << "onPlayControlsPlayheadMoved()" << std::endl;
-	double time = 0;
-	mIpodPlayer.setPlayheadTime( time );
+	double dragPer = mPlayControls.getPlayheadPer();
+	
+	ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
+	double trackLength = playingTrack->getLength();
+	
+	if( getElapsedFrames()%3 == 0 )
+		mIpodPlayer.setPlayheadTime( trackLength * dragPer );
     return false;
 }
 
@@ -565,6 +571,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 		mIsDrawingStars = !mIsDrawingStars;
 	} else if( button == PlayControls::DRAW_PLANETS ){
 		mIsDrawingPlanets = !mIsDrawingPlanets;
+	} else if( button == PlayControls::DRAW_TEXT ){
+		mIsDrawingText = !mIsDrawingText;
 	}
 	cout << "play button " << button << " pressed" << endl;
 	return false;
@@ -788,7 +796,8 @@ void KeplerApp::drawScene()
     gl::enableDepthWrite();
     gl::setMatrices( mCam );
     
-	// DRAW SKYDOME
+	
+// SKYDOME
     gl::pushModelView();
     gl::rotate( mMatrix );
     gl::color( Color( 1.0f, 1.0f, 1.0f ) );
@@ -800,8 +809,8 @@ void KeplerApp::drawScene()
     gl::enableAdditiveBlending();
     
     
+// STARS
 	if( mIsDrawingStars ){
-		// STARS
 		mStarTex.enableAndBind();
 		mWorld.drawStars();
 		mStarTex.disable();
@@ -810,8 +819,6 @@ void KeplerApp::drawScene()
     
 	
 	if( mIsDrawingPlanets ){
-		// PLANETS
-		//Node *albumNode  = mState.getSelectedAlbumNode();
 		Node *artistNode = mState.getSelectedArtistNode();
 		if( artistNode ){
 			gl::enableDepthRead();
@@ -831,22 +838,23 @@ void KeplerApp::drawScene()
 			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() * 1.75f ), 1.0f ) );
 			
 			
-			// PLANETS
+// PLANETS
 			mWorld.drawPlanets( mPlanetsTex );
 			
-			// CLOUDS
+// CLOUDS
 			mWorld.drawClouds( mCloudsTex );
 			
-			// RINGS
+// RINGS
 			gl::enableAdditiveBlending();
 			//			mWorld.drawRings( mRingsTex );
-			glDisable( GL_LIGHTING );
-			gl::disableDepthRead();
 		}
 	}
     
+	glDisable( GL_LIGHTING );
+	gl::disableDepthRead();
+	
+// STARGLOWS
     if( mIsDrawingStars ){
-		// STARGLOWS
 		mStarGlowTex.enableAndBind();
 		mWorld.drawStarGlows();
 		mWorld.drawTouchHighlights();
@@ -855,41 +863,40 @@ void KeplerApp::drawScene()
     
     
     gl::disableDepthWrite();
-    
+    gl::enableAdditiveBlending();
+	gl::enableDepthRead();
+	
+// ORBITS
 	if( mIsDrawingRings ){
-		// ORBITS
-		gl::enableAdditiveBlending();
-		gl::enableDepthRead();
 		mWorld.drawOrbitRings( mState.getPlayingNode() );
 	}
 	
-	// PARTICLES
-	//mParticleController.draw( mState.getSelectedArtistNode(), mMatrix );
-	if( mState.getSelectedArtistNode() ){
+// PARTICLES
+	if( mIsDrawingStars && mState.getSelectedArtistNode() ){
 		mStarGlowTex.enableAndBind();
 		mParticleController.drawScreenspace( mState.getSelectedArtistNode(), mMatrix, mBbRight, mBbUp );
 		mStarGlowTex.disable();
 	}
-    
 	
+// CONSTELLATION
 	if( mIsDrawingRings ){
-		// CONSTELLATION
 		mDottedTex.enableAndBind();
 		mWorld.drawConstellation( mMatrix );
 		mDottedTex.disable();
 	}
 
 	gl::disableDepthRead();
+	gl::disableDepthWrite();
+	glEnable( GL_TEXTURE_2D );
+	gl::setMatricesWindow( getWindowSize() );
+	gl::enableAdditiveBlending();
 	
 	
-		// NAMES
-		gl::disableDepthWrite();
-		glEnable( GL_TEXTURE_2D );
-		gl::setMatricesWindow( getWindowSize() );
-		gl::enableAdditiveBlending();
+// NAMES
+	if( mIsDrawingText ){
 		float pinchAlphaOffset = constrain( 1.0f - ( mCamDistPinchOffset - 3.0f ), 0.0f, 1.0f );
 		mWorld.drawNames( mCam, pinchAlphaOffset );
-
+	}
     
     glDisable( GL_TEXTURE_2D );
     
@@ -897,16 +904,20 @@ void KeplerApp::drawScene()
     gl::disableAlphaBlending();
     gl::enableAlphaBlending();
 	
+	
+// EVERYTHING ELSE
 	mAlphaWheel.draw();
     mUiLayer.draw( mPanelButtonsTex );
     mBreadcrumbs.draw();//mUiLayer.getPanelYPos() + 5.0f );
-    mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );
+    mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mIsDrawingRings, mIsDrawingStars, mIsDrawingPlanets, mIsDrawingText );
     mState.draw( mFont );
     
-    if( G_DEBUG ) {
-        drawInfoPanel();
-    }
+	
+	
+    if( G_DEBUG ) drawInfoPanel();
 }
+
+
 
 
 

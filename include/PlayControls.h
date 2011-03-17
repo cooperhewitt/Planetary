@@ -29,8 +29,8 @@ inline std::string to_string( const T& t )
 class PlayControls {
 public:
 
-	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, ACCEL, DBUG, DRAW_RINGS, DRAW_STARS, DRAW_PLANETS };
-	enum ButtonTexId { TEX_PLAY, TEX_PLAY_ON, TEX_PAUSE, TEX_PAUSE_ON, TEX_PREV, TEX_PREV_ON, TEX_NEXT, TEX_NEXT_ON, TEX_ACCEL_OFF, TEX_ACCEL_ON, TEX_DEBUG_OFF, TEX_DEBUG_ON, TEX_SLIDER_BUTTON, TEX_DRAW_RINGS, TEX_DRAW_STARS, TEX_DRAW_PLANETS };	
+	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, ACCEL, DBUG, DRAW_RINGS, DRAW_STARS, DRAW_PLANETS, DRAW_TEXT };
+	enum ButtonTexId { TEX_PLAY, TEX_PLAY_ON, TEX_PAUSE, TEX_PAUSE_ON, TEX_PREV, TEX_PREV_ON, TEX_NEXT, TEX_NEXT_ON, TEX_ACCEL, TEX_DEBUG, TEX_SLIDER_BUTTON, TEX_DRAW_STARS, TEX_DRAW_RINGS, TEX_DRAW_PLANETS, TEX_DRAW_TEXT };	
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState )
 	{
@@ -46,6 +46,10 @@ public:
 		mSeconds		= 60;
 		mPrevSeconds	= 0;
 		mIsDraggingPlayhead = false;
+		mPlayheadPer	= 0.0;
+		mIsDrawingRings = true;
+		mIsDrawingStars = true;
+		mIsDrawingPlanets = true;
 	}
 	
 	void update()
@@ -89,7 +93,13 @@ public:
 		lastTouchedType = findButtonUnderTouches(touches);
 		
 		if( mIsDraggingPlayhead ){
-			mCallbacksPlayheadMoved.call(lastTouchedType);
+			if( touches.size() == 1 ){
+				float x = touches.begin()->getX();
+				//float per = 0.0f;
+				float border = ( app::getWindowWidth() - 628 ) * 0.5f;
+				mPlayheadPer = ( x - border ) / 628;
+				mCallbacksPlayheadMoved.call(lastTouchedType);
+			}
 		}
 		return false;
 	}	
@@ -105,6 +115,11 @@ public:
 		return false;
 	}
 	
+	double getPlayheadPer()
+	{
+		return mPlayheadPer;
+	}
+	
 	void setPlaying(bool playing) {
 		mIsPlaying = playing;
 	}
@@ -115,7 +130,7 @@ public:
 	}
 
 
-	void draw( const vector<gl::Texture> &texs, const gl::Texture &sliderBgTex, const Font &font, float y, float currentTime, float totalTime )
+	void draw( const vector<gl::Texture> &texs, const gl::Texture &sliderBgTex, const Font &font, float y, float currentTime, float totalTime, bool isDrawingRings, bool isDrawingStars, bool isDrawingPlanets, bool isDrawingText )
 	{
 		prevDrawY = y;
 		
@@ -131,16 +146,17 @@ public:
 
 		// TODO: make these members?
 		float x = getWindowWidth() * 0.5f - bWidth * 1.5f;
-		float y1 = y + 5;
+		float y1 = y + 2;
 		float y2 = y1 + bHeight;
 		Rectf prevButton( x,				 y1, x + bWidth,		y2 );
 		Rectf playButton( x + bWidth,		 y1, x + bWidth * 2.0f, y2 );
 		Rectf nextButton( x + bWidth * 2.0f, y1, x + bWidth * 3.0f, y2 );
 		Rectf accelButton( getWindowWidth() - 65.0f, y1, getWindowWidth() - 15.0f, y2 );
 		Rectf debugButton( 15.0f, y1, 65.0f, y2 );
-		Rectf drawRingsButton( 65.0f, y1, 115.0f, y2 );
-		Rectf drawStarsButton( 115.0f, y1, 165.0f, y2 );
+		Rectf drawStarsButton( 65.0f, y1, 115.0f, y2 );
+		Rectf drawRingsButton( 115.0f, y1, 165.0f, y2 );
 		Rectf drawPlanetsButton( 165.0f, y1, 215.0f, y2 );
+		Rectf drawTextButton( 215.0f, y1, 265.0f, y2 );
 		
 		float sliderWidth	= sliderBgTex.getWidth();
 		float sliderHeight	= sliderBgTex.getHeight();
@@ -176,12 +192,14 @@ public:
 		touchTypes.push_back( ACCEL );
 		touchRects.push_back( debugButton );
 		touchTypes.push_back( DBUG );
-		touchRects.push_back( drawRingsButton );
-		touchTypes.push_back( DRAW_RINGS );
 		touchRects.push_back( drawStarsButton );
 		touchTypes.push_back( DRAW_STARS );
+		touchRects.push_back( drawRingsButton );
+		touchTypes.push_back( DRAW_RINGS );
 		touchRects.push_back( drawPlanetsButton );
 		touchTypes.push_back( DRAW_PLANETS );
+		touchRects.push_back( drawTextButton );
+		touchTypes.push_back( DRAW_TEXT );
 		Color blue( 0.2f, 0.2f, 0.5f );
 		
 // PREV
@@ -208,31 +226,42 @@ public:
 		gl::drawSolidRect( nextButton );
 		
 		
-// ACCEL		
-		if( G_ACCEL )	texs[ TEX_ACCEL_ON ].enableAndBind();
-		else			texs[ TEX_ACCEL_OFF ].enableAndBind();
+// ACCEL
+		if( G_ACCEL ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+		else		  gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
+		texs[ TEX_ACCEL ].enableAndBind();
 		gl::drawSolidRect( accelButton );
 
 // DBUG		
-		if( G_DEBUG )	texs[ TEX_DEBUG_ON ].enableAndBind();
-		else			texs[ TEX_DEBUG_OFF ].enableAndBind();
+		if( G_DEBUG ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+		else		  gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
+		texs[ TEX_DEBUG ].enableAndBind();
 		gl::drawSolidRect( debugButton );
 		
-// DRAW RINGS
-		if( lastTouchedType == DRAW_RINGS ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-		else								gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
-		texs[ TEX_DRAW_RINGS ].enableAndBind();
-		gl::drawSolidRect( drawRingsButton );
 // DRAW STARS
-		if( lastTouchedType == DRAW_STARS ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-		else								gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
+		if( isDrawingStars ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+		else				 gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
 		texs[ TEX_DRAW_STARS ].enableAndBind();
 		gl::drawSolidRect( drawStarsButton );
+		
+// DRAW RINGS
+		if( isDrawingRings ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+		else				 gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
+		texs[ TEX_DRAW_RINGS ].enableAndBind();
+		gl::drawSolidRect( drawRingsButton );
+		
 // DRAW PLANETS	
-		if( lastTouchedType == DRAW_PLANETS )   gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-		else									gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
+		if( isDrawingPlanets )  gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+		else					gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
 		texs[ TEX_DRAW_PLANETS ].enableAndBind();
 		gl::drawSolidRect( drawPlanetsButton );
+// DRAW TEXT	
+		if( isDrawingText )		gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+		else					gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
+		texs[ TEX_DRAW_TEXT ].enableAndBind();
+		gl::drawSolidRect( drawTextButton );
+		
+		gl::color( Color( 1.0f, 1.0f, 1.0f ) );
 		
 		
 // SLIDER BG		
@@ -330,6 +359,7 @@ private:
 	
 	double mPlayheadPer;
 	bool mIsDraggingPlayhead;
+	bool mIsDrawingRings, mIsDrawingStars, mIsDrawingPlanets;
 	gl::Texture mCurrentTimeTex;
 	gl::Texture mRemainingTimeTex;
 	
