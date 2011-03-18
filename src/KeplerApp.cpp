@@ -44,7 +44,10 @@ Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
 class KeplerApp : public AppCocoaTouch {
   public:
 	virtual void	setup();
-	void			initTextures();
+    void            remainingSetup();
+	void			initLoadingTextures();
+    void            initResources(); // can be threaded
+	void			initTextures();  // cannot be threaded
 	virtual void	touchesBegan( TouchEvent event );
 	virtual void	touchesMoved( TouchEvent event );
 	virtual void	touchesEnded( TouchEvent event );
@@ -152,6 +155,7 @@ class KeplerApp : public AppCocoaTouch {
 	float			mTime;
 	
 	bool			mIsLoaded;
+    bool            mRemainingSetupCalled; // setup() is short and fast, remainingSetup() is slow
 	bool			mIsDrawingRings;
 	bool			mIsDrawingStars;
 	bool			mIsDrawingPlanets;
@@ -165,7 +169,19 @@ void KeplerApp::setup()
 	if( G_IS_IPAD2 ){
 		G_NUM_PARTICLES = 350;
 	}
+
+    mRemainingSetupCalled = false;
+
+    initLoadingTextures();
+    mLoadingScreen.setup( mLoadingTex, mStarGlowTex, mStarTex );
+}
+
+void KeplerApp::remainingSetup()
+{
+    if (mRemainingSetupCalled) return;
     
+    mRemainingSetupCalled = true;
+
 	mIsLoaded = false;
 	mIsDrawingRings = true;
 	mIsDrawingStars = true;
@@ -173,9 +189,9 @@ void KeplerApp::setup()
 	mIsDrawingText	= true;
 	Rand::randomize();
 	
+
     // TEXTURES
 	initTextures();
-    
     
 	// INIT ACCELEROMETER
 	enableAccelerometer();
@@ -263,6 +279,13 @@ void KeplerApp::setup()
     std::cout << "setupEnd: " << getElapsedSeconds() << std::endl;
 }
 
+void KeplerApp::initLoadingTextures()
+{
+	mLoadingTex			= loadImage( loadResource( "loading.jpg" ) );
+	mStarTex			= loadImage( loadResource( "star.png" ) );
+	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );    
+}
+
 void KeplerApp::initTextures()
 {
 	/* THIS DIDNT SEEM TO WORK (OR MAYBE IT JUST DIDNT MAKE MUCH OF A DIFFERENCE)
@@ -274,14 +297,11 @@ void KeplerApp::initTextures()
 	
 	float t = getElapsedSeconds();
 	cout << "before load time = " << t << endl;
-	mLoadingTex			= loadImage( loadResource( "loading.jpg" ) );
 	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
 	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
 	mSliderBgTex		= loadImage( loadResource( "sliderBg.png" ) );
 	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
-	mStarTex			= loadImage( loadResource( "star.png" ) );
 	mStarAlternateTex	= loadImage( loadResource( "starAlternate.png" ) );
-	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
@@ -333,6 +353,7 @@ void KeplerApp::initTextures()
 
 void KeplerApp::touchesBegan( TouchEvent event )
 {	
+    if (!mRemainingSetupCalled) return;
 	mIsDragging = false;
 	const vector<TouchEvent::Touch> touches = getActiveTouches();
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
@@ -349,6 +370,7 @@ void KeplerApp::touchesBegan( TouchEvent event )
 
 void KeplerApp::touchesMoved( TouchEvent event )
 {
+    if (!mRemainingSetupCalled) return;    
     if ( mIsTouching ) {
         float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
         const vector<TouchEvent::Touch> touches = getActiveTouches();
@@ -367,6 +389,7 @@ void KeplerApp::touchesMoved( TouchEvent event )
 
 void KeplerApp::touchesEnded( TouchEvent event )
 {
+    if (!mRemainingSetupCalled) return;    
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
 	const vector<TouchEvent::Touch> touches = event.getTouches();
 	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){        
@@ -659,24 +682,26 @@ void KeplerApp::update()
 		mWorld.initRingVertexArray();
 		mIsLoaded = true;
 	}
-		
-	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
-	updateArcball();
-	mWorld.update( mMatrix );
-	//mParticleController.pullToCenter( mState.getPlayingNode() );
-    mParticleController.update();
-	updateCamera();
-	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
-	if( mIsLoaded ){
-		mWorld.buildStarsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
-		mWorld.buildStarGlowsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
-	}
-	mUiLayer.update();
-	mAlphaWheel.update( mFov );
-	mBreadcrumbs.update();
-	mPlayControls.update();
-	
-	updatePlayhead();
+    
+    if ( mRemainingSetupCalled ) {
+        mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
+        updateArcball();
+        mWorld.update( mMatrix );
+        //mParticleController.pullToCenter( mState.getPlayingNode() );
+        mParticleController.update();
+        updateCamera();
+        mWorld.updateGraphics( mCam, mBbRight, mBbUp );
+        if( mIsLoaded ){
+            mWorld.buildStarsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
+            mWorld.buildStarGlowsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
+        }
+        mUiLayer.update();
+        mAlphaWheel.update( mFov );
+        mBreadcrumbs.update();
+        mPlayControls.update();
+        
+        updatePlayhead();
+    }
 }
 
 void KeplerApp::updateArcball()
@@ -764,7 +789,10 @@ void KeplerApp::draw()
 {
 	gl::clear( Color( 0, 0, 0 ), true );
 	if( !mIsLoaded ){
-		mLoadingScreen.draw(mLoadingTex, mStarGlowTex, mStarTex, this);
+		mLoadingScreen.draw( this );
+        if (getElapsedFrames() > 1 && !mRemainingSetupCalled) {
+            remainingSetup();
+        }        
 	} else {
 		drawScene();
 	}

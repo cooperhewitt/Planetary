@@ -14,25 +14,32 @@
 using namespace ci;
 using namespace ci::app;
 
-void LoadingScreen::draw(const gl::Texture &loadingTex, const gl::Texture &starGlowTex, const gl::Texture &starTex, const AppCocoaTouch *app )
+void LoadingScreen::setup( const ci::gl::Texture &loadingTex, const ci::gl::Texture &starGlowTex, const ci::gl::Texture &starTex )
+{
+    mLoadingTex = loadingTex;
+    mStarGlowTex = starGlowTex;
+    mStarTex = starTex;
+}
+
+void LoadingScreen::draw( const AppCocoaTouch *app )
 {
 	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-	loadingTex.enableAndBind();
+	mLoadingTex.enableAndBind();
 	gl::setMatricesWindow( app->getWindowSize() );
 	gl::drawSolidRect( app->getWindowBounds() );
-	loadingTex.disable();
+	mLoadingTex.disable();
 	
 	gl::enableAdditiveBlending();
 	float xCenter = app->getWindowWidth() * 0.5f;
 	float yCenter = app->getWindowHeight() * 0.5f;
     
 	Rectf bigRect = Rectf( xCenter - 50, yCenter - 50, xCenter + 50, yCenter + 50 );
-	starGlowTex.enableAndBind();
+	mStarGlowTex.enableAndBind();
 	gl::drawSolidRect( bigRect );
-	starGlowTex.disable();
+	mStarGlowTex.disable();
 	
 	Rectf rect = Rectf( xCenter - 28, yCenter - 28, xCenter + 28, yCenter + 28 );
-	starTex.enableAndBind();
+	mStarTex.enableAndBind();
 	gl::drawSolidRect( rect );
 	
 	float smallOffset	= cos( app->getElapsedSeconds() * 0.3f + 2.0f ) * 30.0f;
@@ -44,7 +51,7 @@ void LoadingScreen::draw(const gl::Texture &loadingTex, const gl::Texture &starG
 	gl::enableAlphaBlending();
 	gl::drawSolidRect( smallRect );
 	//gl::drawSolidRect( mediumRect );
-	starTex.disable();
+	mStarTex.disable();
 	
 	gl::disableAlphaBlending();    
 }
