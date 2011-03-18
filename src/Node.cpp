@@ -221,7 +221,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 		gl::pushModelView();
 		gl::translate( pos2 + Vec2f( 2.0f, -8.0f ) );
 		if( mIsSelected ){
-			float s = mZoomPer * 0.5f + 1.0f;
+			float s = mZoomPer * 0.25f + 1.0f;
 			gl::scale( Vec3f( s, s, 1.0f ) );
 		}
 		gl::draw( mNameTex, Vec2f::zero() );

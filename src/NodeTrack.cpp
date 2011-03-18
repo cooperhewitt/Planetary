@@ -71,7 +71,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 		mHasRings = true;
 	
 	float hue			= Rand::randFloat( 0.15f, 0.75f );
-	float sat			= Rand::randFloat( 0.15f, 0.25f );
+	float sat			= Rand::randFloat( 0.15f, 0.5f );
 	float val			= Rand::randFloat( 0.85f, 1.00f );
 	mColor				= Color( CM_HSV, hue, sat, val );
 	mGlowColor			= mColor;

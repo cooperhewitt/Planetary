@@ -117,8 +117,8 @@ void NodeAlbum::repelOrbitTracks()
 			}
 		}
 		
-		(*mChildNodes.front()).mOrbitRadiusDest = minAmt;
 		(*mChildNodes.back()).mOrbitRadiusDest = maxAmt;
+		(*mChildNodes.front()).mOrbitRadiusDest = minAmt;
 	}
 }
 
