@@ -26,6 +26,7 @@ class NodeArtist : public Node
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex ){ Node::drawRings( tex ); }
 	void select();
+	void setChildOrbitRadii();
 	string getName();
 	void setData( ci::ipod::PlaylistRef playlist );
 

@@ -31,16 +31,13 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	float invAlbumPer = 1.0f/(float)numAlbums;
 	float albumNumPer = (float)mIndex * invAlbumPer;
 	
-	float minAmt		= mParentNode->mRadiusDest * 1.0f;
-	float maxAmt		= mParentNode->mRadiusDest * 3.0f;
+	float minAmt		= mParentNode->mOrbitRadiusMin;
+	float maxAmt		= mParentNode->mOrbitRadiusMax;
 	float deltaAmt		= maxAmt - minAmt;
-	mOrbitRadiusDest	= minAmt + deltaAmt * albumNumPer + Rand::randFloat( maxAmt * invAlbumPer * 0.35f );
+	mOrbitRadiusDest	= minAmt + deltaAmt * albumNumPer;// + Rand::randFloat( maxAmt * invAlbumPer * 0.35f );
 
-	mIdealCameraDist = mRadius * 6.0f;
-    mPlanetTexIndex = 0;
-	
-    mRadius         *= 0.85f;
-	mSphere			= Sphere( mPos, mRadius * 7.5f );
+	mIdealCameraDist	= mRadius * 6.0f;
+    mPlanetTexIndex		= 0;
 }
 
 
@@ -57,6 +54,14 @@ void NodeAlbum::setData( PlaylistRef album )
 	mColor				= Color( CM_HSV, hue, sat, val );
 	mEclipseColor       = mColor;
 
+	mRadius				*= 0.85f;
+	mSphere				= Sphere( mPos, mRadius * 7.5f );
+	mMass				= ( pow( mNumTracks, 3.0f ) * ( M_PI * 4.0f ) ) * 0.3333334f;
+	
+	// for the children
+	mOrbitRadiusMin		= mRadius * 2.0f;
+	mOrbitRadiusMax		= mRadius * 7.5f;
+	
     mAxialVel       = Rand::randFloat( 10.0f, 45.0f );
     
     mPlanetTexIndex = ( mIndex + 6 )%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
@@ -88,40 +93,12 @@ void NodeAlbum::update( const Matrix44f &mat )
         float dist = mScreenPos.distance( mParentNode->mScreenPos );
         eclipseDist = constrain( dist/200.0f, 0.0f, 1.0f );
     }
-	mEclipseColor = mColor * eclipseDist;
-    
-	repelOrbitTracks();
+	mEclipseColor = ( mColor + Color::white() ) * 0.5f * eclipseDist;
     
 	Node::update( mat );
 	
 	mVel		= mTransPos - mPrevPos;	
 }
-
-void NodeAlbum::repelOrbitTracks()
-{
-	if( mIsSelected ){
-		float minAmt		= mRadius * 2.0f;
-		float maxAmt		= mRadius * 8.0f;
-		for( vector<Node*>::iterator p1 = mChildNodes.begin(); p1 != mChildNodes.end(); ++p1 ){
-			
-			vector<Node*>::iterator p2 = p1;
-			for( ++p2; p2 != mChildNodes.end(); ++p2 ) {
-				float dist = abs( (*p2)->mOrbitRadiusDest - (*p1)->mOrbitRadiusDest );
-				//float radiusTotal = (*p1)->mRadius + (*p2)->mRadius;
-				if( dist > 0 ){
-					float F = 1.0f/(dist*10.0f);
-					
-					(*p1)->mOrbitRadiusDestAcc -= ( F / ((*p2)->mMass * 10000000.0f ) );
-					(*p2)->mOrbitRadiusDestAcc += ( F / ((*p1)->mMass * 10000000.0f ) );
-				}
-			}
-		}
-		
-		(*mChildNodes.back()).mOrbitRadiusDest = maxAmt;
-		(*mChildNodes.front()).mOrbitRadiusDest = minAmt;
-	}
-}
-
 
 void NodeAlbum::drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
@@ -231,20 +208,20 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		glDisable( GL_LIGHTING );
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
-		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha ) );
+		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.5f ) );
 		clouds[mCloudTexIndex].enableAndBind();
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
 		glEnable( GL_LIGHTING );		
 // LIT CLOUDS
 		gl::pushModelView();
-		radius = mRadius + 0.0008f;
+		radius = mRadius + 0.0005f;
 		gl::scale( Vec3f( radius, radius, radius ) );
 		glEnable( GL_RESCALE_NORMAL );
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, 0.0f ) );
 		gl::enableAdditiveBlending();
-		gl::color( ColorA( ( mEclipseColor + Color::white() ) * 0.5f, mCamDistAlpha ) );
+		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
 		gl::popModelView();
@@ -263,7 +240,6 @@ void NodeAlbum::select()
 		for (int i = 0; i < mNumTracks; i++) {
 			TrackRef track		= (*mAlbum)[i];
 			string name			= track->getTitle();
-			std::cout << "trackname = " << name << std::endl;
 			NodeTrack *newNode	= new NodeTrack( this, i, mFont );
 			mChildNodes.push_back( newNode );
 			newNode->setData( track, mAlbum );
@@ -273,8 +249,22 @@ void NodeAlbum::select()
 			(*it)->setSphereData( mTotalVertsHiRes, mSphereVertsHiRes, mSphereTexCoordsHiRes, mSphereNormalsHiRes,
 								  mTotalVertsLoRes, mSphereVertsLoRes, mSphereTexCoordsLoRes, mSphereNormalsLoRes );
 		}
+		
+		setChildOrbitRadii();
 	}	
 	Node::select();
+}
+
+void NodeAlbum::setChildOrbitRadii()
+{
+	float orbitRadius = mOrbitRadiusMin;
+	float orbitOffset;
+	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
+		orbitOffset = (*it)->mRadius * 3.0f;
+		orbitRadius += orbitOffset;
+		(*it)->mOrbitRadiusDest = orbitRadius;
+		orbitRadius += orbitOffset;
+	}
 }
 
 string NodeAlbum::getName()

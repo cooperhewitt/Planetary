@@ -26,15 +26,19 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	mIsHighlighted		= true;
 	mRadius				*= 4.0f;
 	
+	
+	/*
 	// FIXME: bad C++?
-	float numTracks		= ((NodeAlbum*)mParentNode)->mNumTracks + 2.0f;
+	float numTracks		= ((NodeAlbum*)mParentNode)->mNumTracks;
 	float invTrackPer	= 1.0f/numTracks;
 	float trackNumPer	= (float)mIndex * invTrackPer;
 	
-	float minAmt		= mParentNode->mRadius * 2.0f;
-	float maxAmt		= mParentNode->mRadius * 8.0f;
+	float minAmt		= mParentNode->mOrbitRadiusMin;
+	float maxAmt		= mParentNode->mOrbitRadiusMax;
 	float deltaAmt		= maxAmt - minAmt;
-	mOrbitRadiusDest	= minAmt + deltaAmt * trackNumPer + Rand::randFloat( maxAmt * invTrackPer * 0.75f );
+	mOrbitRadiusDest	= minAmt + deltaAmt * trackNumPer;// + Rand::randFloat( maxAmt * invTrackPer * 0.75f );
+	*/
+	
 	
     mIsPlaying			= false;
 	mHasRings			= false;
@@ -79,7 +83,8 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	
 	mRadius				= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0003f ) * 0.75;
 	mSphere				= Sphere( mPos, mRadius * 7.5f );
-	mMass				= ( pow( mRadius * 100.0f + 1.0f, 3.0f ) * ( M_PI * 4.0f ) ) * 0.3333334f;
+	mMass				= ( pow( mRadius, 3.0f ) * ( M_PI * 4.0f ) ) * 0.3333334f;
+	
 	mIdealCameraDist	= 0.008f;
 	mOrbitPeriod		= mTrackLength;
 	mAxialTilt			= Rand::randFloat( 5.0f, 30.0f );
@@ -158,7 +163,7 @@ void NodeTrack::update( const Matrix44f &mat )
         float dist = mScreenPos.distance( mParentNode->mParentNode->mScreenPos );
         eclipseDist = constrain( dist/200.0f, 0.0f, 1.0f );
     }
-	mEclipseColor = mColor * eclipseDist;
+	mEclipseColor = ( mColor + Color::white() ) * 0.5f * eclipseDist;
 	
 	
 	Node::update( mat );
@@ -249,7 +254,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 		glDisable( GL_LIGHTING );
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
-		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.66f ) );
+		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.5f ) );
 		clouds[mCloudTexIndex].enableAndBind();
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
@@ -262,7 +267,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.6f, 0.0f ) );
 		gl::enableAdditiveBlending();
-		gl::color( ColorA( ( mEclipseColor + Color::white() ) * 0.5f, mCamDistAlpha ) );
+		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
 		gl::popModelView();

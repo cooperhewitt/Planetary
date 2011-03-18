@@ -71,7 +71,6 @@ class Node {
 	ci::Matrix44f		mMatrix;
 	ci::Vec3f			mBbRight, mBbUp;
 	
-	
 // CHARACTERISTICS
     
 // RADII
@@ -83,10 +82,10 @@ class Node {
 // ORBIT
 	float				mStartAngle;		// Starting angle in relation to the parentNode
 	float				mOrbitAngle;		// Current angle in relation to the parentNode
+	float				mOrbitRadiusMin;
+	float				mOrbitRadiusMax;
 	float				mOrbitRadius;		// Current distance from parentNode
 	float				mOrbitRadiusDest;	// Final distance from parentNode
-	float				mOrbitRadiusDestVel;
-	float				mOrbitRadiusDestAcc;
 	float				mOrbitPeriod;		// Time in seconds to orbit parentNode
     float				mOrbitLineAlpha;	// Alpha of the orbit line based on playcount
 	
@@ -116,6 +115,8 @@ class Node {
 	// NAME
 	ci::Font			mFont;
 	ci::gl::Texture		mNameTex;			// Texture of the name
+	ci::Rectf			mHitArea;			// name hit area
+	ci::Rectf			mSphereHitArea;		// node hit area
 	
 	ci::Sphere			mSphere;			// Sphere used for name label alignment
 	float				mSphereScreenRadius;// mSphere radius in screenspace

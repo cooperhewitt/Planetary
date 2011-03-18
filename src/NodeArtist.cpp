@@ -42,6 +42,9 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font )
 	
 	mRadiusDest		= mRadius * 0.66f;
 	mRadius			= 0.0f;
+	
+	mOrbitRadiusMin	= mRadiusDest * 1.0f;
+	mOrbitRadiusMax	= mRadiusDest * 2.5f;
 }
 
 void NodeArtist::update( const Matrix44f &mat )
@@ -60,6 +63,8 @@ void NodeArtist::update( const Matrix44f &mat )
 	
 	Node::update( mat );
 }
+
+
 
 void NodeArtist::drawStar()
 {
@@ -142,8 +147,22 @@ void NodeArtist::select()
 								  mTotalVertsLoRes, mSphereVertsLoRes, mSphereTexCoordsLoRes, mSphereNormalsLoRes );
 		}
 		
+		setChildOrbitRadii();
+		
 	}
 	Node::select();
+}
+
+void NodeArtist::setChildOrbitRadii()
+{
+	float orbitRadius = mOrbitRadiusMin;
+	float orbitOffset;
+	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
+		orbitOffset = (*it)->mRadius * 5.0f;
+		orbitRadius += orbitOffset;
+		(*it)->mOrbitRadiusDest = orbitRadius;
+		orbitRadius += orbitOffset;
+	}
 }
 
 void NodeArtist::setData( PlaylistRef playlist )

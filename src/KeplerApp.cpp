@@ -34,7 +34,7 @@ using std::stringstream;
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
 bool G_ACCEL            = false;
-bool G_IS_IPAD2			= true;
+bool G_IS_IPAD2			= false;
 int G_NUM_PARTICLES		= 250;
 
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
@@ -221,7 +221,7 @@ void KeplerApp::setup()
 	mBbUp				= Vec3f::yAxis();
 	
 	// FONTS
-	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
+	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
 	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
 	mFontSmall			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 13 );	
 
@@ -930,8 +930,8 @@ void KeplerApp::drawScene()
 			gl::disableAlphaBlending();
 			
 			glEnable( GL_LIGHTING );
-			//glEnable( GL_COLOR_MATERIAL );
-			//glShadeModel( GL_SMOOTH );
+			glEnable( GL_COLOR_MATERIAL );
+			glShadeModel( GL_SMOOTH );
 			
 			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
 			
@@ -940,7 +940,7 @@ void KeplerApp::drawScene()
 			Vec3f lightPos          = artistNode->mTransPos;
 			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor  ), 1.0f ) );
+			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
 			
 			
 // PLANETS
@@ -983,10 +983,12 @@ void KeplerApp::drawScene()
 	
 // CONSTELLATION
 	if( mIsDrawingRings ){
-		//mDottedTex.enableAndBind();
+		mDottedTex.enableAndBind();
 		mWorld.drawConstellation( mMatrix );
-		//mDottedTex.disable();
+		mDottedTex.disable();
 	}
+	
+	
 
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
@@ -1006,7 +1008,6 @@ void KeplerApp::drawScene()
     
     gl::disableAlphaBlending();
     gl::enableAlphaBlending();
-	
 	
 // EVERYTHING ELSE
 	mAlphaWheel.draw();
@@ -1042,6 +1043,10 @@ void KeplerApp::setParamsTex()
 	layout.setFont( mFontSmall );
 	layout.setColor( Color( 1.0f, 0.0f, 0.0f ) );
 
+	s.str("");
+	s << " FPS: " << getAverageFps();
+	layout.addLine( s.str() );
+	
 	int currentLevel = G_HOME_LEVEL;
 	if (mState.getSelectedNode()) {
 		currentLevel = mState.getSelectedNode()->mGen;
@@ -1053,10 +1058,6 @@ void KeplerApp::setParamsTex()
 	
 	s.str("");
 	s << " CURRENT LEVEL: " << currentLevel;
-	layout.addLine( s.str() );
-	
-	s.str("");
-	s << " FPS: " << getAverageFps();
 	layout.addLine( s.str() );
 	
 	s.str("");
