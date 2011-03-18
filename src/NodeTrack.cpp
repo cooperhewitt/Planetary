@@ -79,6 +79,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	
 	mRadius				= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0003f ) * 0.75;
 	mSphere				= Sphere( mPos, mRadius * 7.5f );
+	mMass				= ( pow( mRadius * 100.0f + 1.0f, 3.0f ) * ( M_PI * 4.0f ) ) * 0.3333334f;
 	mIdealCameraDist	= 0.008f;
 	mOrbitPeriod		= mTrackLength;
 	mAxialTilt			= Rand::randFloat( 5.0f, 30.0f );
@@ -167,6 +168,7 @@ void NodeTrack::update( const Matrix44f &mat )
 
 void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 {	
+	/*
 	gl::disableAlphaBlending();
 	gl::pushModelView();
 	gl::translate( mTransPos );
@@ -176,26 +178,99 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 	planets[mPlanetTexIndex].enableAndBind();
 	gl::drawSphere( Vec3f::zero(), mRadius, mSphereResInt );
 	gl::popModelView();
+	*/
+	 
+	 
+	glEnable( GL_RESCALE_NORMAL );
+	glEnableClientState( GL_VERTEX_ARRAY );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glEnableClientState( GL_NORMAL_ARRAY );
+	int numVerts;
+	if( mIsSelected ){
+		glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsHiRes );
+		glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsHiRes );
+		glNormalPointer( GL_FLOAT, 0, mSphereNormalsHiRes );
+		numVerts = mTotalVertsHiRes;
+	} else {
+		glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsLoRes );
+		glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsLoRes );
+		glNormalPointer( GL_FLOAT, 0, mSphereNormalsLoRes );
+		numVerts = mTotalVertsLoRes;
+	}
+	
+	gl::disableAlphaBlending();
+	
+    gl::pushModelView();
+	gl::translate( mTransPos );
+	gl::scale( Vec3f( mRadius, mRadius, mRadius ) );
+	gl::rotate( mMatrix );
+	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, 0.0f ) );
+	gl::color( mEclipseColor );
+	planets[mPlanetTexIndex].enableAndBind();
+	glDrawArrays( GL_TRIANGLES, 0, numVerts );
+	gl::popModelView();
+	
+	glDisableClientState( GL_VERTEX_ARRAY );
+	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableClientState( GL_NORMAL_ARRAY );
+	
 }
 
 void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 {
 	if( mCamDistAlpha > 0.05f ){
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glEnableClientState( GL_NORMAL_ARRAY );
+		int numVerts;
+		if( mIsSelected ){
+			glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsHiRes );
+			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsHiRes );
+			glNormalPointer( GL_FLOAT, 0, mSphereNormalsHiRes );
+			numVerts = mTotalVertsHiRes;
+		} else {
+			glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsLoRes );
+			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsLoRes );
+			glNormalPointer( GL_FLOAT, 0, mSphereNormalsLoRes );
+			numVerts = mTotalVertsLoRes;
+		}
+		
+		gl::disableAlphaBlending();
+		
 		gl::pushModelView();
 		gl::translate( mTransPos );
+		gl::pushModelView();
+		float radius = mRadius + 0.000025f;
+		gl::scale( Vec3f( radius, radius, radius ) );
+		glEnable( GL_RESCALE_NORMAL );
 		gl::rotate( mMatrix );
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.6f, mAxialTilt ) );
+		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.6f, 0.0f ) );
+		// SHADOW CLOUDS
+		glDisable( GL_LIGHTING );
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
-		
-		clouds[mCloudTexIndex].enableAndBind();
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.66f ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.000025f, mSphereResInt );
-
-		gl::enableAdditiveBlending();
-		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
-		gl::drawSphere( Vec3f::zero(), mRadius + 0.00005f, mSphereResInt );
+		clouds[mCloudTexIndex].enableAndBind();
+		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
+		glEnable( GL_LIGHTING );
+		// LIT CLOUDS
+		gl::pushModelView();
+		radius = mRadius + 0.00005f;
+		gl::scale( Vec3f( radius, radius, radius ) );
+		glEnable( GL_RESCALE_NORMAL );
+		gl::rotate( mMatrix );
+		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.6f, 0.0f ) );
+		gl::enableAdditiveBlending();
+		gl::color( ColorA( ( mEclipseColor + Color::white() ) * 0.5f, mCamDistAlpha ) );
+		glDrawArrays( GL_TRIANGLES, 0, numVerts );
+		gl::popModelView();
+		gl::popModelView();
+		
+		glDisableClientState( GL_VERTEX_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		glDisableClientState( GL_NORMAL_ARRAY );
+
 	}
 }
 

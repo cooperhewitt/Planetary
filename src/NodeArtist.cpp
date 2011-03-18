@@ -63,14 +63,18 @@ void NodeArtist::update( const Matrix44f &mat )
 
 void NodeArtist::drawStar()
 {
+	float radius    = mRadius;
 	if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
+		mRadius -= ( mRadius - 0.25f ) * 0.1f;
+		mRadius += Rand::randFloat( 0.0125f, 0.065f );
 		gl::color( ColorA( mColor, 0.7f ) );
 	} else {
+		mRadius -= ( mRadius - mRadiusDest ) * 0.1f;
 		gl::color( mColor );
 	}
 	
-	float radius    = mRadius;
-	if( mIsHighlighted ) radius += math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f ) * 2.0f;
+	
+	if( mIsHighlighted ) radius += math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
 	gl::drawBillboard( mTransPos, Vec2f( radius, radius ), 0.0f, mBbRight, mBbUp );
 	
 	Node::drawStar();
@@ -112,6 +116,11 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 	Node::drawPlanet( planets );
 }
 
+void NodeArtist::drawClouds( const vector<gl::Texture> &planets )
+{
+	Node::drawClouds( planets );
+}
+
 void NodeArtist::select()
 {
 	if (!mIsSelected) {
@@ -126,6 +135,11 @@ void NodeArtist::select()
 			mChildNodes.push_back( newNode );
 			newNode->setData( album );
 			i++;
+		}
+		
+		for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
+			(*it)->setSphereData( mTotalVertsHiRes, mSphereVertsHiRes, mSphereTexCoordsHiRes, mSphereNormalsHiRes,
+								  mTotalVertsLoRes, mSphereVertsLoRes, mSphereTexCoordsLoRes, mSphereNormalsLoRes );
 		}
 		
 	}

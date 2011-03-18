@@ -44,6 +44,8 @@ Node::Node( Node *parent, int index, const Font &font )
 	mDistFromCamZAxisPer = 1.0f;
 	mPlanetTexIndex		= 0;
     
+	mOrbitRadiusDestVel	= 0.0f;
+	mOrbitRadiusDestAcc	= 0.0f;
     mSphereRes          = 12;
     mSphereResInt       = 12;
 		
@@ -76,6 +78,19 @@ void Node::initWithParent()
 	mOrbitPeriod		= Rand::randFloat( 75.0f, 150.0f );
 }
 
+void Node::setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
+						 int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals )
+{
+	mTotalVertsHiRes		= totalHiVertices;
+	mTotalVertsLoRes		= totalLoVertices;
+	mSphereVertsHiRes		= sphereHiVerts;
+	mSphereTexCoordsHiRes	= sphereHiTexCoords;
+	mSphereNormalsHiRes		= sphereHiNormals;
+	mSphereVertsLoRes		= sphereLoVerts;
+	mSphereTexCoordsLoRes	= sphereLoTexCoords;
+	mSphereNormalsLoRes		= sphereLoNormals;
+}
+
 void Node::createNameTexture()
 {
 	TextLayout layout;
@@ -88,6 +103,11 @@ void Node::createNameTexture()
 
 void Node::update( const Matrix44f &mat )
 {
+	mOrbitRadiusDestVel += mOrbitRadiusDestAcc;
+	mOrbitRadiusDest	+= mOrbitRadiusDestVel;
+	mOrbitRadiusDestVel *= 0.75f;
+	mOrbitRadiusDestAcc = 0.0f;
+	
 	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
 	mMatrix         = mat;
 	mTransPos       = mMatrix * mPos;
@@ -117,7 +137,7 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
             mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
             mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.1f;
         } else {
-            mSphereRes		-= ( mSphereRes - 6 ) * 0.1f;
+            mSphereRes		-= ( mSphereRes - 10 ) * 0.1f;
             mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.1f;
         }
         

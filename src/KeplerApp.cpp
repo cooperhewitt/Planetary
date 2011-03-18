@@ -7,6 +7,7 @@
 #include "cinder/Arcball.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
+#include "BloomGl.h"
 #include "Globals.h"
 #include "Easing.h"
 #include "World.h"
@@ -40,11 +41,14 @@ GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 float easeInOutQuad( double t, float b, float c, double d );
 Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
 
+
+
 class KeplerApp : public AppCocoaTouch {
   public:
 	void			init();
 	virtual void	setup();
 	void			initTextures();
+	void			initSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals );
 	virtual void	touchesBegan( TouchEvent event );
 	virtual void	touchesMoved( TouchEvent event );
 	virtual void	touchesEnded( TouchEvent event );
@@ -75,11 +79,11 @@ class KeplerApp : public AppCocoaTouch {
 	UiLayer			mUiLayer;
 	Data			mData;
 	
-	// ACCELEROMETER
+// ACCELEROMETER
 	Matrix44f		mAccelMatrix;
 	Matrix44f		mNewAccelMatrix;
 	
-	// AUDIO
+// AUDIO
 	ipod::Player		mIpodPlayer;
 	ipod::PlaylistRef	mCurrentAlbum;
 	double				mCurrentTrackPlayheadTime;
@@ -87,14 +91,14 @@ class KeplerApp : public AppCocoaTouch {
 //	int					mCurrentTrackId;
 
 	
-	// BREADCRUMBS
+// BREADCRUMBS
 	Breadcrumbs		mBreadcrumbs;	
 	
-	// PLAY CONTROLS
+// PLAY CONTROLS
 	PlayControls	mPlayControls;
 	float			mPlayheadPer;	// song percent complete 
 	
-	// CAMERA PERSP
+// CAMERA PERSP
 	CameraPersp		mCam;
 	float			mFov, mFovDest;
 	Vec3f			mEye, mCenter, mUp;
@@ -108,13 +112,13 @@ class KeplerApp : public AppCocoaTouch {
 	Vec3f			mBbRight, mBbUp;
 	
 	
-	// FONTS
+// FONTS
 	Font			mFont;
 	Font			mFontBig;
 	Font			mFontSmall;
 	
 	
-	// MULTITOUCH
+// MULTITOUCH
 	Vec2f			mTouchPos;
 	Vec2f			mTouchVel;
 	bool			mIsDragging;
@@ -129,10 +133,10 @@ class KeplerApp : public AppCocoaTouch {
 	float			mPinchScale;
 	float			mTimePinchEnded;
 	
-	// PARTICLES
+// PARTICLES
     ParticleController mParticleController;
 	
-	// TEXTURES
+// TEXTURES
 	gl::Texture		mLoadingTex;
 	gl::Texture		mParamsTex;
 	gl::Texture		mAtmosphereTex;
@@ -149,6 +153,18 @@ class KeplerApp : public AppCocoaTouch {
     gl::Texture     mRingsTex;
 	vector<gl::Texture> mCloudsTex;
 	
+// VERTEX ARRAYS
+	int mNumSphereLoResVerts;
+	float *mSphereLoResVerts; 
+	float *mSphereLoResNormals;
+	float *mSphereLoResTexCoords;
+	int mNumSphereHiResVerts;
+	float *mSphereHiResVerts; 
+	float *mSphereHiResNormals;
+	float *mSphereHiResTexCoords;
+	
+	
+	
 	float			mTime;
 	
 	bool			mIsLoaded;
@@ -161,7 +177,7 @@ class KeplerApp : public AppCocoaTouch {
 void KeplerApp::setup()
 {
 	if( G_IS_IPAD2 ){
-		G_NUM_PARTICLES = 350;
+		G_NUM_PARTICLES = 1000;
 	}
 	
 	
@@ -259,7 +275,14 @@ void KeplerApp::setup()
 	// PLAYER
 	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
     mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
+	
+// VERTEX ARRAY SPHERE
+	initSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
+	initSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
 }
+
+
+
 
 void KeplerApp::initTextures()
 {
@@ -329,6 +352,220 @@ void KeplerApp::initTextures()
 	
 }
 
+
+
+void KeplerApp::initSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals )
+{	
+	*numVerts			= segments * (segments/2) * 2 * 3;
+	sphereVerts			= new float[ *numVerts * 3 ];
+	sphereNormals		= new float[ *numVerts * 3 ];
+	sphereTexCoords		= new float[ *numVerts * 2 ];
+	vector<Vec2f> texCoords;
+	vector<Triangle> triangles;
+	
+	for( int j = 0; j < segments / 2; j++ ) {
+		float theta1 = j * TWO_PI / segments - ( M_PI_2 );
+		float cosTheta1 = cos( theta1 );
+		float sinTheta1 = sin( theta1 );
+		
+		float theta2 = (j + 1) * TWO_PI / segments - ( M_PI_2 );
+		float cosTheta2 = cos( theta2 );
+		float sinTheta2 = sin( theta2 );
+		
+		Vec3f oldv1, oldv2, newv1, newv2;
+		Vec2f oldt1, oldt2, newt1, newt2;
+		
+		for( int i = 0; i <= segments; i++ ) {
+			oldv1			= newv1;
+			oldv2			= newv2;
+			
+			oldt1			= newt1;
+			oldt2			= newt2;
+			
+			float theta3	= i * TWO_PI / segments;
+			float cosTheta3 = cos( theta3 );
+			float sinTheta3 = sin( theta3 );
+			
+			float invI		= i / (float)segments;
+			float u			= 0.999f - invI;
+			float v1		= 0.999f - 2 * j / (float)segments;
+			float v2		= 0.999f - 2 * (j+1) / (float)segments;
+			
+			newt1			= Vec2f( u, v1 );
+			newt2			= Vec2f( u, v2 );
+			
+			newv1			= Vec3f( cosTheta1 * cosTheta3, sinTheta1, cosTheta1 * sinTheta3 );			
+			newv2			= Vec3f( cosTheta2 * cosTheta3, sinTheta2, cosTheta2 * sinTheta3 );
+			
+			if( i > 0 ){
+				triangles.push_back( Triangle( oldv1, oldv2, newv1 ) );
+				triangles.push_back( Triangle( oldv2, newv1, newv2 ) );
+				
+				texCoords.push_back( oldt1 );
+				texCoords.push_back( oldt2 );
+				texCoords.push_back( newt1 );
+				
+				texCoords.push_back( oldt2 );
+				texCoords.push_back( newt1 );
+				texCoords.push_back( newt2 );
+			}
+		}
+	}
+	
+	
+	int index = 0;
+	int nIndex = 0;
+	for( int i=0; i<triangles.size(); i++ ){
+		Triangle t = triangles[i];
+		sphereVerts[index++]		= t.p1.x;
+		sphereVerts[index++]		= t.p1.y;
+		sphereVerts[index++]		= t.p1.z;
+		
+		sphereVerts[index++]		= t.p2.x;
+		sphereVerts[index++]		= t.p2.y;
+		sphereVerts[index++]		= t.p2.z;
+		
+		sphereVerts[index++]		= t.p3.x;
+		sphereVerts[index++]		= t.p3.y;
+		sphereVerts[index++]		= t.p3.z;
+		
+		sphereNormals[nIndex++]	= t.p1.x;
+		sphereNormals[nIndex++]	= t.p1.y;
+		sphereNormals[nIndex++]	= t.p1.z;
+		
+		sphereNormals[nIndex++]	= t.p2.x;
+		sphereNormals[nIndex++]	= t.p2.y;
+		sphereNormals[nIndex++]	= t.p2.z;
+		
+		sphereNormals[nIndex++]	= t.p3.x;
+		sphereNormals[nIndex++]	= t.p3.y;
+		sphereNormals[nIndex++]	= t.p3.z;
+	}
+	
+	int tIndex = 0;
+	for( int i=0; i<texCoords.size(); i++ ){
+		sphereTexCoords[tIndex++]	= texCoords[i].x;
+		sphereTexCoords[tIndex++]	= texCoords[i].y;
+	}
+	
+	std::cout << "size of SphereVerts = " << index << std::endl;
+	std::cout << "size of SphereNormals = " << nIndex << std::endl;
+	std::cout << "size of SphereTexCoords = " << tIndex << std::endl;
+}
+
+
+
+
+
+/*
+void KeplerApp::initSphereVertexArray( int iterations )
+{	
+	int i,it;
+	double a;
+	Vec3f p[6];
+	p[0] = Vec3f(  0, 0, 1 );
+	p[1] = Vec3f(  0, 0,-1 );
+	p[2] = Vec3f( -1,-1, 0 );
+	p[3] = Vec3f(  1,-1, 0 );
+	p[4] = Vec3f(  1, 1, 0 );
+	p[5] = Vec3f( -1, 1, 0 );
+
+	Vec3f pa, pb, pc;
+	int nt = 0, ntold;
+	
+	a = 1 / sqrt(2.0);
+	for (i=0;i<6;i++) {
+		p[i].x *= a;
+		p[i].y *= a;
+	}
+	
+	
+	mTriangles.push_back( Triangle( p[0], p[3], p[4] ) );
+	mTriangles.push_back( Triangle( p[0], p[4], p[5] ) );
+	mTriangles.push_back( Triangle( p[0], p[5], p[2] ) );
+	mTriangles.push_back( Triangle( p[0], p[2], p[3] ) );
+	mTriangles.push_back( Triangle( p[1], p[4], p[3] ) );
+	mTriangles.push_back( Triangle( p[1], p[5], p[4] ) );
+	mTriangles.push_back( Triangle( p[1], p[2], p[5] ) );
+	mTriangles.push_back( Triangle( p[1], p[3], p[2] ) );
+
+	nt = 8;
+	
+	
+	for( it=0; it<iterations; it++ ){
+		ntold = nt;
+		for( i=0; i<ntold; i++ ){
+			
+			pa.x = ( mTriangles[i].p1.x + mTriangles[i].p2.x ) / 2;
+			pa.y = ( mTriangles[i].p1.y + mTriangles[i].p2.y ) / 2;
+			pa.z = ( mTriangles[i].p1.z + mTriangles[i].p2.z ) / 2;
+			pb.x = ( mTriangles[i].p2.x + mTriangles[i].p3.x ) / 2;
+			pb.y = ( mTriangles[i].p2.y + mTriangles[i].p3.y ) / 2;
+			pb.z = ( mTriangles[i].p2.z + mTriangles[i].p3.z ) / 2;
+			pc.x = ( mTriangles[i].p3.x + mTriangles[i].p1.x ) / 2;
+			pc.y = ( mTriangles[i].p3.y + mTriangles[i].p1.y ) / 2;
+			pc.z = ( mTriangles[i].p3.z + mTriangles[i].p1.z ) / 2;
+			
+			pa.normalize();
+			pb.normalize();
+			pc.normalize();
+			
+			mTriangles.push_back( Triangle( mTriangles[i].p1, pa, pc ) ); nt++;
+			mTriangles.push_back( Triangle( pa, mTriangles[i].p2, pb ) ); nt++;
+			mTriangles.push_back( Triangle( pb, mTriangles[i].p3, pc ) ); nt++;
+
+			mTriangles[i].p1 = pa;
+			mTriangles[i].p2 = pb;
+			mTriangles[i].p3 = pc;
+		}
+	}
+	
+	mNumSphereVerts		= nt * 3;
+	mSphereVerts		= new float[mNumSphereVerts*3];
+	mSphereNormals		= new float[mNumSphereVerts*3];
+	mSphereTexCoords	= new float[mNumSphereVerts*2];
+	
+	
+	int index = 0;
+	int nIndex = 0;
+	int tIndex = 0;
+	for( i=0; i<nt; i++ ){
+		mSphereVerts[index++] = mTriangles[i].p1.x;
+		mSphereVerts[index++] = mTriangles[i].p1.y;
+		mSphereVerts[index++] = mTriangles[i].p1.z;
+		
+		mSphereVerts[index++] = mTriangles[i].p2.x;
+		mSphereVerts[index++] = mTriangles[i].p2.y;
+		mSphereVerts[index++] = mTriangles[i].p2.z;
+		
+		mSphereVerts[index++] = mTriangles[i].p3.x;
+		mSphereVerts[index++] = mTriangles[i].p3.y;
+		mSphereVerts[index++] = mTriangles[i].p3.z;
+		
+		
+		mSphereTexCoords[tIndex++] = 0.0f;
+		mSphereTexCoords[tIndex++] = 0.0f;
+		
+		mSphereTexCoords[tIndex++] = 1.0f;
+		mSphereTexCoords[tIndex++] = 0.0f;
+		
+		mSphereTexCoords[tIndex++] = 0.5f;
+		mSphereTexCoords[tIndex++] = 1.0f;
+		
+		mSphereNormals[nIndex++] = mTriangles[i].p1.x;// * 0.05f;
+		mSphereNormals[nIndex++] = mTriangles[i].p1.y;// * 0.05f;
+		mSphereNormals[nIndex++] = mTriangles[i].p1.z;// * 0.05f;
+		
+		mSphereNormals[nIndex++] = mTriangles[i].p2.x;// * 0.05f;
+		mSphereNormals[nIndex++] = mTriangles[i].p2.y;// * 0.05f;
+		mSphereNormals[nIndex++] = mTriangles[i].p2.z;// * 0.05f;
+		
+		mSphereNormals[nIndex++] = mTriangles[i].p3.x;// * 0.05f;
+		mSphereNormals[nIndex++] = mTriangles[i].p3.y;// * 0.05f;
+		mSphereNormals[nIndex++] = mTriangles[i].p3.z;// * 0.05f;
+	}
+}
+*/
 
 void KeplerApp::init()
 {
@@ -672,14 +909,17 @@ void KeplerApp::update()
 	if( mData.update() ){
 		mWorld.initNodes( &mIpodPlayer, mFont );
 		mWorld.initRingVertexArray();
+		mWorld.initNodeSphereData( mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals,
+								   mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals ); 
+
 		mIsLoaded = true;
 	}
 		
 	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
 	updateArcball();
 	mWorld.update( mMatrix );
-	//mParticleController.pullToCenter( mState.getPlayingNode() );
     mParticleController.update();
+	mParticleController.buildVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
 	updateCamera();
 	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 	if( mIsLoaded ){
@@ -868,7 +1108,7 @@ void KeplerApp::drawScene()
 			Vec3f lightPos          = artistNode->mTransPos;
 			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() * 0.5f ), 1.0f ) );
+			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor  ), 1.0f ) );
 			
 			
 // PLANETS
@@ -904,7 +1144,8 @@ void KeplerApp::drawScene()
 // PARTICLES
 	if( mIsDrawingStars && mState.getSelectedArtistNode() ){
 		mStarGlowTex.enableAndBind();
-		mParticleController.drawScreenspace( mState.getSelectedArtistNode(), mMatrix, mBbRight, mBbUp );
+		mParticleController.drawVertexArray( mState.getSelectedArtistNode(), mMatrix );
+		//mParticleController.drawScreenspace( mState.getSelectedArtistNode(), mMatrix, mBbRight, mBbUp );
 		mStarGlowTex.disable();
 	}
 	

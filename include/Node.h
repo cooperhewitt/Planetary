@@ -29,6 +29,8 @@ class Node {
 	virtual ~Node(){ deselect(); }	
 	
 	// METHODS
+	void			setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
+								  int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals );
 	void			init();
 	void			initWithParent();
 	void			createNameTexture();
@@ -73,6 +75,7 @@ class Node {
 // CHARACTERISTICS
     
 // RADII
+	float				mMass;				// Mass of the Node
 	float				mRadius;			// Radius of the Node
 	float				mRadiusDest;		// Destination radius
 	float				mGlowRadius;		// Radius of the glow image
@@ -82,6 +85,8 @@ class Node {
 	float				mOrbitAngle;		// Current angle in relation to the parentNode
 	float				mOrbitRadius;		// Current distance from parentNode
 	float				mOrbitRadiusDest;	// Final distance from parentNode
+	float				mOrbitRadiusDestVel;
+	float				mOrbitRadiusDestAcc;
 	float				mOrbitPeriod;		// Time in seconds to orbit parentNode
     float				mOrbitLineAlpha;	// Alpha of the orbit line based on playcount
 	
@@ -128,4 +133,14 @@ class Node {
 	float				mHighlightStrength;	// Falloff for the highlight glow
 	bool				mIsSelected;		// Node has been chosen
 	bool				mIsHighlighted;		// Node is able to be chosen
+	
+// SPHERE DATA
+	int					mTotalVertsHiRes;
+	int					mTotalVertsLoRes;
+	float				*mSphereVertsHiRes;
+	float				*mSphereTexCoordsHiRes;
+	float				*mSphereNormalsHiRes;
+	float				*mSphereVertsLoRes;
+	float				*mSphereTexCoordsLoRes;
+	float				*mSphereNormalsLoRes;
 };

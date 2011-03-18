@@ -165,6 +165,7 @@
 		E1A332E11301068800CED126 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		E1A332EF1301072600CED126 /* Easing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Easing.h; path = ../include/Easing.h; sourceTree = SOURCE_ROOT; };
 		E1A332F01301072600CED126 /* Globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Globals.h; path = ../include/Globals.h; sourceTree = SOURCE_ROOT; };
+		E1A66CBD1332D4A2002677F6 /* BloomGl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BloomGl.h; path = ../include/BloomGl.h; sourceTree = "<group>"; };
 		E1A78BC11331822400F3AE92 /* nextOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = nextOn.png; path = ../resources/ui/nextOn.png; sourceTree = "<group>"; };
 		E1A78BC21331822400F3AE92 /* pauseOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = pauseOn.png; path = ../resources/ui/pauseOn.png; sourceTree = "<group>"; };
 		E1A78BC31331822500F3AE92 /* playOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playOn.png; path = ../resources/ui/playOn.png; sourceTree = "<group>"; };
@@ -440,6 +441,7 @@
 		E1C6017E13188B280022246C /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				E1A66CBD1332D4A2002677F6 /* BloomGl.h */,
 				E1A332EF1301072600CED126 /* Easing.h */,
 				E1A332F01301072600CED126 /* Globals.h */,
 			);

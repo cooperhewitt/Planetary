@@ -18,6 +18,7 @@ class NodeAlbum : public Node
 	NodeAlbum( Node *parent, int index, const ci::Font &font );
 	
 	void update( const ci::Matrix44f &mat );
+	void repelOrbitTracks();
 	void drawStar(){ Node::drawStar(); }
 	void drawStarGlow(){ Node::drawStarGlow(); }
 	void drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
