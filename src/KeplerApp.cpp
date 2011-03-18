@@ -21,6 +21,7 @@
 #include "CinderIPodPlayer.h"
 #include "PinchRecognizer.h"
 #include "ParticleController.h"
+#include "LoadingScreen.h"
 #include <vector>
 #include <sstream>
 
@@ -45,7 +46,6 @@ Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
 
 class KeplerApp : public AppCocoaTouch {
   public:
-	void			init();
 	virtual void	setup();
 	void			initTextures();
 	void			initSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals );
@@ -58,7 +58,6 @@ class KeplerApp : public AppCocoaTouch {
 	void			updateCamera();
 	void			updatePlayhead();
 	virtual void	draw();
-	void			drawLoader();
     void            drawScene();
 	void			drawInfoPanel();
 	void			setParamsTex();
@@ -73,6 +72,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onPlayerStateChanged( ipod::Player *player );
     bool			onPlayerTrackChanged( ipod::Player *player );
 	
+    LoadingScreen   mLoadingScreen;
 	World			mWorld;
 	State			mState;
 	AlphaWheel		mAlphaWheel;
@@ -176,18 +176,18 @@ class KeplerApp : public AppCocoaTouch {
 
 void KeplerApp::setup()
 {
+    std::cout << "setupStart: " << getElapsedSeconds() << std::endl;
+    
 	if( G_IS_IPAD2 ){
 		G_NUM_PARTICLES = 1000;
 	}
-	
-	
+    
 	mIsLoaded = false;
 	mIsDrawingRings = true;
 	mIsDrawingStars = true;
 	mIsDrawingPlanets = true;
 	mIsDrawingText	= true;
 	Rand::randomize();
-
 	
     // TEXTURES
 	initTextures();
@@ -202,12 +202,6 @@ void KeplerApp::setup()
 	mArcball.setWindowSize( getWindowSize() );
 	mArcball.setCenter( getWindowCenter() );
 	mArcball.setRadius( 420 );
-	
-	// AUDIO
-//	mCurrentTrackId         = 1;
-//	mCurrentTrackPlayheadTime = 0;
-	// TODO: what about? something like this:
-	//mCurrentTrack = mIpodPlayer.getCurrentTrack();
 	
 	// CAMERA PERSP
 	mCamDist			= G_INIT_CAM_DIST;
@@ -279,6 +273,14 @@ void KeplerApp::setup()
 // VERTEX ARRAY SPHERE
 	initSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
 	initSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+    
+    // DATA
+    mData.initArtists(); // NB:- is asynchronous, see update() for what happens when it's done
+	
+    // WORLD
+    mWorld.setData( &mData );  
+
+    std::cout << "setupEnd: " << getElapsedSeconds() << std::endl;
 }
 
 
@@ -351,8 +353,6 @@ void KeplerApp::initTextures()
 	cout << "after load time = " << t << endl;
 	
 }
-
-
 
 void KeplerApp::initSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals )
 {	
@@ -451,136 +451,6 @@ void KeplerApp::initSphereVertexArray( int segments, int *numVerts, float* &sphe
 	std::cout << "size of SphereVerts = " << index << std::endl;
 	std::cout << "size of SphereNormals = " << nIndex << std::endl;
 	std::cout << "size of SphereTexCoords = " << tIndex << std::endl;
-}
-
-
-
-
-
-/*
-void KeplerApp::initSphereVertexArray( int iterations )
-{	
-	int i,it;
-	double a;
-	Vec3f p[6];
-	p[0] = Vec3f(  0, 0, 1 );
-	p[1] = Vec3f(  0, 0,-1 );
-	p[2] = Vec3f( -1,-1, 0 );
-	p[3] = Vec3f(  1,-1, 0 );
-	p[4] = Vec3f(  1, 1, 0 );
-	p[5] = Vec3f( -1, 1, 0 );
-
-	Vec3f pa, pb, pc;
-	int nt = 0, ntold;
-	
-	a = 1 / sqrt(2.0);
-	for (i=0;i<6;i++) {
-		p[i].x *= a;
-		p[i].y *= a;
-	}
-	
-	
-	mTriangles.push_back( Triangle( p[0], p[3], p[4] ) );
-	mTriangles.push_back( Triangle( p[0], p[4], p[5] ) );
-	mTriangles.push_back( Triangle( p[0], p[5], p[2] ) );
-	mTriangles.push_back( Triangle( p[0], p[2], p[3] ) );
-	mTriangles.push_back( Triangle( p[1], p[4], p[3] ) );
-	mTriangles.push_back( Triangle( p[1], p[5], p[4] ) );
-	mTriangles.push_back( Triangle( p[1], p[2], p[5] ) );
-	mTriangles.push_back( Triangle( p[1], p[3], p[2] ) );
-
-	nt = 8;
-	
-	
-	for( it=0; it<iterations; it++ ){
-		ntold = nt;
-		for( i=0; i<ntold; i++ ){
-			
-			pa.x = ( mTriangles[i].p1.x + mTriangles[i].p2.x ) / 2;
-			pa.y = ( mTriangles[i].p1.y + mTriangles[i].p2.y ) / 2;
-			pa.z = ( mTriangles[i].p1.z + mTriangles[i].p2.z ) / 2;
-			pb.x = ( mTriangles[i].p2.x + mTriangles[i].p3.x ) / 2;
-			pb.y = ( mTriangles[i].p2.y + mTriangles[i].p3.y ) / 2;
-			pb.z = ( mTriangles[i].p2.z + mTriangles[i].p3.z ) / 2;
-			pc.x = ( mTriangles[i].p3.x + mTriangles[i].p1.x ) / 2;
-			pc.y = ( mTriangles[i].p3.y + mTriangles[i].p1.y ) / 2;
-			pc.z = ( mTriangles[i].p3.z + mTriangles[i].p1.z ) / 2;
-			
-			pa.normalize();
-			pb.normalize();
-			pc.normalize();
-			
-			mTriangles.push_back( Triangle( mTriangles[i].p1, pa, pc ) ); nt++;
-			mTriangles.push_back( Triangle( pa, mTriangles[i].p2, pb ) ); nt++;
-			mTriangles.push_back( Triangle( pb, mTriangles[i].p3, pc ) ); nt++;
-
-			mTriangles[i].p1 = pa;
-			mTriangles[i].p2 = pb;
-			mTriangles[i].p3 = pc;
-		}
-	}
-	
-	mNumSphereVerts		= nt * 3;
-	mSphereVerts		= new float[mNumSphereVerts*3];
-	mSphereNormals		= new float[mNumSphereVerts*3];
-	mSphereTexCoords	= new float[mNumSphereVerts*2];
-	
-	
-	int index = 0;
-	int nIndex = 0;
-	int tIndex = 0;
-	for( i=0; i<nt; i++ ){
-		mSphereVerts[index++] = mTriangles[i].p1.x;
-		mSphereVerts[index++] = mTriangles[i].p1.y;
-		mSphereVerts[index++] = mTriangles[i].p1.z;
-		
-		mSphereVerts[index++] = mTriangles[i].p2.x;
-		mSphereVerts[index++] = mTriangles[i].p2.y;
-		mSphereVerts[index++] = mTriangles[i].p2.z;
-		
-		mSphereVerts[index++] = mTriangles[i].p3.x;
-		mSphereVerts[index++] = mTriangles[i].p3.y;
-		mSphereVerts[index++] = mTriangles[i].p3.z;
-		
-		
-		mSphereTexCoords[tIndex++] = 0.0f;
-		mSphereTexCoords[tIndex++] = 0.0f;
-		
-		mSphereTexCoords[tIndex++] = 1.0f;
-		mSphereTexCoords[tIndex++] = 0.0f;
-		
-		mSphereTexCoords[tIndex++] = 0.5f;
-		mSphereTexCoords[tIndex++] = 1.0f;
-		
-		mSphereNormals[nIndex++] = mTriangles[i].p1.x;// * 0.05f;
-		mSphereNormals[nIndex++] = mTriangles[i].p1.y;// * 0.05f;
-		mSphereNormals[nIndex++] = mTriangles[i].p1.z;// * 0.05f;
-		
-		mSphereNormals[nIndex++] = mTriangles[i].p2.x;// * 0.05f;
-		mSphereNormals[nIndex++] = mTriangles[i].p2.y;// * 0.05f;
-		mSphereNormals[nIndex++] = mTriangles[i].p2.z;// * 0.05f;
-		
-		mSphereNormals[nIndex++] = mTriangles[i].p3.x;// * 0.05f;
-		mSphereNormals[nIndex++] = mTriangles[i].p3.y;// * 0.05f;
-		mSphereNormals[nIndex++] = mTriangles[i].p3.z;// * 0.05f;
-	}
-}
-*/
-
-void KeplerApp::init()
-{
-	static bool inited = false;
-	
-	if (!inited) {
-		// DATA
-		mData.initArtists();
-	
-		// WORLD
-		mWorld.setData( &mData );
-		//mWorld.initNodes( &mIpodPlayer, mFont );
-		
-		inited = true;
-	}
 }
 
 void KeplerApp::touchesBegan( TouchEvent event )
@@ -1015,49 +885,11 @@ void KeplerApp::updatePlayhead()
 	}
 }
 
-
-void KeplerApp::drawLoader()
-{
-	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-	mLoadingTex.enableAndBind();
-	gl::setMatricesWindow( getWindowSize() );
-	gl::drawSolidRect( getWindowBounds() );
-	mLoadingTex.disable();
-	
-	gl::enableAdditiveBlending();
-	float xCenter = getWindowWidth() * 0.5f;
-	float yCenter = getWindowHeight() * 0.5f;
-
-	Rectf bigRect = Rectf( xCenter - 50, yCenter - 50, xCenter + 50, yCenter + 50 );
-	mStarGlowTex.enableAndBind();
-	gl::drawSolidRect( bigRect );
-	mStarGlowTex.disable();
-	
-	Rectf rect = Rectf( xCenter - 28, yCenter - 28, xCenter + 28, yCenter + 28 );
-	mStarTex.enableAndBind();
-	gl::drawSolidRect( rect );
-	
-	float smallOffset	= cos( getElapsedSeconds() * 0.3f + 2.0f ) * 30.0f;
-	Rectf smallRect		= Rectf( xCenter - 4.0f + smallOffset, yCenter - 4.0f, xCenter + 4.0f + smallOffset, yCenter + 4.0f );
-	//float mediumOffset	= ( getElapsedSeconds() - 3.0f ) * 10.0f;	
-	//Rectf mediumRect	= Rectf( xCenter - 25.0f + mediumOffset * 2.5f, yCenter - 25.0f, xCenter + 25.0f + mediumOffset * 2.5f, yCenter + 25.0f );
-	gl::color( Color( 0.0f, 0.0f, 0.0f ) );
-	gl::disableAlphaBlending();
-	gl::enableAlphaBlending();
-	gl::drawSolidRect( smallRect );
-	//gl::drawSolidRect( mediumRect );
-	mStarTex.disable();
-	
-	gl::disableAlphaBlending();
-}
-
 void KeplerApp::draw()
 {
 	gl::clear( Color( 0, 0, 0 ), true );
 	if( !mIsLoaded ){
-		drawLoader();
-		
-		init();
+		mLoadingScreen.draw(mLoadingTex, mStarGlowTex, mStarTex, this);
 	} else {
 		drawScene();
 	}
