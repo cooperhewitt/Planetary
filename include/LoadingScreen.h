@@ -14,10 +14,5 @@
 
 class LoadingScreen {  
 public:
-    void setup( const ci::gl::Texture &loadingTex, const ci::gl::Texture &starGlowTex, const ci::gl::Texture &starTex );
-    void draw( const ci::app::AppCocoaTouch *app );
-private:
-    ci::gl::Texture mLoadingTex;
-    ci::gl::Texture mStarGlowTex;
-    ci::gl::Texture mStarTex;
+    void draw( const ci::app::AppCocoaTouch *app, const ci::gl::Texture &loadingTex, const ci::gl::Texture &starGlowTex, const ci::gl::Texture &starTex );
 };

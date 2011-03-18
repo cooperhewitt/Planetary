@@ -21,6 +21,7 @@
 #include "PinchRecognizer.h"
 #include "ParticleController.h"
 #include "LoadingScreen.h"
+//#include "TextureLoader.h"
 #include <vector>
 #include <sstream>
 
@@ -46,8 +47,7 @@ class KeplerApp : public AppCocoaTouch {
 	virtual void	setup();
     void            remainingSetup();
 	void			initLoadingTextures();
-    void            initResources(); // can be threaded
-	void			initTextures();  // cannot be threaded
+	void			initTextures();
 	virtual void	touchesBegan( TouchEvent event );
 	virtual void	touchesMoved( TouchEvent event );
 	virtual void	touchesEnded( TouchEvent event );
@@ -136,6 +136,8 @@ class KeplerApp : public AppCocoaTouch {
     ParticleController mParticleController;
 	
 	// TEXTURES
+//    TextureLoader   mTextureLoader;
+    
 	gl::Texture		mLoadingTex;
 	gl::Texture		mParamsTex;
 	gl::Texture		mAtmosphereTex;
@@ -146,15 +148,16 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mPanelUpTex, mPanelDownTex;
 	gl::Texture		mSliderBgTex;
 	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex, mHighlightTex;
+    gl::Texture     mRingsTex;
+    
 	vector<gl::Texture> mButtonsTex;
 	vector<gl::Texture> mPanelButtonsTex;
 	vector<gl::Texture> mPlanetsTex;
-    gl::Texture     mRingsTex;
 	vector<gl::Texture> mCloudsTex;
 	
 	float			mTime;
 	
-	bool			mIsLoaded;
+	bool			mDataIsLoaded;
     bool            mRemainingSetupCalled; // setup() is short and fast, remainingSetup() is slow
 	bool			mIsDrawingRings;
 	bool			mIsDrawingStars;
@@ -171,9 +174,8 @@ void KeplerApp::setup()
 	}
 
     mRemainingSetupCalled = false;
-
+    
     initLoadingTextures();
-    mLoadingScreen.setup( mLoadingTex, mStarGlowTex, mStarTex );
 }
 
 void KeplerApp::remainingSetup()
@@ -182,17 +184,16 @@ void KeplerApp::remainingSetup()
     
     mRemainingSetupCalled = true;
 
-	mIsLoaded = false;
+    mDataIsLoaded = false;
 	mIsDrawingRings = true;
 	mIsDrawingStars = true;
 	mIsDrawingPlanets = true;
 	mIsDrawingText	= true;
 	Rand::randomize();
-	
-
-    // TEXTURES
-	initTextures();
     
+    // TEXTURES
+    initTextures();
+	    
 	// INIT ACCELEROMETER
 	enableAccelerometer();
 	mAccelMatrix		= Matrix44f();
@@ -272,7 +273,7 @@ void KeplerApp::remainingSetup()
     
     // DATA
     mData.initArtists(); // NB:- is asynchronous, see update() for what happens when it's done
-	
+
     // WORLD
     mWorld.setData( &mData );  
 
@@ -281,9 +282,17 @@ void KeplerApp::remainingSetup()
 
 void KeplerApp::initLoadingTextures()
 {
-	mLoadingTex			= loadImage( loadResource( "loading.jpg" ) );
-	mStarTex			= loadImage( loadResource( "star.png" ) );
-	mStarGlowTex		= loadImage( loadResource( "starGlow.png" ) );    
+    float t = getElapsedSeconds();
+    std::cout << "initLoadingTextures, begin: " << t << std::endl;
+    // only add textures here if they are *required* for LoadingScreen
+    // otherwise add them to initTextures
+	mLoadingTex  = loadImage( loadResource( "loading.jpg" ) );
+	mStarTex     = loadImage( loadResource( "star.png" ) );
+	mStarGlowTex = loadImage( loadResource( "starGlow.png" ) );   
+//    mTextureLoader.requestTexture( "loading.jpg",  mLoadingTex );
+//    mTextureLoader.requestTexture( "star.png",     mStarTex );
+//    mTextureLoader.requestTexture( "starGlow.png", mStarGlowTex );
+    std::cout << "initLoadingTextures, duration: " << getElapsedSeconds() - t << std::endl;
 }
 
 void KeplerApp::initTextures()
@@ -296,7 +305,8 @@ void KeplerApp::initTextures()
     */
 	
 	float t = getElapsedSeconds();
-	cout << "before load time = " << t << endl;
+	cout << "initTextures start time = " << t << endl;
+    
 	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
 	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
 	mSliderBgTex		= loadImage( loadResource( "sliderBg.png" ) );
@@ -305,7 +315,10 @@ void KeplerApp::initTextures()
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
-	mParamsTex			= gl::Texture( 768, 75 );
+	mRingsTex           = loadImage( loadResource( "rings.png" ) );
+    
+	mParamsTex			= gl::Texture( 768, 75 );    
+    
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "play.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "playOn.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "pause.png" ) ) ) );
@@ -321,10 +334,12 @@ void KeplerApp::initTextures()
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawLines.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawPlanets.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawText.png" ) ) ) );
+    
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUp.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUpOn.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelDown.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelDownOn.png" ) ) ) );
+    
     mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "12.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "13.jpg" ) ) ) );
@@ -340,15 +355,14 @@ void KeplerApp::initTextures()
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "51.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "52.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "53.jpg" ) ) ) );
-	mRingsTex           = loadImage( loadResource( "rings.png" ) );
+    
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds1.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds2.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds3.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds4.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
-	t = getElapsedSeconds();
-	cout << "after load time = " << t << endl;
-	
+    
+	cout << "initTextures duration = " << (getElapsedSeconds()-t) << endl;
 }
 
 void KeplerApp::touchesBegan( TouchEvent event )
@@ -680,8 +694,10 @@ void KeplerApp::update()
 	if( mData.update() ){
 		mWorld.initNodes( &mIpodPlayer, mFont );
 		mWorld.initRingVertexArray();
-		mIsLoaded = true;
+		mDataIsLoaded = true;
 	}
+    
+    //mTextureLoader.update();
     
     if ( mRemainingSetupCalled ) {
         mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
@@ -691,7 +707,7 @@ void KeplerApp::update()
         mParticleController.update();
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
-        if( mIsLoaded ){
+        if( mDataIsLoaded ){
             mWorld.buildStarsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
             mWorld.buildStarGlowsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
         }
@@ -788,11 +804,11 @@ void KeplerApp::updatePlayhead()
 void KeplerApp::draw()
 {
 	gl::clear( Color( 0, 0, 0 ), true );
-	if( !mIsLoaded ){
-		mLoadingScreen.draw( this );
+	if( !mDataIsLoaded ){
+		mLoadingScreen.draw( this, mLoadingTex, mStarGlowTex, mStarTex );
         if (getElapsedFrames() > 1 && !mRemainingSetupCalled) {
             remainingSetup();
-        }        
+        }   
 	} else {
 		drawScene();
 	}
@@ -951,7 +967,6 @@ void KeplerApp::setParamsTex()
 	else if (mState.getAlphaChar() != ' ') {
 		currentLevel = G_ALPHA_LEVEL;
 	}
-	
 	
 	s.str("");
 	s << " CURRENT LEVEL: " << currentLevel;
