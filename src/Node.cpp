@@ -179,10 +179,10 @@ void Node::drawClouds( const vector<gl::Texture> &clouds )
 	}
 }
 
-void Node::drawRings( const gl::Texture &tex )
+void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawRings( tex );
+		(*nodeIt)->drawRings( tex, planetRingVerts, planetRingTexCoords );
 	}
 }
 

@@ -24,7 +24,7 @@ class NodeArtist : public Node
 									  Node::drawOrbitRing( playingNode, ringVertsLowRes, ringVertsHighRes ); }
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
-	void drawRings( const ci::gl::Texture &tex ){ Node::drawRings( tex ); }
+	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords ){ Node::drawRings( tex, planetRingVerts, planetRingTexCoords ); }
 	void select();
 	void setChildOrbitRadii();
 	string getName();
