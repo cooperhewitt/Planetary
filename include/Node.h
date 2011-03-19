@@ -40,7 +40,7 @@ class Node {
 	virtual void	drawStarGlow();
 	virtual void	drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds );
-	virtual void	drawRings( const ci::gl::Texture &tex );
+	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords );
 	virtual void	drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset );
 	void			wasTapped(){ mIsTapped = true; mHighlightStrength = 1.0f; }

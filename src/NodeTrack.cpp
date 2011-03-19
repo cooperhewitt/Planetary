@@ -26,22 +26,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	mIsHighlighted		= true;
 	mRadius				*= 4.0f;
 	
-	
-	/*
-	// FIXME: bad C++?
-	float numTracks		= ((NodeAlbum*)mParentNode)->mNumTracks;
-	float invTrackPer	= 1.0f/numTracks;
-	float trackNumPer	= (float)mIndex * invTrackPer;
-	
-	float minAmt		= mParentNode->mOrbitRadiusMin;
-	float maxAmt		= mParentNode->mOrbitRadiusMax;
-	float deltaAmt		= maxAmt - minAmt;
-	mOrbitRadiusDest	= minAmt + deltaAmt * trackNumPer;// + Rand::randFloat( maxAmt * invTrackPer * 0.75f );
-	*/
-	
-	
     mIsPlaying			= false;
-	mHasRings			= false;
 	
 }
 
@@ -69,10 +54,6 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mPlanetTexIndex = mIndex%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
 	mCloudTexIndex  = Rand::randInt( G_NUM_CLOUD_TYPES );
    // mPlanetTexIndex *= G_NUM_PLANET_TYPE_OPTIONS + Rand::randInt( G_NUM_PLANET_TYPE_OPTIONS );
-
-	
-	if( mParentNode->mHighestPlayCount == mPlayCount && mPlayCount > 5 )
-		mHasRings = true;
 	
 	float hue			= Rand::randFloat( 0.15f, 0.75f );
 	float sat			= Rand::randFloat( 0.15f, 0.5f );
@@ -94,58 +75,6 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	
     // TODO: no reason why every track should init this vertex array
 	//initVertexArray();
-}
-
-void NodeTrack::initVertexArray()
-{
-    mVerts			= new float[18];
-	mTexCoords		= new float[12];
-	int i = 0;
-	int t = 0;
-	Vec3f corner;
-	float w	= mRadius * 3.35f;
-	
-	corner			= Vec3f( -w, 0.0f, -w );
-	mVerts[i++]			= corner.x;
-	mVerts[i++]			= corner.y;
-	mVerts[i++]			= corner.z;
-	mTexCoords[t++]		= 0.0f;
-	mTexCoords[t++]		= 0.0f;
-	
-	corner			= Vec3f( w, 0.0f, -w );
-	mVerts[i++]			= corner.x;
-	mVerts[i++]			= corner.y;
-	mVerts[i++]			= corner.z;
-	mTexCoords[t++]		= 1.0f;
-	mTexCoords[t++]		= 0.0f;
-    
-	corner			= Vec3f( w, 0.0f, w );	
-	mVerts[i++]			= corner.x;
-	mVerts[i++]			= corner.y;
-	mVerts[i++]			= corner.z;
-	mTexCoords[t++]		= 1.0f;
-	mTexCoords[t++]		= 1.0f;
-	
-	corner			= Vec3f( -w, 0.0f, -w );
-	mVerts[i++]			= corner.x;
-	mVerts[i++]			= corner.y;
-	mVerts[i++]			= corner.z;
-	mTexCoords[t++]		= 0.0f;
-	mTexCoords[t++]		= 0.0f;
-	
-	corner			= Vec3f( w, 0.0f, w );	
-	mVerts[i++]			= corner.x;
-	mVerts[i++]			= corner.y;
-	mVerts[i++]			= corner.z;
-	mTexCoords[t++]		= 1.0f;
-	mTexCoords[t++]		= 1.0f;
-    
-	corner			= Vec3f( -w, 0.0f, w );	
-	mVerts[i++]			= corner.x;
-	mVerts[i++]			= corner.y;
-	mVerts[i++]			= corner.z;
-	mTexCoords[t++]		= 0.0f;
-	mTexCoords[t++]		= 1.0f;
 }
 
 void NodeTrack::update( const Matrix44f &mat )
@@ -209,6 +138,7 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 	gl::translate( mTransPos );
 	gl::scale( Vec3f( mRadius, mRadius, mRadius ) );
 	gl::rotate( mMatrix );
+	gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
 	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, 0.0f ) );
 	gl::color( mEclipseColor );
 	planets[mPlanetTexIndex].enableAndBind();
@@ -249,6 +179,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 		gl::scale( Vec3f( radius, radius, radius ) );
 		glEnable( GL_RESCALE_NORMAL );
 		gl::rotate( mMatrix );
+		gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
 		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.6f, 0.0f ) );
 		// SHADOW CLOUDS
 		glDisable( GL_LIGHTING );
@@ -265,6 +196,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 		gl::scale( Vec3f( radius, radius, radius ) );
 		glEnable( GL_RESCALE_NORMAL );
 		gl::rotate( mMatrix );
+		gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
 		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.6f, 0.0f ) );
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
@@ -276,28 +208,6 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 		glDisableClientState( GL_NORMAL_ARRAY );
 
-	}
-}
-
-
-void NodeTrack::drawRings( const gl::Texture &tex )
-{
-	if( mHasRings ){
-		gl::pushModelView();
-		gl::translate( mTransPos );
-		gl::rotate( mMatrix );
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 10.0f, mAxialTilt ) );
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
-		tex.enableAndBind();
-		glEnableClientState( GL_VERTEX_ARRAY );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glVertexPointer( 3, GL_FLOAT, 0, mVerts );
-		glTexCoordPointer( 2, GL_FLOAT, 0, mTexCoords );
-		glDrawArrays( GL_TRIANGLES, 0, 6 );
-		glDisableClientState( GL_VERTEX_ARRAY );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		tex.disable();
-		gl::popModelView();
 	}
 }
 

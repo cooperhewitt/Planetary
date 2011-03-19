@@ -65,7 +65,6 @@ void NodeArtist::update( const Matrix44f &mat )
 }
 
 
-
 void NodeArtist::drawStar()
 {
 	float radius    = mRadius;

@@ -34,7 +34,7 @@ using std::stringstream;
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
 bool G_ACCEL            = false;
-bool G_IS_IPAD2			= false;
+bool G_IS_IPAD2			= true;
 int G_NUM_PARTICLES		= 250;
 
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
@@ -778,7 +778,7 @@ void KeplerApp::update()
 {
 	if( mData.update() ){
 		mWorld.initNodes( &mIpodPlayer, mFont );
-		mWorld.initRingVertexArray();
+		mWorld.initVertexArrays();
 		mWorld.initNodeSphereData( mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals,
 								   mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals ); 
 
@@ -967,6 +967,11 @@ void KeplerApp::drawScene()
     gl::disableDepthWrite();
     gl::enableAdditiveBlending();
 	gl::enableDepthRead();
+	
+	
+	// RINGS
+	mWorld.drawRings( mRingsTex );
+	
 	
 // ORBITS
 	if( mIsDrawingRings ){

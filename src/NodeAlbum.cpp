@@ -24,6 +24,8 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	: Node( parent, index, font )
 {
 	mIsHighlighted	= true;
+	mHasRings		= false;
+	if( Rand::randFloat() < 0.2f ) mHasRings = true;
 	
 	// FIXME: bad c++?
 	float numAlbums = ((NodeArtist*)mParentNode)->mNumAlbums + 2.0f;
@@ -62,10 +64,16 @@ void NodeAlbum::setData( PlaylistRef album )
 	mOrbitRadiusMin		= mRadius * 2.0f;
 	mOrbitRadiusMax		= mRadius * 7.5f;
 	
-    mAxialVel       = Rand::randFloat( 10.0f, 45.0f );
+	if( mHasRings ){
+		mOrbitRadiusMin = mRadius * 3.0f;
+		mOrbitRadiusMax = mRadius * 8.5f;
+	}
+	
+	mAxialTilt			= Rand::randFloat( 5.0f, 30.0f );
+    mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
     
-    mPlanetTexIndex = ( mIndex + 6 )%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
-	mCloudTexIndex  = Rand::randInt( G_NUM_CLOUD_TYPES );
+    mPlanetTexIndex		= ( mIndex + 6 )%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
+	mCloudTexIndex		= Rand::randInt( G_NUM_CLOUD_TYPES );
 
 	for (int i = 0; i < mNumTracks; i++) {
 		float numPlays = (*mAlbum)[i]->getPlayCount();
@@ -145,6 +153,7 @@ void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 	gl::translate( mTransPos );
 	gl::scale( Vec3f( mRadius, mRadius, mRadius ) );
 	gl::rotate( mMatrix );
+	gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
 	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, 0.0f ) );
 	gl::color( mEclipseColor );
 	planets[mPlanetTexIndex].enableAndBind();
@@ -154,23 +163,6 @@ void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	glDisableClientState( GL_NORMAL_ARRAY );	
-	
-	
-	
-	/*
-	gl::disableAlphaBlending();
-	
-    gl::pushModelView();
-	gl::translate( mTransPos );
-	gl::scale( Vec3f( 2.0f, 2.0f, 2.0f ) ) ;
-	gl::rotate( mMatrix );
-	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, 0.0f ) );
-	gl::color( mEclipseColor );
-	planets[mPlanetTexIndex].enableAndBind();
-	gl::drawSphere( Vec3f::zero(), mRadius, mSphereResInt );
-	gl::popModelView();
-    */
-	
 	
 	Node::drawPlanet( planets );
 }
@@ -203,6 +195,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::scale( Vec3f( radius, radius, radius ) );
 		glEnable( GL_RESCALE_NORMAL );
 		gl::rotate( mMatrix );
+		gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
 		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, 0.0f ) );
 // SHADOW CLOUDS
 		glDisable( GL_LIGHTING );
@@ -219,6 +212,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::scale( Vec3f( radius, radius, radius ) );
 		glEnable( GL_RESCALE_NORMAL );
 		gl::rotate( mMatrix );
+		gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
 		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, 0.0f ) );
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
@@ -233,6 +227,31 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
     
 	Node::drawClouds( clouds );
 }
+
+
+
+void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords )
+{
+	if( mHasRings ){
+		gl::pushModelView();
+		gl::translate( mTransPos );
+		gl::scale( Vec3f( mRadius * 3.0f, mRadius * 3.0f, mRadius * 3.0f ) );
+		gl::rotate( mMatrix );
+		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * 10.0f, mAxialTilt ) );
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+		tex.enableAndBind();
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glVertexPointer( 3, GL_FLOAT, 0, planetRingVerts );
+		glTexCoordPointer( 2, GL_FLOAT, 0, planetRingTexCoords );
+		glDrawArrays( GL_TRIANGLES, 0, 6 );
+		glDisableClientState( GL_VERTEX_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		tex.disable();
+		gl::popModelView();
+	}
+}
+
 
 void NodeAlbum::select()
 {

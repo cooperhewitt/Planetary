@@ -23,7 +23,7 @@ class NodeAlbum : public Node
 	void drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
-	void drawRings( const ci::gl::Texture &tex ){ Node::drawRings( tex ); }
+	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords );
 	void select();
 	void setChildOrbitRadii();
 	void setData( ci::ipod::PlaylistRef album );
@@ -33,5 +33,7 @@ class NodeAlbum : public Node
 	int mNumTracks;
 
   private:
+	
+	bool mHasRings;
 	ci::ipod::PlaylistRef mAlbum;
 };

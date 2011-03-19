@@ -23,7 +23,7 @@ class World {
  public:
 	World();
 	void setData( Data *data ){ mData = data; }
-	void initRingVertexArray();
+	void initVertexArrays();
 	void initNodes( ci::ipod::Player *player, const ci::Font &font );
 	void initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
 							int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals );
@@ -46,6 +46,7 @@ class World {
 	void buildConstellation();
 	void drawPlanets( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
+	void buildPlanetRingsVertexArray();
 	void drawRings( const ci::gl::Texture &tex );
 	
 	Data *mData;
@@ -54,13 +55,11 @@ class World {
 	std::vector<ci::gl::Texture> mNameTextures;
 	
 	std::vector<ci::Vec3f> mConstellation;
-	std::vector<ci::ColorA> mConstellationColors;
 	std::vector<float> mConstellationDistances;
-	int mTotalVertices;
-	int mPrevTotalVertices;
-	GLfloat *mVerts;
-	GLfloat *mTexCoords;
-	GLfloat *mColors;
+	int mTotalConstellationVertices;
+	int mPrevTotalConstellationVertices;
+	GLfloat *mConstellationVerts;
+	GLfloat *mConstellationTexCoords;
 	
 	GLfloat *mRingVertsLowRes;
 	GLfloat *mRingVertsHighRes;
@@ -76,4 +75,8 @@ class World {
 	GLfloat *mStarGlowVerts;
 	GLfloat *mStarGlowTexCoords;
 	GLfloat *mStarGlowColors;
+	
+	
+	GLfloat *mPlanetRingVerts;
+	GLfloat *mPlanetRingTexCoords;
 };

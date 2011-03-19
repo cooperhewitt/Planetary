@@ -24,14 +24,14 @@ using namespace std;
 
 World::World()
 {
-    mPrevTotalStarVertices = -1;
-    mStarVerts		= NULL;
-    mStarTexCoords	= NULL;
-	mStarColors		= NULL;
+    mPrevTotalStarVertices	= -1;
+    mStarVerts				= NULL;
+    mStarTexCoords			= NULL;
+	mStarColors				= NULL;
 	
-	mPrevTotalVertices = -1;
-	mVerts			= NULL;
-	mTexCoords		= NULL;
+	mPrevTotalConstellationVertices = -1;
+	mConstellationVerts			= NULL;
+	mConstellationTexCoords		= NULL;
     
 }
 
@@ -59,7 +59,7 @@ void World::initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float
 	}
 }
 
-void World::initRingVertexArray()
+void World::initVertexArrays()
 {
 	mRingVertsLowRes	= new float[ G_RING_LOW_RES*2 ]; // X,Y
 	for( int i=0; i<G_RING_LOW_RES; i++ ){
@@ -76,6 +76,8 @@ void World::initRingVertexArray()
 		mRingVertsHighRes[i*2+0]	= cos( angle );
 		mRingVertsHighRes[i*2+1]	= sin( angle );
 	}
+	
+	buildPlanetRingsVertexArray();
 }
 
 
@@ -261,6 +263,58 @@ void World::drawStars()
 	}
 }
 
+void World::buildPlanetRingsVertexArray()
+{
+	mPlanetRingVerts		= new float[18];
+	mPlanetRingTexCoords	= new float[12];
+	int i = 0;
+	int t = 0;
+	Vec3f corner;
+	float w	= 1.0f;
+	
+	corner			= Vec3f( -w, 0.0f, -w );
+	mPlanetRingVerts[i++]			= corner.x;
+	mPlanetRingVerts[i++]			= corner.y;
+	mPlanetRingVerts[i++]			= corner.z;
+	mPlanetRingTexCoords[t++]		= 0.0f;
+	mPlanetRingTexCoords[t++]		= 0.0f;
+	
+	corner			= Vec3f( w, 0.0f, -w );
+	mPlanetRingVerts[i++]			= corner.x;
+	mPlanetRingVerts[i++]			= corner.y;
+	mPlanetRingVerts[i++]			= corner.z;
+	mPlanetRingTexCoords[t++]		= 1.0f;
+	mPlanetRingTexCoords[t++]		= 0.0f;
+	
+	corner			= Vec3f( w, 0.0f, w );	
+	mPlanetRingVerts[i++]			= corner.x;
+	mPlanetRingVerts[i++]			= corner.y;
+	mPlanetRingVerts[i++]			= corner.z;
+	mPlanetRingTexCoords[t++]		= 1.0f;
+	mPlanetRingTexCoords[t++]		= 1.0f;
+	
+	corner			= Vec3f( -w, 0.0f, -w );
+	mPlanetRingVerts[i++]			= corner.x;
+	mPlanetRingVerts[i++]			= corner.y;
+	mPlanetRingVerts[i++]			= corner.z;
+	mPlanetRingTexCoords[t++]		= 0.0f;
+	mPlanetRingTexCoords[t++]		= 0.0f;
+	
+	corner			= Vec3f( w, 0.0f, w );	
+	mPlanetRingVerts[i++]			= corner.x;
+	mPlanetRingVerts[i++]			= corner.y;
+	mPlanetRingVerts[i++]			= corner.z;
+	mPlanetRingTexCoords[t++]		= 1.0f;
+	mPlanetRingTexCoords[t++]		= 1.0f;
+	
+	corner			= Vec3f( -w, 0.0f, w );	
+	mPlanetRingVerts[i++]			= corner.x;
+	mPlanetRingVerts[i++]			= corner.y;
+	mPlanetRingVerts[i++]			= corner.z;
+	mPlanetRingTexCoords[t++]		= 0.0f;
+	mPlanetRingTexCoords[t++]		= 1.0f;
+}
+
 void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	mTotalStarGlowVertices	= mData->mFilteredArtists.size() * 6;	// 6 = 2 triangles per quad
@@ -412,7 +466,7 @@ void World::drawClouds( const vector<gl::Texture> &clouds )
 void World::drawRings( const gl::Texture &tex )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawRings( tex );
+		(*it)->drawRings( tex, mPlanetRingVerts, mPlanetRingTexCoords );
 	}
 }
 
@@ -441,20 +495,20 @@ void World::drawTouchHighlights()
 
 void World::drawConstellation( const Matrix44f &mat )
 {
-	if( mTotalVertices > 2 ){
+	if( mTotalConstellationVertices > 2 ){
 		float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.2f;
 		
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		//glEnableClientState( GL_COLOR_ARRAY );
-		glVertexPointer( 3, GL_FLOAT, 0, mVerts );
-		glTexCoordPointer( 2, GL_FLOAT, 0, mTexCoords );
+		glVertexPointer( 3, GL_FLOAT, 0, mConstellationVerts );
+		glTexCoordPointer( 2, GL_FLOAT, 0, mConstellationTexCoords );
 		//glColorPointer( 4, GL_FLOAT, 0, mColors );
 		
 		gl::pushModelView();
 		gl::rotate( mat );
 		gl::color( ColorA( 0.12f, 0.25f, 0.85f, zoomPer ) );
-		glDrawArrays( GL_LINES, 0, mTotalVertices );
+		glDrawArrays( GL_LINES, 0, mTotalConstellationVertices );
 		gl::popModelView();
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
@@ -498,15 +552,14 @@ void World::buildConstellation()
 	
 	
 	
-	mTotalVertices	= mConstellation.size();
-	if (mTotalVertices != mPrevTotalVertices) {
-        if (mVerts != NULL) delete[] mVerts; 
-		if (mTexCoords != NULL) delete[] mTexCoords; 
+	mTotalConstellationVertices	= mConstellation.size();
+	if (mTotalConstellationVertices != mPrevTotalConstellationVertices) {
+        if (mConstellationVerts != NULL) delete[] mConstellationVerts; 
+		if (mConstellationTexCoords != NULL) delete[] mConstellationTexCoords; 
 		
-        mVerts			= new float[mTotalVertices*3];
-		mTexCoords		= new float[mTotalVertices*2];
-		//mColors			= new float[mTotalVertices*4];
-        mPrevTotalVertices = mTotalVertices;
+        mConstellationVerts			= new float[mTotalConstellationVertices*3];
+		mConstellationTexCoords		= new float[mTotalConstellationVertices*2];
+        mPrevTotalConstellationVertices = mTotalConstellationVertices;
     }
 	
 	
@@ -514,28 +567,20 @@ void World::buildConstellation()
 	
 	int vIndex = 0;
 	int tIndex = 0;
-	//int cIndex = 0;
 	int distancesIndex = 0;
-	for( int i=0; i<mTotalVertices; i++ ){
-		Vec3f pos			= mConstellation[i];
-		mVerts[vIndex++]	= pos.x;
-		mVerts[vIndex++]	= pos.y;
-		mVerts[vIndex++]	= pos.z;
+	for( int i=0; i<mTotalConstellationVertices; i++ ){
+		Vec3f pos = mConstellation[i];
+		mConstellationVerts[vIndex++]	= pos.x;
+		mConstellationVerts[vIndex++]	= pos.y;
+		mConstellationVerts[vIndex++]	= pos.z;
 		
 		if( i%2 == 0 ){
-			mTexCoords[tIndex++]	= 0.0f;
-			mTexCoords[tIndex++]	= 0.5f;
+			mConstellationTexCoords[tIndex++]	= 0.0f;
+			mConstellationTexCoords[tIndex++]	= 0.5f;
 		} else {
-			mTexCoords[tIndex++]	= distances[distancesIndex] * 0.5f;
-			mTexCoords[tIndex++]	= 0.5f;
+			mConstellationTexCoords[tIndex++]	= distances[distancesIndex] * 0.5f;
+			mConstellationTexCoords[tIndex++]	= 0.5f;
 			distancesIndex ++;
 		}
-		/*
-		ColorA c			= mConstellationColors[i];
-		mColors[cIndex++]	= c.r;
-		mColors[cIndex++]	= c.g;
-		mColors[cIndex++]	= c.b;
-		mColors[cIndex++]	= c.a;
-		*/
 	}
 }
