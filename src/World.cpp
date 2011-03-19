@@ -44,10 +44,19 @@ void World::initNodes( Player *player, const Font &font )
 		PlaylistRef artist	= *it;
 		NodeArtist *newNode = new NodeArtist( NULL, i, font );
 		newNode->setData(artist);
+		
 		mNodes.push_back( newNode );
 	}
 	
 	cout << (App::get()->getElapsedSeconds() - t) << " seconds to World::initNodes" << endl;
+}
+
+void World::initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
+							   int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals )
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->setSphereData( totalHiVertices, sphereHiVerts, sphereHiTexCoords, sphereHiNormals, totalLoVertices, sphereLoVerts, sphereLoTexCoords, sphereLoNormals );
+	}
 }
 
 void World::initRingVertexArray()

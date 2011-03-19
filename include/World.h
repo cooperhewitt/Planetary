@@ -25,6 +25,8 @@ class World {
 	void setData( Data *data ){ mData = data; }
 	void initRingVertexArray();
 	void initNodes( ci::ipod::Player *player, const ci::Font &font );
+	void initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
+							int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals );
 	void filterNodes();
 	void deselectAllNodes();
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );

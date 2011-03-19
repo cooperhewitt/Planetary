@@ -7,6 +7,7 @@
 #include "cinder/Arcball.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
+#include "BloomGl.h"
 #include "Globals.h"
 #include "Easing.h"
 #include "World.h"
@@ -34,7 +35,7 @@ using std::stringstream;
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
 bool G_ACCEL            = false;
-bool G_IS_IPAD2			= true;
+bool G_IS_IPAD2			= false;
 int G_NUM_PARTICLES		= 250;
 
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
@@ -42,12 +43,15 @@ GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 float easeInOutQuad( double t, float b, float c, double d );
 Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
 
+
+
 class KeplerApp : public AppCocoaTouch {
   public:
 	virtual void	setup();
     void            remainingSetup();
 	void			initLoadingTextures();
 	void			initTextures();
+	void			initSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals );
 	virtual void	touchesBegan( TouchEvent event );
 	virtual void	touchesMoved( TouchEvent event );
 	virtual void	touchesEnded( TouchEvent event );
@@ -78,11 +82,11 @@ class KeplerApp : public AppCocoaTouch {
 	UiLayer			mUiLayer;
 	Data			mData;
 	
-	// ACCELEROMETER
+// ACCELEROMETER
 	Matrix44f		mAccelMatrix;
 	Matrix44f		mNewAccelMatrix;
 	
-	// AUDIO
+// AUDIO
 	ipod::Player		mIpodPlayer;
 	ipod::PlaylistRef	mCurrentAlbum;
 	double				mCurrentTrackPlayheadTime;
@@ -90,14 +94,14 @@ class KeplerApp : public AppCocoaTouch {
 //	int					mCurrentTrackId;
 
 	
-	// BREADCRUMBS
+// BREADCRUMBS
 	Breadcrumbs		mBreadcrumbs;	
 	
-	// PLAY CONTROLS
+// PLAY CONTROLS
 	PlayControls	mPlayControls;
 	float			mPlayheadPer;	// song percent complete 
 	
-	// CAMERA PERSP
+// CAMERA PERSP
 	CameraPersp		mCam;
 	float			mFov, mFovDest;
 	Vec3f			mEye, mCenter, mUp;
@@ -111,13 +115,13 @@ class KeplerApp : public AppCocoaTouch {
 	Vec3f			mBbRight, mBbUp;
 	
 	
-	// FONTS
+// FONTS
 	Font			mFont;
 	Font			mFontBig;
 	Font			mFontSmall;
 	
 	
-	// MULTITOUCH
+// MULTITOUCH
 	Vec2f			mTouchPos;
 	Vec2f			mTouchVel;
 	bool			mIsDragging;
@@ -132,12 +136,16 @@ class KeplerApp : public AppCocoaTouch {
 	float			mPinchScale;
 	float			mTimePinchEnded;
 	
-	// PARTICLES
+// PARTICLES
     ParticleController mParticleController;
 	
+<<<<<<< HEAD
 	// TEXTURES
 //    TextureLoader   mTextureLoader;
     
+=======
+// TEXTURES
+>>>>>>> e34038f86fe9143dba45e02ee78167880672cc81
 	gl::Texture		mLoadingTex;
 	gl::Texture		mParamsTex;
 	gl::Texture		mAtmosphereTex;
@@ -155,6 +163,18 @@ class KeplerApp : public AppCocoaTouch {
 	vector<gl::Texture> mPlanetsTex;
 	vector<gl::Texture> mCloudsTex;
 	
+// VERTEX ARRAYS
+	int mNumSphereLoResVerts;
+	float *mSphereLoResVerts; 
+	float *mSphereLoResNormals;
+	float *mSphereLoResTexCoords;
+	int mNumSphereHiResVerts;
+	float *mSphereHiResVerts; 
+	float *mSphereHiResNormals;
+	float *mSphereHiResTexCoords;
+	
+	
+	
 	float			mTime;
 	
 	bool			mDataIsLoaded;
@@ -170,7 +190,7 @@ void KeplerApp::setup()
     std::cout << "setupStart: " << getElapsedSeconds() << std::endl;
     
 	if( G_IS_IPAD2 ){
-		G_NUM_PARTICLES = 350;
+		G_NUM_PARTICLES = 1000;
 	}
 
     mRemainingSetupCalled = false;
@@ -222,7 +242,7 @@ void KeplerApp::remainingSetup()
 	mBbUp				= Vec3f::yAxis();
 	
 	// FONTS
-	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
+	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
 	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
 	mFontSmall			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 13 );	
 
@@ -270,6 +290,10 @@ void KeplerApp::remainingSetup()
 	// PLAYER
 	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
     mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
+	
+// VERTEX ARRAY SPHERE
+	initSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
+	initSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
     
     // DATA
     mData.initArtists(); // NB:- is asynchronous, see update() for what happens when it's done
@@ -280,6 +304,7 @@ void KeplerApp::remainingSetup()
     std::cout << "setupEnd: " << getElapsedSeconds() << std::endl;
 }
 
+<<<<<<< HEAD
 void KeplerApp::initLoadingTextures()
 {
     float t = getElapsedSeconds();
@@ -294,6 +319,10 @@ void KeplerApp::initLoadingTextures()
 //    mTextureLoader.requestTexture( "starGlow.png", mStarGlowTex );
     std::cout << "initLoadingTextures, duration: " << getElapsedSeconds() - t << std::endl;
 }
+=======
+
+
+>>>>>>> e34038f86fe9143dba45e02ee78167880672cc81
 
 void KeplerApp::initTextures()
 {
@@ -363,6 +392,105 @@ void KeplerApp::initTextures()
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
     
 	cout << "initTextures duration = " << (getElapsedSeconds()-t) << endl;
+}
+
+void KeplerApp::initSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals )
+{	
+	*numVerts			= segments * (segments/2) * 2 * 3;
+	sphereVerts			= new float[ *numVerts * 3 ];
+	sphereNormals		= new float[ *numVerts * 3 ];
+	sphereTexCoords		= new float[ *numVerts * 2 ];
+	vector<Vec2f> texCoords;
+	vector<Triangle> triangles;
+	
+	for( int j = 0; j < segments / 2; j++ ) {
+		float theta1 = j * TWO_PI / segments - ( M_PI_2 );
+		float cosTheta1 = cos( theta1 );
+		float sinTheta1 = sin( theta1 );
+		
+		float theta2 = (j + 1) * TWO_PI / segments - ( M_PI_2 );
+		float cosTheta2 = cos( theta2 );
+		float sinTheta2 = sin( theta2 );
+		
+		Vec3f oldv1, oldv2, newv1, newv2;
+		Vec2f oldt1, oldt2, newt1, newt2;
+		
+		for( int i = 0; i <= segments; i++ ) {
+			oldv1			= newv1;
+			oldv2			= newv2;
+			
+			oldt1			= newt1;
+			oldt2			= newt2;
+			
+			float theta3	= i * TWO_PI / segments;
+			float cosTheta3 = cos( theta3 );
+			float sinTheta3 = sin( theta3 );
+			
+			float invI		= i / (float)segments;
+			float u			= 0.999f - invI;
+			float v1		= 0.999f - 2 * j / (float)segments;
+			float v2		= 0.999f - 2 * (j+1) / (float)segments;
+			
+			newt1			= Vec2f( u, v1 );
+			newt2			= Vec2f( u, v2 );
+			
+			newv1			= Vec3f( cosTheta1 * cosTheta3, sinTheta1, cosTheta1 * sinTheta3 );			
+			newv2			= Vec3f( cosTheta2 * cosTheta3, sinTheta2, cosTheta2 * sinTheta3 );
+			
+			if( i > 0 ){
+				triangles.push_back( Triangle( oldv1, oldv2, newv1 ) );
+				triangles.push_back( Triangle( oldv2, newv1, newv2 ) );
+				
+				texCoords.push_back( oldt1 );
+				texCoords.push_back( oldt2 );
+				texCoords.push_back( newt1 );
+				
+				texCoords.push_back( oldt2 );
+				texCoords.push_back( newt1 );
+				texCoords.push_back( newt2 );
+			}
+		}
+	}
+	
+	
+	int index = 0;
+	int nIndex = 0;
+	for( int i=0; i<triangles.size(); i++ ){
+		Triangle t = triangles[i];
+		sphereVerts[index++]		= t.p1.x;
+		sphereVerts[index++]		= t.p1.y;
+		sphereVerts[index++]		= t.p1.z;
+		
+		sphereVerts[index++]		= t.p2.x;
+		sphereVerts[index++]		= t.p2.y;
+		sphereVerts[index++]		= t.p2.z;
+		
+		sphereVerts[index++]		= t.p3.x;
+		sphereVerts[index++]		= t.p3.y;
+		sphereVerts[index++]		= t.p3.z;
+		
+		sphereNormals[nIndex++]	= t.p1.x;
+		sphereNormals[nIndex++]	= t.p1.y;
+		sphereNormals[nIndex++]	= t.p1.z;
+		
+		sphereNormals[nIndex++]	= t.p2.x;
+		sphereNormals[nIndex++]	= t.p2.y;
+		sphereNormals[nIndex++]	= t.p2.z;
+		
+		sphereNormals[nIndex++]	= t.p3.x;
+		sphereNormals[nIndex++]	= t.p3.y;
+		sphereNormals[nIndex++]	= t.p3.z;
+	}
+	
+	int tIndex = 0;
+	for( int i=0; i<texCoords.size(); i++ ){
+		sphereTexCoords[tIndex++]	= texCoords[i].x;
+		sphereTexCoords[tIndex++]	= texCoords[i].y;
+	}
+	
+	std::cout << "size of SphereVerts = " << index << std::endl;
+	std::cout << "size of SphereNormals = " << nIndex << std::endl;
+	std::cout << "size of SphereTexCoords = " << tIndex << std::endl;
 }
 
 void KeplerApp::touchesBegan( TouchEvent event )
@@ -694,7 +822,26 @@ void KeplerApp::update()
 	if( mData.update() ){
 		mWorld.initNodes( &mIpodPlayer, mFont );
 		mWorld.initRingVertexArray();
+<<<<<<< HEAD
 		mDataIsLoaded = true;
+=======
+		mWorld.initNodeSphereData( mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals,
+								   mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals ); 
+
+		mIsLoaded = true;
+	}
+		
+	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
+	updateArcball();
+	mWorld.update( mMatrix );
+    mParticleController.update();
+	mParticleController.buildVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
+	updateCamera();
+	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
+	if( mIsLoaded ){
+		mWorld.buildStarsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
+		mWorld.buildStarGlowsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
+>>>>>>> e34038f86fe9143dba45e02ee78167880672cc81
 	}
     
     //mTextureLoader.update();
@@ -849,8 +996,8 @@ void KeplerApp::drawScene()
 			gl::disableAlphaBlending();
 			
 			glEnable( GL_LIGHTING );
-			//glEnable( GL_COLOR_MATERIAL );
-			//glShadeModel( GL_SMOOTH );
+			glEnable( GL_COLOR_MATERIAL );
+			glShadeModel( GL_SMOOTH );
 			
 			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
 			
@@ -859,7 +1006,7 @@ void KeplerApp::drawScene()
 			Vec3f lightPos          = artistNode->mTransPos;
 			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() * 0.5f ), 1.0f ) );
+			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
 			
 			
 // PLANETS
@@ -895,16 +1042,19 @@ void KeplerApp::drawScene()
 // PARTICLES
 	if( mIsDrawingStars && mState.getSelectedArtistNode() ){
 		mStarGlowTex.enableAndBind();
-		mParticleController.drawScreenspace( mState.getSelectedArtistNode(), mMatrix, mBbRight, mBbUp );
+		mParticleController.drawVertexArray( mState.getSelectedArtistNode(), mMatrix );
+		//mParticleController.drawScreenspace( mState.getSelectedArtistNode(), mMatrix, mBbRight, mBbUp );
 		mStarGlowTex.disable();
 	}
 	
 // CONSTELLATION
 	if( mIsDrawingRings ){
-		//mDottedTex.enableAndBind();
+		mDottedTex.enableAndBind();
 		mWorld.drawConstellation( mMatrix );
-		//mDottedTex.disable();
+		mDottedTex.disable();
 	}
+	
+	
 
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
@@ -924,7 +1074,6 @@ void KeplerApp::drawScene()
     
     gl::disableAlphaBlending();
     gl::enableAlphaBlending();
-	
 	
 // EVERYTHING ELSE
 	mAlphaWheel.draw();
@@ -960,6 +1109,10 @@ void KeplerApp::setParamsTex()
 	layout.setFont( mFontSmall );
 	layout.setColor( Color( 1.0f, 0.0f, 0.0f ) );
 
+	s.str("");
+	s << " FPS: " << getAverageFps();
+	layout.addLine( s.str() );
+	
 	int currentLevel = G_HOME_LEVEL;
 	if (mState.getSelectedNode()) {
 		currentLevel = mState.getSelectedNode()->mGen;
@@ -970,10 +1123,6 @@ void KeplerApp::setParamsTex()
 	
 	s.str("");
 	s << " CURRENT LEVEL: " << currentLevel;
-	layout.addLine( s.str() );
-	
-	s.str("");
-	s << " FPS: " << getAverageFps();
 	layout.addLine( s.str() );
 	
 	s.str("");

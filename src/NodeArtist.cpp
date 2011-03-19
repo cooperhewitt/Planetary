@@ -42,6 +42,9 @@ NodeArtist::NodeArtist( Node *parent, int index, const Font &font )
 	
 	mRadiusDest		= mRadius * 0.66f;
 	mRadius			= 0.0f;
+	
+	mOrbitRadiusMin	= mRadiusDest * 1.0f;
+	mOrbitRadiusMax	= mRadiusDest * 2.5f;
 }
 
 void NodeArtist::update( const Matrix44f &mat )
@@ -61,16 +64,22 @@ void NodeArtist::update( const Matrix44f &mat )
 	Node::update( mat );
 }
 
+
+
 void NodeArtist::drawStar()
 {
+	float radius    = mRadius;
 	if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
+		mRadius -= ( mRadius - 0.25f ) * 0.1f;
+		mRadius += Rand::randFloat( 0.0125f, 0.065f );
 		gl::color( ColorA( mColor, 0.7f ) );
 	} else {
+		mRadius -= ( mRadius - mRadiusDest ) * 0.1f;
 		gl::color( mColor );
 	}
 	
-	float radius    = mRadius;
-	if( mIsHighlighted ) radius += math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f ) * 2.0f;
+	
+	if( mIsHighlighted ) radius += math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
 	gl::drawBillboard( mTransPos, Vec2f( radius, radius ), 0.0f, mBbRight, mBbUp );
 	
 	Node::drawStar();
@@ -112,6 +121,11 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 	Node::drawPlanet( planets );
 }
 
+void NodeArtist::drawClouds( const vector<gl::Texture> &planets )
+{
+	Node::drawClouds( planets );
+}
+
 void NodeArtist::select()
 {
 	if (!mIsSelected) {
@@ -128,8 +142,27 @@ void NodeArtist::select()
 			i++;
 		}
 		
+		for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
+			(*it)->setSphereData( mTotalVertsHiRes, mSphereVertsHiRes, mSphereTexCoordsHiRes, mSphereNormalsHiRes,
+								  mTotalVertsLoRes, mSphereVertsLoRes, mSphereTexCoordsLoRes, mSphereNormalsLoRes );
+		}
+		
+		setChildOrbitRadii();
+		
 	}
 	Node::select();
+}
+
+void NodeArtist::setChildOrbitRadii()
+{
+	float orbitRadius = mOrbitRadiusMin;
+	float orbitOffset;
+	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
+		orbitOffset = (*it)->mRadius * 5.0f;
+		orbitRadius += orbitOffset;
+		(*it)->mOrbitRadiusDest = orbitRadius;
+		orbitRadius += orbitOffset;
+	}
 }
 
 void NodeArtist::setData( PlaylistRef playlist )

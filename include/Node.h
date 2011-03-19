@@ -29,6 +29,8 @@ class Node {
 	virtual ~Node(){ deselect(); }	
 	
 	// METHODS
+	void			setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
+								  int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals );
 	void			init();
 	void			initWithParent();
 	void			createNameTexture();
@@ -69,10 +71,10 @@ class Node {
 	ci::Matrix44f		mMatrix;
 	ci::Vec3f			mBbRight, mBbUp;
 	
-	
 // CHARACTERISTICS
     
 // RADII
+	float				mMass;				// Mass of the Node
 	float				mRadius;			// Radius of the Node
 	float				mRadiusDest;		// Destination radius
 	float				mGlowRadius;		// Radius of the glow image
@@ -80,6 +82,8 @@ class Node {
 // ORBIT
 	float				mStartAngle;		// Starting angle in relation to the parentNode
 	float				mOrbitAngle;		// Current angle in relation to the parentNode
+	float				mOrbitRadiusMin;
+	float				mOrbitRadiusMax;
 	float				mOrbitRadius;		// Current distance from parentNode
 	float				mOrbitRadiusDest;	// Final distance from parentNode
 	float				mOrbitPeriod;		// Time in seconds to orbit parentNode
@@ -111,6 +115,8 @@ class Node {
 	// NAME
 	ci::Font			mFont;
 	ci::gl::Texture		mNameTex;			// Texture of the name
+	ci::Rectf			mHitArea;			// name hit area
+	ci::Rectf			mSphereHitArea;		// node hit area
 	
 	ci::Sphere			mSphere;			// Sphere used for name label alignment
 	float				mSphereScreenRadius;// mSphere radius in screenspace
@@ -128,4 +134,14 @@ class Node {
 	float				mHighlightStrength;	// Falloff for the highlight glow
 	bool				mIsSelected;		// Node has been chosen
 	bool				mIsHighlighted;		// Node is able to be chosen
+	
+// SPHERE DATA
+	int					mTotalVertsHiRes;
+	int					mTotalVertsLoRes;
+	float				*mSphereVertsHiRes;
+	float				*mSphereTexCoordsHiRes;
+	float				*mSphereNormalsHiRes;
+	float				*mSphereVertsLoRes;
+	float				*mSphereTexCoordsLoRes;
+	float				*mSphereNormalsLoRes;
 };

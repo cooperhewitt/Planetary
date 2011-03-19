@@ -15,7 +15,7 @@ Particle::Particle( int index, Vec3f pos, Vec3f vel )
 	mIndex			= index;
 	mColor			= ColorA( 1.0f, 1.0f, 1.0f, 1.0f );
 	
-	mLifespan       = Rand::randInt( 35, 75 );
+	mLifespan       = Rand::randInt( 35, 100 );
 	mIsDead			= false;
 	
 	setup();
@@ -25,7 +25,7 @@ void Particle::setup()
 {
 	mPos		= Rand::randVec3f() * 0.375f;
 	mPrevPos	= mPos;
-	mVel		= mPos * Rand::randFloat( 0.0025f, 0.005f );
+	mVel		= mPos * Rand::randFloat( 0.0025f, 0.0055f );
 	mAcc		= Rand::randVec3f() * 0.01f;
 	mDecay		= 0.98f;
 	mAge		= 0;

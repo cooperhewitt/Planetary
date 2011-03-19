@@ -23,9 +23,10 @@ class NodeArtist : public Node
 	void drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes ){ 
 									  Node::drawOrbitRing( playingNode, ringVertsLowRes, ringVertsHighRes ); }
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
-	void drawClouds( const std::vector< ci::gl::Texture> &clouds ){ Node::drawClouds( clouds ); }
+	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex ){ Node::drawRings( tex ); }
 	void select();
+	void setChildOrbitRadii();
 	string getName();
 	void setData( ci::ipod::PlaylistRef playlist );
 
