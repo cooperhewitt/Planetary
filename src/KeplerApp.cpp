@@ -139,13 +139,8 @@ class KeplerApp : public AppCocoaTouch {
 // PARTICLES
     ParticleController mParticleController;
 	
-<<<<<<< HEAD
 	// TEXTURES
-//    TextureLoader   mTextureLoader;
-    
-=======
-// TEXTURES
->>>>>>> e34038f86fe9143dba45e02ee78167880672cc81
+//    TextureLoader   mTextureLoader;    
 	gl::Texture		mLoadingTex;
 	gl::Texture		mParamsTex;
 	gl::Texture		mAtmosphereTex;
@@ -291,7 +286,7 @@ void KeplerApp::remainingSetup()
 	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
     mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
 	
-// VERTEX ARRAY SPHERE
+    // VERTEX ARRAY SPHERE
 	initSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
 	initSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
     
@@ -304,7 +299,6 @@ void KeplerApp::remainingSetup()
     std::cout << "setupEnd: " << getElapsedSeconds() << std::endl;
 }
 
-<<<<<<< HEAD
 void KeplerApp::initLoadingTextures()
 {
     float t = getElapsedSeconds();
@@ -319,10 +313,6 @@ void KeplerApp::initLoadingTextures()
 //    mTextureLoader.requestTexture( "starGlow.png", mStarGlowTex );
     std::cout << "initLoadingTextures, duration: " << getElapsedSeconds() - t << std::endl;
 }
-=======
-
-
->>>>>>> e34038f86fe9143dba45e02ee78167880672cc81
 
 void KeplerApp::initTextures()
 {
@@ -822,13 +812,9 @@ void KeplerApp::update()
 	if( mData.update() ){
 		mWorld.initNodes( &mIpodPlayer, mFont );
 		mWorld.initRingVertexArray();
-<<<<<<< HEAD
-		mDataIsLoaded = true;
-=======
 		mWorld.initNodeSphereData( mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals,
 								   mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals ); 
-
-		mIsLoaded = true;
+		mDataIsLoaded = true;
 	}
 		
 	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
@@ -838,10 +824,10 @@ void KeplerApp::update()
 	mParticleController.buildVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
 	updateCamera();
 	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
-	if( mIsLoaded ){
+
+	if( mDataIsLoaded ){
 		mWorld.buildStarsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
 		mWorld.buildStarGlowsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
->>>>>>> e34038f86fe9143dba45e02ee78167880672cc81
 	}
     
     //mTextureLoader.update();

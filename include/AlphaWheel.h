@@ -26,7 +26,7 @@ public:
 	bool	touchesBegan( ci::app::TouchEvent event );
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
-	void	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
+	bool	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
 	void	update( float fov );
 	void	setTimePinchEnded( float timePinchEnded );
 	void	draw();

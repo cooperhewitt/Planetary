@@ -74,7 +74,7 @@ bool AlphaWheel::touchesBegan( TouchEvent event )
 	if (touches.size() == 1) {
 		std::cout << "touchesBegan, selectWheelItem" << std::endl;
 		mTouchPos = touches.begin()->getPos();
-		selectWheelItem( mTouchPos, false );
+		return selectWheelItem( mTouchPos, false );
 	}
 	
 	return false;
@@ -87,7 +87,7 @@ bool AlphaWheel::touchesMoved( TouchEvent event )
 	if (touches.size() == 1) {
 		//std::cout << "touchesMoved, selectWheelItem" << std::endl;
 		mTouchPos = touches.begin()->getPos();
-		selectWheelItem( mTouchPos, false );
+		return selectWheelItem( mTouchPos, false );
 	}	
 	
 	return false;
@@ -99,14 +99,14 @@ bool AlphaWheel::touchesEnded( TouchEvent event )
 	
 	if (touches.size() == 0) {
 		std::cout << "touchesEnded, selectWheelItem" << std::endl;
-		selectWheelItem( mTouchPos, true );
+		return selectWheelItem( mTouchPos, true );
 	}
 	
 	return false;
 }
 
 
-void AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
+bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 {
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
 	//std::cout << " selectWheelItem (time since pinch: " << timeSincePinchEnded << ")" << std::endl;
@@ -127,7 +127,9 @@ void AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 			mShowWheel = false;
 			mCallbacksWheelClosed.call( this );
 		}		
+        return distToCenter > 250 && distToCenter < 350;
 	}
+    return false;
 }
 
 void AlphaWheel::setTimePinchEnded( float timePinchEnded )
