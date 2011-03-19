@@ -605,8 +605,8 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 		if( selected ){
 			mState.setSelectedNode( selected->mParentNode );
 			mFovDest = 90.0f;
-			mCamDistPinchOffsetDest = 1.0f;
 		}
+		mCamDistPinchOffsetDest = 1.0f;
 	}
 	mTimePinchEnded = getElapsedSeconds();
 	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );	
