@@ -15,19 +15,17 @@
 class NodeArtist : public Node
 {
   public:
-	NodeArtist( Node *parent, int index, const ci::Font &font );
+	NodeArtist( int index, const ci::Font &font );
 	
 	void update( const ci::Matrix44f &mat );
 	void drawStar();
 	void drawStarGlow();
-	void drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes ){ 
-									  Node::drawOrbitRing( playingNode, ringVertsLowRes, ringVertsHighRes ); }
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
-	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords ){ Node::drawRings( tex, planetRingVerts, planetRingTexCoords ); }
 	void select();
 	void setChildOrbitRadii();
 	string getName();
+    uint64_t getId();
 	void setData( ci::ipod::PlaylistRef playlist );
 
     // TODO: should this be private?

@@ -55,15 +55,6 @@ class State {
 		return NULL;
 	}
 	
-	void setPlayingNode(NodeTrack* node);
-	NodeTrack* getPlayingNode();
-	template<typename T>
-	CallbackId registerNodePlaying( T *obj, bool (T::*callback)(NodeTrack*) ){
-		return mCallbacksNodePlaying.registerCb(std::bind1st(std::mem_fun(callback), obj));
-	}
-	
-	// TODO: getter and events for mPlayingNode?
-
 	std::vector<std::string> getHierarchy();
 
 private:
@@ -71,8 +62,7 @@ private:
 	CallbackMgr<bool(Node*)> mCallbacksNodeSelected;
 	CallbackMgr<bool(NodeTrack*)> mCallbacksNodePlaying;
 
-	Node *mSelectedNode;
-	NodeTrack *mPlayingNode;
+	Node *mSelectedNode;    
 	char mAlphaChar;
 };
 

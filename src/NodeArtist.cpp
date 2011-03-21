@@ -18,8 +18,8 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeArtist::NodeArtist( Node *parent, int index, const Font &font )
-	: Node( parent, index, font )
+NodeArtist::NodeArtist( int index, const Font &font )
+	: Node( NULL, index, font )
 {
 	mPosDest		= Rand::randVec3f() * Rand::randFloat( 50.0f, 200.0f );
 	mPos			= mPosDest + Rand::randVec3f() * 25.0f;
@@ -174,4 +174,9 @@ string NodeArtist::getName()
 	string name = mPlaylist->getArtistName();
 	if( name.size() < 1 ) name = "Untitled";
 	return name;
+}
+
+uint64_t NodeArtist::getId()
+{
+    return mPlaylist->getArtistId();
 }

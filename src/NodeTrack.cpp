@@ -8,7 +8,6 @@
  */
 
 #include "cinder/app/AppBasic.h"
-#include "NodeAlbum.h"
 #include "NodeTrack.h"
 #include "cinder/Text.h"
 #include "cinder/Rand.h"
@@ -25,9 +24,6 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 {	
 	mIsHighlighted		= true;
 	mRadius				*= 4.0f;
-	
-    mIsPlaying			= false;
-	
 }
 
 void NodeTrack::setData( TrackRef track, PlaylistRef album )
@@ -215,7 +211,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 void NodeTrack::drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
 	// TODO: TrackId should be compared?
-	if( mIsPlaying ){
+	if( this == playingNode ){
 		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f ) );
 	} else {
 		gl::color( ColorA( 0.15f, 0.2f, 0.4f, mOrbitLineAlpha ) );
@@ -231,16 +227,14 @@ void NodeTrack::drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes,
 	gl::popModelView();
 }
 
-
-void NodeTrack::setPlaying(bool playing)
-{
-	mIsPlaying = playing;
-}
-
-
 string NodeTrack::getName()
 {
 	string name = mTrack->getTitle();
 	if( name.size() < 1 ) name = "Untitled";
 	return name;
+}
+
+uint64_t NodeTrack::getId()
+{
+    return mTrack->getItemId();
 }

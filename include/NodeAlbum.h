@@ -28,6 +28,7 @@ class NodeAlbum : public Node
 	void setChildOrbitRadii();
 	void setData( ci::ipod::PlaylistRef album );
 	string getName();
+    uint64_t getId();
 
 	// TODO: should this be private?
 	int mNumTracks;

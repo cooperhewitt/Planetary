@@ -24,6 +24,7 @@ class NodeTrack : public Node
 	void setPlaying(bool playing);
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
 	string getName();
+    uint64_t getId();
 
 	// TODO: should this be from a getData() function? or private?
 	ci::ipod::TrackRef      mTrack;
@@ -37,5 +38,5 @@ private:
 	
 	ci::gl::Texture mAlbumArt;
 
-	bool 		mIsPlaying;
+	//bool 		mIsPlaying;
 };

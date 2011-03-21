@@ -42,7 +42,7 @@ void World::initNodes( Player *player, const Font &font )
 	int i=0;
 	for(vector<PlaylistRef>::iterator it = mData->mArtists.begin(); it != mData->mArtists.end(); ++it){
 		PlaylistRef artist	= *it;
-		NodeArtist *newNode = new NodeArtist( NULL, i, font );
+		NodeArtist *newNode = new NodeArtist( i, font );
 		newNode->setData(artist);
 		
 		mNodes.push_back( newNode );

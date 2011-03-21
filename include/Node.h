@@ -50,6 +50,7 @@ class Node {
 	virtual void	select();
 	void			deselect();
 	virtual string	getName()=0; // Name of the node is provided by subclasses
+    virtual uint64_t getId()=0; // ID of the node is provided by subclasses
 
 // TODO: clean up interface and enable privates!
 //private:

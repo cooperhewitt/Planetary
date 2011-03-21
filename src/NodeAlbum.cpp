@@ -292,3 +292,8 @@ string NodeAlbum::getName()
 	if( name.size() < 1 ) name = "Untitled";
 	return name;
 }
+
+uint64_t NodeAlbum::getId()
+{
+    return mAlbum->getAlbumId();
+}
