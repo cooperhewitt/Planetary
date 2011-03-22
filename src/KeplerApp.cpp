@@ -77,7 +77,6 @@ class KeplerApp : public AppCocoaTouch {
     Node*           getPlayingTrackNode( ipod::TrackRef playingTrack, Node* albumNode );
     Node*           getPlayingAlbumNode( ipod::TrackRef playingTrack, Node* artistNode );
     Node*           getPlayingArtistNode( ipod::TrackRef playingTrack );
-    void            resetNodeIsPlaying();
 	
     LoadingScreen   mLoadingScreen;
 	World			mWorld;
@@ -1129,8 +1128,6 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 	console() << "onPlayerTrackChanged!" << std::endl;
 
 	if (player->getPlayState() == ipod::Player::StatePlaying) {
-        
-        resetNodeIsPlaying();
         
         ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
         
