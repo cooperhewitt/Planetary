@@ -180,8 +180,6 @@ class KeplerApp : public AppCocoaTouch {
 	bool			mDataIsLoaded;
     bool            mRemainingSetupCalled; // setup() is short and fast, remainingSetup() is slow
 	bool			mIsDrawingRings;
-	bool			mIsDrawingStars;
-	bool			mIsDrawingPlanets;
 	bool			mIsDrawingText;
 };
 
@@ -191,7 +189,7 @@ void KeplerApp::setup()
     
 	if( G_IS_IPAD2 ){
 		G_NUM_PARTICLES = 1000;
-		G_NUM_DUSTS = 1000;
+		G_NUM_DUSTS = 2000;
 	}
 
     mRemainingSetupCalled = false;
@@ -207,8 +205,6 @@ void KeplerApp::remainingSetup()
 
     mDataIsLoaded = false;
 	mIsDrawingRings = true;
-	mIsDrawingStars = true;
-	mIsDrawingPlanets = true;
 	mIsDrawingText	= true;
 	Rand::randomize();
     
@@ -385,8 +381,8 @@ void KeplerApp::initTextures()
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds1.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds2.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds3.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds4.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
+	//mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds4.png" ) ) ) );
+	//mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
     
 	cout << "initTextures duration = " << (getElapsedSeconds()-t) << endl;
 }
@@ -742,10 +738,6 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 		G_DEBUG = !G_DEBUG;
 	} else if( button == PlayControls::DRAW_RINGS ){
 		mIsDrawingRings = !mIsDrawingRings;
-	} else if( button == PlayControls::DRAW_STARS ){
-		mIsDrawingStars = !mIsDrawingStars;
-	} else if( button == PlayControls::DRAW_PLANETS ){
-		mIsDrawingPlanets = !mIsDrawingPlanets;
 	} else if( button == PlayControls::DRAW_TEXT ){
 		mIsDrawingText = !mIsDrawingText;
 	}
@@ -841,7 +833,7 @@ void KeplerApp::update()
         }
 		mParticleController.update();
 		mParticleController.buildParticleVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
-		if( mIsDrawingStars && mState.getSelectedArtistNode() ){
+		if( mState.getSelectedArtistNode() ){
 			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode() );
 		}
         mUiLayer.update();
@@ -969,71 +961,58 @@ void KeplerApp::drawScene()
     
     
 // STARS
-	if( mIsDrawingStars ){
-		mStarTex.enableAndBind();
-		mWorld.drawStarsVertexArray( mMatrix );
-		//mWorld.drawStars();
-		mStarTex.disable();
-	}
+	mStarTex.enableAndBind();
+	mWorld.drawStarsVertexArray( mMatrix );
+	mStarTex.disable();
     
 /* not working well yet
 // ECLIPSEGLOWS
-    if( mIsDrawingStars ){
-		mEclipseGlowTex.enableAndBind();
-		mWorld.drawEclipseGlows();
-		mEclipseGlowTex.disable();
-	}
+	mEclipseGlowTex.enableAndBind();
+	mWorld.drawEclipseGlows();
+	mEclipseGlowTex.disable();
 */	
 	
-	if( mIsDrawingPlanets ){
-		Node *artistNode = mState.getSelectedArtistNode();
-		if( artistNode ){
-			gl::enableDepthRead();
-			gl::disableAlphaBlending();
-			
-			glEnable( GL_LIGHTING );
-			glEnable( GL_COLOR_MATERIAL );
-			glShadeModel( GL_SMOOTH );
-			
-			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
-			
-			// LIGHT FROM ARTIST
-			glEnable( GL_LIGHT0 );
-			Vec3f lightPos          = artistNode->mTransPos;
-			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
-			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
-			
-			
+	Node *artistNode = mState.getSelectedArtistNode();
+	if( artistNode ){
+		gl::enableDepthRead();
+		gl::disableAlphaBlending();
+		
+		glEnable( GL_LIGHTING );
+		glEnable( GL_COLOR_MATERIAL );
+		glShadeModel( GL_SMOOTH );
+		
+		glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
+		
+		// LIGHT FROM ARTIST
+		glEnable( GL_LIGHT0 );
+		Vec3f lightPos          = artistNode->mTransPos;
+		GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
+		glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
+		glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
+		
+		
 // PLANETS
-			mWorld.drawPlanets( mPlanetsTex );
-			
+		mWorld.drawPlanets( mPlanetsTex );
+		
 // CLOUDS
-			mWorld.drawClouds( mCloudsTex );
-		}
+		mWorld.drawClouds( mCloudsTex );
 	}
+	
 	gl::enableAdditiveBlending();   
 	glDisable( GL_LIGHTING );
 	gl::disableDepthRead();
 	
 // STARGLOWS
-    if( mIsDrawingStars ){
-		mStarGlowTex.enableAndBind();
-		mWorld.drawStarGlowsVertexArray( mMatrix );
-		mWorld.drawTouchHighlights();
-		mStarGlowTex.disable();
-	}
+	mStarGlowTex.enableAndBind();
+	mWorld.drawStarGlowsVertexArray( mMatrix );
+	mWorld.drawTouchHighlights();
+	mStarGlowTex.disable();
     
     
     gl::disableDepthWrite();
     gl::enableAdditiveBlending();
 	gl::enableDepthRead();
-	
-	
-// RINGS
-	if( mIsDrawingPlanets ) {
-		mWorld.drawRings( mRingsTex );
-    }
+
 	
 // ORBITS
 	if( mIsDrawingRings ){
@@ -1041,14 +1020,17 @@ void KeplerApp::drawScene()
 	}
 	
 // PARTICLES
-	if( mIsDrawingStars && mState.getSelectedArtistNode() ){
+	if( mState.getSelectedArtistNode() ){
 		mStarGlowTex.enableAndBind();
 		mParticleController.drawParticleVertexArray( mState.getSelectedArtistNode(), mMatrix );
 		mStarGlowTex.disable();
 	}
 	
+// RINGS
+	mWorld.drawRings( mRingsTex );
+	
 // DUSTS
-	if( mIsDrawingStars && mState.getSelectedArtistNode() ){
+	if( mState.getSelectedArtistNode() ){
 		mParticleController.drawDustVertexArray( mState.getSelectedArtistNode(), mMatrix );
 	}
 	
@@ -1084,7 +1066,7 @@ void KeplerApp::drawScene()
 	mAlphaWheel.draw();
     mUiLayer.draw( mPanelButtonsTex );
     mBreadcrumbs.draw();//mUiLayer.getPanelYPos() + 5.0f );
-    mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mIsDrawingRings, mIsDrawingStars, mIsDrawingPlanets, mIsDrawingText );
+    mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mIsDrawingRings, mIsDrawingText );
     mState.draw( mFont );
     
 	

@@ -35,6 +35,9 @@ class NodeAlbum : public Node
   private:
 	float mEclipseStrength;
 	
-	bool mHasRings;
+	bool		mHasRings;
+	bool		mHasClouds;
+	bool		mIsPopulated;
+	
 	ci::ipod::PlaylistRef mAlbum;
 };

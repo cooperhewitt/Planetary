@@ -35,7 +35,6 @@ class World {
 	void updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void buildStarsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void drawStarsVertexArray( const ci::Matrix44f &mat );
-	void drawStars();
 	void buildStarGlowsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void drawStarGlowsVertexArray( const ci::Matrix44f &mat );
 	void drawEclipseGlows();

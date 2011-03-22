@@ -32,7 +32,6 @@ class Node {
 	void			createNameTexture();
 	virtual void	update( const ci::Matrix44f &mat );
 	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	virtual void	drawStar();
 	virtual void	drawEclipseGlow();
 	virtual void	drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds );

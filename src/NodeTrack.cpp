@@ -24,6 +24,8 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	mIsHighlighted		= true;
 	mRadius				*= 10.0f;
     mIsPlaying			= false;
+	mHasClouds			= false;
+	mIsPopulated		= false;
 }
 
 void NodeTrack::setData( TrackRef track, PlaylistRef album )
@@ -42,6 +44,10 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	*/
 	
 	
+	
+	
+	
+	
 	//normalize playcount data
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
@@ -50,6 +56,19 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mPlanetTexIndex = mIndex%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
 	mCloudTexIndex  = Rand::randInt( G_NUM_CLOUD_TYPES );
    // mPlanetTexIndex *= G_NUM_PLANET_TYPE_OPTIONS + Rand::randInt( G_NUM_PLANET_TYPE_OPTIONS );
+	
+	if( mPlayCount > 50 ){
+		mCloudTexIndex = 2;
+	} else if( mPlayCount > 10 ){
+		mCloudTexIndex = 1;
+	} else {
+		mCloudTexIndex = 0;
+	}
+	
+	if( mPlayCount > 5 ){
+		mHasClouds = true;
+	}
+	
 	
 	float hue			= Rand::randFloat( 0.15f, 0.75f );
 	float sat			= Rand::randFloat( 0.15f, 0.5f );
@@ -148,7 +167,7 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 
 void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 {
-	if( mCamDistAlpha > 0.05f ){
+	if( mCamDistAlpha > 0.05f && mHasClouds ){
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glEnableClientState( GL_NORMAL_ARRAY );
@@ -176,6 +195,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
 		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.6f, 0.0f ) );
+
 		// SHADOW CLOUDS
 		glDisable( GL_LIGHTING );
 		gl::disableAlphaBlending();

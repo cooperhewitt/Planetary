@@ -118,6 +118,8 @@ void ParticleController::buildDustVertexArray( Node *node )
 	int vIndex = 0;
 	int cIndex = 0;
 	
+	float per = constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f );
+	
 	for( list<Dust>::iterator it = mDusts.begin(); it != mDusts.end(); ++it ){
 		Color col				= node->mGlowColor;
 		Vec3f prev				= it->mPrevPos;
@@ -130,7 +132,7 @@ void ParticleController::buildDustVertexArray( Node *node )
 		mDustColors[cIndex++]	= col.r;
 		mDustColors[cIndex++]	= col.g;
 		mDustColors[cIndex++]	= col.b;
-		mDustColors[cIndex++]	= Rand::randFloat( 0.05f, 0.15f );
+		mDustColors[cIndex++]	= Rand::randFloat( 0.25f, 0.8f ) * per;
 
 		mDustVerts[vIndex++]	= prev.x;
 		mDustVerts[vIndex++]	= prev.y;

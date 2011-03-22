@@ -25,7 +25,7 @@ static const int G_NUM_LEVELS		= 5;
 static const float G_INIT_CAM_DIST	= 220.0f;
 static const int G_NUM_PLANET_TYPES = 5;
 static const int G_NUM_PLANET_TYPE_OPTIONS = 3;
-static const int G_NUM_CLOUD_TYPES	= 5;
+static const int G_NUM_CLOUD_TYPES	= 3;
 
 static const float G_MIN_FOV		= 65.0f;
 static const float G_MAX_FOV		= 135.0f;

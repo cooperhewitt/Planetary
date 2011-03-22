@@ -37,5 +37,7 @@ private:
 	int			mStarRating;
 	int			mNumTracks;
 	
+	bool		mHasClouds;
+	bool		mIsPopulated;
 	ci::gl::Texture mAlbumArt;
 };

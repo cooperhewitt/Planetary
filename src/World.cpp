@@ -274,13 +274,6 @@ void World::drawStarsVertexArray( const Matrix44f &mat )
 	glDisableClientState( GL_COLOR_ARRAY );
 }
 
-void World::drawStars()
-{
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawStar();
-	}
-}
-
 void World::buildPlanetRingsVertexArray()
 {
 	mPlanetRingVerts		= new float[18];

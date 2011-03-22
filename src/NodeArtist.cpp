@@ -9,6 +9,7 @@
 
 #include "cinder/app/AppBasic.h"
 #include "NodeArtist.h"
+#include "NodeTrack.h"
 #include "NodeAlbum.h"
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
@@ -25,10 +26,10 @@ NodeArtist::NodeArtist( int index, const Font &font )
 	mPos			= mPosDest + Rand::randVec3f() * 25.0f;
 	
 	
-	mHue			= Rand::randFloat( 0.025f, 0.66f );
+	mHue			= Rand::randFloat( 0.01f, 0.66f );
 	mSat			= 1.0f - sin( mHue * 1.0f * M_PI );
-	mColor			= Color( CM_HSV, mHue, mSat * 0.2f, 1.0f );
-	mGlowColor		= Color( CM_HSV, mHue, mSat + 0.3f, 1.0f );
+	mColor			= Color( CM_HSV, mHue, mSat * 0.5f, 1.0f );
+	mGlowColor		= Color( CM_HSV, mHue, mSat + 0.2f, 1.0f );
 	mDepthDiskColor = Color( CM_HSV, mHue, mSat, 1.0f );
 	mIdealCameraDist = mRadius * 2.0f;
 	
@@ -59,26 +60,6 @@ void NodeArtist::update( const Matrix44f &mat )
 	}
 	
 	Node::update( mat );
-}
-
-
-void NodeArtist::drawStar()
-{
-	float radius    = mRadius;
-	if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
-		mRadius -= ( mRadius - 0.15f ) * 0.1f;
-		mRadius += Rand::randFloat( 0.0125f, 0.065f );
-		gl::color( ColorA( mColor, 0.7f ) );
-	} else {
-		mRadius -= ( mRadius - mRadiusDest ) * 0.1f;
-		gl::color( mColor );
-	}
-	
-	
-	//if( mIsHighlighted ) radius += math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
-	gl::drawBillboard( mTransPos, Vec2f( radius, radius ), 0.0f, mBbRight, mBbUp );
-	
-	//Node::drawStar();
 }
 
 void NodeArtist::drawEclipseGlow()
@@ -152,13 +133,12 @@ void NodeArtist::select()
 
 void NodeArtist::setChildOrbitRadii()
 {
-	float orbitRadius = mOrbitRadiusMin;
-	float orbitOffset;
+	float orbitOffset = mRadiusDest;
 	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
-		orbitOffset = (*it)->mRadius * 5.0f;
-		orbitRadius += orbitOffset;
-		(*it)->mOrbitRadiusDest = orbitRadius;
-		orbitRadius += orbitOffset;
+		NodeAlbum* albumNode = (NodeAlbum*)(*it);
+		orbitOffset += albumNode->mNumTracks * 0.005f;
+		(*it)->mOrbitRadiusDest = orbitOffset;
+		orbitOffset += albumNode->mNumTracks * 0.005f;
 	}
 }
 
