@@ -10,7 +10,7 @@
 #pragma once
 
 #include "Node.h"
-#include "cinder/Vector.h"
+#include "CinderIPod.h"
 
 class NodeTrack : public Node
 {
@@ -20,7 +20,7 @@ class NodeTrack : public Node
 	void update( const ci::Matrix44f &mat );
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
-	void drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
+	void drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void setPlaying(bool playing);
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
 	string getName();

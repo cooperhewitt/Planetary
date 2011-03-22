@@ -479,10 +479,10 @@ void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset )
 	}
 }
 
-void World::drawOrbitRings( NodeTrack *playingNode )
+void World::drawOrbitRings( )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawOrbitRing( playingNode, mRingVertsLowRes, mRingVertsHighRes );
+		(*it)->drawOrbitRing( mRingVertsLowRes, mRingVertsHighRes );
 	}
 }
 

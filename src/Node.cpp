@@ -51,6 +51,7 @@ Node::Node( Node *parent, int index, const Font &font )
 	mHighlightStrength	= 0.0f;
 	mIsTapped			= false;
 	mIsSelected			= false;
+    mIsPlaying          = false;
 	mIsHighlighted		= false;
 }
 
@@ -186,10 +187,10 @@ void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat 
 	}
 }
 
-void Node::drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void Node::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrbitRing( playingNode, ringVertsLowRes, ringVertsHighRes );
+		(*nodeIt)->drawOrbitRing( ringVertsLowRes, ringVertsHighRes );
 	}
 }
 

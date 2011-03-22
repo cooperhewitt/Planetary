@@ -14,7 +14,6 @@
 #include "cinder/gl/gl.h"
 #include "Globals.h"
 
-
 using namespace ci;
 using namespace ci::ipod;
 using namespace std;
@@ -208,10 +207,10 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 }
 
 
-void NodeTrack::drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void NodeTrack::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
 	// TODO: TrackId should be compared?
-	if( this == playingNode ){
+	if( this->mIsPlaying ){
 		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f ) );
 	} else {
 		gl::color( ColorA( 0.15f, 0.2f, 0.4f, mOrbitLineAlpha ) );

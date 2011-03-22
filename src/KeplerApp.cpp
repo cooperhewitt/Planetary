@@ -77,6 +77,7 @@ class KeplerApp : public AppCocoaTouch {
     Node*           getPlayingTrackNode( ipod::TrackRef playingTrack, Node* albumNode );
     Node*           getPlayingAlbumNode( ipod::TrackRef playingTrack, Node* artistNode );
     Node*           getPlayingArtistNode( ipod::TrackRef playingTrack );
+    void            resetNodeIsPlaying();
 	
     LoadingScreen   mLoadingScreen;
 	World			mWorld;
@@ -668,39 +669,40 @@ bool KeplerApp::onNodeSelected( Node *node )
 		node->wasTapped();
 	}
 
-	if( node != NULL && node->mGen == G_TRACK_LEVEL ){
-		cout << "node selected!" << endl;
-		// FIXME: is this a bad OOP thing or is there a cleaner/safer C++ way to handle it?
-		NodeTrack* trackNode = (NodeTrack*)node;
-		if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
-			cout << "nothing already playing" << endl;
-			ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
-			if ( trackNode->mTrack->getItemId() != playingTrack->getItemId() ) {
-				cout << "telling player to play it" << endl;
-				mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
-			}
-			else {
-				cout << "already playing it" << endl;				
-			}
-		}
-		else {
-			cout << "telling player to play it" << endl;
-			mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
-		}
+	if( node != NULL ) {
+        if (node->mGen == G_TRACK_LEVEL) {
+            cout << "track node selected!" << endl;
+            // FIXME: is this a bad OOP thing or is there a cleaner/safer C++ way to handle it?
+            NodeTrack* trackNode = (NodeTrack*)node;
+            if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
+                cout << "nothing already playing" << endl;
+                ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
+                if ( trackNode->getId() != playingTrack->getItemId() ) {
+                    cout << "telling player to play it" << endl;
+                    mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
+                }
+                else {
+                    cout << "already playing it" << endl;				
+                }
+            }
+            else {
+                cout << "telling player to play it" << endl;
+                mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
+            }
+        }
+        else {
+            cout << "node not track level!" << endl;
+        }
+//        else if (node->mGen == G_ALBUM_LEVEL) {
+//            // TODO: update mIsPlaying states
+//        }
+//        else if (node->mGen == G_ARTIST_LEVEL) {
+//            // TODO: update mIsPlaying states
+//        }
 	}
 	else {
-		cout << "node null or not track level!" << endl;
+		cout << "node null!" << endl;
 	}
-	
-//	if( node ){
-//		if( node->mGen == G_ALBUM_LEVEL ){
-//			std::cout << "setting currentAlbum = " << node->mAlbum->getAlbumTitle() << std::endl;
-//			mCurrentAlbum = node->mAlbum;
-//		} else if( node->mGen == G_TRACK_LEVEL ){
-//			std::cout << "setting currentTrackId = " << node->mIndex << std::endl;
-//			mCurrentTrackId = node->mIndex;
-//		}
-//	}
 	
 	return false;
 }
@@ -1024,19 +1026,13 @@ void KeplerApp::drawScene()
 	gl::enableDepthRead();
 	
 	
-	// RINGS
+// RINGS
 	mWorld.drawRings( mRingsTex );
 	
 	
 // ORBITS
 	if( mIsDrawingRings ){
-        /*
-        Node* playingTrackNode = getPlayingTrackNode();
-        if (playingTrackNode != NULL) {
-            // TODO: check the proper C++ way to do this cast
-            mWorld.drawOrbitRings( (NodeTrack*)playingTrackNode );
-        }
-         */
+        mWorld.drawOrbitRings();
 	}
 	
 // PARTICLES
@@ -1142,25 +1138,38 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
 	if (player->getPlayState() == ipod::Player::StatePlaying) {
         
+        resetNodeIsPlaying();
+        
         ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
         
         Node* artistNode = getPlayingArtistNode( playingTrack );
-        if (artistNode != NULL && !artistNode->mIsSelected) {
-            mState.setAlphaChar(artistNode->getName());
-            mState.setSelectedNode(artistNode);
+        if (artistNode != NULL) {
+            if (!artistNode->mIsSelected) {
+                mState.setAlphaChar(artistNode->getName());
+                mState.setSelectedNode(artistNode);
+            }        
+            artistNode->mIsPlaying = true;
         }
+        
         Node* albumNode = getPlayingAlbumNode( playingTrack, artistNode );
-        if (albumNode != NULL && !albumNode->mIsSelected) {
-            mState.setSelectedNode(albumNode);
+        if (albumNode != NULL) {
+            if (!albumNode->mIsSelected) {
+                mState.setSelectedNode(albumNode);
+            }
+            artistNode->mIsPlaying = true;
         }
+        
         // TODO: let's not do this if the playing album and artist don't match
         //       the transition is too jarring/annoying
         //       better to use this opportunity to update info about the currently playing track
         Node* trackNode = getPlayingTrackNode( playingTrack, albumNode );
-        if (!trackNode->mIsSelected) {
-            mState.setSelectedNode(trackNode);
+        if (trackNode != NULL) {
+            if (!trackNode->mIsSelected) {
+                mState.setSelectedNode(trackNode);
+            }
+            trackNode->mIsPlaying = true;
         }
-        // mState.setPlayingNode((NodeTrack*)trackNode);
+        
 	}
 	else {
 		console() << "trackchanged but nothing's playing" << endl;
@@ -1257,5 +1266,24 @@ Node* KeplerApp::getPlayingArtistNode( ipod::TrackRef playingTrack )
     return NULL;
 }
 
+void KeplerApp::resetNodeIsPlaying()
+{
+    float t = getElapsedSeconds();
+    // TODO: could do this in World like deselectAllNodes?
+    for (int i = 0; i < mWorld.mNodes.size(); i++) {
+        Node* artistNode = mWorld.mNodes[i];
+        artistNode->mIsPlaying = false;
+        for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+            Node* albumNode = artistNode->mChildNodes[j];
+            albumNode->mIsPlaying = false;
+            for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+                // FIXME: what's the proper C++ way to do this cast?
+                Node *trackNode = albumNode->mChildNodes[k];
+                trackNode->mIsPlaying = false;
+            }            
+        }
+    }
+    cout << getElapsedSeconds() - t << " seconds to visit all nodes and reset mIsPlaying" << endl;
+}
 
 CINDER_APP_COCOA_TOUCH( KeplerApp, RendererGl )

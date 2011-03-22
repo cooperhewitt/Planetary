@@ -108,7 +108,7 @@ void NodeAlbum::update( const Matrix44f &mat )
 	mVel		= mTransPos - mPrevPos;	
 }
 
-void NodeAlbum::drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void NodeAlbum::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
 	if( mIsSelected ){
 		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.5f ) );
@@ -125,7 +125,7 @@ void NodeAlbum::drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes,
 	glDisableClientState( GL_VERTEX_ARRAY );
 	gl::popModelView();
 	
-	Node::drawOrbitRing( playingNode, ringVertsLowRes, ringVertsHighRes );
+	Node::drawOrbitRing( ringVertsLowRes, ringVertsHighRes );
 }
 
 void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
@@ -253,7 +253,7 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 }
 
 
-void NodeAlbum::select()
+void NodeAlbum::select( )
 {
 	if( !mIsSelected && mChildNodes.size() == 0 ){
 		for (int i = 0; i < mNumTracks; i++) {

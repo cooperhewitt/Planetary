@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "CinderIPod.h"
 #include "Node.h"
 #include "cinder/Vector.h"
 
@@ -24,7 +25,7 @@ class NodeArtist : public Node
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void select();
 	void setChildOrbitRadii();
-	string getName();
+    std::string getName();
     uint64_t getId();
 	void setData( ci::ipod::PlaylistRef playlist );
 

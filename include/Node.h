@@ -8,19 +8,15 @@
  */
 
 #pragma once 
+
+#include <vector>
+#include <string>
 #include "cinder/Vector.h"
 #include "cinder/Color.h"
 #include "cinder/Font.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Sphere.h"
-#include "CinderIPod.h"
-#include "CinderIPodPlayer.h"
 #include "cinder/Camera.h"
-#include <vector>
-
-class NodeTrack;
-
-using std::vector;
 
 class Node {
   public:
@@ -41,16 +37,18 @@ class Node {
 	virtual void	drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords );
-	virtual void	drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
+	virtual void	drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset );
 	void			wasTapped(){ mIsTapped = true; mHighlightStrength = 1.0f; }
 	void			drawTouchHighlight();
 	void			checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
 	void			checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
-	virtual void	select();
+	
+    virtual void	select();
 	void			deselect();
-	virtual string	getName()=0; // Name of the node is provided by subclasses
-    virtual uint64_t getId()=0; // ID of the node is provided by subclasses
+    
+	virtual std::string getName()=0; // Name of the node *must* be provided by subclasses
+    virtual uint64_t    getId()=0;  // ID of the node *must* be provided by subclasses
 
 // TODO: clean up interface and enable privates!
 //private:
@@ -135,6 +133,7 @@ class Node {
 	float				mHighlightStrength;	// Falloff for the highlight glow
 	bool				mIsSelected;		// Node has been chosen
 	bool				mIsHighlighted;		// Node is able to be chosen
+    bool                mIsPlaying;         // Node represents something about the currently playing track (album/artist)
 	
 // SPHERE DATA
 	int					mTotalVertsHiRes;
