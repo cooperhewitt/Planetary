@@ -25,10 +25,7 @@ NodeArtist::NodeArtist( int index, const Font &font )
 	mPos			= mPosDest + Rand::randVec3f() * 25.0f;
 	
 	
-	mHue			= Rand::randFloat( 0.0f, 0.66f );
-	if( mHue > 0.2f && mHue < 0.35f ){
-		mHue		= Rand::randFloat( 0.0f, 0.66f );
-	}
+	mHue			= Rand::randFloat( 0.1f, 0.66f );
 	mSat			= 1.0f - sin( mHue * 1.3f * M_PI );
 	mColor			= Color( CM_HSV, mHue, mSat * 0.2f, 1.0f );
 	mGlowColor		= Color( CM_HSV, mHue, mSat + 0.3f, 1.0f );

@@ -76,8 +76,6 @@
 		E1A78BCC133183FF00F3AE92 /* panelUpOn.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A78BCA133183FF00F3AE92 /* panelUpOn.png */; };
 		E1A78BCE13319A3900F3AE92 /* sliderButton.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A78BCD13319A3900F3AE92 /* sliderButton.png */; };
 		E1A78BE91331CDBC00F3AE92 /* drawLines.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A78BE61331CDBC00F3AE92 /* drawLines.png */; };
-		E1A78BEA1331CDBC00F3AE92 /* drawPlanets.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A78BE71331CDBC00F3AE92 /* drawPlanets.png */; };
-		E1A78BEB1331CDBC00F3AE92 /* drawStars.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A78BE81331CDBC00F3AE92 /* drawStars.png */; };
 		E1A78BED1331E71000F3AE92 /* drawText.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A78BEC1331E71000F3AE92 /* drawText.png */; };
 		E1C600051318490F0022246C /* World.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C600041318490F0022246C /* World.cpp */; };
 		E1C6FFF3131847A40022246C /* Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C6FFF2131847A40022246C /* Data.cpp */; };
@@ -177,8 +175,6 @@
 		E1A78BCA133183FF00F3AE92 /* panelUpOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = panelUpOn.png; path = ../resources/ui/panelUpOn.png; sourceTree = "<group>"; };
 		E1A78BCD13319A3900F3AE92 /* sliderButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = sliderButton.png; path = ../resources/ui/sliderButton.png; sourceTree = "<group>"; };
 		E1A78BE61331CDBC00F3AE92 /* drawLines.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = drawLines.png; path = ../resources/ui/drawLines.png; sourceTree = "<group>"; };
-		E1A78BE71331CDBC00F3AE92 /* drawPlanets.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = drawPlanets.png; path = ../resources/ui/drawPlanets.png; sourceTree = "<group>"; };
-		E1A78BE81331CDBC00F3AE92 /* drawStars.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = drawStars.png; path = ../resources/ui/drawStars.png; sourceTree = "<group>"; };
 		E1A78BEC1331E71000F3AE92 /* drawText.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = drawText.png; path = ../resources/ui/drawText.png; sourceTree = "<group>"; };
 		E1C60003131848FB0022246C /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = World.h; path = ../include/World.h; sourceTree = SOURCE_ROOT; };
 		E1C600041318490F0022246C /* World.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = World.cpp; path = ../src/World.cpp; sourceTree = SOURCE_ROOT; };
@@ -386,8 +382,6 @@
 				E1FC7DA213381853007F333C /* eclipseGlow.png */,
 				E1A78BEC1331E71000F3AE92 /* drawText.png */,
 				E1A78BE61331CDBC00F3AE92 /* drawLines.png */,
-				E1A78BE71331CDBC00F3AE92 /* drawPlanets.png */,
-				E1A78BE81331CDBC00F3AE92 /* drawStars.png */,
 				E12766401325E28900E1FC3F /* ui */,
 				E12765A21325B74700E1FC3F /* loading.jpg */,
 				E17667CE13202F4D006A4C2E /* planets */,
@@ -630,8 +624,6 @@
 				E1A78BCC133183FF00F3AE92 /* panelUpOn.png in Resources */,
 				E1A78BCE13319A3900F3AE92 /* sliderButton.png in Resources */,
 				E1A78BE91331CDBC00F3AE92 /* drawLines.png in Resources */,
-				E1A78BEA1331CDBC00F3AE92 /* drawPlanets.png in Resources */,
-				E1A78BEB1331CDBC00F3AE92 /* drawStars.png in Resources */,
 				E1A78BED1331E71000F3AE92 /* drawText.png in Resources */,
 				E1FC7DA313381853007F333C /* eclipseGlow.png in Resources */,
 			);

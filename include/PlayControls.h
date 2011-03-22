@@ -30,7 +30,7 @@ class PlayControls {
 public:
 
 	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, ACCEL, DBUG, DRAW_RINGS, DRAW_STARS, DRAW_PLANETS, DRAW_TEXT };
-	enum ButtonTexId { TEX_PLAY, TEX_PLAY_ON, TEX_PAUSE, TEX_PAUSE_ON, TEX_PREV, TEX_PREV_ON, TEX_NEXT, TEX_NEXT_ON, TEX_ACCEL, TEX_DEBUG, TEX_SLIDER_BUTTON, TEX_DRAW_STARS, TEX_DRAW_RINGS, TEX_DRAW_PLANETS, TEX_DRAW_TEXT };	
+	enum ButtonTexId { TEX_PLAY, TEX_PLAY_ON, TEX_PAUSE, TEX_PAUSE_ON, TEX_PREV, TEX_PREV_ON, TEX_NEXT, TEX_NEXT_ON, TEX_ACCEL, TEX_DEBUG, TEX_SLIDER_BUTTON, TEX_DRAW_RINGS, TEX_DRAW_TEXT };	
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState )
 	{
@@ -153,10 +153,8 @@ public:
 		Rectf nextButton( x + bWidth * 2.0f, y1, x + bWidth * 3.0f, y2 );
 		Rectf accelButton( getWindowWidth() - 65.0f, y1, getWindowWidth() - 15.0f, y2 );
 		Rectf debugButton( 15.0f, y1, 65.0f, y2 );
-		Rectf drawStarsButton( 65.0f, y1, 115.0f, y2 );
-		Rectf drawRingsButton( 115.0f, y1, 165.0f, y2 );
-		Rectf drawPlanetsButton( 165.0f, y1, 215.0f, y2 );
-		Rectf drawTextButton( 215.0f, y1, 265.0f, y2 );
+		Rectf drawRingsButton( 65.0f, y1, 115.0f, y2 );
+		Rectf drawTextButton( 115.0f, y1, 165.0f, y2 );
 		
 		float sliderWidth	= sliderBgTex.getWidth();
 		float sliderHeight	= sliderBgTex.getHeight();
@@ -192,12 +190,8 @@ public:
 		touchTypes.push_back( ACCEL );
 		touchRects.push_back( debugButton );
 		touchTypes.push_back( DBUG );
-		touchRects.push_back( drawStarsButton );
-		touchTypes.push_back( DRAW_STARS );
 		touchRects.push_back( drawRingsButton );
 		touchTypes.push_back( DRAW_RINGS );
-		touchRects.push_back( drawPlanetsButton );
-		touchTypes.push_back( DRAW_PLANETS );
 		touchRects.push_back( drawTextButton );
 		touchTypes.push_back( DRAW_TEXT );
 		Color blue( 0.2f, 0.2f, 0.5f );
@@ -238,23 +232,12 @@ public:
 		texs[ TEX_DEBUG ].enableAndBind();
 		gl::drawSolidRect( debugButton );
 		
-// DRAW STARS
-		if( isDrawingStars ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-		else				 gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
-		texs[ TEX_DRAW_STARS ].enableAndBind();
-		gl::drawSolidRect( drawStarsButton );
-		
 // DRAW RINGS
 		if( isDrawingRings ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
 		else				 gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
 		texs[ TEX_DRAW_RINGS ].enableAndBind();
 		gl::drawSolidRect( drawRingsButton );
 		
-// DRAW PLANETS	
-		if( isDrawingPlanets )  gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-		else					gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
-		texs[ TEX_DRAW_PLANETS ].enableAndBind();
-		gl::drawSolidRect( drawPlanetsButton );
 // DRAW TEXT	
 		if( isDrawingText )		gl::color( Color( 1.0f, 1.0f, 1.0f ) );
 		else					gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
