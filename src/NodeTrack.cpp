@@ -209,8 +209,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 
 void NodeTrack::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
-	// TODO: TrackId should be compared?
-	if( this->mIsPlaying ){
+	if( mIsPlaying ){
 		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f ) );
 	} else {
 		gl::color( ColorA( 0.15f, 0.2f, 0.4f, mOrbitLineAlpha ) );

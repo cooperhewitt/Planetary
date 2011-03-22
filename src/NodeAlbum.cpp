@@ -135,12 +135,13 @@ void NodeAlbum::drawEclipseGlow()
 
 void NodeAlbum::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
-	Color blue = Color( 0.15f, 0.2f, 0.4f );
-	if( mIsSelected ){
-		gl::color( ColorA( blue + mHighlightStrength, 0.5f ) );
+	if( mIsPlaying ){
+		std::cout << "Album is playing" << std::endl;
+		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f ) );
 	} else {
-		gl::color( ColorA( blue, 0.2f ) );
+		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.2f ) );
 	}
+	
 	gl::pushModelView();
 	gl::translate( mParentNode->mTransPos );
 	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
@@ -268,6 +269,10 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glVertexPointer( 3, GL_FLOAT, 0, planetRingVerts );
 		glTexCoordPointer( 2, GL_FLOAT, 0, planetRingTexCoords );
+		glDrawArrays( GL_TRIANGLES, 0, 6 );
+		
+		gl::disableAlphaBlending();
+		gl::enableAlphaBlending();
 		glDrawArrays( GL_TRIANGLES, 0, 6 );
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
