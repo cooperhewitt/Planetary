@@ -102,8 +102,8 @@ void NodeAlbum::update( const Matrix44f &mat )
         float dist			= mScreenPos.distance( mParentNode->mScreenPos );
         eclipseDist			= constrain( dist/200.0f, 0.0f, 1.0f );
 		if( G_ZOOM == G_ALBUM_LEVEL ){
-			mEclipseStrength	= math<float>::max( 250.0f - abs( mSphereScreenRadius - mParentNode->mSphereScreenRadius ), 0.0f ) / 250.0f; 
-			mEclipseStrength	= pow( mEclipseStrength, 5.0f );
+			mEclipseStrength	= math<float>::max( 50.0f - abs( mSphereScreenRadius - mParentNode->mSphereScreenRadius ), 0.0f ) / 50.0f; 
+			mEclipseStrength	= pow( mEclipseStrength, 2.0f );
 		}
 		
 		/*
@@ -125,7 +125,7 @@ void NodeAlbum::update( const Matrix44f &mat )
 void NodeAlbum::drawEclipseGlow()
 {
 	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
-        gl::color( ColorA( mColor, mEclipseStrength * 3.0f ) );
+        gl::color( ColorA( mParentNode->mGlowColor, mEclipseStrength * 3.0f ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 3.25f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
@@ -135,12 +135,12 @@ void NodeAlbum::drawEclipseGlow()
 
 void NodeAlbum::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
-	Color blue = Color( 0.15f, 0.2f, 0.4f );
-	if( mIsSelected ){
-		gl::color( ColorA( blue + mHighlightStrength, 0.5f ) );
+	if( mIsPlaying ){
+		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f ) );
 	} else {
-		gl::color( ColorA( blue, 0.2f ) );
+		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.2f ) );
 	}
+	
 	gl::pushModelView();
 	gl::translate( mParentNode->mTransPos );
 	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
@@ -269,6 +269,14 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 		glVertexPointer( 3, GL_FLOAT, 0, planetRingVerts );
 		glTexCoordPointer( 2, GL_FLOAT, 0, planetRingTexCoords );
 		glDrawArrays( GL_TRIANGLES, 0, 6 );
+		
+		/* RINGS NEED DEPTH SORTING AGAINST SUN PARTICLES
+		gl::disableAlphaBlending();
+		gl::enableAlphaBlending();
+		glDrawArrays( GL_TRIANGLES, 0, 6 );
+		gl::enableAdditiveBlending();
+		*/
+		
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 		tex.disable();
