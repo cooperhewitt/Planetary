@@ -1,5 +1,4 @@
 #include "cinder/app/AppCocoaTouch.h"
-#include "cinder/app/AppBasic.h"
 #include "cinder/app/Renderer.h"
 #include "cinder/Surface.h"
 #include "cinder/gl/Texture.h"
@@ -59,6 +58,7 @@ class KeplerApp : public AppCocoaTouch {
 	virtual void	touchesMoved( TouchEvent event );
 	virtual void	touchesEnded( TouchEvent event );
 	virtual void	accelerated( AccelEvent event );
+	virtual void	orientationChanged( OrientationEvent event );
 	virtual void	update();
 	void			updateArcball();
 	void			updateCamera();
@@ -91,8 +91,7 @@ class KeplerApp : public AppCocoaTouch {
 	Data			mData;
 	
 // ACCELEROMETER
-    enum Orientation { REGULAR_PORTRAIT, UPSIDE_DOWN_PORTRAIT, LANDSCAPE_HOME_LEFT, LANDSCAPE_HOME_RIGHT };
-    Orientation     mOrientation;
+    DeviceOrientation     mDeviceOrientation;
 	Matrix44f		mAccelMatrix;
 	Matrix44f		mNewAccelMatrix;
 	
@@ -197,7 +196,7 @@ void KeplerApp::setup()
 		G_NUM_PARTICLES = 1000;
 		G_NUM_DUSTS = 2000;
 	}
-
+    
     mRemainingSetupCalled = false;
     
     initLoadingTextures();
@@ -635,38 +634,36 @@ void KeplerApp::accelerated( AccelEvent event )
 {
 	mNewAccelMatrix = event.getMatrix();
 	mNewAccelMatrix.invert();
-    
-    // thanks http://www.david-amador.com/2010/08/iphone-opengl-screen-orientation-using-the-accelerometer/    
-    
-	// Get the current device angle
-	float x = event.getData().x; //[acceleration x];
-	float y = event.getData().y; //[acceleration y];
-	float angle = atan2(y, x); 
-    
-    if(angle >= -0.75*M_PI && angle <= -0.25*M_PI)
-	{
-        /// Orientation is regular Portrait
-        mUp	= Vec3f::yAxis();
-        mOrientation = REGULAR_PORTRAIT;
-	}
-	else if(angle >= -0.25*M_PI && angle <= 0.25*M_PI)
-	{
-        /// Orientation is Landscape with Home Button on the Left
-        mUp	= -Vec3f::xAxis();
-        mOrientation = LANDSCAPE_HOME_LEFT;
-	}
-	else if(angle >= 0.25*M_PI && angle <= 0.75*M_PI)
-	{
-        /// Orientation is Portrait flipped upside down
-        mUp	= -Vec3f::yAxis();
-        mOrientation = UPSIDE_DOWN_PORTRAIT;
-	}
-	else if(angle <= -0.75*M_PI || angle >= 0.75*M_PI)
-	{
-        /// Orientation is Landscape with Home Button on the Right        
-        mUp	= Vec3f::xAxis();
-        mOrientation = LANDSCAPE_HOME_RIGHT;        
-	}
+}
+
+void KeplerApp::orientationChanged( OrientationEvent event )
+{
+    mDeviceOrientation = event.getOrientation();
+    switch ( mDeviceOrientation )
+    {
+        case PORTRAIT_ORIENTATION:
+            console() << "orientation = portrait" << endl;
+            mUp	= Vec3f::yAxis();
+            break;
+        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
+            console() << "orientation = upside down portrait" << endl;
+            mUp	= -Vec3f::yAxis();
+            break;
+        case LANDSCAPE_LEFT_ORIENTATION:
+            console() << "orientation = landscape left" << endl;
+            mUp	= Vec3f::xAxis();
+            break;
+        case LANDSCAPE_RIGHT_ORIENTATION:
+            console() << "orientation = landscape right" << endl;
+            mUp	= -Vec3f::xAxis();
+            break;        
+        case FACE_UP_ORIENTATION:
+        case FACE_DOWN_ORIENTATION:
+        case UNKNOWN_ORIENTATION:
+        default:
+            console() << "orientation = currently unhandled value. staying put." << endl;
+            break;            
+    }     
 }
 
 bool KeplerApp::onWheelClosed( AlphaWheel *alphaWheel )
