@@ -34,8 +34,8 @@ Node::Node( Node *parent, int index, const Font &font )
 	mEclipsePer			= 1.0f;
 	mTransPos			= mPos;
 
-	mStartAngle			= Rand::randFloat( TWO_PI );
-	mOrbitAngle			= mStartAngle;
+	mOrbitStartAngle	= Rand::randFloat( TWO_PI );
+	mOrbitAngle			= mOrbitStartAngle;
 	mOrbitPeriod		= Rand::randFloat( 25.0f, 150.0f );
 	mOrbitRadius		= 0.01f;
 	mAngularVelocity	= 0.0f;
