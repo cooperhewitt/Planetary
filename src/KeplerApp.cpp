@@ -1,4 +1,5 @@
 #include "cinder/app/AppCocoaTouch.h"
+#include "cinder/app/AppBasic.h"
 #include "cinder/app/Renderer.h"
 #include "cinder/Surface.h"
 #include "cinder/gl/Texture.h"
@@ -48,6 +49,7 @@ Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
 
 class KeplerApp : public AppCocoaTouch {
   public:
+    
 	virtual void	setup();
     void            remainingSetup();
 	void			initLoadingTextures();
@@ -87,6 +89,8 @@ class KeplerApp : public AppCocoaTouch {
 	Data			mData;
 	
 // ACCELEROMETER
+    enum Orientation { REGULAR_PORTRAIT, UPSIDE_DOWN_PORTRAIT, LANDSCAPE_HOME_LEFT, LANDSCAPE_HOME_RIGHT };
+    Orientation     mOrientation;
 	Matrix44f		mAccelMatrix;
 	Matrix44f		mNewAccelMatrix;
 	
@@ -627,6 +631,38 @@ void KeplerApp::accelerated( AccelEvent event )
 {
 	mNewAccelMatrix = event.getMatrix();
 	mNewAccelMatrix.invert();
+    
+    // thanks http://www.david-amador.com/2010/08/iphone-opengl-screen-orientation-using-the-accelerometer/    
+    
+	// Get the current device angle
+	float x = event.getData().x; //[acceleration x];
+	float y = event.getData().y; //[acceleration y];
+	float angle = atan2(y, x); 
+    
+    if(angle >= -0.75*M_PI && angle <= -0.25*M_PI)
+	{
+        /// Orientation is regular Portrait
+        mUp	= Vec3f::yAxis();
+        mOrientation = REGULAR_PORTRAIT;
+	}
+	else if(angle >= -0.25*M_PI && angle <= 0.25*M_PI)
+	{
+        /// Orientation is Landscape with Home Button on the Left
+        mUp	= -Vec3f::xAxis();
+        mOrientation = LANDSCAPE_HOME_LEFT;
+	}
+	else if(angle >= 0.25*M_PI && angle <= 0.75*M_PI)
+	{
+        /// Orientation is Portrait flipped upside down
+        mUp	= -Vec3f::yAxis();
+        mOrientation = UPSIDE_DOWN_PORTRAIT;
+	}
+	else if(angle <= -0.75*M_PI || angle >= 0.75*M_PI)
+	{
+        /// Orientation is Landscape with Home Button on the Right        
+        mUp	= Vec3f::xAxis();
+        mOrientation = LANDSCAPE_HOME_RIGHT;        
+	}
 }
 
 bool KeplerApp::onWheelClosed( AlphaWheel *alphaWheel )
@@ -952,8 +988,7 @@ void KeplerApp::drawScene()
 	
     gl::enableDepthWrite();
     gl::setMatrices( mCam );
-    
-	
+        
 // SKYDOME
     gl::pushModelView();
     gl::rotate( mMatrix );
