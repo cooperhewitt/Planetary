@@ -19,7 +19,7 @@ class NodeArtist : public Node
 	
 	void update( const ci::Matrix44f &mat );
 	void drawStar();
-	void drawStarGlow();
+	void drawEclipseGlow();
 	void drawOrbitRing( NodeTrack *playingNode, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes ){ 
 									  Node::drawOrbitRing( playingNode, ringVertsLowRes, ringVertsHighRes ); }
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );

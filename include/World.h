@@ -38,7 +38,7 @@ class World {
 	void drawStars();
 	void buildStarGlowsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void drawStarGlowsVertexArray( const ci::Matrix44f &mat );
-	void drawStarGlows();
+	void drawEclipseGlows();
 	void drawNames( const ci::CameraPersp &cam, float pinchAlphaOffset );
 	void drawOrbitRings( NodeTrack *playingNode );
 	void drawConstellation( const ci::Matrix44f &mat );

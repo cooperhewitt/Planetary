@@ -442,10 +442,10 @@ void World::drawStarGlowsVertexArray( const Matrix44f &mat )
 	glDisableClientState( GL_COLOR_ARRAY );
 }
 
-void World::drawStarGlows()
+void World::drawEclipseGlows()
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawStarGlow();
+		(*it)->drawEclipseGlow();
 	}
 }
 
@@ -527,7 +527,7 @@ void World::buildConstellation()
 	vector<float> distances;	// used for tex coords of the dotted line
 	for( vector<int>::iterator it1 = mData->mFilteredArtists.begin(); it1 != mData->mFilteredArtists.end(); ++it1 ){
 		Node *child1 = mNodes[*it1];
-		float shortestDist = 1000.0f;
+		float shortestDist = 5000.0f;
 		Node *nearestChild;
 		
 		vector<int>::iterator it2 = it1;
@@ -578,7 +578,7 @@ void World::buildConstellation()
 			mConstellationTexCoords[tIndex++]	= 0.0f;
 			mConstellationTexCoords[tIndex++]	= 0.5f;
 		} else {
-			mConstellationTexCoords[tIndex++]	= distances[distancesIndex] * 0.5f;
+			mConstellationTexCoords[tIndex++]	= distances[distancesIndex] * 0.4f;
 			mConstellationTexCoords[tIndex++]	= 0.5f;
 			distancesIndex ++;
 		}

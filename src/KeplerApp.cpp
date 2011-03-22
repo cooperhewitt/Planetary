@@ -37,6 +37,7 @@ bool G_DEBUG			= false;
 bool G_ACCEL            = false;
 bool G_IS_IPAD2			= true;
 int G_NUM_PARTICLES		= 250;
+int G_NUM_DUSTS			= 50;
 
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 
@@ -146,6 +147,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mAtmosphereTex;
 	gl::Texture		mStarTex, mStarAlternateTex;
 	gl::Texture		mStarGlowTex;
+	gl::Texture		mEclipseGlowTex;
 	gl::Texture		mSkyDome;
 	gl::Texture		mDottedTex;
 	gl::Texture		mPanelUpTex, mPanelDownTex;
@@ -186,6 +188,7 @@ void KeplerApp::setup()
     
 	if( G_IS_IPAD2 ){
 		G_NUM_PARTICLES = 1000;
+		G_NUM_DUSTS = 1000;
 	}
 
     mRemainingSetupCalled = false;
@@ -256,6 +259,7 @@ void KeplerApp::remainingSetup()
     
     // PARTICLES
     mParticleController.addParticles( G_NUM_PARTICLES );
+	mParticleController.addDusts( G_NUM_DUSTS );
 	
     // NB:- order of UI init is important to register callbacks in correct order
     
@@ -307,7 +311,9 @@ void KeplerApp::initLoadingTextures()
     // otherwise add them to initTextures
 	mLoadingTex  = loadImage( loadResource( "loading.jpg" ) );
 	mStarTex     = loadImage( loadResource( "star.png" ) );
-	mStarGlowTex = loadImage( loadResource( "starGlow.png" ) );   
+	mStarGlowTex = loadImage( loadResource( "starGlow.png" ) );
+	mEclipseGlowTex = loadImage( loadResource( "eclipseGlow.png" ) );
+	
 //    mTextureLoader.requestTexture( "loading.jpg",  mLoadingTex );
 //    mTextureLoader.requestTexture( "star.png",     mStarTex );
 //    mTextureLoader.requestTexture( "starGlow.png", mStarGlowTex );
@@ -477,10 +483,6 @@ void KeplerApp::initSphereVertexArray( int segments, int *numVerts, float* &sphe
 		sphereTexCoords[tIndex++]	= texCoords[i].x;
 		sphereTexCoords[tIndex++]	= texCoords[i].y;
 	}
-	
-	std::cout << "size of SphereVerts = " << index << std::endl;
-	std::cout << "size of SphereNormals = " << nIndex << std::endl;
-	std::cout << "size of SphereTexCoords = " << tIndex << std::endl;
 }
 
 void KeplerApp::touchesBegan( TouchEvent event )
@@ -816,34 +818,24 @@ void KeplerApp::update()
 								   mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals ); 
 		mDataIsLoaded = true;
 	}
-		
-	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
-	updateArcball();
-	mWorld.update( mMatrix );
-    mParticleController.update();
-	mParticleController.buildVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
-	updateCamera();
-	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 
-	if( mDataIsLoaded ){
-		mWorld.buildStarsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
-		mWorld.buildStarGlowsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
-	}
-    
     //mTextureLoader.update();
     
     if ( mRemainingSetupCalled ) {
         mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
         updateArcball();
         mWorld.update( mMatrix );
-        //mParticleController.pullToCenter( mState.getPlayingNode() );
-        mParticleController.update();
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
         if( mDataIsLoaded ){
             mWorld.buildStarsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
             mWorld.buildStarGlowsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
         }
+		mParticleController.update();
+		mParticleController.buildParticleVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
+		if( mIsDrawingStars && mState.getSelectedArtistNode() ){
+			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode() );
+		}
         mUiLayer.update();
         mAlphaWheel.update( mFov );
         mBreadcrumbs.update();
@@ -854,8 +846,8 @@ void KeplerApp::update()
 }
 
 void KeplerApp::updateArcball()
-{
-	if( mTouchVel.length() > 5.0f && !mIsDragging ){
+{	
+	if( mTouchVel.length() > 2.0f && !mIsDragging ){
 		mArcball.mouseDown( mTouchPos );
 		mArcball.mouseDrag( mTouchPos + mTouchVel );
 	}
@@ -921,7 +913,7 @@ void KeplerApp::updateCamera()
 	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist );
 	mCamVel			= mEye - prevEye;
 	
-	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.0001f, 4000.0f );
+	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( mEye, mCenter, mUp );
 	mCam.getBillboardVectors( &mBbRight, &mBbUp );
 }
@@ -958,7 +950,7 @@ void KeplerApp::drawScene()
     gl::rotate( mMatrix );
     gl::color( Color( 1.0f, 1.0f, 1.0f ) );
     mSkyDome.enableAndBind();
-    gl::drawSphere( Vec3f::zero(), 1100.0f, 24 );
+    gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS, 24 );
     gl::popModelView();
     
     
@@ -973,7 +965,13 @@ void KeplerApp::drawScene()
 		mStarTex.disable();
 	}
     
-    
+// ECLIPSEGLOWS
+    if( mIsDrawingStars ){
+		mEclipseGlowTex.enableAndBind();
+		mWorld.drawEclipseGlows();
+		mEclipseGlowTex.disable();
+	}
+	
 	
 	if( mIsDrawingPlanets ){
 		Node *artistNode = mState.getSelectedArtistNode();
@@ -1010,7 +1008,6 @@ void KeplerApp::drawScene()
     if( mIsDrawingStars ){
 		mStarGlowTex.enableAndBind();
 		mWorld.drawStarGlowsVertexArray( mMatrix );
-		//mWorld.drawStarGlows();
 		mWorld.drawTouchHighlights();
 		mStarGlowTex.disable();
 	}
@@ -1022,7 +1019,8 @@ void KeplerApp::drawScene()
 	
 	
 	// RINGS
-	mWorld.drawRings( mRingsTex );
+	if( mIsDrawingPlanets )
+		mWorld.drawRings( mRingsTex );
 	
 	
 // ORBITS
@@ -1033,9 +1031,13 @@ void KeplerApp::drawScene()
 // PARTICLES
 	if( mIsDrawingStars && mState.getSelectedArtistNode() ){
 		mStarGlowTex.enableAndBind();
-		mParticleController.drawVertexArray( mState.getSelectedArtistNode(), mMatrix );
-		//mParticleController.drawScreenspace( mState.getSelectedArtistNode(), mMatrix, mBbRight, mBbUp );
+		mParticleController.drawParticleVertexArray( mState.getSelectedArtistNode(), mMatrix );
 		mStarGlowTex.disable();
+	}
+	
+// DUSTS
+	if( mIsDrawingStars && mState.getSelectedArtistNode() ){
+		mParticleController.drawDustVertexArray( mState.getSelectedArtistNode(), mMatrix );
 	}
 	
 // CONSTELLATION

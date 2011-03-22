@@ -25,7 +25,7 @@ void Particle::setup()
 {
 	mPos		= Rand::randVec3f() * 0.375f;
 	mPrevPos	= mPos;
-	mVel		= mPos * Rand::randFloat( 0.0025f, 0.0055f );
+	mVel		= mPos * Rand::randFloat( 0.00125f, 0.0035f );
 	mAcc		= Rand::randVec3f() * 0.01f;
 	mDecay		= 0.98f;
 	mAge		= 0;

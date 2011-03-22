@@ -9,46 +9,36 @@ using std::list;
 
 ParticleController::ParticleController()
 {
-	mPrevTotalVertices = -1;
-    mVerts		= NULL;
-    mTexCoords	= NULL;
-	mColors		= NULL;
-}
-
-
-
-void ParticleController::pullToCenter( Node *node )
-{
-	for( list<Particle>::iterator p = mParticles.begin(); p != mParticles.end(); ++p ){
-		p->pullToCenter( node );
-	}
+	mPrevTotalParticleVertices = -1;
+    mParticleVerts		= NULL;
+    mParticleTexCoords	= NULL;
+	mParticleColors		= NULL;
 }
 
 void ParticleController::update()
 {
-	for( list<Particle>::iterator p = mParticles.begin(); p != mParticles.end(); ){
-		if( p->mIsDead ){
-			p = mParticles.erase( p );
-		} else {
-			p->update();
-			++p;
-		}
+	for( list<Particle>::iterator p = mParticles.begin(); p != mParticles.end(); ++p ){
+		p->update();
+	}
+	
+	for( list<Dust>::iterator d = mDusts.begin(); d != mDusts.end(); ++d ){
+		d->update();
 	}
 }
 
 
-void ParticleController::buildVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
+void ParticleController::buildParticleVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 {
-	mTotalVertices	= G_NUM_PARTICLES * 6;	// 6 = 2 triangles per quad
+	mTotalParticleVertices	= G_NUM_PARTICLES * 6;	// 6 = 2 triangles per quad
 	
-    if (mTotalVertices != mPrevTotalVertices) {
-        if (mVerts != NULL)		delete[] mVerts; 
-		if (mTexCoords != NULL) delete[] mTexCoords; 
+    if (mTotalParticleVertices != mPrevTotalParticleVertices) {
+        if (mParticleVerts != NULL)		delete[] mParticleVerts; 
+		if (mParticleTexCoords != NULL) delete[] mParticleTexCoords; 
 		
-        mVerts			= new float[mTotalVertices*3];
-        mTexCoords		= new float[mTotalVertices*2];
+        mParticleVerts			= new float[mTotalParticleVertices*3];
+        mParticleTexCoords		= new float[mTotalParticleVertices*2];
 		
-        mPrevTotalVertices = mTotalVertices;
+        mPrevTotalParticleVertices = mTotalParticleVertices;
     }
 	
 	int vIndex = 0;
@@ -73,51 +63,94 @@ void ParticleController::buildVertexArray( const Vec3f &bbRight, const Vec3f &bb
 		Vec3f p3				= pos - right + up;
 		Vec3f p4				= pos + right + up;
 		
-		mVerts[vIndex++]		= p1.x;
-		mVerts[vIndex++]		= p1.y;
-		mVerts[vIndex++]		= p1.z;
-		mTexCoords[tIndex++]	= u1;
-		mTexCoords[tIndex++]	= v1;
+		mParticleVerts[vIndex++]		= p1.x;
+		mParticleVerts[vIndex++]		= p1.y;
+		mParticleVerts[vIndex++]		= p1.z;
+		mParticleTexCoords[tIndex++]	= u1;
+		mParticleTexCoords[tIndex++]	= v1;
 		
-		mVerts[vIndex++]		= p2.x;
-		mVerts[vIndex++]		= p2.y;
-		mVerts[vIndex++]		= p2.z;
-		mTexCoords[tIndex++]	= u2;
-		mTexCoords[tIndex++]	= v1;
+		mParticleVerts[vIndex++]		= p2.x;
+		mParticleVerts[vIndex++]		= p2.y;
+		mParticleVerts[vIndex++]		= p2.z;
+		mParticleTexCoords[tIndex++]	= u2;
+		mParticleTexCoords[tIndex++]	= v1;
 		
-		mVerts[vIndex++]		= p3.x;
-		mVerts[vIndex++]		= p3.y;
-		mVerts[vIndex++]		= p3.z;
-		mTexCoords[tIndex++]	= u1;
-		mTexCoords[tIndex++]	= v2;
+		mParticleVerts[vIndex++]		= p3.x;
+		mParticleVerts[vIndex++]		= p3.y;
+		mParticleVerts[vIndex++]		= p3.z;
+		mParticleTexCoords[tIndex++]	= u1;
+		mParticleTexCoords[tIndex++]	= v2;
 		
-		mVerts[vIndex++]		= p2.x;
-		mVerts[vIndex++]		= p2.y;
-		mVerts[vIndex++]		= p2.z;
-		mTexCoords[tIndex++]	= u2;
-		mTexCoords[tIndex++]	= v1;
+		mParticleVerts[vIndex++]		= p2.x;
+		mParticleVerts[vIndex++]		= p2.y;
+		mParticleVerts[vIndex++]		= p2.z;
+		mParticleTexCoords[tIndex++]	= u2;
+		mParticleTexCoords[tIndex++]	= v1;
 		
-		mVerts[vIndex++]		= p3.x;
-		mVerts[vIndex++]		= p3.y;
-		mVerts[vIndex++]		= p3.z;
-		mTexCoords[tIndex++]	= u1;
-		mTexCoords[tIndex++]	= v2;
+		mParticleVerts[vIndex++]		= p3.x;
+		mParticleVerts[vIndex++]		= p3.y;
+		mParticleVerts[vIndex++]		= p3.z;
+		mParticleTexCoords[tIndex++]	= u1;
+		mParticleTexCoords[tIndex++]	= v2;
 		
-		mVerts[vIndex++]		= p4.x;
-		mVerts[vIndex++]		= p4.y;
-		mVerts[vIndex++]		= p4.z;
-		mTexCoords[tIndex++]	= u2;
-		mTexCoords[tIndex++]	= v2;
+		mParticleVerts[vIndex++]		= p4.x;
+		mParticleVerts[vIndex++]		= p4.y;
+		mParticleVerts[vIndex++]		= p4.z;
+		mParticleTexCoords[tIndex++]	= u2;
+		mParticleTexCoords[tIndex++]	= v2;
 	}
 }
 
-void ParticleController::drawVertexArray( Node *node, const Matrix44f &mat )
+void ParticleController::buildDustVertexArray( Node *node )
+{
+	mTotalDustVertices	= G_NUM_DUSTS * 2;
+	
+    if (mTotalDustVertices != mPrevTotalDustVertices) {
+        if (mDustVerts != NULL)		delete[] mDustVerts;
+		if( mDustColors != NULL)	delete[] mDustColors;
+		
+        mDustVerts = new float[mTotalDustVertices*3];
+		mDustColors = new float[mTotalDustVertices*4];
+		
+        mPrevTotalDustVertices = mTotalDustVertices;
+    }
+	
+	int vIndex = 0;
+	int cIndex = 0;
+	
+	for( list<Dust>::iterator it = mDusts.begin(); it != mDusts.end(); ++it ){
+		Color col				= node->mGlowColor;
+		Vec3f prev				= it->mPrevPos;
+		Vec3f pos				= it->mPos;
+		
+		mDustVerts[vIndex++]	= pos.x;
+		mDustVerts[vIndex++]	= pos.y;
+		mDustVerts[vIndex++]	= pos.z;
+		
+		mDustColors[cIndex++]	= col.r;
+		mDustColors[cIndex++]	= col.g;
+		mDustColors[cIndex++]	= col.b;
+		mDustColors[cIndex++]	= Rand::randFloat( 0.05f, 0.15f );
+
+		mDustVerts[vIndex++]	= prev.x;
+		mDustVerts[vIndex++]	= prev.y;
+		mDustVerts[vIndex++]	= prev.z;
+		
+		mDustColors[cIndex++]	= col.r;
+		mDustColors[cIndex++]	= col.g;
+		mDustColors[cIndex++]	= col.b;
+		mDustColors[cIndex++]	= 0.0f;
+	}
+}
+	
+
+void ParticleController::drawParticleVertexArray( Node *node, const Matrix44f &mat )
 {
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	
-	glVertexPointer( 3, GL_FLOAT, 0, mVerts );
-	glTexCoordPointer( 2, GL_FLOAT, 0, mTexCoords );
+	glVertexPointer( 3, GL_FLOAT, 0, mParticleVerts );
+	glTexCoordPointer( 2, GL_FLOAT, 0, mParticleTexCoords );
 	
 	gl::pushModelView();
 	if( node ){
@@ -126,39 +159,38 @@ void ParticleController::drawVertexArray( Node *node, const Matrix44f &mat )
 	}
 	
 	gl::rotate( mat );
-	glDrawArrays( GL_TRIANGLES, 0, mTotalVertices );
+	glDrawArrays( GL_TRIANGLES, 0, mTotalParticleVertices );
 	gl::popModelView();
 	
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 }
 
-
-void ParticleController::draw( Node *node, const Matrix44f &mat )
-{	
+void ParticleController::drawDustVertexArray( Node *node, const Matrix44f &mat )
+{
+	glEnableClientState( GL_VERTEX_ARRAY );
+	glEnableClientState( GL_COLOR_ARRAY );
+	glVertexPointer( 3, GL_FLOAT, 0, mDustVerts );
+	glColorPointer( 4, GL_FLOAT, 0, mDustColors );
 	gl::pushModelView();
-	if( node ){
-		gl::color( ColorA( node->mGlowColor, 0.075f ) ); // 0.2f
-		gl::translate( node->mTransPos );
-		gl::rotate( mat );
-	}
-	for( list<Particle>::iterator p = mParticles.begin(); p != mParticles.end(); ++p ){
-		p->draw();
-	}
+	gl::translate( node->mTransPos );
+	gl::rotate( mat );
+	glDrawArrays( GL_LINES, 0, mTotalDustVertices );
 	gl::popModelView();
+	
+	glDisableClientState( GL_VERTEX_ARRAY );
+	glDisableClientState( GL_COLOR_ARRAY );
 }
 
-void ParticleController::drawScreenspace( Node *node, const Matrix44f &mat, const Vec3f &bbRight, const Vec3f &bbUp )
-{	
-	gl::pushModelView();
-	if( node ){
-		gl::color( ColorA( node->mGlowColor, 0.35f ) ); // 0.2f
-		gl::translate( node->mTransPos );
+void ParticleController::addDusts( int amt )
+{
+	for( int i=0; i<amt; i++ )
+	{
+		Vec3f pos = Rand::randVec3f() * Rand::randFloat( 100.0f, 200.0f );
+		Vec3f vel = Rand::randVec3f();
+		
+		mDusts.push_back( Dust( i, pos, vel ) );
 	}
-	for( list<Particle>::iterator p = mParticles.begin(); p != mParticles.end(); ++p ){
-		p->drawScreenspace( mat, bbRight, bbUp );
-	}
-	gl::popModelView();
 }
 
 void ParticleController::addParticles( int amt )
