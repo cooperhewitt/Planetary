@@ -28,6 +28,7 @@ class World {
 							int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals );
 	void filterNodes();
 	void deselectAllNodes();
+    void setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
 	void checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
 	void update( const ci::Matrix44f &mat );

@@ -690,19 +690,21 @@ bool KeplerApp::onNodeSelected( Node *node )
                 mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
             }
         }
-        else {
-            cout << "node not track level!" << endl;
-        }
-//        else if (node->mGen == G_ALBUM_LEVEL) {
-//            // TODO: update mIsPlaying states
-//        }
-//        else if (node->mGen == G_ARTIST_LEVEL) {
-//            // TODO: update mIsPlaying states
-//        }
 	}
 	else {
 		cout << "node null!" << endl;
 	}
+    
+    // update mIsPlaying state for all nodes...
+    if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
+        ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
+        mWorld.setIsPlaying( playingTrack->getAlbumId(), playingTrack->getArtistId(), playingTrack->getItemId() );
+    }
+    else {
+        // FIXME: this will clear mIsPlaying from everything
+        // we might not want to do this?
+        mWorld.setIsPlaying( 0, 0, 0 );
+    }    
 	
 	return false;
 }
@@ -1134,30 +1136,31 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         
         Node* artistNode = getPlayingArtistNode( playingTrack );
         if (artistNode != NULL) {
+
             if (!artistNode->mIsSelected) {
                 mState.setAlphaChar(artistNode->getName());
                 mState.setSelectedNode(artistNode);
-            }        
-            artistNode->mIsPlaying = true;
-        }
-        
-        Node* albumNode = getPlayingAlbumNode( playingTrack, artistNode );
-        if (albumNode != NULL) {
-            if (!albumNode->mIsSelected) {
-                mState.setSelectedNode(albumNode);
             }
-            artistNode->mIsPlaying = true;
-        }
         
-        // TODO: let's not do this if the playing album and artist don't match
-        //       the transition is too jarring/annoying
-        //       better to use this opportunity to update info about the currently playing track
-        Node* trackNode = getPlayingTrackNode( playingTrack, albumNode );
-        if (trackNode != NULL) {
-            if (!trackNode->mIsSelected) {
-                mState.setSelectedNode(trackNode);
+            Node* albumNode = getPlayingAlbumNode( playingTrack, artistNode );
+            if (albumNode != NULL) {
+
+                if (!albumNode->mIsSelected) {
+                    mState.setSelectedNode(albumNode);
+                }
+        
+                // TODO: let's not do this if the playing album and artist don't match
+                //       the transition is too jarring/annoying
+                //       better to use this opportunity to update info about the currently playing track
+                Node* trackNode = getPlayingTrackNode( playingTrack, albumNode );
+                if (trackNode != NULL) {
+
+                    if (!trackNode->mIsSelected) {
+                        mState.setSelectedNode(trackNode);
+                    }
+                }
+                
             }
-            trackNode->mIsPlaying = true;
         }
         
 	}
@@ -1254,26 +1257,6 @@ Node* KeplerApp::getPlayingArtistNode( ipod::TrackRef playingTrack )
     console() << "returning NULL in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
     
     return NULL;
-}
-
-void KeplerApp::resetNodeIsPlaying()
-{
-    float t = getElapsedSeconds();
-    // TODO: could do this in World like deselectAllNodes?
-    for (int i = 0; i < mWorld.mNodes.size(); i++) {
-        Node* artistNode = mWorld.mNodes[i];
-        artistNode->mIsPlaying = false;
-        for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-            Node* albumNode = artistNode->mChildNodes[j];
-            albumNode->mIsPlaying = false;
-            for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-                // FIXME: what's the proper C++ way to do this cast?
-                Node *trackNode = albumNode->mChildNodes[k];
-                trackNode->mIsPlaying = false;
-            }            
-        }
-    }
-    cout << getElapsedSeconds() - t << " seconds to visit all nodes and reset mIsPlaying" << endl;
 }
 
 CINDER_APP_COCOA_TOUCH( KeplerApp, RendererGl )

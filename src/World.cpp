@@ -100,6 +100,25 @@ void World::deselectAllNodes()
 	}
 }
 
+void World::setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId )
+{
+    // TODO: could do this in World like deselectAllNodes?
+    // TODO: proper iterators I suppose?
+    for (int i = 0; i < mNodes.size(); i++) {
+        Node* artistNode = mNodes[i];
+        artistNode->mIsPlaying = artistNode->getId() == artistId;
+        for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+            Node* albumNode = artistNode->mChildNodes[j];
+            albumNode->mIsPlaying = albumNode->getId() == albumId;
+            for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+                // FIXME: what's the proper C++ way to do this cast?
+                Node *trackNode = albumNode->mChildNodes[k];
+                trackNode->mIsPlaying = trackNode->getId() == trackId;
+            }            
+        }
+    }
+}
+
 void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
