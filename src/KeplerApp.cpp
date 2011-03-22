@@ -654,10 +654,14 @@ void KeplerApp::orientationChanged( OrientationEvent event )
             mUp	= -Vec3f::xAxis();
             break;        
         case FACE_UP_ORIENTATION:
+            console() << "orientation = face up. staying put." << endl;
+            break;        
         case FACE_DOWN_ORIENTATION:
+            console() << "orientation = face down. staying put." << endl;
+            break;        
         case UNKNOWN_ORIENTATION:
         default:
-            console() << "orientation = currently unhandled value. staying put." << endl;
+            console() << "orientation = unknown. staying put." << endl;
             break;            
     }     
 }
