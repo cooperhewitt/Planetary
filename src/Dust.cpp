@@ -15,7 +15,7 @@ Dust::Dust( int index, Vec3f pos, Vec3f vel )
 	mIndex			= index;
 	mColor			= ColorA( 1.0f, 1.0f, 1.0f, 1.0f );
 	
-	mLifespan       = Rand::randInt( 5, 20 );
+	mLifespan       = Rand::randInt( 15, 40 );
 	mIsDead			= false;
 	
 	setup();
@@ -24,9 +24,10 @@ Dust::Dust( int index, Vec3f pos, Vec3f vel )
 void Dust::setup()
 {
 	Vec3f randVec = Rand::randVec3f();
-	mPos		= randVec * 0.42f;
+	randVec.z	= 0.0f;
+	mPos		= randVec * 0.1f;
 	mPrevPos	= mPos;
-	mVel		= Rand::randVec3f() * 0.002f;
+	mVel		= Rand::randVec3f() * 0.00001f;
 	mDecay		= 0.98f;
 	mAge		= 0;
 }

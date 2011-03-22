@@ -38,6 +38,5 @@ class NodeAlbum : public Node
 	bool		mHasRings;
 	bool		mHasClouds;
 	bool		mIsPopulated;
-	
 	ci::ipod::PlaylistRef mAlbum;
 };

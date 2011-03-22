@@ -78,8 +78,8 @@ class Node {
 	float				mGlowRadius;		// Radius of the glow image
     
 // ORBIT
-	float				mStartAngle;		// Starting angle in relation to the parentNode
 	float				mOrbitAngle;		// Current angle in relation to the parentNode
+	float				mOrbitStartAngle;
 	float				mOrbitRadiusMin;
 	float				mOrbitRadiusMax;
 	float				mOrbitRadius;		// Current distance from parentNode

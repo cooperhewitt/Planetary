@@ -45,9 +45,6 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	
 	
 	
-	
-	
-	
 	//normalize playcount data
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
@@ -85,19 +82,29 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mOrbitPeriod		= mTrackLength;
 	mAxialTilt			= Rand::randFloat( 5.0f, 30.0f );
     mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
+
+	mStartRelPos		= Vec3f( cos( mOrbitStartAngle ), sin( mOrbitStartAngle ), 0.0f ) * mOrbitRadius;
+	mStartPos			= ( mParentNode->mPos + mStartRelPos ); 
+}
+
+void NodeTrack::updateAudioData( double currentPlayheadTime )
+{
+	mPercentPlayed		= currentPlayheadTime/mTrackLength;
+	mOrbitAngle			= mPercentPlayed * TWO_PI + mOrbitStartAngle;
 }
 
 void NodeTrack::update( const Matrix44f &mat )
 {	
-	double playbackTime		= app::getElapsedSeconds();
-	double percentPlayed	= playbackTime/mOrbitPeriod;
-	double orbitAngle		= percentPlayed * TWO_PI + mStartAngle;
+	mPrevPos			= mTransPos;
+	mRelPos				= Vec3f( cos( mOrbitAngle ), sin( mOrbitAngle ), 0.0f ) * mOrbitRadius;
+	mPos				= mParentNode->mPos + mRelPos;
 	
-	mPrevPos	= mTransPos;
-	mRelPos		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
-	mPos		= mParentNode->mPos + mRelPos;
+	if( mIsPlaying ){
+		mStartRelPos		= Vec3f( cos( mOrbitStartAngle ), sin( mOrbitStartAngle ), 0.0f ) * mOrbitRadius;
+		mTransStartPos		= mat * ( mParentNode->mPos + mStartRelPos );
+	}
 	
-    float eclipseDist = 1.0f;
+    float eclipseDist	= 1.0f;
     if( mParentNode->mParentNode->mDistFromCamZAxisPer > 0.0f ){
         float dist = mScreenPos.distance( mParentNode->mParentNode->mScreenPos );
         eclipseDist = constrain( dist/200.0f, 0.0f, 1.0f );
@@ -241,6 +248,26 @@ void NodeTrack::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes,
 	glDrawArrays( GL_LINE_STRIP, 0, G_RING_LOW_RES );
 	glDisableClientState( GL_VERTEX_ARRAY );
 	gl::popModelView();
+	
+	drawPlayheadProgress();
+}
+
+void NodeTrack::drawPlayheadProgress()
+{
+	if( mIsPlaying ){
+		gl::pushModelView();
+		gl::translate( mParentNode->mTransPos );
+		gl::rotate( mMatrix );
+		gl::color( ColorA( 0.0f, 1.0f, 0.0f, 1.0f ) );
+		gl::drawLine( Vec3f::zero(), mRelPos );
+		
+		gl::color( ColorA( 1.0f, 0.0f, 0.0f, 1.0f ) );
+		gl::drawLine( Vec3f::zero(), mStartRelPos );
+		gl::popModelView();
+		
+		gl::color( ColorA( 1.0f, 0.0f, 0.0f, 1.0f ) );
+		gl::drawSphere( mTransStartPos, mRadius );
+	}
 }
 
 string NodeTrack::getName()

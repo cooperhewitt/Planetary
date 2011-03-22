@@ -17,11 +17,13 @@ class NodeTrack : public Node
   public:
 	NodeTrack( Node *parent, int index, const ci::Font &font );
     void initVertexArray();
+	void updateAudioData( double currentPlayheadTime );
 	void update( const ci::Matrix44f &mat );
 	void drawEclipseGlow();
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
+	void drawPlayheadProgress();
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
 	string getName();
     uint64_t getId();
@@ -36,6 +38,11 @@ private:
 	int			mPlayCount;
 	int			mStarRating;
 	int			mNumTracks;
+	ci::Vec3f	mStartPos, mTransStartPos, mStartRelPos;
+
+	double		mStartTime;
+	double		mPlaybackTime;
+	double		mPercentPlayed;
 	
 	bool		mHasClouds;
 	bool		mIsPopulated;

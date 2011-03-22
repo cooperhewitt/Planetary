@@ -81,6 +81,8 @@ class KeplerApp : public AppCocoaTouch {
     Node*           getPlayingAlbumNode( ipod::TrackRef playingTrack, Node* artistNode );
     Node*           getPlayingArtistNode( ipod::TrackRef playingTrack );
 	
+	NodeTrack*		mCurrentTrackNode;
+	
     LoadingScreen   mLoadingScreen;
 	World			mWorld;
 	State			mState;
@@ -303,6 +305,8 @@ void KeplerApp::remainingSetup()
     // WORLD
     mWorld.setData( &mData );  
 
+	mCurrentTrackNode = NULL;
+	
     std::cout << "setupEnd: " << getElapsedSeconds() << std::endl;
 }
 
@@ -711,6 +715,9 @@ bool KeplerApp::onNodeSelected( Node *node )
                 if ( trackNode->getId() != playingTrack->getItemId() ) {
                     cout << "telling player to play it" << endl;
                     mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
+					
+					// ROBERT ADDED THIS. MIGHT NOT BE THE RIGHT WAY.
+					mCurrentTrackNode = trackNode;
                 }
                 else {
                     cout << "already playing it" << endl;				
@@ -1071,8 +1078,13 @@ void KeplerApp::drawScene()
 	mWorld.drawRings( mRingsTex );
 	
 // DUSTS
-	if( mState.getSelectedArtistNode() ){
-		mParticleController.drawDustVertexArray( mState.getSelectedArtistNode(), mMatrix );
+	if( mState.getSelectedAlbumNode() ){
+		mParticleController.drawDustVertexArray( mState.getSelectedAlbumNode(), mMatrix );
+	}
+	
+	if( mCurrentTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
+		mCurrentTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
+//		mParticleController.drawDustVertexArray( mCurrentTrackNode, mMatrix );
 	}
 	
 // CONSTELLATION
@@ -1252,6 +1264,7 @@ Node* KeplerApp::getPlayingTrackNode( ipod::TrackRef playingTrack, Node* albumNo
             // FIXME: what's the proper C++ way to do this cast?
             NodeTrack *trackNode = (NodeTrack*)(albumNode->mChildNodes[k]);
             if (trackNode->getId() == playingTrack->getItemId()) {
+				mCurrentTrackNode = trackNode;
                 console() << "found! NodeTrack in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
                 return trackNode;
             }

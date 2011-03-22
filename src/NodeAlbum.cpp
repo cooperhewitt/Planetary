@@ -104,7 +104,7 @@ void NodeAlbum::update( const Matrix44f &mat )
 {
 	double playbackTime		= app::getElapsedSeconds();
 	double percentPlayed	= playbackTime/mOrbitPeriod;
-	double orbitAngle		= percentPlayed * TWO_PI + mStartAngle;
+	double orbitAngle		= percentPlayed * TWO_PI + mOrbitStartAngle;
     
 	mPrevPos	= mTransPos;
 	
@@ -294,7 +294,7 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 	if( mHasRings ){
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		float c = mRadius * 6.0f;
+		float c = mRadius * 9.0f;
 		gl::scale( Vec3f( c, c, c ) );
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, 0.0f ) );

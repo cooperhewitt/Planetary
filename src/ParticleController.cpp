@@ -132,7 +132,7 @@ void ParticleController::buildDustVertexArray( Node *node )
 		mDustColors[cIndex++]	= col.r;
 		mDustColors[cIndex++]	= col.g;
 		mDustColors[cIndex++]	= col.b;
-		mDustColors[cIndex++]	= Rand::randFloat( 0.25f, 0.8f ) * per;
+		mDustColors[cIndex++]	= Rand::randFloat( 0.05f, 0.2f ) * per;
 
 		mDustVerts[vIndex++]	= prev.x;
 		mDustVerts[vIndex++]	= prev.y;
