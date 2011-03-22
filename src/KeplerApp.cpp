@@ -976,13 +976,14 @@ void KeplerApp::drawScene()
 		mStarTex.disable();
 	}
     
+/* not working well yet
 // ECLIPSEGLOWS
     if( mIsDrawingStars ){
 		mEclipseGlowTex.enableAndBind();
 		mWorld.drawEclipseGlows();
 		mEclipseGlowTex.disable();
 	}
-	
+*/	
 	
 	if( mIsDrawingPlanets ){
 		Node *artistNode = mState.getSelectedArtistNode();

@@ -109,7 +109,7 @@ void Node::update( const Matrix44f &mat )
     
 	mSphere.setCenter( mTransPos );
 
-    if( mIsSelected ){
+    if( mIsPlaying ){
         mZoomPer    = constrain( ( G_ZOOM - mGen ) + 1.0f, 0.0f, 1.0f );
 //        mZoomPer    = constrain( 1.0f - abs( G_ZOOM - mGen + 1.0f ), 0.0f, 1.0f ); 
 	} else {
@@ -128,7 +128,7 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 	mBbUp    = bbUp;
     
     if( mGen >= G_ALBUM_LEVEL ){
-        if( mIsSelected ){
+        if( mIsPlaying ){
             mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
             mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.1f;
         } else {
@@ -197,10 +197,10 @@ void Node::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
-		if( mIsSelected ){
+		if( mIsPlaying ){
 			gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		} else {
-			gl::color( ColorA( mColor, mZoomPer * pinchAlphaOffset ) );
+			gl::color( ColorA( 0.2f, 0.3f, 0.8f, mZoomPer * pinchAlphaOffset ) );
 		}
 
 		if (mNameTex == NULL) {
@@ -213,7 +213,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 		
 		gl::pushModelView();
 		gl::translate( pos2 + Vec2f( 2.0f, -12.0f ) );
-		if( mIsSelected ){
+		if( mIsPlaying ){
 			float s = mZoomPer * 0.25f + 1.0f;
 			gl::scale( Vec3f( s, s, 1.0f ) );
 		}
