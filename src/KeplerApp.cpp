@@ -697,7 +697,7 @@ bool KeplerApp::onNodeSelected( Node *node )
     // update mIsPlaying state for all nodes...
     if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
         ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
-        mWorld.setIsPlaying( playingTrack->getAlbumId(), playingTrack->getArtistId(), playingTrack->getItemId() );
+        mWorld.setIsPlaying( playingTrack->getArtistId(), playingTrack->getAlbumId(), playingTrack->getItemId() );
     }
     else {
         // FIXME: this will clear mIsPlaying from everything
