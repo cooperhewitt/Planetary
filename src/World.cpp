@@ -102,7 +102,6 @@ void World::deselectAllNodes()
 
 void World::setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId )
 {
-    // TODO: could do this in World like deselectAllNodes?
     // TODO: proper iterators I suppose?
     for (int i = 0; i < mNodes.size(); i++) {
         Node* artistNode = mNodes[i];
