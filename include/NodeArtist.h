@@ -21,6 +21,7 @@ class NodeArtist : public Node
 	void update( const ci::Matrix44f &mat );
 	void drawStar();
 	void drawStarGlow();
+	void drawEclipseGlow();
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void select();

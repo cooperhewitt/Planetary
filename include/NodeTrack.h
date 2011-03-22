@@ -18,6 +18,7 @@ class NodeTrack : public Node
 	NodeTrack( Node *parent, int index, const ci::Font &font );
     void initVertexArray();
 	void update( const ci::Matrix44f &mat );
+	void drawEclipseGlow();
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
@@ -29,7 +30,8 @@ class NodeTrack : public Node
 	ci::ipod::TrackRef      mTrack;
 	ci::ipod::PlaylistRef   mAlbum;	
 	
-private:	
+private:
+	float		mEclipseStrength;
 	float		mTrackLength;
 	int			mPlayCount;
 	int			mStarRating;

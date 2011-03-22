@@ -22,7 +22,8 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	: Node( parent, index, font )
 {	
 	mIsHighlighted		= true;
-	mRadius				*= 4.0f;
+	mRadius				*= 10.0f;
+    mIsPlaying			= false;
 }
 
 void NodeTrack::setData( TrackRef track, PlaylistRef album )
@@ -61,15 +62,12 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mSphere				= Sphere( mPos, mRadius * 7.5f );
 	mMass				= ( pow( mRadius, 3.0f ) * ( M_PI * 4.0f ) ) * 0.3333334f;
 	
-	mIdealCameraDist	= 0.008f;
+	mIdealCameraDist	= 0.01f;
 	mOrbitPeriod		= mTrackLength;
 	mAxialTilt			= Rand::randFloat( 5.0f, 30.0f );
     mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
 	
 	mOrbitLineAlpha		= 0.1f + normPlayCount * 0.2f;
-	
-    // TODO: no reason why every track should init this vertex array
-	//initVertexArray();
 }
 
 void NodeTrack::update( const Matrix44f &mat )
@@ -83,10 +81,14 @@ void NodeTrack::update( const Matrix44f &mat )
 	mPos		= mParentNode->mPos + mRelPos;
 	
     float eclipseDist = 1.0f;
-    if( mIsSelected && mParentNode->mParentNode->mDistFromCamZAxisPer > 0.0f ){
+    if( mParentNode->mParentNode->mDistFromCamZAxisPer > 0.0f ){
         float dist = mScreenPos.distance( mParentNode->mParentNode->mScreenPos );
         eclipseDist = constrain( dist/200.0f, 0.0f, 1.0f );
-    }
+		if( G_ZOOM == G_TRACK_LEVEL ){
+			mEclipseStrength	= math<float>::max( 250.0f - abs( mSphereScreenRadius - mParentNode->mParentNode->mSphereScreenRadius ), 0.0f ) / 250.0f; 
+			mEclipseStrength	= pow( mEclipseStrength, 5.0f );
+		}
+	}
 	mEclipseColor = ( mColor + Color::white() ) * 0.5f * eclipseDist;
 	
 	
@@ -95,21 +97,19 @@ void NodeTrack::update( const Matrix44f &mat )
 	mVel		= mTransPos - mPrevPos;	
 }
 
+
+void NodeTrack::drawEclipseGlow()
+{
+	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
+        gl::color( ColorA( mColor, mEclipseStrength * 3.0f ) );
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 3.25f;
+		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+	}
+}
+
+
 void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 {	
-	/*
-	gl::disableAlphaBlending();
-	gl::pushModelView();
-	gl::translate( mTransPos );
-	gl::rotate( mMatrix );
-	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, mAxialTilt ) );
-	gl::color( mEclipseColor );
-	planets[mPlanetTexIndex].enableAndBind();
-	gl::drawSphere( Vec3f::zero(), mRadius, mSphereResInt );
-	gl::popModelView();
-	*/
-	 
-	 
 	glEnable( GL_RESCALE_NORMAL );
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );

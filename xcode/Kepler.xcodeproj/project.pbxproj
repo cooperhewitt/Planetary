@@ -84,6 +84,8 @@
 		E1E663701317887F00E5E4B9 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E6636F1317887F00E5E4B9 /* State.cpp */; };
 		E1F2D83113296A70009A2309 /* sliderBg.png in Resources */ = {isa = PBXBuildFile; fileRef = E1F2D83013296A70009A2309 /* sliderBg.png */; };
 		E1F2DBDD132A1D7B009A2309 /* highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = E1F2DBDC132A1D7B009A2309 /* highlight.png */; };
+		E1FC7DA11337E4D9007F333C /* Dust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1FC7D9F1337E4D9007F333C /* Dust.cpp */; };
+		E1FC7DA313381853007F333C /* eclipseGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC7DA213381853007F333C /* eclipseGlow.png */; };
 		E2171061132ECF7300ADCC17 /* AlphaWheel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */; };
 		E22998CC1332D62E0043CDCA /* LoadingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */; };
 		E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C872D131F1420000780A3 /* NodeArtist.cpp */; };
@@ -193,6 +195,9 @@
 		E1FC74B6130B256D007FE9D6 /* PinchEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinchEvent.h; sourceTree = "<group>"; };
 		E1FC74B7130B256D007FE9D6 /* SingleTapEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTapEvent.h; sourceTree = "<group>"; };
 		E1FC74B8130B256D007FE9D6 /* TapRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapRecognizer.h; sourceTree = "<group>"; };
+		E1FC7D9E1337E48F007F333C /* Dust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Dust.h; path = ../include/Dust.h; sourceTree = "<group>"; };
+		E1FC7D9F1337E4D9007F333C /* Dust.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dust.cpp; path = ../src/Dust.cpp; sourceTree = "<group>"; };
+		E1FC7DA213381853007F333C /* eclipseGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = eclipseGlow.png; path = ../resources/eclipseGlow.png; sourceTree = "<group>"; };
 		E217105E132ECEFB00ADCC17 /* AlphaWheel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlphaWheel.h; path = ../include/AlphaWheel.h; sourceTree = SOURCE_ROOT; };
 		E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AlphaWheel.cpp; path = ../src/AlphaWheel.cpp; sourceTree = SOURCE_ROOT; };
 		E22998C61332AD080043CDCA /* GestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureRecognizer.h; sourceTree = "<group>"; };
@@ -240,6 +245,7 @@
 				E1C6FFF2131847A40022246C /* Data.cpp */,
 				E167C8D4132EAFBE00CB496E /* ParticleController.cpp */,
 				E167C8D3132EAFBE00CB496E /* Particle.cpp */,
+				E1FC7D9F1337E4D9007F333C /* Dust.cpp */,
 				E1C601831318926C0022246C /* Nodes */,
 			);
 			name = Source;
@@ -255,6 +261,7 @@
 				E1C6FFF11318479A0022246C /* Data.h */,
 				E167C8D2132EAFAB00CB496E /* ParticleController.h */,
 				E167C8D1132EAFAB00CB496E /* Particle.h */,
+				E1FC7D9E1337E48F007F333C /* Dust.h */,
 				E1C60184131892750022246C /* Nodes */,
 			);
 			name = Headers;
@@ -376,6 +383,7 @@
 		E1555CA2131EEBD10079B05A /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				E1FC7DA213381853007F333C /* eclipseGlow.png */,
 				E1A78BEC1331E71000F3AE92 /* drawText.png */,
 				E1A78BE61331CDBC00F3AE92 /* drawLines.png */,
 				E1A78BE71331CDBC00F3AE92 /* drawPlanets.png */,
@@ -625,6 +633,7 @@
 				E1A78BEA1331CDBC00F3AE92 /* drawPlanets.png in Resources */,
 				E1A78BEB1331CDBC00F3AE92 /* drawStars.png in Resources */,
 				E1A78BED1331E71000F3AE92 /* drawText.png in Resources */,
+				E1FC7DA313381853007F333C /* eclipseGlow.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -652,6 +661,7 @@
 				E167C8D5132EAFBE00CB496E /* Particle.cpp in Sources */,
 				E167C8D6132EAFBE00CB496E /* ParticleController.cpp in Sources */,
 				E22998CC1332D62E0043CDCA /* LoadingScreen.cpp in Sources */,
+				E1FC7DA11337E4D9007F333C /* Dust.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

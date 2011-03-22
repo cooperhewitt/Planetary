@@ -69,7 +69,7 @@ void NodeArtist::drawStar()
 {
 	float radius    = mRadius;
 	if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
-		mRadius -= ( mRadius - 0.25f ) * 0.1f;
+		mRadius -= ( mRadius - 0.15f ) * 0.1f;
 		mRadius += Rand::randFloat( 0.0125f, 0.065f );
 		gl::color( ColorA( mColor, 0.7f ) );
 	} else {
@@ -78,14 +78,15 @@ void NodeArtist::drawStar()
 	}
 	
 	
-	if( mIsHighlighted ) radius += math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
+	//if( mIsHighlighted ) radius += math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
 	gl::drawBillboard( mTransPos, Vec2f( radius, radius ), 0.0f, mBbRight, mBbUp );
 	
-	Node::drawStar();
+	//Node::drawStar();
 }
 
-void NodeArtist::drawStarGlow()
+void NodeArtist::drawEclipseGlow()
 {
+	/*
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
         float zoomOffset    = math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
 		
@@ -98,8 +99,8 @@ void NodeArtist::drawStarGlow()
         
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
-
-	Node::drawStarGlow();
+	 */
+	Node::drawEclipseGlow();
 }
 
 void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )

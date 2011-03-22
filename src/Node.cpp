@@ -70,7 +70,7 @@ void Node::init()
 void Node::initWithParent()
 {
 	mGen				= mParentNode->mGen + 1;
-	mRadiusDest			= mParentNode->mRadiusDest * 0.02f;
+	mRadiusDest			= mParentNode->mRadiusDest * 0.01f;
 	mRadius				= mRadiusDest;
 	mPos				= mParentNode->mPos;
 	mPrevPos			= mParentNode->mPos;
@@ -159,10 +159,10 @@ void Node::drawStar()
 	}
 }
 
-void Node::drawStarGlow()
+void Node::drawEclipseGlow()
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawStarGlow();
+		(*nodeIt)->drawEclipseGlow();
 	}
 }
 

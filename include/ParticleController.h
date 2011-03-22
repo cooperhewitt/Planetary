@@ -1,28 +1,36 @@
 #pragma once
 #include "Particle.h"
-#include "cinder/Quaternion.h"
+#include "Dust.h"
 #include "Node.h"
 #include <list>
 
 class ParticleController {
  public:
 	ParticleController();
-	void pullToCenter( Node *node );
 	void update();
-	void buildVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	void drawVertexArray( Node *node, const ci::Matrix44f &mat );
-	void draw( Node *node, const ci::Matrix44f &mat );
-	void drawScreenspace( Node *node, const ci::Matrix44f &mat, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	void buildParticleVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	void buildDustVertexArray( Node *node );
+	void drawParticleVertexArray( Node *node, const ci::Matrix44f &mat );
+	void drawDustVertexArray( Node *node, const ci::Matrix44f &mat );
 	void addParticles( int amt );
 	void removeParticles( int amt );
+	void addDusts( int amt );
 	
 	std::list<Particle>	mParticles;
 	int mNumParticles;
+	int mTotalParticleVertices;
+    int mPrevTotalParticleVertices; // so we only recreate frames
+	GLfloat *mParticleVerts;
+	GLfloat *mParticleTexCoords;
+	GLfloat *mParticleColors;
 	
 	
-	int mTotalVertices;
-    int mPrevTotalVertices; // so we only recreate frames
-	GLfloat *mVerts;
-	GLfloat *mTexCoords;
-	GLfloat *mColors;
+	std::list<Dust> mDusts;
+	int mNumDusts;
+	int mTotalDustVertices;
+    int mPrevTotalDustVertices; // so we only recreate frames
+	GLfloat *mDustVerts;
+	GLfloat *mDustColors;
+	
+	
 };

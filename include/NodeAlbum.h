@@ -18,9 +18,8 @@ class NodeAlbum : public Node
 	NodeAlbum( Node *parent, int index, const ci::Font &font );
 	
 	void update( const ci::Matrix44f &mat );
-	void drawStar(){ Node::drawStar(); }
-	void drawStarGlow(){ Node::drawStarGlow(); }
 	void drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
+	void drawEclipseGlow();
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords );
@@ -34,6 +33,7 @@ class NodeAlbum : public Node
 	int mNumTracks;
 
   private:
+	float mEclipseStrength;
 	
 	bool mHasRings;
 	ci::ipod::PlaylistRef mAlbum;
