@@ -821,6 +821,8 @@ void KeplerApp::update()
 		mWorld.initNodeSphereData( mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals,
 								   mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals ); 
 		mDataIsLoaded = true;
+        // make sure we know about the current track
+        onPlayerTrackChanged( &mIpodPlayer );
 	}
     //mTextureLoader.update();
     
@@ -1146,33 +1148,40 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         
         ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
         
-        Node* artistNode = getPlayingArtistNode( playingTrack );
-        if (artistNode != NULL) {
-
-            if (!artistNode->mIsSelected) {
-                mState.setAlphaChar(artistNode->getName());
-                mState.setSelectedNode(artistNode);
-            }
+        Node *selectedNode = mState.getSelectedNode();
+        if (!(selectedNode != NULL && selectedNode->getId() == playingTrack->getItemId())) {
         
-            Node* albumNode = getPlayingAlbumNode( playingTrack, artistNode );
-            if (albumNode != NULL) {
+            Node* artistNode = getPlayingArtistNode( playingTrack );
+            if (artistNode != NULL) {
 
-                if (!albumNode->mIsSelected) {
-                    mState.setSelectedNode(albumNode);
+                if (!artistNode->mIsSelected) {
+                    mState.setAlphaChar(artistNode->getName());
+                    mState.setSelectedNode(artistNode);
                 }
-        
-                // TODO: let's not do this if the playing album and artist don't match
-                //       the transition is too jarring/annoying
-                //       better to use this opportunity to update info about the currently playing track
-                Node* trackNode = getPlayingTrackNode( playingTrack, albumNode );
-                if (trackNode != NULL) {
+            
+                Node* albumNode = getPlayingAlbumNode( playingTrack, artistNode );
+                if (albumNode != NULL) {
 
-                    if (!trackNode->mIsSelected) {
-                        mState.setSelectedNode(trackNode);
+                    if (!albumNode->mIsSelected) {
+                        mState.setSelectedNode(albumNode);
                     }
+            
+                    // TODO: let's not do this if the playing album and artist don't match
+                    //       the transition is too jarring/annoying
+                    //       better to use this opportunity to update info about the currently playing track
+                    Node* trackNode = getPlayingTrackNode( playingTrack, albumNode );
+                    if (trackNode != NULL) {
+
+                        if (!trackNode->mIsSelected) {
+                            mState.setSelectedNode(trackNode);
+                        }
+                    }
+                    
                 }
-                
             }
+        }
+        else {
+            console() << "track changed but we've already selected the node for that track" << std::endl;
         }
         
 	}
