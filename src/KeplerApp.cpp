@@ -944,6 +944,12 @@ void KeplerApp::draw()
 
 void KeplerApp::drawScene()
 {
+	float fadeSpeed = 1.5f;		// 3.0 fades right before 'pop'. 1.0 fades after small pinch
+	float pinchAlphaOffset = constrain( 1.0f - ( mCamDistPinchOffset - fadeSpeed ), 0.0f, 1.0f );
+	
+	
+	
+	
     gl::enableDepthWrite();
     gl::setMatrices( mCam );
     
@@ -1016,7 +1022,7 @@ void KeplerApp::drawScene()
 	
 // ORBITS
 	if( mIsDrawingRings ){
-        mWorld.drawOrbitRings();
+        mWorld.drawOrbitRings( pinchAlphaOffset );
 	}
 	
 // PARTICLES
@@ -1052,7 +1058,6 @@ void KeplerApp::drawScene()
 	
 // NAMES
 	if( mIsDrawingText ){
-		float pinchAlphaOffset = constrain( 1.0f - ( mCamDistPinchOffset - 3.0f ), 0.0f, 1.0f );
 		mWorld.drawNames( mCam, pinchAlphaOffset );
 	}
     

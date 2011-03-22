@@ -39,7 +39,7 @@ class World {
 	void drawStarGlowsVertexArray( const ci::Matrix44f &mat );
 	void drawEclipseGlows();
 	void drawNames( const ci::CameraPersp &cam, float pinchAlphaOffset );
-	void drawOrbitRings( );
+	void drawOrbitRings( float pinchAlphaOffset );
 	void drawConstellation( const ci::Matrix44f &mat );
 	void drawTouchHighlights();
 	void buildConstellation();

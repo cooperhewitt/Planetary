@@ -180,10 +180,10 @@ void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat 
 	}
 }
 
-void Node::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void Node::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrbitRing( ringVertsLowRes, ringVertsHighRes );
+		(*nodeIt)->drawOrbitRing( pinchAlphaOffset, ringVertsLowRes, ringVertsHighRes );
 	}
 }
 

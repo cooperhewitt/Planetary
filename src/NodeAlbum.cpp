@@ -147,12 +147,20 @@ void NodeAlbum::drawEclipseGlow()
 	Node::drawEclipseGlow();
 }
 
-void NodeAlbum::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
-{
-	if( mIsPlaying ){
-		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f ) );
+void NodeAlbum::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+{		
+	float newPinchAlphaOffset = pinchAlphaOffset;
+	if( G_ZOOM < G_ALBUM_LEVEL - 0.5f ){
+		newPinchAlphaOffset = pinchAlphaOffset;
 	} else {
-		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.2f ) );
+		newPinchAlphaOffset = 1.0f;
+	}
+	
+	
+	if( mIsPlaying ){
+		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f * newPinchAlphaOffset ) );
+	} else {
+		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.2f * newPinchAlphaOffset ) );
 	}
 	
 	gl::pushModelView();
@@ -165,7 +173,20 @@ void NodeAlbum::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighR
 	glDisableClientState( GL_VERTEX_ARRAY );
 	gl::popModelView();
 	
-	Node::drawOrbitRing( ringVertsLowRes, ringVertsHighRes );
+	if( G_ZOOM < G_ALBUM_LEVEL - 0.5f ){
+		newPinchAlphaOffset = pinchAlphaOffset;
+	} else if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
+		newPinchAlphaOffset = pinchAlphaOffset;
+	} else {
+		newPinchAlphaOffset = 1.0f;
+	}
+	
+	if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
+		newPinchAlphaOffset = pinchAlphaOffset;
+	} else {
+		newPinchAlphaOffset = 1.0f;
+	}
+	Node::drawOrbitRing( newPinchAlphaOffset, ringVertsLowRes, ringVertsHighRes );
 }
 
 void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
@@ -273,9 +294,10 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 	if( mHasRings ){
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		gl::scale( Vec3f( mRadius * 3.0f, mRadius * 3.0f, mRadius * 3.0f ) );
+		float c = mRadius * 6.0f;
+		gl::scale( Vec3f( c, c, c ) );
 		gl::rotate( mMatrix );
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt ) );
+		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, 0.0f ) );
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		tex.enableAndBind();
 		glEnableClientState( GL_VERTEX_ARRAY );
@@ -283,10 +305,11 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 		glVertexPointer( 3, GL_FLOAT, 0, planetRingVerts );
 		glTexCoordPointer( 2, GL_FLOAT, 0, planetRingTexCoords );
 		
+		/*
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
 		glDrawArrays( GL_TRIANGLES, 0, 6 );
-		
+		*/
 		gl::enableAdditiveBlending();
 		glDrawArrays( GL_TRIANGLES, 0, 6 );
 		

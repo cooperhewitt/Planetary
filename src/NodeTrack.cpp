@@ -85,8 +85,6 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mOrbitPeriod		= mTrackLength;
 	mAxialTilt			= Rand::randFloat( 5.0f, 30.0f );
     mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
-	
-	mOrbitLineAlpha		= 0.1f + normPlayCount * 0.2f;
 }
 
 void NodeTrack::update( const Matrix44f &mat )
@@ -227,12 +225,12 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 }
 
 
-void NodeTrack::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void NodeTrack::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
 	if( mIsPlaying ){
-		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f ) );
+		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f * pinchAlphaOffset ) );
 	} else {
-		gl::color( ColorA( 0.15f, 0.2f, 0.4f, mOrbitLineAlpha ) );
+		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.2f * pinchAlphaOffset  ) );
 	}
 	gl::pushModelView();
 	gl::translate( mParentNode->mTransPos );

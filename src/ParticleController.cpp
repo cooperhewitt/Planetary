@@ -157,7 +157,7 @@ void ParticleController::drawParticleVertexArray( Node *node, const Matrix44f &m
 	gl::pushModelView();
 	if( node ){
 		gl::translate( node->mTransPos );
-		gl::color( ColorA( node->mGlowColor, 0.35f ) );
+		gl::color( ColorA( node->mColor, 0.35f ) );
 	}
 	
 	gl::rotate( mat );
