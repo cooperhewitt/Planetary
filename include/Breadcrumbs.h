@@ -12,9 +12,11 @@
 #include <string>
 #include <vector>
 #include "cinder/gl/Texture.h"
+#include "cinder/Rect.h"
 #include "cinder/Text.h"
 #include "cinder/Font.h"
 #include "cinder/app/TouchEvent.h"
+#include "cinder/app/OrientationEvent.h"
 #include "cinder/app/Event.h"
 
 using namespace ci;
@@ -41,14 +43,16 @@ class Breadcrumbs {
 
 public:
 
-	Breadcrumbs() {
+	Breadcrumbs()
+    {
 		mApp = NULL;
 		mHeight = 0.0f;
 	}
 	
-	~Breadcrumbs() {
-		
-	}
+	~Breadcrumbs()
+    { 
+        // TODO: any event cleanup?
+    }
 
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>
@@ -59,6 +63,7 @@ public:
 	void setup( AppCocoaTouch *app, const Font &font);
 	bool touchesBegan( TouchEvent event );
 	bool touchesEnded( TouchEvent event );
+    bool orientationChanged( OrientationEvent event );
 	void setHierarchy(vector<string> hierarchy);
 	const vector<string>& getHierarchy();
 	void update();
@@ -80,9 +85,12 @@ private:
 	vector<Rectf> clickRects;
 	int touchesBeganRectIndex;
 	int prevSelectedIndex;
+    
+    DeviceOrientation mDeviceOrientation;
 	
 	CallbackId mCallbackTouchesBegan;
 	CallbackId mCallbackTouchesEnded;
+    CallbackId mCallbackOrientationChanged;
 	
 	//////////////////////
 	
@@ -91,15 +99,22 @@ private:
 	
 };
 
-void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font ){
+void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font )
+{
 	
 	if (mApp != NULL) {
 		mApp->unregisterTouchesEnded( mCallbackTouchesEnded );
 		mApp->unregisterTouchesEnded( mCallbackTouchesBegan );
+        mApp->unregisterOrientationChanged( mCallbackOrientationChanged );
 	}
 	mCallbackTouchesBegan = app->registerTouchesBegan( this, &Breadcrumbs::touchesBegan );
 	mCallbackTouchesEnded = app->registerTouchesEnded( this, &Breadcrumbs::touchesEnded );
-		
+    mCallbackOrientationChanged = app->registerOrientationChanged( this, &Breadcrumbs::orientationChanged );
+
+    // TODO:
+    //mDeviceOrientation = app->getOrientation();
+    mDeviceOrientation = PORTRAIT_ORIENTATION;
+    
 	mApp = app;
 	mFont = font;
 	mHierarchyHasChanged = false;
@@ -113,10 +128,24 @@ void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font ){
 	mSeparatorTexture = gl::Texture( layout.render( true, PREMULT ) );
 }
 
-bool Breadcrumbs::touchesBegan( TouchEvent event ) {
+bool Breadcrumbs::orientationChanged(OrientationEvent event)
+{
+    // TODO: OrientationEvent helper for this?
+    if (UIDeviceOrientationIsValidInterfaceOrientation(event.getOrientation())) {
+        mDeviceOrientation = event.getOrientation();
+    }
+	return false;
+}
+
+bool Breadcrumbs::touchesBegan( TouchEvent event )
+{
+    Vec2f pos = event.getTouches()[0].getPos();
+    std::cout << "touchesBegan: " << pos << std::endl;
 	touchesBeganRectIndex = -1;
 	for( int i = 0; i < clickRects.size(); i++ ){
-		if (clickRects[i].contains(event.getTouches()[0].getPos())) {
+        std::cout << "testing: " << clickRects[i] << std::endl;
+		if (clickRects[i].contains(pos)) {
+            std::cout << "YES!" << std::endl;
 			touchesBeganRectIndex = i;
 		}
 	}
@@ -125,7 +154,8 @@ bool Breadcrumbs::touchesBegan( TouchEvent event ) {
 	return false;
 }
 
-bool Breadcrumbs::touchesEnded( TouchEvent event ) {
+bool Breadcrumbs::touchesEnded( TouchEvent event )
+{
 	for( int i = 0; i < clickRects.size(); i++ ){
 		if (clickRects[i].contains(event.getTouches()[0].getPos())) {
 			if( i == touchesBeganRectIndex ){
@@ -139,16 +169,19 @@ bool Breadcrumbs::touchesEnded( TouchEvent event ) {
 	return false;
 }
 
-void Breadcrumbs::setHierarchy(vector<string> hierarchy) {
+void Breadcrumbs::setHierarchy(vector<string> hierarchy)
+{
 	mPreviousHierarchy = hierarchy;
 	mHierarchyHasChanged = true;
 }
 
-const vector<string>& Breadcrumbs::getHierarchy() {
+const vector<string>& Breadcrumbs::getHierarchy()
+{
 	return mPreviousHierarchy;
 }
 
-void Breadcrumbs::update() {
+void Breadcrumbs::update()
+{
 	if( mHierarchyHasChanged ){
 		mTextures.clear();
 		
@@ -167,17 +200,48 @@ void Breadcrumbs::update() {
 
 void Breadcrumbs::draw()
 {
+    float width = app::getWindowWidth();
+    float height = app::getWindowHeight();
+    float rectHeight = 24.0f;
+    Rectf breadcrumbRect( 0.0f, 0.0f, width, rectHeight );
+    float lineY = 25.0f;
+    float buttonY	= 3.0f;
+
+    Matrix44f orientationMtx;
+    
+    switch ( mDeviceOrientation )
+    {
+        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
+            orientationMtx.translate( Vec3f( width, height, 0 ) );            
+            orientationMtx.rotate( Vec3f( 0, 0, M_PI ) );
+            break;
+        case LANDSCAPE_LEFT_ORIENTATION:
+            orientationMtx.translate( Vec3f( width, 0, 0 ) );
+            orientationMtx.rotate( Vec3f( 0, 0, M_PI/2.0f ) );
+            breadcrumbRect.x2 = height;
+            break;
+        case LANDSCAPE_RIGHT_ORIENTATION:
+            orientationMtx.translate( Vec3f( 0, height, 0 ) );
+            orientationMtx.rotate( Vec3f( 0, 0, -M_PI/2.0f ) );
+            breadcrumbRect.x2 = height;
+            break;
+        default:
+            break;
+    }
+    
+    gl::pushModelView();
+    gl::multModelView( orientationMtx );
+    
 	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.75f ) );
-	gl::drawSolidRect( Rectf( 0.0f, 0.0f, app::getWindowWidth(), 24.0f ) );
+	gl::drawSolidRect( breadcrumbRect );
 	
 	gl::enableAlphaBlending();
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.1f ) );
-	gl::drawLine( Vec2f( 1.0f, 25.0f ), Vec2f( getWindowWidth(), 25.0f ) );
+	gl::drawLine( Vec2f( 1.0f, lineY ), Vec2f( breadcrumbRect.x2, lineY ) );
 
 	gl::enableAlphaBlending(false);
 	gl::color( Color::white() );
-	float x			= 25.0f;
-	float y			= 3.0f;
+	float buttonX	= 25.0f;
 	float xMargin	= 5.0f;
 	float yMargin	= 20.0f;
 	mHeight = 0;
@@ -191,8 +255,8 @@ void Breadcrumbs::draw()
 		}
 				
 		if( i > 0 ){
-			gl::draw( mSeparatorTexture, Vec2f( x, y ) );			
-			x += mSeparatorTexture.getWidth() + xMargin*2;				
+			gl::draw( mSeparatorTexture, Vec2f( buttonX, buttonY ) );
+			buttonX += mSeparatorTexture.getWidth() + xMargin*2;
 		}
 		/*
 		if( i == prevSelectedIndex ){
@@ -200,10 +264,24 @@ void Breadcrumbs::draw()
 		}
 		*/
 		
-		gl::draw( mTextures[i], Vec2f( x,y ) );			
-		clickRects.push_back( Rectf( x-xMargin, y-yMargin, x+mTextures[i].getWidth()+xMargin, y+mTextures[i].getHeight()+yMargin ) );
+		gl::draw( mTextures[i], Vec2f( buttonX, buttonY ) );			
+        
+        Vec3f topLeft( buttonX-xMargin, buttonY-yMargin, 0 );
+        Vec3f bottomRight( buttonX+mTextures[i].getWidth()+xMargin, buttonY+mTextures[i].getHeight()+yMargin, 0 );
+        Rectf clickRect( (orientationMtx * topLeft).xy(), (orientationMtx * bottomRight).xy() );
+		clickRects.push_back( clickRect.canonicalized() );
+        
 		mHeight = max(mHeight, (float)(mTextures[i].getHeight()));
-		x += mTextures[i].getWidth() + xMargin*2;
+		buttonX += mTextures[i].getWidth() + xMargin*2;
 	}		
 
+    gl::popModelView();
+    
+//    // draw clickRects in screen space for debuggen
+//    gl::color( ColorA( 1.0f, 1.0f, 0.0f, 0.25f ) );	
+//    for (int i = 0; i < clickRects.size(); i++) {
+//        gl::drawSolidRect( clickRects[i] );
+//    }
+    
+    
 }
