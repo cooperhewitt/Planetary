@@ -21,7 +21,7 @@ class NodeTrack : public Node
 	void drawEclipseGlow();
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
-	void drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
+	void drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
 	string getName();
     uint64_t getId();
@@ -37,5 +37,7 @@ private:
 	int			mStarRating;
 	int			mNumTracks;
 	
+	bool		mHasClouds;
+	bool		mIsPopulated;
 	ci::gl::Texture mAlbumArt;
 };

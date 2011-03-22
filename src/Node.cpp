@@ -152,13 +152,6 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 	}
 }
 
-void Node::drawStar()
-{
-	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawStar();
-	}
-}
-
 void Node::drawEclipseGlow()
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
@@ -187,17 +180,17 @@ void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat 
 	}
 }
 
-void Node::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void Node::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrbitRing( ringVertsLowRes, ringVertsHighRes );
+		(*nodeIt)->drawOrbitRing( pinchAlphaOffset, ringVertsLowRes, ringVertsHighRes );
 	}
 }
 
 void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
-		if( mIsPlaying ){
+		if( mIsPlaying || mIsSelected ){
 			gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		} else {
 			gl::color( ColorA( 0.2f, 0.3f, 0.8f, mZoomPer * pinchAlphaOffset ) );
@@ -208,11 +201,11 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 		}
 
 		
-		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.275f, mSphereScreenRadius * -0.275f * 0.75f );
-		Vec2f pos2 = pos1 + Vec2f( 10.0f, -7.5f );
+		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.275f, mSphereScreenRadius * 0.275f * 0.75f );
+		Vec2f pos2 = pos1 + Vec2f( 10.0f, 7.5f );
 		
 		gl::pushModelView();
-		gl::translate( pos2 + Vec2f( 2.0f, -12.0f ) );
+		gl::translate( pos2 + Vec2f( 2.0f, -8.0f ) );
 		if( mIsPlaying ){
 			float s = mZoomPer * 0.25f + 1.0f;
 			gl::scale( Vec3f( s, s, 1.0f ) );
@@ -280,7 +273,7 @@ void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 		
 		float r = mSphereScreenRadius * 0.5f + 5.0f;
 		mSphereHitArea	= Rectf( p.x - r, p.y - r, p.x + r, p.y + r );
-		mHitArea		= Rectf( p.x - 15, p.y - 25, p.x + mNameTex.getWidth() + 20, p.y + mNameTex.getHeight() - 15 );
+		mHitArea		= Rectf( p.x - 15, p.y - 5, p.x + mNameTex.getWidth() + 20, p.y + mNameTex.getHeight() + 10 );
 		
 		if( mIsHighlighted && ! mIsSelected ){
 			if( mHitArea.contains( pos ) || mSphereHitArea.contains( pos ) ){

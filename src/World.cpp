@@ -274,13 +274,6 @@ void World::drawStarsVertexArray( const Matrix44f &mat )
 	glDisableClientState( GL_COLOR_ARRAY );
 }
 
-void World::drawStars()
-{
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawStar();
-	}
-}
-
 void World::buildPlanetRingsVertexArray()
 {
 	mPlanetRingVerts		= new float[18];
@@ -497,10 +490,10 @@ void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset )
 	}
 }
 
-void World::drawOrbitRings( )
+void World::drawOrbitRings( float pinchAlphaOffset )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawOrbitRing( mRingVertsLowRes, mRingVertsHighRes );
+		(*it)->drawOrbitRing( pinchAlphaOffset, mRingVertsLowRes, mRingVertsHighRes );
 	}
 }
 

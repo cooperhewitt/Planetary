@@ -27,16 +27,7 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	mHasRings		= false;
 	if( Rand::randFloat() < 0.2f ) mHasRings = true;
 	
-	// FIXME: bad c++?
-	float numAlbums = ((NodeArtist*)mParentNode)->mNumAlbums + 2.0f;
 	
-	float invAlbumPer = 1.0f/(float)numAlbums;
-	float albumNumPer = (float)mIndex * invAlbumPer;
-	
-	float minAmt		= mParentNode->mOrbitRadiusMin;
-	float maxAmt		= mParentNode->mOrbitRadiusMax;
-	float deltaAmt		= maxAmt - minAmt;
-	mOrbitRadiusDest	= minAmt + deltaAmt * albumNumPer;// + Rand::randFloat( maxAmt * invAlbumPer * 0.35f );
 
 	mIdealCameraDist	= mRadius * 8.0f;
     mPlanetTexIndex		= 0;
@@ -51,6 +42,24 @@ void NodeAlbum::setData( PlaylistRef album )
 	mHighestPlayCount	= 0;
 	mLowestPlayCount	= 10000;
 	
+	
+	
+	
+	// FIXME: bad c++?
+	float numAlbums		= ((NodeArtist*)mParentNode)->mNumAlbums + 2.0f;
+	
+	float invAlbumPer	= 1.0f/(float)numAlbums;
+	float albumNumPer	= (float)mIndex * invAlbumPer;
+	
+	float minAmt		= mParentNode->mOrbitRadiusMin;
+	float maxAmt		= mParentNode->mOrbitRadiusMax;
+	float deltaAmt		= maxAmt - minAmt;
+	mOrbitRadiusDest	= minAmt + deltaAmt * albumNumPer;// + Rand::randFloat( maxAmt * invAlbumPer * 0.35f );
+	
+	
+	
+	
+	
 	float hue			= Rand::randFloat( 0.15f, 0.75f );
 	float sat			= Rand::randFloat( 0.15f, 0.25f );
 	float val			= Rand::randFloat( 0.85f, 1.00f );
@@ -64,7 +73,6 @@ void NodeAlbum::setData( PlaylistRef album )
 	// for the children
 	mOrbitRadiusMin		= mRadius * 2.0f;
 	mOrbitRadiusMax		= mRadius * 7.5f;
-	
 	if( mHasRings ){
 		mOrbitRadiusMin = mRadius * 3.0f;
 		mOrbitRadiusMax = mRadius * 8.5f;
@@ -76,6 +84,12 @@ void NodeAlbum::setData( PlaylistRef album )
     mPlanetTexIndex		= ( mIndex + 6 )%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
 	mCloudTexIndex		= Rand::randInt( G_NUM_CLOUD_TYPES );
 
+	
+	//if( mPlayCount > 5 ){
+	//	mHasClouds = true;
+	//}
+	
+	
 	for (int i = 0; i < mNumTracks; i++) {
 		float numPlays = (*mAlbum)[i]->getPlayCount();
 		if( numPlays < mLowestPlayCount )
@@ -133,12 +147,20 @@ void NodeAlbum::drawEclipseGlow()
 	Node::drawEclipseGlow();
 }
 
-void NodeAlbum::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
-{
-	if( mIsPlaying ){
-		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f ) );
+void NodeAlbum::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+{		
+	float newPinchAlphaOffset = pinchAlphaOffset;
+	if( G_ZOOM < G_ALBUM_LEVEL - 0.5f ){
+		newPinchAlphaOffset = pinchAlphaOffset;
 	} else {
-		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.2f ) );
+		newPinchAlphaOffset = 1.0f;
+	}
+	
+	
+	if( mIsPlaying ){
+		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f * newPinchAlphaOffset ) );
+	} else {
+		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.2f * newPinchAlphaOffset ) );
 	}
 	
 	gl::pushModelView();
@@ -151,7 +173,20 @@ void NodeAlbum::drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighR
 	glDisableClientState( GL_VERTEX_ARRAY );
 	gl::popModelView();
 	
-	Node::drawOrbitRing( ringVertsLowRes, ringVertsHighRes );
+	if( G_ZOOM < G_ALBUM_LEVEL - 0.5f ){
+		newPinchAlphaOffset = pinchAlphaOffset;
+	} else if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
+		newPinchAlphaOffset = pinchAlphaOffset;
+	} else {
+		newPinchAlphaOffset = 1.0f;
+	}
+	
+	if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
+		newPinchAlphaOffset = pinchAlphaOffset;
+	} else {
+		newPinchAlphaOffset = 1.0f;
+	}
+	Node::drawOrbitRing( newPinchAlphaOffset, ringVertsLowRes, ringVertsHighRes );
 }
 
 void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
@@ -259,23 +294,24 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 	if( mHasRings ){
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		gl::scale( Vec3f( mRadius * 3.0f, mRadius * 3.0f, mRadius * 3.0f ) );
+		float c = mRadius * 6.0f;
+		gl::scale( Vec3f( c, c, c ) );
 		gl::rotate( mMatrix );
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt ) );
+		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, 0.0f ) );
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		tex.enableAndBind();
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glVertexPointer( 3, GL_FLOAT, 0, planetRingVerts );
 		glTexCoordPointer( 2, GL_FLOAT, 0, planetRingTexCoords );
-		glDrawArrays( GL_TRIANGLES, 0, 6 );
 		
-		/* RINGS NEED DEPTH SORTING AGAINST SUN PARTICLES
+		/*
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
 		glDrawArrays( GL_TRIANGLES, 0, 6 );
-		gl::enableAdditiveBlending();
 		*/
+		gl::enableAdditiveBlending();
+		glDrawArrays( GL_TRIANGLES, 0, 6 );
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );

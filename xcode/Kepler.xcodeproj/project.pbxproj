@@ -327,6 +327,8 @@
 				E1F2DBDC132A1D7B009A2309 /* highlight.png */,
 				E1F2D83013296A70009A2309 /* sliderBg.png */,
 				E1A78BCD13319A3900F3AE92 /* sliderButton.png */,
+				E1A78BEC1331E71000F3AE92 /* drawText.png */,
+				E1A78BE61331CDBC00F3AE92 /* drawLines.png */,
 				E1276DE71328117E00E1FC3F /* accel.png */,
 				E19EA67E132DBABA00CEE740 /* debug.png */,
 				E1276B12132716D300E1FC3F /* pause.png */,
@@ -380,8 +382,6 @@
 			isa = PBXGroup;
 			children = (
 				E1FC7DA213381853007F333C /* eclipseGlow.png */,
-				E1A78BEC1331E71000F3AE92 /* drawText.png */,
-				E1A78BE61331CDBC00F3AE92 /* drawLines.png */,
 				E12766401325E28900E1FC3F /* ui */,
 				E12765A21325B74700E1FC3F /* loading.jpg */,
 				E17667CE13202F4D006A4C2E /* planets */,

@@ -130,7 +130,7 @@ public:
 	}
 
 
-	void draw( const vector<gl::Texture> &texs, const gl::Texture &sliderBgTex, const Font &font, float y, float currentTime, float totalTime, bool isDrawingRings, bool isDrawingStars, bool isDrawingPlanets, bool isDrawingText )
+	void draw( const vector<gl::Texture> &texs, const gl::Texture &sliderBgTex, const Font &font, float y, float currentTime, float totalTime, bool isDrawingRings, bool isDrawingText )
 	{
 		prevDrawY = y;
 		
@@ -146,15 +146,16 @@ public:
 
 		// TODO: make these members?
 		float x = getWindowWidth() * 0.5f - bWidth * 1.5f;
+		float x1 = 90.0f;
 		float y1 = y + 2;
 		float y2 = y1 + bHeight;
 		Rectf prevButton( x,				 y1, x + bWidth,		y2 );
 		Rectf playButton( x + bWidth,		 y1, x + bWidth * 2.0f, y2 );
 		Rectf nextButton( x + bWidth * 2.0f, y1, x + bWidth * 3.0f, y2 );
-		Rectf accelButton( getWindowWidth() - 65.0f, y1, getWindowWidth() - 15.0f, y2 );
-		Rectf debugButton( 15.0f, y1, 65.0f, y2 );
-		Rectf drawRingsButton( 65.0f, y1, 115.0f, y2 );
-		Rectf drawTextButton( 115.0f, y1, 165.0f, y2 );
+		Rectf drawRingsButton( x1 + 5.0f, y1 + 6, x1 + 35.0f, y1 + 36 );
+		Rectf drawTextButton( x1 + 40.0f, y1 + 6, x1 + 70.0f, y1 + 36 );
+		Rectf accelButton( x1 + 75.0f, y1 + 6, x1 + 105.0f, y1 + 36 );
+		Rectf debugButton( x1 + 110.0f, y1 + 6, x1 + 140.0f, y1 + 36 );
 		
 		float sliderWidth	= sliderBgTex.getWidth();
 		float sliderHeight	= sliderBgTex.getHeight();

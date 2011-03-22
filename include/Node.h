@@ -32,12 +32,11 @@ class Node {
 	void			createNameTexture();
 	virtual void	update( const ci::Matrix44f &mat );
 	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	virtual void	drawStar();
 	virtual void	drawEclipseGlow();
 	virtual void	drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords );
-	virtual void	drawOrbitRing( GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
+	virtual void	drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset );
 	void			wasTapped(){ mIsTapped = true; mHighlightStrength = 1.0f; }
 	void			drawTouchHighlight();
@@ -86,7 +85,6 @@ class Node {
 	float				mOrbitRadius;		// Current distance from parentNode
 	float				mOrbitRadiusDest;	// Final distance from parentNode
 	float				mOrbitPeriod;		// Time in seconds to orbit parentNode
-    float				mOrbitLineAlpha;	// Alpha of the orbit line based on playcount
 	
 // ROTATION
 	float				mAngularVelocity;	// Change in angle per frame
