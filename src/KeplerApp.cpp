@@ -35,7 +35,7 @@ using std::stringstream;
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
 bool G_ACCEL            = false;
-bool G_IS_IPAD2			= true;
+bool G_IS_IPAD2			= true; // TODO: detect this with iOS code?
 int G_NUM_PARTICLES		= 250;
 
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
@@ -822,27 +822,14 @@ void KeplerApp::update()
 		mDataIsLoaded = true;
 	}
 		
-	mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
-	updateArcball();
-	mWorld.update( mMatrix );
-    mParticleController.update();
-	mParticleController.buildVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
-	updateCamera();
-	mWorld.updateGraphics( mCam, mBbRight, mBbUp );
-
-	if( mDataIsLoaded ){
-		mWorld.buildStarsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
-		mWorld.buildStarGlowsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
-	}
-    
     //mTextureLoader.update();
     
     if ( mRemainingSetupCalled ) {
         mAccelMatrix	= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
         updateArcball();
         mWorld.update( mMatrix );
-        //mParticleController.pullToCenter( mState.getPlayingNode() );
         mParticleController.update();
+        mParticleController.buildVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
         if( mDataIsLoaded ){
@@ -855,6 +842,12 @@ void KeplerApp::update()
         mPlayControls.update();
         
         updatePlayhead();
+    }
+    else {
+        // make sure we've drawn the loading screen first
+        if (getElapsedFrames() > 1) {
+            remainingSetup();
+        }        
     }
 }
 
@@ -944,9 +937,6 @@ void KeplerApp::draw()
 	gl::clear( Color( 0, 0, 0 ), true );
 	if( !mDataIsLoaded ){
 		mLoadingScreen.draw( this, mLoadingTex, mStarGlowTex, mStarTex );
-        if (getElapsedFrames() > 1 && !mRemainingSetupCalled) {
-            remainingSetup();
-        }   
 	} else {
 		drawScene();
 	}
