@@ -82,7 +82,17 @@ bool UiLayer::orientationChanged( OrientationEvent event )
     
 	return false;
 }
- 
+
+// TODO: move this to an operator in Cinder's Matrix class?
+Rectf UiLayer::transformRect( const Rectf &rect, const Matrix44f &matrix )
+{
+    Vec2f topLeft = (matrix * Vec3f(rect.x1,rect.y1,0)).xy();
+    Vec2f bottomRight = (matrix * Vec3f(rect.x2,rect.y2,0)).xy();
+    Rectf newRect(topLeft, bottomRight);
+    newRect.canonicalize();    
+    return newRect;
+}
+
 void UiLayer::setup( AppCocoaTouch *app )
 {
 	mApp = app;
@@ -112,10 +122,7 @@ bool UiLayer::touchesBegan( TouchEvent event )
 	Vec2f touchPos = event.getTouches().begin()->getPos();
 
     // find where mPanelTabRect is being drawn in screen space (i.e. touchPos space)
-    Vec2f topLeft = (mOrientationMatrix * Vec3f(mPanelTabRect.x1,mPanelTabRect.y1,0)).xy();
-    Vec2f bottomRight = (mOrientationMatrix * Vec3f(mPanelTabRect.x2,mPanelTabRect.y2,0)).xy();
-    Rectf screenTabRect = Rectf(topLeft, bottomRight);
-    screenTabRect.canonicalize();
+    Rectf screenTabRect = transformRect(mPanelTabRect, mOrientationMatrix);
 
     mIsPanelTabTouched = screenTabRect.contains( touchPos );
     
@@ -135,21 +142,14 @@ bool UiLayer::touchesMoved( TouchEvent event )
 		mHasPanelBeenDragged = true;
 
         // find where mPanelTabRect is being drawn in screen space (i.e. touchPos space)
-        Vec2f topLeft = (mOrientationMatrix * Vec3f(mPanelTabRect.x1,mPanelTabRect.y1,0)).xy();
-        Vec2f bottomRight = (mOrientationMatrix * Vec3f(mPanelTabRect.x2,mPanelTabRect.y2,0)).xy();
-        Rectf screenTabRect(topLeft, bottomRight);
-        screenTabRect.canonicalize();
+        Rectf screenTabRect = transformRect(mPanelTabRect, mOrientationMatrix);
         
         // apply the touch pos and offset in screen space
         Vec2f newPos = touchPos + mPanelTabTouchOffset;
         screenTabRect.offset(newPos - screenTabRect.getUpperLeft());
 
         // pull the screen-space rect back into mPanelTabRect space
-        Matrix44f inverse = mOrientationMatrix.inverted();
-        topLeft = (inverse * Vec3f(screenTabRect.x1,screenTabRect.y1,0)).xy();
-        bottomRight = (inverse * Vec3f(screenTabRect.x2,screenTabRect.y2,0)).xy();
-        Rectf tabRect(topLeft, bottomRight);
-        tabRect.canonicalize();
+        Rectf tabRect = transformRect( screenTabRect, mOrientationMatrix.inverted() );
 
         // set the panel position based on the new tabRect (mPanelTabRect will follow in update())
         mPanelRect.y1 = tabRect.y2;
@@ -164,6 +164,7 @@ bool UiLayer::touchesEnded( TouchEvent event )
     // TODO: these touch handlers might need some refinement for multi-touch
     // ... perhaps store the first touch ID in touchesBegan and reject other touches?
     
+    // decide if the open state should change:
 	if( mIsPanelTabTouched ){
 		if( mHasPanelBeenDragged ){
             mIsPanelOpen = (mPanelRect.y1 - mPanelOpenY) < mPanelHeight/2.0f;
@@ -173,6 +174,7 @@ bool UiLayer::touchesEnded( TouchEvent event )
 		}
 	}
 
+    // reset for next time
     mIsPanelTabTouched = false;
     mHasPanelBeenDragged = false;
     

@@ -40,7 +40,8 @@ class UiLayer {
 	
  private:
 
-    void	setPanelPos( float y, bool doneDragging );
+    void        setPanelPos( float y, bool doneDragging );
+    ci::Rectf   transformRect( const ci::Rectf &worldRect, const ci::Matrix44f &matrix );
     
 	ci::app::AppCocoaTouch *mApp;
 	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded, mCbOrientationChanged;
