@@ -52,7 +52,7 @@ void NodeArtist::update( const Matrix44f &mat )
 	
 	if( mAge > mBirthPause ){
 		if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
-			mRadius -= ( mRadius - 0.25f ) * 0.1f;
+			mRadius -= ( mRadius - 0.125f ) * 0.1f;
 			mRadius += Rand::randFloat( 0.0125f, 0.065f );
 		} else {
 			mRadius -= ( mRadius - mRadiusDest ) * 0.1f;
@@ -133,12 +133,12 @@ void NodeArtist::select()
 
 void NodeArtist::setChildOrbitRadii()
 {
-	float orbitOffset = mRadiusDest;
+	float orbitOffset = mRadiusDest * 0.8f;
 	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
 		NodeAlbum* albumNode = (NodeAlbum*)(*it);
-		orbitOffset += albumNode->mNumTracks * 0.005f;
+		orbitOffset += albumNode->mNumTracks * 0.01f;
 		(*it)->mOrbitRadiusDest = orbitOffset;
-		orbitOffset += albumNode->mNumTracks * 0.005f;
+		orbitOffset += albumNode->mNumTracks * 0.01f;
 	}
 }
 

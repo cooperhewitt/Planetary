@@ -479,10 +479,10 @@ void World::drawClouds( const vector<gl::Texture> &clouds )
 	}
 }
 
-void World::drawRings( const gl::Texture &tex )
+void World::drawRings( const gl::Texture &tex, float camRingAlpha )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawRings( tex, mPlanetRingVerts, mPlanetRingTexCoords );
+		(*it)->drawRings( tex, mPlanetRingVerts, mPlanetRingTexCoords, camRingAlpha );
 	}
 }
 

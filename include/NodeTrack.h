@@ -23,7 +23,8 @@ class NodeTrack : public Node
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
-	void drawPlayheadProgress();
+	void buildPlayheadProgressVertexArray();
+	void drawPlayheadProgress( const ci::gl::Texture &tex );
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
 	string getName();
     uint64_t getId();
@@ -48,4 +49,10 @@ private:
 	bool		mHasClouds;
 	bool		mIsPopulated;
 	ci::gl::Texture mAlbumArt;
+	
+	int			mTotalOrbitVertices;
+    int			mPrevTotalOrbitVertices;
+	GLfloat		*mOrbitVerts;
+	GLfloat		*mOrbitTexCoords;
+	GLfloat		*mOrbitColors;
 };

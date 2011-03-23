@@ -7,6 +7,8 @@
  *
  */
 
+#include "cinder/Color.h"
+
 #pragma once 
 
 static const double TWO_PI			= M_PI * 2.0;
@@ -28,12 +30,15 @@ static const int G_NUM_PLANET_TYPE_OPTIONS = 3;
 static const int G_NUM_CLOUD_TYPES	= 3;
 
 static const float G_MIN_FOV		= 65.0f;
-static const float G_MAX_FOV		= 135.0f;
+static const float G_MAX_FOV		= 115.0f;
 
 static const int G_RING_LOW_RES		= 250;
 static const int G_RING_HIGH_RES	= 500;
 
 static const int G_SKYDOME_RADIUS	= 1000.0f;
+
+static const ci::Color COLOR_BLUE	= ci::Color( 0.1f, 0.2f, 0.5f );
+static const ci::Color COLOR_BRIGHT_BLUE = ci::Color( 0.2f, 0.3f, 0.8f );
 
 
 // TODO: move into State.h

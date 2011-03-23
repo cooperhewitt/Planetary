@@ -140,11 +140,11 @@ void Breadcrumbs::draw()
     gl::pushModelView();
     gl::multModelView( orientationMtx );
     
-	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.75f ) );
+	gl::color( ColorA( Color::black(), 0.75f ) );
 	gl::drawSolidRect( breadcrumbRect );
 	
 	gl::enableAlphaBlending();
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.1f ) );
+	gl::color( ColorA( Color::white(), 0.1f ) );
 	gl::drawLine( Vec2f( 1.0f, lineY ), Vec2f( breadcrumbRect.x2, lineY ) );
     
 	gl::enableAlphaBlending(false);
@@ -157,9 +157,9 @@ void Breadcrumbs::draw()
 	
 	for( int i=0; i<mPreviousHierarchy.size(); i++ ){
 		if( i == mPreviousHierarchy.size() - 1 ){
-			gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+			gl::color( Color::white() );
 		} else {
-			gl::color( Color( 24/255.0f, 167/255.0f, 240/255.0f ) );	
+			gl::color( COLOR_BLUE );	
 		}
         
 		if( i > 0 ){

@@ -9,7 +9,7 @@ class ParticleController {
 	ParticleController();
 	void update();
 	void buildParticleVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	void buildDustVertexArray( Node *node, float pinchAlphaOffset );
+	void buildDustVertexArray( Node *node, float pinchAlphaOffset, float dustAlpha );
 	void drawParticleVertexArray( Node *node, const ci::Matrix44f &mat );
 	void drawDustVertexArray( Node *node, const ci::Matrix44f &mat );
 	void addParticles( int amt );

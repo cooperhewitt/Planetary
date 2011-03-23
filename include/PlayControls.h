@@ -71,7 +71,6 @@ private:
 	PlayButton lastTouchedType;
 	float prevDrawY;
 	bool mIsPlaying;
-	Color mBlueGlow;
 	int mMinutes, mMinutesTotal, mMinutesLeft;
 	int mSeconds, mSecondsTotal, mSecondsLeft;
 	int mPrevSeconds;

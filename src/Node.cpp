@@ -128,7 +128,7 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 	mBbUp    = bbUp;
     
     if( mGen >= G_ALBUM_LEVEL ){
-        if( mIsPlaying ){
+        if( mIsSelected ){
             mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
             mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.1f;
         } else {
@@ -173,10 +173,10 @@ void Node::drawClouds( const vector<gl::Texture> &clouds )
 	}
 }
 
-void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords )
+void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawRings( tex, planetRingVerts, planetRingTexCoords );
+		(*nodeIt)->drawRings( tex, planetRingVerts, planetRingTexCoords, camRingAlpha );
 	}
 }
 
@@ -191,9 +191,9 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
 		if( mIsPlaying || mIsSelected ){
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			gl::color( ColorA( Color::white(), 1.0f ) );
 		} else {
-			gl::color( ColorA( 0.2f, 0.3f, 0.8f, mZoomPer * pinchAlphaOffset ) );
+			gl::color( ColorA( COLOR_BRIGHT_BLUE, mZoomPer * pinchAlphaOffset ) );
 		}
 
 		if (mNameTex == NULL) {
@@ -214,7 +214,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 		gl::popModelView();
 		
 		glDisable( GL_TEXTURE_2D );
-		gl::color( ColorA( 0.1f, 0.2f, 0.5f, 0.2f * mZoomPer * pinchAlphaOffset ) );
+		gl::color( ColorA( COLOR_BLUE, 0.4f * mZoomPer * pinchAlphaOffset ) );
 		gl::drawLine( pos1, pos2 );
 		
 		// draw hit areas

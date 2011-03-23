@@ -24,8 +24,8 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	: Node( parent, index, font )
 {
 	mIsHighlighted	= true;
-	mHasRings		= false;
-	if( Rand::randFloat() < 0.2f ) mHasRings = true;
+	mHasRings		= true;
+	//if( Rand::randFloat() < 0.2f ) mHasRings = true;
 	
 	
 
@@ -64,6 +64,7 @@ void NodeAlbum::setData( PlaylistRef album )
 	float sat			= Rand::randFloat( 0.15f, 0.25f );
 	float val			= Rand::randFloat( 0.85f, 1.00f );
 	mColor				= Color( CM_HSV, hue, sat, val );
+	mGlowColor			= mParentNode->mGlowColor;
 	mEclipseColor       = mColor;
 
 	mRadius				*= 0.85f;
@@ -116,8 +117,8 @@ void NodeAlbum::update( const Matrix44f &mat )
         float dist			= mScreenPos.distance( mParentNode->mScreenPos );
         eclipseDist			= constrain( dist/200.0f, 0.0f, 1.0f );
 		if( G_ZOOM == G_ALBUM_LEVEL ){
-			mEclipseStrength	= math<float>::max( 50.0f - abs( mSphereScreenRadius - mParentNode->mSphereScreenRadius ), 0.0f ) / 50.0f; 
-			mEclipseStrength	= pow( mEclipseStrength, 2.0f );
+			mEclipseStrength	= math<float>::max( 500.0f - abs( mSphereScreenRadius - mParentNode->mSphereScreenRadius ), 0.0f ) / 500.0f; 
+			mEclipseStrength	= pow( mEclipseStrength, 5.0f );
 		}
 		
 		/*
@@ -139,8 +140,8 @@ void NodeAlbum::update( const Matrix44f &mat )
 void NodeAlbum::drawEclipseGlow()
 {
 	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
-        gl::color( ColorA( mParentNode->mGlowColor, mEclipseStrength * 3.0f ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 3.25f;
+        gl::color( ColorA( mParentNode->mGlowColor, mEclipseStrength ) );
+		Vec2f radius = Vec2f( mRadius, mRadius ) * ( mEclipseStrength + 1.0f ) * 3.25f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 	
@@ -158,9 +159,9 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes,
 	
 	
 	if( mIsPlaying ){
-		gl::color( ColorA( 0.2f, 0.3f, 0.7f, 0.45f * newPinchAlphaOffset ) );
+		gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.45f * newPinchAlphaOffset ) );
 	} else {
-		gl::color( ColorA( 0.15f, 0.2f, 0.4f, 0.2f * newPinchAlphaOffset ) );
+		gl::color( ColorA( COLOR_BLUE, 0.2f * newPinchAlphaOffset ) );
 	}
 	
 	gl::pushModelView();
@@ -186,6 +187,7 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes,
 	} else {
 		newPinchAlphaOffset = 1.0f;
 	}
+	
 	Node::drawOrbitRing( newPinchAlphaOffset, ringVertsLowRes, ringVertsHighRes );
 }
 
@@ -289,27 +291,22 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 
 
 
-void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords )
+void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha )
 {
-	if( mHasRings ){
+	if( mHasRings && G_ZOOM > G_ARTIST_LEVEL ){
 		gl::pushModelView();
 		gl::translate( mTransPos );
 		float c = mRadius * 9.0f;
 		gl::scale( Vec3f( c, c, c ) );
 		gl::rotate( mMatrix );
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, 0.0f ) );
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, 0.0f ) );
+		gl::color( ColorA( mColor, mZoomPer * camRingAlpha * 50.0f ) );
 		tex.enableAndBind();
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glVertexPointer( 3, GL_FLOAT, 0, planetRingVerts );
 		glTexCoordPointer( 2, GL_FLOAT, 0, planetRingTexCoords );
 		
-		/*
-		gl::disableAlphaBlending();
-		gl::enableAlphaBlending();
-		glDrawArrays( GL_TRIANGLES, 0, 6 );
-		*/
 		gl::enableAdditiveBlending();
 		glDrawArrays( GL_TRIANGLES, 0, 6 );
 		
