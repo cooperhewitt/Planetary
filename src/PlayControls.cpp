@@ -28,9 +28,9 @@ void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
     mPlayheadPer	= 0.0;
     mIsDrawingRings = true;
     mIsDrawingStars = true;
-    mIsDrawingPlanets = true;
-    // TODO: init from app?
-    mDeviceOrientation = PORTRAIT_ORIENTATION;
+    mIsDrawingPlanets = true;    
+    mDeviceOrientation = PORTRAIT_ORIENTATION; // TODO: init from mApp (add getter to AppCocoaTouch)
+    mInterfaceSize = mApp->getWindowSize();
 }
 
 void PlayControls::update()
@@ -77,7 +77,7 @@ bool PlayControls::touchesMoved( TouchEvent event )
         if( touches.size() == 1 ){
             float x = touches.begin()->getX();
             //float per = 0.0f;
-            float border = ( app::getWindowWidth() - 628 ) * 0.5f;
+            float border = ( mInterfaceSize.x - 628 ) * 0.5f;
             mPlayheadPer = ( x - border ) / 628;
             mCallbacksPlayheadMoved.call(lastTouchedType);
         }
@@ -102,40 +102,48 @@ bool PlayControls::orientationChanged( OrientationEvent event )
     if (UIDeviceOrientationIsValidInterfaceOrientation(event.getOrientation())) {
         mDeviceOrientation = event.getOrientation();
     }
-	return false;
-}
-
-void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sliderBgTex, const Font &font, float y, float currentTime, float totalTime, bool isDrawingRings, bool isDrawingText )
-{
-    float width = app::getWindowWidth();
-    float height = app::getWindowHeight();    
-    Matrix44f orientationMtx;
+    else {
+        return false;
+    }
+    
+    Vec2f deviceSize = app::getWindowSize();
     
     switch ( mDeviceOrientation )
     {
         case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
-            orientationMtx.translate( Vec3f( width, height, 0 ) );            
-            orientationMtx.rotate( Vec3f( 0, 0, M_PI ) );
+            mOrientationMtx.translate( Vec3f( deviceSize.x, deviceSize.y, 0 ) );            
+            mOrientationMtx.rotate( Vec3f( 0, 0, M_PI ) );
             break;
         case LANDSCAPE_LEFT_ORIENTATION:
-            orientationMtx.translate( Vec3f( width, 0, 0 ) );
-            orientationMtx.rotate( Vec3f( 0, 0, M_PI/2.0f ) );
+            mOrientationMtx.translate( Vec3f( deviceSize.x, 0, 0 ) );
+            mOrientationMtx.rotate( Vec3f( 0, 0, M_PI/2.0f ) );
             break;
         case LANDSCAPE_RIGHT_ORIENTATION:
-            orientationMtx.translate( Vec3f( 0, height, 0 ) );
-            orientationMtx.rotate( Vec3f( 0, 0, -M_PI/2.0f ) );
+            mOrientationMtx.translate( Vec3f( 0, deviceSize.y, 0 ) );
+            mOrientationMtx.rotate( Vec3f( 0, 0, -M_PI/2.0f ) );
             break;
         default:
             break;
     }
     
+    mInterfaceSize = deviceSize;
+    
+    if ( UIInterfaceOrientationIsLandscape( mDeviceOrientation ) ) {
+        mInterfaceSize = mInterfaceSize.yx();
+    }
+    
+	return false;
+}
+
+void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sliderBgTex, const Font &font, float y, float currentTime, float totalTime, bool isDrawingRings, bool isDrawingText )
+{    
     gl::pushModelView();
-    gl::multModelView( orientationMtx );    
+    gl::multModelView( mOrientationMtx );    
     
     prevDrawY = y;
     
     gl::color( Color( 0.0f, 0.0f, 0.0f ) );
-    gl::drawSolidRect( Rectf(0, y, width, y + 45.0f ) ); // TODO: make height settable in setup()?
+    gl::drawSolidRect( Rectf(0, y, mInterfaceSize.x, y + 45.0f ) ); // TODO: make height settable in setup()?
     
     touchRects.clear();
     touchTypes.clear(); // technically touch types never changes, but whatever
@@ -145,7 +153,7 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
 	
     
     // TODO: make these members?
-    float x = getWindowWidth() * 0.5f - bWidth * 1.5f;
+    float x = mInterfaceSize.x * 0.5f - bWidth * 1.5f;
     float x1 = 90.0f;
     float y1 = y + 2;
     float y2 = y1 + bHeight;
@@ -159,7 +167,7 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     
     float sliderWidth	= sliderBgTex.getWidth();
     float sliderHeight	= sliderBgTex.getHeight();
-    float sliderInset	= ( getWindowWidth() - sliderWidth ) * 0.5f;
+    float sliderInset	= ( mInterfaceSize.x - sliderWidth ) * 0.5f;
     float playheadPer	= 0.0f;
     if( totalTime > 0.0f ){
         playheadPer = currentTime/totalTime;
