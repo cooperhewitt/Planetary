@@ -11,14 +11,12 @@
 
 #include <string>
 #include <vector>
+#include "cinder/app/AppCocoaTouch.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Rect.h"
 #include "cinder/Text.h"
 #include "cinder/Font.h"
 #include "cinder/Function.h"
-#include "cinder/app/TouchEvent.h"
-#include "cinder/app/OrientationEvent.h"
-#include "cinder/app/Event.h"
 
 using namespace ci;
 using namespace ci::app;

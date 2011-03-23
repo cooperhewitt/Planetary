@@ -28,6 +28,7 @@ class UiLayer {
 	bool	touchesBegan( ci::app::TouchEvent event );
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
+    bool    orientationChanged( ci::app::OrientationEvent event );
 	void	setPanelPos( float y, bool doneDragging );
 	void	update();
 	void	draw( const std::vector<ci::gl::Texture> &texs );
@@ -36,7 +37,7 @@ class UiLayer {
 	
  private:
 	ci::app::AppCocoaTouch *mApp;
-	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded;
+	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded, mCbOrientationChanged;
 	ci::Vec2f		mTouchPos;
 	float			mPanelYPos, mPanelYPosDest;
 	float			mPanelOpenYPos, mPanelClosedYPos;
@@ -52,5 +53,6 @@ class UiLayer {
 	PlayButton		mLastTouchedType;
 	
 	ci::Rectf		mStripRect;
+    ci::app::DeviceOrientation mDeviceOrientation;
 };
 

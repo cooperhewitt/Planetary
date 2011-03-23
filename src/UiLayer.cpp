@@ -33,16 +33,26 @@ UiLayer::~UiLayer()
 	mApp->unregisterTouchesBegan( mCbTouchesBegan );
 	mApp->unregisterTouchesMoved( mCbTouchesMoved );
 	mApp->unregisterTouchesEnded( mCbTouchesEnded );
+    mApp->unregisterOrientationChanged( mCbOrientationChanged );
 }
- 
+
+bool UiLayer::orientationChanged(OrientationEvent event)
+{
+    // TODO: OrientationEvent helper for this?
+    if (UIDeviceOrientationIsValidInterfaceOrientation(event.getOrientation())) {
+        mDeviceOrientation = event.getOrientation();
+    }
+	return false;
+}
  
 void UiLayer::setup( AppCocoaTouch *app )
 {
 	mApp = app;
 	
-	mCbTouchesBegan = mApp->registerTouchesBegan( this, &UiLayer::touchesBegan );
-	mCbTouchesMoved = mApp->registerTouchesMoved( this, &UiLayer::touchesMoved );
-	mCbTouchesEnded = mApp->registerTouchesEnded( this, &UiLayer::touchesEnded );
+	mCbTouchesBegan       = mApp->registerTouchesBegan( this, &UiLayer::touchesBegan );
+	mCbTouchesMoved       = mApp->registerTouchesMoved( this, &UiLayer::touchesMoved );
+	mCbTouchesEnded       = mApp->registerTouchesEnded( this, &UiLayer::touchesEnded );
+    mCbOrientationChanged = mApp->registerOrientationChanged( this, &UiLayer::orientationChanged );
 	
 	// Rects
 	int x1		= 0.0f;
@@ -176,12 +186,38 @@ void UiLayer::update()
 
 void UiLayer::draw( const vector<gl::Texture> &texs )
 {	
+    float width = app::getWindowWidth();
+    float height = app::getWindowHeight();
+    
+    Matrix44f orientationMtx;
+    
+    switch ( mDeviceOrientation )
+    {
+        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
+            orientationMtx.translate( Vec3f( width, height, 0 ) );            
+            orientationMtx.rotate( Vec3f( 0, 0, M_PI ) );
+            break;
+        case LANDSCAPE_LEFT_ORIENTATION:
+            orientationMtx.translate( Vec3f( width, 0, 0 ) );
+            orientationMtx.rotate( Vec3f( 0, 0, M_PI/2.0f ) );
+            break;
+        case LANDSCAPE_RIGHT_ORIENTATION:
+            orientationMtx.translate( Vec3f( 0, height, 0 ) );
+            orientationMtx.rotate( Vec3f( 0, 0, -M_PI/2.0f ) );
+            break;
+        default:
+            break;
+    }
+    
+    gl::pushModelView();
+    gl::multModelView( orientationMtx );    
+    
 	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
 	gl::pushModelView();
 	gl::translate( Vec2i( mPanelPos ) );
 	gl::drawSolidRect( mPanelRect );
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.1f ) );
-	gl::drawLine( Vec2f( 0.0f, 0.0f ), Vec2f( getWindowWidth(), 0.0f ) );
+	gl::drawLine( Vec2f( 0.0f, 0.0f ), Vec2f( width, 0.0f ) );
 	gl::popModelView();
 	
 	
@@ -199,4 +235,6 @@ void UiLayer::draw( const vector<gl::Texture> &texs )
     texs[texIndex].enableAndBind();
 	gl::drawSolidRect( mPanelTabRect );
     texs[texIndex].disable();
+    
+    gl::popModelView();
 }

@@ -9,8 +9,7 @@
 #include "Breadcrumbs.h"
 
 void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font )
-{
-	
+{	
 	if (mApp != NULL) {
 		mApp->unregisterTouchesEnded( mCallbackTouchesEnded );
 		mApp->unregisterTouchesEnded( mCallbackTouchesBegan );
