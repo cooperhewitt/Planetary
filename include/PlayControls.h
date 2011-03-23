@@ -8,15 +8,15 @@
  */
 
 #pragma once
+
+#include <sstream>
 #include "cinder/app/AppCocoaTouch.h"
-#include "cinder/app/TouchEvent.h"
+#include "cinder/gl/Texture.h"
 #include "cinder/Text.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-
-#include <sstream>
 
 template <class T>
 inline std::string to_string( const T& t )
@@ -81,9 +81,7 @@ private:
 	gl::Texture mCurrentTimeTex;
 	gl::Texture mRemainingTimeTex;
 	
-	CallbackId cbTouchesBegan;
-	CallbackId cbTouchesMoved;
-	CallbackId cbTouchesEnded;
+	CallbackId cbTouchesBegan, cbTouchesMoved, cbTouchesEnded;
 			
 	PlayButton findButtonUnderTouches(vector<TouchEvent::Touch> touches);
 	

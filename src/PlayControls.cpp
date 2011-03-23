@@ -8,6 +8,7 @@
  */
 
 #include "PlayControls.h"
+#include "Globals.h"
 
 void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
 {
