@@ -98,8 +98,7 @@ bool PlayControls::touchesEnded( TouchEvent event )
 
 bool PlayControls::orientationChanged( OrientationEvent event )
 {
-    // TODO: OrientationEvent helper for this?
-    if (UIDeviceOrientationIsValidInterfaceOrientation(event.getOrientation())) {
+    if ( event.isValidInterfaceOrientation() ) {
         mDeviceOrientation = event.getOrientation();
     }
     else {
@@ -108,27 +107,11 @@ bool PlayControls::orientationChanged( OrientationEvent event )
     
     Vec2f deviceSize = app::getWindowSize();
     
-    switch ( mDeviceOrientation )
-    {
-        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
-            mOrientationMtx.translate( Vec3f( deviceSize.x, deviceSize.y, 0 ) );            
-            mOrientationMtx.rotate( Vec3f( 0, 0, M_PI ) );
-            break;
-        case LANDSCAPE_LEFT_ORIENTATION:
-            mOrientationMtx.translate( Vec3f( deviceSize.x, 0, 0 ) );
-            mOrientationMtx.rotate( Vec3f( 0, 0, M_PI/2.0f ) );
-            break;
-        case LANDSCAPE_RIGHT_ORIENTATION:
-            mOrientationMtx.translate( Vec3f( 0, deviceSize.y, 0 ) );
-            mOrientationMtx.rotate( Vec3f( 0, 0, -M_PI/2.0f ) );
-            break;
-        default:
-            break;
-    }
+    mOrientationMtx = event.getOrientationMatrix();
     
     mInterfaceSize = deviceSize;
     
-    if ( UIInterfaceOrientationIsLandscape( mDeviceOrientation ) ) {
+    if ( event.isLandscape() ) {
         mInterfaceSize = mInterfaceSize.yx();
     }
     

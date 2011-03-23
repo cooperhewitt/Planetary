@@ -36,10 +36,9 @@ void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font )
 	mSeparatorTexture = gl::Texture( layout.render( true, PREMULT ) );
 }
 
-bool Breadcrumbs::orientationChanged(OrientationEvent event)
+bool Breadcrumbs::orientationChanged( OrientationEvent event )
 {
-    // TODO: OrientationEvent helper for this?
-    if (UIDeviceOrientationIsValidInterfaceOrientation(event.getOrientation())) {
+    if ( event.isValidInterfaceOrientation() ) {
         mDeviceOrientation = event.getOrientation();
     }
 	return false;
