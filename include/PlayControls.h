@@ -86,6 +86,8 @@ private:
 	PlayButton findButtonUnderTouches(vector<TouchEvent::Touch> touches);
 	
     DeviceOrientation mDeviceOrientation;
+    Matrix44f         mOrientationMtx;
+    Vec2f             mInterfaceSize;
     
 	// !!! EVENT STUFF (keep track of listeners)
 	CallbackMgr<bool(PlayButton)> mCallbacksButtonPressed;

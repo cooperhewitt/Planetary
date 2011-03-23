@@ -28,38 +28,18 @@ UiLayer::~UiLayer()
 
 bool UiLayer::orientationChanged( OrientationEvent event )
 {
-    // TODO: OrientationEvent helper for this?
-    if (UIDeviceOrientationIsValidInterfaceOrientation(event.getOrientation())) {
+    if ( event.isValidInterfaceOrientation() ) {
         mDeviceOrientation = event.getOrientation();
     }
     else {
         return false;
     }
-
-    Vec2f windowSize = getWindowSize();    
-
-    mOrientationMatrix.setToIdentity();
     
-    if ( mDeviceOrientation == UPSIDE_DOWN_PORTRAIT_ORIENTATION )
-    {
-        mOrientationMatrix.translate( Vec3f( windowSize.x, windowSize.y, 0 ) );            
-        mOrientationMatrix.rotate( Vec3f( 0, 0, M_PI ) );
-    }
-    else if ( mDeviceOrientation == LANDSCAPE_LEFT_ORIENTATION )
-    {
-        mOrientationMatrix.translate( Vec3f( windowSize.x, 0, 0 ) );
-        mOrientationMatrix.rotate( Vec3f( 0, 0, M_PI/2.0f ) );
-    }
-    else if ( mDeviceOrientation == LANDSCAPE_RIGHT_ORIENTATION )
-    {
-        mOrientationMatrix.translate( Vec3f( 0, windowSize.y, 0 ) );
-        mOrientationMatrix.rotate( Vec3f( 0, 0, -M_PI/2.0f ) );
-    }
+    mOrientationMatrix = event.getOrientationMatrix();
     
-    Vec2f interfaceSize = windowSize;
+    Vec2f interfaceSize = getWindowSize();
 
-     // TODO: isLandscape()/isPortrait() conveniences on event?
-    if ( UIInterfaceOrientationIsLandscape(mDeviceOrientation) ) {
+    if ( event.isLandscape() ) {
         interfaceSize = interfaceSize.yx(); // swizzle it!
     }
     
