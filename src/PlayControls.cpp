@@ -276,7 +276,7 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     texs[TEX_SLIDER_BUTTON].disable();
 }
 
-PlayButton PlayControls::findButtonUnderTouches(vector<TouchEvent::Touch> touches) {
+PlayControls::PlayButton PlayControls::findButtonUnderTouches(vector<TouchEvent::Touch> touches) {
     for (int j = 0; j < touches.size(); j++) {
         TouchEvent::Touch touch = touches[j];
         if (touch.getY() < prevDrawY) {
