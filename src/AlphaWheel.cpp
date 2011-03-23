@@ -204,7 +204,7 @@ void AlphaWheel::drawWheel()
     gl::drawSolidRect( Rectf( -w, -h, w, h ) );
     mWheelTex.disable();    
     
-    if ( UIInterfaceOrientationIsLandscape(mDeviceOrientation) ) {
+    if ( UIDeviceOrientationIsLandscape( UIDeviceOrientation(mDeviceOrientation) ) ) {
         Vec2f interfaceSize = getWindowSize().yx(); // SWIZ!
         gl::color( Color::black() );
         // left bar, relative to center:
