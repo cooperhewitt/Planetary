@@ -57,6 +57,7 @@ class UiLayer {
 	bool			mHasPanelBeenDragged;   // Are we dragging or just animating?
     ci::Vec2f		mPanelTabTouchOffset;	// Remember the touch position value when dragging
 	
+    // TODO: use a Matrix32f (after we write one or someone adds one to Cinder - look at the Cairo one first)
     ci::Matrix44f   mOrientationMatrix;     // For adjusting ui drawing and hitrects
     
     ci::app::DeviceOrientation mDeviceOrientation;
