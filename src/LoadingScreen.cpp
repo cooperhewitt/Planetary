@@ -16,7 +16,7 @@ using namespace ci::app;
 
 void LoadingScreen::draw( const AppCocoaTouch *app, const ci::gl::Texture &mLoadingTex, const ci::gl::Texture &mStarGlowTex, const ci::gl::Texture &mStarTex)
 {
-    gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+    gl::color( Color::white() );
     mLoadingTex.enableAndBind();
     gl::setMatricesWindow( app->getWindowSize() );
     gl::drawSolidRect( app->getWindowBounds() );
@@ -39,7 +39,7 @@ void LoadingScreen::draw( const AppCocoaTouch *app, const ci::gl::Texture &mLoad
     Rectf smallRect		= Rectf( xCenter - 4.0f + smallOffset, yCenter - 4.0f, xCenter + 4.0f + smallOffset, yCenter + 4.0f );
     //float mediumOffset	= ( getElapsedSeconds() - 3.0f ) * 10.0f;	
     //Rectf mediumRect	= Rectf( xCenter - 25.0f + mediumOffset * 2.5f, yCenter - 25.0f, xCenter + 25.0f + mediumOffset * 2.5f, yCenter + 25.0f );
-    gl::color( Color( 0.0f, 0.0f, 0.0f ) );
+    gl::color( Color::black() );
     gl::disableAlphaBlending();
     gl::enableAlphaBlending();
     gl::drawSolidRect( smallRect );

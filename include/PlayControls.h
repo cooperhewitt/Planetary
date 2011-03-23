@@ -41,7 +41,6 @@ public:
 		lastTouchedType = NO_BUTTON;
 		prevDrawY		= 0;
 		mIsPlaying		= initialPlayState;
-		mBlueGlow		= Color( 20/255.0f, 163/255.0f, 240/255.0f );
 		mMinutes		= 0;
 		mSeconds		= 60;
 		mPrevSeconds	= 0;
@@ -273,7 +272,7 @@ public:
 			ss << minsStr << ":" << secsStr;
 			TextLayout layout;
 			layout.setFont( font );
-			layout.setColor( ColorA( mBlueGlow, 0.5f ) );
+			layout.setColor( ColorA( COLOR_BLUE, 0.5f ) );
 			layout.addLine( ss.str() );
 			mCurrentTimeTex = layout.render( true, false );
 			
@@ -288,7 +287,7 @@ public:
 			ss << "-" << minsStr << ":" << secsStr;
 			TextLayout layout2;
 			layout2.setFont( font );
-			layout2.setColor( ColorA( mBlueGlow, 0.5f ) );
+			layout2.setColor( ColorA( COLOR_BLUE, 0.5f ) );
 			layout2.addLine( ss.str() );
 			mRemainingTimeTex = layout2.render( true, false );
 		}
@@ -298,13 +297,13 @@ public:
 		
 // SLIDER PER
 		glDisable( GL_TEXTURE_2D );
-		gl::color( Color( mBlueGlow * 0.25f ) );
+		gl::color( Color( COLOR_BLUE * 0.25f ) );
 		gl::drawSolidRect( Rectf( playheadSliderBar.x1-1, playheadSliderBar.y1-1, playheadSliderBar.x2+1, playheadSliderBar.y2+1 ) );
 		
-		gl::color( Color( mBlueGlow * 0.5) );
+		gl::color( Color( COLOR_BLUE * 0.5) );
 		gl::drawSolidRect( playheadSliderBar );
 		
-		gl::color( Color( mBlueGlow ) );
+		gl::color( Color( COLOR_BLUE ) );
 		gl::drawSolidRect( Rectf( playheadSliderBar.x1+1, playheadSliderBar.y1+1, playheadSliderBar.x2-1, playheadSliderBar.y2-1 ) );
 		
 		gl::color( Color::white() );
@@ -336,7 +335,6 @@ private:
 	PlayButton lastTouchedType;
 	float prevDrawY;
 	bool mIsPlaying;
-	Color mBlueGlow;
 	int mMinutes, mMinutesTotal, mMinutesLeft;
 	int mSeconds, mSecondsTotal, mSecondsLeft;
 	int mPrevSeconds;

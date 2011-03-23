@@ -122,7 +122,8 @@ class KeplerApp : public AppCocoaTouch {
 	Arcball			mArcball;
 	Matrix44f		mMatrix;
 	Vec3f			mBbRight, mBbUp;
-	
+	float			mCamRingAlpha; // 1.0 = camera is viewing rings side-on
+								   // 0.0 = camera is viewing rings from above or below
 	
 // FONTS
 	Font			mFont;
@@ -161,6 +162,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mDottedTex;
 	gl::Texture		mPanelUpTex, mPanelDownTex;
 	gl::Texture		mSliderBgTex;
+	gl::Texture		mPlayheadProgressTex;
 	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex, mHighlightTex;
     gl::Texture     mRingsTex;
     
@@ -195,7 +197,7 @@ void KeplerApp::setup()
     
 	if( G_IS_IPAD2 ){
 		G_NUM_PARTICLES = 1000;
-		G_NUM_DUSTS = 5000;
+		G_NUM_DUSTS = 4000;
 	}
     
     mRemainingSetupCalled = false;
@@ -347,7 +349,8 @@ void KeplerApp::initTextures()
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
 	mRingsTex           = loadImage( loadResource( "rings.png" ) );
-    
+    mPlayheadProgressTex = loadImage( loadResource( "playheadProgress.png" ) );
+	mPlayheadProgressTex.setWrap( GL_REPEAT, GL_REPEAT );
 	mParamsTex			= gl::Texture( 768, 75 );    
     
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "play.png" ) ) ) );
@@ -875,7 +878,7 @@ void KeplerApp::update()
 		mParticleController.update();
 		mParticleController.buildParticleVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
 		if( mState.getSelectedArtistNode() ){
-			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaOffset );
+			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaOffset, mCamRingAlpha );
 		}
         mUiLayer.update();
         mAlphaWheel.update( mFov );
@@ -912,7 +915,7 @@ void KeplerApp::updateCamera()
 {
 	mCamDistPinchOffset -= ( mCamDistPinchOffset - mCamDistPinchOffsetDest ) * 0.4f;
 	
-	float fadeSpeed = 1.5f;		// 3.0 fades right before 'pop'. 1.0 fades after small pinch
+	float fadeSpeed = 1.2f;		// 3.0 fades right before 'pop'. 1.0 fades after small pinch
 	mPinchAlphaOffset	= constrain( 1.0f - ( mCamDistPinchOffset - fadeSpeed ), 0.0f, 1.0f );
 	
 	
@@ -939,14 +942,14 @@ void KeplerApp::updateCamera()
 	mFov -= ( mFov - mFovDest ) * 0.15f;
 	
 
-	if( mFovDest >= 130.0f && ! mAlphaWheel.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
+	if( mFovDest >= G_MAX_FOV - 5 && ! mAlphaWheel.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
 		if (!mAlphaWheel.getShowWheel()) {
 			mAlphaWheel.setShowWheel( true );
 		}
 		//mWorld.deselectAllNodes();
 		//mState.setSelectedNode( NULL );
 		//mState.setAlphaChar( ' ' );
-	} else if( mFovDest < 130.0f ){
+	} else if( mFovDest < G_MAX_FOV - 5 ){
 		if( mAlphaWheel.getShowWheel() ) {
 //			mState.setAlphaChar( mState.getAlphaChar() );
 			mAlphaWheel.setShowWheel( false );
@@ -967,6 +970,13 @@ void KeplerApp::updateCamera()
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( mEye, mCenter, mUp );
 	mCam.getBillboardVectors( &mBbRight, &mBbUp );
+	
+	
+	
+	Quatf cameraViewDirection = mCam.getOrientation();
+	Vec3f quatAxis = mMatrix.inverted() * cameraViewDirection.getAxis();
+	float quatZ		= abs( quatAxis.z );
+	mCamRingAlpha	= pow( quatZ, 10.0f ) * 0.2f;
 }
 
 void KeplerApp::updatePlayhead()
@@ -995,7 +1005,7 @@ void KeplerApp::drawScene()
 // SKYDOME
     gl::pushModelView();
     gl::rotate( mMatrix );
-    gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+    gl::color( Color::white() );
     mSkyDome.enableAndBind();
     gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS, 24 );
     gl::popModelView();
@@ -1009,12 +1019,12 @@ void KeplerApp::drawScene()
 	mWorld.drawStarsVertexArray( mMatrix );
 	mStarTex.disable();
     
-/* not working well yet
+///* not working well yet
 // ECLIPSEGLOWS
-	mEclipseGlowTex.enableAndBind();
+	mStarGlowTex.enableAndBind();
 	mWorld.drawEclipseGlows();
-	mEclipseGlowTex.disable();
-*/	
+	mStarGlowTex.disable();
+//*/	
 	
 	Node *artistNode = mState.getSelectedArtistNode();
 	if( artistNode ){
@@ -1071,18 +1081,22 @@ void KeplerApp::drawScene()
 	}
 	
 // RINGS
-	mWorld.drawRings( mRingsTex );
+	mWorld.drawRings( mRingsTex, mCamRingAlpha );
 	
 // DUSTS
 	if( mState.getSelectedAlbumNode() ){
+		gl::disableAlphaBlending();
+		gl::enableAlphaBlending();
 		mParticleController.drawDustVertexArray( mState.getSelectedAlbumNode(), mMatrix );
+		gl::enableAdditiveBlending();
 	}
 	
 
 		
 // CURRENT TRACK ORBIT PATH
-	if( mWorld.mPlayingTrackNode && G_ZOOM >= G_ALBUM_LEVEL ){
+	if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 		mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
+		mWorld.mPlayingTrackNode->drawPlayheadProgress( mPlayheadProgressTex );
 	}
 	
 	
@@ -1117,6 +1131,8 @@ void KeplerApp::drawScene()
 	mAlphaWheel.draw();
     mUiLayer.draw( mPanelButtonsTex );
     mBreadcrumbs.draw();//mUiLayer.getPanelYPos() + 5.0f );
+	
+	gl::enableAdditiveBlending();
     mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mIsDrawingRings, mIsDrawingText );
     mState.draw( mFont );
     
