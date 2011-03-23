@@ -54,7 +54,7 @@ class UiLayer {
 	bool			mIsPanelTabTouched;		// Is the Panel Tab currently being touched
 	bool			mIsPanelOpen;			// Is the Panel fully open
 	bool			mHasPanelBeenDragged;   // Are we dragging or just animating?
-	float			mPanelTabTouchYOffset;	// Remember the touch position y value when dragging
+    ci::Vec2f		mPanelTabTouchOffset;	// Remember the touch position value when dragging
 	
     ci::Matrix44f   mOrientationMatrix;     // For adjusting ui drawing and hitrects
     

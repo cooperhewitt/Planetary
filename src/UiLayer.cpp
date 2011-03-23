@@ -110,13 +110,18 @@ bool UiLayer::touchesBegan( TouchEvent event )
 	mHasPanelBeenDragged = false;
 
 	Vec2f touchPos = event.getTouches().begin()->getPos();
-    touchPos = (mOrientationMatrix * Vec3f(touchPos,0)).xy();
 
-    mIsPanelTabTouched = mPanelTabRect.contains( touchPos );
+    // find where mPanelTabRect is being drawn in screen space (i.e. touchPos space)
+    Vec2f topLeft = (mOrientationMatrix * Vec3f(mPanelTabRect.x1,mPanelTabRect.y1,0)).xy();
+    Vec2f bottomRight = (mOrientationMatrix * Vec3f(mPanelTabRect.x2,mPanelTabRect.y2,0)).xy();
+    Rectf screenTabRect = Rectf(topLeft, bottomRight);
+    screenTabRect.canonicalize();
+
+    mIsPanelTabTouched = screenTabRect.contains( touchPos );
     
 	if( mIsPanelTabTouched ){
         // remember touch offset for accurate dragging
-		mPanelTabTouchYOffset = mPanelTabRect.y2 - touchPos.y;
+		mPanelTabTouchOffset = Vec2f(screenTabRect.x1, screenTabRect.y1) - touchPos;
 	}
 		
 	return mIsPanelTabTouched;
@@ -125,11 +130,29 @@ bool UiLayer::touchesBegan( TouchEvent event )
 bool UiLayer::touchesMoved( TouchEvent event )
 {
 	Vec2f touchPos = event.getTouches().begin()->getPos();
-    touchPos = (mOrientationMatrix * Vec3f(touchPos,0)).xy();
-
+    
 	if( mIsPanelTabTouched ){
 		mHasPanelBeenDragged = true;
-        mPanelRect.y1 = touchPos.y + mPanelTabTouchYOffset;
+
+        // find where mPanelTabRect is being drawn in screen space (i.e. touchPos space)
+        Vec2f topLeft = (mOrientationMatrix * Vec3f(mPanelTabRect.x1,mPanelTabRect.y1,0)).xy();
+        Vec2f bottomRight = (mOrientationMatrix * Vec3f(mPanelTabRect.x2,mPanelTabRect.y2,0)).xy();
+        Rectf screenTabRect(topLeft, bottomRight);
+        screenTabRect.canonicalize();
+        
+        // apply the touch pos and offset in screen space
+        Vec2f newPos = touchPos + mPanelTabTouchOffset;
+        screenTabRect.offset(newPos - screenTabRect.getUpperLeft());
+
+        // pull the screen-space rect back into mPanelTabRect space
+        Matrix44f inverse = mOrientationMatrix.inverted();
+        topLeft = (inverse * Vec3f(screenTabRect.x1,screenTabRect.y1,0)).xy();
+        bottomRight = (inverse * Vec3f(screenTabRect.x2,screenTabRect.y2,0)).xy();
+        Rectf tabRect(topLeft, bottomRight);
+        tabRect.canonicalize();
+
+        // set the panel position based on the new tabRect (mPanelTabRect will follow in update())
+        mPanelRect.y1 = tabRect.y2;
         mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;
 	}
 
@@ -192,7 +215,7 @@ void UiLayer::draw( const vector<gl::Texture> &texs )
 	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
 	gl::drawSolidRect( mPanelRect );
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.1f ) );
-	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 ), Vec2f( mPanelRect.x2, mPanelRect.y1 ) );
+	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1-0.5f ), Vec2f( mPanelRect.x2, mPanelRect.y1-0.5f ) );
 	
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 
@@ -207,6 +230,6 @@ void UiLayer::draw( const vector<gl::Texture> &texs )
     texs[texIndex].enableAndBind();
 	gl::drawSolidRect( mPanelTabRect );
     texs[texIndex].disable();
-    
-    gl::popModelView();
+        
+    gl::popModelView();    
 }
