@@ -36,7 +36,7 @@ UiLayer::~UiLayer()
     mApp->unregisterOrientationChanged( mCbOrientationChanged );
 }
 
-bool UiLayer::orientationChanged(OrientationEvent event)
+bool UiLayer::orientationChanged( OrientationEvent event )
 {
     // TODO: OrientationEvent helper for this?
     if (UIDeviceOrientationIsValidInterfaceOrientation(event.getOrientation())) {
@@ -140,23 +140,22 @@ void UiLayer::setPanelPos( float y, bool doneDragging )
 	
 	// if the mPanel y position is outside of the max and min, clamp it
 	if( mPanelYPosDest <= mPanelOpenYPos ){
-		mIsPanelOpen	= true;
-		mPanelYPosDest		= mPanelOpenYPos;
-		
-	} else if( mPanelYPosDest >= mPanelClosedYPos ) {
-		mIsPanelOpen	= false;
-		mPanelYPosDest		= mPanelClosedYPos;
+		mIsPanelOpen = true;
+		mPanelYPosDest = mPanelOpenYPos;
 	}
-	
+    else if( mPanelYPosDest >= mPanelClosedYPos ) {
+		mIsPanelOpen = false;
+		mPanelYPosDest = mPanelClosedYPos;
+	}
 	
 	if( doneDragging ){
 		if( mPanelYPos < mPanelOpenYPos + mPanelRect.y2 * 0.5f ){
 			mPanelYPosDest = mPanelOpenYPos;
-		} else {
+		}
+        else {
 			mPanelYPosDest = mPanelClosedYPos;
 		}
-	}
-	
+	}	
 }
 
 void UiLayer::update()
@@ -167,7 +166,7 @@ void UiLayer::update()
     else {
         mPanelYPos -= ( mPanelYPos - mPanelYPosDest ) * 0.25f;
     }
-    mPanelPos	= Vec2f( 0.0f, mPanelYPos );
+    mPanelPos = Vec2f( 0.0f, mPanelYPos );
 	
 	if( mPanelYPos < mPanelOpenYPos + mPanelRect.y2 * 0.5f ){
 		mIsPanelOpen = true;
@@ -193,6 +192,8 @@ void UiLayer::draw( const vector<gl::Texture> &texs )
     
     switch ( mDeviceOrientation )
     {
+        case PORTRAIT_ORIENTATION:
+            break;
         case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
             orientationMtx.translate( Vec3f( width, height, 0 ) );            
             orientationMtx.rotate( Vec3f( 0, 0, M_PI ) );

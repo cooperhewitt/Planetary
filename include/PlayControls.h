@@ -39,6 +39,7 @@ public:
 	bool touchesBegan( TouchEvent event );
 	bool touchesMoved( TouchEvent event );	
 	bool touchesEnded( TouchEvent event );
+    bool orientationChanged( OrientationEvent event );
 	
 	double getPlayheadPer() { return mPlayheadPer; }
 	
@@ -81,10 +82,12 @@ private:
 	gl::Texture mCurrentTimeTex;
 	gl::Texture mRemainingTimeTex;
 	
-	CallbackId cbTouchesBegan, cbTouchesMoved, cbTouchesEnded;
+	CallbackId cbTouchesBegan, cbTouchesMoved, cbTouchesEnded, cbOrientationChanged;
 			
 	PlayButton findButtonUnderTouches(vector<TouchEvent::Touch> touches);
 	
+    DeviceOrientation mDeviceOrientation;
+    
 	// !!! EVENT STUFF (keep track of listeners)
 	CallbackMgr<bool(PlayButton)> mCallbacksButtonPressed;
 	CallbackMgr<bool(PlayButton)> mCallbacksPlayheadMoved;

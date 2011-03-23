@@ -13,7 +13,9 @@
 void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
 {
     mApp			= app;
+    // TODO: unregister these in destructor!
     cbTouchesBegan	= mApp->registerTouchesBegan( this, &PlayControls::touchesBegan );
+    cbOrientationChanged = mApp->registerOrientationChanged( this, &PlayControls::orientationChanged );    
     cbTouchesEnded	= 0;
     cbTouchesMoved	= 0;		
     lastTouchedType = NO_BUTTON;
@@ -28,6 +30,8 @@ void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
     mIsDrawingRings = true;
     mIsDrawingStars = true;
     mIsDrawingPlanets = true;
+    // TODO: init from app?
+    mDeviceOrientation = PORTRAIT_ORIENTATION;
 }
 
 void PlayControls::update()
@@ -93,12 +97,46 @@ bool PlayControls::touchesEnded( TouchEvent event )
     return false;
 }
 
+bool PlayControls::orientationChanged( OrientationEvent event )
+{
+    // TODO: OrientationEvent helper for this?
+    if (UIDeviceOrientationIsValidInterfaceOrientation(event.getOrientation())) {
+        mDeviceOrientation = event.getOrientation();
+    }
+	return false;
+}
+
 void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sliderBgTex, const Font &font, float y, float currentTime, float totalTime, bool isDrawingRings, bool isDrawingText )
 {
+    float width = app::getWindowWidth();
+    float height = app::getWindowHeight();    
+    Matrix44f orientationMtx;
+    
+    switch ( mDeviceOrientation )
+    {
+        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
+            orientationMtx.translate( Vec3f( width, height, 0 ) );            
+            orientationMtx.rotate( Vec3f( 0, 0, M_PI ) );
+            break;
+        case LANDSCAPE_LEFT_ORIENTATION:
+            orientationMtx.translate( Vec3f( width, 0, 0 ) );
+            orientationMtx.rotate( Vec3f( 0, 0, M_PI/2.0f ) );
+            break;
+        case LANDSCAPE_RIGHT_ORIENTATION:
+            orientationMtx.translate( Vec3f( 0, height, 0 ) );
+            orientationMtx.rotate( Vec3f( 0, 0, -M_PI/2.0f ) );
+            break;
+        default:
+            break;
+    }
+    
+    gl::pushModelView();
+    gl::multModelView( orientationMtx );    
+    
     prevDrawY = y;
     
     gl::color( Color( 0.0f, 0.0f, 0.0f ) );
-    gl::drawSolidRect( Rectf(0, y, getWindowWidth(), y + 45.0f ) ); // TODO: make height settable in setup()?
+    gl::drawSolidRect( Rectf(0, y, width, y + 45.0f ) ); // TODO: make height settable in setup()?
     
     touchRects.clear();
     touchTypes.clear(); // technically touch types never changes, but whatever
@@ -274,6 +312,8 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     texs[TEX_SLIDER_BUTTON].enableAndBind();
     gl::drawSolidRect( sliderButton );
     texs[TEX_SLIDER_BUTTON].disable();
+    
+    gl::popModelView();
 }
 
 PlayControls::PlayButton PlayControls::findButtonUnderTouches(vector<TouchEvent::Touch> touches) {
