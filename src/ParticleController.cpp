@@ -123,7 +123,7 @@ void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaOffse
 	int cIndex	= 0;
 	
 	float per	= constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f ) * dustAlpha * pinchAlphaOffset;
-	Color col	= Color::black();//node->mGlowColor;
+	Color col	= node->mGlowColor * 0.5f;
 	
 	for( list<Dust>::iterator it = mDusts.begin(); it != mDusts.end(); ++it ){
 		//Vec3f prev				= it->mPrevPos;

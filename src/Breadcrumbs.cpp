@@ -5,7 +5,7 @@
 //  Created by Tom Carden on 3/22/11.
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
-
+#include "Globals.h"
 #include "Breadcrumbs.h"
 
 void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font )

@@ -915,7 +915,7 @@ void KeplerApp::updateCamera()
 {
 	mCamDistPinchOffset -= ( mCamDistPinchOffset - mCamDistPinchOffsetDest ) * 0.4f;
 	
-	float fadeSpeed = 1.5f;		// 3.0 fades right before 'pop'. 1.0 fades after small pinch
+	float fadeSpeed = 2.0f;		// 3.0 fades right before 'pop'. 1.0 fades after small pinch
 	mPinchAlphaOffset	= constrain( 1.0f - ( mCamDistPinchOffset - fadeSpeed ), 0.0f, 1.0f );
 	
 	
@@ -1029,7 +1029,7 @@ void KeplerApp::drawScene()
 	Node *artistNode = mState.getSelectedArtistNode();
 	if( artistNode ){
 		
-		if( mWorld.mPlayingTrackNode ){
+		if( mWorld.mPlayingTrackNode && mIsDrawingRings ){
 			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPlayheadProgressTex );
 		}
@@ -1047,21 +1047,22 @@ void KeplerApp::drawScene()
 		Vec3f lightPos          = artistNode->mTransPos;
 		GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 		glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-		glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( 0.0f, artistNode->mGlowColor.g, 0.0f, 1.0f ) );//ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
-		
+		glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mGlowColor, 1.0f ) );//ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
+		/*
 		if( true ){
+			glEnable( GL_LIGHT1 );
+			Vec3f light1Pos          = artistNode->mTransPos + Vec3f( -0.1f, 0.1f, -0.1f );
+			GLfloat artist1Light[]	= { light1Pos.x, light1Pos.y, light1Pos.z, 1.0f };
+			glLightfv( GL_LIGHT1, GL_POSITION, artist1Light );
+			glLightfv( GL_LIGHT1, GL_DIFFUSE, ColorA( artistNode->mGlowColor.r, 0.2f, 0.2f, 1.0f ) );
+			
 			glEnable( GL_LIGHT2 );
-			Vec3f light2Pos          = artistNode->mTransPos + Vec3f( -0.1f, 0.1f, -0.1f );
+			Vec3f light2Pos          = artistNode->mTransPos + Vec3f( 0.1f, -0.1f, 0.1f );
 			GLfloat artist2Light[]	= { light2Pos.x, light2Pos.y, light2Pos.z, 1.0f };
 			glLightfv( GL_LIGHT2, GL_POSITION, artist2Light );
-			glLightfv( GL_LIGHT2, GL_DIFFUSE, ColorA( artistNode->mGlowColor.r, 0.0f, 0.0f, 1.0f ) );
-			
-			glEnable( GL_LIGHT3 );
-			Vec3f light3Pos          = artistNode->mTransPos + Vec3f( 0.1f, -0.1f, 0.1f );
-			GLfloat artist3Light[]	= { light3Pos.x, light3Pos.y, light3Pos.z, 1.0f };
-			glLightfv( GL_LIGHT3, GL_POSITION, artist3Light );
-			glLightfv( GL_LIGHT3, GL_DIFFUSE, ColorA( 0.0f, 0.0f, artistNode->mGlowColor.b, 1.0f ) );
+			glLightfv( GL_LIGHT2, GL_DIFFUSE, ColorA( 0.2f, 0.2f, artistNode->mGlowColor.b, 1.0f ) );
 		}
+		 */
 		/*
 		if( mWorld.mPlayingTrackNode ){
 			// LIGHT FROM ARTIST
