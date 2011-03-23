@@ -50,6 +50,7 @@ private:
 	
 	bool		mHasClouds;
 	bool		mIsPopulated;
+	bool		mHasAlbumArt;
 	ci::gl::Texture mAlbumArt;
 	
 	int			mTotalOrbitVertices;

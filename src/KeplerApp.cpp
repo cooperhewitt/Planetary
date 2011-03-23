@@ -154,8 +154,7 @@ class KeplerApp : public AppCocoaTouch {
 //    TextureLoader   mTextureLoader;    
 	gl::Texture		mLoadingTex;
 	gl::Texture		mParamsTex;
-	gl::Texture		mAtmosphereTex;
-	gl::Texture		mStarTex, mStarAlternateTex;
+	gl::Texture		mStarTex;
 	gl::Texture		mStarGlowTex;
 	gl::Texture		mEclipseGlowTex;
 	gl::Texture		mSkyDome;
@@ -242,7 +241,7 @@ void KeplerApp::remainingSetup()
 	mUp					= Vec3f::yAxis();
 	mFov				= 80.0f;
 	mFovDest			= 80.0f;
-	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 1200.0f );
+	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.0001f, 1200.0f );
 	mBbRight			= Vec3f::xAxis();
 	mBbUp				= Vec3f::yAxis();
 	
@@ -343,8 +342,6 @@ void KeplerApp::initTextures()
 	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
 	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
 	mSliderBgTex		= loadImage( loadResource( "sliderBg.png" ) );
-	mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
-	mStarAlternateTex	= loadImage( loadResource( "starAlternate.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
@@ -1047,7 +1044,7 @@ void KeplerApp::drawScene()
 		Vec3f lightPos          = artistNode->mTransPos;
 		GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 		glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-		glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mGlowColor, 1.0f ) );//ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
+		glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
 		/*
 		if( true ){
 			glEnable( GL_LIGHT1 );

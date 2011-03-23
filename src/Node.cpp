@@ -128,7 +128,7 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 	mBbUp    = bbUp;
     
     if( mGen >= G_ALBUM_LEVEL ){
-        if( mIsSelected ){
+        if( mIsSelected || mIsPlaying ){
             mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
             mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.1f;
         } else {
@@ -136,7 +136,7 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
             mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.1f;
         }
         
-		if( mSphereScreenRadius < 10 ){
+		if( mSphereScreenRadius < 20 ){
 			mSphereRes		= 4;
 		}
         mSphereResInt       = (int)mSphereRes * 2;

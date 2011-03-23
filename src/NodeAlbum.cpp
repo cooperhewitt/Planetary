@@ -23,28 +23,32 @@ using namespace std;
 NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	: Node( parent, index, font )
 {
-	mIsHighlighted	= true;
-	mHasRings		= true;
-	//if( Rand::randFloat() < 0.2f ) mHasRings = true;
-	
-	
-
+	mIsHighlighted		= true;
+	mHasAlbumArt		= false;
+	mHasCreatedAlbumArt = false;
 	mIdealCameraDist	= mRadius * 8.0f;
-    mPlanetTexIndex		= 0;
 	mEclipseStrength	= 0.0f;
 }
 
 
 void NodeAlbum::setData( PlaylistRef album )
 {
+// ALBUM INFORMATION
 	mAlbum				= album;
 	mNumTracks			= mAlbum->size();
 	mHighestPlayCount	= 0;
 	mLowestPlayCount	= 10000;
+	for( int i = 0; i < mNumTracks; i++ ){
+		float numPlays = (*mAlbum)[i]->getPlayCount();
+		if( numPlays < mLowestPlayCount )
+			mLowestPlayCount = numPlays;
+		if( numPlays > mHighestPlayCount )
+			mHighestPlayCount = numPlays;
+	}
 	
 	
 	
-	
+// ORBIT RADIUS	
 	// FIXME: bad c++?
 	float numAlbums		= ((NodeArtist*)mParentNode)->mNumAlbums + 2.0f;
 	
@@ -57,9 +61,7 @@ void NodeAlbum::setData( PlaylistRef album )
 	mOrbitRadiusDest	= minAmt + deltaAmt * albumNumPer;// + Rand::randFloat( maxAmt * invAlbumPer * 0.35f );
 	
 	
-	
-	
-	
+// COLORS
 	float hue			= Rand::randFloat( 0.15f, 0.75f );
 	float sat			= Rand::randFloat( 0.15f, 0.25f );
 	float val			= Rand::randFloat( 0.85f, 1.00f );
@@ -67,42 +69,46 @@ void NodeAlbum::setData( PlaylistRef album )
 	mGlowColor			= mParentNode->mGlowColor;
 	mEclipseColor       = mColor;
 
+
+// PHYSICAL PROPERTIES
 	mRadius				*= 0.85f;
 	mSphere				= Sphere( mPos, mRadius * 7.5f );
-	mMass				= ( pow( mNumTracks, 3.0f ) * ( M_PI * 4.0f ) ) * 0.3333334f;
-	
-	// for the children
-	mOrbitRadiusMin		= mRadius * 2.0f;
-	mOrbitRadiusMax		= mRadius * 7.5f;
-	if( mHasRings ){
-		mOrbitRadiusMin = mRadius * 3.0f;
-		mOrbitRadiusMax = mRadius * 8.5f;
-	}
-	
-	mAxialTilt			= Rand::randFloat( 5.0f, 30.0f );
+	mAxialTilt			= Rand::randFloat( 5.0f );
     mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
-    
-    mPlanetTexIndex		= ( mIndex + 6 )%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
-	mCloudTexIndex		= Rand::randInt( G_NUM_CLOUD_TYPES );
+	mHasRings			= false;
+	if( mNumTracks > 2 ) mHasRings = true;
+	
+	
+// CHILD ORBIT RADIUS CONSTRAINTS
+	mOrbitRadiusMin		= mRadius * 3.0f;
+	mOrbitRadiusMax		= mRadius * 8.5f;
+	
 
-	
-	//if( mPlayCount > 5 ){
-	//	mHasClouds = true;
-	//}
-	
-	
-	for (int i = 0; i < mNumTracks; i++) {
-		float numPlays = (*mAlbum)[i]->getPlayCount();
-		if( numPlays < mLowestPlayCount )
-			mLowestPlayCount = numPlays;
-		if( numPlays > mHighestPlayCount )
-			mHighestPlayCount = numPlays;
-	}
+// TEXTURE IDs
+    mPlanetTexIndex		= 3 * G_NUM_PLANET_TYPE_OPTIONS + Rand::randInt( 6 );
+	std::cout << "Album Planet Texture Index = " << mPlanetTexIndex << std::endl;
+	//( mIndex + 6 )%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
+	mCloudTexIndex		= Rand::randInt( G_NUM_CLOUD_TYPES );
 }
 
 
 void NodeAlbum::update( const Matrix44f &mat )
 {
+	if( !mHasCreatedAlbumArt && mChildNodes.size() > 0 ){
+		Surface albumArt	= ((NodeTrack*)mChildNodes[0])->mTrack->getArtwork( Vec2i( 256, 256 ) );
+		if( albumArt ){
+			int x				= Rand::randInt( 127 );
+			int y				= Rand::randInt( 64 );
+			Area a				= Area( x, y, x+1, y+64 );
+			Surface crop		= albumArt.clone( a );
+			mAlbumArt			= gl::Texture( crop );
+			mHasAlbumArt		= true;
+		}
+		
+		mHasCreatedAlbumArt = true;
+	}
+	
+	
 	double playbackTime		= app::getElapsedSeconds();
 	double percentPlayed	= playbackTime/mOrbitPeriod;
 	double orbitAngle		= percentPlayed * TWO_PI + mOrbitStartAngle;
@@ -120,15 +126,6 @@ void NodeAlbum::update( const Matrix44f &mat )
 			mEclipseStrength	= math<float>::max( 500.0f - abs( mSphereScreenRadius - mParentNode->mSphereScreenRadius ), 0.0f ) / 500.0f; 
 			mEclipseStrength	= pow( mEclipseStrength, 5.0f );
 		}
-		
-		/*
-		if( mIsSelected ){
-			std::cout << "========================================================" << std::endl;
-			std::cout << "Sun Screen Radius = " << mParentNode->mSphereScreenRadius << std::endl;
-			std::cout << "Planet Screen Radius = " << mSphereScreenRadius << std::endl;
-			std::cout << "mEclipseStrength = " << mEclipseStrength << std::endl;
-		}
-		 */
     }
 	mEclipseColor = ( mColor + Color::white() ) * 0.5f * eclipseDist;
     
@@ -191,6 +188,7 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes,
 	Node::drawOrbitRing( newPinchAlphaOffset, ringVertsLowRes, ringVertsHighRes );
 }
 
+
 void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 {	
 	glEnable( GL_RESCALE_NORMAL );
@@ -219,7 +217,12 @@ void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 	gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
 	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, 0.0f ) );
 	gl::color( mEclipseColor );
-	planets[mPlanetTexIndex].enableAndBind();
+	if( mHasAlbumArt ){
+		mAlbumArt.enableAndBind();
+	} else {
+		planets[mPlanetTexIndex].enableAndBind();
+	}
+	
 	glDrawArrays( GL_TRIANGLES, 0, numVerts );
 	gl::popModelView();
 	
@@ -229,6 +232,7 @@ void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 	
 	Node::drawPlanet( planets );
 }
+
 
 void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 {
@@ -290,16 +294,15 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 }
 
 
-
 void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha )
 {
-	if( mHasRings && G_ZOOM > G_ARTIST_LEVEL ){
+	if( mHasRings && G_ZOOM > G_ARTIST_LEVEL && mIsPlaying ){
 		gl::pushModelView();
 		gl::translate( mTransPos );
 		float c = mRadius * 9.0f;
 		gl::scale( Vec3f( c, c, c ) );
 		gl::rotate( mMatrix );
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, 0.0f ) );
+		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.2f, 0.0f ) );
 		gl::color( ColorA( mColor, mZoomPer * camRingAlpha * 50.0f ) );
 		tex.enableAndBind();
 		glEnableClientState( GL_VERTEX_ARRAY );

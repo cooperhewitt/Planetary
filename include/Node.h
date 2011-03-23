@@ -72,7 +72,6 @@ class Node {
 // CHARACTERISTICS
     
 // RADII
-	float				mMass;				// Mass of the Node
 	float				mRadius;			// Radius of the Node
 	float				mRadiusDest;		// Destination radius
 	float				mGlowRadius;		// Radius of the glow image
