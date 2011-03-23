@@ -60,8 +60,7 @@ bool UiLayer::orientationChanged( OrientationEvent event )
 
      // TODO: isLandscape()/isPortrait() conveniences on event?
     if ( UIInterfaceOrientationIsLandscape(mDeviceOrientation) ) {
-        // swizzle it!
-        interfaceSize = interfaceSize.yx();
+        interfaceSize = interfaceSize.yx(); // swizzle it!
     }
     
     mPanelOpenY = interfaceSize.y - mPanelHeight;
@@ -95,7 +94,8 @@ void UiLayer::setup( AppCocoaTouch *app )
 	
 	// PANEL AND TAB
 	mPanelHeight			= 75.0f;
-	mPanelRect				= Rectf( 0.0f, getWindowHeight(), getWindowWidth(), getWindowHeight()+mPanelHeight );
+	mPanelRect				= Rectf( 0.0f, getWindowHeight(), 
+                                     getWindowWidth(), getWindowHeight()+mPanelHeight );
 
     mPanelClosedY           = getWindowHeight();
     mPanelOpenY             = getWindowHeight() - mPanelHeight;
@@ -110,7 +110,7 @@ bool UiLayer::touchesBegan( TouchEvent event )
 	mHasPanelBeenDragged = false;
 
 	Vec2f touchPos = event.getTouches().begin()->getPos();
-    touchPos = mOrientationMatrix * touchPos;
+    touchPos = (mOrientationMatrix * Vec3f(touchPos,0)).xy();
 
     mIsPanelTabTouched = mPanelTabRect.contains( touchPos );
     
@@ -125,7 +125,7 @@ bool UiLayer::touchesBegan( TouchEvent event )
 bool UiLayer::touchesMoved( TouchEvent event )
 {
 	Vec2f touchPos = event.getTouches().begin()->getPos();
-    touchPos = mOrientationMatrix * touchPos;
+    touchPos = (mOrientationMatrix * Vec3f(touchPos,0)).xy();
 
 	if( mIsPanelTabTouched ){
 		mHasPanelBeenDragged = true;
@@ -143,7 +143,7 @@ bool UiLayer::touchesEnded( TouchEvent event )
     
 	if( mIsPanelTabTouched ){
 		if( mHasPanelBeenDragged ){
-            mIsPanelOpen = (mPanelOpenY - mPanelRect.y1) < mPanelHeight/2.0f;
+            mIsPanelOpen = (mPanelRect.y1 - mPanelOpenY) < mPanelHeight/2.0f;
 		} 
         else {
             mIsPanelOpen = !mIsPanelOpen;
