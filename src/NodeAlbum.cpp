@@ -33,6 +33,9 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 
 void NodeAlbum::setData( PlaylistRef album )
 {
+// ALBUM ART IS HANDLED IN UPDATE()
+	
+	
 // ALBUM INFORMATION
 	mAlbum				= album;
 	mNumTracks			= mAlbum->size();
@@ -97,10 +100,22 @@ void NodeAlbum::update( const Matrix44f &mat )
 	if( !mHasCreatedAlbumArt && mChildNodes.size() > 0 ){
 		Surface albumArt	= ((NodeTrack*)mChildNodes[0])->mTrack->getArtwork( Vec2i( 256, 256 ) );
 		if( albumArt ){
-			int x				= Rand::randInt( 127 );
+			int x				= Rand::randInt( 122 );
 			int y				= Rand::randInt( 64 );
-			Area a				= Area( x, y, x+1, y+64 );
+			Area a				= Area( x, y, x+5, y+64 );
 			Surface crop		= albumArt.clone( a );
+			
+			/*
+			Surface::Iter iter = crop->getIter( a );
+			while( iter.line() ) {
+				while( iter.pixel() ) {
+					iter.r() = 255 - iter.r();
+					iter.g() = 255 - iter.g();
+					iter.b() = 255 - iter.b();
+				}
+			}
+			*/
+			
 			mAlbumArt			= gl::Texture( crop );
 			mHasAlbumArt		= true;
 		}
@@ -296,7 +311,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 
 void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha )
 {
-	if( mHasRings && G_ZOOM > G_ARTIST_LEVEL && mIsPlaying ){
+	if( mHasRings && G_ZOOM > G_ARTIST_LEVEL && ( mIsSelected || mIsPlaying ) ){
 		gl::pushModelView();
 		gl::translate( mTransPos );
 		float c = mRadius * 9.0f;
