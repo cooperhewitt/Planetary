@@ -1,108 +1,15 @@
-/*
- *  Breadcrumbs.h
- *  CinderFizz
- *
- *  Created by Tom Carden on 2/15/11.
- *  Copyright 2011 Bloom Studio Inc. All rights reserved.
- *
- */
+//
+//  Breadcrumbs.cpp
+//  Kepler
+//
+//  Created by Tom Carden on 3/22/11.
+//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//
 
-#pragma once
-
-#include <string>
-#include <vector>
-#include "cinder/app/AppCocoaTouch.h"
-#include "cinder/gl/Texture.h"
-#include "cinder/Rect.h"
-#include "cinder/Text.h"
-#include "cinder/Font.h"
-#include "cinder/Function.h"
-
-using namespace ci;
-using namespace ci::app;
-using namespace std;
-
-class BreadcrumbEvent : public ci::app::Event {
-private:
-	std::string mLabel;
-	int mLevel;
-public:	
-	BreadcrumbEvent( int level, std::string label ): ci::app::Event(), mLevel(level), mLabel(label) {
-	}
-	~BreadcrumbEvent() { }
-	int getLevel() {
-		return mLevel;
-	}
-	std::string getLabel() {
-		return mLabel;
-	}
-};
-
-class Breadcrumbs {
-
-public:
-
-	Breadcrumbs()
-    {
-		mApp = NULL;
-		mHeight = 0.0f;
-	}
-	
-	~Breadcrumbs()
-    { 
-        // TODO: any event cleanup?
-    }
-
-	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
-	template<typename T>
-	CallbackId registerBreadcrumbSelected( T *obj, bool (T::*callback)(BreadcrumbEvent) ){
-		return mCallbacksBreadcrumbSelected.registerCb(std::bind1st(std::mem_fun(callback), obj));
-	}	
-	
-	void setup( AppCocoaTouch *app, const Font &font);
-	bool touchesBegan( TouchEvent event );
-	bool touchesEnded( TouchEvent event );
-    bool orientationChanged( OrientationEvent event );
-	void setHierarchy(vector<string> hierarchy);
-	const vector<string>& getHierarchy();
-	void update();
-	void draw();
-	float getHeight() { return mHeight; }
-
-private:
-	
-	AppCocoaTouch *mApp;
-	Font mFont;
-	
-	float mHeight; // calculated in draw()
-	
-	vector<string> mPreviousHierarchy;
-	bool mHierarchyHasChanged;
-	
-	vector<gl::Texture> mTextures;
-	gl::Texture mSeparatorTexture;
-	vector<Rectf> clickRects;
-	int touchesBeganRectIndex;
-	int prevSelectedIndex;
-    
-    DeviceOrientation mDeviceOrientation;
-	
-	CallbackId mCallbackTouchesBegan;
-	CallbackId mCallbackTouchesEnded;
-    CallbackId mCallbackOrientationChanged;
-	
-	//////////////////////
-	
-	// !!! EVENT STUFF (keep track of listeners)
-	CallbackMgr<bool(BreadcrumbEvent)> mCallbacksBreadcrumbSelected;
-	
-};
-<<<<<<< HEAD
-=======
+#include "Breadcrumbs.h"
 
 void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font )
-{
-	
+{	
 	if (mApp != NULL) {
 		mApp->unregisterTouchesEnded( mCallbackTouchesEnded );
 		mApp->unregisterTouchesEnded( mCallbackTouchesBegan );
@@ -111,7 +18,7 @@ void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font )
 	mCallbackTouchesBegan = app->registerTouchesBegan( this, &Breadcrumbs::touchesBegan );
 	mCallbackTouchesEnded = app->registerTouchesEnded( this, &Breadcrumbs::touchesEnded );
     mCallbackOrientationChanged = app->registerOrientationChanged( this, &Breadcrumbs::orientationChanged );
-
+    
     // TODO:
     //mDeviceOrientation = app->getOrientation();
     mDeviceOrientation = PORTRAIT_ORIENTATION;
@@ -207,7 +114,7 @@ void Breadcrumbs::draw()
     Rectf breadcrumbRect( 0.0f, 0.0f, width, rectHeight );
     float lineY = 25.0f;
     float buttonY	= 3.0f;
-
+    
     Matrix44f orientationMtx;
     
     switch ( mDeviceOrientation )
@@ -239,7 +146,7 @@ void Breadcrumbs::draw()
 	gl::enableAlphaBlending();
 	gl::color( ColorA( Color::white(), 0.1f ) );
 	gl::drawLine( Vec2f( 1.0f, lineY ), Vec2f( breadcrumbRect.x2, lineY ) );
-
+    
 	gl::enableAlphaBlending(false);
 	gl::color( Color::white() );
 	float buttonX	= 25.0f;
@@ -254,16 +161,16 @@ void Breadcrumbs::draw()
 		} else {
 			gl::color( COLOR_BLUE );	
 		}
-				
+        
 		if( i > 0 ){
 			gl::draw( mSeparatorTexture, Vec2f( buttonX, buttonY ) );
 			buttonX += mSeparatorTexture.getWidth() + xMargin*2;
 		}
 		/*
-		if( i == prevSelectedIndex ){
-			gl::color( Color( 0.3f, 0.4f, 1.0f ) );
-		}
-		*/
+         if( i == prevSelectedIndex ){
+         gl::color( Color( 0.3f, 0.4f, 1.0f ) );
+         }
+         */
 		
 		gl::draw( mTextures[i], Vec2f( buttonX, buttonY ) );			
         
@@ -275,15 +182,13 @@ void Breadcrumbs::draw()
 		mHeight = max(mHeight, (float)(mTextures[i].getHeight()));
 		buttonX += mTextures[i].getWidth() + xMargin*2;
 	}		
-
+    
     gl::popModelView();
     
-//    // draw clickRects in screen space for debuggen
-//    gl::color( ColorA( 1.0f, 1.0f, 0.0f, 0.25f ) );	
-//    for (int i = 0; i < clickRects.size(); i++) {
-//        gl::drawSolidRect( clickRects[i] );
-//    }
-    
+    //    // draw clickRects in screen space for debuggen
+    //    gl::color( ColorA( 1.0f, 1.0f, 0.0f, 0.25f ) );	
+    //    for (int i = 0; i < clickRects.size(); i++) {
+    //        gl::drawSolidRect( clickRects[i] );
+    //    }
     
 }
->>>>>>> 2b173e9b4b4f70ac18b8b13459f583fd85fd1c17

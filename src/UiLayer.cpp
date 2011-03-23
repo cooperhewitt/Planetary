@@ -9,20 +9,10 @@
 
 
 #include "UiLayer.h"
-#include "cinder/gl/gl.h"
-#include "cinder/Font.h"
-#include "cinder/Text.h"
-#include "cinder/ImageIo.h"
-#include "Globals.h"
-#include <sstream>
 
-using std::stringstream;
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-
-const static int NAV_H = 35;
-const static int NAV_MARGIN = 2;
 
 UiLayer::UiLayer()
 {
@@ -33,170 +23,190 @@ UiLayer::~UiLayer()
 	mApp->unregisterTouchesBegan( mCbTouchesBegan );
 	mApp->unregisterTouchesMoved( mCbTouchesMoved );
 	mApp->unregisterTouchesEnded( mCbTouchesEnded );
+    mApp->unregisterOrientationChanged( mCbOrientationChanged );
 }
- 
+
+bool UiLayer::orientationChanged( OrientationEvent event )
+{
+    // TODO: OrientationEvent helper for this?
+    if (UIDeviceOrientationIsValidInterfaceOrientation(event.getOrientation())) {
+        mDeviceOrientation = event.getOrientation();
+    }
+    else {
+        return false;
+    }
+
+    Vec2f windowSize = getWindowSize();    
+
+    mOrientationMatrix.setToIdentity();
+    
+    if ( mDeviceOrientation == UPSIDE_DOWN_PORTRAIT_ORIENTATION )
+    {
+        mOrientationMatrix.translate( Vec3f( windowSize.x, windowSize.y, 0 ) );            
+        mOrientationMatrix.rotate( Vec3f( 0, 0, M_PI ) );
+    }
+    else if ( mDeviceOrientation == LANDSCAPE_LEFT_ORIENTATION )
+    {
+        mOrientationMatrix.translate( Vec3f( windowSize.x, 0, 0 ) );
+        mOrientationMatrix.rotate( Vec3f( 0, 0, M_PI/2.0f ) );
+    }
+    else if ( mDeviceOrientation == LANDSCAPE_RIGHT_ORIENTATION )
+    {
+        mOrientationMatrix.translate( Vec3f( 0, windowSize.y, 0 ) );
+        mOrientationMatrix.rotate( Vec3f( 0, 0, -M_PI/2.0f ) );
+    }
+    
+    Vec2f interfaceSize = windowSize;
+
+     // TODO: isLandscape()/isPortrait() conveniences on event?
+    if ( UIInterfaceOrientationIsLandscape(mDeviceOrientation) ) {
+        interfaceSize = interfaceSize.yx(); // swizzle it!
+    }
+    
+    mPanelOpenY = interfaceSize.y - mPanelHeight;
+    mPanelClosedY = interfaceSize.y;
+    mPanelRect.x1 = 0;
+    mPanelRect.x2 = interfaceSize.x;
+
+    // cancel interactions
+    mIsPanelTabTouched   = false;
+    mHasPanelBeenDragged = false;
+
+    // jump to end of animation
+    if ( mIsPanelOpen ) {
+        mPanelRect.y1 = mPanelOpenY;        
+    }
+    else {
+        mPanelRect.y1 = mPanelClosedY;        
+    }
+    
+	return false;
+}
  
 void UiLayer::setup( AppCocoaTouch *app )
 {
 	mApp = app;
 	
-	mCbTouchesBegan = mApp->registerTouchesBegan( this, &UiLayer::touchesBegan );
-	mCbTouchesMoved = mApp->registerTouchesMoved( this, &UiLayer::touchesMoved );
-	mCbTouchesEnded = mApp->registerTouchesEnded( this, &UiLayer::touchesEnded );
-	
-	// Rects
-	int x1		= 0.0f;
-	int y1		= getWindowHeight() - NAV_H;
-	int x2		= getWindowWidth();
-	int y2		= getWindowHeight();
-	mStripRect	= Rectf( x1, y1, x2, y2 );
+	mCbTouchesBegan       = mApp->registerTouchesBegan( this, &UiLayer::touchesBegan );
+	mCbTouchesMoved       = mApp->registerTouchesMoved( this, &UiLayer::touchesMoved );
+	mCbTouchesEnded       = mApp->registerTouchesEnded( this, &UiLayer::touchesEnded );
+    mCbOrientationChanged = mApp->registerOrientationChanged( this, &UiLayer::orientationChanged );
 	
 	// PANEL AND TAB
-	mPanelRect				= Rectf( 0.0f, 0.0f, getWindowWidth(), 75.0f );
-	mPanelOpenYPos			= getWindowHeight() - mPanelRect.y2;
-	mPanelClosedYPos		= getWindowHeight();
-	mPanelYPos				= mPanelClosedYPos;
-	mPanelYPosDest			= mPanelOpenYPos;
-	setPanelPos( mPanelYPos, true );
+	mPanelHeight			= 75.0f;
+	mPanelRect				= Rectf( 0.0f, getWindowHeight(), 
+                                     getWindowWidth(), getWindowHeight()+mPanelHeight );
+
+    mPanelClosedY           = getWindowHeight();
+    mPanelOpenY             = getWindowHeight() - mPanelHeight;
+
+	mIsPanelOpen			= false;
 	mIsPanelTabTouched		= false;
-	mIsPanelOpen			= true;
 	mHasPanelBeenDragged	= false;
-	mCountSinceLastTouch	= 0;
-	mLastTouchedType		= NO_BUTTON;
 }
  
 bool UiLayer::touchesBegan( TouchEvent event )
 {
-	std::cout << "UiLayer TouchesBegan" << std::endl;
-	
 	mHasPanelBeenDragged = false;
 
-	mTouchPos = event.getTouches().begin()->getPos();
+	Vec2f touchPos = event.getTouches().begin()->getPos();
+    touchPos = (mOrientationMatrix * Vec3f(touchPos,0)).xy();
 
-	if( mPanelTabRect.contains( mTouchPos ) ){
-		mPanelTabTouchYOffset = mPanelPos.y - mTouchPos.y;
-		mIsPanelTabTouched = true;
-		mLastTouchedType = PANEL_BUTTON;
-	} else {
-		mIsPanelTabTouched = false;
-		mLastTouchedType = NO_BUTTON;
+    mIsPanelTabTouched = mPanelTabRect.contains( touchPos );
+    
+	if( mIsPanelTabTouched ){
+        // remember touch offset for accurate dragging
+		mPanelTabTouchYOffset = mPanelTabRect.y2 - touchPos.y;
 	}
-	mCountSinceLastTouch = 0;
 		
-	return false; //mIsPanelTabTouched;
+	return mIsPanelTabTouched;
 }
 
 bool UiLayer::touchesMoved( TouchEvent event )
 {
-	mTouchPos = event.getTouches().begin()->getPos();
+	Vec2f touchPos = event.getTouches().begin()->getPos();
+    touchPos = (mOrientationMatrix * Vec3f(touchPos,0)).xy();
 
 	if( mIsPanelTabTouched ){
 		mHasPanelBeenDragged = true;
-		setPanelPos( mTouchPos.y, false );
+        mPanelRect.y1 = touchPos.y + mPanelTabTouchYOffset;
+        mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;
 	}
-	mCountSinceLastTouch = 0;
 
-	return false;// mIsPanelTabTouched;
+	return mIsPanelTabTouched;
 }
 
 bool UiLayer::touchesEnded( TouchEvent event )
 {
-	if (event.getTouches().size() > 0) {
-		mTouchPos = event.getTouches().begin()->getPos();
-	}
-	
+    // TODO: these touch handlers might need some refinement for multi-touch
+    // ... perhaps store the first touch ID in touchesBegan and reject other touches?
+    
 	if( mIsPanelTabTouched ){
-        mIsPanelTabTouched = false;
 		if( mHasPanelBeenDragged ){
-			mHasPanelBeenDragged = false;
-			setPanelPos( mTouchPos.y, true );
-		} else if( mPanelTabRect.contains( mTouchPos ) ){
-			if( mIsPanelOpen ){
-				mPanelYPosDest = mPanelClosedYPos;
-			} else {
-				mPanelYPosDest = mPanelOpenYPos;
-			}
+            mIsPanelOpen = (mPanelRect.y1 - mPanelOpenY) < mPanelHeight/2.0f;
+		} 
+        else {
+            mIsPanelOpen = !mIsPanelOpen;
 		}
 	}
-	mCountSinceLastTouch = 0;
-	
-	return false; //mIsPanelTabTouched;
-}
 
-
-void UiLayer::setPanelPos( float y, bool doneDragging )
-{
-	mPanelYPosDest		= y + mPanelTabTouchYOffset;
-	
-	// if the mPanel y position is outside of the max and min, clamp it
-	if( mPanelYPosDest <= mPanelOpenYPos ){
-		mIsPanelOpen	= true;
-		mPanelYPosDest		= mPanelOpenYPos;
-		
-	} else if( mPanelYPosDest >= mPanelClosedYPos ) {
-		mIsPanelOpen	= false;
-		mPanelYPosDest		= mPanelClosedYPos;
-	}
-	
-	
-	if( doneDragging ){
-		if( mPanelYPos < mPanelOpenYPos + mPanelRect.y2 * 0.5f ){
-			mPanelYPosDest = mPanelOpenYPos;
-		} else {
-			mPanelYPosDest = mPanelClosedYPos;
-		}
-	}
-	
+    mIsPanelTabTouched = false;
+    mHasPanelBeenDragged = false;
+    
+	return false;
 }
 
 void UiLayer::update()
 {
-	if( mIsPanelTabTouched ){
-        mPanelYPos  = mPanelYPosDest;
+    // if we're not dragging, animate to current state
+    if ( !mHasPanelBeenDragged ) {
+        if( mIsPanelOpen ){
+            mPanelRect.y1 += (mPanelOpenY - mPanelRect.y1) * 0.25f;
+        }
+        else {
+            mPanelRect.y1 += (mPanelClosedY - mPanelRect.y1) * 0.25f;
+        }
     }
-    else {
-        mPanelYPos -= ( mPanelYPos - mPanelYPosDest ) * 0.25f;
+    
+    // make sure we're not over the limits
+    if (mPanelRect.y1 < mPanelOpenY) {
+        mPanelRect.y1 = mPanelOpenY;
     }
-    mPanelPos	= Vec2f( 0.0f, mPanelYPos );
+    else if (mPanelRect.y1 > mPanelClosedY) {
+        mPanelRect.y1 = mPanelClosedY;
+    }
+    
+    // keep up y2!
+    mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;
 	
-	if( mPanelYPos < mPanelOpenYPos + mPanelRect.y2 * 0.5f ){
-		mIsPanelOpen = true;
-	} else {
-		mIsPanelOpen = false;
-	}
-	
-	mPanelTabRect	= Rectf( getWindowWidth() * 0.5f - 25.0f, mPanelPos.y - 50.0f, getWindowWidth() * 0.5f + 25.0f, mPanelPos.y + 0.5f );
-	
-	mCountSinceLastTouch ++;
-	
-	if( mCountSinceLastTouch > 6 ){
-		mLastTouchedType = NO_BUTTON;
-	}
+    // adjust tab rect:
+    mPanelTabRect = Rectf( (mPanelRect.x1 + mPanelRect.x2) * 0.5f - 25.0f, mPanelRect.y1 - 50.0f,
+                           (mPanelRect.x1 + mPanelRect.x2) * 0.5f + 25.0f, mPanelRect.y1 + 0.5f );
 }
 
 void UiLayer::draw( const vector<gl::Texture> &texs )
 {	
+    gl::pushModelView();
+    gl::multModelView( mOrientationMatrix );
+    
 	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
-	gl::pushModelView();
-	gl::translate( Vec2i( mPanelPos ) );
 	gl::drawSolidRect( mPanelRect );
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.1f ) );
-	gl::drawLine( Vec2f( 0.0f, 0.0f ), Vec2f( getWindowWidth(), 0.0f ) );
-	gl::popModelView();
-	
+	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 ), Vec2f( mPanelRect.x2, mPanelRect.y1 ) );
 	
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 
     int texIndex = -1;
 	if( mIsPanelTabTouched ){
-		if( mIsPanelOpen ) texIndex = TEX_PANEL_DOWN_ON;
-		else texIndex = TEX_PANEL_UP_ON;
-	} else {
-		if( mIsPanelOpen ) texIndex = TEX_PANEL_DOWN;
-		else texIndex = TEX_PANEL_UP;
+		texIndex = mIsPanelOpen ? TEX_PANEL_DOWN_ON : TEX_PANEL_UP_ON;
+	}
+    else {
+		texIndex = mIsPanelOpen ? TEX_PANEL_DOWN : TEX_PANEL_UP;
 	}
     
     texs[texIndex].enableAndBind();
 	gl::drawSolidRect( mPanelTabRect );
     texs[texIndex].disable();
+    
+    gl::popModelView();
 }

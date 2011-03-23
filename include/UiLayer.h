@@ -19,38 +19,45 @@
 
 class UiLayer {
  public:
-	UiLayer();
+	
+    UiLayer();
 	~UiLayer();
-	enum	PlayButton { NO_BUTTON, PANEL_BUTTON };
+    
 	enum	ButtonTexId { TEX_PANEL_UP, TEX_PANEL_UP_ON, TEX_PANEL_DOWN, TEX_PANEL_DOWN_ON };
 	
 	void	setup( ci::app::AppCocoaTouch *app );
-	bool	touchesBegan( ci::app::TouchEvent event );
+	
+    bool	touchesBegan( ci::app::TouchEvent event );
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
-	void	setPanelPos( float y, bool doneDragging );
+    bool    orientationChanged( ci::app::OrientationEvent event );
+    
 	void	update();
 	void	draw( const std::vector<ci::gl::Texture> &texs );
-	float	getPanelYPos(){ return mPanelPos.y; }	
+    
+	float	getPanelYPos(){ return mPanelRect.y1; }	
     ci::Rectf getPanelTabRect() { return mPanelTabRect; }
 	
  private:
+
+    void	setPanelPos( float y, bool doneDragging );
+    
 	ci::app::AppCocoaTouch *mApp;
-	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded;
-	ci::Vec2f		mTouchPos;
-	float			mPanelYPos, mPanelYPosDest;
-	float			mPanelOpenYPos, mPanelClosedYPos;
+	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded, mCbOrientationChanged;
 	
-	ci::Vec2i		mPanelPos;				// XY position of the panel upper left corner
+    float           mPanelHeight;           // TODO: const?
+    float           mPanelOpenY;            // updated in orientationChanged, interfaceHeight-mPanelHeight
+    float           mPanelClosedY;          // updated in orientationChanged, interfaceHeight
 	ci::Rectf		mPanelRect;				// Rect defining the panel width and height
 	ci::Rectf		mPanelTabRect;			// Rect defining the panel tab
+    
 	bool			mIsPanelTabTouched;		// Is the Panel Tab currently being touched
 	bool			mIsPanelOpen;			// Is the Panel fully open
-	bool			mHasPanelBeenDragged;
-	float			mPanelTabTouchYOffset;	// Accommodate the touch position y value
-	int				mCountSinceLastTouch;
-	PlayButton		mLastTouchedType;
+	bool			mHasPanelBeenDragged;   // Are we dragging or just animating?
+	float			mPanelTabTouchYOffset;	// Remember the touch position y value when dragging
 	
-	ci::Rectf		mStripRect;
+    ci::Matrix44f   mOrientationMatrix;     // For adjusting ui drawing and hitrects
+    
+    ci::app::DeviceOrientation mDeviceOrientation;
 };
 
