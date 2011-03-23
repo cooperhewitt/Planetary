@@ -101,9 +101,9 @@ void ParticleController::buildParticleVertexArray( const Vec3f &bbRight, const V
 	}
 }
 
-void ParticleController::buildDustVertexArray( Node *node )
+void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaOffset )
 {
-	mTotalDustVertices	= G_NUM_DUSTS * 2;
+	mTotalDustVertices	= G_NUM_DUSTS;
 	
     if (mTotalDustVertices != mPrevTotalDustVertices) {
         if (mDustVerts != NULL)		delete[] mDustVerts;
@@ -122,7 +122,7 @@ void ParticleController::buildDustVertexArray( Node *node )
 	
 	for( list<Dust>::iterator it = mDusts.begin(); it != mDusts.end(); ++it ){
 		Color col				= node->mGlowColor;
-		Vec3f prev				= it->mPrevPos;
+		//Vec3f prev				= it->mPrevPos;
 		Vec3f pos				= it->mPos;
 		
 		mDustVerts[vIndex++]	= pos.x;
@@ -132,8 +132,8 @@ void ParticleController::buildDustVertexArray( Node *node )
 		mDustColors[cIndex++]	= col.r;
 		mDustColors[cIndex++]	= col.g;
 		mDustColors[cIndex++]	= col.b;
-		mDustColors[cIndex++]	= Rand::randFloat( 0.05f, 0.2f ) * per;
-
+		mDustColors[cIndex++]	= Rand::randFloat( 0.05f, 0.1f ) * per * pinchAlphaOffset;
+/*
 		mDustVerts[vIndex++]	= prev.x;
 		mDustVerts[vIndex++]	= prev.y;
 		mDustVerts[vIndex++]	= prev.z;
@@ -141,7 +141,7 @@ void ParticleController::buildDustVertexArray( Node *node )
 		mDustColors[cIndex++]	= col.r;
 		mDustColors[cIndex++]	= col.g;
 		mDustColors[cIndex++]	= col.b;
-		mDustColors[cIndex++]	= 0.0f;
+		mDustColors[cIndex++]	= 0.0f;*/
 	}
 }
 	
@@ -177,7 +177,7 @@ void ParticleController::drawDustVertexArray( Node *node, const Matrix44f &mat )
 	gl::pushModelView();
 	gl::translate( node->mTransPos );
 	gl::rotate( mat );
-	glDrawArrays( GL_LINES, 0, mTotalDustVertices );
+	glDrawArrays( GL_POINTS, 0, mTotalDustVertices );
 	gl::popModelView();
 	
 	glDisableClientState( GL_VERTEX_ARRAY );

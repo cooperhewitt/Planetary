@@ -17,6 +17,8 @@
 #include "cinder/Matrix.h"
 #include "Data.h"
 #include "Node.h"
+#include "NodeTrack.h"
+
 
 class World {
  public:
@@ -52,6 +54,8 @@ class World {
 	
 	std::vector<Node*> mNodes;
 	std::vector<ci::gl::Texture> mNameTextures;
+	
+	NodeTrack *mPlayingTrackNode;
 	
 	std::vector<ci::Vec3f> mConstellation;
 	std::vector<float> mConstellationDistances;

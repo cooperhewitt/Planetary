@@ -39,7 +39,8 @@ private:
 	int			mStarRating;
 	int			mNumTracks;
 	ci::Vec3f	mStartPos, mTransStartPos, mStartRelPos;
-
+	vector<ci::Vec3f> mOrbitPath;
+	
 	double		mStartTime;
 	double		mPlaybackTime;
 	double		mPercentPlayed;

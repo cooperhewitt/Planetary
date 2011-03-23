@@ -43,6 +43,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	}
 	*/
 	
+	mOrbitPath.clear();
 	
 	
 	//normalize playcount data
@@ -89,12 +90,41 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 
 void NodeTrack::updateAudioData( double currentPlayheadTime )
 {
-	mPercentPlayed		= currentPlayheadTime/mTrackLength;
-	mOrbitAngle			= mPercentPlayed * TWO_PI + mOrbitStartAngle;
+	if( mIsPlaying ){
+		mPercentPlayed		= currentPlayheadTime/mTrackLength;
+		mOrbitAngle			= mPercentPlayed * TWO_PI + mOrbitStartAngle;
+		
+		// TODO: Find a better way to do this without clearing mOrbitPath every frame.
+		mOrbitPath.clear();
+		
+		// Add start position
+		mOrbitPath.push_back( mStartRelPos );
+		
+		// Add middle positions
+		int maxNumVecs		= 300;
+		int currentNumVecs	= mPercentPlayed * maxNumVecs;
+		for( int i=0; i<currentNumVecs; i++ ){
+			float per = (float)(i+1)/(float)(maxNumVecs);
+			float angle = mOrbitStartAngle + per * TWO_PI;
+			Vec2f pos = Vec2f( cos( angle ), sin( angle ) ) * mOrbitRadius;
+			
+			mOrbitPath.push_back( Vec3f( pos.x, pos.y, 0.0f ) );
+		}
+		
+		// Add end position
+		mOrbitPath.push_back( mRelPos );
+	}
 }
 
 void NodeTrack::update( const Matrix44f &mat )
 {	
+	if( !mIsPlaying ){
+		// TODO: THIS IS AWKWARD
+		mPercentPlayed	= app::getElapsedSeconds()/mOrbitPeriod;
+		mOrbitAngle		= mPercentPlayed * TWO_PI + mOrbitStartAngle;
+	}
+	
+	
 	mPrevPos			= mTransPos;
 	mRelPos				= Vec3f( cos( mOrbitAngle ), sin( mOrbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos				= mParentNode->mPos + mRelPos;
@@ -258,15 +288,27 @@ void NodeTrack::drawPlayheadProgress()
 		gl::pushModelView();
 		gl::translate( mParentNode->mTransPos );
 		gl::rotate( mMatrix );
+		
+		gl::color( Color::white() );
+		PolyLine<Vec3f> mLine;
+		vector<Vec3f>::iterator it;
+		for( it = mOrbitPath.begin(); it != mOrbitPath.end(); ++it ){
+			mLine.push_back( *it );
+		}
+		gl::draw( mLine );
+		
+		/*
 		gl::color( ColorA( 0.0f, 1.0f, 0.0f, 1.0f ) );
 		gl::drawLine( Vec3f::zero(), mRelPos );
 		
 		gl::color( ColorA( 1.0f, 0.0f, 0.0f, 1.0f ) );
 		gl::drawLine( Vec3f::zero(), mStartRelPos );
-		gl::popModelView();
+		 */
 		
-		gl::color( ColorA( 1.0f, 0.0f, 0.0f, 1.0f ) );
-		gl::drawSphere( mTransStartPos, mRadius );
+		gl::color( mColor );
+		gl::drawSphere( mStartRelPos, 0.0005f );
+		
+		gl::popModelView();
 	}
 }
 

@@ -37,7 +37,7 @@ bool G_DEBUG			= false;
 bool G_ACCEL            = false;
 bool G_IS_IPAD2			= true; // TODO: detect this with iOS code?
 int G_NUM_PARTICLES		= 250;
-int G_NUM_DUSTS			= 50;
+int G_NUM_DUSTS			= 250;
 
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
 
@@ -81,7 +81,7 @@ class KeplerApp : public AppCocoaTouch {
     Node*           getPlayingAlbumNode( ipod::TrackRef playingTrack, Node* artistNode );
     Node*           getPlayingArtistNode( ipod::TrackRef playingTrack );
 	
-	NodeTrack*		mCurrentTrackNode;
+	//NodeTrack*		mCurrentTrackNode;
 	
     LoadingScreen   mLoadingScreen;
 	World			mWorld;
@@ -144,6 +144,7 @@ class KeplerApp : public AppCocoaTouch {
     PinchRecognizer mPinchRecognizer;
 	float			mPinchScale;
 	float			mTimePinchEnded;
+	float			mPinchAlphaOffset;
 	
 // PARTICLES
     ParticleController mParticleController;
@@ -194,7 +195,7 @@ void KeplerApp::setup()
     
 	if( G_IS_IPAD2 ){
 		G_NUM_PARTICLES = 1000;
-		G_NUM_DUSTS = 2000;
+		G_NUM_DUSTS = 5000;
 	}
     
     mRemainingSetupCalled = false;
@@ -260,6 +261,7 @@ void KeplerApp::remainingSetup()
     mPinchRecognizer.registerMoved( this, &KeplerApp::onPinchMoved );
     mPinchRecognizer.registerEnded( this, &KeplerApp::onPinchEnded );
     mPinchRecognizer.setKeepTouchCallback( this, &KeplerApp::keepTouchForPinching );
+	mPinchAlphaOffset	= 0.0f;
     
     // PARTICLES
     mParticleController.addParticles( G_NUM_PARTICLES );
@@ -303,8 +305,6 @@ void KeplerApp::remainingSetup()
 
     // WORLD
     mWorld.setData( &mData );  
-
-	mCurrentTrackNode = NULL;
 	
     std::cout << "setupEnd: " << getElapsedSeconds() << std::endl;
 }
@@ -712,9 +712,6 @@ bool KeplerApp::onNodeSelected( Node *node )
                 if ( trackNode->getId() != playingTrack->getItemId() ) {
                     cout << "telling player to play it" << endl;
                     mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
-					
-					// ROBERT ADDED THIS. MIGHT NOT BE THE RIGHT WAY.
-					mCurrentTrackNode = trackNode;
                 }
                 else {
                     cout << "already playing it" << endl;				
@@ -874,7 +871,7 @@ void KeplerApp::update()
 		mParticleController.update();
 		mParticleController.buildParticleVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
 		if( mState.getSelectedArtistNode() ){
-			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode() );
+			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaOffset );
 		}
         mUiLayer.update();
         mAlphaWheel.update( mFov );
@@ -910,6 +907,10 @@ void KeplerApp::updateArcball()
 void KeplerApp::updateCamera()
 {
 	mCamDistPinchOffset -= ( mCamDistPinchOffset - mCamDistPinchOffsetDest ) * 0.4f;
+	
+	float fadeSpeed = 1.5f;		// 3.0 fades right before 'pop'. 1.0 fades after small pinch
+	mPinchAlphaOffset	= constrain( 1.0f - ( mCamDistPinchOffset - fadeSpeed ), 0.0f, 1.0f );
+	
 	
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){
@@ -983,13 +984,7 @@ void KeplerApp::draw()
 }
 
 void KeplerApp::drawScene()
-{
-	float fadeSpeed = 1.5f;		// 3.0 fades right before 'pop'. 1.0 fades after small pinch
-	float pinchAlphaOffset = constrain( 1.0f - ( mCamDistPinchOffset - fadeSpeed ), 0.0f, 1.0f );
-	
-	
-	
-	
+{		
     gl::enableDepthWrite();
     gl::setMatrices( mCam );
         
@@ -1061,7 +1056,7 @@ void KeplerApp::drawScene()
 	
 // ORBITS
 	if( mIsDrawingRings ){
-        mWorld.drawOrbitRings( pinchAlphaOffset );
+        mWorld.drawOrbitRings( mPinchAlphaOffset );
 	}
 	
 // PARTICLES
@@ -1079,10 +1074,13 @@ void KeplerApp::drawScene()
 		mParticleController.drawDustVertexArray( mState.getSelectedAlbumNode(), mMatrix );
 	}
 	
-	if( mCurrentTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
-		mCurrentTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
-//		mParticleController.drawDustVertexArray( mCurrentTrackNode, mMatrix );
+
+		
+// CURRENT TRACK ORBIT PATH
+	if( mWorld.mPlayingTrackNode && G_ZOOM >= G_ALBUM_LEVEL ){
+		mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 	}
+	
 	
 // CONSTELLATION
 	if( mIsDrawingRings ){
@@ -1102,7 +1100,7 @@ void KeplerApp::drawScene()
 	
 // NAMES
 	if( mIsDrawingText ){
-		mWorld.drawNames( mCam, pinchAlphaOffset );
+		mWorld.drawNames( mCam, mPinchAlphaOffset );
 	}
     
     glDisable( GL_TEXTURE_2D );
@@ -1253,62 +1251,61 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 
 Node* KeplerApp::getPlayingTrackNode( ipod::TrackRef playingTrack, Node* albumNode )
 {
-    float t = getElapsedSeconds();
-    console() << "getPlayingTrackNode()" << std::endl;
+//    float t = getElapsedSeconds();
+//    console() << "getPlayingTrackNode()" << std::endl;
 
     if (albumNode != NULL) {
         for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
             // FIXME: what's the proper C++ way to do this cast?
             NodeTrack *trackNode = (NodeTrack*)(albumNode->mChildNodes[k]);
             if (trackNode->getId() == playingTrack->getItemId()) {
-				mCurrentTrackNode = trackNode;
-                console() << "found! NodeTrack in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
+//                console() << "found! NodeTrack in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
                 return trackNode;
             }
         }
     }
     
-    console() << "returning NULL in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
+//    console() << "returning NULL in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
     
     return NULL;
 }
 
 Node* KeplerApp::getPlayingAlbumNode( ipod::TrackRef playingTrack, Node* artistNode )
 {
-    float t = getElapsedSeconds();
-    console() << "getPlayingAlbumNode()" << std::endl;
+//    float t = getElapsedSeconds();
+//    console() << "getPlayingAlbumNode()" << std::endl;
     
     if (artistNode != NULL) {
         uint64_t albumId = playingTrack->getAlbumId();
         for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
             Node* albumNode = artistNode->mChildNodes[j];
             if (albumNode->getId() == albumId) {
-                console() << "found! NodeAlbum in " << (getElapsedSeconds() - t) << " seconds" << std::endl;            
+//                console() << "found! NodeAlbum in " << (getElapsedSeconds() - t) << " seconds" << std::endl;            
                 return albumNode;
             }
         }
     }
 
-    console() << "returning NULL in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
+//    console() << "returning NULL in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
 
     return NULL;
 }
 
 Node* KeplerApp::getPlayingArtistNode( ipod::TrackRef playingTrack )
 {
-    float t = getElapsedSeconds();
-    console() << "getPlayingArtistNode()" << std::endl;
+//    float t = getElapsedSeconds();
+//    console() << "getPlayingArtistNode()" << std::endl;
     
     uint64_t artistId = playingTrack->getArtistId();    
     for (int i = 0; i < mWorld.mNodes.size(); i++) {
         Node* artistNode = mWorld.mNodes[i];
         if (artistNode->getId() == artistId) {
-            console() << "found! NodeArtist in " << (getElapsedSeconds() - t) << " seconds" << std::endl;            
+//            console() << "found! NodeArtist in " << (getElapsedSeconds() - t) << " seconds" << std::endl;            
             return artistNode;
         }
     }
     
-    console() << "returning NULL in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
+//    console() << "returning NULL in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
     
     return NULL;
 }
