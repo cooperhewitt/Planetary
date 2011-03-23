@@ -130,7 +130,8 @@ void NodeTrack::updateAudioData( double currentPlayheadTime )
 
 void NodeTrack::buildPlayheadProgressVertexArray()
 {
-	mTotalOrbitVertices	= mOrbitPath.size() * 2;
+	int orbitPathSize	= mOrbitPath.size();
+	mTotalOrbitVertices	= orbitPathSize * 2;
 	
 	if( mTotalOrbitVertices != mPrevTotalOrbitVertices ){
 		if (mOrbitVerts != NULL)		delete[] mOrbitVerts;
@@ -144,15 +145,15 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 		mPrevTotalOrbitVertices = mTotalOrbitVertices;
 	}
 	
-	int vIndex = 0;
-	int tIndex = 0;
-	int cIndex = 0;
-	int index = 0;
-	Color col  = COLOR_BLUE;
-	float radius = mRadius * 1.2f;
-	float per = constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f ) * 0.3f;
-	
-	for( vector<Vec3f>::iterator it = mOrbitPath.begin(); it != mOrbitPath.end(); ++it ){
+	int vIndex		= 0;
+	int tIndex		= 0;
+	int cIndex		= 0;
+	int index		= 0;
+	Color col		= COLOR_BRIGHT_BLUE;
+	float radius	= mRadius;
+	float alpha		= constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f ) * 0.3f;
+		
+	for( vector<Vec3f>::iterator it = mOrbitPath.begin(); it != mOrbitPath.end(); ++it ){	
 		Vec3f pos1				= *it * ( mOrbitRadius + radius );
 		Vec3f pos2				= *it * ( mOrbitRadius - radius );
 		
@@ -173,12 +174,12 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 		mOrbitColors[cIndex++]	= col.r;
 		mOrbitColors[cIndex++]	= col.g;
 		mOrbitColors[cIndex++]	= col.b;
-		mOrbitColors[cIndex++]	= per;
+		mOrbitColors[cIndex++]	= alpha;
 		
 		mOrbitColors[cIndex++]	= col.r;
 		mOrbitColors[cIndex++]	= col.g;
 		mOrbitColors[cIndex++]	= col.b;
-		mOrbitColors[cIndex++]	= per;
+		mOrbitColors[cIndex++]	= alpha;
 		
 		index ++;
 	}
@@ -374,11 +375,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 
 void NodeTrack::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
-	if( !mIsPlaying ){
-		gl::color( ColorA( COLOR_BLUE, 0.2f * pinchAlphaOffset  ) );
-	} else {
-		gl::color( ColorA( COLOR_BLUE, 0.05f * pinchAlphaOffset  ) );
-	}
+	gl::color( ColorA( COLOR_BLUE, 0.2f * pinchAlphaOffset  ) );
 	gl::pushModelView();
 	gl::translate( mParentNode->mTransPos );
 	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
@@ -406,8 +403,7 @@ void NodeTrack::drawPlayheadProgress( const gl::Texture &tex )
 		gl::translate( mParentNode->mTransPos );
 		gl::rotate( mMatrix );
 
-		glDrawArrays( GL_TRIANGLE_STRIP, 0, mTotalOrbitVertices );
-		
+		glDrawArrays( GL_TRIANGLE_STRIP, 0, mTotalOrbitVertices );		
 		tex.disable();
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
@@ -428,11 +424,12 @@ void NodeTrack::drawPlayheadProgress( const gl::Texture &tex )
 		gl::draw( mLine );
 */		
 		
-		gl::color( ColorA( COLOR_BLUE, 0.4f ) );
+		gl::color( COLOR_BRIGHT_BLUE );
 		Vec3f pos = Vec3f( cos( mOrbitStartAngle ), sin( mOrbitStartAngle ), 0.0f );
-		gl::drawLine( pos * ( mOrbitRadius + mRadius ), pos * ( mOrbitRadius - mRadius ) );
-
+		gl::drawLine( pos * ( mOrbitRadius + mRadius * 1.2f ), pos * ( mOrbitRadius - mRadius * 1.2f ) );
+//		gl::drawSphere( mStartRelPos, mRadius * 0.5f );
 		gl::popModelView();
+				
 	}
 }
 
