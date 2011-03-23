@@ -89,6 +89,7 @@
 		E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C872D131F1420000780A3 /* NodeArtist.cpp */; };
 		E25C8744131F14B3000780A3 /* NodeAlbum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8742131F14B3000780A3 /* NodeAlbum.cpp */; };
 		E25C8745131F14B3000780A3 /* NodeTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8743131F14B3000780A3 /* NodeTrack.cpp */; };
+		E28FDA811339AF15005EDBB4 /* Breadcrumbs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -206,6 +207,7 @@
 		E25C8741131F14A5000780A3 /* NodeTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeTrack.h; path = ../include/NodeTrack.h; sourceTree = SOURCE_ROOT; };
 		E25C8742131F14B3000780A3 /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8743131F14B3000780A3 /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
+		E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Breadcrumbs.cpp; path = ../src/Breadcrumbs.cpp; sourceTree = "<group>"; };
 		E2A1FF8E132599290007F4DA /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../include/PlayControls.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -517,6 +519,7 @@
 		E2171053132ECE3900ADCC17 /* Ui */ = {
 			isa = PBXGroup;
 			children = (
+				E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */,
 				E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */,
 				E15C90B61300B2F900FB8389 /* UiLayer.cpp */,
 				E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */,
@@ -654,6 +657,7 @@
 				E167C8D6132EAFBE00CB496E /* ParticleController.cpp in Sources */,
 				E22998CC1332D62E0043CDCA /* LoadingScreen.cpp in Sources */,
 				E1FC7DA11337E4D9007F333C /* Dust.cpp in Sources */,
+				E28FDA811339AF15005EDBB4 /* Breadcrumbs.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
