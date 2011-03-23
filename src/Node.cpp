@@ -136,6 +136,9 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
             mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.1f;
         }
         
+		if( mSphereScreenRadius < 10 ){
+			mSphereRes		= 4;
+		}
         mSphereResInt       = (int)mSphereRes * 2;
     }
     

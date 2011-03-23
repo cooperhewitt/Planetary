@@ -915,7 +915,7 @@ void KeplerApp::updateCamera()
 {
 	mCamDistPinchOffset -= ( mCamDistPinchOffset - mCamDistPinchOffsetDest ) * 0.4f;
 	
-	float fadeSpeed = 1.2f;		// 3.0 fades right before 'pop'. 1.0 fades after small pinch
+	float fadeSpeed = 2.0f;		// 3.0 fades right before 'pop'. 1.0 fades after small pinch
 	mPinchAlphaOffset	= constrain( 1.0f - ( mCamDistPinchOffset - fadeSpeed ), 0.0f, 1.0f );
 	
 	
@@ -1028,9 +1028,14 @@ void KeplerApp::drawScene()
 	
 	Node *artistNode = mState.getSelectedArtistNode();
 	if( artistNode ){
+		
+		if( mWorld.mPlayingTrackNode && mIsDrawingRings ){
+			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
+			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPlayheadProgressTex );
+		}
+		
 		gl::enableDepthRead();
 		gl::disableAlphaBlending();
-		
 		glEnable( GL_LIGHTING );
 		glEnable( GL_COLOR_MATERIAL );
 		glShadeModel( GL_SMOOTH );
@@ -1042,8 +1047,32 @@ void KeplerApp::drawScene()
 		Vec3f lightPos          = artistNode->mTransPos;
 		GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 		glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-		glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
-		
+		glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mGlowColor, 1.0f ) );//ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
+		/*
+		if( true ){
+			glEnable( GL_LIGHT1 );
+			Vec3f light1Pos          = artistNode->mTransPos + Vec3f( -0.1f, 0.1f, -0.1f );
+			GLfloat artist1Light[]	= { light1Pos.x, light1Pos.y, light1Pos.z, 1.0f };
+			glLightfv( GL_LIGHT1, GL_POSITION, artist1Light );
+			glLightfv( GL_LIGHT1, GL_DIFFUSE, ColorA( artistNode->mGlowColor.r, 0.2f, 0.2f, 1.0f ) );
+			
+			glEnable( GL_LIGHT2 );
+			Vec3f light2Pos          = artistNode->mTransPos + Vec3f( 0.1f, -0.1f, 0.1f );
+			GLfloat artist2Light[]	= { light2Pos.x, light2Pos.y, light2Pos.z, 1.0f };
+			glLightfv( GL_LIGHT2, GL_POSITION, artist2Light );
+			glLightfv( GL_LIGHT2, GL_DIFFUSE, ColorA( 0.2f, 0.2f, artistNode->mGlowColor.b, 1.0f ) );
+		}
+		 */
+		/*
+		if( mWorld.mPlayingTrackNode ){
+			// LIGHT FROM ARTIST
+			glEnable( GL_LIGHT1 );
+			Vec3f trackLightPos		= mWorld.mPlayingTrackNode->mParentNode->mTransPos + mWorld.mPlayingTrackNode->getStartRelPos();
+			GLfloat trackLight[]	= { trackLightPos.x, trackLightPos.y, trackLightPos.z, 1.0f };
+			glLightfv( GL_LIGHT1, GL_POSITION, trackLight );
+			glLightfv( GL_LIGHT1, GL_DIFFUSE, ColorA( 1.0f, 0.0f, 0.0f, 0.3f ) );
+		}
+		*/
 		
 // PLANETS
 		mWorld.drawPlanets( mPlanetsTex );
@@ -1088,13 +1117,13 @@ void KeplerApp::drawScene()
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
 		mParticleController.drawDustVertexArray( mState.getSelectedAlbumNode(), mMatrix );
-		gl::enableAdditiveBlending();
 	}
 	
 
 		
 // CURRENT TRACK ORBIT PATH
 	if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
+		gl::enableAdditiveBlending();
 		mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 		mWorld.mPlayingTrackNode->drawPlayheadProgress( mPlayheadProgressTex );
 	}
