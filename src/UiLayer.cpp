@@ -32,39 +32,34 @@ bool UiLayer::orientationChanged( OrientationEvent event )
     if (UIDeviceOrientationIsValidInterfaceOrientation(event.getOrientation())) {
         mDeviceOrientation = event.getOrientation();
     }
-    
+    else {
+        return false;
+    }
+
+    Vec2f windowSize = getWindowSize();    
+
     mOrientationMatrix.setToIdentity();
-
-    Vec2f windowSize = getWindowSize();
-
-    // TODO: isLandscape()/isPortrait() conveniences on event?
-    bool isPortrait = true;
     
-    switch ( mDeviceOrientation )
+    if ( mDeviceOrientation == UPSIDE_DOWN_PORTRAIT_ORIENTATION )
     {
-        case PORTRAIT_ORIENTATION:
-            break;
-        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
-            mOrientationMatrix.translate( Vec3f( windowSize.x, windowSize.y, 0 ) );            
-            mOrientationMatrix.rotate( Vec3f( 0, 0, M_PI ) );
-            break;
-        case LANDSCAPE_LEFT_ORIENTATION:
-            isPortrait = false;
-            mOrientationMatrix.translate( Vec3f( windowSize.x, 0, 0 ) );
-            mOrientationMatrix.rotate( Vec3f( 0, 0, M_PI/2.0f ) );
-            break;
-        case LANDSCAPE_RIGHT_ORIENTATION:
-            isPortrait = false;
-            mOrientationMatrix.translate( Vec3f( 0, windowSize.y, 0 ) );
-            mOrientationMatrix.rotate( Vec3f( 0, 0, -M_PI/2.0f ) );
-            break;
-        default:
-            break;
+        mOrientationMatrix.translate( Vec3f( windowSize.x, windowSize.y, 0 ) );            
+        mOrientationMatrix.rotate( Vec3f( 0, 0, M_PI ) );
+    }
+    else if ( mDeviceOrientation == LANDSCAPE_LEFT_ORIENTATION )
+    {
+        mOrientationMatrix.translate( Vec3f( windowSize.x, 0, 0 ) );
+        mOrientationMatrix.rotate( Vec3f( 0, 0, M_PI/2.0f ) );
+    }
+    else if ( mDeviceOrientation == LANDSCAPE_RIGHT_ORIENTATION )
+    {
+        mOrientationMatrix.translate( Vec3f( 0, windowSize.y, 0 ) );
+        mOrientationMatrix.rotate( Vec3f( 0, 0, -M_PI/2.0f ) );
     }
     
     Vec2f interfaceSize = windowSize;
-    
-    if ( !isPortrait ) {
+
+     // TODO: isLandscape()/isPortrait() conveniences on event?
+    if ( UIInterfaceOrientationIsLandscape(mDeviceOrientation) ) {
         // swizzle it!
         interfaceSize = interfaceSize.yx();
     }
@@ -73,6 +68,18 @@ bool UiLayer::orientationChanged( OrientationEvent event )
     mPanelClosedY = interfaceSize.y;
     mPanelRect.x1 = 0;
     mPanelRect.x2 = interfaceSize.x;
+
+    // cancel interactions
+    mIsPanelTabTouched   = false;
+    mHasPanelBeenDragged = false;
+
+    // jump to end of animation
+    if ( mIsPanelOpen ) {
+        mPanelRect.y1 = mPanelOpenY;        
+    }
+    else {
+        mPanelRect.y1 = mPanelClosedY;        
+    }
     
 	return false;
 }
@@ -93,8 +100,8 @@ void UiLayer::setup( AppCocoaTouch *app )
     mPanelClosedY           = getWindowHeight();
     mPanelOpenY             = getWindowHeight() - mPanelHeight;
 
-	mIsPanelTabTouched		= false;
 	mIsPanelOpen			= false;
+	mIsPanelTabTouched		= false;
 	mHasPanelBeenDragged	= false;
 }
  
@@ -103,6 +110,7 @@ bool UiLayer::touchesBegan( TouchEvent event )
 	mHasPanelBeenDragged = false;
 
 	Vec2f touchPos = event.getTouches().begin()->getPos();
+    touchPos = mOrientationMatrix * touchPos;
 
     mIsPanelTabTouched = mPanelTabRect.contains( touchPos );
     
@@ -117,6 +125,7 @@ bool UiLayer::touchesBegan( TouchEvent event )
 bool UiLayer::touchesMoved( TouchEvent event )
 {
 	Vec2f touchPos = event.getTouches().begin()->getPos();
+    touchPos = mOrientationMatrix * touchPos;
 
 	if( mIsPanelTabTouched ){
 		mHasPanelBeenDragged = true;
