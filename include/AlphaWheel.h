@@ -26,13 +26,12 @@ public:
 	bool	touchesBegan( ci::app::TouchEvent event );
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
-	bool	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
+    bool    orientationChanged( ci::app::OrientationEvent event );
 	void	update( float fov );
 	void	setTimePinchEnded( float timePinchEnded );
 	void	draw();
-	void	drawWheel();
-	void	drawAlphaChar();
-	void	setShowWheel( bool b ){ std::cout << " show wheel " << b << std::endl; mShowWheel = b; if ( mShowWheel ) mPrevAlphaChar = ' '; }
+    // TODO: if we're resetting prev alpha char here should we fire a callback?
+	void	setShowWheel( bool b ){ mShowWheel = b; if ( mShowWheel ) mPrevAlphaChar = ' '; }
 	bool	getShowWheel(){ return mShowWheel; }
 	void	setAlphaChar( char c ){ mAlphaChar = c; }
 	char	getAlphaChar(){ return mAlphaChar; }
@@ -49,8 +48,12 @@ public:
 	
 	
 private:
+	void	drawWheel();
+	void	drawAlphaChar();    
+	bool	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
+    
 	ci::app::AppCocoaTouch *mApp;
-	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded;
+	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded, mCbOrientationChanged;
 	ci::Vec2f		mTouchPos;
 
 	float			mTimePinchEnded;
@@ -66,5 +69,9 @@ private:
 	
 	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksAlphaCharSelected;
 	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksWheelClosed;
+    
+    ci::app::DeviceOrientation mDeviceOrientation;
+    ci::Matrix44f              mOrientationMatrix;
+    ci::Vec2f                  mInterfaceCenter;
 };
 
