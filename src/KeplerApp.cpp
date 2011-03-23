@@ -201,7 +201,9 @@ void KeplerApp::setup()
 	}
     
     mRemainingSetupCalled = false;
-    
+
+    mLoadingScreen.setup( this );
+
     initLoadingTextures();
 }
 
@@ -991,7 +993,7 @@ void KeplerApp::draw()
 {
 	gl::clear( Color( 0, 0, 0 ), true );
 	if( !mDataIsLoaded ){
-		mLoadingScreen.draw( this, mLoadingTex, mStarGlowTex, mStarTex );
+		mLoadingScreen.draw( mLoadingTex, mStarGlowTex, mStarTex );
 	} else {
 		drawScene();
 	}
