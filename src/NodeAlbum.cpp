@@ -100,9 +100,9 @@ void NodeAlbum::update( const Matrix44f &mat )
 	if( !mHasCreatedAlbumArt && mChildNodes.size() > 0 ){
 		Surface albumArt	= ((NodeTrack*)mChildNodes[0])->mTrack->getArtwork( Vec2i( 256, 256 ) );
 		if( albumArt ){
-			int x				= Rand::randInt( 122 );
-			int y				= Rand::randInt( 64 );
-			Area a				= Area( x, y, x+5, y+64 );
+			int x				= Rand::randInt( 250 );
+			int y				= Rand::randInt( 128 );
+			Area a				= Area( x, y, x+1, y+128 );
 			Surface crop		= albumArt.clone( a );
 			
 			/*
@@ -311,27 +311,29 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 
 void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha )
 {
-	if( mHasRings && G_ZOOM > G_ARTIST_LEVEL && ( mIsSelected || mIsPlaying ) ){
-		gl::pushModelView();
-		gl::translate( mTransPos );
-		float c = mRadius * 9.0f;
-		gl::scale( Vec3f( c, c, c ) );
-		gl::rotate( mMatrix );
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.2f, 0.0f ) );
-		gl::color( ColorA( mColor, mZoomPer * camRingAlpha * 50.0f ) );
-		tex.enableAndBind();
-		glEnableClientState( GL_VERTEX_ARRAY );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glVertexPointer( 3, GL_FLOAT, 0, planetRingVerts );
-		glTexCoordPointer( 2, GL_FLOAT, 0, planetRingTexCoords );
-		
-		gl::enableAdditiveBlending();
-		glDrawArrays( GL_TRIANGLES, 0, 6 );
-		
-		glDisableClientState( GL_VERTEX_ARRAY );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		tex.disable();
-		gl::popModelView();
+	if( mHasRings && G_ZOOM > G_ARTIST_LEVEL ){
+		if( mIsSelected || mIsPlaying ){
+			gl::pushModelView();
+			gl::translate( mTransPos );
+			float c = mRadius * 9.0f;
+			gl::scale( Vec3f( c, c, c ) );
+			gl::rotate( mMatrix );
+			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.2f, 0.0f ) );
+			gl::color( ColorA( mColor, mZoomPer * camRingAlpha * 50.0f ) );
+			tex.enableAndBind();
+			glEnableClientState( GL_VERTEX_ARRAY );
+			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+			glVertexPointer( 3, GL_FLOAT, 0, planetRingVerts );
+			glTexCoordPointer( 2, GL_FLOAT, 0, planetRingTexCoords );
+			
+			gl::enableAdditiveBlending();
+			glDrawArrays( GL_TRIANGLES, 0, 6 );
+			
+			glDisableClientState( GL_VERTEX_ARRAY );
+			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+			tex.disable();
+			gl::popModelView();
+		}
 	}
 }
 
