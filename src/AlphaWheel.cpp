@@ -29,6 +29,7 @@ AlphaWheel::~AlphaWheel()
 	mApp->unregisterTouchesBegan( mCbTouchesBegan );
 	mApp->unregisterTouchesMoved( mCbTouchesMoved );
 	mApp->unregisterTouchesEnded( mCbTouchesEnded );
+	mApp->unregisterOrientationChanged( mCbOrientationChanged );
 }
 
 
@@ -39,6 +40,7 @@ void AlphaWheel::setup( AppCocoaTouch *app )
 	mCbTouchesBegan = mApp->registerTouchesBegan( this, &AlphaWheel::touchesBegan );
 	mCbTouchesMoved = mApp->registerTouchesMoved( this, &AlphaWheel::touchesMoved );
 	mCbTouchesEnded = mApp->registerTouchesEnded( this, &AlphaWheel::touchesEnded );
+    mCbOrientationChanged = mApp->registerOrientationChanged( this, &AlphaWheel::orientationChanged );
 	
 	// Textures
 	mWheelTex		= gl::Texture( loadImage( loadResource( "wheel.png" ) ) );
@@ -49,6 +51,9 @@ void AlphaWheel::setup( AppCocoaTouch *app )
 	mPrevAlphaChar	= ' ';
 	mShowWheel		= false;
 	mWheelScale		= 1.0f;	
+    
+    mInterfaceCenter = getWindowCenter();
+    mDeviceOrientation = PORTRAIT_ORIENTATION;
 }
 
 void AlphaWheel::initAlphaTextures( const Font &font )
@@ -63,6 +68,48 @@ void AlphaWheel::initAlphaTextures( const Font &font )
 		layout.addCenteredLine( s.str() );
 		mAlphaTextures.push_back( gl::Texture( layout.render( true, false ) ) );
 	}
+}
+
+bool AlphaWheel::orientationChanged( OrientationEvent event )
+{
+    // TODO: OrientationEvent helper for this?
+    if (UIDeviceOrientationIsValidInterfaceOrientation(event.getOrientation())) {
+        mDeviceOrientation = event.getOrientation();
+    }
+    else {
+        return false;
+    }
+    
+    Vec2f windowSize = getWindowSize();    
+    
+    mOrientationMatrix.setToIdentity();
+    
+    if ( mDeviceOrientation == UPSIDE_DOWN_PORTRAIT_ORIENTATION )
+    {
+        mOrientationMatrix.translate( Vec3f( windowSize.x, windowSize.y, 0 ) );            
+        mOrientationMatrix.rotate( Vec3f( 0, 0, M_PI ) );
+    }
+    else if ( mDeviceOrientation == LANDSCAPE_LEFT_ORIENTATION )
+    {
+        mOrientationMatrix.translate( Vec3f( windowSize.x, 0, 0 ) );
+        mOrientationMatrix.rotate( Vec3f( 0, 0, M_PI/2.0f ) );
+    }
+    else if ( mDeviceOrientation == LANDSCAPE_RIGHT_ORIENTATION )
+    {
+        mOrientationMatrix.translate( Vec3f( 0, windowSize.y, 0 ) );
+        mOrientationMatrix.rotate( Vec3f( 0, 0, -M_PI/2.0f ) );
+    }
+    
+    Vec2f interfaceSize = windowSize;
+    
+    // TODO: isLandscape()/isPortrait() conveniences on event?
+    if ( UIInterfaceOrientationIsLandscape(mDeviceOrientation) ) {
+        interfaceSize = interfaceSize.yx(); // swizzle it!
+    }
+    
+    mInterfaceCenter = interfaceSize * 0.5f;
+    
+    return false;
 }
 
 bool AlphaWheel::touchesBegan( TouchEvent event )
@@ -111,8 +158,8 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
 	//std::cout << " selectWheelItem (time since pinch: " << timeSincePinchEnded << ")" << std::endl;
 	if( mShowWheel && timeSincePinchEnded > 0.5f ){ 
-		Vec2f dir				= pos - getWindowCenter();
-		float distToCenter		= dir.length();
+        Vec2f dir = (mOrientationMatrix.inverted() * Vec3f(mTouchPos,0)).xy() - mInterfaceCenter;
+		float distToCenter = dir.length();
 		if( distToCenter > 250 && distToCenter < 350 ){
 			float touchAngle	= atan2( dir.y, dir.x ) + M_PI;				// RANGE 0 -> TWO_PI
 			float anglePer		= ( touchAngle + 0.11365f + M_PI )/(M_PI * 2.0f);
@@ -150,32 +197,52 @@ void AlphaWheel::update( float fov )
 void AlphaWheel::draw( )
 {
 	if( mWheelScale < 1.0f ){
-		mWheelTex.enableAndBind();
 		gl::pushModelView();
-		gl::translate( getWindowCenter() );
-		
+        gl::multModelView( mOrientationMatrix );
+        
+		gl::translate( mInterfaceCenter );
 		gl::scale( Vec3f( mWheelScale + 1.0f, mWheelScale + 1.0f, 1.0f ) );
-		Rectf r = Rectf( -getWindowWidth() * 0.5f, -getWindowHeight() * 0.5f, getWindowWidth() * 0.5f, getWindowHeight() * 0.5f );
-		float c = 1.0f - mWheelScale;
-		gl::color( ColorA( c, c, c, c ) );
-		gl::drawSolidRect( r );
-		gl::popModelView();
-		mWheelTex.disable();
-		
+        
+        drawWheel();
+        
 		if( mAlphaChar != ' ' )
 			drawAlphaChar();
+        
+        gl::popModelView();
 	}
+}
+
+void AlphaWheel::drawWheel()
+{
+    float w = mWheelTex.getWidth() * 0.5f;
+    float h = mWheelTex.getHeight() * 0.5f;
+
+    float c = 1.0f - mWheelScale;
+    gl::color( ColorA( c, c, c, c ) );
+    
+    mWheelTex.enableAndBind();
+    gl::drawSolidRect( Rectf( -w, -h, w, h ) );
+    mWheelTex.disable();    
+    
+    if ( UIInterfaceOrientationIsLandscape(mDeviceOrientation) ) {
+        Vec2f interfaceSize = getWindowSize().yx(); // SWIZ!
+        gl::color( Color::black() );
+        // left bar, relative to center:
+        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, -w, h ) );
+        // right bar, relative to center:
+        gl::drawSolidRect( Rectf( w, -interfaceSize.y/2, interfaceSize.x/2, h ) );
+    }    
 }
 
 void AlphaWheel::drawAlphaChar()
 {
 	float w = mAlphaTextures[mAlphaIndex].getWidth() * 0.5f;
 	float h = mAlphaTextures[mAlphaIndex].getHeight() * 0.5f;
-	float x = getWindowWidth() * 0.5f;
-	float y = getWindowHeight() * 0.5f;
 	
+    // TODO: is this COLOR_BLUE? should it be?
 	gl::color( ColorA( 0.1f, 0.2f, 0.6f, 1.0f - mWheelScale ) );
-	mAlphaTextures[mAlphaIndex].enableAndBind();
-	gl::drawSolidRect( Rectf( x - w, y - h, x + w, y + h ) );
+	
+    mAlphaTextures[mAlphaIndex].enableAndBind();
+	gl::drawSolidRect( Rectf( -w, -h, w, h ) );
 	mAlphaTextures[mAlphaIndex].disable();
 }
