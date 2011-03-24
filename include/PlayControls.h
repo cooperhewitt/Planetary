@@ -69,7 +69,9 @@ private:
 	vector<Rectf> touchRects;
 	vector<PlayButton> touchTypes;
 	PlayButton lastTouchedType;
-	float prevDrawY;
+
+    Rectf lastDrawnBoundsRect;
+    
 	bool mIsPlaying;
 	int mMinutes, mMinutesTotal, mMinutesLeft;
 	int mSeconds, mSecondsTotal, mSecondsLeft;
@@ -84,7 +86,8 @@ private:
 	CallbackId cbTouchesBegan, cbTouchesMoved, cbTouchesEnded, cbOrientationChanged;
 			
 	PlayButton findButtonUnderTouches(vector<TouchEvent::Touch> touches);
-	
+    Rectf transformRect( const Rectf &rect, const Matrix44f &matrix );
+    
     DeviceOrientation mDeviceOrientation;
     Matrix44f         mOrientationMtx;
     Vec2f             mInterfaceSize;

@@ -640,36 +640,10 @@ void KeplerApp::accelerated( AccelEvent event )
 
 void KeplerApp::orientationChanged( OrientationEvent event )
 {
-    mDeviceOrientation = event.getOrientation();
-    switch ( mDeviceOrientation )
-    {
-        case PORTRAIT_ORIENTATION:
-            console() << "orientation = portrait" << endl;
-            mUp	= Vec3f::yAxis();
-            break;
-        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
-            console() << "orientation = upside down portrait" << endl;
-            mUp	= -Vec3f::yAxis();
-            break;
-        case LANDSCAPE_LEFT_ORIENTATION:
-            console() << "orientation = landscape left" << endl;
-            mUp	= Vec3f::xAxis();
-            break;
-        case LANDSCAPE_RIGHT_ORIENTATION:
-            console() << "orientation = landscape right" << endl;
-            mUp	= -Vec3f::xAxis();
-            break;        
-        case FACE_UP_ORIENTATION:
-            console() << "orientation = face up. staying put." << endl;
-            break;        
-        case FACE_DOWN_ORIENTATION:
-            console() << "orientation = face down. staying put." << endl;
-            break;        
-        case UNKNOWN_ORIENTATION:
-        default:
-            console() << "orientation = unknown. staying put." << endl;
-            break;            
-    }     
+    if ( event.isValidInterfaceOrientation() ) {
+        mDeviceOrientation = event.getOrientation();
+        mUp = event.getUpVector();
+    } 
 }
 
 bool KeplerApp::onWheelClosed( AlphaWheel *alphaWheel )
