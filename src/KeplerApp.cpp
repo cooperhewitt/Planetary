@@ -72,7 +72,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onWheelClosed( AlphaWheel *alphaWheel );
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
 	bool			onPlayControlsButtonPressed ( PlayControls::PlayButton button );
-	bool			onPlayControlsPlayheadMoved ( PlayControls::PlayButton button );
+	bool			onPlayControlsPlayheadMoved ( float amount );
 	bool			onNodeSelected( Node *node );
 	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos );
 	bool			onPlayerStateChanged( ipod::Player *player );
@@ -721,15 +721,15 @@ bool KeplerApp::onNodeSelected( Node *node )
 	return false;
 }
 
-bool KeplerApp::onPlayControlsPlayheadMoved( PlayControls::PlayButton button )
+bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
 {	
-	double dragPer = mPlayControls.getPlayheadPer();
-	
 	ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
 	double trackLength = playingTrack->getLength();
 	
-	if( getElapsedFrames()%3 == 0 )
+	if( getElapsedFrames() % 3 == 0 ){
 		mIpodPlayer.setPlayheadTime( trackLength * dragPer );
+    }
+    
     return false;
 }
 

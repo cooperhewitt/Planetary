@@ -24,7 +24,6 @@ void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
     mSeconds		= 60;
     mPrevSeconds	= 0;
     mIsDraggingPlayhead = false;
-    mPlayheadPer	= 0.0;
     mIsDrawingRings = true;
     mIsDrawingStars = true;
     mIsDrawingPlanets = true;    
@@ -55,12 +54,10 @@ bool PlayControls::touchesBegan( TouchEvent event )
             cbTouchesEnded = mApp->registerTouchesEnded( this, &PlayControls::touchesEnded );
             cbTouchesMoved = mApp->registerTouchesMoved( this, &PlayControls::touchesMoved );			
         }
-//        std::cout << "touchesBegan: " << std::endl;        
+
         lastTouchedType = findButtonUnderTouches(touches);
-//        std::cout << "==========" << std::endl;        
         
         if( lastTouchedType == SLIDER ){
-//            std::cout << "touchesBegan: looks like you're trying to drag the playhead there, son" << std::endl;
             mIsDraggingPlayhead = true;
         }
         
@@ -76,18 +73,19 @@ bool PlayControls::touchesMoved( TouchEvent event )
 {
     vector<TouchEvent::Touch> touches = event.getTouches();
 
-//    std::cout << "touchesMoved: " << std::endl;        
     lastTouchedType = findButtonUnderTouches(touches);
-//    std::cout << "==========" << std::endl;        
 
     if( mIsDraggingPlayhead ){
         if( touches.size() == 1 ){
-//            std::cout << "touchesMoved: looks like you're trying to drag the playhead there, son" << std::endl;
-            float x = touches.begin()->getX();
-            //float per = 0.0f;
+            
+            Vec2f pos = touches.begin()->getPos();
+            pos = (mOrientationMtx.inverted() * Vec3f(pos,0)).xy();
+            
             float border = ( mInterfaceSize.x - 628 ) * 0.5f;
-            mPlayheadPer = ( x - border ) / 628;
-            mCallbacksPlayheadMoved.call(lastTouchedType);
+            float playheadPer = ( pos.x - border ) / 628;
+            
+            // TODO: Make this callback take a double (between 0 and 1?)
+            mCallbacksPlayheadMoved.call(playheadPer);
         }
     }
     return false;

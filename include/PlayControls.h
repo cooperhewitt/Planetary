@@ -41,8 +41,6 @@ public:
 	bool touchesEnded( TouchEvent event );
     bool orientationChanged( OrientationEvent event );
 	
-	double getPlayheadPer() { return mPlayheadPer; }
-	
 	void setPlaying(bool playing) { mIsPlaying = playing; }
 	bool isPlaying() { return mIsPlaying; }
 
@@ -56,7 +54,7 @@ public:
 	}
 	
 	template<typename T>
-	CallbackId registerPlayheadMoved( T *obj, bool (T::*callback)(PlayButton) )
+	CallbackId registerPlayheadMoved( T *obj, bool (T::*callback)(float) )
 	{
 		return mCallbacksPlayheadMoved.registerCb(std::bind1st(std::mem_fun(callback), obj));
 	}	
@@ -77,7 +75,6 @@ private:
 	int mSeconds, mSecondsTotal, mSecondsLeft;
 	int mPrevSeconds;
 	
-	double mPlayheadPer;
 	bool mIsDraggingPlayhead;
 	bool mIsDrawingRings, mIsDrawingStars, mIsDrawingPlanets;
 	gl::Texture mCurrentTimeTex;
@@ -94,6 +91,6 @@ private:
     
 	// !!! EVENT STUFF (keep track of listeners)
 	CallbackMgr<bool(PlayButton)> mCallbacksButtonPressed;
-	CallbackMgr<bool(PlayButton)> mCallbacksPlayheadMoved;
+	CallbackMgr<bool(float)> mCallbacksPlayheadMoved;
 	
 };
