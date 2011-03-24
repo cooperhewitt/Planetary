@@ -92,6 +92,7 @@ class KeplerApp : public AppCocoaTouch {
 
 // ORIENTATION
     DeviceOrientation     mDeviceOrientation;
+    std::map<DeviceOrientation, std::map<DeviceOrientation, int> > mRotationSteps;
     Matrix44f             mOrientationMatrix;
     Matrix44f             mInverseOrientationMatrix;    
     
@@ -203,6 +204,27 @@ void KeplerApp::setup()
     
     mRemainingSetupCalled = false;
 
+    std::map<DeviceOrientation,int> pSteps;
+    pSteps[LANDSCAPE_LEFT_ORIENTATION] = 1;
+    pSteps[LANDSCAPE_RIGHT_ORIENTATION] = -1;
+    pSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = 2;
+    std::map<DeviceOrientation,int> llSteps;
+    llSteps[PORTRAIT_ORIENTATION] = -1;
+    llSteps[LANDSCAPE_RIGHT_ORIENTATION] = 2;
+    llSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = 1;
+    std::map<DeviceOrientation,int> lrSteps;
+    lrSteps[PORTRAIT_ORIENTATION] = 1;
+    lrSteps[LANDSCAPE_LEFT_ORIENTATION] = 2;
+    lrSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = -1;
+    std::map<DeviceOrientation,int> upSteps;
+    upSteps[PORTRAIT_ORIENTATION] = 2;
+    upSteps[LANDSCAPE_LEFT_ORIENTATION] = -1;
+    upSteps[LANDSCAPE_RIGHT_ORIENTATION] = 1;
+    mRotationSteps[PORTRAIT_ORIENTATION] = pSteps;
+    mRotationSteps[LANDSCAPE_LEFT_ORIENTATION] = llSteps;
+    mRotationSteps[LANDSCAPE_RIGHT_ORIENTATION] = lrSteps;
+    mRotationSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = upSteps;
+    
     mLoadingScreen.setup( this );
 
     initLoadingTextures();
@@ -631,9 +653,18 @@ bool KeplerApp::keepTouchForPinching( TouchEvent::Touch touch )
     return positionTouchesWorld(touch.getPos());
 }
 
-bool KeplerApp::positionTouchesWorld( Vec2f pos )
+bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
 {
-    return pos.y < mUiLayer.getPanelYPos() && pos.y > mBreadcrumbs.getHeight() && !mUiLayer.getPanelTabRect().contains(pos);
+    Vec2f worldPos = (mInverseOrientationMatrix * Vec3f(screenPos,0)).xy();
+    bool aboveUI = worldPos.y < mUiLayer.getPanelYPos();
+    bool belowBreadcrumbs = worldPos.y > mBreadcrumbs.getHeight();
+    bool notTab = !mUiLayer.getPanelTabRect().contains(worldPos);
+    bool valid = aboveUI && belowBreadcrumbs && notTab;
+    cout << "worldPos: " << worldPos << " aboveUI: " << aboveUI  
+                                     << " belowBreadcrumbs: " << belowBreadcrumbs
+                                     << " notTab: " << notTab << endl;
+    cout << "screenPos: " << screenPos << " valid: " << valid << endl;
+    return valid;
 }
 
 void KeplerApp::accelerated( AccelEvent event )
@@ -644,11 +675,21 @@ void KeplerApp::accelerated( AccelEvent event )
 
 void KeplerApp::orientationChanged( OrientationEvent event )
 {
-    if ( event.isValidInterfaceOrientation() ) {
+    if ( event.isValidInterfaceOrientation() ) 
+    {
+        DeviceOrientation prevOrientation = mDeviceOrientation;
         mDeviceOrientation = event.getOrientation();
         mOrientationMatrix = event.getOrientationMatrix();
         mInverseOrientationMatrix = mOrientationMatrix.inverted();
         mUp = event.getUpVector();
+        
+        // Look over there!
+        // heinous trickery follows...
+        if( mTouchVel.length() > 2.0f && !mIsDragging ){        
+            int steps = mRotationSteps[prevOrientation][mDeviceOrientation];
+            mTouchVel.rotate( (float)steps * M_PI/2.0f );
+        }
+        // ... end heinous trickery
     } 
 }
 
@@ -881,8 +922,10 @@ void KeplerApp::update()
 void KeplerApp::updateArcball()
 {	
 	if( mTouchVel.length() > 2.0f && !mIsDragging ){
-		mArcball.mouseDown( mTouchPos );
-		mArcball.mouseDrag( mTouchPos + mTouchVel );
+        Vec3f downPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
+        mArcball.mouseDown( Vec2i(downPos.x, downPos.y) );        
+        Vec3f dragPos = mInverseOrientationMatrix * Vec3f(mTouchPos + mTouchVel,0);
+        mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
 	}
 	
 	if( G_ACCEL ){
@@ -1132,7 +1175,20 @@ void KeplerApp::drawScene()
 	
 // NAMES
 	if( mIsDrawingText ){
-		mWorld.drawNames( mCam, mPinchAlphaOffset );
+        
+        float nameAngle = 0;
+        // !!! temporary hack, breaks hit tests
+        if (mDeviceOrientation == UPSIDE_DOWN_PORTRAIT_ORIENTATION) {
+            nameAngle = M_PI;
+        }
+        else if (mDeviceOrientation == LANDSCAPE_LEFT_ORIENTATION) {
+            nameAngle = M_PI/2.0;
+        }
+        else if (mDeviceOrientation == LANDSCAPE_RIGHT_ORIENTATION) {
+            nameAngle = -M_PI/2;
+        }        
+        
+		mWorld.drawNames( mCam, mPinchAlphaOffset, nameAngle );
 	}
     
     glDisable( GL_TEXTURE_2D );

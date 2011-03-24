@@ -486,11 +486,11 @@ void World::drawRings( const gl::Texture &tex, float camRingAlpha )
 	}
 }
 
-void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset )
+void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset, float angle )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
-			(*it)->drawName( cam, pinchAlphaOffset );
+			(*it)->drawName( cam, pinchAlphaOffset, angle );
 		}
 	}
 }

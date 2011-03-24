@@ -190,7 +190,7 @@ void Node::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfl
 	}
 }
 
-void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
+void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset, float angle )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
 		if( mIsPlaying || mIsSelected ){
@@ -205,10 +205,16 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 
 		
 		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.275f, mSphereScreenRadius * 0.275f * 0.75f );
-		Vec2f pos2 = pos1 + Vec2f( 10.0f, 7.5f );
+        Vec2f offset1( 10.0f, 7.5f );
+        offset1.rotate( angle );
+		Vec2f pos2 = pos1 + offset1;
+        Vec2f offset2( 2.0f, -8.0f );
+        offset2.rotate( angle );
 		
 		gl::pushModelView();
-		gl::translate( pos2 + Vec2f( 2.0f, -8.0f ) );
+        
+		gl::translate( pos2 + offset2 );
+        gl::rotate( angle * 180.0f/M_PI );
 		if( mIsPlaying ){
 			float s = mZoomPer * 0.25f + 1.0f;
 			gl::scale( Vec3f( s, s, 1.0f ) );
@@ -228,7 +234,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset )
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawName( cam, pinchAlphaOffset );
+		(*nodeIt)->drawName( cam, pinchAlphaOffset, angle );
 	}
 }
 
