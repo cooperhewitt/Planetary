@@ -100,21 +100,32 @@ void NodeAlbum::update( const Matrix44f &mat )
 	if( !mHasCreatedAlbumArt && mChildNodes.size() > 0 ){
 		Surface albumArt	= ((NodeTrack*)mChildNodes[0])->mTrack->getArtwork( Vec2i( 256, 256 ) );
 		if( albumArt ){
-			int x				= Rand::randInt( 250 );
-			int y				= Rand::randInt( 128 );
-			Area a				= Area( x, y, x+1, y+128 );
+			int x				= Rand::randInt( 20, 180 );
+			int y				= Rand::randInt( 64 );
+			Area a				= Area( x, y, x+20, y+128 );
 			Surface crop		= albumArt.clone( a );
 			
-			/*
-			Surface::Iter iter = crop->getIter( a );
+			Surface::Iter iter	= crop.getIter();
 			while( iter.line() ) {
 				while( iter.pixel() ) {
-					iter.r() = 255 - iter.r();
-					iter.g() = 255 - iter.g();
-					iter.b() = 255 - iter.b();
+					if( iter.x() >= 10 ){
+						int xi = x + iter.x() - 10;
+						int yi = y + iter.y();
+						ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+						iter.r() = c.r * 255.0f;
+						iter.g() = c.g * 255.0f;
+						iter.b() = c.b * 255.0f;
+					} else {
+						int xi = x + 9 - iter.x();
+						int yi = y + iter.y();
+						ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+						iter.r() = c.r * 255.0f;
+						iter.g() = c.g * 255.0f;
+						iter.b() = c.b * 255.0f;
+					}
 				}
 			}
-			*/
+			
 			
 			mAlbumArt			= gl::Texture( crop );
 			mHasAlbumArt		= true;
@@ -319,7 +330,7 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 			gl::scale( Vec3f( c, c, c ) );
 			gl::rotate( mMatrix );
 			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.2f, 0.0f ) );
-			gl::color( ColorA( mColor, mZoomPer * camRingAlpha * 50.0f ) );
+			gl::color( ColorA( mColor, camRingAlpha * 50.0f ) );
 			tex.enableAndBind();
 			glEnableClientState( GL_VERTEX_ARRAY );
 			glEnableClientState( GL_TEXTURE_COORD_ARRAY );

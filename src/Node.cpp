@@ -109,14 +109,14 @@ void Node::update( const Matrix44f &mat )
     
 	mSphere.setCenter( mTransPos );
 
-    if( mIsPlaying ){
+    if( mIsPlaying || mIsSelected ){
         mZoomPer    = constrain( ( G_ZOOM - mGen ) + 1.0f, 0.0f, 1.0f );
 //        mZoomPer    = constrain( 1.0f - abs( G_ZOOM - mGen + 1.0f ), 0.0f, 1.0f ); 
 	} else {
         mZoomPer    = constrain( 1.0f - abs( G_ZOOM - mGen + 1.0f ), 0.0f, 1.0f );
     }
 	mZoomPer = pow( mZoomPer, 5.0f );
-
+	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->update( mat );
 	}
