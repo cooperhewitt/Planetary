@@ -19,7 +19,6 @@ void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
     cbTouchesEnded	= 0;
     cbTouchesMoved	= 0;		
     lastTouchedType = NO_BUTTON;
-    prevDrawY		= 0;
     mIsPlaying		= initialPlayState;
     mMinutes		= 0;
     mSeconds		= 60;
@@ -49,17 +48,22 @@ void PlayControls::update()
 
 bool PlayControls::touchesBegan( TouchEvent event )
 {
+    Rectf transformedBounds = transformRect( lastDrawnBoundsRect, mOrientationMtx );
     vector<TouchEvent::Touch> touches = event.getTouches();
-    if (touches.size() > 0 && touches[0].getY() > prevDrawY) {
+    if (touches.size() > 0 && transformedBounds.contains(touches[0].getPos())) {
         if (cbTouchesEnded == 0) {
             cbTouchesEnded = mApp->registerTouchesEnded( this, &PlayControls::touchesEnded );
             cbTouchesMoved = mApp->registerTouchesMoved( this, &PlayControls::touchesMoved );			
         }
+//        std::cout << "touchesBegan: " << std::endl;        
         lastTouchedType = findButtonUnderTouches(touches);
+//        std::cout << "==========" << std::endl;        
         
         if( lastTouchedType == SLIDER ){
+//            std::cout << "touchesBegan: looks like you're trying to drag the playhead there, son" << std::endl;
             mIsDraggingPlayhead = true;
         }
+        
         return true;
     }
     else {
@@ -71,10 +75,14 @@ bool PlayControls::touchesBegan( TouchEvent event )
 bool PlayControls::touchesMoved( TouchEvent event )
 {
     vector<TouchEvent::Touch> touches = event.getTouches();
+
+//    std::cout << "touchesMoved: " << std::endl;        
     lastTouchedType = findButtonUnderTouches(touches);
-    
+//    std::cout << "==========" << std::endl;        
+
     if( mIsDraggingPlayhead ){
         if( touches.size() == 1 ){
+//            std::cout << "touchesMoved: looks like you're trying to drag the playhead there, son" << std::endl;
             float x = touches.begin()->getX();
             //float per = 0.0f;
             float border = ( mInterfaceSize.x - 628 ) * 0.5f;
@@ -123,10 +131,10 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     gl::pushModelView();
     gl::multModelView( mOrientationMtx );    
     
-    prevDrawY = y;
+    lastDrawnBoundsRect = Rectf(0, y, mInterfaceSize.x, mInterfaceSize.y );
     
     gl::color( Color( 0.0f, 0.0f, 0.0f ) );
-    gl::drawSolidRect( Rectf(0, y, mInterfaceSize.x, y + 45.0f ) ); // TODO: make height settable in setup()?
+    gl::drawSolidRect( lastDrawnBoundsRect ); // TODO: make height settable in setup()?
     
     touchRects.clear();
     touchTypes.clear(); // technically touch types never changes, but whatever
@@ -304,20 +312,42 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     texs[TEX_SLIDER_BUTTON].disable();
     
     gl::popModelView();
+
+//    gl::color( Color( 1.0f, 0, 0 ) );
+//    gl::drawSolidRect( transformRect( lastDrawnBoundsRect, mOrientationMtx ) );
 }
 
 PlayControls::PlayButton PlayControls::findButtonUnderTouches(vector<TouchEvent::Touch> touches) {
+    Rectf transformedBounds = transformRect( lastDrawnBoundsRect, mOrientationMtx );
     for (int j = 0; j < touches.size(); j++) {
         TouchEvent::Touch touch = touches[j];
-        if (touch.getY() < prevDrawY) {
-            continue;
+        Vec2f pos = touch.getPos();
+        if ( transformedBounds.contains( pos ) ) {
+            for (int i = 0; i < touchRects.size(); i++) {
+                Rectf rect = transformRect( touchRects[i], mOrientationMtx );
+//                if (touchTypes[i] == SLIDER) {
+//                    std::cout << "testing slider rect: " << touchRects[i] << std::endl;
+//                    std::cout << "      transformRect: " << rect << std::endl;
+//                    std::cout << "                pos: " << pos << std::endl;
+//                }
+                if (rect.contains(pos)) {
+//                    if (touchTypes[i] == SLIDER) {
+//                        std::cout << "HIT slider rect!" << std::endl;
+//                    }
+                    return touchTypes[i];
+                }
+            }		
         }
-        for (int i = 0; i < touchRects.size(); i++) {
-            Rectf rect = touchRects[i];
-            if (rect.contains(touch.getPos())) {
-                return touchTypes[i];
-            }
-        }		
     }		
     return NO_BUTTON;
+}
+
+// TODO: move this to an operator in Cinder's Matrix class?
+Rectf PlayControls::transformRect( const Rectf &rect, const Matrix44f &matrix )
+{
+    Vec2f topLeft = (matrix * Vec3f(rect.x1,rect.y1,0)).xy();
+    Vec2f bottomRight = (matrix * Vec3f(rect.x2,rect.y2,0)).xy();
+    Rectf newRect(topLeft, bottomRight);
+    newRect.canonicalize();    
+    return newRect;
 }
