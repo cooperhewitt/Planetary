@@ -1200,29 +1200,27 @@ void KeplerApp::drawScene()
 // EVERYTHING ELSE
 	mAlphaWheel.draw();
     mUiLayer.draw( mPanelButtonsTex );
-    mBreadcrumbs.draw();//mUiLayer.getPanelYPos() + 5.0f );
+    mBreadcrumbs.draw();
 	
 	gl::enableAdditiveBlending();
     mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mIsDrawingRings, mIsDrawingText );
     mState.draw( mFont );
-    
-	
 	
     if( G_DEBUG ) drawInfoPanel();
 }
 
 
-
-
-
 void KeplerApp::drawInfoPanel()
 {
 	gl::setMatricesWindow( getWindowSize() );
+    gl::pushModelView();
+    gl::multModelView( mOrientationMatrix );
 	if( getElapsedFrames() % 30 == 0 ){
 		setParamsTex();
 	}
 	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
 	gl::draw( mParamsTex, Vec2f( 23.0f, 25.0f ) );
+    gl::popModelView();
 }
 
 
