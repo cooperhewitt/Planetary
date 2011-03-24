@@ -57,6 +57,8 @@ void LoadingScreen::draw( gl::Texture mLoadingTex, gl::Texture mStarGlowTex, gl:
     gl::drawSolidRect( Rectf(center - offset, center + offset) );
     mLoadingTex.disable();
     
+	
+	/*
     gl::enableAdditiveBlending();
     
     Rectf bigRect( center - Vec2f(50,50), center + Vec2f(50,50) );
@@ -81,6 +83,6 @@ void LoadingScreen::draw( gl::Texture mLoadingTex, gl::Texture mStarGlowTex, gl:
     mStarTex.disable();
     
     gl::disableAlphaBlending();
-    
+    */
     gl::popModelView();
 }

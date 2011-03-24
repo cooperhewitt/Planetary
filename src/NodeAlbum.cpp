@@ -33,6 +33,9 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 
 void NodeAlbum::setData( PlaylistRef album )
 {
+// ALBUM ART IS HANDLED IN UPDATE()
+	
+	
 // ALBUM INFORMATION
 	mAlbum				= album;
 	mNumTracks			= mAlbum->size();
@@ -97,10 +100,33 @@ void NodeAlbum::update( const Matrix44f &mat )
 	if( !mHasCreatedAlbumArt && mChildNodes.size() > 0 ){
 		Surface albumArt	= ((NodeTrack*)mChildNodes[0])->mTrack->getArtwork( Vec2i( 256, 256 ) );
 		if( albumArt ){
-			int x				= Rand::randInt( 127 );
+			int x				= Rand::randInt( 20, 180 );
 			int y				= Rand::randInt( 64 );
-			Area a				= Area( x, y, x+1, y+64 );
+			Area a				= Area( x, y, x+20, y+128 );
 			Surface crop		= albumArt.clone( a );
+			
+			Surface::Iter iter	= crop.getIter();
+			while( iter.line() ) {
+				while( iter.pixel() ) {
+					if( iter.x() >= 10 ){
+						int xi = x + iter.x() - 10;
+						int yi = y + iter.y();
+						ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+						iter.r() = c.r * 255.0f;
+						iter.g() = c.g * 255.0f;
+						iter.b() = c.b * 255.0f;
+					} else {
+						int xi = x + 9 - iter.x();
+						int yi = y + iter.y();
+						ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+						iter.r() = c.r * 255.0f;
+						iter.g() = c.g * 255.0f;
+						iter.b() = c.b * 255.0f;
+					}
+				}
+			}
+			
+			
 			mAlbumArt			= gl::Texture( crop );
 			mHasAlbumArt		= true;
 		}
@@ -296,27 +322,29 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 
 void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha )
 {
-	if( mHasRings && G_ZOOM > G_ARTIST_LEVEL && mIsPlaying ){
-		gl::pushModelView();
-		gl::translate( mTransPos );
-		float c = mRadius * 9.0f;
-		gl::scale( Vec3f( c, c, c ) );
-		gl::rotate( mMatrix );
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.2f, 0.0f ) );
-		gl::color( ColorA( mColor, mZoomPer * camRingAlpha * 50.0f ) );
-		tex.enableAndBind();
-		glEnableClientState( GL_VERTEX_ARRAY );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glVertexPointer( 3, GL_FLOAT, 0, planetRingVerts );
-		glTexCoordPointer( 2, GL_FLOAT, 0, planetRingTexCoords );
-		
-		gl::enableAdditiveBlending();
-		glDrawArrays( GL_TRIANGLES, 0, 6 );
-		
-		glDisableClientState( GL_VERTEX_ARRAY );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		tex.disable();
-		gl::popModelView();
+	if( mHasRings && G_ZOOM > G_ARTIST_LEVEL ){
+		if( mIsSelected || mIsPlaying ){
+			gl::pushModelView();
+			gl::translate( mTransPos );
+			float c = mRadius * 9.0f;
+			gl::scale( Vec3f( c, c, c ) );
+			gl::rotate( mMatrix );
+			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.2f, 0.0f ) );
+			gl::color( ColorA( mColor, camRingAlpha * 50.0f ) );
+			tex.enableAndBind();
+			glEnableClientState( GL_VERTEX_ARRAY );
+			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+			glVertexPointer( 3, GL_FLOAT, 0, planetRingVerts );
+			glTexCoordPointer( 2, GL_FLOAT, 0, planetRingTexCoords );
+			
+			gl::enableAdditiveBlending();
+			glDrawArrays( GL_TRIANGLES, 0, 6 );
+			
+			glDisableClientState( GL_VERTEX_ARRAY );
+			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+			tex.disable();
+			gl::popModelView();
+		}
 	}
 }
 
