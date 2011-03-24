@@ -23,6 +23,7 @@
 #include "ParticleController.h"
 #include "LoadingScreen.h"
 //#include "TextureLoader.h"
+#include <sys/sysctl.h>
 #include <vector>
 #include <sstream>
 
@@ -35,7 +36,7 @@ using std::stringstream;
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
 bool G_ACCEL            = false;
-bool G_IS_IPAD2			= true; // TODO: detect this with iOS code?
+bool G_IS_IPAD2			= true;
 int G_NUM_PARTICLES		= 250;
 int G_NUM_DUSTS			= 250;
 
@@ -197,6 +198,16 @@ void KeplerApp::setup()
 {
     std::cout << "setupStart: " << getElapsedSeconds() << std::endl;
     
+    // http://stackoverflow.com/questions/448162/determine-device-iphone-ipod-touch-with-iphone-sdk/1561920#1561920
+    // http://www.clintharris.net/2009/iphone-model-via-sysctlbyname/
+    size_t size;
+    sysctlbyname("hw.machine", NULL, &size, NULL, 0);  
+    char *machine = new char[size];
+    sysctlbyname("hw.machine", machine, &size, NULL, 0);    
+    G_IS_IPAD2 = (strcmp("iPad1,1",machine) != 0);
+    cout << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
+    delete[] machine;
+        
 	if( G_IS_IPAD2 ){
 		G_NUM_PARTICLES = 1000;
 		G_NUM_DUSTS = 4000;
@@ -633,7 +644,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
-	std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
+	//std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
 	if( mCamDistPinchOffset > 4.1f ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
@@ -660,10 +671,10 @@ bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
     bool belowBreadcrumbs = worldPos.y > mBreadcrumbs.getHeight();
     bool notTab = !mUiLayer.getPanelTabRect().contains(worldPos);
     bool valid = aboveUI && belowBreadcrumbs && notTab;
-    cout << "worldPos: " << worldPos << " aboveUI: " << aboveUI  
-                                     << " belowBreadcrumbs: " << belowBreadcrumbs
-                                     << " notTab: " << notTab << endl;
-    cout << "screenPos: " << screenPos << " valid: " << valid << endl;
+//    cout << "worldPos: " << worldPos << " aboveUI: " << aboveUI  
+//                                     << " belowBreadcrumbs: " << belowBreadcrumbs
+//                                     << " notTab: " << notTab << endl;
+//    cout << "screenPos: " << screenPos << " valid: " << valid << endl;
     return valid;
 }
 
@@ -695,7 +706,7 @@ void KeplerApp::orientationChanged( OrientationEvent event )
 
 bool KeplerApp::onWheelClosed( AlphaWheel *alphaWheel )
 {
-	std::cout << "wheel closed" << std::endl;
+//	std::cout << "wheel closed" << std::endl;
 	mFovDest = 100.0f;
 	return false;
 }
@@ -716,7 +727,7 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 
 bool KeplerApp::onNodeSelected( Node *node )
 {
-	cout << "node selected!" << endl;
+//	cout << "node selected!" << endl;
 	
 	mTime			= getElapsedSeconds();
 	mCenterFrom		= mCenter;
@@ -730,34 +741,34 @@ bool KeplerApp::onNodeSelected( Node *node )
 
 	if( node != NULL ) {
         if (node->mGen == G_TRACK_LEVEL) {
-            cout << "track node selected!" << endl;
+            //cout << "track node selected!" << endl;
             // FIXME: is this a bad OOP thing or is there a cleaner/safer C++ way to handle it?
             NodeTrack* trackNode = (NodeTrack*)node;
             if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
-                cout << "nothing already playing" << endl;
+                //cout << "nothing already playing" << endl;
                 ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
                 if ( trackNode->getId() != playingTrack->getItemId() ) {
-                    cout << "telling player to play it" << endl;
+                    //cout << "telling player to play it" << endl;
                     mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
                 }
-                else {
-                    cout << "already playing it" << endl;				
-                }
+//                else {
+//                    cout << "already playing it" << endl;				
+//                }
             }
             else {
-                cout << "telling player to play it" << endl;
+//                cout << "telling player to play it" << endl;
                 mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
             }
         }
 	}
-	else {
-		cout << "node null!" << endl;
-	}
+//	else {
+//		cout << "node null!" << endl;
+//	}
     
     // update mIsPlaying state for all nodes...
     if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
-        ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
-        mWorld.setIsPlaying( playingTrack->getArtistId(), playingTrack->getAlbumId(), playingTrack->getItemId() );
+        ipod::TrackRef track = mIpodPlayer.getPlayingTrack();
+        mWorld.setIsPlaying( track->getArtistId(), track->getAlbumId(), track->getItemId() );
     }
     else {
         // FIXME: this will clear mIsPlaying from everything
@@ -785,13 +796,13 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 	if( button == PlayControls::PREVIOUS_TRACK ){
 		mIpodPlayer.skipPrev();
 	} else if( button == PlayControls::PLAY_PAUSE ){
-		cout << "play/pause pressed" << endl;
+		//cout << "play/pause pressed" << endl;
 		if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
-			cout << "already playing, so asking for pause" << endl;
+			//cout << "already playing, so asking for pause" << endl;
 			mIpodPlayer.pause();
 		}
 		else {
-			cout << "not already playing, so asking for play" << endl;
+			//cout << "not already playing, so asking for play" << endl;
 			mIpodPlayer.play();
 		}
 	} else if( button == PlayControls::NEXT_TRACK ){
@@ -805,7 +816,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 	} else if( button == PlayControls::DRAW_TEXT ){
 		mIsDrawingText = !mIsDrawingText;
 	}
-	cout << "play button " << button << " pressed" << endl;
+	//cout << "play button " << button << " pressed" << endl;
 	return false;
 }
 
@@ -1318,21 +1329,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
-	std::cout << "onPlayerStateChanged()" << std::endl;
-    switch( player->getPlayState() ){
-        case ipod::Player::StatePlaying:
-            console() << "Playing..." << endl;
-			mPlayControls.setPlaying(true);
-            break;
-        case ipod::Player::StateStopped:
-            console() << "Stopped." << endl;
-			mPlayControls.setPlaying(false);
-			break;
-        default:
-            console() << "Other!" << endl;
-			mPlayControls.setPlaying(false);
-            break;
-    }
+    mPlayControls.setPlaying(player->getPlayState() == ipod::Player::StatePlaying);
+    // TODO: do we need to update mIsPlaying in world/nodes if state is Stopped?
     return false;
 }
 
