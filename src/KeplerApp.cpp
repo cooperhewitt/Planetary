@@ -72,7 +72,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onWheelClosed( AlphaWheel *alphaWheel );
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
 	bool			onPlayControlsButtonPressed ( PlayControls::PlayButton button );
-	bool			onPlayControlsPlayheadMoved ( PlayControls::PlayButton button );
+	bool			onPlayControlsPlayheadMoved ( float amount );
 	bool			onNodeSelected( Node *node );
 	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos );
 	bool			onPlayerStateChanged( ipod::Player *player );
@@ -89,9 +89,13 @@ class KeplerApp : public AppCocoaTouch {
 	AlphaWheel		mAlphaWheel;
 	UiLayer			mUiLayer;
 	Data			mData;
-	
-// ACCELEROMETER
+
+// ORIENTATION
     DeviceOrientation     mDeviceOrientation;
+    Matrix44f             mOrientationMatrix;
+    Matrix44f             mInverseOrientationMatrix;    
+    
+// ACCELEROMETER
 	Matrix44f		mAccelMatrix;
 	Matrix44f		mNewAccelMatrix;
 	
@@ -100,8 +104,6 @@ class KeplerApp : public AppCocoaTouch {
 	ipod::PlaylistRef	mCurrentAlbum;
 	double				mCurrentTrackPlayheadTime;
 	double				mCurrentTrackLength;
-//	int					mCurrentTrackId;
-
 	
 // BREADCRUMBS
 	Breadcrumbs		mBreadcrumbs;	
@@ -501,7 +503,8 @@ void KeplerApp::touchesBegan( TouchEvent event )
         mIsTouching = true;
         mTouchPos		= touches.begin()->getPos();
         mTouchVel		= Vec2f::zero();
-        mArcball.mouseDown( mTouchPos );
+        Vec3f worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
+        mArcball.mouseDown( Vec2i(worldTouchPos.x, worldTouchPos.y) );
 	}
     else {
         mIsTouching = false;
@@ -521,7 +524,8 @@ void KeplerApp::touchesMoved( TouchEvent event )
                 mIsDragging = true;
                 mTouchVel		= currentPos - prevPos;
                 mTouchPos		= currentPos;
-                mArcball.mouseDrag( mTouchPos );
+                Vec3f worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
+                mArcball.mouseDrag( Vec2i(worldTouchPos.x, worldTouchPos.y) );
             }
         }
     }
@@ -642,6 +646,8 @@ void KeplerApp::orientationChanged( OrientationEvent event )
 {
     if ( event.isValidInterfaceOrientation() ) {
         mDeviceOrientation = event.getOrientation();
+        mOrientationMatrix = event.getOrientationMatrix();
+        mInverseOrientationMatrix = mOrientationMatrix.inverted();
         mUp = event.getUpVector();
     } 
 }
@@ -721,15 +727,15 @@ bool KeplerApp::onNodeSelected( Node *node )
 	return false;
 }
 
-bool KeplerApp::onPlayControlsPlayheadMoved( PlayControls::PlayButton button )
+bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
 {	
-	double dragPer = mPlayControls.getPlayheadPer();
-	
 	ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
 	double trackLength = playingTrack->getLength();
 	
-	if( getElapsedFrames()%3 == 0 )
+	if( getElapsedFrames() % 3 == 0 ){
 		mIpodPlayer.setPlayheadTime( trackLength * dragPer );
+    }
+    
     return false;
 }
 
@@ -843,13 +849,17 @@ void KeplerApp::update()
         
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
+
+        Matrix44f inverseMatrix = mMatrix.inverted();
+        Vec3f invBbRight = inverseMatrix * mBbRight;
+        Vec3f invBbUp = inverseMatrix * mBbUp;
         
         if( mDataIsLoaded ){
-            mWorld.buildStarsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
-            mWorld.buildStarGlowsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
+            mWorld.buildStarsVertexArray( invBbRight, invBbUp );
+            mWorld.buildStarGlowsVertexArray( invBbRight, invBbUp );
         }
 		mParticleController.update();
-		mParticleController.buildParticleVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
+		mParticleController.buildParticleVertexArray( invBbRight, invBbUp );
 		if( mState.getSelectedArtistNode() ){
 			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaOffset, mCamRingAlpha );
 		}
@@ -954,8 +964,10 @@ void KeplerApp::updateCamera()
 
 void KeplerApp::updatePlayhead()
 {
+    // TODO: only call this once a second?
 	if( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
 		mCurrentTrackPlayheadTime	= mIpodPlayer.getPlayheadTime();
+        // TODO: cache this when playing track changes
 		mCurrentTrackLength			= mIpodPlayer.getPlayingTrack()->getLength();
 	}
 }
