@@ -55,9 +55,12 @@ bool PlayControls::touchesBegan( TouchEvent event )
             cbTouchesEnded = mApp->registerTouchesEnded( this, &PlayControls::touchesEnded );
             cbTouchesMoved = mApp->registerTouchesMoved( this, &PlayControls::touchesMoved );			
         }
+//        std::cout << "touchesBegan: " << std::endl;        
         lastTouchedType = findButtonUnderTouches(touches);
+//        std::cout << "==========" << std::endl;        
         
         if( lastTouchedType == SLIDER ){
+//            std::cout << "touchesBegan: looks like you're trying to drag the playhead there, son" << std::endl;
             mIsDraggingPlayhead = true;
         }
         
@@ -72,10 +75,14 @@ bool PlayControls::touchesBegan( TouchEvent event )
 bool PlayControls::touchesMoved( TouchEvent event )
 {
     vector<TouchEvent::Touch> touches = event.getTouches();
+
+//    std::cout << "touchesMoved: " << std::endl;        
     lastTouchedType = findButtonUnderTouches(touches);
-    
+//    std::cout << "==========" << std::endl;        
+
     if( mIsDraggingPlayhead ){
         if( touches.size() == 1 ){
+//            std::cout << "touchesMoved: looks like you're trying to drag the playhead there, son" << std::endl;
             float x = touches.begin()->getX();
             //float per = 0.0f;
             float border = ( mInterfaceSize.x - 628 ) * 0.5f;
@@ -124,7 +131,7 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     gl::pushModelView();
     gl::multModelView( mOrientationMtx );    
     
-    lastDrawnBoundsRect = Rectf(0, y, mInterfaceSize.x, y + 45.0f );
+    lastDrawnBoundsRect = Rectf(0, y, mInterfaceSize.x, mInterfaceSize.y );
     
     gl::color( Color( 0.0f, 0.0f, 0.0f ) );
     gl::drawSolidRect( lastDrawnBoundsRect ); // TODO: make height settable in setup()?
@@ -305,6 +312,9 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     texs[TEX_SLIDER_BUTTON].disable();
     
     gl::popModelView();
+
+//    gl::color( Color( 1.0f, 0, 0 ) );
+//    gl::drawSolidRect( transformRect( lastDrawnBoundsRect, mOrientationMtx ) );
 }
 
 PlayControls::PlayButton PlayControls::findButtonUnderTouches(vector<TouchEvent::Touch> touches) {
@@ -315,7 +325,15 @@ PlayControls::PlayButton PlayControls::findButtonUnderTouches(vector<TouchEvent:
         if ( transformedBounds.contains( pos ) ) {
             for (int i = 0; i < touchRects.size(); i++) {
                 Rectf rect = transformRect( touchRects[i], mOrientationMtx );
+//                if (touchTypes[i] == SLIDER) {
+//                    std::cout << "testing slider rect: " << touchRects[i] << std::endl;
+//                    std::cout << "      transformRect: " << rect << std::endl;
+//                    std::cout << "                pos: " << pos << std::endl;
+//                }
                 if (rect.contains(pos)) {
+//                    if (touchTypes[i] == SLIDER) {
+//                        std::cout << "HIT slider rect!" << std::endl;
+//                    }
                     return touchTypes[i];
                 }
             }		
