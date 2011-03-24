@@ -949,7 +949,7 @@ void KeplerApp::updateCamera()
 	Quatf cameraViewDirection = mCam.getOrientation();
 	Vec3f quatAxis = mMatrix.inverted() * cameraViewDirection.getAxis();
 	float quatZ		= abs( quatAxis.z );
-	mCamRingAlpha	= pow( quatZ, 10.0f ) * 0.2f;
+	mCamRingAlpha	= pow( quatZ, 3.0f ) * 0.025f;
 }
 
 void KeplerApp::updatePlayhead()
