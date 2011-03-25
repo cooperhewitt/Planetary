@@ -35,7 +35,7 @@ using std::stringstream;
 
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
-bool G_ACCEL            = false;
+bool G_HELP             = false;
 bool G_IS_IPAD2			= true;
 int G_NUM_PARTICLES		= 250;
 int G_NUM_DUSTS			= 250;
@@ -66,6 +66,7 @@ class KeplerApp : public AppCocoaTouch {
 	void			updatePlayhead();
 	virtual void	draw();
     void            drawScene();
+	void			drawHelpPanel();
 	void			drawInfoPanel();
 	void			setParamsTex();
 	bool			onAlphaCharStateChanged( State *state );
@@ -157,6 +158,7 @@ class KeplerApp : public AppCocoaTouch {
 	// TEXTURES
 //    TextureLoader   mTextureLoader;    
 	gl::Texture		mLoadingTex;
+	gl::Texture		mHelpPanelTex;
 	gl::Texture		mParamsTex;
 	gl::Texture		mStarTex;
 	gl::Texture		mStarGlowTex;
@@ -366,7 +368,7 @@ void KeplerApp::initLoadingTextures()
 
 void KeplerApp::initTextures()
 {
-	/* THIS DIDNT SEEM TO WORK (OR MAYBE IT JUST DIDNT MAKE MUCH OF A DIFFERENCE)
+	/* THIS DIDNT SEEM TO WORK (OR MAYBE IT JUST DIDNT MAKE MUCH OF A DIFFERENCE?
     gl::Texture::Format format;
 	format.enableMipmapping( true );			
 	ImageSourceRef img = loadImage( loadResource( "star.png" ) );
@@ -376,6 +378,7 @@ void KeplerApp::initTextures()
 	float t = getElapsedSeconds();
 	cout << "initTextures start time = " << t << endl;
     
+	mHelpPanelTex		= loadImage( loadResource( "helpPanel.png" ) );
 	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
 	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
 	mSliderBgTex		= loadImage( loadResource( "sliderBg.png" ) );
@@ -395,11 +398,12 @@ void KeplerApp::initTextures()
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "prevOn.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "next.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "nextOn.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accel.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debug.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "sliderButton.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "help.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawLines.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawText.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "currentTrack.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "currentTrackOn.png" ) ) ) );
     
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUp.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUpOn.png" ) ) ) );
@@ -807,14 +811,14 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 		}
 	} else if( button == PlayControls::NEXT_TRACK ){
 		mIpodPlayer.skipNext();	
-	} else if( button == PlayControls::ACCEL ){
-		G_ACCEL = !G_ACCEL;
-	} else if( button == PlayControls::DBUG ){
-		G_DEBUG = !G_DEBUG;
+	} else if( button == PlayControls::HELP ){
+		G_HELP = !G_HELP;
 	} else if( button == PlayControls::DRAW_RINGS ){
 		mIsDrawingRings = !mIsDrawingRings;
 	} else if( button == PlayControls::DRAW_TEXT ){
 		mIsDrawingText = !mIsDrawingText;
+	} else if( button == PlayControls::CURRENT_TRACK ){
+		//
 	}
 	//cout << "play button " << button << " pressed" << endl;
 	return false;
@@ -939,11 +943,11 @@ void KeplerApp::updateArcball()
         mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
 	}
 	
-	if( G_ACCEL ){
-		mMatrix = mAccelMatrix * mArcball.getQuat();
-	} else {
+//	if( G_ACCEL ){
+//		mMatrix = mAccelMatrix * mArcball.getQuat();
+//	} else {
 		mMatrix = mArcball.getQuat();
-	}
+//	}
 	
 }
 
@@ -1217,7 +1221,19 @@ void KeplerApp::drawScene()
     mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mIsDrawingRings, mIsDrawingText );
     mState.draw( mFont );
 	
+	gl::disableAlphaBlending();
     if( G_DEBUG ) drawInfoPanel();
+	if( G_HELP ) drawHelpPanel();
+}
+
+void KeplerApp::drawHelpPanel()
+{
+	gl::setMatricesWindow( getWindowSize() );
+    gl::pushModelView();
+    gl::multModelView( mOrientationMatrix );
+	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+	gl::draw( mHelpPanelTex, Vec2f( getWindowWidth() * 0.5f - mHelpPanelTex.getWidth() * 0.5f, 50.0f ) );
+    gl::popModelView();
 }
 
 
@@ -1254,6 +1270,7 @@ void KeplerApp::setParamsTex()
 		currentLevel = G_ALPHA_LEVEL;
 	}
 	
+	/*
 	s.str("");
 	s << " CURRENT LEVEL: " << currentLevel;
 	layout.addLine( s.str() );
@@ -1261,6 +1278,7 @@ void KeplerApp::setParamsTex()
 	s.str("");
 	s << " ZOOM LEVEL: " << G_ZOOM;
 	layout.addLine( s.str() );
+	*/
 	
 	mParamsTex = gl::Texture( layout.render( true, false ) );
 }

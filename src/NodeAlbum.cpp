@@ -89,7 +89,6 @@ void NodeAlbum::setData( PlaylistRef album )
 
 // TEXTURE IDs
     mPlanetTexIndex		= 3 * G_NUM_PLANET_TYPE_OPTIONS + Rand::randInt( 6 );
-	std::cout << "Album Planet Texture Index = " << mPlanetTexIndex << std::endl;
 	//( mIndex + 6 )%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
 	mCloudTexIndex		= Rand::randInt( G_NUM_CLOUD_TYPES );
 }
