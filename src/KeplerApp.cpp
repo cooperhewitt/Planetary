@@ -1207,7 +1207,31 @@ void KeplerApp::drawScene()
 	}
     
     glDisable( GL_TEXTURE_2D );
-    
+
+//    for (int i = 0; i < mWorld.mNodes.size(); i++) {
+//        Node* artistNode = mWorld.mNodes[i];
+//        if (artistNode->mIsHighlighted) {
+//            gl::color(ColorA(0.0f,0.0f,1.0f,0.25f));
+//            gl::drawSolidRect(artistNode->mHitArea);
+//            gl::drawSolidRect(artistNode->mSphereHitArea);            
+//            for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+//                Node* albumNode = artistNode->mChildNodes[j];
+//                if (albumNode->mIsHighlighted) {
+//                    gl::color(ColorA(0.0f,1.0f,0.0f,0.25f));
+//                    gl::drawSolidRect(albumNode->mHitArea);
+//                    gl::drawSolidRect(albumNode->mSphereHitArea);            
+//                    for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+//                        Node *trackNode = albumNode->mChildNodes[k];
+//                        if (trackNode->mIsHighlighted) {
+//                            gl::color(ColorA(1.0f,0.0f,0.0f,0.25f));
+//                            gl::drawSolidRect(trackNode->mHitArea);
+//                            gl::drawSolidRect(trackNode->mSphereHitArea);
+//                        }
+//                    }            
+//                }
+//            }
+//        }
+//    }
     
     gl::disableAlphaBlending();
     gl::enableAlphaBlending();
