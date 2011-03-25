@@ -276,21 +276,28 @@ void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix
 
 void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-	if (mNameTex != NULL)
-	{
-		Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
-		
-		float r = mSphereScreenRadius * 0.5f + 5.0f;
-		mSphereHitArea	= Rectf( p.x - r, p.y - r, p.x + r, p.y + r );
+	bool didTouch = false;
+	
+	Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
+	float r = mSphereScreenRadius * 0.5f + 5.0f;
+	
+	mSphereHitArea	= Rectf( p.x - r, p.y - r, p.x + r, p.y + r );
+	
+	if( mNameTex != NULL )
 		mHitArea		= Rectf( p.x - 15, p.y - 5, p.x + mNameTex.getWidth() + 20, p.y + mNameTex.getHeight() + 10 );
-		
-		if( mIsHighlighted && ! mIsSelected ){
-			if( mHitArea.contains( pos ) || mSphereHitArea.contains( pos ) ){
-				std::cout << "HIT FOUND" << std::endl;
-				nodes.push_back( this );
-			}
+	
+	
+	if( mIsHighlighted && ! mIsSelected ){
+		if( mSphereHitArea.contains( pos ) ) didTouch = true;
+
+		if( !didTouch && mNameTex != NULL ){
+			if( mHitArea.contains( pos ) ) didTouch = true;
 		}
 		
+		if( didTouch ) nodes.push_back( this );
+	}
+	
+	if( mIsHighlighted ){
 		vector<Node*>::iterator nodeIt;
 		for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 			(*nodeIt)->checkForNameTouch( nodes, pos );

@@ -365,7 +365,14 @@ void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 			float flickerAmt		= ( 8.5f + zoomOffset * Rand::randFloat( 12.0f, 15.0f ) );
 			float radius			= (*it)->mRadius * 0.5f * flickerAmt;
 			
-			ColorA col				= ColorA( (*it)->mGlowColor, (*it)->mDistFromCamZAxisPer );
+			float glowAlpha			= 1.0f;
+			
+			if( !(*it)->mIsSelected ){
+				glowAlpha = zoomOffset;
+			}
+			   
+			   
+			ColorA col				= ColorA( (*it)->mGlowColor, (*it)->mDistFromCamZAxisPer * glowAlpha );
 			
 			Vec3f right				= bbRight * radius;
 			Vec3f up				= bbUp * radius;
