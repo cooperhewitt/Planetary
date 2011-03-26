@@ -22,6 +22,8 @@
 #include "PinchRecognizer.h"
 #include "ParticleController.h"
 #include "LoadingScreen.h"
+
+#include "CinderFlurry.h"
 //#include "TextureLoader.h"
 #include <vector>
 #include <sstream>
@@ -31,6 +33,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 using std::stringstream;
+using namespace pollen::flurry;
 
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
@@ -50,6 +53,7 @@ class KeplerApp : public AppCocoaTouch {
   public:
     
 	virtual void	setup();
+    void            prepareSettings(Settings *settings);
     void            remainingSetup();
 	void			initLoadingTextures();
 	void			initTextures();
@@ -189,6 +193,11 @@ class KeplerApp : public AppCocoaTouch {
 	bool			mIsDrawingRings;
 	bool			mIsDrawingText;
 };
+
+void KeplerApp::prepareSettings(Settings *settings)
+{
+    Flurry::getInstrumentation()->init("DZ7HPD6FE1GGADVNJ3EX");
+}
 
 void KeplerApp::setup()
 {
@@ -523,6 +532,7 @@ void KeplerApp::touchesMoved( TouchEvent event )
                 mTouchPos		= currentPos;
                 mArcball.mouseDrag( mTouchPos );
             }
+            Flurry::getInstrumentation()->logEvent("Camera Moved");
         }
     }
 }
@@ -608,6 +618,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
 	std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
+    Flurry::getInstrumentation()->logEvent("Pinch");
 	if( mCamDistPinchOffset > 4.1f ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
@@ -709,6 +720,7 @@ bool KeplerApp::onNodeSelected( Node *node )
 
 	if( node != NULL ) {
         if (node->mGen == G_TRACK_LEVEL) {
+            Flurry::getInstrumentation()->logEvent("Track Selected");
             cout << "track node selected!" << endl;
             // FIXME: is this a bad OOP thing or is there a cleaner/safer C++ way to handle it?
             NodeTrack* trackNode = (NodeTrack*)node;
@@ -727,6 +739,14 @@ bool KeplerApp::onNodeSelected( Node *node )
                 cout << "telling player to play it" << endl;
                 mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
             }
+        } else if (node->mGen == G_HOME_LEVEL) {
+            Flurry::getInstrumentation()->logEvent("Home Selected");
+        } else if (node->mGen == G_ALPHA_LEVEL) {
+            Flurry::getInstrumentation()->logEvent("Alpha Selected");
+        } else if (node->mGen == G_ARTIST_LEVEL) {
+            Flurry::getInstrumentation()->logEvent("Artist Selected");
+        } else if (node->mGen == G_ALBUM_LEVEL) {
+            Flurry::getInstrumentation()->logEvent("Album Selected");
         }
 	}
 	else {
@@ -761,6 +781,7 @@ bool KeplerApp::onPlayControlsPlayheadMoved( PlayControls::PlayButton button )
 
 bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 {
+    Flurry::getInstrumentation()->logEvent("Player controlls Selected");
 	if( button == PlayControls::PREVIOUS_TRACK ){
 		mIpodPlayer.skipPrev();
 	} else if( button == PlayControls::PLAY_PAUSE ){
@@ -790,6 +811,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 
 bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 {
+    Flurry::getInstrumentation()->logEvent("Breadcrumb Selected");
 	int level = event.getLevel();
 	if( level == G_HOME_LEVEL ){				// BACK TO HOME
 		mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );

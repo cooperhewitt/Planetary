@@ -9,7 +9,9 @@
 
 
 #include "UiLayer.h"
+#include "CinderFlurry.h"
 
+using namespace pollen::flurry;
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -151,6 +153,11 @@ bool UiLayer::touchesEnded( TouchEvent event )
 		} 
         else {
             mIsPanelOpen = !mIsPanelOpen;
+            if (mIsPanelOpen) {
+                Flurry::getInstrumentation()->logEvent("UIPanel Opened");
+            } else {
+                Flurry::getInstrumentation()->logEvent("UIPanel Closed");
+            }
 		}
 	}
 
