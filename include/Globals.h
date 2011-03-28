@@ -44,7 +44,7 @@ static const ci::Color COLOR_BRIGHT_BLUE = ci::Color( 0.2f, 0.3f, 0.8f );
 // TODO: move into State.h
 extern float G_ZOOM;
 extern bool G_DEBUG;
-extern bool G_ACCEL;
+extern bool G_HELP;
 
 extern bool G_IS_IPAD2;
 extern int G_NUM_PARTICLES;

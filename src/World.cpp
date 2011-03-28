@@ -365,7 +365,14 @@ void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 			float flickerAmt		= ( 8.5f + zoomOffset * Rand::randFloat( 12.0f, 15.0f ) );
 			float radius			= (*it)->mRadius * 0.5f * flickerAmt;
 			
-			ColorA col				= ColorA( (*it)->mGlowColor, (*it)->mDistFromCamZAxisPer );
+			float glowAlpha			= 1.0f;
+			
+			if( !(*it)->mIsSelected ){
+				glowAlpha = zoomOffset;
+			}
+			   
+			   
+			ColorA col				= ColorA( (*it)->mGlowColor, (*it)->mDistFromCamZAxisPer * glowAlpha );
 			
 			Vec3f right				= bbRight * radius;
 			Vec3f up				= bbUp * radius;
@@ -486,11 +493,11 @@ void World::drawRings( const gl::Texture &tex, float camRingAlpha )
 	}
 }
 
-void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset )
+void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset, float angle )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
-			(*it)->drawName( cam, pinchAlphaOffset );
+			(*it)->drawName( cam, pinchAlphaOffset, angle );
 		}
 	}
 }

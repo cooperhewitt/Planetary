@@ -19,13 +19,11 @@ void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
     cbTouchesEnded	= 0;
     cbTouchesMoved	= 0;		
     lastTouchedType = NO_BUTTON;
-    prevDrawY		= 0;
     mIsPlaying		= initialPlayState;
     mMinutes		= 0;
     mSeconds		= 60;
     mPrevSeconds	= 0;
     mIsDraggingPlayhead = false;
-    mPlayheadPer	= 0.0;
     mIsDrawingRings = true;
     mIsDrawingStars = true;
     mIsDrawingPlanets = true;    
@@ -49,17 +47,20 @@ void PlayControls::update()
 
 bool PlayControls::touchesBegan( TouchEvent event )
 {
+    Rectf transformedBounds = transformRect( lastDrawnBoundsRect, mOrientationMtx );
     vector<TouchEvent::Touch> touches = event.getTouches();
-    if (touches.size() > 0 && touches[0].getY() > prevDrawY) {
+    if (touches.size() > 0 && transformedBounds.contains(touches[0].getPos())) {
         if (cbTouchesEnded == 0) {
             cbTouchesEnded = mApp->registerTouchesEnded( this, &PlayControls::touchesEnded );
             cbTouchesMoved = mApp->registerTouchesMoved( this, &PlayControls::touchesMoved );			
         }
+
         lastTouchedType = findButtonUnderTouches(touches);
         
         if( lastTouchedType == SLIDER ){
             mIsDraggingPlayhead = true;
         }
+        
         return true;
     }
     else {
@@ -71,15 +72,20 @@ bool PlayControls::touchesBegan( TouchEvent event )
 bool PlayControls::touchesMoved( TouchEvent event )
 {
     vector<TouchEvent::Touch> touches = event.getTouches();
+
     lastTouchedType = findButtonUnderTouches(touches);
-    
+
     if( mIsDraggingPlayhead ){
         if( touches.size() == 1 ){
-            float x = touches.begin()->getX();
-            //float per = 0.0f;
+            
+            Vec2f pos = touches.begin()->getPos();
+            pos = (mOrientationMtx.inverted() * Vec3f(pos,0)).xy();
+            
             float border = ( mInterfaceSize.x - 628 ) * 0.5f;
-            mPlayheadPer = ( x - border ) / 628;
-            mCallbacksPlayheadMoved.call(lastTouchedType);
+            float playheadPer = ( pos.x - border ) / 628;
+            
+            // TODO: Make this callback take a double (between 0 and 1?)
+            mCallbacksPlayheadMoved.call(playheadPer);
         }
     }
     return false;
@@ -123,10 +129,10 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     gl::pushModelView();
     gl::multModelView( mOrientationMtx );    
     
-    prevDrawY = y;
+    lastDrawnBoundsRect = Rectf(0, y, mInterfaceSize.x, mInterfaceSize.y );
     
     gl::color( Color( 0.0f, 0.0f, 0.0f ) );
-    gl::drawSolidRect( Rectf(0, y, mInterfaceSize.x, y + 45.0f ) ); // TODO: make height settable in setup()?
+    gl::drawSolidRect( lastDrawnBoundsRect ); // TODO: make height settable in setup()?
     
     touchRects.clear();
     touchTypes.clear(); // technically touch types never changes, but whatever
@@ -137,16 +143,16 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     
     // TODO: make these members?
     float x = mInterfaceSize.x * 0.5f - bWidth * 1.5f;
-    float x1 = 90.0f;
+    float x1 = mInterfaceSize.x * 0.5f - 265.0f;
     float y1 = y + 2;
     float y2 = y1 + bHeight;
     Rectf prevButton( x,				 y1, x + bWidth,		y2 );
     Rectf playButton( x + bWidth,		 y1, x + bWidth * 2.0f, y2 );
     Rectf nextButton( x + bWidth * 2.0f, y1, x + bWidth * 3.0f, y2 );
-    Rectf drawRingsButton( x1 + 5.0f, y1 + 6, x1 + 35.0f, y1 + 36 );
-    Rectf drawTextButton( x1 + 40.0f, y1 + 6, x1 + 70.0f, y1 + 36 );
-    Rectf accelButton( x1 + 75.0f, y1 + 6, x1 + 105.0f, y1 + 36 );
-    Rectf debugButton( x1 + 110.0f, y1 + 6, x1 + 140.0f, y1 + 36 );
+	Rectf helpButton( x1 + 5.0f, y1 + 6, x1 + 35.0f, y1 + 36 );
+    Rectf drawRingsButton( x1 + 40.0f, y1 + 6, x1 + 70.0f, y1 + 36 );
+    Rectf drawTextButton( x1 + 75.0f, y1 + 6, x1 + 105.0f, y1 + 36 );
+//    Rectf currentTrackButton( x1 + 110.0f, y1 + 6, x1 + 140.0f, y1 + 36 );
     
     float sliderWidth	= sliderBgTex.getWidth();
     float sliderHeight	= sliderBgTex.getHeight();
@@ -178,14 +184,14 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     touchTypes.push_back( NEXT_TRACK );
     touchRects.push_back( sliderButton );
     touchTypes.push_back( SLIDER );
-    touchRects.push_back( accelButton );
-    touchTypes.push_back( ACCEL );
-    touchRects.push_back( debugButton );
-    touchTypes.push_back( DBUG );
+    touchRects.push_back( helpButton );
+    touchTypes.push_back( HELP );
     touchRects.push_back( drawRingsButton );
     touchTypes.push_back( DRAW_RINGS );
     touchRects.push_back( drawTextButton );
     touchTypes.push_back( DRAW_TEXT );
+//	touchRects.push_back( currentTrackButton );
+//    touchTypes.push_back( CURRENT_TRACK );
     Color blue( 0.2f, 0.2f, 0.5f );
     
     // PREV
@@ -212,17 +218,11 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     gl::drawSolidRect( nextButton );
     
     
-    // ACCEL
-    if( G_ACCEL ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+    // HELP
+    if( G_HELP ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
     else		  gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
-    texs[ TEX_ACCEL ].enableAndBind();
-    gl::drawSolidRect( accelButton );
-    
-    // DBUG		
-    if( G_DEBUG ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-    else		  gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
-    texs[ TEX_DEBUG ].enableAndBind();
-    gl::drawSolidRect( debugButton );
+    texs[ TEX_HELP ].enableAndBind();
+    gl::drawSolidRect( helpButton );
     
     // DRAW RINGS
     if( isDrawingRings ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
@@ -236,6 +236,14 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     texs[ TEX_DRAW_TEXT ].enableAndBind();
     gl::drawSolidRect( drawTextButton );
     
+	
+	// CURRENT TRACK		
+//    if( lastTouchedType == CURRENT_TRACK ) texs[ TEX_CURRENT_TRACK_ON ].enableAndBind();
+//    else texs[ TEX_CURRENT_TRACK ].enableAndBind();
+//	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+//    gl::drawSolidRect( currentTrackButton );
+    
+	
     gl::color( Color( 1.0f, 1.0f, 1.0f ) );
     
     
@@ -283,8 +291,8 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
         layout2.addLine( ss.str() );
         mRemainingTimeTex = layout2.render( true, false );
     }
-    gl::draw( mCurrentTimeTex,		Vec2f( 28.0f, bgy1-1 ) );
-    gl::draw( mRemainingTimeTex,	Vec2f( bgx2 + 7.0f, bgy1-1 ) );
+    gl::draw( mCurrentTimeTex,		Vec2f( bgx1 - 50.0f, bgy1-1 ) );
+    gl::draw( mRemainingTimeTex,	Vec2f( bgx2 + 9.0f, bgy1-1 ) );
     
     
     // SLIDER PER
@@ -304,20 +312,42 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     texs[TEX_SLIDER_BUTTON].disable();
     
     gl::popModelView();
+
+//    gl::color( Color( 1.0f, 0, 0 ) );
+//    gl::drawSolidRect( transformRect( lastDrawnBoundsRect, mOrientationMtx ) );
 }
 
 PlayControls::PlayButton PlayControls::findButtonUnderTouches(vector<TouchEvent::Touch> touches) {
+    Rectf transformedBounds = transformRect( lastDrawnBoundsRect, mOrientationMtx );
     for (int j = 0; j < touches.size(); j++) {
         TouchEvent::Touch touch = touches[j];
-        if (touch.getY() < prevDrawY) {
-            continue;
+        Vec2f pos = touch.getPos();
+        if ( transformedBounds.contains( pos ) ) {
+            for (int i = 0; i < touchRects.size(); i++) {
+                Rectf rect = transformRect( touchRects[i], mOrientationMtx );
+//                if (touchTypes[i] == SLIDER) {
+//                    std::cout << "testing slider rect: " << touchRects[i] << std::endl;
+//                    std::cout << "      transformRect: " << rect << std::endl;
+//                    std::cout << "                pos: " << pos << std::endl;
+//                }
+                if (rect.contains(pos)) {
+//                    if (touchTypes[i] == SLIDER) {
+//                        std::cout << "HIT slider rect!" << std::endl;
+//                    }
+                    return touchTypes[i];
+                }
+            }		
         }
-        for (int i = 0; i < touchRects.size(); i++) {
-            Rectf rect = touchRects[i];
-            if (rect.contains(touch.getPos())) {
-                return touchTypes[i];
-            }
-        }		
     }		
     return NO_BUTTON;
+}
+
+// TODO: move this to an operator in Cinder's Matrix class?
+Rectf PlayControls::transformRect( const Rectf &rect, const Matrix44f &matrix )
+{
+    Vec2f topLeft = (matrix * Vec3f(rect.x1,rect.y1,0)).xy();
+    Vec2f bottomRight = (matrix * Vec3f(rect.x2,rect.y2,0)).xy();
+    Rectf newRect(topLeft, bottomRight);
+    newRect.canonicalize();    
+    return newRect;
 }

@@ -37,7 +37,7 @@ class Node {
 	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha );
 	virtual void	drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
-	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset );
+	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
 	void			wasTapped(){ mIsTapped = true; mHighlightStrength = 1.0f; }
 	void			drawTouchHighlight();
 	void			checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );

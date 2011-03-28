@@ -94,12 +94,9 @@ bool AlphaWheel::orientationChanged( OrientationEvent event )
 
 bool AlphaWheel::touchesBegan( TouchEvent event )
 {
-	std::cout << "AlphaWheel TouchesBegan" << std::endl;
-	
 	vector<TouchEvent::Touch> touches = AppCocoaTouch::get()->getActiveTouches();
 
 	if (touches.size() == 1) {
-		std::cout << "touchesBegan, selectWheelItem" << std::endl;
 		mTouchPos = touches.begin()->getPos();
 		return selectWheelItem( mTouchPos, false );
 	}
@@ -112,7 +109,6 @@ bool AlphaWheel::touchesMoved( TouchEvent event )
 	vector<TouchEvent::Touch> touches = AppCocoaTouch::get()->getActiveTouches();
 	
 	if (touches.size() == 1) {
-		//std::cout << "touchesMoved, selectWheelItem" << std::endl;
 		mTouchPos = touches.begin()->getPos();
 		return selectWheelItem( mTouchPos, false );
 	}	
@@ -125,7 +121,6 @@ bool AlphaWheel::touchesEnded( TouchEvent event )
 	vector<TouchEvent::Touch> touches = AppCocoaTouch::get()->getActiveTouches();
 	
 	if (touches.size() == 0) {
-		std::cout << "touchesEnded, selectWheelItem" << std::endl;
 		return selectWheelItem( mTouchPos, true );
 	}
 	
@@ -136,7 +131,6 @@ bool AlphaWheel::touchesEnded( TouchEvent event )
 bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 {
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
-	//std::cout << " selectWheelItem (time since pinch: " << timeSincePinchEnded << ")" << std::endl;
 	if( mShowWheel && timeSincePinchEnded > 0.5f ){ 
         Vec2f dir = (mOrientationMatrix.inverted() * Vec3f(mTouchPos,0)).xy() - mInterfaceCenter;
 		float distToCenter = dir.length();
