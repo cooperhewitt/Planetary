@@ -573,7 +573,6 @@ void KeplerApp::touchesMoved( TouchEvent event )
                 Vec3f worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
                 mArcball.mouseDrag( Vec2i(worldTouchPos.x, worldTouchPos.y) );
             }
-            Flurry::getInstrumentation()->logEvent("Camera Moved");
         }
     }
 }
@@ -600,7 +599,9 @@ void KeplerApp::touchesEnded( TouchEvent event )
 	if (getActiveTouches().size() != 1) {
 		mIsDragging = false;
         mIsTouching = false;
-	}
+	} else {
+        Flurry::getInstrumentation()->logEvent("Camera Moved");
+    }
 }
 
 bool KeplerApp::onPinchBegan( PinchEvent event )
