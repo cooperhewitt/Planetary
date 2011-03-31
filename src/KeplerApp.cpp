@@ -36,7 +36,7 @@ using std::stringstream;
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
 bool G_HELP             = false;
-bool G_IS_IPAD2			= true;
+bool G_IS_IPAD2			= false;
 int G_NUM_PARTICLES		= 250;
 int G_NUM_DUSTS			= 250;
 
