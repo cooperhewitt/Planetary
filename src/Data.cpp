@@ -16,10 +16,13 @@
 #include "Data.h"
 #include "Globals.h"
 #include <boost/algorithm/string.hpp>   
+#include "CinderFlurry.h"
+#include "stdlib.h"
 
 using namespace ci;
 using namespace ci::ipod;
 using namespace std;
+using namespace pollen::flurry;
 
 Data::Data()
 {
@@ -54,9 +57,13 @@ void Data::backgroundInitArtists()
 //		}
 //	}
 //	std::cout << (app::App::get()->getElapsedSeconds()-t) << " seconds to derive artists" << std::endl;
-	
+	Flurry::getInstrumentation()->startTimeEvent("Music Loading");
 	pending = getArtists();		
 	std::cout << "got " << pending.size() << " artists" << std::endl;
+	Flurry::getInstrumentation()->stopTimeEvent("Music Loading");
+    std::map<string, string> params;
+    params["NumArtists"] = i_to_string(pending.size());;
+    Flurry::getInstrumentation()->logEvent("Artists loaded", params);
     [autoreleasepool release];	
 	isIniting = false;
 }

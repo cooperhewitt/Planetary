@@ -22,6 +22,8 @@
 #include "PinchRecognizer.h"
 #include "ParticleController.h"
 #include "LoadingScreen.h"
+
+#include "CinderFlurry.h"
 //#include "TextureLoader.h"
 #include <sys/sysctl.h>
 #include <vector>
@@ -32,6 +34,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 using std::stringstream;
+using namespace pollen::flurry;
 
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
@@ -51,6 +54,7 @@ class KeplerApp : public AppCocoaTouch {
   public:
     
 	virtual void	setup();
+    void            prepareSettings(Settings *settings);
     void            remainingSetup();
 	void			initLoadingTextures();
 	void			initTextures();
@@ -195,6 +199,11 @@ class KeplerApp : public AppCocoaTouch {
 	bool			mIsDrawingRings;
 	bool			mIsDrawingText;
 };
+
+void KeplerApp::prepareSettings(Settings *settings)
+{
+    Flurry::getInstrumentation()->init("DZ7HPD6FE1GGADVNJ3EX");
+}
 
 void KeplerApp::setup()
 {
@@ -590,7 +599,9 @@ void KeplerApp::touchesEnded( TouchEvent event )
 	if (getActiveTouches().size() != 1) {
 		mIsDragging = false;
         mIsTouching = false;
-	}
+	} else {
+        Flurry::getInstrumentation()->logEvent("Camera Moved");
+    }
 }
 
 bool KeplerApp::onPinchBegan( PinchEvent event )
@@ -648,6 +659,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
+    Flurry::getInstrumentation()->logEvent("Pinch");
 	//std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
 	if( mCamDistPinchOffset > 4.1f ){
 		Node *selected = mState.getSelectedNode();
@@ -745,6 +757,7 @@ bool KeplerApp::onNodeSelected( Node *node )
 
 	if( node != NULL ) {
         if (node->mGen == G_TRACK_LEVEL) {
+            Flurry::getInstrumentation()->logEvent("Track Selected");
             //cout << "track node selected!" << endl;
             // FIXME: is this a bad OOP thing or is there a cleaner/safer C++ way to handle it?
             NodeTrack* trackNode = (NodeTrack*)node;
@@ -763,6 +776,14 @@ bool KeplerApp::onNodeSelected( Node *node )
 //                cout << "telling player to play it" << endl;
                 mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
             }
+        } else if (node->mGen == G_HOME_LEVEL) {
+            Flurry::getInstrumentation()->logEvent("Home Selected");
+        } else if (node->mGen == G_ALPHA_LEVEL) {
+            Flurry::getInstrumentation()->logEvent("Alpha Selected");
+        } else if (node->mGen == G_ARTIST_LEVEL) {
+            Flurry::getInstrumentation()->logEvent("Artist Selected");
+        } else if (node->mGen == G_ALBUM_LEVEL) {
+            Flurry::getInstrumentation()->logEvent("Album Selected");
         }
 	}
 //	else {
@@ -797,6 +818,7 @@ bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
 
 bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 {
+    Flurry::getInstrumentation()->logEvent("Player controlls Selected");
 	if( button == PlayControls::PREVIOUS_TRACK ){
 		mIpodPlayer.skipPrev();
 	} else if( button == PlayControls::PLAY_PAUSE ){
@@ -826,6 +848,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 
 bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 {
+    Flurry::getInstrumentation()->logEvent("Breadcrumb Selected");
 	int level = event.getLevel();
 	if( level == G_HOME_LEVEL ){				// BACK TO HOME
 		mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );
@@ -1207,7 +1230,31 @@ void KeplerApp::drawScene()
 	}
     
     glDisable( GL_TEXTURE_2D );
-    
+
+//    for (int i = 0; i < mWorld.mNodes.size(); i++) {
+//        Node* artistNode = mWorld.mNodes[i];
+//        if (artistNode->mIsHighlighted) {
+//            gl::color(ColorA(0.0f,0.0f,1.0f,0.25f));
+//            gl::drawSolidRect(artistNode->mHitArea);
+//            gl::drawSolidRect(artistNode->mSphereHitArea);            
+//            for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+//                Node* albumNode = artistNode->mChildNodes[j];
+//                if (albumNode->mIsHighlighted) {
+//                    gl::color(ColorA(0.0f,1.0f,0.0f,0.25f));
+//                    gl::drawSolidRect(albumNode->mHitArea);
+//                    gl::drawSolidRect(albumNode->mSphereHitArea);            
+//                    for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+//                        Node *trackNode = albumNode->mChildNodes[k];
+//                        if (trackNode->mIsHighlighted) {
+//                            gl::color(ColorA(1.0f,0.0f,0.0f,0.25f));
+//                            gl::drawSolidRect(trackNode->mHitArea);
+//                            gl::drawSolidRect(trackNode->mSphereHitArea);
+//                        }
+//                    }            
+//                }
+//            }
+//        }
+//    }
     
     gl::disableAlphaBlending();
     gl::enableAlphaBlending();

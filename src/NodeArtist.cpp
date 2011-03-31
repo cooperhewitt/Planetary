@@ -14,7 +14,10 @@
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
 #include "Globals.h"
+#import <map>
+#import "CinderFlurry.h"
 
+using namespace pollen::flurry;
 using namespace ci;
 using namespace ci::ipod;
 using namespace std;
@@ -108,19 +111,29 @@ void NodeArtist::drawClouds( const vector<gl::Texture> &planets )
 void NodeArtist::select()
 {
 	if (!mIsSelected) {
+
+
 		// TODO: switch this to use artist ID
+        Flurry::getInstrumentation()->startTimeEvent("Albums loaded");
 		vector<ipod::PlaylistRef> albumsBySelectedArtist = getAlbumsWithArtist( mPlaylist->getArtistName() );
 		mNumAlbums = albumsBySelectedArtist.size();
 		
 		int i=0;
+        int trackcount = 0;
 		for(vector<PlaylistRef>::iterator it = albumsBySelectedArtist.begin(); it != albumsBySelectedArtist.end(); ++it){
 			PlaylistRef album	= *it;
 			NodeAlbum *newNode = new NodeAlbum( this, i, mFont );
 			mChildNodes.push_back( newNode );
+            trackcount += album->m_tracks.size();
 			newNode->setData( album );
 			i++;
 		}
-		
+        std::map<string, string> params;
+        params["Artist"] = mPlaylist->getArtistName();
+        params["NumAlbums"] = i_to_string(mChildNodes.size());
+        params["NumTracks"] = i_to_string(trackcount);
+        Flurry::getInstrumentation()->stopTimeEvent("Albums loaded", params);
+
 		for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
 			(*it)->setSphereData( mTotalVertsHiRes, mSphereVertsHiRes, mSphereTexCoordsHiRes, mSphereNormalsHiRes,
 								  mTotalVertsLoRes, mSphereVertsLoRes, mSphereTexCoordsLoRes, mSphereNormalsLoRes );

@@ -152,7 +152,7 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
 	Rectf helpButton( x1 + 5.0f, y1 + 6, x1 + 35.0f, y1 + 36 );
     Rectf drawRingsButton( x1 + 40.0f, y1 + 6, x1 + 70.0f, y1 + 36 );
     Rectf drawTextButton( x1 + 75.0f, y1 + 6, x1 + 105.0f, y1 + 36 );
-    Rectf currentTrackButton( x1 + 110.0f, y1 + 6, x1 + 140.0f, y1 + 36 );
+//    Rectf currentTrackButton( x1 + 110.0f, y1 + 6, x1 + 140.0f, y1 + 36 );
     
     float sliderWidth	= sliderBgTex.getWidth();
     float sliderHeight	= sliderBgTex.getHeight();
@@ -190,8 +190,8 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     touchTypes.push_back( DRAW_RINGS );
     touchRects.push_back( drawTextButton );
     touchTypes.push_back( DRAW_TEXT );
-	touchRects.push_back( currentTrackButton );
-    touchTypes.push_back( CURRENT_TRACK );
+//	touchRects.push_back( currentTrackButton );
+//    touchTypes.push_back( CURRENT_TRACK );
     Color blue( 0.2f, 0.2f, 0.5f );
     
     // PREV
@@ -238,10 +238,10 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     
 	
 	// CURRENT TRACK		
-    if( lastTouchedType == CURRENT_TRACK ) texs[ TEX_CURRENT_TRACK_ON ].enableAndBind();
-    else texs[ TEX_CURRENT_TRACK ].enableAndBind();
-	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-    gl::drawSolidRect( currentTrackButton );
+//    if( lastTouchedType == CURRENT_TRACK ) texs[ TEX_CURRENT_TRACK_ON ].enableAndBind();
+//    else texs[ TEX_CURRENT_TRACK ].enableAndBind();
+//	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+//    gl::drawSolidRect( currentTrackButton );
     
 	
     gl::color( Color( 1.0f, 1.0f, 1.0f ) );

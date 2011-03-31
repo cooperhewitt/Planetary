@@ -148,6 +148,9 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 		mDistFromCamZAxis		= cam.worldToEyeDepth( mTransPos );
 		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * -0.35f, 0.0f, 1.0f );
 		mSphereScreenRadius     = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() ) * 0.4f;
+        Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
+        float r = mSphereScreenRadius * 0.5f + 5.0f;        
+        mSphereHitArea	= Rectf( p.x - r, p.y - r, p.x + r, p.y + r );        
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
@@ -203,8 +206,19 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset, float angle
 			createNameTexture();
 		}
 
+        Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
+        Vec2f o1(15,5);
+        Vec2f o2(mNameTex.getWidth() + 20, mNameTex.getHeight() + 10);
+        if (angle != 0) {
+            o1.rotate(angle);
+            o2.rotate(angle);
+        }
+        mHitArea = Rectf( p - o1, p + o2 );        
+        mHitArea.canonicalize();
 		
-		Vec2f pos1 = mScreenPos + Vec2f( mSphereScreenRadius * 0.275f, mSphereScreenRadius * 0.275f * 0.75f );
+        Vec2f offset0 = Vec2f( mSphereScreenRadius * 0.275f, mSphereScreenRadius * 0.275f * 0.75f );
+        offset0.rotate( angle );
+		Vec2f pos1 = mScreenPos + offset0;
         Vec2f offset1( 10.0f, 7.5f );
         offset1.rotate( angle );
 		Vec2f pos2 = pos1 + offset1;
@@ -244,7 +258,6 @@ void Node::drawTouchHighlight()
 		if( mIsTapped ){
 			gl::color( ColorA( mColor, mHighlightStrength ) );
 			Vec2f radius = Vec2f( mRadius * 25.0f, mRadius * 25.0f );
-			
 			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 			mHighlightStrength -= ( mHighlightStrength - 0.0f ) * 0.15f;
 		}
@@ -276,27 +289,11 @@ void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix
 
 void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-	bool didTouch = false;
-	
-	Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
-	float r = mSphereScreenRadius * 0.5f + 5.0f;
-	
-	mSphereHitArea	= Rectf( p.x - r, p.y - r, p.x + r, p.y + r );
-	
-	if( mNameTex != NULL )
-		mHitArea		= Rectf( p.x - 15, p.y - 5, p.x + mNameTex.getWidth() + 20, p.y + mNameTex.getHeight() + 10 );
-	
-	
 	if( mIsHighlighted && ! mIsSelected ){
-		if( mSphereHitArea.contains( pos ) ) didTouch = true;
-
-		if( !didTouch && mNameTex != NULL ){
-			if( mHitArea.contains( pos ) ) didTouch = true;
+		if( mSphereHitArea.contains( pos ) || (mNameTex != NULL && mHitArea.contains( pos )) ) {
+            nodes.push_back( this );
 		}
-		
-		if( didTouch ) nodes.push_back( this );
-	}
-	
+	}	
 	if( mIsHighlighted ){
 		vector<Node*>::iterator nodeIt;
 		for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){

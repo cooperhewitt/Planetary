@@ -7,6 +7,9 @@
 //
 #include "Globals.h"
 #include "Breadcrumbs.h"
+#include "CinderFlurry.h"
+
+using namespace pollen::flurry;
 
 void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font )
 {	
@@ -64,6 +67,8 @@ bool Breadcrumbs::touchesEnded( TouchEvent event )
 				prevSelectedIndex = i;
 				// !!! EVENT STUFF (notify listeners)
 				mCallbacksBreadcrumbSelected.call( BreadcrumbEvent( prevSelectedIndex, mPreviousHierarchy[i] ) );
+                Flurry::getInstrumentation()->logEvent("Breadcrumbs Used");
+
 				return true;
 			}
 		}
