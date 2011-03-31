@@ -532,7 +532,6 @@ void KeplerApp::touchesMoved( TouchEvent event )
                 mTouchPos		= currentPos;
                 mArcball.mouseDrag( mTouchPos );
             }
-            Flurry::getInstrumentation()->logEvent("Camera Moved");
         }
     }
 }
@@ -553,6 +552,8 @@ void KeplerApp::touchesEnded( TouchEvent event )
                 float v			= mTouchPos.y / (float) getWindowHeight();
                 Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
                 checkForNodeTouch( touchRay, mMatrix, mTouchPos );
+            } else {
+                Flurry::getInstrumentation()->logEvent("Camera Moved");
             }
         }
 	}
