@@ -25,6 +25,7 @@
 
 #include "CinderFlurry.h"
 //#include "TextureLoader.h"
+#include <sys/sysctl.h>
 #include <vector>
 #include <sstream>
 
@@ -37,8 +38,8 @@ using namespace pollen::flurry;
 
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
-bool G_ACCEL            = false;
-bool G_IS_IPAD2			= true; // TODO: detect this with iOS code?
+bool G_HELP             = false;
+bool G_IS_IPAD2			= true;
 int G_NUM_PARTICLES		= 250;
 int G_NUM_DUSTS			= 250;
 
@@ -69,6 +70,7 @@ class KeplerApp : public AppCocoaTouch {
 	void			updatePlayhead();
 	virtual void	draw();
     void            drawScene();
+	void			drawHelpPanel();
 	void			drawInfoPanel();
 	void			setParamsTex();
 	bool			onAlphaCharStateChanged( State *state );
@@ -76,7 +78,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onWheelClosed( AlphaWheel *alphaWheel );
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
 	bool			onPlayControlsButtonPressed ( PlayControls::PlayButton button );
-	bool			onPlayControlsPlayheadMoved ( PlayControls::PlayButton button );
+	bool			onPlayControlsPlayheadMoved ( float amount );
 	bool			onNodeSelected( Node *node );
 	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos );
 	bool			onPlayerStateChanged( ipod::Player *player );
@@ -93,9 +95,14 @@ class KeplerApp : public AppCocoaTouch {
 	AlphaWheel		mAlphaWheel;
 	UiLayer			mUiLayer;
 	Data			mData;
-	
-// ACCELEROMETER
+
+// ORIENTATION
     DeviceOrientation     mDeviceOrientation;
+    std::map<DeviceOrientation, std::map<DeviceOrientation, int> > mRotationSteps;
+    Matrix44f             mOrientationMatrix;
+    Matrix44f             mInverseOrientationMatrix;    
+    
+// ACCELEROMETER
 	Matrix44f		mAccelMatrix;
 	Matrix44f		mNewAccelMatrix;
 	
@@ -104,8 +111,6 @@ class KeplerApp : public AppCocoaTouch {
 	ipod::PlaylistRef	mCurrentAlbum;
 	double				mCurrentTrackPlayheadTime;
 	double				mCurrentTrackLength;
-//	int					mCurrentTrackId;
-
 	
 // BREADCRUMBS
 	Breadcrumbs		mBreadcrumbs;	
@@ -157,6 +162,7 @@ class KeplerApp : public AppCocoaTouch {
 	// TEXTURES
 //    TextureLoader   mTextureLoader;    
 	gl::Texture		mLoadingTex;
+	gl::Texture		mHelpPanelTex;
 	gl::Texture		mParamsTex;
 	gl::Texture		mStarTex;
 	gl::Texture		mStarGlowTex;
@@ -203,6 +209,16 @@ void KeplerApp::setup()
 {
     std::cout << "setupStart: " << getElapsedSeconds() << std::endl;
     
+    // http://stackoverflow.com/questions/448162/determine-device-iphone-ipod-touch-with-iphone-sdk/1561920#1561920
+    // http://www.clintharris.net/2009/iphone-model-via-sysctlbyname/
+    size_t size;
+    sysctlbyname("hw.machine", NULL, &size, NULL, 0);  
+    char *machine = new char[size];
+    sysctlbyname("hw.machine", machine, &size, NULL, 0);    
+    G_IS_IPAD2 = (strcmp("iPad1,1",machine) != 0);
+    cout << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
+    delete[] machine;
+        
 	if( G_IS_IPAD2 ){
 		G_NUM_PARTICLES = 1000;
 		G_NUM_DUSTS = 4000;
@@ -210,6 +226,27 @@ void KeplerApp::setup()
     
     mRemainingSetupCalled = false;
 
+    std::map<DeviceOrientation,int> pSteps;
+    pSteps[LANDSCAPE_LEFT_ORIENTATION] = 1;
+    pSteps[LANDSCAPE_RIGHT_ORIENTATION] = -1;
+    pSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = 2;
+    std::map<DeviceOrientation,int> llSteps;
+    llSteps[PORTRAIT_ORIENTATION] = -1;
+    llSteps[LANDSCAPE_RIGHT_ORIENTATION] = 2;
+    llSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = 1;
+    std::map<DeviceOrientation,int> lrSteps;
+    lrSteps[PORTRAIT_ORIENTATION] = 1;
+    lrSteps[LANDSCAPE_LEFT_ORIENTATION] = 2;
+    lrSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = -1;
+    std::map<DeviceOrientation,int> upSteps;
+    upSteps[PORTRAIT_ORIENTATION] = 2;
+    upSteps[LANDSCAPE_LEFT_ORIENTATION] = -1;
+    upSteps[LANDSCAPE_RIGHT_ORIENTATION] = 1;
+    mRotationSteps[PORTRAIT_ORIENTATION] = pSteps;
+    mRotationSteps[LANDSCAPE_LEFT_ORIENTATION] = llSteps;
+    mRotationSteps[LANDSCAPE_RIGHT_ORIENTATION] = lrSteps;
+    mRotationSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = upSteps;
+    
     mLoadingScreen.setup( this );
 
     initLoadingTextures();
@@ -340,7 +377,7 @@ void KeplerApp::initLoadingTextures()
 
 void KeplerApp::initTextures()
 {
-	/* THIS DIDNT SEEM TO WORK (OR MAYBE IT JUST DIDNT MAKE MUCH OF A DIFFERENCE)
+	/* THIS DIDNT SEEM TO WORK (OR MAYBE IT JUST DIDNT MAKE MUCH OF A DIFFERENCE?
     gl::Texture::Format format;
 	format.enableMipmapping( true );			
 	ImageSourceRef img = loadImage( loadResource( "star.png" ) );
@@ -350,6 +387,7 @@ void KeplerApp::initTextures()
 	float t = getElapsedSeconds();
 	cout << "initTextures start time = " << t << endl;
     
+	mHelpPanelTex		= loadImage( loadResource( "helpPanel.png" ) );
 	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
 	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
 	mSliderBgTex		= loadImage( loadResource( "sliderBg.png" ) );
@@ -369,11 +407,12 @@ void KeplerApp::initTextures()
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "prevOn.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "next.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "nextOn.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "accel.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "debug.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "sliderButton.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "help.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawLines.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawText.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "currentTrack.png" ) ) ) );
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "currentTrackOn.png" ) ) ) );
     
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUp.png" ) ) ) );
 	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUpOn.png" ) ) ) );
@@ -510,7 +549,8 @@ void KeplerApp::touchesBegan( TouchEvent event )
         mIsTouching = true;
         mTouchPos		= touches.begin()->getPos();
         mTouchVel		= Vec2f::zero();
-        mArcball.mouseDown( mTouchPos );
+        Vec3f worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
+        mArcball.mouseDown( Vec2i(worldTouchPos.x, worldTouchPos.y) );
 	}
     else {
         mIsTouching = false;
@@ -530,7 +570,8 @@ void KeplerApp::touchesMoved( TouchEvent event )
                 mIsDragging = true;
                 mTouchVel		= currentPos - prevPos;
                 mTouchPos		= currentPos;
-                mArcball.mouseDrag( mTouchPos );
+                Vec3f worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
+                mArcball.mouseDrag( Vec2i(worldTouchPos.x, worldTouchPos.y) );
             }
         }
     }
@@ -618,7 +659,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
-	std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
+	//std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
     Flurry::getInstrumentation()->logEvent("Pinch");
 	if( mCamDistPinchOffset > 4.1f ){
 		Node *selected = mState.getSelectedNode();
@@ -639,9 +680,18 @@ bool KeplerApp::keepTouchForPinching( TouchEvent::Touch touch )
     return positionTouchesWorld(touch.getPos());
 }
 
-bool KeplerApp::positionTouchesWorld( Vec2f pos )
+bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
 {
-    return pos.y < mUiLayer.getPanelYPos() && pos.y > mBreadcrumbs.getHeight() && !mUiLayer.getPanelTabRect().contains(pos);
+    Vec2f worldPos = (mInverseOrientationMatrix * Vec3f(screenPos,0)).xy();
+    bool aboveUI = worldPos.y < mUiLayer.getPanelYPos();
+    bool belowBreadcrumbs = worldPos.y > mBreadcrumbs.getHeight();
+    bool notTab = !mUiLayer.getPanelTabRect().contains(worldPos);
+    bool valid = aboveUI && belowBreadcrumbs && notTab;
+//    cout << "worldPos: " << worldPos << " aboveUI: " << aboveUI  
+//                                     << " belowBreadcrumbs: " << belowBreadcrumbs
+//                                     << " notTab: " << notTab << endl;
+//    cout << "screenPos: " << screenPos << " valid: " << valid << endl;
+    return valid;
 }
 
 void KeplerApp::accelerated( AccelEvent event )
@@ -652,41 +702,27 @@ void KeplerApp::accelerated( AccelEvent event )
 
 void KeplerApp::orientationChanged( OrientationEvent event )
 {
-    mDeviceOrientation = event.getOrientation();
-    switch ( mDeviceOrientation )
+    if ( event.isValidInterfaceOrientation() ) 
     {
-        case PORTRAIT_ORIENTATION:
-            console() << "orientation = portrait" << endl;
-            mUp	= Vec3f::yAxis();
-            break;
-        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
-            console() << "orientation = upside down portrait" << endl;
-            mUp	= -Vec3f::yAxis();
-            break;
-        case LANDSCAPE_LEFT_ORIENTATION:
-            console() << "orientation = landscape left" << endl;
-            mUp	= Vec3f::xAxis();
-            break;
-        case LANDSCAPE_RIGHT_ORIENTATION:
-            console() << "orientation = landscape right" << endl;
-            mUp	= -Vec3f::xAxis();
-            break;        
-        case FACE_UP_ORIENTATION:
-            console() << "orientation = face up. staying put." << endl;
-            break;        
-        case FACE_DOWN_ORIENTATION:
-            console() << "orientation = face down. staying put." << endl;
-            break;        
-        case UNKNOWN_ORIENTATION:
-        default:
-            console() << "orientation = unknown. staying put." << endl;
-            break;            
-    }     
+        DeviceOrientation prevOrientation = mDeviceOrientation;
+        mDeviceOrientation = event.getOrientation();
+        mOrientationMatrix = event.getOrientationMatrix();
+        mInverseOrientationMatrix = mOrientationMatrix.inverted();
+        mUp = event.getUpVector();
+        
+        // Look over there!
+        // heinous trickery follows...
+        if( mTouchVel.length() > 2.0f && !mIsDragging ){        
+            int steps = mRotationSteps[prevOrientation][mDeviceOrientation];
+            mTouchVel.rotate( (float)steps * M_PI/2.0f );
+        }
+        // ... end heinous trickery
+    } 
 }
 
 bool KeplerApp::onWheelClosed( AlphaWheel *alphaWheel )
 {
-	std::cout << "wheel closed" << std::endl;
+//	std::cout << "wheel closed" << std::endl;
 	mFovDest = 100.0f;
 	return false;
 }
@@ -707,7 +743,7 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 
 bool KeplerApp::onNodeSelected( Node *node )
 {
-	cout << "node selected!" << endl;
+//	cout << "node selected!" << endl;
 	
 	mTime			= getElapsedSeconds();
 	mCenterFrom		= mCenter;
@@ -722,22 +758,22 @@ bool KeplerApp::onNodeSelected( Node *node )
 	if( node != NULL ) {
         if (node->mGen == G_TRACK_LEVEL) {
             Flurry::getInstrumentation()->logEvent("Track Selected");
-            cout << "track node selected!" << endl;
+            //cout << "track node selected!" << endl;
             // FIXME: is this a bad OOP thing or is there a cleaner/safer C++ way to handle it?
             NodeTrack* trackNode = (NodeTrack*)node;
             if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
-                cout << "nothing already playing" << endl;
+                //cout << "nothing already playing" << endl;
                 ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
                 if ( trackNode->getId() != playingTrack->getItemId() ) {
-                    cout << "telling player to play it" << endl;
+                    //cout << "telling player to play it" << endl;
                     mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
                 }
-                else {
-                    cout << "already playing it" << endl;				
-                }
+//                else {
+//                    cout << "already playing it" << endl;				
+//                }
             }
             else {
-                cout << "telling player to play it" << endl;
+//                cout << "telling player to play it" << endl;
                 mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
             }
         } else if (node->mGen == G_HOME_LEVEL) {
@@ -750,14 +786,14 @@ bool KeplerApp::onNodeSelected( Node *node )
             Flurry::getInstrumentation()->logEvent("Album Selected");
         }
 	}
-	else {
-		cout << "node null!" << endl;
-	}
+//	else {
+//		cout << "node null!" << endl;
+//	}
     
     // update mIsPlaying state for all nodes...
     if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
-        ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
-        mWorld.setIsPlaying( playingTrack->getArtistId(), playingTrack->getAlbumId(), playingTrack->getItemId() );
+        ipod::TrackRef track = mIpodPlayer.getPlayingTrack();
+        mWorld.setIsPlaying( track->getArtistId(), track->getAlbumId(), track->getItemId() );
     }
     else {
         // FIXME: this will clear mIsPlaying from everything
@@ -768,15 +804,15 @@ bool KeplerApp::onNodeSelected( Node *node )
 	return false;
 }
 
-bool KeplerApp::onPlayControlsPlayheadMoved( PlayControls::PlayButton button )
+bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
 {	
-	double dragPer = mPlayControls.getPlayheadPer();
-	
 	ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
 	double trackLength = playingTrack->getLength();
 	
-	if( getElapsedFrames()%3 == 0 )
+	if( getElapsedFrames() % 3 == 0 ){
 		mIpodPlayer.setPlayheadTime( trackLength * dragPer );
+    }
+    
     return false;
 }
 
@@ -786,27 +822,27 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 	if( button == PlayControls::PREVIOUS_TRACK ){
 		mIpodPlayer.skipPrev();
 	} else if( button == PlayControls::PLAY_PAUSE ){
-		cout << "play/pause pressed" << endl;
+		//cout << "play/pause pressed" << endl;
 		if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
-			cout << "already playing, so asking for pause" << endl;
+			//cout << "already playing, so asking for pause" << endl;
 			mIpodPlayer.pause();
 		}
 		else {
-			cout << "not already playing, so asking for play" << endl;
+			//cout << "not already playing, so asking for play" << endl;
 			mIpodPlayer.play();
 		}
 	} else if( button == PlayControls::NEXT_TRACK ){
 		mIpodPlayer.skipNext();	
-	} else if( button == PlayControls::ACCEL ){
-		G_ACCEL = !G_ACCEL;
-	} else if( button == PlayControls::DBUG ){
-		G_DEBUG = !G_DEBUG;
+	} else if( button == PlayControls::HELP ){
+		G_HELP = !G_HELP;
 	} else if( button == PlayControls::DRAW_RINGS ){
 		mIsDrawingRings = !mIsDrawingRings;
 	} else if( button == PlayControls::DRAW_TEXT ){
 		mIsDrawingText = !mIsDrawingText;
+	} else if( button == PlayControls::CURRENT_TRACK ){
+		//
 	}
-	cout << "play button " << button << " pressed" << endl;
+	//cout << "play button " << button << " pressed" << endl;
 	return false;
 }
 
@@ -892,13 +928,17 @@ void KeplerApp::update()
         
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
+
+        Matrix44f inverseMatrix = mMatrix.inverted();
+        Vec3f invBbRight = inverseMatrix * mBbRight;
+        Vec3f invBbUp = inverseMatrix * mBbUp;
         
         if( mDataIsLoaded ){
-            mWorld.buildStarsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
-            mWorld.buildStarGlowsVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
+            mWorld.buildStarsVertexArray( invBbRight, invBbUp );
+            mWorld.buildStarGlowsVertexArray( invBbRight, invBbUp );
         }
 		mParticleController.update();
-		mParticleController.buildParticleVertexArray( mMatrix.inverted() * mBbRight, mMatrix.inverted() * mBbUp );
+		mParticleController.buildParticleVertexArray( invBbRight, invBbUp );
 		if( mState.getSelectedArtistNode() ){
 			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaOffset, mCamRingAlpha );
 		}
@@ -920,15 +960,17 @@ void KeplerApp::update()
 void KeplerApp::updateArcball()
 {	
 	if( mTouchVel.length() > 2.0f && !mIsDragging ){
-		mArcball.mouseDown( mTouchPos );
-		mArcball.mouseDrag( mTouchPos + mTouchVel );
+        Vec3f downPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
+        mArcball.mouseDown( Vec2i(downPos.x, downPos.y) );        
+        Vec3f dragPos = mInverseOrientationMatrix * Vec3f(mTouchPos + mTouchVel,0);
+        mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
 	}
 	
-	if( G_ACCEL ){
-		mMatrix = mAccelMatrix * mArcball.getQuat();
-	} else {
+//	if( G_ACCEL ){
+//		mMatrix = mAccelMatrix * mArcball.getQuat();
+//	} else {
 		mMatrix = mArcball.getQuat();
-	}
+//	}
 	
 }
 
@@ -998,13 +1040,15 @@ void KeplerApp::updateCamera()
 	Quatf cameraViewDirection = mCam.getOrientation();
 	Vec3f quatAxis = mMatrix.inverted() * cameraViewDirection.getAxis();
 	float quatZ		= abs( quatAxis.z );
-	mCamRingAlpha	= pow( quatZ, 10.0f ) * 0.2f;
+	mCamRingAlpha	= pow( quatZ, 3.0f ) * 0.025f;
 }
 
 void KeplerApp::updatePlayhead()
 {
+    // TODO: only call this once a second?
 	if( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
 		mCurrentTrackPlayheadTime	= mIpodPlayer.getPlayheadTime();
+        // TODO: cache this when playing track changes
 		mCurrentTrackLength			= mIpodPlayer.getPlayingTrack()->getLength();
 	}
 }
@@ -1169,11 +1213,48 @@ void KeplerApp::drawScene()
 	
 // NAMES
 	if( mIsDrawingText ){
-		mWorld.drawNames( mCam, mPinchAlphaOffset );
+        
+        float nameAngle = 0;
+        // !!! temporary hack, breaks hit tests
+        if (mDeviceOrientation == UPSIDE_DOWN_PORTRAIT_ORIENTATION) {
+            nameAngle = M_PI;
+        }
+        else if (mDeviceOrientation == LANDSCAPE_LEFT_ORIENTATION) {
+            nameAngle = M_PI/2.0;
+        }
+        else if (mDeviceOrientation == LANDSCAPE_RIGHT_ORIENTATION) {
+            nameAngle = -M_PI/2;
+        }        
+        
+		mWorld.drawNames( mCam, mPinchAlphaOffset, nameAngle );
 	}
     
     glDisable( GL_TEXTURE_2D );
-    
+
+//    for (int i = 0; i < mWorld.mNodes.size(); i++) {
+//        Node* artistNode = mWorld.mNodes[i];
+//        if (artistNode->mIsHighlighted) {
+//            gl::color(ColorA(0.0f,0.0f,1.0f,0.25f));
+//            gl::drawSolidRect(artistNode->mHitArea);
+//            gl::drawSolidRect(artistNode->mSphereHitArea);            
+//            for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+//                Node* albumNode = artistNode->mChildNodes[j];
+//                if (albumNode->mIsHighlighted) {
+//                    gl::color(ColorA(0.0f,1.0f,0.0f,0.25f));
+//                    gl::drawSolidRect(albumNode->mHitArea);
+//                    gl::drawSolidRect(albumNode->mSphereHitArea);            
+//                    for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+//                        Node *trackNode = albumNode->mChildNodes[k];
+//                        if (trackNode->mIsHighlighted) {
+//                            gl::color(ColorA(1.0f,0.0f,0.0f,0.25f));
+//                            gl::drawSolidRect(trackNode->mHitArea);
+//                            gl::drawSolidRect(trackNode->mSphereHitArea);
+//                        }
+//                    }            
+//                }
+//            }
+//        }
+//    }
     
     gl::disableAlphaBlending();
     gl::enableAlphaBlending();
@@ -1181,29 +1262,39 @@ void KeplerApp::drawScene()
 // EVERYTHING ELSE
 	mAlphaWheel.draw();
     mUiLayer.draw( mPanelButtonsTex );
-    mBreadcrumbs.draw();//mUiLayer.getPanelYPos() + 5.0f );
+    mBreadcrumbs.draw();
 	
 	gl::enableAdditiveBlending();
     mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mIsDrawingRings, mIsDrawingText );
     mState.draw( mFont );
-    
 	
-	
+	gl::disableAlphaBlending();
     if( G_DEBUG ) drawInfoPanel();
+	if( G_HELP ) drawHelpPanel();
 }
 
-
-
+void KeplerApp::drawHelpPanel()
+{
+	gl::setMatricesWindow( getWindowSize() );
+    gl::pushModelView();
+    gl::multModelView( mOrientationMatrix );
+	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+	gl::draw( mHelpPanelTex, Vec2f( getWindowWidth() * 0.5f - mHelpPanelTex.getWidth() * 0.5f, 50.0f ) );
+    gl::popModelView();
+}
 
 
 void KeplerApp::drawInfoPanel()
 {
 	gl::setMatricesWindow( getWindowSize() );
+    gl::pushModelView();
+    gl::multModelView( mOrientationMatrix );
 	if( getElapsedFrames() % 30 == 0 ){
 		setParamsTex();
 	}
 	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
 	gl::draw( mParamsTex, Vec2f( 23.0f, 25.0f ) );
+    gl::popModelView();
 }
 
 
@@ -1226,6 +1317,7 @@ void KeplerApp::setParamsTex()
 		currentLevel = G_ALPHA_LEVEL;
 	}
 	
+	/*
 	s.str("");
 	s << " CURRENT LEVEL: " << currentLevel;
 	layout.addLine( s.str() );
@@ -1233,6 +1325,7 @@ void KeplerApp::setParamsTex()
 	s.str("");
 	s << " ZOOM LEVEL: " << G_ZOOM;
 	layout.addLine( s.str() );
+	*/
 	
 	mParamsTex = gl::Texture( layout.render( true, false ) );
 }
@@ -1301,21 +1394,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
-	std::cout << "onPlayerStateChanged()" << std::endl;
-    switch( player->getPlayState() ){
-        case ipod::Player::StatePlaying:
-            console() << "Playing..." << endl;
-			mPlayControls.setPlaying(true);
-            break;
-        case ipod::Player::StateStopped:
-            console() << "Stopped." << endl;
-			mPlayControls.setPlaying(false);
-			break;
-        default:
-            console() << "Other!" << endl;
-			mPlayControls.setPlaying(false);
-            break;
-    }
+    mPlayControls.setPlaying(player->getPlayState() == ipod::Player::StatePlaying);
+    // TODO: do we need to update mIsPlaying in world/nodes if state is Stopped?
     return false;
 }
 

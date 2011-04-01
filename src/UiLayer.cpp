@@ -193,7 +193,7 @@ void UiLayer::update()
 	
     // adjust tab rect:
     mPanelTabRect = Rectf( (mPanelRect.x1 + mPanelRect.x2) * 0.5f - 25.0f, mPanelRect.y1 - 50.0f,
-                           (mPanelRect.x1 + mPanelRect.x2) * 0.5f + 25.0f, mPanelRect.y1 + 0.5f );
+                           (mPanelRect.x1 + mPanelRect.x2) * 0.5f + 25.0f, mPanelRect.y1 );
 }
 
 void UiLayer::draw( const vector<gl::Texture> &texs )

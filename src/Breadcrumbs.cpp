@@ -50,17 +50,12 @@ bool Breadcrumbs::orientationChanged( OrientationEvent event )
 bool Breadcrumbs::touchesBegan( TouchEvent event )
 {
     Vec2f pos = event.getTouches()[0].getPos();
-    std::cout << "touchesBegan: " << pos << std::endl;
 	touchesBeganRectIndex = -1;
 	for( int i = 0; i < clickRects.size(); i++ ){
-        std::cout << "testing: " << clickRects[i] << std::endl;
 		if (clickRects[i].contains(pos)) {
-            std::cout << "YES!" << std::endl;
 			touchesBeganRectIndex = i;
 		}
 	}
-	
-	std::cout << "touchesBeganRectIndex = " << touchesBeganRectIndex << std::endl;
 	return false;
 }
 
