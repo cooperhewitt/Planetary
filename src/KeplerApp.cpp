@@ -1199,7 +1199,7 @@ void KeplerApp::drawScene()
 	
 	
 // CONSTELLATION
-	if( mIsDrawingRings ){
+	if( mIsDrawingRings && mData.mFilteredArtists.size() > 1 ){
 		mDottedTex.enableAndBind();
 		mWorld.drawConstellation( mMatrix );
 		mDottedTex.disable();

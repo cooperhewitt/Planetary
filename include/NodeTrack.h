@@ -50,6 +50,7 @@ private:
 	
 	bool		mHasClouds;
 	bool		mIsPopulated;
+	bool		mIsMostPlayed;
 	bool		mHasAlbumArt;
 	ci::gl::Texture mAlbumArt;
 	

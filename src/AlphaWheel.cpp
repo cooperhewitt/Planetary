@@ -134,9 +134,9 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 	if( mShowWheel && timeSincePinchEnded > 0.5f ){ 
         Vec2f dir = (mOrientationMatrix.inverted() * Vec3f(mTouchPos,0)).xy() - mInterfaceCenter;
 		float distToCenter = dir.length();
-		if( distToCenter > 250 && distToCenter < 350 ){
+		if( distToCenter > 225 && distToCenter < 325 ){
 			float touchAngle	= atan2( dir.y, dir.x ) + M_PI;				// RANGE 0 -> TWO_PI
-			float anglePer		= ( touchAngle + 0.11365f + M_PI )/(M_PI * 2.0f);
+			float anglePer		= ( touchAngle + 0.11365f + M_PI*1.5f )/TWO_PI;
 			mAlphaIndex			= (int)( anglePer * 27 )%27;
 			mPrevAlphaChar		= mAlphaChar;
 			mAlphaChar			= mAlphaString.at( mAlphaIndex % mAlphaString.size() );
@@ -148,7 +148,7 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 			mShowWheel = false;
 			mCallbacksWheelClosed.call( this );
 		}		
-        return distToCenter > 250 && distToCenter < 350;
+        return distToCenter > 225 && distToCenter < 325;
 	}
     return false;
 }
@@ -205,11 +205,19 @@ void AlphaWheel::drawWheel()
         gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, -w, h ) );
         // right bar, relative to center:
         gl::drawSolidRect( Rectf( w, -interfaceSize.y/2, interfaceSize.x/2, h ) );
-    }    
+    } else {
+		Vec2f interfaceSize = getWindowSize().xy(); // SWIZ!
+		gl::color( Color::black() );
+        // top bar, relative to center:
+        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, interfaceSize.x/2, -h ) );
+        // bottom bar, relative to center:
+        gl::drawSolidRect( Rectf( -interfaceSize.x/2, h, interfaceSize.x/2, interfaceSize.y/2 ) );
+	}
 }
 
 void AlphaWheel::drawAlphaChar()
 {
+	//std::cout << "AlphaWheel::drawAlphaChar mAlphaIndex = " << mAlphaIndex << std::endl;
 	float w = mAlphaTextures[mAlphaIndex].getWidth() * 0.5f;
 	float h = mAlphaTextures[mAlphaIndex].getHeight() * 0.5f;
 	

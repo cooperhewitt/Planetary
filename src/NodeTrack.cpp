@@ -25,6 +25,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	mRadius				*= 10.0f;
     mIsPlaying			= false;
 	mHasClouds			= false;
+	mIsMostPlayed		= false;
 	mIsPopulated		= false;
 	mHasAlbumArt		= false;
 	
@@ -78,6 +79,12 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 		mHasClouds = false;
 	} else if( mPlayCount > 50 ){	// if im one of many tracks, i have clouds if ive been played plenty
 		mHasClouds = true;
+	}
+	
+	if( album->size() > 1 ){
+		if( mPlayCount == mParentNode->mHighestPlayCount ){
+			mIsMostPlayed = true;
+		}
 	}
 	
 
@@ -388,7 +395,13 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 
 void NodeTrack::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
-	gl::color( ColorA( COLOR_BLUE, 0.2f * pinchAlphaOffset  ) );
+	float alpha = 0.2f * pinchAlphaOffset;
+	
+	if( mIsMostPlayed )
+		gl::color( ColorA( 1.0f, 0.5f, 0.0f, alpha ) );
+	else
+		gl::color( ColorA( COLOR_BLUE, alpha ) );		
+	
 	gl::pushModelView();
 	gl::translate( mParentNode->mTransPos );
 	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );

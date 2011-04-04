@@ -58,6 +58,7 @@
 		E167C8D5132EAFBE00CB496E /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E167C8D3132EAFBE00CB496E /* Particle.cpp */; };
 		E167C8D6132EAFBE00CB496E /* ParticleController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E167C8D4132EAFBE00CB496E /* ParticleController.cpp */; };
 		E17667DE13202FB7006A4C2E /* rings.png in Resources */ = {isa = PBXBuildFile; fileRef = E17667DD13202FB7006A4C2E /* rings.png */; };
+		E178AB51134A6B67000F017F /* alphaWheel.png in Resources */ = {isa = PBXBuildFile; fileRef = E178AB50134A6B67000F017F /* alphaWheel.png */; };
 		E189F6761339A377009B2E23 /* playheadProgress.png in Resources */ = {isa = PBXBuildFile; fileRef = E189F6751339A377009B2E23 /* playheadProgress.png */; };
 		E19EA667132C78D800CEE740 /* 13.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E19EA662132C78D800CEE740 /* 13.jpg */; };
 		E19EA668132C78D800CEE740 /* 23.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E19EA663132C78D800CEE740 /* 23.jpg */; };
@@ -163,6 +164,7 @@
 		E167C8D3132EAFBE00CB496E /* Particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Particle.cpp; path = ../src/Particle.cpp; sourceTree = "<group>"; };
 		E167C8D4132EAFBE00CB496E /* ParticleController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleController.cpp; path = ../src/ParticleController.cpp; sourceTree = "<group>"; };
 		E17667DD13202FB7006A4C2E /* rings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rings.png; sourceTree = "<group>"; };
+		E178AB50134A6B67000F017F /* alphaWheel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = alphaWheel.png; path = ../resources/ui/alphaWheel.png; sourceTree = "<group>"; };
 		E189F6751339A377009B2E23 /* playheadProgress.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playheadProgress.png; path = ../resources/playheadProgress.png; sourceTree = "<group>"; };
 		E19EA662132C78D800CEE740 /* 13.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 13.jpg; sourceTree = "<group>"; };
 		E19EA663132C78D800CEE740 /* 23.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 23.jpg; sourceTree = "<group>"; };
@@ -385,6 +387,7 @@
 		E12766401325E28900E1FC3F /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				E178AB50134A6B67000F017F /* alphaWheel.png */,
 				E1C2D90B133C469C00B4FEEB /* currentTrackOn.png */,
 				E1C2D907133C436500B4FEEB /* currentTrack.png */,
 				E1C2D908133C436500B4FEEB /* help.png */,
@@ -696,6 +699,7 @@
 				E1C2D90A133C436500B4FEEB /* help.png in Resources */,
 				E1C2D90C133C469C00B4FEEB /* currentTrackOn.png in Resources */,
 				E1C2D90E133C4AFA00B4FEEB /* helpPanel.png in Resources */,
+				E178AB51134A6B67000F017F /* alphaWheel.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

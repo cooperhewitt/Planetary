@@ -89,7 +89,9 @@ void World::filterNodes()
 		mNodes[*it]->mIsHighlighted = true;
 	}
 	
-	buildConstellation();
+	if( mData->mFilteredArtists.size() > 1 ){
+		buildConstellation();
+	}
 }
 
 void World::deselectAllNodes()
@@ -546,6 +548,8 @@ void World::buildConstellation()
 	mConstellation.clear();
 	//mConstellationColors.clear();
 	
+	
+
 	// CREATE DATA FOR CONSTELLATION
 	vector<float> distances;	// used for tex coords of the dotted line
 	for( vector<int>::iterator it1 = mData->mFilteredArtists.begin(); it1 != mData->mFilteredArtists.end(); ++it1 ){
@@ -572,18 +576,19 @@ void World::buildConstellation()
 		//mConstellationColors.push_back( ColorA( child1->mGlowColor, 0.15f ) );
 		//mConstellationColors.push_back( ColorA( nearestChild->mGlowColor, 0.15f ) );
 	}
-	
-	
-	
+
+
+
+
 	mTotalConstellationVertices	= mConstellation.size();
 	if (mTotalConstellationVertices != mPrevTotalConstellationVertices) {
-        if (mConstellationVerts != NULL) delete[] mConstellationVerts; 
+		if (mConstellationVerts != NULL) delete[] mConstellationVerts; 
 		if (mConstellationTexCoords != NULL) delete[] mConstellationTexCoords; 
 		
-        mConstellationVerts			= new float[mTotalConstellationVertices*3];
+		mConstellationVerts			= new float[mTotalConstellationVertices*3];
 		mConstellationTexCoords		= new float[mTotalConstellationVertices*2];
-        mPrevTotalConstellationVertices = mTotalConstellationVertices;
-    }
+		mPrevTotalConstellationVertices = mTotalConstellationVertices;
+	}
 	
 	
 	
