@@ -101,21 +101,21 @@ void NodeAlbum::update( const Matrix44f &mat )
 		if( albumArt ){
 			int x				= Rand::randInt( 20, 180 );
 			int y				= Rand::randInt( 64 );
-			Area a				= Area( x, y, x+20, y+128 );
+			Area a				= Area( x, y, x+50, y+128 );
 			Surface crop		= albumArt.clone( a );
 			
 			Surface::Iter iter	= crop.getIter();
 			while( iter.line() ) {
 				while( iter.pixel() ) {
-					if( iter.x() >= 10 ){
-						int xi = x + iter.x() - 10;
+					if( iter.x() >= 25 ){
+						int xi = x + iter.x() - 25;
 						int yi = y + iter.y();
 						ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
 						iter.r() = c.r * 255.0f;
 						iter.g() = c.g * 255.0f;
 						iter.b() = c.b * 255.0f;
 					} else {
-						int xi = x + 9 - iter.x();
+						int xi = x + 24 - iter.x();
 						int yi = y + iter.y();
 						ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
 						iter.r() = c.r * 255.0f;
