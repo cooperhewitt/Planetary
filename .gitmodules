@@ -4,3 +4,6 @@
 [submodule "blocks/CinderIPod"]
 	path = blocks/CinderIPod
 	url = git@github.com:bloomtime/CinderIPod.git
+[submodule "blocks/CinderFlurry"]
+	path = blocks/CinderFlurry
+	url = git@github.com:bloomtime/CinderFlurry.git
