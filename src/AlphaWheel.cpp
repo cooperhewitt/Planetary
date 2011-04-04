@@ -43,7 +43,7 @@ void AlphaWheel::setup( AppCocoaTouch *app )
     mCbOrientationChanged = mApp->registerOrientationChanged( this, &AlphaWheel::orientationChanged );
 	
 	// Textures
-	mWheelTex		= gl::Texture( loadImage( loadResource( "wheel.png" ) ) );
+	mWheelTex		= gl::Texture( loadImage( loadResource( "alphaWheel.png" ) ) );
 	
 	mAlphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
 	mAlphaIndex		= 0;

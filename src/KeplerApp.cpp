@@ -661,13 +661,9 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
-<<<<<<< HEAD
     Flurry::getInstrumentation()->logEvent("Pinch");
 	//std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
-=======
-	//std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
-    Flurry::getInstrumentation()->logEvent("Pinch");
->>>>>>> 0f102ac02a5328d0aa519ec7e64ed8bad4d04cb0
+
 	if( mCamDistPinchOffset > 4.1f ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){

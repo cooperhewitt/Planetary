@@ -772,7 +772,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer: Robert Hodgin (S4H3GSX268)";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer: Robert Hodgin (Y2B24ZQA53)";
 				COPY_PHASE_STRIP = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -794,7 +794,7 @@
 					"-lz",
 				);
 				PRODUCT_NAME = Planetary;
-				"PROVISIONING_PROFILE[sdk=*]" = "5F1EFE4E-75D4-4367-84F7-B9AF7E776CBA";
+				"PROVISIONING_PROFILE[sdk=*]" = "90BFB82E-496C-4A03-A9E5-9E4D44AFC55F";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = armv7;
 			};
@@ -808,7 +808,7 @@
 				CINDER_PATH_robert = ../../../../cinder_master;
 				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Robert Hodgin (Y2B24ZQA53)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Robert Hodgin (S4H3GSX268)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
@@ -817,7 +817,7 @@
 				HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/boost\"";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "90BFB82E-496C-4A03-A9E5-9E4D44AFC55F";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "4E5EBE7A-87B5-4D6D-A0B3-CD1BB8B9020E";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" include";
