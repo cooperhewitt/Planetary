@@ -25,6 +25,7 @@ class Data {
 	
 	GLfloat *mWheelDataVerts;
 	GLfloat *mWheelDataTexCoords;
+	GLfloat *mWheelDataColors;
 	
   private:
 	void backgroundInitArtists();

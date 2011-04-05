@@ -86,6 +86,7 @@
 		E1C6FFF3131847A40022246C /* Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C6FFF2131847A40022246C /* Data.cpp */; };
 		E1D99A84134A9DB3003FC316 /* blurRect.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A83134A9DB3003FC316 /* blurRect.png */; };
 		E1D99A8C134AED57003FC316 /* loading.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A8B134AED56003FC316 /* loading.png */; };
+		E1D99A8E134AFF2F003FC316 /* alphaWheelMask.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */; };
 		E1E663701317887F00E5E4B9 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E6636F1317887F00E5E4B9 /* State.cpp */; };
 		E1F2D83113296A70009A2309 /* sliderBg.png in Resources */ = {isa = PBXBuildFile; fileRef = E1F2D83013296A70009A2309 /* sliderBg.png */; };
 		E1F2DBDD132A1D7B009A2309 /* highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = E1F2DBDC132A1D7B009A2309 /* highlight.png */; };
@@ -199,6 +200,7 @@
 		E1C6FFF2131847A40022246C /* Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Data.cpp; path = ../src/Data.cpp; sourceTree = SOURCE_ROOT; };
 		E1D99A83134A9DB3003FC316 /* blurRect.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = blurRect.png; path = ../resources/ui/blurRect.png; sourceTree = "<group>"; };
 		E1D99A8B134AED56003FC316 /* loading.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = loading.png; path = ../resources/ui/loading.png; sourceTree = "<group>"; };
+		E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = alphaWheelMask.png; path = ../resources/ui/alphaWheelMask.png; sourceTree = "<group>"; };
 		E1E6636E1317887600E5E4B9 /* State.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../include/State.h; sourceTree = SOURCE_ROOT; };
 		E1E6636F1317887F00E5E4B9 /* State.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = State.cpp; path = ../src/State.cpp; sourceTree = SOURCE_ROOT; };
 		E1F2D83013296A70009A2309 /* sliderBg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = sliderBg.png; path = ../resources/ui/sliderBg.png; sourceTree = SOURCE_ROOT; };
@@ -389,8 +391,9 @@
 		E12766401325E28900E1FC3F /* ui */ = {
 			isa = PBXGroup;
 			children = (
-				E1D99A83134A9DB3003FC316 /* blurRect.png */,
+				E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */,
 				E178AB50134A6B67000F017F /* alphaWheel.png */,
+				E1D99A83134A9DB3003FC316 /* blurRect.png */,
 				E1C2D90B133C469C00B4FEEB /* currentTrackOn.png */,
 				E1C2D907133C436500B4FEEB /* currentTrack.png */,
 				E1C2D908133C436500B4FEEB /* help.png */,
@@ -704,6 +707,7 @@
 				E178AB51134A6B67000F017F /* alphaWheel.png in Resources */,
 				E1D99A84134A9DB3003FC316 /* blurRect.png in Resources */,
 				E1D99A8C134AED57003FC316 /* loading.png in Resources */,
+				E1D99A8E134AFF2F003FC316 /* alphaWheelMask.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

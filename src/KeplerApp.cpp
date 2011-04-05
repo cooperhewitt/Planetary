@@ -1266,7 +1266,7 @@ void KeplerApp::drawScene()
     gl::enableAlphaBlending();
 	
 // EVERYTHING ELSE
-	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords );
+	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
     mUiLayer.draw( mPanelButtonsTex );
     mBreadcrumbs.draw();
 	

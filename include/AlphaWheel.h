@@ -28,7 +28,7 @@ public:
     bool    orientationChanged( ci::app::OrientationEvent event );
 	void	update( float fov );
 	void	setTimePinchEnded( float timePinchEnded );
-	void	draw( GLfloat *verts, GLfloat *texCoords );
+	void	draw( GLfloat *verts, GLfloat *texCoords, GLfloat *colors );
     // TODO: if we're resetting prev alpha char here should we fire a callback?
 	void	setShowWheel( bool b ){ mShowWheel = b; if ( mShowWheel ) mPrevAlphaChar = ' '; }
 	bool	getShowWheel(){ return mShowWheel; }
@@ -48,7 +48,8 @@ public:
 	
 private:
 	void	drawWheel();
-	void	drawWheelData( GLfloat *verts, GLfloat *texCoords );
+	void	drawWheelMask();
+	void	drawWheelData( GLfloat *verts, GLfloat *texCoords, GLfloat *colors );
 	void	drawAlphaChar();    
 	bool	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
     
@@ -64,7 +65,7 @@ private:
 	char			mAlphaChar, mPrevAlphaChar;
 	float			mWheelScale;
 	
-	ci::gl::Texture	mWheelTex;
+	ci::gl::Texture	mWheelTex, mWheelMaskTex;
 	ci::gl::Texture mBlurRectTex;
 	std::vector<ci::gl::Texture> mAlphaTextures;
 	

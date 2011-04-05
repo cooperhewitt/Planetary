@@ -44,6 +44,7 @@ void AlphaWheel::setup( AppCocoaTouch *app )
 	
 	// Textures
 	mWheelTex		= gl::Texture( loadImage( loadResource( "alphaWheel.png" ) ) );
+	mWheelMaskTex	= gl::Texture( loadImage( loadResource( "alphaWheelMask.png" ) ) );
 	mBlurRectTex	= gl::Texture( loadImage( loadResource( "blurRect.png" ) ) );
 	
 	mAlphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
@@ -169,7 +170,7 @@ void AlphaWheel::update( float fov )
 	}	
 }
 
-void AlphaWheel::draw( GLfloat *verts, GLfloat *texCoords )
+void AlphaWheel::draw( GLfloat *verts, GLfloat *texCoords, GLfloat *colors )
 {
 	if( mWheelScale < 0.9f ){
 		gl::pushModelView();
@@ -179,8 +180,9 @@ void AlphaWheel::draw( GLfloat *verts, GLfloat *texCoords )
 		gl::scale( Vec3f( mWheelScale + 1.0f, mWheelScale + 1.0f, 1.0f ) );
 
 
-        drawWheel();
-        drawWheelData( verts, texCoords );
+        drawWheelMask();
+        drawWheelData( verts, texCoords, colors );
+		drawWheel();
 		
 		if( mAlphaChar != ' ' )
 			drawAlphaChar();
@@ -189,44 +191,57 @@ void AlphaWheel::draw( GLfloat *verts, GLfloat *texCoords )
 	}
 }
 
-void AlphaWheel::drawWheel()
+void AlphaWheel::drawWheelMask()
 {
-    float w = mWheelTex.getWidth() * 0.5f;
-    float h = mWheelTex.getHeight() * 0.5f;
+    float wMask = mWheelMaskTex.getWidth() * 0.5f;
+    float hMask = mWheelMaskTex.getHeight() * 0.5f;
 
     float c = 1.0f - mWheelScale;
     gl::color( ColorA( c, c, c, c ) );
     
-    mWheelTex.enableAndBind();
-    gl::drawSolidRect( Rectf( -w, -h, w, h ) );
-    mWheelTex.disable();    
-    
+    mWheelMaskTex.enableAndBind();
+    gl::drawSolidRect( Rectf( -wMask, -hMask, wMask, hMask ) );
+    mWheelMaskTex.disable();    
+	
     if ( UIDeviceOrientationIsLandscape( UIDeviceOrientation(mDeviceOrientation) ) ) {
         Vec2f interfaceSize = getWindowSize().yx(); // SWIZ!
         gl::color( Color::black() );
         // left bar, relative to center:
-        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, -w, h ) );
+        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, -wMask, hMask ) );
         // right bar, relative to center:
-        gl::drawSolidRect( Rectf( w, -interfaceSize.y/2, interfaceSize.x/2, h ) );
+        gl::drawSolidRect( Rectf( wMask, -interfaceSize.y/2, interfaceSize.x/2, hMask ) );
     } else {
 		Vec2f interfaceSize = getWindowSize().xy();
 		gl::color( Color::black() );
         // top bar, relative to center:
-        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, interfaceSize.x/2, -h ) );
+        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, interfaceSize.x/2, -hMask ) );
         // bottom bar, relative to center:
-        gl::drawSolidRect( Rectf( -interfaceSize.x/2, h, interfaceSize.x/2, interfaceSize.y/2 ) );
+        gl::drawSolidRect( Rectf( -interfaceSize.x/2, hMask, interfaceSize.x/2, interfaceSize.y/2 ) );
 	}
 }
 
-void AlphaWheel::drawWheelData( GLfloat *verts, GLfloat *texCoords )
+void AlphaWheel::drawWheel()
 {
-	float c = 1.0f - mWheelScale;
-	gl::color( ColorA( Color::white(), c ) );
+	float wWheel = mWheelTex.getWidth() * 0.5f;
+	float hWheel = mWheelTex.getWidth() * 0.5f;
+	
+    float c = 1.0f - mWheelScale;
+    gl::color( ColorA( c, c, c, c ) );
+
+	mWheelTex.enableAndBind();
+    gl::drawSolidRect( Rectf( -wWheel, -hWheel, wWheel, hWheel ) );
+    mWheelTex.disable(); 
+}
+
+void AlphaWheel::drawWheelData( GLfloat *verts, GLfloat *texCoords, GLfloat *colors )
+{
 	gl::pushModelView();
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glEnableClientState( GL_COLOR_ARRAY );
 	glVertexPointer( 2, GL_FLOAT, 0, verts );
 	glTexCoordPointer( 2, GL_FLOAT, 0, texCoords );
+	glColorPointer( 4, GL_FLOAT, 0, colors );
 	gl::enableAlphaBlending();
 	mBlurRectTex.enableAndBind();
 	glDrawArrays( GL_TRIANGLES, 0, 27*6 );
@@ -234,6 +249,7 @@ void AlphaWheel::drawWheelData( GLfloat *verts, GLfloat *texCoords )
 	gl::enableAlphaBlending();
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableClientState( GL_COLOR_ARRAY );
 	gl::popModelView();
 }
 
@@ -245,7 +261,9 @@ void AlphaWheel::drawAlphaChar()
 	
 	gl::color( ColorA( COLOR_BLUE, 1.0f - mWheelScale ) );
 	
+	gl::enableAdditiveBlending();
     mAlphaTextures[mAlphaIndex].enableAndBind();
 	gl::drawSolidRect( Rectf( -w, -h, w, h ) );
 	mAlphaTextures[mAlphaIndex].disable();
+	gl::enableAlphaBlending();
 }
