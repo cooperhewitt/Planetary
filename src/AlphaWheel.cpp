@@ -44,6 +44,7 @@ void AlphaWheel::setup( AppCocoaTouch *app )
 	
 	// Textures
 	mWheelTex		= gl::Texture( loadImage( loadResource( "alphaWheel.png" ) ) );
+	mBlurRectTex	= gl::Texture( loadImage( loadResource( "blurRect.png" ) ) );
 	
 	mAlphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
 	mAlphaIndex		= 0;
@@ -168,17 +169,19 @@ void AlphaWheel::update( float fov )
 	}	
 }
 
-void AlphaWheel::draw( )
+void AlphaWheel::draw( GLfloat *verts, GLfloat *texCoords )
 {
-	if( mWheelScale < 1.0f ){
+	if( mWheelScale < 0.9f ){
 		gl::pushModelView();
         gl::multModelView( mOrientationMatrix );
         
 		gl::translate( mInterfaceCenter );
 		gl::scale( Vec3f( mWheelScale + 1.0f, mWheelScale + 1.0f, 1.0f ) );
-        
+
+        drawWheelData( verts, texCoords );
         drawWheel();
-        
+
+		
 		if( mAlphaChar != ' ' )
 			drawAlphaChar();
         
@@ -206,7 +209,7 @@ void AlphaWheel::drawWheel()
         // right bar, relative to center:
         gl::drawSolidRect( Rectf( w, -interfaceSize.y/2, interfaceSize.x/2, h ) );
     } else {
-		Vec2f interfaceSize = getWindowSize().xy(); // SWIZ!
+		Vec2f interfaceSize = getWindowSize().xy();
 		gl::color( Color::black() );
         // top bar, relative to center:
         gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, interfaceSize.x/2, -h ) );
@@ -215,14 +218,32 @@ void AlphaWheel::drawWheel()
 	}
 }
 
+void AlphaWheel::drawWheelData( GLfloat *verts, GLfloat *texCoords )
+{
+	float c = 1.0f - mWheelScale;
+	gl::color( ColorA( COLOR_BLUE, c ) );
+	gl::pushModelView();
+	glEnableClientState( GL_VERTEX_ARRAY );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glVertexPointer( 2, GL_FLOAT, 0, verts );
+	glTexCoordPointer( 2, GL_FLOAT, 0, texCoords );
+	gl::enableAlphaBlending();
+	mBlurRectTex.enableAndBind();
+	glDrawArrays( GL_TRIANGLES, 0, 27*6 );
+	mBlurRectTex.disable();
+	gl::enableAlphaBlending();
+	glDisableClientState( GL_VERTEX_ARRAY );
+	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	gl::popModelView();
+}
+
 void AlphaWheel::drawAlphaChar()
 {
 	//std::cout << "AlphaWheel::drawAlphaChar mAlphaIndex = " << mAlphaIndex << std::endl;
 	float w = mAlphaTextures[mAlphaIndex].getWidth() * 0.5f;
 	float h = mAlphaTextures[mAlphaIndex].getHeight() * 0.5f;
 	
-    // TODO: is this COLOR_BLUE? should it be?
-	gl::color( ColorA( 0.1f, 0.2f, 0.6f, 1.0f - mWheelScale ) );
+	gl::color( ColorA( COLOR_BLUE, 1.0f - mWheelScale ) );
 	
     mAlphaTextures[mAlphaIndex].enableAndBind();
 	gl::drawSolidRect( Rectf( -w, -h, w, h ) );

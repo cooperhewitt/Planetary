@@ -16,7 +16,6 @@
 #include "cinder/Color.h"
 #include "cinder/Font.h"
 
-
 class AlphaWheel {
 public:
 	AlphaWheel();
@@ -29,7 +28,7 @@ public:
     bool    orientationChanged( ci::app::OrientationEvent event );
 	void	update( float fov );
 	void	setTimePinchEnded( float timePinchEnded );
-	void	draw();
+	void	draw( GLfloat *verts, GLfloat *texCoords );
     // TODO: if we're resetting prev alpha char here should we fire a callback?
 	void	setShowWheel( bool b ){ mShowWheel = b; if ( mShowWheel ) mPrevAlphaChar = ' '; }
 	bool	getShowWheel(){ return mShowWheel; }
@@ -49,6 +48,7 @@ public:
 	
 private:
 	void	drawWheel();
+	void	drawWheelData( GLfloat *verts, GLfloat *texCoords );
 	void	drawAlphaChar();    
 	bool	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
     
@@ -65,6 +65,7 @@ private:
 	float			mWheelScale;
 	
 	ci::gl::Texture	mWheelTex;
+	ci::gl::Texture mBlurRectTex;
 	std::vector<ci::gl::Texture> mAlphaTextures;
 	
 	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksAlphaCharSelected;

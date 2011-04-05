@@ -60,6 +60,36 @@ void Data::backgroundInitArtists()
 	Flurry::getInstrumentation()->startTimeEvent("Music Loading");
 	pending = getArtists();		
 	std::cout << "got " << pending.size() << " artists" << std::endl;
+	
+	
+// QUICK FIX FOR GETTING MORE DATA ONTO THE ALPHAWHEEL
+	string alphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
+	for( int i=0; i<27; i++ ){
+		mNumArtistsPerChar[alphaString[i]] = 0;
+	}
+	for( vector<ci::ipod::PlaylistRef>::iterator it = pending.begin(); it != pending.end(); ++it ){
+		string name		= (*it)->getArtistName();
+		string the		= name.substr( 0, 4 );
+		char firstLetter;
+		
+		if( the == "The " || the == "the " ){
+			firstLetter = name[4];
+		} else {
+			firstLetter = name[0];
+		}
+		
+		if( isdigit(firstLetter) ){
+			firstLetter = '#';
+		} else {
+			firstLetter = static_cast<char> ( toupper( firstLetter ) );
+		}
+		
+		mNumArtistsPerChar[firstLetter] ++;
+	}
+	buildVertexArray();
+// END ALPHAWHEEL QUICK FIX
+	
+	
 	Flurry::getInstrumentation()->stopTimeEvent("Music Loading");
     std::map<string, string> params;
     params["NumArtists"] = i_to_string(pending.size());;
@@ -78,6 +108,57 @@ bool Data::update()
 	}
 	return false;
 }
+
+void Data::buildVertexArray()
+{
+	string alphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
+	mWheelDataVerts	= new float[ 27*2*6 ]; // LETTERS * 2DIMENSIONS * 2TRIANGLES
+	mWheelDataTexCoords = new float[ 27*2*6 ];
+	
+	float baseRadius = 230.0f;
+	int index = 0;
+	int tIndex = 0;
+	for( int i=0; i<27; i++ ){
+		float numArtistsAtChar	= (float)mNumArtistsPerChar[alphaString[i]] * 2.0f;
+		float per				= (float)i/27.0f;
+		float angle				= per * TWO_PI - M_PI_2;
+		float angle1			= angle - 0.085f;
+		float angle2			= angle + 0.085f;
+		float cosAngle1			= cos( angle1 );
+		float sinAngle1			= sin( angle1 );
+		float cosAngle2			= cos( angle2 );
+		float sinAngle2			= sin( angle2 );
+		
+		mWheelDataVerts[index++] = cosAngle1 * baseRadius;
+		mWheelDataVerts[index++] = sinAngle1 * baseRadius;
+		mWheelDataVerts[index++] = cosAngle2 * baseRadius;
+		mWheelDataVerts[index++] = sinAngle2 * baseRadius;
+		mWheelDataVerts[index++] = cosAngle1 * ( baseRadius - numArtistsAtChar );
+		mWheelDataVerts[index++] = sinAngle1 * ( baseRadius - numArtistsAtChar );
+		
+		mWheelDataVerts[index++] = cosAngle2 * baseRadius;
+		mWheelDataVerts[index++] = sinAngle2 * baseRadius;
+		mWheelDataVerts[index++] = cosAngle1 * ( baseRadius - numArtistsAtChar );
+		mWheelDataVerts[index++] = sinAngle1 * ( baseRadius - numArtistsAtChar );
+		mWheelDataVerts[index++] = cosAngle2 * ( baseRadius - numArtistsAtChar );
+		mWheelDataVerts[index++] = sinAngle2 * ( baseRadius - numArtistsAtChar );
+		
+		mWheelDataTexCoords[tIndex++] = 0.0f;
+		mWheelDataTexCoords[tIndex++] = 0.0f;
+		mWheelDataTexCoords[tIndex++] = 1.0f;
+		mWheelDataTexCoords[tIndex++] = 0.0f;
+		mWheelDataTexCoords[tIndex++] = 0.0f;
+		mWheelDataTexCoords[tIndex++] = 1.0f;
+		
+		mWheelDataTexCoords[tIndex++] = 1.0f;
+		mWheelDataTexCoords[tIndex++] = 0.0f;
+		mWheelDataTexCoords[tIndex++] = 0.0f;
+		mWheelDataTexCoords[tIndex++] = 1.0f;
+		mWheelDataTexCoords[tIndex++] = 1.0f;
+		mWheelDataTexCoords[tIndex++] = 1.0f;
+	}
+}
+
 
 void Data::filterArtistsByAlpha( char c )
 {

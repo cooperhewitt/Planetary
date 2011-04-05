@@ -21,9 +21,14 @@ class Data {
 	
 	std::vector<ci::ipod::PlaylistRef> mArtists;
 	std::vector<int> mFilteredArtists;
+	std::map< char, int > mNumArtistsPerChar;
+	
+	GLfloat *mWheelDataVerts;
+	GLfloat *mWheelDataTexCoords;
 	
   private:
 	void backgroundInitArtists();
+	void buildVertexArray();
 	bool isIniting;
 	std::vector<ci::ipod::PlaylistRef> pending;
 	

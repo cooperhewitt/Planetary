@@ -739,6 +739,9 @@ bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 bool KeplerApp::onAlphaCharStateChanged( State *state )
 {
 	mData.filterArtistsByAlpha( mState.getAlphaChar() );
+	
+	std::cout << "Letter " << mState.getAlphaChar() << " has " << mData.mFilteredArtists.size() << " artists" << std::endl;
+	
 	mWorld.filterNodes();
 	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
 	return false;
@@ -1263,7 +1266,7 @@ void KeplerApp::drawScene()
     gl::enableAlphaBlending();
 	
 // EVERYTHING ELSE
-	mAlphaWheel.draw();
+	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords );
     mUiLayer.draw( mPanelButtonsTex );
     mBreadcrumbs.draw();
 	
