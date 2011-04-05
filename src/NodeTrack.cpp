@@ -279,11 +279,12 @@ void NodeTrack::update( const Matrix44f &mat )
 
 void NodeTrack::drawEclipseGlow()
 {
+	/*
 	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
         gl::color( ColorA( mParentNode->mParentNode->mGlowColor, mEclipseStrength ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 3.25f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
-	}
+	}*/
 }
 
 void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
@@ -330,10 +331,10 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 	
 }
 
-void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
+void NodeTrack::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
 {
-	if( mSphereScreenRadius > 2.0f ){
-		if( mCamDistAlpha > 0.05f && mHasClouds ){
+	if( mSphereScreenRadius > 10.0f ){
+		if( mCamDistAlpha > 0.05f ){
 			glEnableClientState( GL_VERTEX_ARRAY );
 			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 			glEnableClientState( GL_NORMAL_ARRAY );
@@ -351,36 +352,22 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			}
 			
 			gl::disableAlphaBlending();
-			
+
 			gl::pushModelView();
 			gl::translate( mTransPos );
+			planets[mPlanetTexIndex].enableAndBind();
+
+			glEnable( GL_LIGHTING );
+			// LIT CLOUDS
 			gl::pushModelView();
 			float radius = mRadius + 0.000025f;
 			gl::scale( Vec3f( radius, radius, radius ) );
 			glEnable( GL_RESCALE_NORMAL );
 			gl::rotate( mMatrix );
 			gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
-			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.6f, 0.0f ) );
-
-			// SHADOW CLOUDS
-			glDisable( GL_LIGHTING );
-			gl::disableAlphaBlending();
-			gl::enableAlphaBlending();
-			gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.5f ) );
-			clouds[mCloudTexIndex].enableAndBind();
-			glDrawArrays( GL_TRIANGLES, 0, numVerts );
-			gl::popModelView();
-			glEnable( GL_LIGHTING );
-			// LIT CLOUDS
-			gl::pushModelView();
-			radius = mRadius + 0.00005f;
-			gl::scale( Vec3f( radius, radius, radius ) );
-			glEnable( GL_RESCALE_NORMAL );
-			gl::rotate( mMatrix );
-			gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
-			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.6f, 0.0f ) );
+			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, 0.0f ) );
 			gl::enableAdditiveBlending();
-			gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
+			gl::color( ColorA( mEclipseColor, mCamDistAlpha * 0.5f ) );
 			glDrawArrays( GL_TRIANGLES, 0, numVerts );
 			gl::popModelView();
 			gl::popModelView();
@@ -388,7 +375,6 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			glDisableClientState( GL_VERTEX_ARRAY );
 			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 			glDisableClientState( GL_NORMAL_ARRAY );
-
 		}
 	}
 }
@@ -398,7 +384,7 @@ void NodeTrack::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes,
 	float alpha = 0.2f * pinchAlphaOffset;
 	
 	if( mIsMostPlayed )
-		gl::color( ColorA( 1.0f, 0.5f, 0.0f, alpha ) );
+		gl::color( ColorA( COLOR_BRIGHT_BLUE, alpha ) );
 	else
 		gl::color( ColorA( COLOR_BLUE, alpha ) );		
 	

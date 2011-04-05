@@ -21,7 +21,7 @@ class Data {
 	
 	std::vector<ci::ipod::PlaylistRef> mArtists;
 	std::vector<int> mFilteredArtists;
-	std::map< char, int > mNumArtistsPerChar;
+	std::map< char, float > mNumArtistsPerChar;
 	
 	GLfloat *mWheelDataVerts;
 	GLfloat *mWheelDataTexCoords;

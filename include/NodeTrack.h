@@ -21,7 +21,7 @@ class NodeTrack : public Node
 	void update( const ci::Matrix44f &mat );
 	void drawEclipseGlow();
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
-	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
+	void drawClouds( const std::vector< ci::gl::Texture> &planets, const std::vector< ci::gl::Texture> &clouds );
 	void drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void buildPlayheadProgressVertexArray();
 	void drawPlayheadProgress( const ci::gl::Texture &tex );

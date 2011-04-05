@@ -103,9 +103,9 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 	Node::drawPlanet( planets );
 }
 
-void NodeArtist::drawClouds( const vector<gl::Texture> &planets )
+void NodeArtist::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
 {
-	Node::drawClouds( planets );
+	Node::drawClouds( planets, clouds );
 }
 
 void NodeArtist::select()

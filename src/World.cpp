@@ -481,10 +481,10 @@ void World::drawPlanets( const vector<gl::Texture> &planets )
 	}
 }
 
-void World::drawClouds( const vector<gl::Texture> &clouds )
+void World::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawClouds( clouds );
+		(*it)->drawClouds( planets, clouds );
 	}
 }
 

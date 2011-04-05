@@ -32,6 +32,7 @@ Node::Node( Node *parent, int index, const Font &font )
     
 	mScreenPos			= Vec2f::zero();
 	mEclipsePer			= 1.0f;
+	mEclipseStrength	= 0.0f;
 	mTransPos			= mPos;
 
 	mOrbitStartAngle	= Rand::randFloat( TWO_PI );
@@ -172,10 +173,10 @@ void Node::drawPlanet( const vector<gl::Texture> &planets )
 	}
 }
 
-void Node::drawClouds( const vector<gl::Texture> &clouds )
+void Node::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawClouds( clouds );
+		(*nodeIt)->drawClouds( planets, clouds );
 	}
 }
 
@@ -199,7 +200,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset, float angle
 		if( mIsPlaying || mIsSelected ){
 			gl::color( ColorA( Color::white(), 1.0f ) );
 		} else {
-			gl::color( ColorA( COLOR_BRIGHT_BLUE, mZoomPer * pinchAlphaOffset ) );
+			gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.65f * mZoomPer * pinchAlphaOffset ) );
 		}
 
 		if (mNameTex == NULL) {

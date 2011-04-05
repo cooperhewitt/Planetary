@@ -21,7 +21,7 @@ class NodeAlbum : public Node
 	void drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void drawEclipseGlow();
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
-	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
+	void drawClouds( const std::vector< ci::gl::Texture> &planets, const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha );
 	void select();
 	void setChildOrbitRadii();
@@ -33,7 +33,6 @@ class NodeAlbum : public Node
 	int mNumTracks;
 
   private:
-	float mEclipseStrength;
 	
 	bool		mHasAlbumArt;
 	bool		mHasCreatedAlbumArt;

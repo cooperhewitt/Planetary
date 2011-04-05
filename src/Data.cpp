@@ -67,6 +67,7 @@ void Data::backgroundInitArtists()
 	for( int i=0; i<27; i++ ){
 		mNumArtistsPerChar[alphaString[i]] = 0;
 	}
+	float maxCount = 0.0001f;
 	for( vector<ci::ipod::PlaylistRef>::iterator it = pending.begin(); it != pending.end(); ++it ){
 		string name		= (*it)->getArtistName();
 		string the		= name.substr( 0, 4 );
@@ -84,8 +85,16 @@ void Data::backgroundInitArtists()
 			firstLetter = static_cast<char> ( toupper( firstLetter ) );
 		}
 		
-		mNumArtistsPerChar[firstLetter] ++;
+		mNumArtistsPerChar[firstLetter] += 1.0f;
+		
+		if( mNumArtistsPerChar[firstLetter] > maxCount ){
+			maxCount = mNumArtistsPerChar[firstLetter];
+		}
 	}
+	for( map< char, float >::iterator it = mNumArtistsPerChar.begin(); it != mNumArtistsPerChar.end(); ++it ){
+		it->second = ( it->second/maxCount );
+	}
+	
 	buildVertexArray();
 // END ALPHAWHEEL QUICK FIX
 	
@@ -115,43 +124,47 @@ void Data::buildVertexArray()
 	mWheelDataVerts	= new float[ 27*2*6 ]; // LETTERS * 2DIMENSIONS * 2TRIANGLES
 	mWheelDataTexCoords = new float[ 27*2*6 ];
 	
-	float baseRadius = 230.0f;
+	
+	
+	float baseRadius = 273.0f;
 	int index = 0;
 	int tIndex = 0;
 	for( int i=0; i<27; i++ ){
-		float numArtistsAtChar	= (float)mNumArtistsPerChar[alphaString[i]] * 2.0f;
+		float numArtistsAtChar	= (float)mNumArtistsPerChar[alphaString[i]];
 		float per				= (float)i/27.0f;
 		float angle				= per * TWO_PI - M_PI_2;
-		float angle1			= angle - 0.085f;
-		float angle2			= angle + 0.085f;
-		float cosAngle1			= cos( angle1 );
-		float sinAngle1			= sin( angle1 );
-		float cosAngle2			= cos( angle2 );
-		float sinAngle2			= sin( angle2 );
+		float angle1			= angle - 0.025f;
+		float angle2			= angle + 0.025f;
+		float cosAngle			= cos( angle ) * numArtistsAtChar * 100.0f;
+		float sinAngle			= sin( angle ) * numArtistsAtChar * 100.0f;
+		float cosAngle1			= cos( angle1 ) * baseRadius;
+		float sinAngle1			= sin( angle1 ) * baseRadius;
+		float cosAngle2			= cos( angle2 ) * baseRadius;
+		float sinAngle2			= sin( angle2 ) * baseRadius;
 		
-		mWheelDataVerts[index++] = cosAngle1 * baseRadius;
-		mWheelDataVerts[index++] = sinAngle1 * baseRadius;
-		mWheelDataVerts[index++] = cosAngle2 * baseRadius;
-		mWheelDataVerts[index++] = sinAngle2 * baseRadius;
-		mWheelDataVerts[index++] = cosAngle1 * ( baseRadius - numArtistsAtChar );
-		mWheelDataVerts[index++] = sinAngle1 * ( baseRadius - numArtistsAtChar );
+		mWheelDataVerts[index++] = cosAngle1;
+		mWheelDataVerts[index++] = sinAngle1;
+		mWheelDataVerts[index++] = cosAngle2;
+		mWheelDataVerts[index++] = sinAngle2;
+		mWheelDataVerts[index++] = cosAngle1 + cosAngle;
+		mWheelDataVerts[index++] = sinAngle1 + sinAngle;
 		
-		mWheelDataVerts[index++] = cosAngle2 * baseRadius;
-		mWheelDataVerts[index++] = sinAngle2 * baseRadius;
-		mWheelDataVerts[index++] = cosAngle1 * ( baseRadius - numArtistsAtChar );
-		mWheelDataVerts[index++] = sinAngle1 * ( baseRadius - numArtistsAtChar );
-		mWheelDataVerts[index++] = cosAngle2 * ( baseRadius - numArtistsAtChar );
-		mWheelDataVerts[index++] = sinAngle2 * ( baseRadius - numArtistsAtChar );
+		mWheelDataVerts[index++] = cosAngle2;
+		mWheelDataVerts[index++] = sinAngle2;
+		mWheelDataVerts[index++] = cosAngle1 + cosAngle;
+		mWheelDataVerts[index++] = sinAngle1 + sinAngle;
+		mWheelDataVerts[index++] = cosAngle2 + cosAngle;
+		mWheelDataVerts[index++] = sinAngle2 + sinAngle;
 		
 		mWheelDataTexCoords[tIndex++] = 0.0f;
+		mWheelDataTexCoords[tIndex++] = 1.0f - numArtistsAtChar;
+		mWheelDataTexCoords[tIndex++] = 1.0f;
+		mWheelDataTexCoords[tIndex++] = 1.0f - numArtistsAtChar;
 		mWheelDataTexCoords[tIndex++] = 0.0f;
 		mWheelDataTexCoords[tIndex++] = 1.0f;
-		mWheelDataTexCoords[tIndex++] = 0.0f;
-		mWheelDataTexCoords[tIndex++] = 0.0f;
-		mWheelDataTexCoords[tIndex++] = 1.0f;
 		
 		mWheelDataTexCoords[tIndex++] = 1.0f;
-		mWheelDataTexCoords[tIndex++] = 0.0f;
+		mWheelDataTexCoords[tIndex++] = 1.0f - numArtistsAtChar;
 		mWheelDataTexCoords[tIndex++] = 0.0f;
 		mWheelDataTexCoords[tIndex++] = 1.0f;
 		mWheelDataTexCoords[tIndex++] = 1.0f;

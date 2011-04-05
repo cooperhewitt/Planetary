@@ -135,7 +135,7 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 	if( mShowWheel && timeSincePinchEnded > 0.5f ){ 
         Vec2f dir = (mOrientationMatrix.inverted() * Vec3f(mTouchPos,0)).xy() - mInterfaceCenter;
 		float distToCenter = dir.length();
-		if( distToCenter > 225 && distToCenter < 325 ){
+		if( distToCenter > 225 && distToCenter < 300 ){
 			float touchAngle	= atan2( dir.y, dir.x ) + M_PI;				// RANGE 0 -> TWO_PI
 			float anglePer		= ( touchAngle + 0.11365f + M_PI*1.5f )/TWO_PI;
 			mAlphaIndex			= (int)( anglePer * 27 )%27;
@@ -149,7 +149,7 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 			mShowWheel = false;
 			mCallbacksWheelClosed.call( this );
 		}		
-        return distToCenter > 225 && distToCenter < 325;
+        return distToCenter > 225 && distToCenter < 300;
 	}
     return false;
 }
@@ -178,9 +178,9 @@ void AlphaWheel::draw( GLfloat *verts, GLfloat *texCoords )
 		gl::translate( mInterfaceCenter );
 		gl::scale( Vec3f( mWheelScale + 1.0f, mWheelScale + 1.0f, 1.0f ) );
 
-        drawWheelData( verts, texCoords );
-        drawWheel();
 
+        drawWheel();
+        drawWheelData( verts, texCoords );
 		
 		if( mAlphaChar != ' ' )
 			drawAlphaChar();
@@ -221,7 +221,7 @@ void AlphaWheel::drawWheel()
 void AlphaWheel::drawWheelData( GLfloat *verts, GLfloat *texCoords )
 {
 	float c = 1.0f - mWheelScale;
-	gl::color( ColorA( COLOR_BLUE, c ) );
+	gl::color( ColorA( Color::white(), c ) );
 	gl::pushModelView();
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );

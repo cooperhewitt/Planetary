@@ -164,7 +164,7 @@ void NodeAlbum::drawEclipseGlow()
 	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
         gl::color( ColorA( mParentNode->mGlowColor, mEclipseStrength ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * ( mEclipseStrength + 1.0f ) * 3.25f;
-		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+		gl::drawBillboard( mTransPos, radius * 100.0f, 0.0f, mBbRight, mBbUp );
 	}
 	
 	Node::drawEclipseGlow();
@@ -259,7 +259,7 @@ void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 }
 
 
-void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
+void NodeAlbum::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
 {
     if( mCamDistAlpha > 0.05f ){
 		glEnableClientState( GL_VERTEX_ARRAY );
@@ -299,7 +299,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		glEnable( GL_LIGHTING );		
 // LIT CLOUDS
 		gl::pushModelView();
-		radius = mRadius + 0.0005f;
+		radius = mRadius + 0.00035f;
 		gl::scale( Vec3f( radius, radius, radius ) );
 		glEnable( GL_RESCALE_NORMAL );
 		gl::rotate( mMatrix );
@@ -315,7 +315,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		glDisableClientState( GL_NORMAL_ARRAY );
 	}
     
-	Node::drawClouds( clouds );
+	Node::drawClouds( planets, clouds );
 }
 
 
@@ -329,7 +329,10 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 			gl::scale( Vec3f( c, c, c ) );
 			gl::rotate( mMatrix );
 			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.2f, 0.0f ) );
-			gl::color( ColorA( mColor, camRingAlpha * 50.0f ) );
+			
+			float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
+			float alpha = camRingAlpha * 42.5f * zoomOffset;
+			gl::color( ColorA( mColor, sin( alpha * M_PI ) ) );
 			tex.enableAndBind();
 			glEnableClientState( GL_VERTEX_ARRAY );
 			glEnableClientState( GL_TEXTURE_COORD_ARRAY );

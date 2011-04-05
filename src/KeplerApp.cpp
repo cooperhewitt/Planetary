@@ -364,7 +364,7 @@ void KeplerApp::initLoadingTextures()
     std::cout << "initLoadingTextures, begin: " << t << std::endl;
     // only add textures here if they are *required* for LoadingScreen
     // otherwise add them to initTextures
-	mLoadingTex  = loadImage( loadResource( "loading.jpg" ) );
+	mLoadingTex  = loadImage( loadResource( "loading.png" ) );
 	mStarTex     = loadImage( loadResource( "star.png" ) );
 	mStarGlowTex = loadImage( loadResource( "starGlow.png" ) );
 	mEclipseGlowTex = loadImage( loadResource( "eclipseGlow.png" ) );
@@ -1091,12 +1091,12 @@ void KeplerApp::drawScene()
 	mWorld.drawStarsVertexArray( mMatrix );
 	mStarTex.disable();
     
-///* not working well yet
+
 // ECLIPSEGLOWS
 	mStarGlowTex.enableAndBind();
 	mWorld.drawEclipseGlows();
 	mStarGlowTex.disable();
-//*/	
+ 	
 	
 	Node *artistNode = mState.getSelectedArtistNode();
 	if( artistNode ){
@@ -1109,7 +1109,7 @@ void KeplerApp::drawScene()
 		gl::enableDepthRead();
 		gl::disableAlphaBlending();
 		glEnable( GL_LIGHTING );
-		glEnable( GL_COLOR_MATERIAL );
+		//glEnable( GL_COLOR_MATERIAL );
 		glShadeModel( GL_SMOOTH );
 		
 		glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
@@ -1150,7 +1150,7 @@ void KeplerApp::drawScene()
 		mWorld.drawPlanets( mPlanetsTex );
 		
 // CLOUDS
-		mWorld.drawClouds( mCloudsTex );
+		mWorld.drawClouds( mPlanetsTex, mCloudsTex );
 	}
 	
 	gl::enableAdditiveBlending();   
@@ -1194,7 +1194,7 @@ void KeplerApp::drawScene()
 
 		
 // CURRENT TRACK ORBIT PATH
-	if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
+	if( mIsDrawingRings && mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 		gl::enableAdditiveBlending();
 		mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 		mWorld.mPlayingTrackNode->drawPlayheadProgress( mPlayheadProgressTex );
@@ -1202,7 +1202,7 @@ void KeplerApp::drawScene()
 	
 	
 // CONSTELLATION
-	if( mIsDrawingRings && mData.mFilteredArtists.size() > 1 ){
+	if( mData.mFilteredArtists.size() > 1 ){
 		mDottedTex.enableAndBind();
 		mWorld.drawConstellation( mMatrix );
 		mDottedTex.disable();

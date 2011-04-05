@@ -46,7 +46,7 @@ class World {
 	void drawTouchHighlights();
 	void buildConstellation();
 	void drawPlanets( const std::vector< ci::gl::Texture> &planets );
-	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
+	void drawClouds( const std::vector< ci::gl::Texture> &planets, const std::vector< ci::gl::Texture> &clouds );
 	void buildPlanetRingsVertexArray();
 	void drawRings( const ci::gl::Texture &tex, float camRingAlpha );
 	
