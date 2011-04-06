@@ -15,6 +15,7 @@
 #include "cinder/Text.h"
 #include "cinder/Rand.h"
 #include "Globals.h"
+#include "Triangle.h"
 
 using std::stringstream;
 using namespace ci;
@@ -35,32 +36,142 @@ World::World()
     
 }
 
+void World::setup( Data *data )
+{
+    mData = data;
+
+    // VERTEX ARRAY SPHERE
+	initSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
+	initSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+}
+
+
+void World::initSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals )
+{	
+    if (sphereVerts != NULL) delete[] sphereVerts;
+    if (sphereNormals != NULL) delete[] sphereNormals;
+    if (sphereTexCoords != NULL) delete[] sphereTexCoords;
+    
+	*numVerts			= segments * (segments/2) * 2 * 3;
+	sphereVerts			= new float[ *numVerts * 3 ];
+	sphereNormals		= new float[ *numVerts * 3 ];
+	sphereTexCoords		= new float[ *numVerts * 2 ];
+	vector<Vec2f> texCoords;
+	vector<Triangle> triangles;
+	
+	for( int j = 0; j < segments / 2; j++ ) {
+		float theta1 = j * TWO_PI / segments - ( M_PI_2 );
+		float cosTheta1 = cos( theta1 );
+		float sinTheta1 = sin( theta1 );
+		
+		float theta2 = (j + 1) * TWO_PI / segments - ( M_PI_2 );
+		float cosTheta2 = cos( theta2 );
+		float sinTheta2 = sin( theta2 );
+		
+		Vec3f oldv1, oldv2, newv1, newv2;
+		Vec2f oldt1, oldt2, newt1, newt2;
+		
+		for( int i = 0; i <= segments; i++ ) {
+			oldv1			= newv1;
+			oldv2			= newv2;
+			
+			oldt1			= newt1;
+			oldt2			= newt2;
+			
+			float theta3	= i * TWO_PI / segments;
+			float cosTheta3 = cos( theta3 );
+			float sinTheta3 = sin( theta3 );
+			
+			float invI		= i / (float)segments;
+			float u			= 0.999f - invI;
+			float v1		= 0.999f - 2 * j / (float)segments;
+			float v2		= 0.999f - 2 * (j+1) / (float)segments;
+			
+			newt1			= Vec2f( u, v1 );
+			newt2			= Vec2f( u, v2 );
+			
+			newv1			= Vec3f( cosTheta1 * cosTheta3, sinTheta1, cosTheta1 * sinTheta3 );			
+			newv2			= Vec3f( cosTheta2 * cosTheta3, sinTheta2, cosTheta2 * sinTheta3 );
+			
+			if( i > 0 ){
+				triangles.push_back( Triangle( oldv1, oldv2, newv1 ) );
+				triangles.push_back( Triangle( oldv2, newv1, newv2 ) );
+				
+				texCoords.push_back( oldt1 );
+				texCoords.push_back( oldt2 );
+				texCoords.push_back( newt1 );
+				
+				texCoords.push_back( oldt2 );
+				texCoords.push_back( newt1 );
+				texCoords.push_back( newt2 );
+			}
+		}
+	}
+	
+	
+	int index = 0;
+	int nIndex = 0;
+	for( int i=0; i<triangles.size(); i++ ){
+		Triangle t = triangles[i];
+		sphereVerts[index++]		= t.p1.x;
+		sphereVerts[index++]		= t.p1.y;
+		sphereVerts[index++]		= t.p1.z;
+		
+		sphereVerts[index++]		= t.p2.x;
+		sphereVerts[index++]		= t.p2.y;
+		sphereVerts[index++]		= t.p2.z;
+		
+		sphereVerts[index++]		= t.p3.x;
+		sphereVerts[index++]		= t.p3.y;
+		sphereVerts[index++]		= t.p3.z;
+		
+		sphereNormals[nIndex++]	= t.p1.x;
+		sphereNormals[nIndex++]	= t.p1.y;
+		sphereNormals[nIndex++]	= t.p1.z;
+		
+		sphereNormals[nIndex++]	= t.p2.x;
+		sphereNormals[nIndex++]	= t.p2.y;
+		sphereNormals[nIndex++]	= t.p2.z;
+		
+		sphereNormals[nIndex++]	= t.p3.x;
+		sphereNormals[nIndex++]	= t.p3.y;
+		sphereNormals[nIndex++]	= t.p3.z;
+	}
+	
+	int tIndex = 0;
+	for( int i=0; i<texCoords.size(); i++ ){
+		sphereTexCoords[tIndex++]	= texCoords[i].x;
+		sphereTexCoords[tIndex++]	= texCoords[i].y;
+	}
+}
+
 void World::initNodes( Player *player, const Font &font )
 {
 	float t = App::get()->getElapsedSeconds();
-	
+
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+        Node *node = *it;
+        delete node;
+    }
+	mNodes.clear();
+    
 	int i=0;
 	for(vector<PlaylistRef>::iterator it = mData->mArtists.begin(); it != mData->mArtists.end(); ++it){
 		PlaylistRef artist	= *it;
-		NodeArtist *newNode = new NodeArtist( i, font );
+		NodeArtist *newNode = new NodeArtist( i++, font );
 		newNode->setData(artist);
-		
 		mNodes.push_back( newNode );
 	}
 	
 	cout << (App::get()->getElapsedSeconds() - t) << " seconds to World::initNodes" << endl;
-}
 
-void World::initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
-							   int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals )
-{
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->setSphereData( totalHiVertices, sphereHiVerts, sphereHiTexCoords, sphereHiNormals, totalLoVertices, sphereLoVerts, sphereLoTexCoords, sphereLoNormals );
-	}
+    initVertexArrays();
 }
 
 void World::initVertexArrays()
 {
+    if (mRingVertsLowRes != NULL) delete[] mRingVertsLowRes;
+    
 	mRingVertsLowRes	= new float[ G_RING_LOW_RES*2 ]; // X,Y
 	for( int i=0; i<G_RING_LOW_RES; i++ ){
 		float per				= (float)i/(float)(G_RING_LOW_RES-1);
@@ -68,7 +179,9 @@ void World::initVertexArrays()
 		mRingVertsLowRes[i*2+0]	= cos( angle );
 		mRingVertsLowRes[i*2+1]	= sin( angle );
 	}
-	
+
+    if (mRingVertsHighRes != NULL) delete[] mRingVertsHighRes;
+
 	mRingVertsHighRes	= new float[ G_RING_HIGH_RES*2 ]; // X,Y
 	for( int i=0; i<G_RING_HIGH_RES; i++ ){
 		float per					= (float)i/(float)(G_RING_HIGH_RES-1);
@@ -78,8 +191,18 @@ void World::initVertexArrays()
 	}
 	
 	buildPlanetRingsVertexArray();
+    
+    initNodeSphereData( mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals,
+                              mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals ); 
 }
 
+void World::initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
+							   int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals )
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->setSphereData( totalHiVertices, sphereHiVerts, sphereHiTexCoords, sphereHiNormals, totalLoVertices, sphereLoVerts, sphereLoTexCoords, sphereLoNormals );
+	}
+}
 
 void World::filterNodes()
 {
@@ -283,6 +406,9 @@ void World::drawStarsVertexArray( const Matrix44f &mat )
 
 void World::buildPlanetRingsVertexArray()
 {
+    if (mPlanetRingVerts != NULL) delete[] mPlanetRingVerts;
+    if (mPlanetRingTexCoords != NULL) delete[] mPlanetRingTexCoords;
+    
 	mPlanetRingVerts		= new float[18];
 	mPlanetRingTexCoords	= new float[12];
 	int i = 0;

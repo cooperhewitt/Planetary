@@ -18,13 +18,15 @@
 #include "Data.h"
 #include "Node.h"
 #include "NodeTrack.h"
-
+#include "Triangle.h"
 
 class World {
- public:
+  // TODO: clean up public/private here, perhaps spin sphere stuff off into utility lib?
+  public:
 	World();
-	void setData( Data *data ){ mData = data; }
-	void initVertexArrays();
+	void setup( Data *data );
+    void initVertexArrays();
+    void initSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals );    
 	void initNodes( ci::ipod::Player *player, const ci::Font &font );
 	void initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
 							int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals );
@@ -79,7 +81,17 @@ class World {
 	GLfloat *mStarGlowTexCoords;
 	GLfloat *mStarGlowColors;
 	
-	
 	GLfloat *mPlanetRingVerts;
 	GLfloat *mPlanetRingTexCoords;
+
+    // VERTEX ARRAYS
+	int mNumSphereLoResVerts;
+	float *mSphereLoResVerts; 
+	float *mSphereLoResNormals;
+	float *mSphereLoResTexCoords;
+	int mNumSphereHiResVerts;
+	float *mSphereHiResVerts; 
+	float *mSphereHiResNormals;
+	float *mSphereHiResTexCoords;
+
 };

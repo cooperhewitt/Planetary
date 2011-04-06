@@ -22,6 +22,8 @@ using namespace ci;
 class State {
  public:
 	State();
+    
+    void setup();
 	void draw( const ci::Font &font);
 	
 	// Alpha char for filtering artist name

@@ -28,11 +28,15 @@ Data::Data()
 {
 }
 
-void Data::initArtists()
+void Data::setup()
 {
-//	mArtists	= getArtists();
-	isIniting = true;
-	std::thread loaderThread( &Data::backgroundInitArtists, this );	
+	mArtists.clear();
+	mFilteredArtists.clear();    
+    mNumArtistsPerChar.clear();
+    if (!isIniting) {
+        isIniting = true;
+        std::thread loaderThread( &Data::backgroundInitArtists, this );	
+    }
 }
 
 void Data::backgroundInitArtists()
@@ -98,23 +102,26 @@ void Data::backgroundInitArtists()
 	buildVertexArray();
 // END ALPHAWHEEL QUICK FIX
 	
-	
 	Flurry::getInstrumentation()->stopTimeEvent("Music Loading");
     std::map<string, string> params;
-    params["NumArtists"] = i_to_string(pending.size());;
+    params["NumArtists"] = i_to_string(pending.size());
     Flurry::getInstrumentation()->logEvent("Artists loaded", params);
+    
     [autoreleasepool release];	
+    
 	isIniting = false;
 }
 
 bool Data::update()
 {
-	if (!isIniting && pending.size() > 0) {
+	if (!isIniting && wasIniting) {
 		// TODO: time this, is it OK in one frame?
 		mArtists.insert(mArtists.end(),pending.begin(),pending.end());
 		pending.clear();
+        wasIniting = isIniting;
 		return true;
 	}
+    wasIniting = isIniting;
 	return false;
 }
 

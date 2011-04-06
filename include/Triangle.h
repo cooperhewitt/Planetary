@@ -9,6 +9,8 @@
 
 #pragma once 
 
+// TODO: does Cinder really not have a Triangle class?
+
 class Triangle {
   public:
 	Triangle() {}
