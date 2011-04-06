@@ -83,6 +83,7 @@ class KeplerApp : public AppCocoaTouch {
 	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos );
 	bool			onPlayerStateChanged( ipod::Player *player );
     bool			onPlayerTrackChanged( ipod::Player *player );
+    bool			onPlayerLibraryChanged( ipod::Player *player );
     Node*           getPlayingTrackNode( ipod::TrackRef playingTrack, Node* albumNode );
     Node*           getPlayingAlbumNode( ipod::TrackRef playingTrack, Node* artistNode );
     Node*           getPlayingArtistNode( ipod::TrackRef playingTrack );
@@ -344,6 +345,7 @@ void KeplerApp::remainingSetup()
 	// PLAYER
 	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
     mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
+    mIpodPlayer.registerLibraryChanged( this, &KeplerApp::onPlayerLibraryChanged );
 	
     // VERTEX ARRAY SPHERE
 	initSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
@@ -1336,6 +1338,12 @@ void KeplerApp::setParamsTex()
 	mParamsTex = gl::Texture( layout.render( true, false ) );
 }
 
+bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
+{	
+	console() << "/////////////////////" << std::endl;
+	console() << "onPlayerLibraryChanged!" << std::endl;
+    // TODO: now what? :)
+}
 
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	
