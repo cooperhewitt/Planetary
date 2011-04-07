@@ -29,8 +29,8 @@ inline std::string to_string( const T& t )
 class PlayControls {
 public:
 
-	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, HELP, DRAW_RINGS, DRAW_TEXT, CURRENT_TRACK };
-	enum ButtonTexId { TEX_PLAY, TEX_PLAY_ON, TEX_PAUSE, TEX_PAUSE_ON, TEX_PREV, TEX_PREV_ON, TEX_NEXT, TEX_NEXT_ON, TEX_SLIDER_BUTTON, TEX_HELP, TEX_DRAW_RINGS, TEX_DRAW_TEXT, TEX_CURRENT_TRACK, TEX_CURRENT_TRACK_ON };	
+	enum PlayButton { NO_BUTTON, CURRENT_TRACK, SHOW_WHEEL, PREVIOUS_TRACK, PLAY_PAUSE, NEXT_TRACK, SLIDER };//, HELP, DRAW_RINGS, DRAW_TEXT };
+	enum ButtonTexId { TEX_BUTTONS, TEX_SLIDER_BUTTON, TEX_HELP, TEX_DRAW_RINGS, TEX_DRAW_TEXT };	
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState );
     	
@@ -43,8 +43,9 @@ public:
 	
 	void setPlaying(bool playing) { mIsPlaying = playing; }
 	bool isPlaying() { return mIsPlaying; }
-
-	void draw( const vector<gl::Texture> &texs, const gl::Texture &sliderBgTex, const Font &font, float y, float currentTime, float totalTime, bool isDrawingRings, bool isDrawingText );
+	
+	void draw( const vector<gl::Texture> &texs, const Font &font, float y, float currentTime, float totalTime, bool isDrawingRings, bool isDrawingText );
+	void drawButton( const ci::Rectf &rect, float u1, float u2, float v1, float v2 );
 	
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>

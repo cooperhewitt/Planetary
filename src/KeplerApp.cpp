@@ -169,9 +169,9 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mSkyDome;
 	gl::Texture		mDottedTex;
 	gl::Texture		mPanelUpTex, mPanelDownTex;
-	gl::Texture		mSliderBgTex;
 	gl::Texture		mPlayheadProgressTex;
 	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex, mHighlightTex;
+	gl::Texture		mUiLayerBgTex;
     gl::Texture     mRingsTex;
     
 	vector<gl::Texture> mButtonsTex;
@@ -373,7 +373,6 @@ void KeplerApp::initTextures()
 	mHelpPanelTex		= loadImage( loadResource( "helpPanel.png" ) );
 	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
 	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
-	mSliderBgTex		= loadImage( loadResource( "sliderBg.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
@@ -381,15 +380,9 @@ void KeplerApp::initTextures()
     mPlayheadProgressTex = loadImage( loadResource( "playheadProgress.png" ) );
 	mPlayheadProgressTex.setWrap( GL_REPEAT, GL_REPEAT );
 	mParamsTex			= gl::Texture( 768, 75 );    
-    
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "play.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "playOn.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "pause.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "pauseOn.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "prev.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "prevOn.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "next.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "nextOn.png" ) ) ) );
+	mUiLayerBgTex		= loadImage( loadResource( "uiLayerBg.png" ) );
+	
+	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "uiButtons.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "sliderButton.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "help.png" ) ) ) );
 	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawLines.png" ) ) ) );
@@ -515,7 +508,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 {	
     mPinchRays = event.getTouchRays( mCam );
 	
-	if( G_ZOOM < G_ARTIST_LEVEL ){
+	if( G_ZOOM <= G_ALPHA_LEVEL ){
 		mFovDest += ( 1.0f - event.getScaleDelta() ) * 150.0f;
 		
 	} else {
@@ -552,7 +545,7 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
     Flurry::getInstrumentation()->logEvent("Pinch");
 	//std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
 
-	if( mCamDistPinchOffset > 4.1f ){
+	if( mCamDistPinchOffsetDest > 4.1f ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
 			mState.setSelectedNode( selected->mParentNode );
@@ -727,7 +720,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 		}
 	} else if( button == PlayControls::NEXT_TRACK ){
 		mIpodPlayer.skipNext();	
-	} else if( button == PlayControls::HELP ){
+	}
+	/*else if( button == PlayControls::HELP ){
 		G_HELP = !G_HELP;
 	} else if( button == PlayControls::DRAW_RINGS ){
 		mIsDrawingRings = !mIsDrawingRings;
@@ -735,7 +729,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 		mIsDrawingText = !mIsDrawingText;
 	} else if( button == PlayControls::CURRENT_TRACK ){
 		//
-	}
+	}*/
 	//cout << "play button " << button << " pressed" << endl;
 	return false;
 }
@@ -899,7 +893,7 @@ void KeplerApp::updateCamera()
 	mFov -= ( mFov - mFovDest ) * 0.15f;
 	
 
-	if( mFovDest >= G_MAX_FOV - 5 && ! mAlphaWheel.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
+	if( mFovDest >= G_MAX_FOV - 5 && ! mAlphaWheel.getShowWheel() && G_ZOOM <= G_ALPHA_LEVEL ){
 		if (!mAlphaWheel.getShowWheel()) {
 			mAlphaWheel.setShowWheel( true );
 		}
@@ -1007,31 +1001,7 @@ void KeplerApp::drawScene()
 		GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 		glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
 		glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
-		/*
-		if( true ){
-			glEnable( GL_LIGHT1 );
-			Vec3f light1Pos          = artistNode->mTransPos + Vec3f( -0.1f, 0.1f, -0.1f );
-			GLfloat artist1Light[]	= { light1Pos.x, light1Pos.y, light1Pos.z, 1.0f };
-			glLightfv( GL_LIGHT1, GL_POSITION, artist1Light );
-			glLightfv( GL_LIGHT1, GL_DIFFUSE, ColorA( artistNode->mGlowColor.r, 0.2f, 0.2f, 1.0f ) );
-			
-			glEnable( GL_LIGHT2 );
-			Vec3f light2Pos          = artistNode->mTransPos + Vec3f( 0.1f, -0.1f, 0.1f );
-			GLfloat artist2Light[]	= { light2Pos.x, light2Pos.y, light2Pos.z, 1.0f };
-			glLightfv( GL_LIGHT2, GL_POSITION, artist2Light );
-			glLightfv( GL_LIGHT2, GL_DIFFUSE, ColorA( 0.2f, 0.2f, artistNode->mGlowColor.b, 1.0f ) );
-		}
-		 */
-		/*
-		if( mWorld.mPlayingTrackNode ){
-			// LIGHT FROM ARTIST
-			glEnable( GL_LIGHT1 );
-			Vec3f trackLightPos		= mWorld.mPlayingTrackNode->mParentNode->mTransPos + mWorld.mPlayingTrackNode->getStartRelPos();
-			GLfloat trackLight[]	= { trackLightPos.x, trackLightPos.y, trackLightPos.z, 1.0f };
-			glLightfv( GL_LIGHT1, GL_POSITION, trackLight );
-			glLightfv( GL_LIGHT1, GL_DIFFUSE, ColorA( 1.0f, 0.0f, 0.0f, 0.3f ) );
-		}
-		*/
+
 		
 // PLANETS
 		mWorld.drawPlanets( mPlanetsTex );
@@ -1154,11 +1124,11 @@ void KeplerApp::drawScene()
 	
 // EVERYTHING ELSE
 	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
-    mUiLayer.draw( mPanelButtonsTex );
-    mBreadcrumbs.draw();
+    mUiLayer.draw( mPanelButtonsTex, mUiLayerBgTex );
+    mBreadcrumbs.draw( mUiLayerBgTex );
 	
 	gl::enableAdditiveBlending();
-    mPlayControls.draw( mButtonsTex, mSliderBgTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mIsDrawingRings, mIsDrawingText );
+    mPlayControls.draw( mButtonsTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mIsDrawingRings, mIsDrawingText );
     mState.draw( mFont );
 	
 	gl::disableAlphaBlending();
@@ -1209,16 +1179,6 @@ void KeplerApp::setParamsTex()
 	else if (mState.getAlphaChar() != ' ') {
 		currentLevel = G_ALPHA_LEVEL;
 	}
-	
-	/*
-	s.str("");
-	s << " CURRENT LEVEL: " << currentLevel;
-	layout.addLine( s.str() );
-	
-	s.str("");
-	s << " ZOOM LEVEL: " << G_ZOOM;
-	layout.addLine( s.str() );
-	*/
 	
 	mParamsTex = gl::Texture( layout.render( true, false ) );
 }

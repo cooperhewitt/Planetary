@@ -67,7 +67,7 @@ public:
 	void setHierarchy(vector<string> hierarchy);
 	const vector<string>& getHierarchy();
 	void update();
-	void draw();
+	void draw( const ci::gl::Texture &bgTex );
 	float getHeight() { return mHeight; }
 
 private:

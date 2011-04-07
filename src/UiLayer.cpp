@@ -85,7 +85,7 @@ void UiLayer::setup( AppCocoaTouch *app )
     mCbOrientationChanged = mApp->registerOrientationChanged( this, &UiLayer::orientationChanged );
 	
 	// PANEL AND TAB
-	mPanelHeight			= 75.0f;
+	mPanelHeight			= 65.0f;
 	mPanelRect				= Rectf( 0.0f, getWindowHeight(), 
                                      getWindowWidth(), getWindowHeight()+mPanelHeight );
 
@@ -192,20 +192,20 @@ void UiLayer::update()
     mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;
 	
     // adjust tab rect:
-    mPanelTabRect = Rectf( (mPanelRect.x1 + mPanelRect.x2) * 0.5f - 25.0f, mPanelRect.y1 - 50.0f,
-                           (mPanelRect.x1 + mPanelRect.x2) * 0.5f + 25.0f, mPanelRect.y1 );
+    mPanelTabRect = Rectf( mPanelRect.x2 - 85.0f, mPanelRect.y1 - 50.0f,
+                           mPanelRect.x2 - 35.0f, mPanelRect.y1 );
 }
 
-void UiLayer::draw( const vector<gl::Texture> &texs )
+void UiLayer::draw( const vector<gl::Texture> &texs, const gl::Texture &bgTex )
 {	
     gl::pushModelView();
     gl::multModelView( mOrientationMatrix );
     
-	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+	bgTex.enableAndBind();
 	gl::drawSolidRect( mPanelRect );
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.1f ) );
-	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1-0.5f ), Vec2f( mPanelRect.x2, mPanelRect.y1-0.5f ) );
-	
+	bgTex.disable();
+
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 
     int texIndex = -1;

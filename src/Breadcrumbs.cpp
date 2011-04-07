@@ -105,12 +105,12 @@ void Breadcrumbs::update()
 	}
 }
 
-void Breadcrumbs::draw()
+void Breadcrumbs::draw( const gl::Texture &bgTex )
 {
     float width = app::getWindowWidth();
     float height = app::getWindowHeight();
     float rectHeight = 24.0f;
-    Rectf breadcrumbRect( 0.0f, 0.0f, width, rectHeight );
+    Rectf breadcrumbRect( 0.0f, rectHeight, width, 0.0f );
     float lineY = 25.0f;
     float buttonY	= 3.0f;
     
@@ -140,11 +140,13 @@ void Breadcrumbs::draw()
     gl::multModelView( orientationMtx );
     
 	gl::color( ColorA( Color::black(), 0.75f ) );
+	bgTex.enableAndBind();
 	gl::drawSolidRect( breadcrumbRect );
+	bgTex.disable();
 	
 	gl::enableAlphaBlending();
-	gl::color( ColorA( Color::white(), 0.1f ) );
-	gl::drawLine( Vec2f( 1.0f, lineY ), Vec2f( breadcrumbRect.x2, lineY ) );
+	//gl::color( ColorA( Color::white(), 0.1f ) );
+	//gl::drawLine( Vec2f( 1.0f, lineY ), Vec2f( breadcrumbRect.x2, lineY ) );
     
 	gl::enableAlphaBlending(false);
 	gl::color( Color::white() );

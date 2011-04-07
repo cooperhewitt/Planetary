@@ -33,7 +33,7 @@ class UiLayer {
     bool    orientationChanged( ci::app::OrientationEvent event );
     
 	void	update();
-	void	draw( const std::vector<ci::gl::Texture> &texs );
+	void	draw( const std::vector<ci::gl::Texture> &texs, const ci::gl::Texture &bgTex );
     
 	float	getPanelYPos(){ return mPanelRect.y1; }	
     ci::Rectf getPanelTabRect() { return mPanelTabRect; }
