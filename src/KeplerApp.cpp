@@ -517,7 +517,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 {	
     mPinchRays = event.getTouchRays( mCam );
 	
-	if( G_ZOOM < G_ARTIST_LEVEL ){
+	if( G_ZOOM <= G_ALPHA_LEVEL ){
 		mFovDest += ( 1.0f - event.getScaleDelta() ) * 150.0f;
 		
 	} else {
@@ -557,6 +557,7 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 	if( mCamDistPinchOffset > 4.1f ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
+            console() << "backing out using pinch!" << std::endl;
 			mState.setSelectedNode( selected->mParentNode );
 			mFovDest = 90.0f;
 		}
@@ -901,7 +902,7 @@ void KeplerApp::updateCamera()
 	mFov -= ( mFov - mFovDest ) * 0.15f;
 	
 
-	if( mFovDest >= G_MAX_FOV - 5 && ! mAlphaWheel.getShowWheel() && G_ZOOM < G_ARTIST_LEVEL ){
+	if( mFovDest >= G_MAX_FOV - 5 && ! mAlphaWheel.getShowWheel() && G_ZOOM <= G_ALPHA_LEVEL ){
 		if (!mAlphaWheel.getShowWheel()) {
 			mAlphaWheel.setShowWheel( true );
 		}
