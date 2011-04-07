@@ -635,6 +635,9 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 	
 	mWorld.filterNodes();
 	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
+    
+    mState.setSelectedNode( NULL );
+    
 	return false;
 }
 
@@ -737,7 +740,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 	} else if( button == PlayControls::DRAW_TEXT ){
 		mIsDrawingText = !mIsDrawingText;
 	} else if( button == PlayControls::CURRENT_TRACK ){
-		//
+        // pretend the track just got changed again, this will select it:
+		onPlayerTrackChanged( &mIpodPlayer );
 	}
 	//cout << "play button " << button << " pressed" << endl;
 	return false;
