@@ -641,11 +641,6 @@ bool KeplerApp::onNodeSelected( Node *node )
 {
 //	cout << "node selected!" << endl;
 
-    // ensure that breadcrumbs are consistent
-    if (node && node->mGen == G_ARTIST_LEVEL) {
-        mState.setAlphaChar( node->getName() );
-    }
-    	
 	mTime			= getElapsedSeconds();
 	mCenterFrom		= mCenter;
 	mCamDistFrom	= mCamDist;	
@@ -1262,6 +1257,9 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
             Node* artistNode = getPlayingArtistNode( playingTrack );
             if (artistNode != NULL) {
 
+                // ensure that breadcrumbs are consistent
+                mState.setAlphaChar( artistNode->getName() );
+                
                 if (!artistNode->mIsSelected) {
                     console() << "    selecting artist node" << std::endl;
                     mState.setSelectedNode(artistNode);
