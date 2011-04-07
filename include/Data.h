@@ -15,8 +15,10 @@
 class Data {
   public:
 	Data();
-	bool update();
-	void initArtists();
+    
+    void setup();
+	bool update(); // TODO: split into bool isInited() and void update() ?
+
 	void filterArtistsByAlpha( char c );
 	
 	std::vector<ci::ipod::PlaylistRef> mArtists;
@@ -31,6 +33,7 @@ class Data {
 	void backgroundInitArtists();
 	void buildVertexArray();
 	bool isIniting;
+    bool wasIniting;
 	std::vector<ci::ipod::PlaylistRef> pending;
 	
 	

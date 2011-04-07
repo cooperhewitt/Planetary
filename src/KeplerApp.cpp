@@ -7,7 +7,6 @@
 #include "cinder/Arcball.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
-#include "BloomGl.h"
 #include "Globals.h"
 #include "Easing.h"
 #include "World.h"
@@ -83,6 +82,7 @@ class KeplerApp : public AppCocoaTouch {
 	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos );
 	bool			onPlayerStateChanged( ipod::Player *player );
     bool			onPlayerTrackChanged( ipod::Player *player );
+    bool			onPlayerLibraryChanged( ipod::Player *player );
     Node*           getPlayingTrackNode( ipod::TrackRef playingTrack, Node* albumNode );
     Node*           getPlayingAlbumNode( ipod::TrackRef playingTrack, Node* artistNode );
     Node*           getPlayingArtistNode( ipod::TrackRef playingTrack );
@@ -178,18 +178,6 @@ class KeplerApp : public AppCocoaTouch {
 	vector<gl::Texture> mPanelButtonsTex;
 	vector<gl::Texture> mPlanetsTex;
 	vector<gl::Texture> mCloudsTex;
-	
-// VERTEX ARRAYS
-	int mNumSphereLoResVerts;
-	float *mSphereLoResVerts; 
-	float *mSphereLoResNormals;
-	float *mSphereLoResTexCoords;
-	int mNumSphereHiResVerts;
-	float *mSphereHiResVerts; 
-	float *mSphereHiResNormals;
-	float *mSphereHiResTexCoords;
-	
-	
 	
 	float			mTime;
 	
@@ -343,16 +331,13 @@ void KeplerApp::remainingSetup()
 	// PLAYER
 	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
     mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
+    mIpodPlayer.registerLibraryChanged( this, &KeplerApp::onPlayerLibraryChanged );
 	
-    // VERTEX ARRAY SPHERE
-	initSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
-	initSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
-    
     // DATA
-    mData.initArtists(); // NB:- is asynchronous, see update() for what happens when it's done
+    mData.setup(); // NB:- is asynchronous, see update() for what happens when it's done
 
     // WORLD
-    mWorld.setData( &mData );  
+    mWorld.setup( &mData );  
 	
     std::cout << "setupEnd: " << getElapsedSeconds() << std::endl;
 }
@@ -440,101 +425,6 @@ void KeplerApp::initTextures()
 	//mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
     
 	cout << "initTextures duration = " << (getElapsedSeconds()-t) << endl;
-}
-
-void KeplerApp::initSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals )
-{	
-	*numVerts			= segments * (segments/2) * 2 * 3;
-	sphereVerts			= new float[ *numVerts * 3 ];
-	sphereNormals		= new float[ *numVerts * 3 ];
-	sphereTexCoords		= new float[ *numVerts * 2 ];
-	vector<Vec2f> texCoords;
-	vector<Triangle> triangles;
-	
-	for( int j = 0; j < segments / 2; j++ ) {
-		float theta1 = j * TWO_PI / segments - ( M_PI_2 );
-		float cosTheta1 = cos( theta1 );
-		float sinTheta1 = sin( theta1 );
-		
-		float theta2 = (j + 1) * TWO_PI / segments - ( M_PI_2 );
-		float cosTheta2 = cos( theta2 );
-		float sinTheta2 = sin( theta2 );
-		
-		Vec3f oldv1, oldv2, newv1, newv2;
-		Vec2f oldt1, oldt2, newt1, newt2;
-		
-		for( int i = 0; i <= segments; i++ ) {
-			oldv1			= newv1;
-			oldv2			= newv2;
-			
-			oldt1			= newt1;
-			oldt2			= newt2;
-			
-			float theta3	= i * TWO_PI / segments;
-			float cosTheta3 = cos( theta3 );
-			float sinTheta3 = sin( theta3 );
-			
-			float invI		= i / (float)segments;
-			float u			= 0.999f - invI;
-			float v1		= 0.999f - 2 * j / (float)segments;
-			float v2		= 0.999f - 2 * (j+1) / (float)segments;
-			
-			newt1			= Vec2f( u, v1 );
-			newt2			= Vec2f( u, v2 );
-			
-			newv1			= Vec3f( cosTheta1 * cosTheta3, sinTheta1, cosTheta1 * sinTheta3 );			
-			newv2			= Vec3f( cosTheta2 * cosTheta3, sinTheta2, cosTheta2 * sinTheta3 );
-			
-			if( i > 0 ){
-				triangles.push_back( Triangle( oldv1, oldv2, newv1 ) );
-				triangles.push_back( Triangle( oldv2, newv1, newv2 ) );
-				
-				texCoords.push_back( oldt1 );
-				texCoords.push_back( oldt2 );
-				texCoords.push_back( newt1 );
-				
-				texCoords.push_back( oldt2 );
-				texCoords.push_back( newt1 );
-				texCoords.push_back( newt2 );
-			}
-		}
-	}
-	
-	
-	int index = 0;
-	int nIndex = 0;
-	for( int i=0; i<triangles.size(); i++ ){
-		Triangle t = triangles[i];
-		sphereVerts[index++]		= t.p1.x;
-		sphereVerts[index++]		= t.p1.y;
-		sphereVerts[index++]		= t.p1.z;
-		
-		sphereVerts[index++]		= t.p2.x;
-		sphereVerts[index++]		= t.p2.y;
-		sphereVerts[index++]		= t.p2.z;
-		
-		sphereVerts[index++]		= t.p3.x;
-		sphereVerts[index++]		= t.p3.y;
-		sphereVerts[index++]		= t.p3.z;
-		
-		sphereNormals[nIndex++]	= t.p1.x;
-		sphereNormals[nIndex++]	= t.p1.y;
-		sphereNormals[nIndex++]	= t.p1.z;
-		
-		sphereNormals[nIndex++]	= t.p2.x;
-		sphereNormals[nIndex++]	= t.p2.y;
-		sphereNormals[nIndex++]	= t.p2.z;
-		
-		sphereNormals[nIndex++]	= t.p3.x;
-		sphereNormals[nIndex++]	= t.p3.y;
-		sphereNormals[nIndex++]	= t.p3.z;
-	}
-	
-	int tIndex = 0;
-	for( int i=0; i<texCoords.size(); i++ ){
-		sphereTexCoords[tIndex++]	= texCoords[i].x;
-		sphereTexCoords[tIndex++]	= texCoords[i].y;
-	}
 }
 
 void KeplerApp::touchesBegan( TouchEvent event )
@@ -748,13 +638,13 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 bool KeplerApp::onNodeSelected( Node *node )
 {
 //	cout << "node selected!" << endl;
-	
+
 	mTime			= getElapsedSeconds();
 	mCenterFrom		= mCenter;
 	mCamDistFrom	= mCamDist;	
 	mZoomFrom		= G_ZOOM;			
 	mBreadcrumbs.setHierarchy( mState.getHierarchy() );
-	
+    	
 	if( node && node->mGen > G_ZOOM ){
 		node->wasTapped();
 	}
@@ -804,7 +694,7 @@ bool KeplerApp::onNodeSelected( Node *node )
         // we might not want to do this?
         mWorld.setIsPlaying( 0, 0, 0 );
     }    
-	
+
 	return false;
 }
 
@@ -915,11 +805,10 @@ void KeplerApp::update()
 {
 	if( mData.update() ){
 		mWorld.initNodes( &mIpodPlayer, mFont );
-		mWorld.initVertexArrays();
-		mWorld.initNodeSphereData( mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals,
-								   mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals ); 
 		mDataIsLoaded = true;
-        // make sure we know about the current track
+        // clear all the breadcrumbs etc.
+        onNodeSelected( NULL );
+        // and then make sure we know about the current track if there is one
         onPlayerTrackChanged( &mIpodPlayer );
 	}
     //mTextureLoader.update();
@@ -1334,6 +1223,20 @@ void KeplerApp::setParamsTex()
 	mParamsTex = gl::Texture( layout.render( true, false ) );
 }
 
+bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
+{	
+	console() << "/////////////////////" << std::endl;
+	console() << "onPlayerLibraryChanged!" << std::endl;
+
+    Flurry::getInstrumentation()->logEvent("Player Library Changed");
+
+    mDataIsLoaded = false;    
+
+    mState.setup();    
+    mData.setup();
+    
+    return false;
+}
 
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	
@@ -1352,16 +1255,26 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
             Node* artistNode = getPlayingArtistNode( playingTrack );
             if (artistNode != NULL) {
 
+                // ensure that breadcrumbs are consistent
+                mState.setAlphaChar( artistNode->getName() );
+                
                 if (!artistNode->mIsSelected) {
-                    mState.setAlphaChar(artistNode->getName());
+                    console() << "    selecting artist node" << std::endl;
                     mState.setSelectedNode(artistNode);
+                }
+                else {
+                    console() << "    artist node already selected" << std::endl;                            
                 }
             
                 Node* albumNode = getPlayingAlbumNode( playingTrack, artistNode );
                 if (albumNode != NULL) {
 
                     if (!albumNode->mIsSelected) {
+                        console() << "    selecting album node" << std::endl;
                         mState.setSelectedNode(albumNode);
+                    }
+                    else {
+                        console() << "    album node already selected" << std::endl;                            
                     }
             
                     // TODO: let's not do this if the playing album and artist don't match
@@ -1371,7 +1284,11 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                     if (trackNode != NULL) {
 
                         if (!trackNode->mIsSelected) {
+                            console() << "    selecting track node" << std::endl;
                             mState.setSelectedNode(trackNode);
+                        }
+                        else {
+                            console() << "    track node already selected" << std::endl;                            
                         }
                     }
                     
@@ -1379,18 +1296,17 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
             }
         }
         else {
-            console() << "track changed but we've already selected the node for that track" << std::endl;
+            console() << "    track changed but we've already selected the node for that track" << std::endl;
         }
         
 	}
 	else {
-		console() << "trackchanged but nothing's playing" << endl;
+		console() << "    trackchanged but nothing's playing" << endl;
         // would mess up orbit drawing
         // mState.setPlayingNode(NULL);
 	}
     
-	console() << "onPlayerTrackChanged!" << std::endl;
-    console() << "done in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
+    console() << "onPlayerTrackChanged done in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
 	console() << "==================================================================" << std::endl;
 
     return false;

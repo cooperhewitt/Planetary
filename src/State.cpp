@@ -19,6 +19,11 @@ using namespace std;
 
 State::State()
 {
+    setup();
+}
+
+void State::setup()
+{
 	mAlphaChar = ' ';
 	mSelectedNode = NULL;
 }
@@ -39,13 +44,13 @@ void State::setAlphaChar( char c )
 void State::setAlphaChar( const string &name )
 {
 	char firstLetter = name[0];	
-	if (name.size() > 3) {
+	if (name.size() > 4) {
 		string the = name.substr( 0, 4 );
 		if( the == "The " || the == "the " ){
 			firstLetter = name[4];
 		}	
 	}
-	else if (isdigit(firstLetter)) {
+	if (!isalpha(firstLetter)) {
 		firstLetter = '#';
 	}
 	setAlphaChar(firstLetter);
