@@ -150,9 +150,10 @@ void NodeArtist::setChildOrbitRadii()
 	float orbitOffset = mRadiusDest * 0.8f;
 	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
 		NodeAlbum* albumNode = (NodeAlbum*)(*it);
-		orbitOffset += albumNode->mNumTracks * 0.01f;
+		float amt = math<float>::max( albumNode->mNumTracks * 0.01f, 0.06f );
+		orbitOffset += amt;
 		(*it)->mOrbitRadiusDest = orbitOffset;
-		orbitOffset += albumNode->mNumTracks * 0.01f;
+		orbitOffset += amt;
 	}
 }
 

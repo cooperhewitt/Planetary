@@ -160,8 +160,7 @@ class KeplerApp : public AppCocoaTouch {
     ParticleController mParticleController;
 	
 	// TEXTURES
-//    TextureLoader   mTextureLoader;    
-	gl::Texture		mLoadingTex;
+//    TextureLoader   mTextureLoader;
 	gl::Texture		mHelpPanelTex;
 	gl::Texture		mParamsTex;
 	gl::Texture		mStarTex;
@@ -364,12 +363,10 @@ void KeplerApp::initLoadingTextures()
     std::cout << "initLoadingTextures, begin: " << t << std::endl;
     // only add textures here if they are *required* for LoadingScreen
     // otherwise add them to initTextures
-	mLoadingTex  = loadImage( loadResource( "loading.png" ) );
-	mStarTex     = loadImage( loadResource( "star.png" ) );
-	mStarGlowTex = loadImage( loadResource( "starGlow.png" ) );
-	mEclipseGlowTex = loadImage( loadResource( "eclipseGlow.png" ) );
+//	mStarTex		= loadImage( loadResource( "star.png" ) );
+	mStarGlowTex	= loadImage( loadResource( "starGlow.png" ) );
+//	mEclipseGlowTex = loadImage( loadResource( "eclipseGlow.png" ) );
 	
-//    mTextureLoader.requestTexture( "loading.jpg",  mLoadingTex );
 //    mTextureLoader.requestTexture( "star.png",     mStarTex );
 //    mTextureLoader.requestTexture( "starGlow.png", mStarGlowTex );
     std::cout << "initLoadingTextures, duration: " << getElapsedSeconds() - t << std::endl;
@@ -386,7 +383,8 @@ void KeplerApp::initTextures()
 	
 	float t = getElapsedSeconds();
 	cout << "initTextures start time = " << t << endl;
-    
+    mStarTex			= loadImage( loadResource( "star.png" ) );
+	mEclipseGlowTex		= loadImage( loadResource( "eclipseGlow.png" ) );
 	mHelpPanelTex		= loadImage( loadResource( "helpPanel.png" ) );
 	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
 	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
@@ -438,7 +436,7 @@ void KeplerApp::initTextures()
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds1.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds2.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds3.png" ) ) ) );
-	//mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds4.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds4.png" ) ) ) );
 	//mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
     
 	cout << "initTextures duration = " << (getElapsedSeconds()-t) << endl;
@@ -1063,7 +1061,7 @@ void KeplerApp::draw()
 {
 	gl::clear( Color( 0, 0, 0 ), true );
 	if( !mDataIsLoaded ){
-		mLoadingScreen.draw( mLoadingTex, mStarGlowTex, mStarTex );
+		mLoadingScreen.draw( mStarGlowTex );
 	} else {
 		drawScene();
 	}

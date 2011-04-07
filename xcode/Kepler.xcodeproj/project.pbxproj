@@ -87,6 +87,9 @@
 		E1D99A84134A9DB3003FC316 /* blurRect.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A83134A9DB3003FC316 /* blurRect.png */; };
 		E1D99A8C134AED57003FC316 /* loading.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A8B134AED56003FC316 /* loading.png */; };
 		E1D99A8E134AFF2F003FC316 /* alphaWheelMask.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */; };
+		E1D99A98134BD490003FC316 /* planet.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A96134BD490003FC316 /* planet.png */; };
+		E1D99A99134BD490003FC316 /* planetary.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A97134BD490003FC316 /* planetary.png */; };
+		E1D99A9B134BDBFE003FC316 /* background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A9A134BDBFE003FC316 /* background.jpg */; };
 		E1E663701317887F00E5E4B9 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E6636F1317887F00E5E4B9 /* State.cpp */; };
 		E1F2D83113296A70009A2309 /* sliderBg.png in Resources */ = {isa = PBXBuildFile; fileRef = E1F2D83013296A70009A2309 /* sliderBg.png */; };
 		E1F2DBDD132A1D7B009A2309 /* highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = E1F2DBDC132A1D7B009A2309 /* highlight.png */; };
@@ -201,6 +204,9 @@
 		E1D99A83134A9DB3003FC316 /* blurRect.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = blurRect.png; path = ../resources/ui/blurRect.png; sourceTree = "<group>"; };
 		E1D99A8B134AED56003FC316 /* loading.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = loading.png; path = ../resources/ui/loading.png; sourceTree = "<group>"; };
 		E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = alphaWheelMask.png; path = ../resources/ui/alphaWheelMask.png; sourceTree = "<group>"; };
+		E1D99A96134BD490003FC316 /* planet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = planet.png; path = ../resources/loadscreen/planet.png; sourceTree = "<group>"; };
+		E1D99A97134BD490003FC316 /* planetary.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = planetary.png; path = ../resources/loadscreen/planetary.png; sourceTree = "<group>"; };
+		E1D99A9A134BDBFE003FC316 /* background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = background.jpg; path = ../resources/loadscreen/background.jpg; sourceTree = "<group>"; };
 		E1E6636E1317887600E5E4B9 /* State.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../include/State.h; sourceTree = SOURCE_ROOT; };
 		E1E6636F1317887F00E5E4B9 /* State.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = State.cpp; path = ../src/State.cpp; sourceTree = SOURCE_ROOT; };
 		E1F2D83013296A70009A2309 /* sliderBg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = sliderBg.png; path = ../resources/ui/sliderBg.png; sourceTree = SOURCE_ROOT; };
@@ -454,7 +460,7 @@
 		E1555CA2131EEBD10079B05A /* Images */ = {
 			isa = PBXGroup;
 			children = (
-				E1D99A8B134AED56003FC316 /* loading.png */,
+				E1D99A95134BD481003FC316 /* loadscreen */,
 				E1C2D90D133C4AF900B4FEEB /* helpPanel.png */,
 				E189F6751339A377009B2E23 /* playheadProgress.png */,
 				E1FC7DA213381853007F333C /* eclipseGlow.png */,
@@ -563,6 +569,17 @@
 				E217105E132ECEFB00ADCC17 /* AlphaWheel.h */,
 			);
 			name = Ui;
+			sourceTree = "<group>";
+		};
+		E1D99A95134BD481003FC316 /* loadscreen */ = {
+			isa = PBXGroup;
+			children = (
+				E1D99A9A134BDBFE003FC316 /* background.jpg */,
+				E1D99A96134BD490003FC316 /* planet.png */,
+				E1D99A97134BD490003FC316 /* planetary.png */,
+				E1D99A8B134AED56003FC316 /* loading.png */,
+			);
+			name = loadscreen;
 			sourceTree = "<group>";
 		};
 		E1FC74B1130B255A007FE9D6 /* CinderGestures */ = {
@@ -708,6 +725,9 @@
 				E1D99A84134A9DB3003FC316 /* blurRect.png in Resources */,
 				E1D99A8C134AED57003FC316 /* loading.png in Resources */,
 				E1D99A8E134AFF2F003FC316 /* alphaWheelMask.png in Resources */,
+				E1D99A98134BD490003FC316 /* planet.png in Resources */,
+				E1D99A99134BD490003FC316 /* planetary.png in Resources */,
+				E1D99A9B134BDBFE003FC316 /* background.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

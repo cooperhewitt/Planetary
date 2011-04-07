@@ -174,7 +174,7 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const gl::Texture &sli
     Rectf playheadSliderBg(  bgx1, bgy1, bgx2, bgy2 );
     Rectf playheadSliderBar( fgx1, fgy1, fgx2, fgy2 );
     
-    Rectf sliderButton( fgx2 - 8.0f, ( fgy1 + fgy2 ) * 0.5f - 8.0f, fgx2 + 8.0f, ( fgy1 + fgy2 ) * 0.5f + 8.0f );
+    Rectf sliderButton( fgx2 - 16.0f, ( fgy1 + fgy2 ) * 0.5f - 16.0f, fgx2 + 16.0f, ( fgy1 + fgy2 ) * 0.5f + 16.0f );
     
     touchRects.push_back( prevButton );
     touchTypes.push_back( PREVIOUS_TRACK );

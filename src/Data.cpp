@@ -113,6 +113,7 @@ bool Data::update()
 		// TODO: time this, is it OK in one frame?
 		mArtists.insert(mArtists.end(),pending.begin(),pending.end());
 		pending.clear();
+//TODO: LOADER
 		return true;
 	}
 	return false;
