@@ -124,7 +124,9 @@ bool PlayControls::orientationChanged( OrientationEvent event )
 }
 
 void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &currentTrackTex, const Font &font, float y, float currentTime, float totalTime )
-{    
+{   
+	float dragAlphaPer = pow( ( mInterfaceSize.y - y ) / 65.0f, 2.0f );
+	
     gl::pushModelView();
     gl::multModelView( mOrientationMtx );    
     
@@ -236,7 +238,7 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &cur
     touchRects.push_back( drawTextButton );
     touchTypes.push_back( DRAW_TEXT );
 	
-	gl::color( Color::white() );
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, dragAlphaPer ) );
     uiButtonsTex.enableAndBind();
 	gl::enableAlphaBlending();
 	
@@ -394,8 +396,8 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &cur
         layout2.addLine( ss.str() );
         mRemainingTimeTex = layout2.render( true, false );
     }
-    gl::draw( mCurrentTimeTex,   Vec2f( bgx1 - 40.0f, bgy1 + 1 ) );
-    gl::draw( mRemainingTimeTex, Vec2f( bgx2 + 8.0f, bgy1 + 1 ) );
+    gl::draw( mCurrentTimeTex,   Vec2f( bgx1 - 40.0f, bgy1 + 2 ) );
+    gl::draw( mRemainingTimeTex, Vec2f( bgx2 + 8.0f, bgy1 + 2 ) );
     
     gl::popModelView();
 	

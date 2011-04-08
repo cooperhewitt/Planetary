@@ -63,18 +63,15 @@ void NodeArtist::update( const Matrix44f &mat )
 void NodeArtist::drawEclipseGlow()
 {
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
-        float zoomOffset    = math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
-		
         float alpha         = mDistFromCamZAxisPer;
         gl::color( ColorA( mGlowColor, alpha * mEclipseStrength ) );
-
-		/*
-		 // if in alpha view, make highlighted artists flicker
-        float flickerAmt = ( 8.5f + zoomOffset * Rand::randFloat( 12.0f, 15.0f ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * flickerAmt;
-        */
-		
-		Vec2f radius = Vec2f( mRadius, mRadius ) * ( mEclipseStrength + 1.0f ) * 25.25f;
+		Vec2f radius = Vec2f( mRadius, mRadius ) * ( mEclipseStrength + 1.0f ) * 22.0f;
+		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+	}
+	
+	if( G_IS_IPAD2 && mIsHighlighted ){
+        gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 	 
@@ -164,7 +161,6 @@ void NodeArtist::setData( PlaylistRef playlist )
 	mPlaylist = playlist;
 	
 	string name		= getName();
-	char c0			= ' ';
 	char c1			= ' ';
 	char c2			= ' ';
 	if( name.length() >= 3 ){
@@ -177,8 +173,8 @@ void NodeArtist::setData( PlaylistRef playlist )
 	int totalCharAscii = c1Int + c2Int;
 	float asciiPer = ( (float)totalCharAscii/( ( 127.0f ) * 2.0f ) ) * 125.0f ;
 	
-	mHue			= sin( asciiPer ) * 0.3f + 0.3f;
-	std::cout << name << "'s hue = " << mHue << std::endl;
+	mHue			= sin( asciiPer ) * 0.3f + 0.33f;
+
 	mSat			= 1.0f - sin( mHue * M_PI );
 	mColor			= Color( CM_HSV, mHue, mSat * 0.5f, 1.0f );
 	mGlowColor		= Color( CM_HSV, mHue, mSat * 0.5f + 0.5f, 1.0f );

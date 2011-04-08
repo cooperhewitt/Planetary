@@ -11,6 +11,7 @@
 #include "UiLayer.h"
 #include "CinderFlurry.h"
 #include "BloomGl.h"
+#include "Globals.h"
 
 using namespace pollen::flurry;
 using namespace ci;
@@ -208,12 +209,17 @@ void UiLayer::draw( const gl::Texture &uiButtonsTex )
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	uiButtonsTex.enableAndBind();
     drawButton( mPanelRect, 0.41f, 0.9f, 0.49f, 0.99f );
-
+	uiButtonsTex.disable();
+	
+	gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.125f ) );
+	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 ), Vec2f( mPanelRect.x2, mPanelRect.y1 ) );
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+	
+	
 	float u1 = 0.5f;
 	float u2 = 1.0f;
 	float v1, v2;
 	
-    float uw = 1.0f/8.0f;
     if( mIsPanelTabTouched ){
 		v1 = 0.5f;
 		v2 = 0.69f;	// HA MGUNK!!!
@@ -221,9 +227,11 @@ void UiLayer::draw( const gl::Texture &uiButtonsTex )
 		v1 = 0.5f;
 		v2 = 0.69f;
 	}
+	uiButtonsTex.enableAndBind();
 	drawButton( mPanelTabRect, u1, v1, u2, v2 );
 	
     uiButtonsTex.disable();
         
+	
     gl::popModelView();    
 }

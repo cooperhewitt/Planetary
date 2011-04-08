@@ -7,6 +7,7 @@
 #include "cinder/Arcball.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
+#include "cinder/Utilities.h"
 #include "Globals.h"
 #include "Easing.h"
 #include "World.h"
@@ -142,6 +143,7 @@ class KeplerApp : public AppCocoaTouch {
 	Font			mFontBig;
 	Font			mFontMediSmall;
 	Font			mFontUltraSmall;	
+	Font			mFontMediTiny;
 	
 // MULTITOUCH
 	Vec2f			mTouchPos;
@@ -283,6 +285,7 @@ void KeplerApp::remainingSetup()
 	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
 	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
 	mFontUltraSmall		= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 14 );
+	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 12 );
 	
 	// TOUCH VARS
 	mTouchPos			= Vec2f::zero();
@@ -449,16 +452,31 @@ void KeplerApp::touchesEnded( TouchEvent event )
 	const vector<TouchEvent::Touch> touches = event.getTouches();
 	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){        
         Vec2f currentPos = touches.begin()->getPos();
-        Vec2f prevPos = touches.begin()->getPrevPos();        
+        Vec2f prevPos = touches.begin()->getPrevPos();   
         if (positionTouchesWorld(currentPos) && positionTouchesWorld(prevPos)) {
             mTouchPos = currentPos;
-            // if the nav wheel isnt showing and you havent been dragging and your touch is above the uiLayer panel
-            if( ! mAlphaWheel.getShowWheel() && ! mIsDragging ){
+            // if the nav wheel isnt showing and you havent been dragging
+			// and your touch is above the uiLayer panel and the Help panel isnt showing
+            if( ! mAlphaWheel.getShowWheel() && ! mIsDragging && !G_HELP ){
                 float u			= mTouchPos.x / (float) getWindowWidth();
                 float v			= mTouchPos.y / (float) getWindowHeight();
                 Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
                 checkForNodeTouch( touchRay, mMatrix, mTouchPos );
-            } else {
+            } else if( G_HELP ){
+				
+				Rectf mailButton( 193.0f, 280.0f, 288.0f, 300.0f );
+				Rectf cinderButton( 180.0f, 365.0f, 306.0f, 386.0f );
+				
+				if( mailButton.contains( mTouchPos ) ){
+					Url mailtoLink( "mailto:planetary@bloom.io?subject=Planetary feedback" );
+					launchWebBrowser( mailtoLink );
+				} else if( cinderButton.contains( mTouchPos ) ){
+					Url cinderWebsite( "http://libcinder.org" );
+					launchWebBrowser( cinderWebsite );
+				}
+				
+				
+			} else {
                 Flurry::getInstrumentation()->logEvent("Camera Moved");
             }
         }
@@ -1165,7 +1183,7 @@ void KeplerApp::drawScene()
 	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
     mUiLayer.draw( mUiButtonsTex );
     mBreadcrumbs.draw( mUiButtonsTex );
-    mPlayControls.draw( mUiButtonsTex, mCurrentTrackTex, mFontMediSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );
+    mPlayControls.draw( mUiButtonsTex, mCurrentTrackTex, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );
 	
     // TODO: plans for this state.draw? currently an empty method
 	//mState.draw( mFont );

@@ -47,16 +47,31 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 
 	
 	
+	string name		= getName();
+	char c1			= ' ';
+	if( name.length() >= 3 ){
+		c1 = name[1];
+	}
+	
+	int c1Int = constrain( int(c1), 32, 127 );
+	
+	mAsciiPer = ( c1Int - 32 )/( 127.0f - 32 );
+	
+	
+	
+	
 	//normalize playcount data
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
 
 // ALBUM ART
-	Surface albumArt	= mTrack->getArtwork( Vec2i( 128, 128 ) );
+	Surface albumArt		= mTrack->getArtwork( Vec2i( 128, 128 ) );
 	if( albumArt ){
 		int x				= (int)(normPlayCount*100);
-		int y				= mPlayCount%64;
-		Area a				= Area( x, y, x+1, y+normPlayCount*64 );
+		int y				= c1Int%64;
+		int w				= 1;
+		int h				= normPlayCount * 64;
+		Area a				= Area( x, y, x+w, y+h );
 		Surface crop		= albumArt.clone( a );
 		mAlbumArt			= gl::Texture( crop );
 		mHasAlbumArt		= true;
@@ -90,15 +105,6 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 
 	mOrbitPath.clear();
 	
-	string name		= getName();
-	char c1			= ' ';
-	if( name.length() >= 3 ){
-		c1 = name[1];
-	}
-	
-	int c1Int = constrain( int(c1), 32, 127 );
-	
-	mAsciiPer = ( c1Int - 32 )/( 127.0f - 32 );
 	mHue				= mAsciiPer;
 	mSat				= ( 1.0f - sin( mHue * M_PI ) ) * 0.1f + 0.15f;
 	mColor				= Color( CM_HSV, mHue, mSat * 0.5f, 1.0f );
