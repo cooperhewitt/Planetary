@@ -83,6 +83,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onPlayerStateChanged( ipod::Player *player );
     bool			onPlayerTrackChanged( ipod::Player *player );
     bool			onPlayerLibraryChanged( ipod::Player *player );
+    void            updateIsPlaying();
     Node*           getPlayingTrackNode( ipod::TrackRef playingTrack, Node* albumNode );
     Node*           getPlayingAlbumNode( ipod::TrackRef playingTrack, Node* artistNode );
     Node*           getPlayingArtistNode( ipod::TrackRef playingTrack );
@@ -643,8 +644,6 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 
 bool KeplerApp::onNodeSelected( Node *node )
 {
-//	cout << "node selected!" << endl;
-
 	mTime			= getElapsedSeconds();
 	mCenterFrom		= mCenter;
 	mCamDistFrom	= mCamDist;	
@@ -658,92 +657,98 @@ bool KeplerApp::onNodeSelected( Node *node )
 	if( node != NULL ) {
         if (node->mGen == G_TRACK_LEVEL) {
             Flurry::getInstrumentation()->logEvent("Track Selected");
-            //cout << "track node selected!" << endl;
             // FIXME: is this a bad OOP thing or is there a cleaner/safer C++ way to handle it?
             NodeTrack* trackNode = (NodeTrack*)node;
-            if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
-                //cout << "nothing already playing" << endl;
+            if ( mIpodPlayer.hasPlayingTrack() ){
                 ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
                 if ( trackNode->getId() != playingTrack->getItemId() ) {
-                    //cout << "telling player to play it" << endl;
                     mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
                 }
-//                else {
-//                    cout << "already playing it" << endl;				
-//                }
             }
             else {
-//                cout << "telling player to play it" << endl;
                 mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
             }
-        } else if (node->mGen == G_HOME_LEVEL) {
+        } 
+        else if (node->mGen == G_HOME_LEVEL) {
             Flurry::getInstrumentation()->logEvent("Home Selected");
-        } else if (node->mGen == G_ALPHA_LEVEL) {
+        } 
+        else if (node->mGen == G_ALPHA_LEVEL) {
             Flurry::getInstrumentation()->logEvent("Alpha Selected");
-        } else if (node->mGen == G_ARTIST_LEVEL) {
+        } 
+        else if (node->mGen == G_ARTIST_LEVEL) {
             Flurry::getInstrumentation()->logEvent("Artist Selected");
-        } else if (node->mGen == G_ALBUM_LEVEL) {
+        } 
+        else if (node->mGen == G_ALBUM_LEVEL) {
             Flurry::getInstrumentation()->logEvent("Album Selected");
         }
 	}
-//	else {
-//		cout << "node null!" << endl;
-//	}
-    
-    // update mIsPlaying state for all nodes...
-    if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
-        ipod::TrackRef track = mIpodPlayer.getPlayingTrack();
-        mWorld.setIsPlaying( track->getArtistId(), track->getAlbumId(), track->getItemId() );
-    }
-    else {
-        // FIXME: this will clear mIsPlaying from everything
-        // we might not want to do this?
-        mWorld.setIsPlaying( 0, 0, 0 );
-    }    
+
+    updateIsPlaying();
 
 	return false;
 }
 
 bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
-{	
-	ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
-	double trackLength = playingTrack->getLength();
-	
-	if( getElapsedFrames() % 3 == 0 ){
-		mIpodPlayer.setPlayheadTime( trackLength * dragPer );
+{
+	if ( mIpodPlayer.hasPlayingTrack() ) {
+        ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
+        double trackLength = playingTrack->getLength();
+        if( getElapsedFrames() % 3 == 0 ){
+            // FIXME: make the playhead update to finger position when touched
+            // rather than making the playhead TIME update to finger position and then lagging to update the playhead position
+            // subtle but important :)
+            mIpodPlayer.setPlayheadTime( trackLength * dragPer );
+        }
     }
-    
     return false;
 }
 
 bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 {
     Flurry::getInstrumentation()->logEvent("Player controlls Selected");
-	if( button == PlayControls::PREVIOUS_TRACK ){
-		mIpodPlayer.skipPrev();
-	} else if( button == PlayControls::PLAY_PAUSE ){
-		//cout << "play/pause pressed" << endl;
-		if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
-			//cout << "already playing, so asking for pause" << endl;
-			mIpodPlayer.pause();
-		}
-		else {
-			//cout << "not already playing, so asking for play" << endl;
-			mIpodPlayer.play();
-		}
-	} else if( button == PlayControls::NEXT_TRACK ){
-		mIpodPlayer.skipNext();	
-	} else if( button == PlayControls::HELP ){
-		G_HELP = !G_HELP;
-	} else if( button == PlayControls::DRAW_RINGS ){
-		mIsDrawingRings = !mIsDrawingRings;
-	} else if( button == PlayControls::DRAW_TEXT ){
-		mIsDrawingText = !mIsDrawingText;
-	} else if( button == PlayControls::CURRENT_TRACK ){
-        // pretend the track just got changed again, this will select it:
-		onPlayerTrackChanged( &mIpodPlayer );
-	}
-	//cout << "play button " << button << " pressed" << endl;
+    
+    switch( button ) {
+        
+        case PlayControls::PREVIOUS_TRACK:
+            mIpodPlayer.skipPrev();
+            break;
+        
+        case PlayControls::PLAY_PAUSE:
+            if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
+                mIpodPlayer.pause();
+            }
+            else {
+                mIpodPlayer.play();
+            }
+            break;
+        
+        case PlayControls::NEXT_TRACK:
+            mIpodPlayer.skipNext();	
+            break;
+        
+        case PlayControls::HELP:
+            G_HELP = !G_HELP;
+            break;
+        
+        case PlayControls::DRAW_RINGS:
+            mIsDrawingRings = !mIsDrawingRings;
+            break;
+        
+        case PlayControls::DRAW_TEXT:
+            mIsDrawingText = !mIsDrawingText;
+            break;
+        
+        case PlayControls::CURRENT_TRACK:
+            // pretend the track just got changed again, this will select it:
+            onPlayerTrackChanged( &mIpodPlayer );
+            break;
+
+        default:
+            console() << "unknown button pressed!" << std::endl;
+            break;
+            
+	} // switch
+
 	return false;
 }
 
@@ -816,7 +821,9 @@ void KeplerApp::update()
         // clear all the breadcrumbs etc.
         onNodeSelected( NULL );
         // and then make sure we know about the current track if there is one
-        onPlayerTrackChanged( &mIpodPlayer );
+        if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ) {
+            onPlayerTrackChanged( &mIpodPlayer );
+        }
 	}
     //mTextureLoader.update();
     
@@ -1252,7 +1259,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 	console() << "==================================================================" << std::endl;
 	console() << "onPlayerTrackChanged!" << std::endl;
 
-	if (player->getPlayState() == ipod::Player::StatePlaying) {
+	if (mIpodPlayer.hasPlayingTrack()) {
         
         ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
         
@@ -1284,19 +1291,26 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                         console() << "    album node already selected" << std::endl;                            
                     }
             
-                    // TODO: let's not do this if the playing album and artist don't match
-                    //       the transition is too jarring/annoying
-                    //       better to use this opportunity to update info about the currently playing track
-                    Node* trackNode = getPlayingTrackNode( playingTrack, albumNode );
-                    if (trackNode != NULL) {
+                    // only select the track automatically if we're already at track level
+                    if ( selectedNode && selectedNode->mGen == G_TRACK_LEVEL ) {
+                        // TODO: let's not do this if the current playing album and artist don't match
+                        //       the transition is too jarring/annoying
+                        //       better to use this opportunity to update info about the currently playing track
+                        Node* trackNode = getPlayingTrackNode( playingTrack, albumNode );
+                        if (trackNode != NULL) {
 
-                        if (!trackNode->mIsSelected) {
-                            console() << "    selecting track node" << std::endl;
-                            mState.setSelectedNode(trackNode);
+                            if (!trackNode->mIsSelected) {
+                                console() << "    selecting track node" << std::endl;
+                                mState.setSelectedNode(trackNode);
+                            }
+                            else {
+                                console() << "    track node already selected" << std::endl;                            
+                            }
                         }
-                        else {
-                            console() << "    track node already selected" << std::endl;                            
-                        }
+                    }
+                    else {
+                        console() << "    not selecting track node because it's too whooshy" << std::endl;                                                    
+                        updateIsPlaying();
                     }
                     
                 }
@@ -1309,8 +1323,6 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 	}
 	else {
 		console() << "    trackchanged but nothing's playing" << endl;
-        // would mess up orbit drawing
-        // mState.setPlayingNode(NULL);
 	}
     
     console() << "onPlayerTrackChanged done in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
@@ -1322,8 +1334,23 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
     mPlayControls.setPlaying(player->getPlayState() == ipod::Player::StatePlaying);
-    // TODO: do we need to update mIsPlaying in world/nodes if state is Stopped?
+    
+    updateIsPlaying();
+    
     return false;
+}
+
+void KeplerApp::updateIsPlaying()
+{
+    // update mIsPlaying state for all nodes...
+    if ( mIpodPlayer.hasPlayingTrack() ){
+        ipod::TrackRef track = mIpodPlayer.getPlayingTrack();
+        mWorld.setIsPlaying( track->getArtistId(), track->getAlbumId(), track->getItemId() );
+    }
+    else {
+        // this should be OK to do since the above will happen if something is queued and paused
+        mWorld.setIsPlaying( 0, 0, 0 );
+    }
 }
 
 
