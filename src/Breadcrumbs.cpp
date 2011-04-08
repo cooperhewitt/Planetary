@@ -8,6 +8,7 @@
 #include "Globals.h"
 #include "Breadcrumbs.h"
 #include "CinderFlurry.h"
+#include "BloomGl.h"
 
 using namespace pollen::flurry;
 
@@ -105,13 +106,13 @@ void Breadcrumbs::update()
 	}
 }
 
-void Breadcrumbs::draw()
+void Breadcrumbs::draw( const gl::Texture &uiButtonsTex )
 {
     float width = app::getWindowWidth();
     float height = app::getWindowHeight();
     float rectHeight = 24.0f;
-    Rectf breadcrumbRect( 0.0f, 0.0f, width, rectHeight );
-    float lineY = 25.0f;
+    Rectf breadcrumbRect( 0.0f, rectHeight, width, 0.0f );
+    //float lineY = 25.0f;
     float buttonY	= 3.0f;
     
     Matrix44f orientationMtx;
@@ -139,14 +140,18 @@ void Breadcrumbs::draw()
     gl::pushModelView();
     gl::multModelView( orientationMtx );
     
-	gl::color( ColorA( Color::black(), 0.75f ) );
-	gl::drawSolidRect( breadcrumbRect );
-	
 	gl::enableAlphaBlending();
-	gl::color( ColorA( Color::white(), 0.1f ) );
-	gl::drawLine( Vec2f( 1.0f, lineY ), Vec2f( breadcrumbRect.x2, lineY ) );
+	
+	gl::color( Color::white() );
+	uiButtonsTex.enableAndBind();
+	drawButton( breadcrumbRect, 0.41f, 0.9f, 0.49f, 1.0f );
+	uiButtonsTex.disable();
+	
+	
+	//gl::color( ColorA( Color::white(), 0.1f ) );
+	//gl::drawLine( Vec2f( 1.0f, lineY ), Vec2f( breadcrumbRect.x2, lineY ) );
     
-	gl::enableAlphaBlending(false);
+
 	gl::color( Color::white() );
 	float buttonX	= 25.0f;
 	float xMargin	= 5.0f;
@@ -158,7 +163,7 @@ void Breadcrumbs::draw()
 		if( i == mPreviousHierarchy.size() - 1 ){
 			gl::color( Color::white() );
 		} else {
-			gl::color( COLOR_BLUE );	
+			gl::color( COLOR_BRIGHT_BLUE );	
 		}
         
 		if( i > 0 ){

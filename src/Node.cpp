@@ -76,7 +76,7 @@ void Node::initWithParent()
 	mPos				= mParentNode->mPos;
 	mPrevPos			= mParentNode->mPos;
 	mVel				= mParentNode->mVel;
-	mOrbitPeriod		= Rand::randFloat( 75.0f, 150.0f );
+	mOrbitPeriod		= Rand::randFloat( 35.0f, 50.0f );
 }
 
 void Node::setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 

@@ -27,24 +27,27 @@ static const int G_NUM_LEVELS		= 5;
 static const float G_INIT_CAM_DIST	= 220.0f;
 static const int G_NUM_PLANET_TYPES = 5;
 static const int G_NUM_PLANET_TYPE_OPTIONS = 3;
-static const int G_NUM_CLOUD_TYPES	= 3;
+static const int G_NUM_CLOUD_TYPES	= 4;
 
 static const float G_MIN_FOV		= 65.0f;
-static const float G_MAX_FOV		= 115.0f;
+static const float G_MAX_FOV		= 120.0f;
 
 static const int G_RING_LOW_RES		= 250;
 static const int G_RING_HIGH_RES	= 500;
 
 static const int G_SKYDOME_RADIUS	= 1000.0f;
 
-static const ci::Color COLOR_BLUE	= ci::Color( 0.1f, 0.2f, 0.5f );
-static const ci::Color COLOR_BRIGHT_BLUE = ci::Color( 0.2f, 0.3f, 0.8f );
+static const ci::Color COLOR_BLUE			= ci::Color( 0.1f, 0.2f, 0.5f );
+static const ci::Color COLOR_BRIGHT_BLUE	= ci::Color( 0.2f, 0.3f, 0.8f );
+static const ci::Color COLOR_BRIGHT_YELLOW	= ci::Color( 1.0f, 1.0f, 0.75f );
 
 
 // TODO: move into State.h
 extern float G_ZOOM;
 extern bool G_DEBUG;
 extern bool G_HELP;
+extern bool G_DRAW_RINGS;
+extern bool G_DRAW_TEXT;
 
 extern bool G_IS_IPAD2;
 extern int G_NUM_PARTICLES;

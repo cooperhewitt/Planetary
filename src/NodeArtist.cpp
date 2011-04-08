@@ -95,7 +95,13 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 		gl::color( mGlowColor );
 		float radius = mRadius * 0.3f;
 		gl::enableAdditiveBlending();
-		gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
+		if( G_ZOOM > G_ARTIST_LEVEL ){
+			gl::disableDepthRead();
+			gl::drawSphere( Vec3f::zero(), radius, 32 );
+			gl::enableDepthRead();
+		} else {
+			gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
+		}
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
 	}
@@ -147,12 +153,13 @@ void NodeArtist::select()
 
 void NodeArtist::setChildOrbitRadii()
 {
-	float orbitOffset = mRadiusDest * 0.8f;
+	float orbitOffset = mRadiusDest * 1.5f;
 	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
 		NodeAlbum* albumNode = (NodeAlbum*)(*it);
-		orbitOffset += albumNode->mNumTracks * 0.01f;
+		float amt = math<float>::max( albumNode->mNumTracks * 0.01f, 0.06f );
+		orbitOffset += amt;
 		(*it)->mOrbitRadiusDest = orbitOffset;
-		orbitOffset += albumNode->mNumTracks * 0.01f;
+		orbitOffset += amt;
 	}
 }
 

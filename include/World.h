@@ -18,7 +18,6 @@
 #include "Data.h"
 #include "Node.h"
 #include "NodeTrack.h"
-#include "Triangle.h"
 
 class World {
   // TODO: clean up public/private here, perhaps spin sphere stuff off into utility lib?

@@ -29,8 +29,8 @@ inline std::string to_string( const T& t )
 class PlayControls {
 public:
 
-	enum PlayButton { NO_BUTTON, PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, SLIDER, HELP, DRAW_RINGS, DRAW_TEXT, CURRENT_TRACK };
-	enum ButtonTexId { TEX_PLAY, TEX_PLAY_ON, TEX_PAUSE, TEX_PAUSE_ON, TEX_PREV, TEX_PREV_ON, TEX_NEXT, TEX_NEXT_ON, TEX_SLIDER_BUTTON, TEX_HELP, TEX_DRAW_RINGS, TEX_DRAW_TEXT, TEX_CURRENT_TRACK, TEX_CURRENT_TRACK_ON };	
+	enum PlayButton { NO_BUTTON, CURRENT_TRACK, SHOW_WHEEL, PREVIOUS_TRACK, PLAY_PAUSE, NEXT_TRACK, SLIDER, HELP, DRAW_RINGS, DRAW_TEXT };
+	enum ButtonTexId { TEX_BUTTONS, TEX_SLIDER_BUTTON, TEX_HELP, TEX_DRAW_RINGS, TEX_DRAW_TEXT };	
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState );
     	
@@ -43,8 +43,8 @@ public:
 	
 	void setPlaying(bool playing) { mIsPlaying = playing; }
 	bool isPlaying() { return mIsPlaying; }
-
-	void draw( const vector<gl::Texture> &texs, const gl::Texture &sliderBgTex, const Font &font, float y, float currentTime, float totalTime, bool isDrawingRings, bool isDrawingText );
+	
+	void draw( const ci::gl::Texture &uiButtonsTex, const Font &font, float y, float currentTime, float totalTime );
 	
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>
@@ -76,7 +76,6 @@ private:
 	int mPrevSeconds;
 	
 	bool mIsDraggingPlayhead;
-	bool mIsDrawingRings, mIsDrawingStars, mIsDrawingPlanets;
 	gl::Texture mCurrentTimeTex;
 	gl::Texture mRemainingTimeTex;
 	

@@ -166,13 +166,13 @@ void AlphaWheel::update( float fov )
 	if( getShowWheel() ){
 		mWheelScale -= ( mWheelScale - 0.0f ) * 0.2f;
 	} else {
-		mWheelScale -= ( mWheelScale - 1.0f ) * 0.2f;	
+		mWheelScale -= ( mWheelScale - 1.15f ) * 0.2f;	
 	}	
 }
 
 void AlphaWheel::draw( GLfloat *verts, GLfloat *texCoords, GLfloat *colors )
 {
-	if( mWheelScale < 0.9f ){
+	if( mWheelScale < 0.95f ){
 		gl::pushModelView();
         gl::multModelView( mOrientationMatrix );
         
@@ -235,6 +235,7 @@ void AlphaWheel::drawWheel()
 
 void AlphaWheel::drawWheelData( GLfloat *verts, GLfloat *texCoords, GLfloat *colors )
 {
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f - mWheelScale ) );
 	gl::pushModelView();
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
