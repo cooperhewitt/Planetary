@@ -1243,7 +1243,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                     }
                                 
                     // only select the track automatically if we're already at track level
-                    if ( selectedNode && selectedNode->mGen == G_TRACK_LEVEL ) {
+//                    if ( selectedNode && selectedNode->mGen == G_TRACK_LEVEL ) {
                         // TODO: let's not do this if the current playing album and artist don't match
                         //       the transition is too jarring/annoying
                         //       better to use this opportunity to update info about the currently playing track
@@ -1270,10 +1270,11 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                             }
                         }
                     }
-                    else {
-                        console() << "    not selecting track node because it's too whooshy" << std::endl;                                                    
-                        updateIsPlaying();
-                    }
+//                    else {
+//                        console() << "    not selecting track node because it's too whooshy" << std::endl;                                                    
+//                        // make sure updateIsPlaying is correct though...
+//                        updateIsPlaying();
+//                    }
                     
                 }
             }
@@ -1296,9 +1297,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
     mPlayControls.setPlaying(player->getPlayState() == ipod::Player::StatePlaying);
-    
-    updateIsPlaying();
-    
+    updateIsPlaying();    
     return false;
 }
 
@@ -1318,62 +1317,41 @@ void KeplerApp::updateIsPlaying()
 
 Node* KeplerApp::getPlayingTrackNode( ipod::TrackRef playingTrack, Node* albumNode )
 {
-//    float t = getElapsedSeconds();
-//    console() << "getPlayingTrackNode()" << std::endl;
-
     if (albumNode != NULL) {
         for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
             // FIXME: what's the proper C++ way to do this cast?
             NodeTrack *trackNode = (NodeTrack*)(albumNode->mChildNodes[k]);
             if (trackNode->getId() == playingTrack->getItemId()) {
-//                console() << "found! NodeTrack in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
                 return trackNode;
             }
         }
     }
-    
-//    console() << "returning NULL in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
-    
     return NULL;
 }
 
 Node* KeplerApp::getPlayingAlbumNode( ipod::TrackRef playingTrack, Node* artistNode )
 {
-//    float t = getElapsedSeconds();
-//    console() << "getPlayingAlbumNode()" << std::endl;
-    
     if (artistNode != NULL) {
         uint64_t albumId = playingTrack->getAlbumId();
         for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
             Node* albumNode = artistNode->mChildNodes[j];
             if (albumNode->getId() == albumId) {
-//                console() << "found! NodeAlbum in " << (getElapsedSeconds() - t) << " seconds" << std::endl;            
                 return albumNode;
             }
         }
     }
-
-//    console() << "returning NULL in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
-
     return NULL;
 }
 
 Node* KeplerApp::getPlayingArtistNode( ipod::TrackRef playingTrack )
 {
-//    float t = getElapsedSeconds();
-//    console() << "getPlayingArtistNode()" << std::endl;
-    
     uint64_t artistId = playingTrack->getArtistId();    
     for (int i = 0; i < mWorld.mNodes.size(); i++) {
         Node* artistNode = mWorld.mNodes[i];
         if (artistNode->getId() == artistId) {
-//            console() << "found! NodeArtist in " << (getElapsedSeconds() - t) << " seconds" << std::endl;            
             return artistNode;
         }
-    }
-    
-//    console() << "returning NULL in " << (getElapsedSeconds() - t) << " seconds" << std::endl;
-    
+    }    
     return NULL;
 }
 
