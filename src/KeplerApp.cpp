@@ -1269,7 +1269,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                                 console() << "    track node already selected" << std::endl;                            
                             }
                         }
-                    }
+//                    }
 //                    else {
 //                        console() << "    not selecting track node because it's too whooshy" << std::endl;                                                    
 //                        // make sure updateIsPlaying is correct though...
