@@ -9,6 +9,7 @@
 
 #include "PlayControls.h"
 #include "Globals.h"
+#include "BloomGl.h"
 
 void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
 {
@@ -23,10 +24,7 @@ void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
     mMinutes		= 0;
     mSeconds		= 60;
     mPrevSeconds	= 0;
-    mIsDraggingPlayhead = false;
-    mIsDrawingRings = true;
-    mIsDrawingStars = true;
-    mIsDrawingPlanets = true;    
+    mIsDraggingPlayhead = false; 
     mDeviceOrientation = PORTRAIT_ORIENTATION; // TODO: init from mApp (add getter to AppCocoaTouch)
     mInterfaceSize = mApp->getWindowSize();
 }
@@ -81,11 +79,13 @@ bool PlayControls::touchesMoved( TouchEvent event )
             Vec2f pos = touches.begin()->getPos();
             pos = (mOrientationMtx.inverted() * Vec3f(pos,0)).xy();
             
-            float border = ( mInterfaceSize.x - 628 ) * 0.5f;
-            float playheadPer = ( pos.x - border ) / 628;
+			// MAGIC NUMBER: beware these hard-coded nasties!
+            float border = 110.0f;
+			float sliderLength = mInterfaceSize.x * 0.3f;
+            float playheadPer = ( pos.x - border ) / sliderLength;
             
             // TODO: Make this callback take a double (between 0 and 1?)
-            mCallbacksPlayheadMoved.call(playheadPer);
+            mCallbacksPlayheadMoved.call( constrain( playheadPer, 0.0f, 1.0f ) );
         }
     }
     return false;
@@ -124,62 +124,70 @@ bool PlayControls::orientationChanged( OrientationEvent event )
 	return false;
 }
 
-void PlayControls::draw( const vector<gl::Texture> &texs, const Font &font, float y, float currentTime, float totalTime, bool isDrawingRings, bool isDrawingText )
+void PlayControls::draw( const gl::Texture &uiButtonsTex, const Font &font, float y, float currentTime, float totalTime )
 {    
     gl::pushModelView();
     gl::multModelView( mOrientationMtx );    
     
     lastDrawnBoundsRect = Rectf(0, y, mInterfaceSize.x, mInterfaceSize.y );
     
-    gl::color( Color( 0.0f, 0.0f, 0.0f ) );
-    gl::drawSolidRect( lastDrawnBoundsRect ); // TODO: make height settable in setup()?
+    //gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+    //gl::drawSolidRect( lastDrawnBoundsRect ); // TODO: make height settable in setup()?
     
     touchRects.clear();
     touchTypes.clear(); // technically touch types never changes, but whatever
     
-    float bWidth		= 55.0f;
-    float bHeight		= 55.0f;
+    float bSize			= 50.0f;
+    float bSizeSmall	= 40.0f;
+	
+	float timeTexWidth	= 55.0f;
 	float topBorder		= 7.0f;
 	float sideBorder	= 10.0f;
 	float buttonGap		= 1.0f;
 	float sliderWidth	= mInterfaceSize.x * 0.3f;
-    float sliderHeight	= 22.0f;
-    float sliderInset	= bWidth * 2.0f;
+    float sliderHeight	= 20.0f;
+    float sliderInset	= bSize + timeTexWidth;
 	float x1, x2, y1, y2;
 	
 	
 	y1 = y + topBorder;
-	y2 = y1 + bHeight;
+	y2 = y1 + bSize;
 	
 	
 	x1 = sideBorder;
-	x2 = x1 + bWidth;
+	x2 = x1 + bSize;
 	Rectf currentTrackButton( x1, y1, x2, y2 );
 	
-	x1 = bWidth * 3.0f + sliderWidth;
-	x2 = x1 + bWidth;
+	x1 = bSize + timeTexWidth * 2.0f + sliderWidth;
+	x2 = x1 + bSize;
 	Rectf showWheelButton( x1, y1, x2, y2 );
 	
-	x1 = mInterfaceSize.x - sideBorder - bWidth;
-	x2 = x1 + bWidth;
+	x1 = mInterfaceSize.x - sideBorder - bSize;
+	x2 = x1 + bSize;
 	Rectf nextButton( x1, y1, x2, y2 );
 	
-	x1 -= bWidth + buttonGap;
-	x2 = x1 + bWidth;
+	x1 -= bSize + buttonGap;
+	x2 = x1 + bSize;
 	Rectf playButton( x1, y1, x2, y2 );
 	
-	x1 -= bWidth + buttonGap;
-	x2 = x1 + bWidth;
+	x1 -= bSize + buttonGap;
+	x2 = x1 + bSize;
 	Rectf prevButton( x1, y1, x2, y2 );
 
-
-	/*
-	Rectf helpButton( x1 + 5.0f, y1 + 6, x1 + 35.0f, y1 + 36 );
-    Rectf drawRingsButton( x1 + 40.0f, y1 + 6, x1 + 70.0f, y1 + 36 );
-    Rectf drawTextButton( x1 + 75.0f, y1 + 6, x1 + 105.0f, y1 + 36 );
-	*/
-	//    Rectf currentTrackButton( x1 + 110.0f, y1 + 6, x1 + 140.0f, y1 + 36 );
-    
+	
+	y1 += 5.0f;
+	x1 -= bSize * 1.5f;
+	x2 = x1 + bSizeSmall;
+	Rectf drawTextButton( x1, y1, x2, y1 + bSizeSmall );
+	
+	x1 -= bSizeSmall - 5.0f;
+	x2 = x1 + bSizeSmall;
+	Rectf drawRingsButton( x1, y1, x2, y1 + bSizeSmall );
+	
+	x1 -= bSizeSmall - 5.0f;
+	x2 = x1 + bSizeSmall;
+	Rectf helpButton( x1, y1, x2, y1 + bSizeSmall );
+	
     
     float playheadPer	= 0.0f;
     if( totalTime > 0.0f ){
@@ -196,8 +204,9 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const Font &font, floa
     
     Rectf sliderBg( bgx1, bgy1, bgx2, bgy2 );
     Rectf sliderFg( fgx1, fgy1, fgx2, fgy2 );
-    Rectf sliderButton( fgx2 - 16.0f, ( fgy1 + fgy2 ) * 0.5f - 16.0f, fgx2 + 16.0f, ( fgy1 + fgy2 ) * 0.5f + 16.0f );
-    
+    Rectf sliderButton( fgx2 - 14.0f, ( fgy1 + fgy2 ) * 0.5f - 14.0f, fgx2 + 14.0f, ( fgy1 + fgy2 ) * 0.5f + 14.0f );
+    Rectf currentTrackRect( bgx1 - 45.0f, bgy1 - 20.0f, bgx2 + 45.0f, bgy2 - 20.0f );
+	
 	touchRects.push_back( currentTrackButton );
 	touchTypes.push_back( CURRENT_TRACK );
 	touchRects.push_back( showWheelButton );
@@ -210,52 +219,46 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const Font &font, floa
     touchTypes.push_back( NEXT_TRACK );
     touchRects.push_back( sliderButton );
     touchTypes.push_back( SLIDER );
-	/*
     touchRects.push_back( helpButton );
     touchTypes.push_back( HELP );
     touchRects.push_back( drawRingsButton );
     touchTypes.push_back( DRAW_RINGS );
     touchRects.push_back( drawTextButton );
     touchTypes.push_back( DRAW_TEXT );
-	 */
-	
-	//	touchRects.push_back( currentTrackButton );
-	//    touchTypes.push_back( CURRENT_TRACK );
-	
 	
 	gl::color( Color::white() );
-    texs[ TEX_BUTTONS ].enableAndBind();
-	
+    uiButtonsTex.enableAndBind();
+	gl::enableAlphaBlending();
 	
 	
 	float u1, u2, v1, v2, v3;
 	v1 = 0.0f; v2 = 0.25f; v3 = 0.5f;
-	float uw = 1.0f/6.0f;
+	float uw = 1.0f/8.0f;
 // CURRENT TRACK
 	u1 = uw * 0.0f;
 	u2 = u1 + uw;
     if( lastTouchedType == CURRENT_TRACK )
-		drawButton( currentTrackButton, u1, u2, v2, v3 );
+		drawButton( currentTrackButton, u1, v2, u2, v3 );
     else
-		drawButton( currentTrackButton, u1, u2, v1, v2 );
+		drawButton( currentTrackButton, u1, v1, u2, v2 );
 
 	
 // SHOW WHEEL
 	u1 = uw * 1.0f;
 	u2 = u1 + uw;
     if( lastTouchedType == SHOW_WHEEL )
-		drawButton( showWheelButton, u1, u2, v2, v3 );
+		drawButton( showWheelButton, u1, v2, u2, v3 );
     else
-		drawButton( showWheelButton, u1, u2, v1, v2 );	
+		drawButton( showWheelButton, u1, v1, u2, v2 );	
 	
 	
 // PREV
 	u1 = uw * 2.0f;
 	u2 = u1 + uw;
     if( lastTouchedType == PREVIOUS_TRACK )
-		drawButton( prevButton, u1, u2, v2, v3 );
+		drawButton( prevButton, u1, v2, u2, v3 );
     else
-		drawButton( prevButton, u1, u2, v1, v2 );
+		drawButton( prevButton, u1, v1, u2, v2 );
     
     
 // PLAY/PAUSE	
@@ -265,58 +268,68 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const Font &font, floa
 		u1 = uw * 4.0f;
 	u2 = u1 + uw;
 	if( lastTouchedType == PLAY_PAUSE )
-		drawButton( playButton, u1, u2, v2, v3 );
+		drawButton( playButton, u1, v2, u2, v3 );
 	else
-		drawButton( playButton, u1, u2, v1, v2 );
-
+		drawButton( playButton, u1, v1, u2, v2 );
     
 // NEXT
 	u1 = uw * 5.0f;
 	u2 = u1 + uw;
     if( lastTouchedType == NEXT_TRACK )
-		drawButton( nextButton, u1, u2, v2, v3 );
+		drawButton( nextButton, u1, v2, u2, v3 );
     else
-		drawButton( nextButton, u1, u2, v1, v2 );
+		drawButton( nextButton, u1, v1, u2, v2 );
+	
+	
+	uw = 1.0f/10.0f;
+	
+	
+// HELP
+	u1 = 0.0f; u2 = u1 + uw;
+	v1 = 0.5f; v2 = 0.7f; v3 = 0.9f;
+	if( G_HELP )
+		drawButton( helpButton, u1, v2, u2, v3 );
+	else 
+		drawButton( helpButton, u1, v1, u2, v2 );		
+	
+// DRAW RINGS
+	u1 = uw * 1.0f; u2 = u1 + uw;
+    if( G_DRAW_RINGS )
+		drawButton( drawRingsButton, u1, v2, u2, v3 );
+	else 
+		drawButton( drawRingsButton, u1, v1, u2, v2 );
+	
+// DRAW TEXT
+	u1 = uw * 2.0f; u2 = u1 + uw;
+	if( G_DRAW_TEXT )
+		drawButton( drawTextButton, u1, v2, u2, v3 );
+	else 
+		drawButton( drawTextButton, u1, v1, u2, v2 );
 	
 	
 // SLIDER BG
-	u1 = 0.0f; u2 = 1.0f;
-	v1 = 0.5f; v2 = 0.6f;
-    drawButton( sliderBg, u1, u2, v1, v2 );
+	u1 = 0.0f; u2 = uw;
+	v1 = 0.9f; v2 = 1.0f;
+    drawButton( sliderBg, u1, v1, u2, v2 );
+	
+	gl::enableAdditiveBlending();
 	
 // SLIDER FG
-	u1 = 0.0f; u2 = 1.0f;
-	v1 = 0.6f; v2 = 0.7f;
-    drawButton( sliderFg, u1, u2, v1, v2 );
+	u1 = uw * 2.0; u2 = uw * 3.0f;
+    drawButton( sliderFg, u1, v1, u2, v2 );
 	
-    /*
-    // HELP
-    if( G_HELP ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-    else		  gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
-    texs[ TEX_HELP ].enableAndBind();
-    gl::drawSolidRect( helpButton );
+// SLIDER BUTTON
+	v1 = 0.5f; v2 = 0.7f; v3 = 0.9f;
+	u1 = uw * 3.0f; u2 = u1 + uw;
+    if( lastTouchedType == SLIDER )
+		drawButton( sliderButton, u1, v2, u2, v3 );
+	else 
+		drawButton( sliderButton, u1, v1, u2, v2 );
     
-    // DRAW RINGS
-    if( isDrawingRings ) gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-    else				 gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
-    texs[ TEX_DRAW_RINGS ].enableAndBind();
-    gl::drawSolidRect( drawRingsButton );
-    
-    // DRAW TEXT	
-    if( isDrawingText )		gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-    else					gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
-    texs[ TEX_DRAW_TEXT ].enableAndBind();
-    gl::drawSolidRect( drawTextButton );
-    */
-	
-	// CURRENT TRACK		
-//    if( lastTouchedType == CURRENT_TRACK ) texs[ TEX_CURRENT_TRACK_ON ].enableAndBind();
-//    else texs[ TEX_CURRENT_TRACK ].enableAndBind();
-//	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-//    gl::drawSolidRect( currentTrackButton );
-    
-	
-    
+
+// CURRENT TRACK
+    //drawButton( currentTrackRect, 0.0f, 0.0f, 1.0f, 1.0f );
+
     // CURRENT TIME
     mMinutes		= floor( currentTime/60 );
     mPrevSeconds	= mSeconds;
@@ -338,7 +351,7 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const Font &font, floa
         ss << minsStr << ":" << secsStr;
         TextLayout layout;
         layout.setFont( font );
-        layout.setColor( Color::white() );
+        layout.setColor( COLOR_BRIGHT_YELLOW );
         layout.addLine( ss.str() );
         mCurrentTimeTex = layout.render( true, false );
         
@@ -353,56 +366,19 @@ void PlayControls::draw( const vector<gl::Texture> &texs, const Font &font, floa
         ss << "-" << minsStr << ":" << secsStr;
         TextLayout layout2;
         layout2.setFont( font );
-        layout2.setColor( Color::white() );
+        layout2.setColor( COLOR_BRIGHT_YELLOW );
         layout2.addLine( ss.str() );
         mRemainingTimeTex = layout2.render( true, false );
     }
     gl::draw( mCurrentTimeTex,   Vec2f( bgx1 - 40.0f, bgy1 + 1 ) );
     gl::draw( mRemainingTimeTex, Vec2f( bgx2 + 8.0f, bgy1 + 1 ) );
     
-    
-
-//
-    gl::color( Color::white() );
-	gl::enableAlphaBlending();
-    texs[TEX_SLIDER_BUTTON].enableAndBind();
-    gl::drawSolidRect( sliderButton );
-    texs[TEX_SLIDER_BUTTON].disable();
-    
-	 
-	 
     gl::popModelView();
 	
 	//    gl::color( Color( 1.0f, 0, 0 ) );
 	//    gl::drawSolidRect( transformRect( lastDrawnBoundsRect, mOrientationMtx ) );
 }
 
-
-
-void PlayControls::drawButton( const Rectf &rect, float u1, float u2, float v1, float v2 )
-{
-	glEnableClientState( GL_VERTEX_ARRAY );
-	GLfloat verts[8];
-	glVertexPointer( 2, GL_FLOAT, 0, verts );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	GLfloat texCoords[8];
-	glTexCoordPointer( 2, GL_FLOAT, 0, texCoords );
-	int vi = 0;
-	int ti = 0;
-	verts[vi++] = rect.getX2(); texCoords[ti++] = u2;
-	verts[vi++] = rect.getY1(); texCoords[ti++] = v1;
-	verts[vi++] = rect.getX1(); texCoords[ti++] = u1;
-	verts[vi++] = rect.getY1(); texCoords[ti++] = v1;
-	verts[vi++] = rect.getX2(); texCoords[ti++] = u2;
-	verts[vi++] = rect.getY2(); texCoords[ti++] = v2;
-	verts[vi++] = rect.getX1(); texCoords[ti++] = u1;
-	verts[vi++] = rect.getY2(); texCoords[ti++] = v2;
-	
-	glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
-	
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );	
-}
 
 PlayControls::PlayButton PlayControls::findButtonUnderTouches(vector<TouchEvent::Touch> touches) {
     Rectf transformedBounds = transformRect( lastDrawnBoundsRect, mOrientationMtx );

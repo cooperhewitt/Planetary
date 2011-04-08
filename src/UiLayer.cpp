@@ -10,6 +10,7 @@
 
 #include "UiLayer.h"
 #include "CinderFlurry.h"
+#include "BloomGl.h"
 
 using namespace pollen::flurry;
 using namespace ci;
@@ -192,33 +193,45 @@ void UiLayer::update()
     mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;
 	
     // adjust tab rect:
-    mPanelTabRect = Rectf( mPanelRect.x2 - 85.0f, mPanelRect.y1 - 50.0f,
-                           mPanelRect.x2 - 35.0f, mPanelRect.y1 );
+    mPanelTabRect = Rectf( mPanelRect.x2 - 110.0f, mPanelRect.y1 - 50.0f,
+                           mPanelRect.x2 - 60.0f, mPanelRect.y1 );
 }
 
-void UiLayer::draw( const vector<gl::Texture> &texs, const gl::Texture &bgTex )
+void UiLayer::draw( const gl::Texture &uiButtonsTex )
 {	
     gl::pushModelView();
     gl::multModelView( mOrientationMatrix );
     
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
-	bgTex.enableAndBind();
-	gl::drawSolidRect( mPanelRect );
-	bgTex.disable();
+	uiButtonsTex.enableAndBind();
+    drawButton( mPanelRect, 0.41f, 0.9f, 0.49f, 0.99f );
 
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
-
-    int texIndex = -1;
-	if( mIsPanelTabTouched ){
-		texIndex = mIsPanelOpen ? TEX_PANEL_DOWN_ON : TEX_PANEL_UP_ON;
+	float u1, u2, v1, v2;
+	
+    float uw = 1.0f/8.0f;
+	u1 = uw * 5.0f;
+	u2 = u1 + uw;
+    if( mIsPanelTabTouched ){
+		if( !mIsPanelOpen ){
+			u1 = uw * 6.0f;
+		} else {
+			u1 = uw * 7.0f;
+		}
+		v1 = 0.25f;
+		v2 = 0.5f;
+    } else {
+		if( !mIsPanelOpen ){
+			u1 = uw * 6.0f;
+		} else {
+			u1 = uw * 7.0f;
+		}
+		v1 = 0.0f;
+		v2 = 0.25f;
 	}
-    else {
-		texIndex = mIsPanelOpen ? TEX_PANEL_DOWN : TEX_PANEL_UP;
-	}
-    
-    texs[texIndex].enableAndBind();
-	gl::drawSolidRect( mPanelTabRect );
-    texs[texIndex].disable();
+	u2 = u1 + uw;
+	drawButton( mPanelTabRect, u1, v1, u2, v2 );
+	
+    uiButtonsTex.disable();
         
     gl::popModelView();    
 }

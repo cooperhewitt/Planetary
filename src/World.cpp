@@ -15,7 +15,7 @@
 #include "cinder/Text.h"
 #include "cinder/Rand.h"
 #include "Globals.h"
-#include "Triangle.h"
+#include "BloomGl.h"
 
 using std::stringstream;
 using namespace ci;

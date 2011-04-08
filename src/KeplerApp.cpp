@@ -38,6 +38,8 @@ using namespace pollen::flurry;
 float G_ZOOM			= 0;
 bool G_DEBUG			= false;
 bool G_HELP             = false;
+bool G_DRAW_RINGS		= false;
+bool G_DRAW_TEXT		= false;
 bool G_IS_IPAD2			= false;
 int G_NUM_PARTICLES		= 250;
 int G_NUM_DUSTS			= 250;
@@ -163,19 +165,13 @@ class KeplerApp : public AppCocoaTouch {
 //    TextureLoader   mTextureLoader;
 	gl::Texture		mHelpPanelTex;
 	gl::Texture		mParamsTex;
-	gl::Texture		mStarTex;
-	gl::Texture		mStarGlowTex;
-	gl::Texture		mEclipseGlowTex;
+	gl::Texture		mStarTex, mStarGlowTex, mEclipseGlowTex;
 	gl::Texture		mSkyDome;
 	gl::Texture		mDottedTex;
-	gl::Texture		mPanelUpTex, mPanelDownTex;
 	gl::Texture		mPlayheadProgressTex;
-	gl::Texture		mPlayTex, mPauseTex, mForwardTex, mBackwardTex, mDebugTex, mDebugOnTex, mHighlightTex;
-	gl::Texture		mUiLayerBgTex;
     gl::Texture     mRingsTex;
+	gl::Texture		mUiButtonsTex;
     
-	vector<gl::Texture> mButtonsTex;
-	vector<gl::Texture> mPanelButtonsTex;
 	vector<gl::Texture> mPlanetsTex;
 	vector<gl::Texture> mCloudsTex;
 	
@@ -183,8 +179,6 @@ class KeplerApp : public AppCocoaTouch {
 	
 	bool			mDataIsLoaded;
     bool            mRemainingSetupCalled; // setup() is short and fast, remainingSetup() is slow
-	bool			mIsDrawingRings;
-	bool			mIsDrawingText;
 };
 
 void KeplerApp::prepareSettings(Settings *settings)
@@ -245,9 +239,9 @@ void KeplerApp::remainingSetup()
     
     mRemainingSetupCalled = true;
 
-    mDataIsLoaded = false;
-	mIsDrawingRings = true;
-	mIsDrawingText	= true;
+    mDataIsLoaded	= false;
+	G_DRAW_RINGS	= true;
+	G_DRAW_TEXT		= true;
 	Rand::randomize();
     
     // TEXTURES
@@ -371,8 +365,6 @@ void KeplerApp::initTextures()
     mStarTex			= loadImage( loadResource( "star.png" ) );
 	mEclipseGlowTex		= loadImage( loadResource( "eclipseGlow.png" ) );
 	mHelpPanelTex		= loadImage( loadResource( "helpPanel.png" ) );
-	mPanelUpTex			= loadImage( loadResource( "panelUp.png" ) );
-	mPanelDownTex		= loadImage( loadResource( "panelDown.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
@@ -380,20 +372,7 @@ void KeplerApp::initTextures()
     mPlayheadProgressTex = loadImage( loadResource( "playheadProgress.png" ) );
 	mPlayheadProgressTex.setWrap( GL_REPEAT, GL_REPEAT );
 	mParamsTex			= gl::Texture( 768, 75 );    
-	mUiLayerBgTex		= loadImage( loadResource( "uiLayerBg.png" ) );
-	
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "uiButtons.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "sliderButton.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "help.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawLines.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "drawText.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "currentTrack.png" ) ) ) );
-	mButtonsTex.push_back( gl::Texture( loadImage( loadResource( "currentTrackOn.png" ) ) ) );
-    
-	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUp.png" ) ) ) );
-	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelUpOn.png" ) ) ) );
-	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelDown.png" ) ) ) );
-	mPanelButtonsTex.push_back( gl::Texture( loadImage( loadResource( "panelDownOn.png" ) ) ) );
+	mUiButtonsTex		= loadImage( loadResource( "uiButtons.png" ) );
     
     mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "12.jpg" ) ) ) );
@@ -548,6 +527,7 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 	if( mCamDistPinchOffsetDest > 4.1f ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
+            console() << "backing out using pinch!" << std::endl;
 			mState.setSelectedNode( selected->mParentNode );
 			mFovDest = 90.0f;
 		}
@@ -625,6 +605,9 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 	
 	mWorld.filterNodes();
 	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
+    
+    mState.setSelectedNode( NULL );
+    
 	return false;
 }
 
@@ -720,16 +703,24 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 		}
 	} else if( button == PlayControls::NEXT_TRACK ){
 		mIpodPlayer.skipNext();	
-	}
-	/*else if( button == PlayControls::HELP ){
+	} else if( button == PlayControls::CURRENT_TRACK ){
+        // pretend the track just got changed again, this will select it:
+		onPlayerTrackChanged( &mIpodPlayer );
+	} else if( button == PlayControls::SHOW_WHEEL ){
+		mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );
+		if( mAlphaWheel.getShowWheel() ) mFovDest = 130.0f;
+		mWorld.deselectAllNodes();
+		mState.setSelectedNode( NULL );
+		mState.setAlphaChar( ' ' );
+		mCamDistPinchOffsetDest = 1.0f;
+	} else if( button == PlayControls::HELP ){
 		G_HELP = !G_HELP;
 	} else if( button == PlayControls::DRAW_RINGS ){
-		mIsDrawingRings = !mIsDrawingRings;
+		G_DRAW_RINGS = !G_DRAW_RINGS;
 	} else if( button == PlayControls::DRAW_TEXT ){
-		mIsDrawingText = !mIsDrawingText;
-	} else if( button == PlayControls::CURRENT_TRACK ){
-		//
-	}*/
+		G_DRAW_TEXT = !G_DRAW_TEXT;
+	}
+	
 	//cout << "play button " << button << " pressed" << endl;
 	return false;
 }
@@ -982,7 +973,7 @@ void KeplerApp::drawScene()
 	Node *artistNode = mState.getSelectedArtistNode();
 	if( artistNode ){
 		
-		if( mWorld.mPlayingTrackNode && mIsDrawingRings ){
+		if( mWorld.mPlayingTrackNode && G_DRAW_RINGS ){
 			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPlayheadProgressTex );
 		}
@@ -1027,7 +1018,7 @@ void KeplerApp::drawScene()
 
 	
 // ORBITS
-	if( mIsDrawingRings ){
+	if( G_DRAW_RINGS ){
         mWorld.drawOrbitRings( mPinchAlphaOffset );
 	}
 	
@@ -1051,15 +1042,17 @@ void KeplerApp::drawScene()
 
 		
 // CURRENT TRACK ORBIT PATH
-	if( mIsDrawingRings && mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
+	if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 		gl::enableAdditiveBlending();
 		mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
-		mWorld.mPlayingTrackNode->drawPlayheadProgress( mPlayheadProgressTex );
+		if( G_DRAW_RINGS )
+			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPlayheadProgressTex );
 	}
 	
 	
 // CONSTELLATION
 	if( mData.mFilteredArtists.size() > 1 ){
+		gl::enableAdditiveBlending();
 		mDottedTex.enableAndBind();
 		mWorld.drawConstellation( mMatrix );
 		mDottedTex.disable();
@@ -1075,7 +1068,7 @@ void KeplerApp::drawScene()
 	
 	
 // NAMES
-	if( mIsDrawingText ){
+	if( G_DRAW_TEXT ){
         
         float nameAngle = 0;
         // !!! temporary hack, breaks hit tests
@@ -1124,12 +1117,12 @@ void KeplerApp::drawScene()
 	
 // EVERYTHING ELSE
 	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
-    mUiLayer.draw( mPanelButtonsTex, mUiLayerBgTex );
-    mBreadcrumbs.draw( mUiLayerBgTex );
+    mUiLayer.draw( mUiButtonsTex );
+    mBreadcrumbs.draw( mUiButtonsTex );
+    mPlayControls.draw( mUiButtonsTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );
 	
-	gl::enableAdditiveBlending();
-    mPlayControls.draw( mButtonsTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mIsDrawingRings, mIsDrawingText );
-    mState.draw( mFont );
+    // TODO: plans for this state.draw? currently an empty method
+	//mState.draw( mFont );
 	
 	gl::disableAlphaBlending();
     if( G_DEBUG ) drawInfoPanel();
@@ -1246,6 +1239,16 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                         if (!trackNode->mIsSelected) {
                             console() << "    selecting track node" << std::endl;
                             mState.setSelectedNode(trackNode);
+							
+							/*
+// ATTEMPTING TO CREATE THE CURRENT TRACK TEXT				
+							TextLayout layout;
+							layout.setFont( mFont );
+							layout.setColor( Color::white() );			
+							layout.addLine( mState.getArtistNode );
+							bool PREMULT = false;
+							mCurrentTrackTex = gl::Texture( layout.render( true, PREMULT ) );
+							 */
                         }
                         else {
                             console() << "    track node already selected" << std::endl;                            

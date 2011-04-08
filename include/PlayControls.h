@@ -29,7 +29,7 @@ inline std::string to_string( const T& t )
 class PlayControls {
 public:
 
-	enum PlayButton { NO_BUTTON, CURRENT_TRACK, SHOW_WHEEL, PREVIOUS_TRACK, PLAY_PAUSE, NEXT_TRACK, SLIDER };//, HELP, DRAW_RINGS, DRAW_TEXT };
+	enum PlayButton { NO_BUTTON, CURRENT_TRACK, SHOW_WHEEL, PREVIOUS_TRACK, PLAY_PAUSE, NEXT_TRACK, SLIDER, HELP, DRAW_RINGS, DRAW_TEXT };
 	enum ButtonTexId { TEX_BUTTONS, TEX_SLIDER_BUTTON, TEX_HELP, TEX_DRAW_RINGS, TEX_DRAW_TEXT };	
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState );
@@ -44,8 +44,7 @@ public:
 	void setPlaying(bool playing) { mIsPlaying = playing; }
 	bool isPlaying() { return mIsPlaying; }
 	
-	void draw( const vector<gl::Texture> &texs, const Font &font, float y, float currentTime, float totalTime, bool isDrawingRings, bool isDrawingText );
-	void drawButton( const ci::Rectf &rect, float u1, float u2, float v1, float v2 );
+	void draw( const ci::gl::Texture &uiButtonsTex, const Font &font, float y, float currentTime, float totalTime );
 	
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>
@@ -77,7 +76,6 @@ private:
 	int mPrevSeconds;
 	
 	bool mIsDraggingPlayhead;
-	bool mIsDrawingRings, mIsDrawingStars, mIsDrawingPlanets;
 	gl::Texture mCurrentTimeTex;
 	gl::Texture mRemainingTimeTex;
 	

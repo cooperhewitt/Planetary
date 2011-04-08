@@ -51,7 +51,7 @@ bool LoadingScreen::orientationChanged( OrientationEvent event )
 void LoadingScreen::draw( gl::Texture mStarGlowTex )
 {
 	Vec2f pos;
-	float radius, alpha;
+	float radius;
 	
     gl::setMatricesWindow( app::getWindowSize() );    
 
