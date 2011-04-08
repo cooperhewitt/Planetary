@@ -676,7 +676,6 @@ bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
 bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 {
     Flurry::getInstrumentation()->logEvent("Player controlls Selected");
-<<<<<<< HEAD
     
     switch( button ) {
         
@@ -702,11 +701,11 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
             break;
         
         case PlayControls::DRAW_RINGS:
-            mIsDrawingRings = !mIsDrawingRings;
+            G_DRAW_RINGS = !G_DRAW_RINGS;
             break;
         
         case PlayControls::DRAW_TEXT:
-            mIsDrawingText = !mIsDrawingText;
+            G_DRAW_TEXT = !G_DRAW_TEXT;
             break;
         
         case PlayControls::CURRENT_TRACK:
@@ -714,47 +713,23 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
             onPlayerTrackChanged( &mIpodPlayer );
             break;
 
+        case PlayControls::SHOW_WHEEL:
+            
+            // TODO: let's make a function for this, e.g. gotoTheWheel()!
+            mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );
+            if( mAlphaWheel.getShowWheel() ) mFovDest = 130.0f;
+            mWorld.deselectAllNodes();
+            mState.setSelectedNode( NULL );
+            mState.setAlphaChar( ' ' );
+            mCamDistPinchOffsetDest = 1.0f;
+            break;
+            
         default:
             console() << "unknown button pressed!" << std::endl;
             break;
             
 	} // switch
 
-=======
-	if( button == PlayControls::PREVIOUS_TRACK ){
-		mIpodPlayer.skipPrev();
-	} else if( button == PlayControls::PLAY_PAUSE ){
-		//cout << "play/pause pressed" << endl;
-		if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
-			//cout << "already playing, so asking for pause" << endl;
-			mIpodPlayer.pause();
-		}
-		else {
-			//cout << "not already playing, so asking for play" << endl;
-			mIpodPlayer.play();
-		}
-	} else if( button == PlayControls::NEXT_TRACK ){
-		mIpodPlayer.skipNext();	
-	} else if( button == PlayControls::CURRENT_TRACK ){
-        // pretend the track just got changed again, this will select it:
-		onPlayerTrackChanged( &mIpodPlayer );
-	} else if( button == PlayControls::SHOW_WHEEL ){
-		mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );
-		if( mAlphaWheel.getShowWheel() ) mFovDest = 130.0f;
-		mWorld.deselectAllNodes();
-		mState.setSelectedNode( NULL );
-		mState.setAlphaChar( ' ' );
-		mCamDistPinchOffsetDest = 1.0f;
-	} else if( button == PlayControls::HELP ){
-		G_HELP = !G_HELP;
-	} else if( button == PlayControls::DRAW_RINGS ){
-		G_DRAW_RINGS = !G_DRAW_RINGS;
-	} else if( button == PlayControls::DRAW_TEXT ){
-		G_DRAW_TEXT = !G_DRAW_TEXT;
-	}
-	
-	//cout << "play button " << button << " pressed" << endl;
->>>>>>> 67b7c6af4647020f25ee069ff7c06f7c05a26a0d
 	return false;
 }
 
