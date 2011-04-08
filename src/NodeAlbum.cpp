@@ -65,10 +65,22 @@ void NodeAlbum::setData( PlaylistRef album )
 	
 	
 // COLORS
-	float hue			= Rand::randFloat( 0.15f, 0.75f );
-	float sat			= Rand::randFloat( 0.15f, 0.25f );
-	float val			= Rand::randFloat( 0.85f, 1.00f );
-	mColor				= Color( CM_HSV, hue, sat, val );
+	string name		= getName();
+	char c1			= ' ';
+	char c2			= ' ';
+	if( name.length() >= 3 ){
+		c1 = name[1];
+		c2 = name[2];
+	}
+	
+	int c1Int = constrain( int(c1), 32, 127 );
+	int c2Int = constrain( int(c2), 32, 127 );
+	
+	mAsciiPer = ( c1Int - 32 )/( 127.0f - 32 );
+	
+	mHue				= mAsciiPer;
+	mSat				= ( 1.0f - sin( mHue * M_PI ) ) * 0.1f + 0.15f;
+	mColor				= Color( CM_HSV, mHue, mSat * 0.5f, 1.0f );
 	mGlowColor			= mParentNode->mGlowColor;
 	mEclipseColor       = mColor;
 
@@ -88,9 +100,9 @@ void NodeAlbum::setData( PlaylistRef album )
 	
 
 // TEXTURE IDs
-    mPlanetTexIndex		= 3 * G_NUM_PLANET_TYPE_OPTIONS + Rand::randInt( 6 );
+    mPlanetTexIndex		= 3 * G_NUM_PLANET_TYPE_OPTIONS + c1Int%6;
 	//( mIndex + 6 )%( G_NUM_PLANET_TYPES * G_NUM_PLANET_TYPE_OPTIONS );//(int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
-	mCloudTexIndex		= Rand::randInt( G_NUM_CLOUD_TYPES );
+	mCloudTexIndex		= c2Int%G_NUM_CLOUD_TYPES;
 }
 
 
@@ -99,8 +111,9 @@ void NodeAlbum::update( const Matrix44f &mat )
 	if( !mHasCreatedAlbumArt && mChildNodes.size() > 0 ){
 		Surface albumArt	= ((NodeTrack*)mChildNodes[0])->mTrack->getArtwork( Vec2i( 256, 256 ) );
 		if( albumArt ){
-			int x				= Rand::randInt( 20, 180 );
-			int y				= Rand::randInt( 64 );
+			
+			int x				= mAsciiPer * 160 + 20;
+			int y				= mAsciiPer * 64;
 			Area a				= Area( x, y, x+50, y+128 );
 			Surface crop		= albumArt.clone( a );
 			
@@ -144,14 +157,47 @@ void NodeAlbum::update( const Matrix44f &mat )
 	mPos		= mParentNode->mPos + mRelPos;
     
     float eclipseDist = 1.0f;
-    if( mParentNode->mDistFromCamZAxisPer > 0.0f ){
-        float dist			= mScreenPos.distance( mParentNode->mScreenPos );
-        eclipseDist			= constrain( dist/200.0f, 0.0f, 1.0f );
-		if( G_ZOOM == G_ALBUM_LEVEL ){
-			mEclipseStrength	= math<float>::max( 500.0f - abs( mSphereScreenRadius - mParentNode->mSphereScreenRadius ), 0.0f ) / 500.0f; 
-			mEclipseStrength	= pow( mEclipseStrength, 5.0f );
+    if( mParentNode->mDistFromCamZAxisPer > 0.0f )
+	{		
+		Vec2f p		= mScreenPos;
+		float r		= mSphereScreenRadius * 0.45f;
+		float rsqrd = r * r;
+		
+		Vec2f P		= mParentNode->mScreenPos;
+		float R		= mParentNode->mSphereScreenRadius * 0.4f;
+		float Rsqrd	= R * R;
+		float A		= M_PI * Rsqrd;
+		
+		
+		float totalRadius = r + R;
+		float c		= p.distance( P );
+		if( c < totalRadius && mIsSelected )
+		{
+			float csqrd = c * c;
+			float cos1	= ( Rsqrd + csqrd - rsqrd )/( 2.0f * R * c );
+			float CBA	= acos( constrain( cos1, -1.0f, 1.0f ) );
+			float CBD	= CBA * 2.0f;
+			
+			float cos2	= ( rsqrd + csqrd - Rsqrd )/( 2.0f * r * c );
+			float CAB	= acos( constrain( cos2, -1.0f, 1.0f ) );
+			float CAD	= CAB * 2.0f;
+			float intersectingArea = CBA * Rsqrd - 0.5f * Rsqrd * sin( CBD ) + 0.5f * CAD * rsqrd - 0.5f * rsqrd * sin( CAD );
+			mEclipseStrength = 1.0f - ( A - intersectingArea ) / A;
+			/*
+			std::cout << "================== " << std::endl;
+			std::cout << "r = " << r << std::endl;
+			std::cout << "R = " << R << std::endl;
+			std::cout << "c = " << c << std::endl;
+			std::cout << "A = " << A << std::endl;
+			std::cout << "CBA = " << CBA << std::endl;
+			std::cout << "CAB = " << CAB << std::endl;
+			std::cout << "intersectingArea = " << intersectingArea << std::endl;
+			std::cout << "totalRadius = " << totalRadius << std::endl;		
+			std::cout << "mEclipseStrength = " << mEclipseStrength << std::endl;
+			 */
 		}
     }
+	
 	mEclipseColor = ( mColor + Color::white() ) * 0.5f * eclipseDist;
     
 	Node::update( mat );
@@ -162,11 +208,9 @@ void NodeAlbum::update( const Matrix44f &mat )
 void NodeAlbum::drawEclipseGlow()
 {
 	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
-        gl::color( ColorA( mParentNode->mGlowColor, mEclipseStrength ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * ( mEclipseStrength + 1.0f ) * 3.25f;
-		gl::drawBillboard( mTransPos, radius * 100.0f, 0.0f, mBbRight, mBbUp );
+		mParentNode->mEclipseStrength = pow( mEclipseStrength, 2.0f ) * mZoomPer;
 	}
-	
+
 	Node::drawEclipseGlow();
 }
 

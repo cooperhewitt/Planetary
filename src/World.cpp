@@ -500,7 +500,7 @@ void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 			}
 			   
 			   
-			ColorA col				= ColorA( (*it)->mGlowColor, (*it)->mDistFromCamZAxisPer * glowAlpha );
+			ColorA col				= ColorA( (*it)->mGlowColor, (*it)->mDistFromCamZAxisPer * glowAlpha * 0.5f );
 			
 			Vec3f right				= bbRight * radius;
 			Vec3f up				= bbUp * radius;

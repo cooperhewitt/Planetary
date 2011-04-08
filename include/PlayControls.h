@@ -44,7 +44,7 @@ public:
 	void setPlaying(bool playing) { mIsPlaying = playing; }
 	bool isPlaying() { return mIsPlaying; }
 	
-	void draw( const ci::gl::Texture &uiButtonsTex, const Font &font, float y, float currentTime, float totalTime );
+	void draw( const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &currentTrackTex, const Font &font, float y, float currentTime, float totalTime );
 	
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>

@@ -140,8 +140,8 @@ class KeplerApp : public AppCocoaTouch {
 // FONTS
 	Font			mFont;
 	Font			mFontBig;
-	Font			mFontSmall;
-	
+	Font			mFontMediSmall;
+	Font			mFontUltraSmall;	
 	
 // MULTITOUCH
 	Vec2f			mTouchPos;
@@ -172,6 +172,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mPlayheadProgressTex;
     gl::Texture     mRingsTex;
 	gl::Texture		mUiButtonsTex;
+	gl::Texture		mCurrentTrackTex;
     
 	vector<gl::Texture> mPlanetsTex;
 	vector<gl::Texture> mCloudsTex;
@@ -278,8 +279,9 @@ void KeplerApp::remainingSetup()
 	// FONTS
 	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
 	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
-	mFontSmall			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 13 );	
-
+	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
+	mFontUltraSmall		= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 14 );
+	
 	// TOUCH VARS
 	mTouchPos			= Vec2f::zero();
 	mTouchVel			= Vec2f::zero();
@@ -301,7 +303,7 @@ void KeplerApp::remainingSetup()
     // NB:- order of UI init is important to register callbacks in correct order
     
 	// BREADCRUMBS
-	mBreadcrumbs.setup( this, mFontSmall );
+	mBreadcrumbs.setup( this, mFontMediSmall );
 	mBreadcrumbs.registerBreadcrumbSelected( this, &KeplerApp::onBreadcrumbSelected );
 	mBreadcrumbs.setHierarchy(mState.getHierarchy());
 
@@ -894,10 +896,8 @@ void KeplerApp::updateCamera()
 	mFov -= ( mFov - mFovDest ) * 0.15f;
 	
 
-	if( mFovDest >= G_MAX_FOV - 5 && ! mAlphaWheel.getShowWheel() && G_ZOOM <= G_ALPHA_LEVEL ){
-		if (!mAlphaWheel.getShowWheel()) {
-			mAlphaWheel.setShowWheel( true );
-		}
+	if( mFovDest >= G_MAX_FOV - 5 && ! mAlphaWheel.getShowWheel() && G_ZOOM <= G_ALPHA_LEVEL + 0.25f ){
+		mAlphaWheel.setShowWheel( true );
 		//mWorld.deselectAllNodes();
 		//mState.setSelectedNode( NULL );
 		//mState.setAlphaChar( ' ' );
@@ -974,9 +974,14 @@ void KeplerApp::drawScene()
 	mStarTex.disable();
     
 
-// ECLIPSEGLOWS
-	mStarGlowTex.enableAndBind();
+// ECLIPSEGLOWS OVERLAY
+	mEclipseGlowTex.enableAndBind();
 	mWorld.drawEclipseGlows();
+	mEclipseGlowTex.disable();
+	
+// STARGLOWS occluded
+	mStarGlowTex.enableAndBind();
+	mWorld.drawStarGlowsVertexArray( mMatrix );
 	mStarGlowTex.disable();
  	
 	
@@ -1011,11 +1016,11 @@ void KeplerApp::drawScene()
 		mWorld.drawClouds( mPlanetsTex, mCloudsTex );
 	}
 	
-	gl::enableAdditiveBlending();   
 	glDisable( GL_LIGHTING );
+	gl::enableAdditiveBlending();  
 	gl::disableDepthRead();
 	
-// STARGLOWS
+// STARGLOWS bloom
 	mStarGlowTex.enableAndBind();
 	mWorld.drawStarGlowsVertexArray( mMatrix );
 	mWorld.drawTouchHighlights();
@@ -1129,7 +1134,7 @@ void KeplerApp::drawScene()
 	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
     mUiLayer.draw( mUiButtonsTex );
     mBreadcrumbs.draw( mUiButtonsTex );
-    mPlayControls.draw( mUiButtonsTex, mFontSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );
+    mPlayControls.draw( mUiButtonsTex, mCurrentTrackTex, mFontMediSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength );
 	
     // TODO: plans for this state.draw? currently an empty method
 	//mState.draw( mFont );
@@ -1168,7 +1173,7 @@ void KeplerApp::setParamsTex()
 {
     stringstream s;
 	TextLayout layout;	
-	layout.setFont( mFontSmall );
+	layout.setFont( mFontMediSmall );
 	layout.setColor( Color( 1.0f, 0.0f, 0.0f ) );
 
 	s.str("");
@@ -1210,9 +1215,16 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
 	if (mIpodPlayer.hasPlayingTrack()) {
         
-        ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
+		ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
 
-        // XXXXXX - using playTrack, here, to generate track texture
+	// Create current track text texture
+		TextLayout layout;
+		layout.setFont( mFontMediSmall );
+		layout.setColor( Color::white() );			
+		layout.addLine( playingTrack->getArtist() + " • " + playingTrack->getAlbumTitle() + " • " + playingTrack->getTitle() + " " );
+		bool PREMULT = false;
+		mCurrentTrackTex = gl::Texture( layout.render( true, PREMULT ) );
+		 
         
         Node *selectedNode = mState.getSelectedNode();
         if (!(selectedNode != NULL && selectedNode->getId() == playingTrack->getItemId())) {
@@ -1253,17 +1265,6 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                             if (!trackNode->mIsSelected) {
                                 console() << "    selecting track node" << std::endl;
                                 mState.setSelectedNode(trackNode);
-                                
-                                /*
-                                 // ATTEMPTING TO CREATE THE CURRENT TRACK TEXT		
-                                 // TC: this is the wrong place to do this, do it at XXXXXX, above
-                                 TextLayout layout;
-                                 layout.setFont( mFont );
-                                 layout.setColor( Color::white() );			
-                                 layout.addLine( mState.getArtistNode );
-                                 bool PREMULT = false;
-                                 mCurrentTrackTex = gl::Texture( layout.render( true, PREMULT ) );
-                                 */                                
                             }
                             else {
                                 console() << "    track node already selected" << std::endl;                            

@@ -89,10 +89,19 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	
 
 	mOrbitPath.clear();
-	float hue			= Rand::randFloat( 0.15f, 0.75f );
-	float sat			= Rand::randFloat( 0.25f, 0.9f );
-	float val			= Rand::randFloat( 0.85f, 1.00f );
-	mColor				= Color( CM_HSV, hue, sat, val );
+	
+	string name		= getName();
+	char c1			= ' ';
+	if( name.length() >= 3 ){
+		c1 = name[1];
+	}
+	
+	int c1Int = constrain( int(c1), 32, 127 );
+	
+	mAsciiPer = ( c1Int - 32 )/( 127.0f - 32 );
+	mHue				= mAsciiPer;
+	mSat				= ( 1.0f - sin( mHue * M_PI ) ) * 0.1f + 0.15f;
+	mColor				= Color( CM_HSV, mHue, mSat * 0.5f, 1.0f );
 	mGlowColor			= mParentNode->mGlowColor;
 	mEclipseColor		= mColor;
 	
@@ -261,12 +270,43 @@ void NodeTrack::update( const Matrix44f &mat )
 	}
 	
     float eclipseDist	= 1.0f;
-    if( mParentNode->mParentNode->mDistFromCamZAxisPer > 0.0f ){
-        float dist = mScreenPos.distance( mParentNode->mParentNode->mScreenPos );
-        eclipseDist = constrain( dist/200.0f, 0.0f, 1.0f );
-		if( G_ZOOM == G_TRACK_LEVEL ){
-			mEclipseStrength	= math<float>::max( 500.0f - abs( mSphereScreenRadius - mParentNode->mParentNode->mSphereScreenRadius ), 0.0f ) / 500.0f; 
-			mEclipseStrength	= pow( mEclipseStrength, 5.0f );
+    if( mParentNode->mParentNode->mDistFromCamZAxisPer > 0.0f )
+	{
+		
+		Vec2f p		= mScreenPos;
+		float r		= mSphereScreenRadius * 0.45f;
+		float rsqrd = r * r;
+		
+		Vec2f P		= mParentNode->mParentNode->mScreenPos;
+		float R		= mParentNode->mParentNode->mSphereScreenRadius * 0.4f;
+		float Rsqrd	= R * R;
+		float A		= M_PI * Rsqrd;
+		
+		
+		float totalRadius = r + R;
+		float c		= p.distance( P );
+		if( c < totalRadius && mIsSelected )
+		{
+			float csqrd = c * c;
+			float cos1	= ( Rsqrd + csqrd - rsqrd )/( 2.0f * R * c );
+			float CBA	= acos( constrain( cos1, -1.0f, 1.0f ) );
+			float CBD	= CBA * 2.0f;
+			
+			float cos2	= ( rsqrd + csqrd - Rsqrd )/( 2.0f * r * c );
+			float CAB	= acos( constrain( cos2, -1.0f, 1.0f ) );
+			float CAD	= CAB * 2.0f;
+			float intersectingArea = CBA * Rsqrd - 0.5f * Rsqrd * sin( CBD ) + 0.5f * CAD * rsqrd - 0.5f * rsqrd * sin( CAD );
+			mEclipseStrength = 1.0f - ( A - intersectingArea ) / A;
+			/*
+			 std::cout << "================== " << std::endl;
+			 std::cout << "c = " << c << std::endl;
+			 std::cout << "A = " << A << std::endl;
+			 std::cout << "CBA = " << CBA << std::endl;
+			 std::cout << "CAB = " << CAB << std::endl;
+			 std::cout << "intersectingArea = " << intersectingArea << std::endl;
+			 std::cout << "totalRadius = " << totalRadius << std::endl;		
+			 std::cout << "mEclipseStrength = " << mEclipseStrength << std::endl;
+			 */
 		}
 	}
 	mEclipseColor = ( mColor + Color::white() ) * 0.5f * eclipseDist;
@@ -279,12 +319,9 @@ void NodeTrack::update( const Matrix44f &mat )
 
 void NodeTrack::drawEclipseGlow()
 {
-	/*
 	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
-        gl::color( ColorA( mParentNode->mParentNode->mGlowColor, mEclipseStrength ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 3.25f;
-		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
-	}*/
+        mParentNode->mParentNode->mEclipseStrength = pow( mEclipseStrength, 2.0f ) * mZoomPer;
+	}
 }
 
 void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )

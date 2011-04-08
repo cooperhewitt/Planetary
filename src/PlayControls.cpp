@@ -124,7 +124,7 @@ bool PlayControls::orientationChanged( OrientationEvent event )
 	return false;
 }
 
-void PlayControls::draw( const gl::Texture &uiButtonsTex, const Font &font, float y, float currentTime, float totalTime )
+void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &currentTrackTex, const Font &font, float y, float currentTime, float totalTime )
 {    
     gl::pushModelView();
     gl::multModelView( mOrientationMtx );    
@@ -195,7 +195,7 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const Font &font, floa
     }
     float bgx1			= sliderInset;
     float bgx2			= bgx1 + sliderWidth;
-    float bgy1			= y + 34.0f;
+    float bgy1			= y + 32.0f;
     float bgy2			= bgy1 + sliderHeight;
     float fgx1			= sliderInset;
     float fgx2			= fgx1 + ( sliderWidth * playheadPer );
@@ -205,7 +205,18 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const Font &font, floa
     Rectf sliderBg( bgx1, bgy1, bgx2, bgy2 );
     Rectf sliderFg( fgx1, fgy1, fgx2, fgy2 );
     Rectf sliderButton( fgx2 - 14.0f, ( fgy1 + fgy2 ) * 0.5f - 14.0f, fgx2 + 14.0f, ( fgy1 + fgy2 ) * 0.5f + 14.0f );
-    Rectf currentTrackRect( bgx1 - 45.0f, bgy1 - 20.0f, bgx2 + 45.0f, bgy2 - 20.0f );
+	
+	
+	Rectf currentTrackRect( 0.0f, 0.0f, 0.0f, 0.0f );
+	float ctx1, ctx2, cty1, cty2, ctw;
+	if( currentTrackTex ){
+		ctx1 = bgx1 - 40.0f;
+		ctx2 = bgx2 + 45.0f;
+		cty1 = bgy1 - 14.0f;
+		cty2 = cty1 + currentTrackTex.getHeight();
+		ctw = ctx2 - ctx1;
+		currentTrackRect = Rectf( ctx1, cty1, ctx2, cty2 );
+	}
 	
 	touchRects.push_back( currentTrackButton );
 	touchTypes.push_back( CURRENT_TRACK );
@@ -318,6 +329,8 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const Font &font, floa
 	u1 = uw * 2.0; u2 = uw * 3.0f;
     drawButton( sliderFg, u1, v1, u2, v2 );
 	
+	gl::enableAlphaBlending();
+	
 // SLIDER BUTTON
 	v1 = 0.5f; v2 = 0.7f; v3 = 0.9f;
 	u1 = uw * 3.0f; u2 = u1 + uw;
@@ -328,8 +341,20 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const Font &font, floa
     
 
 // CURRENT TRACK
-    //drawButton( currentTrackRect, 0.0f, 0.0f, 1.0f, 1.0f );
-
+	if( currentTrackTex ){
+		currentTrackTex.enableAndBind();
+		
+		float ctTexWidth = currentTrackTex.getWidth();
+		float ctu1 = 0.0f;
+		float ctu2;
+		if( ctTexWidth < ctw ){ // if the texture width is less than the rect to fit it in...
+			ctu2 = ctw/ctTexWidth;
+		} else {				// if the texture is too wide, animate the u coords
+			ctu2 = ctw/ctTexWidth;
+		}
+		drawButton( currentTrackRect, ctu1, 0.0f, ctu2, 1.0f );
+	}
+	
     // CURRENT TIME
     mMinutes		= floor( currentTime/60 );
     mPrevSeconds	= mSeconds;
@@ -351,7 +376,7 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const Font &font, floa
         ss << minsStr << ":" << secsStr;
         TextLayout layout;
         layout.setFont( font );
-        layout.setColor( COLOR_BRIGHT_YELLOW );
+        layout.setColor( COLOR_BRIGHT_BLUE );
         layout.addLine( ss.str() );
         mCurrentTimeTex = layout.render( true, false );
         
@@ -366,7 +391,7 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const Font &font, floa
         ss << "-" << minsStr << ":" << secsStr;
         TextLayout layout2;
         layout2.setFont( font );
-        layout2.setColor( COLOR_BRIGHT_YELLOW );
+        layout2.setColor( COLOR_BRIGHT_BLUE );
         layout2.addLine( ss.str() );
         mRemainingTimeTex = layout2.render( true, false );
     }

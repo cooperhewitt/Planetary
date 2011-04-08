@@ -193,8 +193,8 @@ void UiLayer::update()
     mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;
 	
     // adjust tab rect:
-    mPanelTabRect = Rectf( mPanelRect.x2 - 110.0f, mPanelRect.y1 - 50.0f,
-                           mPanelRect.x2 - 60.0f, mPanelRect.y1 );
+    mPanelTabRect = Rectf( mPanelRect.x2 - 200.0f, mPanelRect.y1 - 49.0f,
+                           mPanelRect.x2, mPanelRect.y1 + 2.0f );
 }
 
 void UiLayer::draw( const gl::Texture &uiButtonsTex )
@@ -206,29 +206,18 @@ void UiLayer::draw( const gl::Texture &uiButtonsTex )
 	uiButtonsTex.enableAndBind();
     drawButton( mPanelRect, 0.41f, 0.9f, 0.49f, 0.99f );
 
-	float u1, u2, v1, v2;
+	float u1 = 0.5f;
+	float u2 = 1.0f;
+	float v1, v2;
 	
     float uw = 1.0f/8.0f;
-	u1 = uw * 5.0f;
-	u2 = u1 + uw;
     if( mIsPanelTabTouched ){
-		if( !mIsPanelOpen ){
-			u1 = uw * 6.0f;
-		} else {
-			u1 = uw * 7.0f;
-		}
-		v1 = 0.25f;
-		v2 = 0.5f;
+		v1 = 0.5f;
+		v2 = 0.69f;	// HA MGUNK!!!
     } else {
-		if( !mIsPanelOpen ){
-			u1 = uw * 6.0f;
-		} else {
-			u1 = uw * 7.0f;
-		}
-		v1 = 0.0f;
-		v2 = 0.25f;
+		v1 = 0.5f;
+		v2 = 0.69f;
 	}
-	u2 = u1 + uw;
 	drawButton( mPanelTabRect, u1, v1, u2, v2 );
 	
     uiButtonsTex.disable();

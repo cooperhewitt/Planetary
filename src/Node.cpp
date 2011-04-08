@@ -149,7 +149,8 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 		mDistFromCamZAxis		= cam.worldToEyeDepth( mTransPos );
 		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * -0.35f, 0.0f, 1.0f );
 		mSphereScreenRadius     = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() ) * 0.4f;
-        Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
+        //Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
+		Vec2f p = mScreenPos;
         float r = mSphereScreenRadius * 0.5f + 5.0f;        
         mSphereHitArea	= Rectf( p.x - r, p.y - r, p.x + r, p.y + r );        
 	}

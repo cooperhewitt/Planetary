@@ -33,7 +33,7 @@ class NodeAlbum : public Node
 	int mNumTracks;
 
   private:
-	
+	float		mAsciiPer;
 	bool		mHasAlbumArt;
 	bool		mHasCreatedAlbumArt;
 	bool		mHasRings;

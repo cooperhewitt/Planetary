@@ -113,7 +113,7 @@ void Breadcrumbs::draw( const gl::Texture &uiButtonsTex )
     float rectHeight = 24.0f;
     Rectf breadcrumbRect( 0.0f, rectHeight, width, 0.0f );
     //float lineY = 25.0f;
-    float buttonY	= 3.0f;
+    float buttonY	= 5.0f;
     
     Matrix44f orientationMtx;
     

@@ -28,13 +28,6 @@ NodeArtist::NodeArtist( int index, const Font &font )
 	mPosDest		= Rand::randVec3f() * Rand::randFloat( 50.0f, 200.0f );
 	mPos			= mPosDest + Rand::randVec3f() * 25.0f;
 	
-	
-	mHue			= Rand::randFloat( 0.02f, 0.66f );
-	if( mHue > 0.3 && mHue < 0.5f ) 	mHue			= Rand::randFloat( 0.02f, 0.66f );
-	mSat			= 1.0f - sin( mHue * 1.0f * M_PI );
-	mColor			= Color( CM_HSV, mHue, mSat * 0.5f, 1.0f );
-	mGlowColor		= Color( CM_HSV, mHue, mSat * 0.5f + 0.5f, 1.0f );
-	mDepthDiskColor = Color( CM_HSV, mHue, mSat, 1.0f );
 	mIdealCameraDist = mRadius * 2.0f;
 	
 	mSphere			= Sphere( mPos, 3.65f );
@@ -48,6 +41,7 @@ NodeArtist::NodeArtist( int index, const Font &font )
 	mOrbitRadiusMin	= mRadiusDest * 1.0f;
 	mOrbitRadiusMax	= mRadiusDest * 2.5f;
 }
+
 
 void NodeArtist::update( const Matrix44f &mat )
 {
@@ -68,20 +62,22 @@ void NodeArtist::update( const Matrix44f &mat )
 
 void NodeArtist::drawEclipseGlow()
 {
-	/*
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
         float zoomOffset    = math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
 		
         float alpha         = mDistFromCamZAxisPer;
-        gl::color( ColorA( mGlowColor, alpha ) );
+        gl::color( ColorA( mGlowColor, alpha * mEclipseStrength ) );
 
-		// if in alpha view, make highlighted artists flicker
+		/*
+		 // if in alpha view, make highlighted artists flicker
         float flickerAmt = ( 8.5f + zoomOffset * Rand::randFloat( 12.0f, 15.0f ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * flickerAmt;
-        
+        */
+		
+		Vec2f radius = Vec2f( mRadius, mRadius ) * ( mEclipseStrength + 1.0f ) * 25.25f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
-	 */
+	 
 	Node::drawEclipseGlow();
 }
 
@@ -166,6 +162,26 @@ void NodeArtist::setChildOrbitRadii()
 void NodeArtist::setData( PlaylistRef playlist )
 {
 	mPlaylist = playlist;
+	
+	string name		= getName();
+	char c0			= ' ';
+	char c1			= ' ';
+	char c2			= ' ';
+	if( name.length() >= 3 ){
+		c1 = name[1];
+		c2 = name[2];
+	}
+	int c1Int = constrain( int(c1), 32, 127 );
+	int c2Int = constrain( int(c2), 32, 127 );
+	
+	int totalCharAscii = c1Int + c2Int;
+	float asciiPer = ( (float)totalCharAscii/( ( 127.0f ) * 2.0f ) ) * 125.0f ;
+	
+	mHue			= sin( asciiPer ) * 0.3f + 0.3f;
+	std::cout << name << "'s hue = " << mHue << std::endl;
+	mSat			= 1.0f - sin( mHue * M_PI );
+	mColor			= Color( CM_HSV, mHue, mSat * 0.5f, 1.0f );
+	mGlowColor		= Color( CM_HSV, mHue, mSat * 0.5f + 0.5f, 1.0f );
 }
 
 string NodeArtist::getName()

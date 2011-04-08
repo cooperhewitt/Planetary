@@ -32,9 +32,6 @@ class NodeArtist : public Node
 	int mNumAlbums;
 	
   private:
+	void setColors();
 	ci::ipod::PlaylistRef mPlaylist;
-	float mHue;
-	float mSat;
-	float mVal;
-	ci::Color mDepthDiskColor;
 };

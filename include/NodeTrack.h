@@ -36,6 +36,7 @@ class NodeTrack : public Node
 	ci::ipod::PlaylistRef   mAlbum;	
 	
 private:
+	float		mAsciiPer;
 	float		mEclipseStrength;
 	float		mTrackLength;
 	int			mPlayCount;

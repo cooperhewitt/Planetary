@@ -120,6 +120,9 @@ class Node {
    
     
 // COLORS
+	float				mHue;
+	float				mSat;
+	float				mVal;
 	ci::Color			mColor;				// Color of the node
 	ci::Color			mGlowColor;			// Color of the star glow
 	ci::Color           mEclipseColor;      // Color during eclipse
