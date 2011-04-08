@@ -53,9 +53,9 @@ void AlphaWheel::setup( AppCocoaTouch *app )
 	mPrevAlphaChar	= ' ';
 	mShowWheel		= false;
 	mWheelScale		= 1.0f;	
-    
-    mInterfaceCenter = getWindowCenter();
-    mDeviceOrientation = PORTRAIT_ORIENTATION;
+
+    // just do orientation stuff in here:
+    orientationChanged(OrientationEvent(mApp->getDeviceOrientation(),mApp->getDeviceOrientation()));
 }
 
 void AlphaWheel::initAlphaTextures( const Font &font )

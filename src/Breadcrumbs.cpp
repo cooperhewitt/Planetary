@@ -22,10 +22,7 @@ void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font )
 	mCallbackTouchesBegan = app->registerTouchesBegan( this, &Breadcrumbs::touchesBegan );
 	mCallbackTouchesEnded = app->registerTouchesEnded( this, &Breadcrumbs::touchesEnded );
     mCallbackOrientationChanged = app->registerOrientationChanged( this, &Breadcrumbs::orientationChanged );
-    
-    // TODO:
-    //mDeviceOrientation = app->getOrientation();
-    mDeviceOrientation = PORTRAIT_ORIENTATION;
+    orientationChanged( OrientationEvent( app->getDeviceOrientation(), app->getDeviceOrientation() ) );
     
 	mApp = app;
 	mFont = font;

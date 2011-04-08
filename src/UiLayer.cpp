@@ -84,7 +84,11 @@ void UiLayer::setup( AppCocoaTouch *app )
 	mCbTouchesMoved       = mApp->registerTouchesMoved( this, &UiLayer::touchesMoved );
 	mCbTouchesEnded       = mApp->registerTouchesEnded( this, &UiLayer::touchesEnded );
     mCbOrientationChanged = mApp->registerOrientationChanged( this, &UiLayer::orientationChanged );
-	
+
+    mIsPanelOpen			= false;
+	mIsPanelTabTouched		= false;
+	mHasPanelBeenDragged	= false;
+
 	// PANEL AND TAB
 	mPanelHeight			= 65.0f;
 	mPanelRect				= Rectf( 0.0f, getWindowHeight(), 
@@ -93,9 +97,8 @@ void UiLayer::setup( AppCocoaTouch *app )
     mPanelClosedY           = getWindowHeight();
     mPanelOpenY             = getWindowHeight() - mPanelHeight;
 
-	mIsPanelOpen			= false;
-	mIsPanelTabTouched		= false;
-	mHasPanelBeenDragged	= false;
+    // just do orientation stuff in here:
+    orientationChanged(OrientationEvent(mApp->getDeviceOrientation(),mApp->getDeviceOrientation()));
 }
  
 bool UiLayer::touchesBegan( TouchEvent event )
