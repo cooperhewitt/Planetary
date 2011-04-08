@@ -291,17 +291,13 @@ void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix
 
 void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-	if( mIsHighlighted && ! mIsSelected ){
-		if( mSphereHitArea.contains( pos ) || (mNameTex != NULL && mHitArea.contains( pos )) ) {
-            nodes.push_back( this );
-		}
-	}	
-	if( mIsHighlighted ){
-		vector<Node*>::iterator nodeIt;
-		for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-			(*nodeIt)->checkForNameTouch( nodes, pos );
-		}
-	}
+    if( mSphereHitArea.contains( pos ) || (mNameTex != NULL && mHitArea.contains( pos )) ) {
+        nodes.push_back( this );
+    }
+    vector<Node*>::iterator nodeIt;
+    for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+        (*nodeIt)->checkForNameTouch( nodes, pos );
+    }
 }
 
 void Node::select()
