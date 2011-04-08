@@ -310,7 +310,7 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		Vec3f pos				= (*it)->mPos;
 		float radius			= (*it)->mRadius * 0.5f;
-		if( (*it)->mIsHighlighted ) radius += math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f ) * 2.0f;
+		if( (*it)->mIsHighlighted ) radius += math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
 		
 		ColorA col				= ColorA( (*it)->mColor, 1.0f );
 		
@@ -495,7 +495,7 @@ void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 			
 			float glowAlpha			= 1.0f;
 			
-			if( !(*it)->mIsSelected ){
+			if( !(*it)->mIsSelected && !(*it)->mIsPlaying ){
 				glowAlpha = zoomOffset;
 			}
 			   

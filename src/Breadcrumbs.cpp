@@ -110,9 +110,9 @@ void Breadcrumbs::draw( const gl::Texture &uiButtonsTex )
 {
     float width = app::getWindowWidth();
     float height = app::getWindowHeight();
-    float rectHeight = 24.0f;
+    float rectHeight = 26.0f;
     Rectf breadcrumbRect( 0.0f, rectHeight, width, 0.0f );
-    //float lineY = 25.0f;
+    float lineY = 27.0f;
     float buttonY	= 5.0f;
     
     Matrix44f orientationMtx;
@@ -146,10 +146,10 @@ void Breadcrumbs::draw( const gl::Texture &uiButtonsTex )
 	uiButtonsTex.enableAndBind();
 	drawButton( breadcrumbRect, 0.41f, 0.9f, 0.49f, 1.0f );
 	uiButtonsTex.disable();
+
 	
-	
-	//gl::color( ColorA( Color::white(), 0.1f ) );
-	//gl::drawLine( Vec2f( 1.0f, lineY ), Vec2f( breadcrumbRect.x2, lineY ) );
+	gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.1f ) );
+	gl::drawLine( Vec2f( 1.0f, lineY ), Vec2f( breadcrumbRect.x2, lineY ) );
     
 
 	gl::color( Color::white() );
