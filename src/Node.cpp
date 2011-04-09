@@ -62,8 +62,7 @@ void Node::init()
 	mRadiusDest			= 2.0f;
 	mRadius				= 2.0f;
 	mPos				= Rand::randVec3f();
-	mPrevPos			= mPos;
-	mVel				= Vec3f::zero();
+	mTransVel			= Vec3f::zero();
 	mOrbitRadiusDest	= 0.0f;
 	mOrbitPeriod		= 0.0f;
 }
@@ -74,8 +73,7 @@ void Node::initWithParent()
 	mRadiusDest			= mParentNode->mRadiusDest * 0.01f;
 	mRadius				= mRadiusDest;
 	mPos				= mParentNode->mPos;
-	mPrevPos			= mParentNode->mPos;
-	mVel				= mParentNode->mVel;
+	mTransVel			= Vec3f::zero();
 	mOrbitPeriod		= Rand::randFloat( 35.0f, 50.0f );
 }
 
@@ -297,17 +295,13 @@ void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix
 
 void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-	if( mIsHighlighted && ! mIsSelected ){
-		if( mSphereHitArea.contains( pos ) || (mNameTex != NULL && mHitArea.contains( pos )) ) {
-            nodes.push_back( this );
-		}
-	}	
-	if( mIsHighlighted ){
-		vector<Node*>::iterator nodeIt;
-		for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-			(*nodeIt)->checkForNameTouch( nodes, pos );
-		}
-	}
+    if( mSphereHitArea.contains( pos ) || (mNameTex != NULL && mHitArea.contains( pos )) ) {
+        nodes.push_back( this );
+    }
+    vector<Node*>::iterator nodeIt;
+    for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+        (*nodeIt)->checkForNameTouch( nodes, pos );
+    }
 }
 
 void Node::select()

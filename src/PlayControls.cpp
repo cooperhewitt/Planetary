@@ -25,8 +25,7 @@ void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
     mSeconds		= 60;
     mPrevSeconds	= 0;
     mIsDraggingPlayhead = false; 
-    mDeviceOrientation = PORTRAIT_ORIENTATION; // TODO: init from mApp (add getter to AppCocoaTouch)
-    mInterfaceSize = mApp->getWindowSize();
+    orientationChanged( OrientationEvent( app->getDeviceOrientation(), app->getDeviceOrientation() ) );    
 }
 
 void PlayControls::update()

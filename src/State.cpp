@@ -108,6 +108,7 @@ void State::setSelectedNode( Node* node )
 		node->select();
 		mSelectedNode = node;
 	}
+    
 	// and then spread the good word
 	mCallbacksNodeSelected.call(mSelectedNode);
 }

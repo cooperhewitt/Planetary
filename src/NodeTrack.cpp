@@ -265,8 +265,8 @@ void NodeTrack::update( const Matrix44f &mat )
 		mOrbitStartAngle = mOrbitAngle;
 	}
 	
-	
-	mPrevPos			= mTransPos;
+	Vec3f prevTransPos  = mat * mPos;    
+    
 	mRelPos				= Vec3f( cos( mOrbitAngle ), sin( mOrbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos				= mParentNode->mPos + mRelPos;
 	
@@ -317,10 +317,9 @@ void NodeTrack::update( const Matrix44f &mat )
 	}
 	mEclipseColor = ( mColor + Color::white() ) * 0.5f * eclipseDist;
 	
-	
 	Node::update( mat );
-	
-	mVel		= mTransPos - mPrevPos;	
+
+	mTransVel = mTransPos - prevTransPos;	
 }
 
 void NodeTrack::drawEclipseGlow()

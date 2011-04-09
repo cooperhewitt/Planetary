@@ -19,8 +19,7 @@ using namespace ci::app;
 void LoadingScreen::setup( AppCocoaTouch *app )
 {
     app->registerOrientationChanged(this, &LoadingScreen::orientationChanged);
-    mDeviceOrientation = PORTRAIT_ORIENTATION;
-    mInterfaceSize = getWindowSize();
+    orientationChanged( OrientationEvent( app->getDeviceOrientation(), app->getDeviceOrientation() ) );
 	
 	mPlanetaryTex	= gl::Texture( loadImage( loadResource( "planetary.png" ) ) );
 	mPlanetTex		= gl::Texture( loadImage( loadResource( "planet.png" ) ) );

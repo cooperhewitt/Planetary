@@ -151,7 +151,7 @@ void NodeAlbum::update( const Matrix44f &mat )
 	double percentPlayed	= playbackTime/mOrbitPeriod;
 	double orbitAngle		= percentPlayed * TWO_PI + mOrbitStartAngle;
     
-	mPrevPos	= mTransPos;
+	Vec3f prevTransPos      = mat * mPos;
 	
 	mRelPos		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mRelPos;
@@ -202,7 +202,7 @@ void NodeAlbum::update( const Matrix44f &mat )
     
 	Node::update( mat );
 	
-	mVel		= mTransPos - mPrevPos;	
+	mTransVel = mTransPos - prevTransPos;	
 }
 
 void NodeAlbum::drawEclipseGlow()
