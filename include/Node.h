@@ -63,9 +63,8 @@ class Node {
 	ci::Vec3f			mTransPos;			// global position * mMatrix
 	ci::Vec2f			mScreenPos;			// screen position
 	float				mEclipsePer;		// ECLIPSE!
-	ci::Vec3f			mPrevPos;			// previous global position
 	ci::Vec3f			mRelPos;			// relative position
-	ci::Vec3f			mVel;				// global velocity
+	ci::Vec3f			mTransVel;			// velocity based on mTransPos for helping the camera
 	ci::Matrix44f		mMatrix;
 	ci::Vec3f			mBbRight, mBbUp;
 	

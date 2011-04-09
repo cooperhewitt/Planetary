@@ -62,8 +62,7 @@ void Node::init()
 	mRadiusDest			= 2.0f;
 	mRadius				= 2.0f;
 	mPos				= Rand::randVec3f();
-	mPrevPos			= mPos;
-	mVel				= Vec3f::zero();
+	mTransVel			= Vec3f::zero();
 	mOrbitRadiusDest	= 0.0f;
 	mOrbitPeriod		= 0.0f;
 }
@@ -74,8 +73,7 @@ void Node::initWithParent()
 	mRadiusDest			= mParentNode->mRadiusDest * 0.01f;
 	mRadius				= mRadiusDest;
 	mPos				= mParentNode->mPos;
-	mPrevPos			= mParentNode->mPos;
-	mVel				= mParentNode->mVel;
+	mTransVel			= Vec3f::zero();
 	mOrbitPeriod		= Rand::randFloat( 35.0f, 50.0f );
 }
 

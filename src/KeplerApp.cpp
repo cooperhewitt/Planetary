@@ -928,7 +928,7 @@ void KeplerApp::updateCamera()
 		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
 		mZoomDest		= selectedNode->mGen;
 		
-		mCenterFrom		+= selectedNode->mVel;
+		mCenterFrom		+= selectedNode->mTransVel;
 
 	} else {
 		mCamDistDest	= G_INIT_CAM_DIST * mCamDistPinchOffset;

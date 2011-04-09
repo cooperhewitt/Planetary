@@ -31,7 +31,6 @@
 		E127698B1326E18A00E1FC3F /* clouds2.png in Resources */ = {isa = PBXBuildFile; fileRef = E12769811326E18A00E1FC3F /* clouds2.png */; };
 		E127698C1326E18A00E1FC3F /* clouds4.png in Resources */ = {isa = PBXBuildFile; fileRef = E12769821326E18A00E1FC3F /* clouds4.png */; };
 		E127698D1326E18A00E1FC3F /* clouds5.png in Resources */ = {isa = PBXBuildFile; fileRef = E12769831326E18A00E1FC3F /* clouds5.png */; };
-		E1276CA5132764DB00E1FC3F /* Orbiter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1276CA4132764DB00E1FC3F /* Orbiter.cpp */; };
 		E1276E7A132821AA00E1FC3F /* CinderIPod.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1276E5B132821AA00E1FC3F /* CinderIPod.mm */; };
 		E1276E7B132821AA00E1FC3F /* CinderIPodPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1276E5C132821AA00E1FC3F /* CinderIPodPlayer.mm */; };
 		E1276E7C132821AA00E1FC3F /* CinderIPodPlayerImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1276E5D132821AA00E1FC3F /* CinderIPodPlayerImpl.mm */; };
@@ -112,7 +111,6 @@
 		E12769811326E18A00E1FC3F /* clouds2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds2.png; sourceTree = "<group>"; };
 		E12769821326E18A00E1FC3F /* clouds4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds4.png; sourceTree = "<group>"; };
 		E12769831326E18A00E1FC3F /* clouds5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds5.png; sourceTree = "<group>"; };
-		E1276CA4132764DB00E1FC3F /* Orbiter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Orbiter.cpp; path = ../src/Orbiter.cpp; sourceTree = SOURCE_ROOT; };
 		E1276CA6132764E900E1FC3F /* Orbiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Orbiter.h; path = ../include/Orbiter.h; sourceTree = SOURCE_ROOT; };
 		E1276E49132821AA00E1FC3F /* CinderIPod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPod.h; sourceTree = "<group>"; };
 		E1276E4A132821AA00E1FC3F /* CinderIPodPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPodPlayer.h; sourceTree = "<group>"; };
@@ -484,7 +482,6 @@
 				E25C872D131F1420000780A3 /* NodeArtist.cpp */,
 				E25C8742131F14B3000780A3 /* NodeAlbum.cpp */,
 				E25C8743131F14B3000780A3 /* NodeTrack.cpp */,
-				E1276CA4132764DB00E1FC3F /* Orbiter.cpp */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -666,7 +663,6 @@
 				E25C8744131F14B3000780A3 /* NodeAlbum.cpp in Sources */,
 				E25C8745131F14B3000780A3 /* NodeTrack.cpp in Sources */,
 				E1555E7A131F2C560079B05A /* Node.cpp in Sources */,
-				E1276CA5132764DB00E1FC3F /* Orbiter.cpp in Sources */,
 				E1276E7A132821AA00E1FC3F /* CinderIPod.mm in Sources */,
 				E1276E7B132821AA00E1FC3F /* CinderIPodPlayer.mm in Sources */,
 				E1276E7C132821AA00E1FC3F /* CinderIPodPlayerImpl.mm in Sources */,
