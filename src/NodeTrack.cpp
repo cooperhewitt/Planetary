@@ -266,7 +266,7 @@ void NodeTrack::update( const Matrix44f &mat )
 	}
 	
 	
-	mPrevPos			= mTransPos;
+	mPrevPos			= mat * mPos;
 	mRelPos				= Vec3f( cos( mOrbitAngle ), sin( mOrbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos				= mParentNode->mPos + mRelPos;
 	
@@ -319,7 +319,11 @@ void NodeTrack::update( const Matrix44f &mat )
 	
 	
 	Node::update( mat );
-	
+
+    if ( mIsSelected ) {
+        std::cout << "mTransPos - mPrevPos " << mTransPos << " - " << mPrevPos << std::endl;
+    }
+    
 	mVel		= mTransPos - mPrevPos;	
 }
 
