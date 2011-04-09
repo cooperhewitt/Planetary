@@ -209,7 +209,7 @@ void KeplerApp::setup()
 		G_NUM_DUSTS = 4000;
 	}
     
-    mDeviceOrientation = getDeviceOrientation();
+    orientationChanged(OrientationEvent(getDeviceOrientation(),getDeviceOrientation()));
     
     mRemainingSetupCalled = false;
 
