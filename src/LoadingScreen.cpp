@@ -112,7 +112,7 @@ void LoadingScreen::draw( gl::Texture mStarGlowTex )
 	}
 	
 // SMALL PLANET		
-	speed			= app::getElapsedFrames() * 0.007f - M_PI_2;
+	speed			= app::getElapsedFrames() * 0.01f - M_PI_2;
 	sinAmt			= sin( speed );
 	cosAmt			= cos( speed );
 	if( cosAmt > 0.0f ){
@@ -125,7 +125,7 @@ void LoadingScreen::draw( gl::Texture mStarGlowTex )
 	}
 
 // MEDIUM PLANET		
-	speed			= app::getElapsedFrames() * 0.01f - M_PI_2;
+	speed			= app::getElapsedFrames() * 0.005f - M_PI_4;
 	sinAmt			= sin( speed );
 	cosAmt			= cos( speed );
 	if( cosAmt > 0.0f ){
@@ -138,7 +138,7 @@ void LoadingScreen::draw( gl::Texture mStarGlowTex )
 	}
 	
 // LARGE PLANET		
-	speed			= app::getElapsedFrames() * 0.02f - M_PI_2;
+	speed			= app::getElapsedFrames() * 0.004f - M_PI_4;
 	sinAmt			= sin( speed );
 	cosAmt			= cos( speed );
 	if( cosAmt > 0.0f ){

@@ -348,9 +348,8 @@ void KeplerApp::initLoadingTextures()
     std::cout << "initLoadingTextures, begin: " << t << std::endl;
     // only add textures here if they are *required* for LoadingScreen
     // otherwise add them to initTextures
-//	mStarTex		= loadImage( loadResource( "star.png" ) );
+	
 	mStarGlowTex	= loadImage( loadResource( "starGlow.png" ) );
-//	mEclipseGlowTex = loadImage( loadResource( "eclipseGlow.png" ) );
 	
 //    mTextureLoader.requestTexture( "star.png",     mStarTex );
 //    mTextureLoader.requestTexture( "starGlow.png", mStarGlowTex );
@@ -359,13 +358,6 @@ void KeplerApp::initLoadingTextures()
 
 void KeplerApp::initTextures()
 {
-	/* THIS DIDNT SEEM TO WORK (OR MAYBE IT JUST DIDNT MAKE MUCH OF A DIFFERENCE?
-    gl::Texture::Format format;
-	format.enableMipmapping( true );			
-	ImageSourceRef img = loadImage( loadResource( "star.png" ) );
-	if(img) mStarTex = gl::Texture( img, format );
-    */
-	
 	float t = getElapsedSeconds();
 	cout << "initTextures start time = " << t << endl;
     mStarTex			= loadImage( loadResource( "star.png" ) );
@@ -1006,12 +998,12 @@ void KeplerApp::drawScene()
 	
 	Node *artistNode = mState.getSelectedArtistNode();
 	if( artistNode ){
-		
+		/*
 		if( mWorld.mPlayingTrackNode && G_DRAW_RINGS ){
 			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPlayheadProgressTex );
 		}
-		
+		*/
 		gl::enableDepthRead();
 		gl::disableAlphaBlending();
 		glEnable( GL_LIGHTING );
