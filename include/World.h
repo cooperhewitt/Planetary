@@ -58,6 +58,8 @@ class World {
 	
 	NodeTrack *mPlayingTrackNode;
 	
+	bool mIsRepulsing;
+	
 	std::vector<ci::Vec3f> mConstellation;
 	std::vector<float> mConstellationDistances;
 	int mTotalConstellationVertices;

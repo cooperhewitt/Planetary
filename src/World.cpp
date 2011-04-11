@@ -43,6 +43,8 @@ void World::setup( Data *data )
     // VERTEX ARRAY SPHERE
 	initSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
 	initSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+	
+	mIsRepulsing = true;
 }
 
 

@@ -421,9 +421,9 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &planets, const vector<gl:
 	}
 }
 
-void NodeTrack::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void NodeTrack::drawOrbitRing( float pinchAlphaPer, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {
-	float alpha = 0.2f * pinchAlphaOffset;
+	float alpha = 0.2f * pinchAlphaPer;
 	
 	if( mIsMostPlayed )
 		gl::color( ColorA( COLOR_BRIGHT_BLUE, alpha ) );

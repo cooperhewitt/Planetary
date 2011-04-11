@@ -13,7 +13,7 @@
 
 static const double TWO_PI			= M_PI * 2.0;
 
-static const double G_DURATION		= 2.5;
+static const double G_DURATION		= 2.1;
 
 // TODO: enum for these?
 // TODO: move into State.h?
@@ -29,8 +29,11 @@ static const int G_NUM_PLANET_TYPES = 5;
 static const int G_NUM_PLANET_TYPE_OPTIONS = 3;
 static const int G_NUM_CLOUD_TYPES	= 4;
 
-static const float G_MIN_FOV		= 65.0f;
-static const float G_MAX_FOV		= 120.0f;
+static const float G_MIN_FOV		= 75.0f;
+static const float G_DEFAULT_FOV	= 85.0f;
+static const float G_MAX_FOV		= 140.0f;
+
+static const float G_DEFAULT_ARCBALL_RADIUS	= 500.0f;
 
 static const int G_RING_LOW_RES		= 250;
 static const int G_RING_HIGH_RES	= 500;

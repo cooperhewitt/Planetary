@@ -59,6 +59,8 @@
 		E1A330391301013100CED126 /* starGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330361301013100CED126 /* starGlow.png */; };
 		E1A3303A1301013100CED126 /* star.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330371301013100CED126 /* star.png */; };
 		E1A332E21301068800CED126 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1A332E11301068800CED126 /* MediaPlayer.framework */; };
+		E1B0DBB213510C890093EB9D /* HelpLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1B0DBB113510C890093EB9D /* HelpLayer.cpp */; };
+		E1B0DBC2135124130093EB9D /* helpPanel.png in Resources */ = {isa = PBXBuildFile; fileRef = E1B0DBC1135124130093EB9D /* helpPanel.png */; };
 		E1C2D90E133C4AFA00B4FEEB /* helpPanel.png in Resources */ = {isa = PBXBuildFile; fileRef = E1C2D90D133C4AF900B4FEEB /* helpPanel.png */; };
 		E1C600051318490F0022246C /* World.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C600041318490F0022246C /* World.cpp */; };
 		E1C6FFF3131847A40022246C /* Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C6FFF2131847A40022246C /* Data.cpp */; };
@@ -150,6 +152,9 @@
 		E1A332E11301068800CED126 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		E1A332EF1301072600CED126 /* Easing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Easing.h; path = ../include/Easing.h; sourceTree = SOURCE_ROOT; };
 		E1A332F01301072600CED126 /* Globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Globals.h; path = ../include/Globals.h; sourceTree = SOURCE_ROOT; };
+		E1B0DBB113510C890093EB9D /* HelpLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HelpLayer.cpp; path = ../src/HelpLayer.cpp; sourceTree = "<group>"; };
+		E1B0DBB313510C9D0093EB9D /* HelpLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HelpLayer.h; path = ../include/HelpLayer.h; sourceTree = "<group>"; };
+		E1B0DBC1135124130093EB9D /* helpPanel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = helpPanel.png; path = ../resources/ui/helpPanel.png; sourceTree = "<group>"; };
 		E1C2D90D133C4AF900B4FEEB /* helpPanel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = helpPanel.png; path = ../resources/helpPanel.png; sourceTree = "<group>"; };
 		E1C60003131848FB0022246C /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = World.h; path = ../include/World.h; sourceTree = SOURCE_ROOT; };
 		E1C600041318490F0022246C /* World.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = World.cpp; path = ../src/World.cpp; sourceTree = SOURCE_ROOT; };
@@ -352,6 +357,7 @@
 		E12766401325E28900E1FC3F /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				E1B0DBC1135124130093EB9D /* helpPanel.png */,
 				E189F6751339A377009B2E23 /* playheadProgress.png */,
 				E1D99AB1134D63B0003FC316 /* uiButtons.png */,
 				E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */,
@@ -504,6 +510,7 @@
 				E22998CA1332D6210043CDCA /* LoadingScreen.h */,
 				E1C60254131C4B3D0022246C /* Breadcrumbs.h */,
 				E2A1FF8E132599290007F4DA /* PlayControls.h */,
+				E1B0DBB313510C9D0093EB9D /* HelpLayer.h */,
 				E15C90B51300B2F100FB8389 /* UiLayer.h */,
 				E217105E132ECEFB00ADCC17 /* AlphaWheel.h */,
 			);
@@ -550,6 +557,7 @@
 				E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */,
 				E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */,
 				E28FDA821339B782005EDBB4 /* PlayControls.cpp */,
+				E1B0DBB113510C890093EB9D /* HelpLayer.cpp */,
 				E15C90B61300B2F900FB8389 /* UiLayer.cpp */,
 				E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */,
 			);
@@ -644,6 +652,7 @@
 				E1D99A99134BD490003FC316 /* planetary.png in Resources */,
 				E1D99A9B134BDBFE003FC316 /* background.jpg in Resources */,
 				E1D99AB2134D63B0003FC316 /* uiButtons.png in Resources */,
+				E1B0DBC2135124130093EB9D /* helpPanel.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -675,6 +684,7 @@
 				E28FDA831339B782005EDBB4 /* PlayControls.cpp in Sources */,
 				77B44848133BCB3A00987E13 /* CinderFlurry.mm in Sources */,
 				E177A6CE134E7B850014AD55 /* BloomGl.cpp in Sources */,
+				E1B0DBB213510C890093EB9D /* HelpLayer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

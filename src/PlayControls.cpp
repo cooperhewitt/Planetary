@@ -53,7 +53,7 @@ bool PlayControls::touchesBegan( TouchEvent event )
         }
 
         lastTouchedType = findButtonUnderTouches(touches);
-        
+		
         if( lastTouchedType == SLIDER ){
             mIsDraggingPlayhead = true;
         }
@@ -93,9 +93,10 @@ bool PlayControls::touchesMoved( TouchEvent event )
 bool PlayControls::touchesEnded( TouchEvent event )
 {
     vector<TouchEvent::Touch> touches = event.getTouches();
-    if (lastTouchedType != NO_BUTTON && lastTouchedType == findButtonUnderTouches(touches)) {
+    if( lastTouchedType != NO_BUTTON && lastTouchedType == findButtonUnderTouches(touches) ){
         mCallbacksButtonPressed.call(lastTouchedType);
     }
+
     lastTouchedType = NO_BUTTON;
     mIsDraggingPlayhead = false;
     return false;
@@ -123,7 +124,7 @@ bool PlayControls::orientationChanged( OrientationEvent event )
 	return false;
 }
 
-void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &currentTrackTex, const Font &font, float y, float currentTime, float totalTime )
+void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &currentTrackTex, AlphaWheel *alphaWheel, const Font &font, float y, float currentTime, float totalTime, float secsSinceTrackChange )
 {   
 	float dragAlphaPer = pow( ( mInterfaceSize.y - y ) / 65.0f, 2.0f );
 	
@@ -145,7 +146,7 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &cur
 	float topBorder		= 7.0f;
 	float sideBorder	= 10.0f;
 	float buttonGap		= 1.0f;
-	float sliderWidth	= mInterfaceSize.x * 0.3f;
+	float sliderWidth	= mInterfaceSize.x * 0.32f;
     float sliderHeight	= 20.0f;
     float sliderInset	= bSize + timeTexWidth;
 	float x1, x2, y1, y2;
@@ -211,8 +212,8 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &cur
 	Rectf currentTrackRect( 0.0f, 0.0f, 0.0f, 0.0f );
 	float ctx1, ctx2, cty1, cty2, ctw;
 	if( currentTrackTex ){
-		ctx1 = bgx1 - 40.0f;
-		ctx2 = bgx2 + 45.0f;
+		ctx1 = bgx1 - 43.0f;
+		ctx2 = bgx2 + 50.0f;
 		cty1 = bgy1 - 14.0f;
 		cty2 = cty1 + currentTrackTex.getHeight();
 		ctw = ctx2 - ctx1;
@@ -258,7 +259,7 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &cur
 // SHOW WHEEL
 	u1 = uw * 1.0f;
 	u2 = u1 + uw;
-    if( lastTouchedType == SHOW_WHEEL )
+    if( alphaWheel->getShowWheel() )
 		drawButton( showWheelButton, u1, v2, u2, v3 );
     else
 		drawButton( showWheelButton, u1, v1, u2, v2 );	
@@ -344,17 +345,43 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &cur
 // CURRENT TRACK
 	if( currentTrackTex ){
 		currentTrackTex.enableAndBind();
-		
+		float ctSpaceWidth = ctw;
 		float ctTexWidth = currentTrackTex.getWidth();
 		float ctu1 = 0.0f;
 		float ctu2;
-		if( ctTexWidth < ctw ){ // if the texture width is less than the rect to fit it in...
-			ctu2 = ctw/ctTexWidth;
+		float ctPer = ctSpaceWidth/ctTexWidth;
+		
+		if( ctTexWidth < ctSpaceWidth ){ // if the texture width is less than the rect to fit it in...
+			ctu2 = ctPer;
+			drawButton( currentTrackRect, ctu1, 0.0f, ctu2, 1.0f );
+			
 		} else {				// if the texture is too wide, animate the u coords
-			ctu2 = ctw/ctTexWidth;
+			
+			float x1;
+			if( app::getElapsedSeconds() - secsSinceTrackChange > 5.0f ){	// but wait 5 seconds first
+				x1 = fmodf( ( app::getElapsedSeconds() - ( secsSinceTrackChange + 5.0f ) )*20.0f, ctTexWidth + 10.0f ) - ctTexWidth-10.0f;
+			} else {
+				x1 = -ctTexWidth-10.0f;
+			}
+			
+			Area a1 = Area( x1, 0.0f, x1 + ctSpaceWidth, currentTrackTex.getHeight() );
+			gl::draw( currentTrackTex, a1, currentTrackRect );
+			
+			Area a2 = Area( x1 + ctTexWidth + 10.0f, 0.0f, x1 + ctTexWidth + 10.0f + ctSpaceWidth, currentTrackTex.getHeight() );
+			gl::draw( currentTrackTex, a2, currentTrackRect );			
+
+			Area aLeft		 = Area( 200.0f, 140.0f, 214.0f, 150.0f ); 
+			Rectf coverLeft  = Rectf( currentTrackRect.x1, currentTrackRect.y1, currentTrackRect.x1 + 10.0f, currentTrackRect.y2 );
+			Rectf coverRight = Rectf( currentTrackRect.x2 + 1.0f, currentTrackRect.y1, currentTrackRect.x2 - 9.0f, currentTrackRect.y2 );
+			
+			gl::draw( uiButtonsTex, aLeft, coverLeft );
+			gl::draw( uiButtonsTex, aLeft, coverRight );
 		}
-		drawButton( currentTrackRect, ctu1, 0.0f, ctu2, 1.0f );
 	}
+	
+	
+	
+	
 	
     // CURRENT TIME
     mMinutes		= floor( currentTime/60 );

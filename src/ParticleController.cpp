@@ -105,7 +105,7 @@ void ParticleController::buildParticleVertexArray( const Vec3f &bbRight, const V
 	}
 }
 
-void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaOffset, float dustAlpha )
+void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaPer, float dustAlpha )
 {
 	mTotalDustVertices	= G_NUM_DUSTS;
 	
@@ -122,7 +122,7 @@ void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaOffse
 	int vIndex	= 0;
 	int cIndex	= 0;
 	float zoomPer = constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f );
-	float per	= ( zoomPer * dustAlpha ) * 3.0f;
+	float alpha	= ( zoomPer * dustAlpha ) * 3.0f * pinchAlphaPer;
 	Color col	= node->mGlowColor * 0.5f;
 	
 	for( list<Dust>::iterator it = mDusts.begin(); it != mDusts.end(); ++it ){
@@ -136,7 +136,7 @@ void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaOffse
 		mDustColors[cIndex++]	= col.r;
 		mDustColors[cIndex++]	= col.g;
 		mDustColors[cIndex++]	= col.b;
-		mDustColors[cIndex++]	= per;//Rand::randFloat( 0.25f ) * per;
+		mDustColors[cIndex++]	= alpha;//Rand::randFloat( 0.25f ) * per;
 /*
 		mDustVerts[vIndex++]	= prev.x;
 		mDustVerts[vIndex++]	= prev.y;

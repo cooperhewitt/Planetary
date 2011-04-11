@@ -136,7 +136,7 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 	if( mShowWheel && timeSincePinchEnded > 0.5f ){ 
         Vec2f dir = (mOrientationMatrix.inverted() * Vec3f(mTouchPos,0)).xy() - mInterfaceCenter;
 		float distToCenter = dir.length();
-		if( distToCenter > 225 && distToCenter < 300 ){
+		if( distToCenter > 225 && distToCenter < 275 ){
 			float touchAngle	= atan2( dir.y, dir.x ) + M_PI;				// RANGE 0 -> TWO_PI
 			float anglePer		= ( touchAngle + 0.11365f + M_PI*1.5f )/TWO_PI;
 			mAlphaIndex			= (int)( anglePer * 27 )%27;
@@ -146,11 +146,12 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 				mCallbacksAlphaCharSelected.call( this );
 			}
 		}
-		if( closeWheel ){
-			mShowWheel = false;
+		
+		if( closeWheel && distToCenter < 275 ){
 			mCallbacksWheelClosed.call( this );
-		}		
-        return distToCenter > 225 && distToCenter < 300;
+		}
+
+        return distToCenter > 225 && distToCenter < 275;
 	}
     return false;
 }

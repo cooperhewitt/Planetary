@@ -214,20 +214,20 @@ void NodeAlbum::drawEclipseGlow()
 	Node::drawEclipseGlow();
 }
 
-void NodeAlbum::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void NodeAlbum::drawOrbitRing( float pinchAlphaPer, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
 {		
-	float newPinchAlphaOffset = pinchAlphaOffset;
-	if( G_ZOOM < G_ALBUM_LEVEL - 0.5f ){
-		newPinchAlphaOffset = pinchAlphaOffset;
+	float newPinchAlphaPer = pinchAlphaPer;
+	if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
+		newPinchAlphaPer = pinchAlphaPer;
 	} else {
-		newPinchAlphaOffset = 1.0f;
+		newPinchAlphaPer = 1.0f;
 	}
 	
 	
 	if( mIsPlaying ){
-		gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.45f * newPinchAlphaOffset ) );
+		gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.45f * newPinchAlphaPer ) );
 	} else {
-		gl::color( ColorA( COLOR_BLUE, 0.2f * newPinchAlphaOffset ) );
+		gl::color( ColorA( COLOR_BLUE, 0.2f * newPinchAlphaPer ) );
 	}
 	
 	gl::pushModelView();
@@ -240,21 +240,9 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes,
 	glDisableClientState( GL_VERTEX_ARRAY );
 	gl::popModelView();
 	
-	if( G_ZOOM < G_ALBUM_LEVEL - 0.5f ){
-		newPinchAlphaOffset = pinchAlphaOffset;
-	} else if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
-		newPinchAlphaOffset = pinchAlphaOffset;
-	} else {
-		newPinchAlphaOffset = 1.0f;
-	}
 	
-	if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
-		newPinchAlphaOffset = pinchAlphaOffset;
-	} else {
-		newPinchAlphaOffset = 1.0f;
-	}
 	
-	Node::drawOrbitRing( newPinchAlphaOffset, ringVertsLowRes, ringVertsHighRes );
+	Node::drawOrbitRing( newPinchAlphaPer, ringVertsLowRes, ringVertsHighRes );
 }
 
 
