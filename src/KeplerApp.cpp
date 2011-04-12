@@ -281,7 +281,9 @@ void KeplerApp::remainingSetup()
 	mCenter				= Vec3f::zero();
 	mCenterDest			= mCenter;
 	mCenterFrom			= mCenter;
-	mUp					= Vec3f::yAxis();
+    // FIXME: let's put this setup stuff back in setup()
+    // this was overriding the (correct) value which is now always set by setInterfaceOrientation
+//	mUp					= Vec3f::yAxis();
 	mFov				= G_DEFAULT_FOV;
 	mFovDest			= G_DEFAULT_FOV;
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.0001f, 1200.0f );
@@ -584,6 +586,8 @@ void KeplerApp::accelerated( AccelEvent event )
 
 void KeplerApp::orientationChanged( OrientationEvent event )
 {
+    console() << event << std::endl;
+    
     setInterfaceOrientation(event.getInterfaceOrientation());
 
     // Look over there!
