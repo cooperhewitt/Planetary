@@ -70,7 +70,7 @@ void Node::init()
 void Node::initWithParent()
 {
 	mGen				= mParentNode->mGen + 1;
-	mRadiusDest			= mParentNode->mRadiusDest * 0.01f;
+	mRadiusDest			= mParentNode->mRadiusDest * Rand::randFloat( 0.008f, 0.012f );//0.01f;
 	mRadius				= mRadiusDest;
 	mPos				= mParentNode->mPos;
 	mTransVel			= Vec3f::zero();
@@ -193,7 +193,7 @@ void Node::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfl
 	}
 }
 
-void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset, float angle )
+void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
 		if( mIsPlaying || mIsSelected ){
@@ -201,11 +201,11 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset, float angle
 			if( G_ZOOM < mGen - 1 )
 				alpha = constrain( ( G_ZOOM - mGen ) + 2.0f, 0.0f, 1.0f );
 			else if( G_ZOOM < mGen )
-				alpha = pinchAlphaOffset;
+				alpha = pinchAlphaPer;
 			
 			gl::color( ColorA( Color::white(), alpha ) );
 		} else {
-			gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.65f * mZoomPer * pinchAlphaOffset ) );
+			gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.65f * mZoomPer * pinchAlphaPer ) );
 		}
 
 		if (mNameTex == NULL) {
@@ -243,7 +243,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset, float angle
 		gl::popModelView();
 		
 		glDisable( GL_TEXTURE_2D );
-		gl::color( ColorA( COLOR_BLUE, 0.4f * mZoomPer * pinchAlphaOffset ) );
+		gl::color( ColorA( COLOR_BLUE, 0.4f * mZoomPer * pinchAlphaPer ) );
 		gl::drawLine( pos1, pos2 );
 		
 		// draw hit areas
@@ -254,7 +254,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaOffset, float angle
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawName( cam, pinchAlphaOffset, angle );
+		(*nodeIt)->drawName( cam, pinchAlphaPer, angle );
 	}
 }
 

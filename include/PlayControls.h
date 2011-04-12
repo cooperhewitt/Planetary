@@ -13,6 +13,7 @@
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Text.h"
+#include "AlphaWheel.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -45,7 +46,7 @@ public:
 	void setPlaying(bool playing) { mIsPlaying = playing; }
 	bool isPlaying() { return mIsPlaying; }
 	
-	void draw( const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &currentTrackTex, const Font &font, float y, float currentTime, float totalTime );
+	void draw( const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &currentTrackTex, AlphaWheel *alphaWheel, const Font &font, float y, float currentTime, float totalTime, float secsSinceTrackChange );
 	
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>

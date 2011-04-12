@@ -33,6 +33,7 @@ public:
     // TODO: if we're resetting prev alpha char here should we fire a callback?
 	void	setShowWheel( bool b ){ mShowWheel = b; if ( mShowWheel ) mPrevAlphaChar = ' '; }
 	bool	getShowWheel(){ return mShowWheel; }
+	float	getWheelScale(){ return mWheelScale; }
 	void	setAlphaChar( char c ){ mAlphaChar = c; }
 	char	getAlphaChar(){ return mAlphaChar; }
 	
