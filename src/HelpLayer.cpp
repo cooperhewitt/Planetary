@@ -13,6 +13,7 @@
 #include "BloomGl.h"
 #include "Globals.h"
 #include "cinder/ImageIo.h"
+#include "cinder/Utilities.h"
 
 using namespace pollen::flurry;
 using namespace ci;
@@ -34,7 +35,7 @@ HelpLayer::~HelpLayer()
 void HelpLayer::setInterfaceOrientation( const ci::app::Orientation &orientation )
 {
 	mInterfaceOrientation = orientation;
-	mOrientationMatrix = getOrientationMatrix44<float>( orientation );
+	mOrientationMtx = getOrientationMatrix44<float>( orientation );
     
     Vec2f interfaceSize = getWindowSize();
 	
@@ -45,12 +46,12 @@ void HelpLayer::setInterfaceOrientation( const ci::app::Orientation &orientation
 	float panelWidth		= mHelpPanelTex.getWidth();
 	float border			= ( interfaceSize.x - panelWidth ) * 0.5f;
 	
-    mPanelRect.x1 = border;
-    mPanelRect.x2 = border + panelWidth;
+    mPanelRect.x1	= border;
+    mPanelRect.x2	= border + panelWidth;
 	mCloseRect		= Rectf( mPanelRect.x2 - 20.0f, mPanelRect.y1 - 20.0f, mPanelRect.x2 + 20.0f, mPanelRect.y1 + 20.0f );
 	
     // cancel interactions
-    mIsCloseTouched   = false;
+    mIsCloseTouched = false;
 }
 
 bool HelpLayer::orientationChanged( OrientationEvent event )
@@ -99,7 +100,7 @@ bool HelpLayer::touchesBegan( TouchEvent event )
 	Vec2f touchPos = event.getTouches().begin()->getPos();
 
     // find where mPanelTabRect is being drawn in screen space (i.e. touchPos space)
-    Rectf closeRect = transformRect( mCloseRect, mOrientationMatrix);
+    Rectf closeRect = transformRect( mCloseRect, mOrientationMtx);
 
     mIsCloseTouched = closeRect.contains( touchPos );
 		
@@ -112,14 +113,14 @@ bool HelpLayer::touchesMoved( TouchEvent event )
     
 	if( mIsCloseTouched ){
         // find where mPanelTabRect is being drawn in screen space (i.e. touchPos space)
-		Rectf closeRect = transformRect( mCloseRect, mOrientationMatrix);
+		Rectf closeRect = transformRect( mCloseRect, mOrientationMtx);
         
         // apply the touch pos and offset in screen space
         Vec2f newPos = touchPos;
         closeRect.offset(newPos - closeRect.getUpperLeft());
 
         // pull the screen-space rect back into mPanelTabRect space
-        Rectf tabRect = transformRect( closeRect, mOrientationMatrix.inverted() );
+        Rectf tabRect = transformRect( closeRect, mOrientationMtx.inverted() );
 	}
 
 	return mIsCloseTouched;
@@ -127,10 +128,27 @@ bool HelpLayer::touchesMoved( TouchEvent event )
 
 bool HelpLayer::touchesEnded( TouchEvent event )
 {
+	vector<TouchEvent::Touch> touches = event.getTouches();
+	
+	Vec2f pos = touches.begin()->getPos();
+	pos = (mOrientationMtx.inverted() * Vec3f(pos,0)).xy();
+	
+	
 	if( mIsCloseTouched ){
         mCallbacksHelpButtonPressed.call( this );
 		mIsCloseTouched = false;
-    }
+    } else {
+		Rectf mailButton( mPanelRect.x1 + 147.0f, mPanelRect.y1 + 226.0f, mPanelRect.x1 + 246.0f, mPanelRect.y1 + 253.0f );
+		Rectf cinderButton( mPanelRect.x1 + 133.0f, mPanelRect.y1 + 315.0f, mPanelRect.x1 + 265.0f, mPanelRect.y1 + 336.0f );
+		
+		if( mailButton.contains( pos ) ){
+			Url mailtoLink( "mailto:planetary@bloom.io?subject=Planetary feedback" );
+			launchWebBrowser( mailtoLink );
+		} else if( cinderButton.contains( pos ) ){
+			Url cinderWebsite( "http://libcinder.org" );
+			launchWebBrowser( cinderWebsite );
+		}
+	}
     
 	return false;
 }
@@ -143,7 +161,7 @@ void HelpLayer::update()
 void HelpLayer::draw( const gl::Texture &uiButtonsTex )
 {	
     gl::pushModelView();
-    gl::multModelView( mOrientationMatrix );
+    gl::multModelView( mOrientationMtx );
     
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	gl::draw( mHelpPanelTex, mPanelRect );

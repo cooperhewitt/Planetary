@@ -54,8 +54,8 @@ class HelpLayer {
 	ci::Rectf		mCloseRect;				// close button
 	bool			mIsCloseTouched;
 	
-    ci::Matrix44f   mOrientationMatrix;     // For adjusting ui drawing and hitrects
-    
-    ci::app::Orientation mInterfaceOrientation;
+	ci::app::Orientation mInterfaceOrientation;
+    ci::Matrix44f   mOrientationMtx;
+    ci::Vec2f       mInterfaceSize;
 };
 

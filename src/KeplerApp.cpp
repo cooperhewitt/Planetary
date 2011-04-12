@@ -466,21 +466,7 @@ void KeplerApp::touchesEnded( TouchEvent event )
                 float v			= mTouchPos.y / (float) getWindowHeight();
                 Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
                 checkForNodeTouch( touchRay, mMatrix, mTouchPos );
-            } else if( G_HELP ){
-				
-				Rectf mailButton( 193.0f, 280.0f, 288.0f, 300.0f );
-				Rectf cinderButton( 180.0f, 365.0f, 306.0f, 386.0f );
-				
-				if( mailButton.contains( mTouchPos ) ){
-					Url mailtoLink( "mailto:planetary@bloom.io?subject=Planetary feedback" );
-					launchWebBrowser( mailtoLink );
-				} else if( cinderButton.contains( mTouchPos ) ){
-					Url cinderWebsite( "http://libcinder.org" );
-					launchWebBrowser( cinderWebsite );
-				}
-				
-				
-			} else {
+            } else {
                 Flurry::getInstrumentation()->logEvent("Camera Moved");
             }
         }

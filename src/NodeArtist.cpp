@@ -173,7 +173,8 @@ void NodeArtist::setData( PlaylistRef playlist )
 	int totalCharAscii = c1Int + c2Int;
 	float asciiPer = ( (float)totalCharAscii/( ( 127.0f ) * 2.0f ) ) * 125.0f ;
 	
-	mHue			= sin( asciiPer ) * 0.3f + 0.33f;
+	mHue			= sin( asciiPer ) * 0.25f + 0.33f;
+	
 
 	mSat			= 1.0f - sin( mHue * M_PI );
 	mColor			= Color( CM_HSV, mHue, mSat * 0.5f, 1.0f );
