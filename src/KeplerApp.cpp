@@ -174,7 +174,7 @@ class KeplerApp : public AppCocoaTouch {
 //    TextureLoader   mTextureLoader;
 	gl::Texture		mParamsTex;
 	gl::Texture		mStarTex, mStarGlowTex, mEclipseGlowTex;
-	gl::Texture		mSkyDome, mMilkyWayDome;
+	gl::Texture		mSkyDome;//, mMilkyWayDome;
 	gl::Texture		mDottedTex;
 	gl::Texture		mPlayheadProgressTex;
     gl::Texture     mRingsTex;
@@ -377,7 +377,7 @@ void KeplerApp::initTextures()
     mStarTex			= loadImage( loadResource( "star.png" ) );
 	mEclipseGlowTex		= loadImage( loadResource( "eclipseGlow.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
-	mMilkyWayDome		= loadImage( loadResource( "skydome.png" ) );
+	//mMilkyWayDome		= loadImage( loadResource( "skydome.png" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
 	mRingsTex           = loadImage( loadResource( "rings.png" ) );
