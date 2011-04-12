@@ -28,7 +28,7 @@ class HelpLayer {
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
     bool    orientationChanged( ci::app::OrientationEvent event );
-    
+    void    setInterfaceOrientation( const ci::app::Orientation &orientation );
 	void	update();
 	void	draw( const ci::gl::Texture &uiButtonsTex );
 	template<typename T>
@@ -56,6 +56,6 @@ class HelpLayer {
 	
     ci::Matrix44f   mOrientationMatrix;     // For adjusting ui drawing and hitrects
     
-    ci::app::DeviceOrientation mDeviceOrientation;
+    ci::app::Orientation mInterfaceOrientation;
 };
 

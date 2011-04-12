@@ -1044,7 +1044,7 @@ void KeplerApp::drawScene()
     gl::enableDepthWrite();
     gl::setMatrices( mCam );
 	
-	float uiAlpha = constrain( 1.0f - mAlphaWheel.getWheelScale(), 0.0f, 1.0f );
+//	float uiAlpha = constrain( 1.0f - mAlphaWheel.getWheelScale(), 0.0f, 1.0f );
         
 // SKYDOME
     gl::pushModelView();

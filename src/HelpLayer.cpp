@@ -31,20 +31,14 @@ HelpLayer::~HelpLayer()
     mApp->unregisterOrientationChanged( mCbOrientationChanged );
 }
 
-bool HelpLayer::orientationChanged( OrientationEvent event )
+void HelpLayer::setInterfaceOrientation( const ci::app::Orientation &orientation )
 {
-    if ( event.isValidInterfaceOrientation() ) {
-        mDeviceOrientation = event.getOrientation();
-    }
-    else {
-        return false;
-    }
-    
-    mOrientationMatrix = event.getOrientationMatrix();
+	mInterfaceOrientation = orientation;
+	mOrientationMatrix = getOrientationMatrix44<float>( orientation );
     
     Vec2f interfaceSize = getWindowSize();
-
-    if ( event.isLandscape() ) {
+	
+    if ( isLandscapeOrientation( orientation ) ) {
         interfaceSize = interfaceSize.yx(); // swizzle it!
     }
     
@@ -57,7 +51,11 @@ bool HelpLayer::orientationChanged( OrientationEvent event )
 	
     // cancel interactions
     mIsCloseTouched   = false;
-    
+}
+
+bool HelpLayer::orientationChanged( OrientationEvent event )
+{
+	setInterfaceOrientation( event.getInterfaceOrientation() );
 	return false;
 }
 
@@ -93,7 +91,7 @@ void HelpLayer::setup( AppCocoaTouch *app )
 	mCloseRect				= Rectf( mPanelRect.x2 - 35.0f, mPanelRect.y1, mPanelRect.x2, mPanelRect.y1 + 35.0f );
 
     // just do orientation stuff in here:
-    orientationChanged(OrientationEvent(mApp->getDeviceOrientation(),mApp->getDeviceOrientation()));
+	setInterfaceOrientation( mApp->getInterfaceOrientation() );
 }
  
 bool HelpLayer::touchesBegan( TouchEvent event )
