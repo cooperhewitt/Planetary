@@ -22,7 +22,7 @@ void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font )
 	mCallbackTouchesBegan = app->registerTouchesBegan( this, &Breadcrumbs::touchesBegan );
 	mCallbackTouchesEnded = app->registerTouchesEnded( this, &Breadcrumbs::touchesEnded );
     mCallbackOrientationChanged = app->registerOrientationChanged( this, &Breadcrumbs::orientationChanged );
-    orientationChanged( OrientationEvent( app->getDeviceOrientation(), app->getDeviceOrientation() ) );
+    setInterfaceOrientation( app->getInterfaceOrientation() );
     
 	mApp = app;
 	mFont = font;
@@ -39,10 +39,20 @@ void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font )
 
 bool Breadcrumbs::orientationChanged( OrientationEvent event )
 {
-    if ( event.isValidInterfaceOrientation() ) {
-        mDeviceOrientation = event.getOrientation();
+    if (event.getInterfaceOrientation() != mInterfaceOrientation) {
+        setInterfaceOrientation( event.getInterfaceOrientation() );
     }
-	return false;
+    return false;
+}
+
+void Breadcrumbs::setInterfaceOrientation( const Orientation &orientation )
+{
+    mInterfaceOrientation = orientation;
+    mOrientationMtx = getOrientationMatrix44<float>(orientation);
+    mInterfaceSize = app::getWindowSize();
+    if (isLandscapeOrientation(orientation)) {
+        mInterfaceSize = mInterfaceSize.yx();
+    }
 }
 
 bool Breadcrumbs::touchesBegan( TouchEvent event )
@@ -105,37 +115,13 @@ void Breadcrumbs::update()
 
 void Breadcrumbs::draw( const gl::Texture &uiButtonsTex )
 {
-    float width = app::getWindowWidth();
-    float height = app::getWindowHeight();
     float rectHeight = 26.0f;
-    Rectf breadcrumbRect( 0.0f, rectHeight, width, 0.0f );
+    Rectf breadcrumbRect( 0.0f, rectHeight, mInterfaceSize.x, 0.0f );
     float lineY = 27.0f;
     float buttonY	= 5.0f;
-    
-    Matrix44f orientationMtx;
-    
-    switch ( mDeviceOrientation )
-    {
-        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
-            orientationMtx.translate( Vec3f( width, height, 0 ) );            
-            orientationMtx.rotate( Vec3f( 0, 0, M_PI ) );
-            break;
-        case LANDSCAPE_LEFT_ORIENTATION:
-            orientationMtx.translate( Vec3f( width, 0, 0 ) );
-            orientationMtx.rotate( Vec3f( 0, 0, M_PI/2.0f ) );
-            breadcrumbRect.x2 = height;
-            break;
-        case LANDSCAPE_RIGHT_ORIENTATION:
-            orientationMtx.translate( Vec3f( 0, height, 0 ) );
-            orientationMtx.rotate( Vec3f( 0, 0, -M_PI/2.0f ) );
-            breadcrumbRect.x2 = height;
-            break;
-        default:
-            break;
-    }
-    
+        
     gl::pushModelView();
-    gl::multModelView( orientationMtx );
+    gl::multModelView( mOrientationMtx );
     
 	gl::enableAlphaBlending();
 	
@@ -177,7 +163,7 @@ void Breadcrumbs::draw( const gl::Texture &uiButtonsTex )
         
         Vec3f topLeft( buttonX-xMargin, buttonY-yMargin, 0 );
         Vec3f bottomRight( buttonX+mTextures[i].getWidth()+xMargin, buttonY+mTextures[i].getHeight()+yMargin, 0 );
-        Rectf clickRect( (orientationMtx * topLeft).xy(), (orientationMtx * bottomRight).xy() );
+        Rectf clickRect( (mOrientationMtx * topLeft).xy(), (mOrientationMtx * bottomRight).xy() );
 		clickRects.push_back( clickRect.canonicalized() );
         
 		mHeight = max(mHeight, (float)(mTextures[i].getHeight()));

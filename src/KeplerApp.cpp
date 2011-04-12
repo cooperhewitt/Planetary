@@ -66,6 +66,7 @@ class KeplerApp : public AppCocoaTouch {
 	virtual void	touchesEnded( TouchEvent event );
 	virtual void	accelerated( AccelEvent event );
 	virtual void	orientationChanged( OrientationEvent event );
+    void            setInterfaceOrientation( const Orientation &orientation );
 	virtual void	update();
 	void			updateArcball();
 	void			updateCamera();
@@ -101,10 +102,10 @@ class KeplerApp : public AppCocoaTouch {
 	Data			mData;
 
 // ORIENTATION
-    DeviceOrientation     mDeviceOrientation;
-    std::map<DeviceOrientation, std::map<DeviceOrientation, int> > mRotationSteps;
-    Matrix44f             mOrientationMatrix;
-    Matrix44f             mInverseOrientationMatrix;    
+    Orientation     mInterfaceOrientation;
+    Matrix44f       mOrientationMatrix;
+    Matrix44f       mInverseOrientationMatrix;    
+    std::map<Orientation, std::map<Orientation, int> > mRotationSteps;
     
 // ACCELEROMETER
 	Matrix44f		mAccelMatrix;
@@ -209,23 +210,23 @@ void KeplerApp::setup()
 		G_NUM_DUSTS = 4000;
 	}
     
-    orientationChanged(OrientationEvent(getDeviceOrientation(),getDeviceOrientation()));
+    setInterfaceOrientation( getInterfaceOrientation() );
     
     mRemainingSetupCalled = false;
 
-    std::map<DeviceOrientation,int> pSteps;
+    std::map<Orientation,int> pSteps;
     pSteps[LANDSCAPE_LEFT_ORIENTATION] = 1;
     pSteps[LANDSCAPE_RIGHT_ORIENTATION] = -1;
     pSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = 2;
-    std::map<DeviceOrientation,int> llSteps;
+    std::map<Orientation,int> llSteps;
     llSteps[PORTRAIT_ORIENTATION] = -1;
     llSteps[LANDSCAPE_RIGHT_ORIENTATION] = 2;
     llSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = 1;
-    std::map<DeviceOrientation,int> lrSteps;
+    std::map<Orientation,int> lrSteps;
     lrSteps[PORTRAIT_ORIENTATION] = 1;
     lrSteps[LANDSCAPE_LEFT_ORIENTATION] = 2;
     lrSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = -1;
-    std::map<DeviceOrientation,int> upSteps;
+    std::map<Orientation,int> upSteps;
     upSteps[PORTRAIT_ORIENTATION] = 2;
     upSteps[LANDSCAPE_LEFT_ORIENTATION] = -1;
     upSteps[LANDSCAPE_RIGHT_ORIENTATION] = 1;
@@ -582,22 +583,26 @@ void KeplerApp::accelerated( AccelEvent event )
 
 void KeplerApp::orientationChanged( OrientationEvent event )
 {
-    if ( event.isValidInterfaceOrientation() ) 
-    {
-        DeviceOrientation prevOrientation = mDeviceOrientation;
-        mDeviceOrientation = event.getOrientation();
-        mOrientationMatrix = event.getOrientationMatrix();
-        mInverseOrientationMatrix = mOrientationMatrix.inverted();
-        mUp = event.getUpVector();
-        
-        // Look over there!
-        // heinous trickery follows...
+    setInterfaceOrientation(event.getInterfaceOrientation());
+
+    // Look over there!
+    // heinous trickery follows...
+    Orientation prevOrientation = event.getPrevInterfaceOrientation();
+    if (mInterfaceOrientation != prevOrientation) {
         if( mTouchVel.length() > 2.0f && !mIsDragging ){        
-            int steps = mRotationSteps[prevOrientation][mDeviceOrientation];
+            int steps = mRotationSteps[prevOrientation][mInterfaceOrientation];
             mTouchVel.rotate( (float)steps * M_PI/2.0f );
         }
-        // ... end heinous trickery
-    } 
+    }
+    // ... end heinous trickery
+}
+
+void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
+{
+    mInterfaceOrientation = orientation;
+    mOrientationMatrix = getOrientationMatrix44<float>( mInterfaceOrientation );
+    mInverseOrientationMatrix = mOrientationMatrix.inverted();
+    mUp = getUpVectorForOrientation<float>( mInterfaceOrientation );    
 }
 
 bool KeplerApp::onWheelClosed( AlphaWheel *alphaWheel )
@@ -1126,15 +1131,15 @@ void KeplerApp::drawScene()
 // NAMES
 	if( G_DRAW_TEXT ){
         
+        // TODO: write a function for getAngleForOrientation<float>( mInterfaceOrientation );
         float nameAngle = 0;
-        // !!! temporary hack, breaks hit tests
-        if (mDeviceOrientation == UPSIDE_DOWN_PORTRAIT_ORIENTATION) {
+        if (mInterfaceOrientation == UPSIDE_DOWN_PORTRAIT_ORIENTATION) {
             nameAngle = M_PI;
         }
-        else if (mDeviceOrientation == LANDSCAPE_LEFT_ORIENTATION) {
+        else if (mInterfaceOrientation == LANDSCAPE_LEFT_ORIENTATION) {
             nameAngle = M_PI/2.0;
         }
-        else if (mDeviceOrientation == LANDSCAPE_RIGHT_ORIENTATION) {
+        else if (mInterfaceOrientation == LANDSCAPE_RIGHT_ORIENTATION) {
             nameAngle = -M_PI/2;
         }        
         

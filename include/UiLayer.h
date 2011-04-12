@@ -31,6 +31,7 @@ class UiLayer {
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
     bool    orientationChanged( ci::app::OrientationEvent event );
+    void    setInterfaceOrientation( const ci::app::Orientation &orientation );
     
 	void	update();
 	void	draw( const ci::gl::Texture &uiButtonsTex );
@@ -60,6 +61,6 @@ class UiLayer {
     // TODO: use a Matrix32f (after we write one or someone adds one to Cinder - look at the Cairo one first)
     ci::Matrix44f   mOrientationMatrix;     // For adjusting ui drawing and hitrects
     
-    ci::app::DeviceOrientation mDeviceOrientation;
+    ci::app::Orientation mInterfaceOrientation;
 };
 

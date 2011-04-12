@@ -26,6 +26,7 @@ public:
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
     bool    orientationChanged( ci::app::OrientationEvent event );
+    void    setInterfaceOrientation( const ci::app::Orientation &orientation );
 	void	update( float fov );
 	void	setTimePinchEnded( float timePinchEnded );
 	void	draw( GLfloat *verts, GLfloat *texCoords, GLfloat *colors );
@@ -72,7 +73,7 @@ private:
 	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksAlphaCharSelected;
 	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksWheelClosed;
     
-    ci::app::DeviceOrientation mDeviceOrientation;
+    ci::app::Orientation       mInterfaceOrientation;
     ci::Matrix44f              mOrientationMatrix;
     ci::Vec2f                  mInterfaceCenter;
 };

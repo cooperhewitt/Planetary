@@ -19,7 +19,7 @@ using namespace ci::app;
 void LoadingScreen::setup( AppCocoaTouch *app )
 {
     app->registerOrientationChanged(this, &LoadingScreen::orientationChanged);
-    orientationChanged( OrientationEvent( app->getDeviceOrientation(), app->getDeviceOrientation() ) );
+    setInterfaceOrientation( app->getInterfaceOrientation() );
 	
 	mPlanetaryTex	= gl::Texture( loadImage( loadResource( "planetary.png" ) ) );
 	mPlanetTex		= gl::Texture( loadImage( loadResource( "planet.png" ) ) );
@@ -28,23 +28,24 @@ void LoadingScreen::setup( AppCocoaTouch *app )
 
 bool LoadingScreen::orientationChanged( OrientationEvent event )
 {
-    if ( event.isValidInterfaceOrientation() ) {
-        mDeviceOrientation = event.getOrientation();
+    if ( isValidInterfaceOrientation(event.getInterfaceOrientation()) ) {
+        setInterfaceOrientation( event.getInterfaceOrientation() );
     }
-    else {
-        return false;
-    }
+    return false;
+}
+
+void LoadingScreen::setInterfaceOrientation( const Orientation &orientation )
+{
+    mInterfaceOrientation = orientation;    
     
-    mOrientationMatrix = event.getOrientationMatrix();
-        
+    mOrientationMatrix = getOrientationMatrix44<float>(mInterfaceOrientation);
+
     mInterfaceSize = getWindowSize();
     
     // TODO: isLandscape()/isPortrait() conveniences on event?
-    if ( event.isLandscape() ) {
+    if ( isLandscapeOrientation(mInterfaceOrientation) ) {
         mInterfaceSize = mInterfaceSize.yx(); // swizzle it!
     }
-    
-    return false;
 }
 
 void LoadingScreen::draw( gl::Texture mStarGlowTex )

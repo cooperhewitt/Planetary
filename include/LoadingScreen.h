@@ -17,6 +17,7 @@ public:
     void setup( ci::app::AppCocoaTouch *app );
     void draw( ci::gl::Texture starGlowTex );
     bool orientationChanged( ci::app::OrientationEvent event );
+    void setInterfaceOrientation( const ci::app::Orientation &orientation );
 private:
 	ci::gl::Texture	mPlanetaryTex;
 	ci::gl::Texture mPlanetTex;
@@ -24,7 +25,7 @@ private:
 	
     ci::app::AppCocoaTouch *app;
     ci::CallbackId mCbOrientationChanged;
-    ci::app::DeviceOrientation mDeviceOrientation;
+    ci::app::Orientation mInterfaceOrientation;
     ci::Matrix44f mOrientationMatrix;
     ci::Vec2f mInterfaceSize;
 };

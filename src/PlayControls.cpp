@@ -25,7 +25,7 @@ void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
     mSeconds		= 60;
     mPrevSeconds	= 0;
     mIsDraggingPlayhead = false; 
-    orientationChanged( OrientationEvent( app->getDeviceOrientation(), app->getDeviceOrientation() ) );    
+    setInterfaceOrientation( app->getInterfaceOrientation() );
 }
 
 void PlayControls::update()
@@ -103,24 +103,25 @@ bool PlayControls::touchesEnded( TouchEvent event )
 
 bool PlayControls::orientationChanged( OrientationEvent event )
 {
-    if ( event.isValidInterfaceOrientation() ) {
-        mDeviceOrientation = event.getOrientation();
+    if (event.getInterfaceOrientation() != mInterfaceOrientation) {
+        setInterfaceOrientation( event.getInterfaceOrientation() );
     }
-    else {
-        return false;
-    }
+    return false;
+}
+
+void PlayControls::setInterfaceOrientation( const Orientation &orientation )
+{
+    mInterfaceOrientation = orientation;
     
     Vec2f deviceSize = app::getWindowSize();
     
-    mOrientationMtx = event.getOrientationMatrix();
+    mOrientationMtx = getOrientationMatrix44<float>(orientation);
     
     mInterfaceSize = deviceSize;
     
-    if ( event.isLandscape() ) {
+    if ( isLandscapeOrientation(orientation) ) {
         mInterfaceSize = mInterfaceSize.yx();
     }
-    
-	return false;
 }
 
 void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &currentTrackTex, const Font &font, float y, float currentTime, float totalTime )

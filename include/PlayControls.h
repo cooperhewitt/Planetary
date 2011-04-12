@@ -40,6 +40,7 @@ public:
 	bool touchesMoved( TouchEvent event );	
 	bool touchesEnded( TouchEvent event );
     bool orientationChanged( OrientationEvent event );
+    void setInterfaceOrientation( const Orientation &orientation);
 	
 	void setPlaying(bool playing) { mIsPlaying = playing; }
 	bool isPlaying() { return mIsPlaying; }
@@ -84,9 +85,9 @@ private:
 	PlayButton findButtonUnderTouches(vector<TouchEvent::Touch> touches);
     Rectf transformRect( const Rectf &rect, const Matrix44f &matrix );
     
-    DeviceOrientation mDeviceOrientation;
-    Matrix44f         mOrientationMtx;
-    Vec2f             mInterfaceSize;
+    Orientation mInterfaceOrientation;
+    Matrix44f   mOrientationMtx;
+    Vec2f       mInterfaceSize;
     
 	// !!! EVENT STUFF (keep track of listeners)
 	CallbackMgr<bool(PlayButton)> mCallbacksButtonPressed;

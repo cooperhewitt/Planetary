@@ -64,6 +64,7 @@ public:
 	bool touchesBegan( TouchEvent event );
 	bool touchesEnded( TouchEvent event );
     bool orientationChanged( OrientationEvent event );
+    void setInterfaceOrientation( const ci::app::Orientation &orientation );
 	void setHierarchy(vector<string> hierarchy);
 	const vector<string>& getHierarchy();
 	void update();
@@ -86,7 +87,9 @@ private:
 	int touchesBeganRectIndex;
 	int prevSelectedIndex;
     
-    DeviceOrientation mDeviceOrientation;
+    Orientation mInterfaceOrientation;
+    Matrix44f mOrientationMtx;
+    Vec2f mInterfaceSize;
 	
 	CallbackId mCallbackTouchesBegan;
 	CallbackId mCallbackTouchesEnded;

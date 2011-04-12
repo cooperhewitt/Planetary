@@ -32,18 +32,19 @@ UiLayer::~UiLayer()
 
 bool UiLayer::orientationChanged( OrientationEvent event )
 {
-    if ( event.isValidInterfaceOrientation() ) {
-        mDeviceOrientation = event.getOrientation();
-    }
-    else {
-        return false;
-    }
+    setInterfaceOrientation(event.getInterfaceOrientation());
+    return false;
+}
+
+void UiLayer::setInterfaceOrientation( const Orientation &orientation )
+{
+    mInterfaceOrientation = orientation;
     
-    mOrientationMatrix = event.getOrientationMatrix();
+    mOrientationMatrix = getOrientationMatrix44<float>(mInterfaceOrientation);
     
     Vec2f interfaceSize = getWindowSize();
 
-    if ( event.isLandscape() ) {
+    if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
         interfaceSize = interfaceSize.yx(); // swizzle it!
     }
     
@@ -63,8 +64,6 @@ bool UiLayer::orientationChanged( OrientationEvent event )
     else {
         mPanelRect.y1 = mPanelClosedY;        
     }
-    
-	return false;
 }
 
 // TODO: move this to an operator in Cinder's Matrix class?
@@ -98,8 +97,8 @@ void UiLayer::setup( AppCocoaTouch *app )
     mPanelClosedY           = getWindowHeight();
     mPanelOpenY             = getWindowHeight() - mPanelHeight;
 
-    // just do orientation stuff in here:
-    orientationChanged(OrientationEvent(mApp->getDeviceOrientation(),mApp->getDeviceOrientation()));
+    // make sure we've got everything the right way around
+    setInterfaceOrientation(mApp->getInterfaceOrientation());
 }
  
 bool UiLayer::touchesBegan( TouchEvent event )

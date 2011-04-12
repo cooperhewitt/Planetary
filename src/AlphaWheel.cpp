@@ -55,7 +55,7 @@ void AlphaWheel::setup( AppCocoaTouch *app )
 	mWheelScale		= 1.0f;	
 
     // just do orientation stuff in here:
-    orientationChanged(OrientationEvent(mApp->getDeviceOrientation(),mApp->getDeviceOrientation()));
+    setInterfaceOrientation(mApp->getInterfaceOrientation());
 }
 
 void AlphaWheel::initAlphaTextures( const Font &font )
@@ -74,24 +74,25 @@ void AlphaWheel::initAlphaTextures( const Font &font )
 
 bool AlphaWheel::orientationChanged( OrientationEvent event )
 {
-    if ( event.isValidInterfaceOrientation() ) {
-        mDeviceOrientation = event.getOrientation();
+    if (mInterfaceOrientation != event.getInterfaceOrientation()) {
+        setInterfaceOrientation(event.getInterfaceOrientation()); 
     }
-    else {
-        return false;
-    }
+    return false;
+}
+
+void AlphaWheel::setInterfaceOrientation( const Orientation &orientation )
+{
+    mInterfaceOrientation = orientation;
     
-    mOrientationMatrix = event.getOrientationMatrix();
+    mOrientationMatrix = getOrientationMatrix44<float>( mInterfaceOrientation );
     
     Vec2f interfaceSize = getWindowSize();
     
-    if ( event.isLandscape() ) {
+    if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
         interfaceSize = interfaceSize.yx(); // swizzle it!
     }
     
     mInterfaceCenter = interfaceSize * 0.5f;
-    
-    return false;
 }
 
 bool AlphaWheel::touchesBegan( TouchEvent event )
@@ -203,7 +204,7 @@ void AlphaWheel::drawWheelMask()
     gl::drawSolidRect( Rectf( -wMask, -hMask, wMask, hMask ) );
     mWheelMaskTex.disable();    
 	
-    if ( UIDeviceOrientationIsLandscape( UIDeviceOrientation(mDeviceOrientation) ) ) {
+    if ( isLandscapeOrientation(mInterfaceOrientation) ) {
         Vec2f interfaceSize = getWindowSize().yx(); // SWIZ!
         gl::color( Color::black() );
         // left bar, relative to center:
