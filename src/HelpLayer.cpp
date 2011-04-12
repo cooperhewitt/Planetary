@@ -133,7 +133,6 @@ bool HelpLayer::touchesEnded( TouchEvent event )
 	Vec2f pos = touches.begin()->getPos();
 	pos = (mOrientationMtx.inverted() * Vec3f(pos,0)).xy();
 	
-	
 	if( mIsCloseTouched ){
         mCallbacksHelpButtonPressed.call( this );
 		mIsCloseTouched = false;
@@ -141,12 +140,14 @@ bool HelpLayer::touchesEnded( TouchEvent event )
 		Rectf mailButton( mPanelRect.x1 + 147.0f, mPanelRect.y1 + 226.0f, mPanelRect.x1 + 246.0f, mPanelRect.y1 + 253.0f );
 		Rectf cinderButton( mPanelRect.x1 + 133.0f, mPanelRect.y1 + 315.0f, mPanelRect.x1 + 265.0f, mPanelRect.y1 + 336.0f );
 		
-		if( mailButton.contains( pos ) ){
-			Url mailtoLink( "mailto:planetary@bloom.io?subject=Planetary feedback" );
-			launchWebBrowser( mailtoLink );
-		} else if( cinderButton.contains( pos ) ){
-			Url cinderWebsite( "http://libcinder.org" );
-			launchWebBrowser( cinderWebsite );
+		if( G_HELP ){
+			if( mailButton.contains( pos ) ){
+				Url mailtoLink( "mailto:planetary@bloom.io?subject=Planetary feedback" );
+				launchWebBrowser( mailtoLink );
+			} else if( cinderButton.contains( pos ) ){
+				Url cinderWebsite( "http://libcinder.org" );
+				launchWebBrowser( cinderWebsite );
+			}
 		}
 	}
     

@@ -170,10 +170,10 @@ void NodeArtist::setData( PlaylistRef playlist )
 	int c1Int = constrain( int(c1), 32, 127 );
 	int c2Int = constrain( int(c2), 32, 127 );
 	
-	int totalCharAscii = c1Int + c2Int;
-	float asciiPer = ( (float)totalCharAscii/( ( 127.0f ) * 2.0f ) ) * 125.0f ;
+	int totalCharAscii = ( c1Int - 32 ) + ( c2Int - 32 );
+	float asciiPer = ( (float)totalCharAscii/( ( 95.0f ) * 2.0f ) ) * 93.0f ;
 	
-	mHue			= sin( asciiPer ) * 0.25f + 0.33f;
+	mHue			= sin( asciiPer ) * 0.3f + 0.33f;
 	
 
 	mSat			= 1.0f - sin( mHue * M_PI );
