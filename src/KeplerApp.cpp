@@ -239,6 +239,7 @@ void KeplerApp::setup()
     mRotationSteps[LANDSCAPE_RIGHT_ORIENTATION] = lrSteps;
     mRotationSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = upSteps;
     
+    // !!! this has to be set up before any other UI things so it can consume touch events
     mLoadingScreen.setup( this );
 
     initLoadingTextures();
