@@ -150,8 +150,11 @@ void NodeAlbum::update( const Matrix44f &mat )
 	double playbackTime		= app::getElapsedSeconds();
 	double percentPlayed	= playbackTime/mOrbitPeriod;
 	double orbitAngle		= percentPlayed * TWO_PI + mOrbitStartAngle;
-    
-	Vec3f prevTransPos      = mat * mPos;
+
+    Vec3f prevTransPos  = mTransPos;
+    // if mTransPos hasn't been set yet, use a guess:
+    // FIXME: set mTransPos correctly in the constructor
+    if (prevTransPos.length() < 0.0001) prevTransPos = mat * mPos;    
 	
 	mRelPos		= Vec3f( cos( orbitAngle ), sin( orbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mRelPos;

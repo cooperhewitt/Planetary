@@ -876,9 +876,6 @@ void KeplerApp::update()
     
     if ( mRemainingSetupCalled ) {
         mAccelMatrix			= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
-		Matrix44f inverseMatrix = mMatrix.inverted();
-        Vec3f invBbRight		= inverseMatrix * mBbRight;
-        Vec3f invBbUp			= inverseMatrix * mBbUp;
 		
         updateArcball();
         mWorld.update( mMatrix );
@@ -887,7 +884,9 @@ void KeplerApp::update()
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 
-        
+		Matrix44f inverseMatrix = mMatrix.inverted();
+        Vec3f invBbRight		= inverseMatrix * mBbRight;
+        Vec3f invBbUp			= inverseMatrix * mBbUp;        
         
         if( mDataIsLoaded ){
             mWorld.buildStarsVertexArray( invBbRight, invBbUp );
@@ -898,6 +897,7 @@ void KeplerApp::update()
 		if( mState.getSelectedArtistNode() ){
 			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaPer, mCamRingAlpha );
 		}
+        
         mUiLayer.update();
 		if( G_HELP ) mHelpLayer.update();
 		mAlphaWheel.update( mFov );
@@ -948,11 +948,9 @@ void KeplerApp::updateCamera()
 	if( selectedNode ){
 		currentLevel	= selectedNode->mGen;
 		mCamDistDest	= selectedNode->mIdealCameraDist * mCamDistPinchOffset;
-		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
+		mCenterDest		= selectedNode->mTransPos; //mMatrix.transformPointAffine( selectedNode->mPos );
 		mZoomDest		= selectedNode->mGen;
-		
-		mCenterFrom		+= selectedNode->mTransVel;
-
+        mCenterFrom	   += selectedNode->mTransVel;            
 	} else {
 		mCamDistDest	= G_INIT_CAM_DIST * mCamDistPinchOffset;
 		mCenterDest		= mMatrix.transformPointAffine( Vec3f::zero() );
@@ -987,7 +985,7 @@ void KeplerApp::updateCamera()
 	Vec3f prevEye	= mEye;
 	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist );
 	mCamVel			= mEye - prevEye;
-	
+
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( mEye, mCenter, mUp );
 	mCam.getBillboardVectors( &mBbRight, &mBbUp );

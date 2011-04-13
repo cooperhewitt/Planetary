@@ -265,7 +265,10 @@ void NodeTrack::update( const Matrix44f &mat )
 		mOrbitStartAngle = mOrbitAngle;
 	}
 	
-	Vec3f prevTransPos  = mat * mPos;    
+	Vec3f prevTransPos  = mTransPos;
+    // if mTransPos hasn't been set yet, use a guess:
+    // FIXME: set mTransPos correctly in the constructor
+    if (prevTransPos.length() < 0.0001) prevTransPos = mat * mPos;    
     
 	mRelPos				= Vec3f( cos( mOrbitAngle ), sin( mOrbitAngle ), 0.0f ) * mOrbitRadius;
 	mPos				= mParentNode->mPos + mRelPos;
