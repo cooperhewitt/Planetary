@@ -832,6 +832,6 @@ std::vector<Node*> World::getDepthSortedNodes(int fromGen, int toGen)
 }
 
 bool nodeSortFunc(Node* a, Node* b) {
-    return a->mTransPos.z < b->mTransPos.z;
+    return a->mTransPos.z > b->mTransPos.z;
 }
 
