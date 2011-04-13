@@ -651,9 +651,6 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 
 bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 {
-//	std::cout << "wheel closed" << std::endl;
-	mFovDest = G_DEFAULT_FOV;
-    
 	if( mAlphaWheel.getShowWheel() ) mFovDest = G_MAX_FOV;
 	else							 mFovDest = G_DEFAULT_FOV;
 	
@@ -933,6 +930,11 @@ void KeplerApp::update()
         
         vector<Node*> sortedNodes = mWorld.getDepthSortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
         console() << "got " << sortedNodes.size() << " sorted album and track nodes" << std::endl;
+        for (int i = 0; i < sortedNodes.size(); i++) {
+            if (i > 0) console() << ", ";
+            console() << sortedNodes[i]->getName();
+        }
+        console() << std::endl;
         
         mUiLayer.update();
 		if( G_HELP ) mHelpLayer.update();
