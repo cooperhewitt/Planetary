@@ -23,10 +23,13 @@ using namespace std;
 NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	: Node( parent, index, font )
 {
+	mRadiusDest			= mParentNode->mRadiusDest * Rand::randFloat( 0.01f, 0.035f );//0.01f;
+	mRadius				= mRadiusDest;
+	
 	mIsHighlighted		= true;
 	mHasAlbumArt		= false;
 	mHasCreatedAlbumArt = false;
-	mIdealCameraDist	= mRadius * 10.0f;
+	mIdealCameraDist	= mRadius * 15.0f;
 	mEclipseStrength	= 0.0f;
 }
 
@@ -319,7 +322,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &planets, const vector<gl:
 		gl::pushModelView();
 		gl::translate( mTransPos );
 			gl::pushModelView();
-			float radius = mRadius + 0.00025f;
+			float radius = mRadius + 0.00045f;
 			gl::scale( Vec3f( radius, radius, radius ) );
 			glEnable( GL_RESCALE_NORMAL );
 			gl::rotate( mMatrix );
@@ -334,7 +337,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &planets, const vector<gl:
 				
 // LIT CLOUDS
 			gl::pushModelView();
-			radius = mRadius + 0.00035f;
+			radius = mRadius + 0.00055f;
 			gl::scale( Vec3f( radius, radius, radius ) );
 			glEnable( GL_RESCALE_NORMAL );
 			gl::rotate( mMatrix );
@@ -350,16 +353,16 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &planets, const vector<gl:
 		glDisableClientState( GL_NORMAL_ARRAY );
 	}
     
-	//Node::drawClouds( planets, clouds );
+	Node::drawClouds( planets, clouds );
 }
 
 
-void NodeAlbum::drawAtmosphere( const ci::Vec3f &camNormal, const gl::Texture &tex )
+void NodeAlbum::drawAtmosphere( const gl::Texture &tex )
 {
 	if( mIsSelected || mIsPlaying ){
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		gl::translate( camNormal * 0.0075f );
+		//gl::translate( camNormal * 0.005f );
 		float screenDistFromCenter = ( mScreenPos.distance( app::getWindowCenter() ) )/500.0f;
 		//float yStretch = 1.0f + screenDistFromCenter * 0.55f;
 		//gl::scale( Vec3f( 1.0f, yStretch, 1.0f ) );
@@ -367,8 +370,8 @@ void NodeAlbum::drawAtmosphere( const ci::Vec3f &camNormal, const gl::Texture &t
 		//if( G_ZOOM > G_ALPHA_LEVEL ){
 			//glEnable( GL_ALPHA_TEST );
 			//glAlphaFunc( GL_GREATER, 0.25f );
-			gl::color( ColorA( mGlowColor, mZoomPer * 1.0f ) );
-			Vec2f radius = Vec2f( mRadius, mRadius ) * 2.1f;
+			gl::color( ColorA( mColor, mZoomPer * 0.5f ) );
+			Vec2f radius = Vec2f( mRadius, mRadius ) * 2.45f;
 		tex.enableAndBind();
 			gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
 		tex.disable();
@@ -378,6 +381,8 @@ void NodeAlbum::drawAtmosphere( const ci::Vec3f &camNormal, const gl::Texture &t
 		//}
 		gl::popModelView();
 	}
+	
+	Node::drawAtmosphere( tex );
 }
 
 

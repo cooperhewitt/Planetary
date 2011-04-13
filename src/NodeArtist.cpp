@@ -28,7 +28,7 @@ NodeArtist::NodeArtist( int index, const Font &font )
 	mPosDest		= Rand::randVec3f() * Rand::randFloat( 40.0f, 100.0f ); // 40.0f, 200.0f
 	mPos			= mPosDest;// + Rand::randVec3f() * 25.0f;
 	
-	mIdealCameraDist = mRadius * 2.0f;
+	mIdealCameraDist = mRadius * 7.0f;
 	
 	mSphere			= Sphere( mPos, 3.65f );
 	
@@ -80,8 +80,8 @@ void NodeArtist::drawEclipseGlow()
 		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
-	}*/
-	 
+	}
+	 */
 	Node::drawEclipseGlow();
 }
 
@@ -92,13 +92,16 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 		glDisable( GL_TEXTURE_2D );
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		gl::color( mGlowColor );
+		gl::color( ( mColor + Color::white() ) * 0.5f );
 		float radius = mRadius * 0.3f;
-		gl::enableAdditiveBlending();
+		gl::enableAlphaBlending();
 		if( G_ZOOM > G_ALPHA_LEVEL ){
-
+			//gl::disableDepthRead();
+			//gl::drawSphere( Vec3f::zero(), radius, 32 );
+			gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
+			//gl::enableDepthRead();
 		} else {
-			//gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
+			gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
 		}
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
@@ -114,6 +117,7 @@ void NodeArtist::drawClouds( const vector<gl::Texture> &planets, const vector<gl
 
 void NodeArtist::drawStarCenter( const gl::Texture &starTex )
 {
+	/*
 	if( mIsSelected ){
 		gl::pushModelView();
 		gl::translate( mTransPos );
@@ -121,19 +125,19 @@ void NodeArtist::drawStarCenter( const gl::Texture &starTex )
 		if( G_ZOOM > G_ALPHA_LEVEL ){
 			//gl::disableDepthRead();
 			//gl::drawSphere( Vec3f::zero(), radius, 32 );
-			glEnable( GL_ALPHA_TEST );
-			glAlphaFunc( GL_GREATER, 0.15f );
+			//glEnable( GL_ALPHA_TEST );
+			//glAlphaFunc( GL_GREATER, 0.15f );
 			starTex.enableAndBind();
 			gl::color( ColorA( mGlowColor, 1.0f ) );
 			Vec2f radius = Vec2f( mRadius, mRadius );
 			gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
 			starTex.disable();
-			glDisable( GL_ALPHA_TEST );
+			//glDisable( GL_ALPHA_TEST );
 			
 			//gl::enableDepthRead();
 		}
 		gl::popModelView();
-	}
+	}*/
 }
 
 void NodeArtist::select()
@@ -178,7 +182,7 @@ void NodeArtist::setChildOrbitRadii()
 	float orbitOffset = mRadiusDest * 1.25f;
 	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
 		NodeAlbum* albumNode = (NodeAlbum*)(*it);
-		float amt = math<float>::max( albumNode->mNumTracks * 0.01f, 0.06f );
+		float amt = math<float>::max( albumNode->mNumTracks * 0.02f, 0.06f );
 		orbitOffset += amt;
 		(*it)->mOrbitRadiusDest = orbitOffset;
 		orbitOffset += amt;

@@ -218,13 +218,11 @@ void KeplerApp::setup()
     G_IS_IPAD2 = (strcmp("iPad1,1",machine) != 0);
     cout << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
     delete[] machine;
-	
-	/*
+
 	if( G_IS_IPAD2 ){
 		G_NUM_PARTICLES = 1000;
 		G_NUM_DUSTS = 4000;
 	}
-    */
 	
 	
     setInterfaceOrientation( getInterfaceOrientation() );
@@ -557,9 +555,9 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 4.5f );
 		
 		if( mCamDistPinchOffsetDest > 4.1f ){
-			mFovDest = 115.0f;//( 1.0f - event.getScaleDelta() ) * 20.0f;
+			mFovDest = 135.0f;//( 1.0f - event.getScaleDelta() ) * 20.0f;
 		} else {
-			mFovDest = G_DEFAULT_FOV;
+			mFovDest = G_DEFAULT_FOV + ( G_TRACK_LEVEL - G_ZOOM * 15.0f );
 		}
 	}
 	
@@ -1004,8 +1002,8 @@ void KeplerApp::updateCamera()
 	}
 	
 	// UPDATE FOV
-	mFovDest = constrain( mFovDest, G_MIN_FOV, G_MAX_FOV );
-	mFov -= ( mFov - mFovDest ) * 0.15f;
+	mFovDest = constrain( mFovDest, G_MIN_FOV, 130.0f );
+	mFov -= ( mFov - mFovDest ) * 0.25f;
 	
 	
 	
@@ -1109,6 +1107,12 @@ void KeplerApp::drawScene()
 	mWorld.drawStarGlowsVertexArray( mMatrix );
 	mStarGlowTex.disable();
  	
+// ATMOSPHERE
+	Node *albumNode = mState.getSelectedAlbumNode();
+	if( albumNode ){
+		albumNode->drawAtmosphere( mAtmosphereTex );
+	}
+	
 	
 	Node *artistNode = mState.getSelectedArtistNode();
 	if( artistNode ){
@@ -1200,12 +1204,13 @@ void KeplerApp::drawScene()
 	}
 	
 	gl::disableDepthRead();
-	// ATMOSPHERE
+	/*
+// ATMOSPHERE
 	Node *albumNode = mState.getSelectedAlbumNode();
 	if( albumNode ){
-		albumNode->drawAtmosphere( mCamNormal, mAtmosphereTex );
+		albumNode->drawAtmosphere( mAtmosphereTex );
 	}
-	
+	*/
 
 	
 	gl::disableDepthWrite();
@@ -1265,7 +1270,7 @@ void KeplerApp::drawScene()
 // EVERYTHING ELSE
 	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
     mUiLayer.draw( mUiButtonsTex );
-    mBreadcrumbs.draw( mUiButtonsTex );
+    mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mPlayControls.draw( mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
 	
 	if( G_HELP ) mHelpLayer.draw( mUiButtonsTex );
@@ -1318,7 +1323,6 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
     Flurry::getInstrumentation()->logEvent("Player Library Changed");
 
     mDataIsLoaded = false;    
-
     mState.setup();    
     mData.setup();
     
@@ -1410,6 +1414,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 	}
 	else {
 		console() << "    trackchanged but nothing's playing" << endl;
+		mCurrentTrackTex.reset();
 	}
 
     updatePlayhead();

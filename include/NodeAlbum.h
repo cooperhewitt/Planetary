@@ -23,7 +23,7 @@ class NodeAlbum : public Node
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &planets, const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha );
-	void drawAtmosphere( const ci::Vec3f &camVec, const ci::gl::Texture &tex );
+	void drawAtmosphere( const ci::gl::Texture &tex );
 	void select();
 	void setChildOrbitRadii();
 	void setData( ci::ipod::PlaylistRef album );

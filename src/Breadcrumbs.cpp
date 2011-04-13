@@ -113,12 +113,15 @@ void Breadcrumbs::update()
 	}
 }
 
-void Breadcrumbs::draw( const gl::Texture &uiButtonsTex )
+void Breadcrumbs::draw( const gl::Texture &uiButtonsTex, float y )
 {
-    float rectHeight = 26.0f;
+	// MAGIC NUMBER AHOY!
+	float yPer = ( mInterfaceSize.y - y ) / 60.0f;
+	
+    float rectHeight = 26.0f * yPer;
     Rectf breadcrumbRect( 0.0f, rectHeight, mInterfaceSize.x, 0.0f );
-    float lineY = 27.0f;
-    float buttonY	= 5.0f;
+    float lineY = rectHeight + 1.0f;
+    float buttonY	= rectHeight - 21.0f;
         
     gl::pushModelView();
     gl::multModelView( mOrientationMtx );
@@ -144,9 +147,9 @@ void Breadcrumbs::draw( const gl::Texture &uiButtonsTex )
 	
 	for( int i=0; i<mPreviousHierarchy.size(); i++ ){
 		if( i == mPreviousHierarchy.size() - 1 ){
-			gl::color( Color::white() );
+			gl::color( ColorA( Color::white(), yPer ) );
 		} else {
-			gl::color( COLOR_BRIGHT_BLUE );	
+			gl::color( ColorA( COLOR_BRIGHT_BLUE, yPer ) );	
 		}
         
 		if( i > 0 ){

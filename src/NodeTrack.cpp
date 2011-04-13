@@ -21,8 +21,10 @@ using namespace std;
 NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	: Node( parent, index, font )
 {	
+	mRadiusDest			= mParentNode->mRadiusDest * Rand::randFloat( 0.05f, 0.1f );//0.01f;
+	mRadius				= mRadiusDest;
+	
 	mIsHighlighted		= true;
-	mRadius				*= 10.0f;
     mIsPlaying			= false;
 	mHasClouds			= false;
 	mIsMostPlayed		= false;
@@ -34,6 +36,8 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
     mOrbitVerts				= NULL;
 	mOrbitTexCoords			= NULL;
 	mOrbitColors			= NULL;
+	
+	mIdealCameraDist	= 0.1f;
 }
 
 void NodeTrack::setData( TrackRef track, PlaylistRef album )
@@ -62,58 +66,58 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	
 	//normalize playcount data
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
-	float normPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
+	mNormPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
 
-// ALBUM ART
-	Surface albumArt		= mTrack->getArtwork( Vec2i( 128, 128 ) );
-	if( albumArt ){
-		
-		int x				= (int)(normPlayCount*100);
-		int y				= c1Int%64;
-		Area a				= Area( x, y, x+28, y+64 );
-		Surface crop		= albumArt.clone( a );
-		
-		Surface::Iter iter	= crop.getIter();
-		while( iter.line() ) {
-			while( iter.pixel() ) {
-				if( iter.x() >= 14 ){
-					int xi = x + iter.x() - 14;
-					int yi = y + iter.y();
-					ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
-					iter.r() = c.r * 255.0f;
-					iter.g() = c.g * 255.0f;
-					iter.b() = c.b * 255.0f;
-				} else {
-					int xi = x + 13 - iter.x();
-					int yi = y + iter.y();
-					ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
-					iter.r() = c.r * 255.0f;
-					iter.g() = c.g * 255.0f;
-					iter.b() = c.b * 255.0f;
-				}
-			}
-		}
-		
-		
-		mAlbumArt			= gl::Texture( crop );
-		mHasAlbumArt		= true;
-	}
-	
-	
+//// ALBUM ART
 //	Surface albumArt		= mTrack->getArtwork( Vec2i( 128, 128 ) );
 //	if( albumArt ){
-//		int x				= (int)(normPlayCount*100);
-//		int y				= c1Int%100;
-//		int w				= ;
-//		int h				= normPlayCount * 15;
-//		Area a				= Area( x, y, x+w, y+h );
+//		
+//		int x				= (int)(mNormPlayCount*100);
+//		int y				= c1Int%64;
+//		Area a				= Area( x, y, x+28, y+64 );
 //		Surface crop		= albumArt.clone( a );
+//		
+//		Surface::Iter iter	= crop.getIter();
+//		while( iter.line() ) {
+//			while( iter.pixel() ) {
+//				if( iter.x() >= 14 ){
+//					int xi = x + iter.x() - 14;
+//					int yi = y + iter.y();
+//					ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+//					iter.r() = c.r * 255.0f;
+//					iter.g() = c.g * 255.0f;
+//					iter.b() = c.b * 255.0f;
+//				} else {
+//					int xi = x + 13 - iter.x();
+//					int yi = y + iter.y();
+//					ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+//					iter.r() = c.r * 255.0f;
+//					iter.g() = c.g * 255.0f;
+//					iter.b() = c.b * 255.0f;
+//				}
+//			}
+//		}
+//		
+//		
 //		mAlbumArt			= gl::Texture( crop );
 //		mHasAlbumArt		= true;
 //	}
 	
 	
-	mPlanetTexIndex			= (int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
+	Surface albumArt		= mTrack->getArtwork( Vec2i( 128, 128 ) );
+	if( albumArt ){
+		int x				= (int)(mNormPlayCount*100);
+		int y				= c1Int%100;
+		int w				= 1;
+		int h				= mNormPlayCount * 15;
+		Area a				= Area( x, y, x+w, y+h );
+		Surface crop		= albumArt.clone( a );
+		mAlbumArt			= gl::Texture( crop );
+		mHasAlbumArt		= true;
+	}
+	
+	
+	mPlanetTexIndex			= (int)( mNormPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
 	mCloudTexIndex			= Rand::randInt( G_NUM_CLOUD_TYPES );
    // mPlanetTexIndex *= G_NUM_PLANET_TYPE_OPTIONS + Rand::randInt( G_NUM_PLANET_TYPE_OPTIONS );
 	
@@ -123,12 +127,6 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 		mCloudTexIndex = 1;
 	} else {
 		mCloudTexIndex = 0;
-	}
-	
-	if( album->size() == 1 ){		// if im the only track, no clouds.
-		mHasClouds = false;
-	} else if( mPlayCount > 50 ){	// if im one of many tracks, i have clouds if ive been played plenty
-		mHasClouds = true;
 	}
 	
 	if( album->size() > 1 ){
@@ -146,10 +144,10 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mGlowColor			= mParentNode->mGlowColor;
 	mEclipseColor		= mColor;
 	
-	mRadius				= math<float>::max( mRadius * pow( normPlayCount + 0.5f, 2.0f ), 0.0003f ) * 0.75;
+	mRadius				= mParentNode->mRadiusDest * 0.1f;
+	mRadius				= math<float>::max( (mParentNode->mRadiusDest * 0.1f) * pow( mNormPlayCount + 0.5f, 2.0f ), 0.0006f );
 	mSphere				= Sphere( mPos, mRadius * 7.5f );
 	
-	mIdealCameraDist	= 0.01f;
 	mOrbitPeriod		= mTrackLength;
 	mAxialTilt			= Rand::randFloat( 5.0f, 30.0f );
     mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
@@ -209,7 +207,7 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 	int tIndex		= 0;
 	int index		= 0;
 	float radius	= mRadius;
-	float alpha		= constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f ) * 0.3f;
+//	float alpha		= constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f ) * 0.3f;
 	
 	for( vector<Vec3f>::iterator it = mOrbitPath.begin(); it != mOrbitPath.end(); ++it )
 	{
@@ -400,9 +398,8 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 
 void NodeTrack::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
 {
-	// DRAW CLOUDS WAS STOPPED BY NODEALBUM
-	if( mSphereScreenRadius > 10.0f ){
-		if( mCamDistAlpha > 0.05f ){
+	if( mSphereScreenRadius > 5.0f ){
+		if( mCamDistAlpha > 0.05f && mIsMostPlayed ){
 			glEnableClientState( GL_VERTEX_ARRAY );
 			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 			glEnableClientState( GL_NORMAL_ARRAY );
@@ -418,12 +415,10 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &planets, const vector<gl:
 				glNormalPointer( GL_FLOAT, 0, mSphereNormalsLoRes );
 				numVerts = mTotalVertsLoRes;
 			}
-			
-			gl::disableAlphaBlending();
 
 			gl::pushModelView();
 			gl::translate( mTransPos );
-			planets[mPlanetTexIndex].enableAndBind();
+			clouds[mCloudTexIndex].enableAndBind();
 
 			glEnable( GL_LIGHTING );
 			// LIT CLOUDS
@@ -473,6 +468,22 @@ void NodeTrack::drawOrbitRing( float pinchAlphaPer, GLfloat *ringVertsLowRes, GL
 	glDisableClientState( GL_VERTEX_ARRAY );
 	gl::popModelView();
 }
+
+void NodeTrack::drawAtmosphere( const gl::Texture &tex )
+{
+	if( mIsMostPlayed ){
+		gl::pushModelView();
+		gl::translate( mTransPos );
+		gl::enableAdditiveBlending();
+		gl::color( ColorA( mEclipseColor, 0.75f ) );
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 2.5f;
+		tex.enableAndBind();
+		gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
+		tex.disable();
+		gl::popModelView();
+	}
+}
+
 
 void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, const gl::Texture &tex )
 {

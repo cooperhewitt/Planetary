@@ -30,7 +30,7 @@ void Particle::setup()
 	mDecay		= 0.98f;
 	mAge		= 0;
 	mAgePer		= 0.0f;
-	mRadius		= Rand::randFloat( 0.025f, 0.35f );
+	mRadius		= Rand::randFloat( 0.025f, 0.1f );
 }
 
 void Particle::pullToCenter( Node *trackNode )

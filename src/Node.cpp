@@ -72,8 +72,6 @@ void Node::init()
 void Node::initWithParent()
 {
 	mGen				= mParentNode->mGen + 1;
-	mRadiusDest			= mParentNode->mRadiusDest * Rand::randFloat( 0.008f, 0.012f );//0.01f;
-	mRadius				= mRadiusDest;
 	mPos				= mParentNode->mPos;
 	mTransVel			= Vec3f::zero();
 	mOrbitPeriod		= Rand::randFloat( 35.0f, 50.0f );
@@ -195,8 +193,11 @@ void Node::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfl
 	}
 }
 
-void Node::drawAtmosphere( const Vec3f &camNormal, const gl::Texture &tex )
+void Node::drawAtmosphere( const gl::Texture &tex )
 {
+	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		(*nodeIt)->drawAtmosphere( tex );
+	}
 }
 
 void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )

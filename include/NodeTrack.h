@@ -25,6 +25,7 @@ class NodeTrack : public Node
 	void drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void buildPlayheadProgressVertexArray();
 	void drawPlayheadProgress( float pinchAlphaPer, const ci::gl::Texture &tex );
+	void drawAtmosphere( const ci::gl::Texture &tex );
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
 	ci::Vec3f getStartRelPos(){ return mMatrix * mStartRelPos; }
 	ci::Vec3f getRelPos(){ return mMatrix * mRelPos; }
@@ -40,6 +41,7 @@ private:
 	float		mEclipseStrength;
 	float		mTrackLength;
 	int			mPlayCount;
+	float		mNormPlayCount;
 	int			mStarRating;
 	int			mNumTracks;
 	ci::Vec3f	mStartPos, mTransStartPos, mStartRelPos;

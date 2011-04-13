@@ -615,7 +615,7 @@ void World::update( const Matrix44f &mat )
 		mIsRepulsing = false;
 	}
 	
-	if( mAge == mEndRepulseAge + 1 ){
+	if( mAge == mEndRepulseAge + 100 ){
 		buildConstellation();
 	}
 	
