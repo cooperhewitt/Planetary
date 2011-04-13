@@ -26,7 +26,6 @@ void State::setup()
 {
 	mAlphaChar = ' ';
 	mSelectedNode = NULL;
-	mPrevSelectedNode = NULL;
 }
 
 void State::draw( const Font &font )
@@ -62,8 +61,6 @@ void State::setSelectedNode( Node* node )
 	if (node == mSelectedNode) {
 		return;
 	}
-	
-	mPrevSelectedNode = mSelectedNode;
 	
 	if (node == NULL) {
 		// clear currently selected node and all parents

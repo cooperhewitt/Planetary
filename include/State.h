@@ -38,9 +38,6 @@ class State {
 	Node* getSelectedNode() { return mSelectedNode; }
 	void setSelectedNode(Node* selectedNode);
 	
-	Node* getPrevSelectedNode() { return mPrevSelectedNode; }
-	void setPrevSelectedNode(Node* prevSelectedNode);
-	
 	template<typename T>
 	CallbackId registerNodeSelected( T *obj, bool (T::*callback)(Node*) ){
 		return mCallbacksNodeSelected.registerCb(std::bind1st(std::mem_fun(callback), obj));
@@ -69,7 +66,6 @@ private:
 	CallbackMgr<bool(NodeTrack*)> mCallbacksNodePlaying;
 
 	Node *mSelectedNode;
-    Node *mPrevSelectedNode;
 	char mAlphaChar;
 };
 

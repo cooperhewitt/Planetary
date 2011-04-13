@@ -316,7 +316,9 @@ void KeplerApp::remainingSetup()
 	mCenter				= Vec3f::zero();
 	mCenterDest			= mCenter;
 	mCenterFrom			= mCenter;
-	mUp					= Vec3f::yAxis();
+    // FIXME: let's put this setup stuff back in setup()
+    // this was overriding the (correct) value which is now always set by setInterfaceOrientation
+//	mUp					= Vec3f::yAxis();
 	mFov				= G_DEFAULT_FOV;
 	mFovDest			= G_DEFAULT_FOV;
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.0001f, 1200.0f );
@@ -619,6 +621,8 @@ void KeplerApp::accelerated( AccelEvent event )
 
 void KeplerApp::orientationChanged( OrientationEvent event )
 {
+    console() << event << std::endl;
+    
     setInterfaceOrientation(event.getInterfaceOrientation());
 
     // Look over there!
@@ -905,13 +909,11 @@ void KeplerApp::update()
 	}
     //mTextureLoader.update();
     
-    if ( mRemainingSetupCalled ) {
-       // mAccelMatrix			= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
-		updateArcball();
+    if ( mRemainingSetupCalled )
+	{
+        mAccelMatrix			= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
 		
-		Matrix44f inverseMatrix = mMatrix.inverted();
-        Vec3f invBbRight		= inverseMatrix * mBbRight;
-        Vec3f invBbUp			= inverseMatrix * mBbUp;
+		updateArcball();
 		
         mWorld.update( mMatrix );
         mParticleController.update();
@@ -919,7 +921,9 @@ void KeplerApp::update()
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 
-        
+		Matrix44f inverseMatrix = mMatrix.inverted();
+        Vec3f invBbRight		= inverseMatrix * mBbRight;
+        Vec3f invBbUp			= inverseMatrix * mBbUp;        
         
         if( mDataIsLoaded ){
             mWorld.buildStarsVertexArray( invBbRight, invBbUp );
@@ -930,6 +934,7 @@ void KeplerApp::update()
 		if( mState.getSelectedArtistNode() ){
 			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaPer, mCamRingAlpha );
 		}
+        
         mUiLayer.update();
 		if( G_HELP ) mHelpLayer.update();
 		mAlphaWheel.update( mFov );
@@ -955,13 +960,13 @@ void KeplerApp::updateArcball()
         mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
 	}
 	
-	if( G_ACCEL ){
-		mArcball.setQuat( mArcball.getQuat() + mGyroMat );
+	//if( G_ACCEL ){
+	//	mArcball.setQuat( mArcball.getQuat() + mGyroMat );
 		//mMatrix = mAccelMatrix * mArcball.getQuat();
+	//	mMatrix = mArcball.getQuat();
+	//} else {
 		mMatrix = mArcball.getQuat();
-	} else {
-		mMatrix = mArcball.getQuat();
-	}
+	//}
 }
 
 
@@ -978,7 +983,7 @@ void KeplerApp::updateCamera()
 	if( selectedNode ){
 		currentLevel	= selectedNode->mGen;
 		mCamDistDest	= selectedNode->mIdealCameraDist * mCamDistPinchOffset;
-		mCenterDest		= mMatrix.transformPointAffine( selectedNode->mPos );
+		mCenterDest		= selectedNode->mTransPos; //mMatrix.transformPointAffine( selectedNode->mPos );
 		mZoomDest		= selectedNode->mGen;
 		
 		mCenterFrom		+= selectedNode->mTransVel;
@@ -1015,7 +1020,7 @@ void KeplerApp::updateCamera()
 	Vec3f prevEye	= mEye;
 	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist );
 	mCamVel			= mEye - prevEye;
-	
+
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( mEye, mCenter, mUp );
 	mCam.getBillboardVectors( &mBbRight, &mBbUp );
