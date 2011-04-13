@@ -21,7 +21,7 @@ public:
     void setInterfaceOrientation( const ci::app::Orientation &orientation );
 private:
     
-    bool returnTrue(ci::app::TouchEvent event) { return true };
+    bool onTouchEvent(ci::app::TouchEvent event) { return mEnabled; };
     
     ci::app::AppCocoaTouch mApp;
     bool mEnabled;
