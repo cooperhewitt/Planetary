@@ -60,6 +60,7 @@ class Node {
 	// POSITION/VELOCITY
 	ci::Vec3f			mPos;				// global position
 	ci::Vec3f			mPosDest;			// artist node final position
+	ci::Vec3f			mAcc;				// acceleration used for initial repulsion
 	ci::Vec3f			mTransPos;			// global position * mMatrix
 	ci::Vec2f			mScreenPos;			// screen position
 	float				mEclipsePer;		// ECLIPSE!

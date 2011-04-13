@@ -41,6 +41,7 @@ Node::Node( Node *parent, int index, const Font &font )
 	mOrbitRadius		= 0.01f;
 	mAngularVelocity	= 0.0f;
 	mPercentPlayed		= 0.0f;
+	mCamDistAlpha		= 0.0f;
 	mDistFromCamZAxis	= 1000.0f;
 	mDistFromCamZAxisPer = 1.0f;
 	mPlanetTexIndex		= 0;
@@ -62,6 +63,7 @@ void Node::init()
 	mRadiusDest			= 2.0f;
 	mRadius				= 2.0f;
 	mPos				= Rand::randVec3f();
+	mAcc				= Vec3f::zero();
 	mTransVel			= Vec3f::zero();
 	mOrbitRadiusDest	= 0.0f;
 	mOrbitPeriod		= 0.0f;
@@ -205,7 +207,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			
 			gl::color( ColorA( Color::white(), alpha ) );
 		} else {
-			gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.65f * mZoomPer * pinchAlphaPer ) );
+			gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.45f * mZoomPer * pinchAlphaPer ) );
 		}
 
 		if (mNameTex == NULL) {

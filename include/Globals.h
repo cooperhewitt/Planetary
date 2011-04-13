@@ -49,6 +49,7 @@ static const ci::Color COLOR_BRIGHT_YELLOW	= ci::Color( 1.0f, 1.0f, 0.75f );
 extern float G_ZOOM;
 extern bool G_DEBUG;
 extern bool G_HELP;
+extern bool G_ACCEL;
 extern bool G_DRAW_RINGS;
 extern bool G_DRAW_TEXT;
 

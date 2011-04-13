@@ -179,8 +179,9 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 	Color col		= COLOR_BRIGHT_BLUE;
 	float radius	= mRadius;
 	float alpha		= constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f ) * 0.3f;
-		
-	for( vector<Vec3f>::iterator it = mOrbitPath.begin(); it != mOrbitPath.end(); ++it ){	
+	
+	for( vector<Vec3f>::iterator it = mOrbitPath.begin(); it != mOrbitPath.end(); ++it )
+	{
 		Vec3f pos1				= *it * ( mOrbitRadius + radius );
 		Vec3f pos2				= *it * ( mOrbitRadius - radius );
 		
@@ -302,7 +303,7 @@ void NodeTrack::update( const Matrix44f &mat )
 			float CAB	= acos( constrain( cos2, -1.0f, 1.0f ) );
 			float CAD	= CAB * 2.0f;
 			float intersectingArea = CBA * Rsqrd - 0.5f * Rsqrd * sin( CBD ) + 0.5f * CAD * rsqrd - 0.5f * rsqrd * sin( CAD );
-			mEclipseStrength = 1.0f - ( A - intersectingArea ) / A;
+			mEclipseStrength = ( A - intersectingArea ) / A;
 			/*
 			 std::cout << "================== " << std::endl;
 			 std::cout << "c = " << c << std::endl;
@@ -325,7 +326,7 @@ void NodeTrack::update( const Matrix44f &mat )
 void NodeTrack::drawEclipseGlow()
 {
 	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
-        mParentNode->mParentNode->mEclipseStrength = pow( mEclipseStrength, 2.0f ) * mZoomPer;
+        mParentNode->mParentNode->mEclipseStrength = mEclipseStrength * mZoomPer;
 	}
 }
 

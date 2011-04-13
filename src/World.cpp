@@ -44,6 +44,8 @@ void World::setup( Data *data )
 	initSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
 	initSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
 	
+	mAge = 0;
+	mEndRepulseAge = 250;//200
 	mIsRepulsing = true;
 }
 
@@ -170,6 +172,32 @@ void World::initNodes( Player *player, const Font &font )
     initVertexArrays();
 }
 
+void World::repulseNodes()
+{
+	for( vector<Node*>::iterator p1 = mNodes.begin(); p1 != mNodes.end(); ++p1 ){
+		
+		vector<Node*>::iterator p2 = p1;
+		for( ++p2; p2 != mNodes.end(); ++p2 ) {
+			Vec3f dir = (*p1)->mPosDest - (*p2)->mPosDest;
+			
+			float thresh = 50.0f;
+			if( dir.x > -thresh && dir.x < thresh && dir.y > -thresh && dir.y < thresh && dir.z > -thresh && dir.z < thresh ){
+				float distSqrd = dir.lengthSquared();
+				
+				if( distSqrd > 0.0f ){
+					float F = 1.0f/distSqrd;
+					dir.normalize();
+					
+					// acceleration = force / mass
+					(*p1)->mAcc += ( F * dir ) * 3.0f;
+					(*p2)->mAcc -= ( F * dir ) * 3.0f;
+				}
+			}
+		}
+	}
+}
+
+
 void World::initVertexArrays()
 {
     if (mRingVertsLowRes != NULL) delete[] mRingVertsLowRes;
@@ -270,6 +298,15 @@ void World::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matri
 
 void World::update( const Matrix44f &mat )
 {
+	mAge ++;
+	if( mAge > mEndRepulseAge ){
+		mIsRepulsing = false;
+	}
+	
+	if( mIsRepulsing ){
+		repulseNodes();
+	}
+	
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->update( mat );
 	}

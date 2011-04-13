@@ -25,7 +25,7 @@ using namespace std;
 NodeArtist::NodeArtist( int index, const Font &font )
 	: Node( NULL, index, font )
 {
-	mPosDest		= Rand::randVec3f() * Rand::randFloat( 50.0f, 200.0f );
+	mPosDest		= Rand::randVec3f() * Rand::randFloat( 40.0f, 100.0f ); // 40.0f, 200.0f
 	mPos			= mPosDest + Rand::randVec3f() * 25.0f;
 	
 	mIdealCameraDist = mRadius * 2.0f;
@@ -45,8 +45,16 @@ NodeArtist::NodeArtist( int index, const Font &font )
 
 void NodeArtist::update( const Matrix44f &mat )
 {
-	mPos -= ( mPos - mPosDest ) * 0.1f;
-	mAge ++;
+	if( mAge < 100.0f ){	// 50.0f
+		mPosDest += mAcc;
+		mAcc *= 0.99f;
+	}
+	
+	if( mAge < 200.0f ){	// 200.0f
+		mPos -= ( mPos - mPosDest ) * 0.1f;
+		mAge ++;
+	}
+	
 	
 	if( mAge > mBirthPause ){
 		if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
@@ -63,14 +71,13 @@ void NodeArtist::update( const Matrix44f &mat )
 void NodeArtist::drawEclipseGlow()
 {
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
-        float alpha         = mDistFromCamZAxisPer;
-        gl::color( ColorA( mGlowColor, alpha * mEclipseStrength ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * ( mEclipseStrength + 1.0f ) * 22.0f;
+        gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer * ( 1.0f - mEclipseStrength ) ) );
+		Vec2f radius = Vec2f( mRadius, mRadius ) * ( ( mEclipseStrength ) ) * 44.0f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
 	
 	if( G_IS_IPAD2 && mIsHighlighted ){
-        gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
+		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
@@ -88,10 +95,8 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 		gl::color( mGlowColor );
 		float radius = mRadius * 0.3f;
 		gl::enableAdditiveBlending();
-		if( G_ZOOM > G_ARTIST_LEVEL ){
-			gl::disableDepthRead();
-			gl::drawSphere( Vec3f::zero(), radius, 32 );
-			gl::enableDepthRead();
+		if( G_ZOOM > G_ALPHA_LEVEL ){
+
 		} else {
 			gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
 		}
@@ -105,6 +110,30 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 void NodeArtist::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
 {
 	Node::drawClouds( planets, clouds );
+}
+
+void NodeArtist::drawStarCenter( const gl::Texture &starTex )
+{
+	if( mIsSelected ){
+		gl::pushModelView();
+		gl::translate( mTransPos );
+		gl::enableAdditiveBlending();
+		if( G_ZOOM > G_ALPHA_LEVEL ){
+			//gl::disableDepthRead();
+			//gl::drawSphere( Vec3f::zero(), radius, 32 );
+			glEnable( GL_ALPHA_TEST );
+			glAlphaFunc( GL_GREATER, 0.15f );
+			starTex.enableAndBind();
+			gl::color( ColorA( mColor, 1.0f ) );
+			Vec2f radius = Vec2f( mRadius, mRadius );
+			gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
+			starTex.disable();
+			glDisable( GL_ALPHA_TEST );
+			
+			//gl::enableDepthRead();
+		}
+		gl::popModelView();
+	}
 }
 
 void NodeArtist::select()

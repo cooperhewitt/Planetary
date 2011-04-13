@@ -23,12 +23,15 @@
 #include "PinchRecognizer.h"
 #include "ParticleController.h"
 #include "LoadingScreen.h"
+#include "NodeArtist.h"
 
 #include "CinderFlurry.h"
 //#include "TextureLoader.h"
 #include <sys/sysctl.h>
 #include <vector>
 #include <sstream>
+#import <CoreMotion/CoreMotion.h>
+
 
 using std::vector;
 using namespace ci;
@@ -38,6 +41,7 @@ using std::stringstream;
 using namespace pollen::flurry;
 
 float G_ZOOM			= 0;
+bool G_ACCEL			= true;
 bool G_DEBUG			= false;
 bool G_HELP             = false;
 bool G_DRAW_RINGS		= false;
@@ -115,6 +119,12 @@ class KeplerApp : public AppCocoaTouch {
 	Matrix44f		mAccelMatrix;
 	Matrix44f		mNewAccelMatrix;
 	
+// GYRO
+	CMMotionManager		*mMotionManager;
+    NSOperationQueue	*mGyroQueue;
+	Vec3f				mGyroData;
+	Matrix44f			mGyroMat;
+	
 // AUDIO
 	ipod::Player		mIpodPlayer;
 	ipod::PlaylistRef	mCurrentAlbum;
@@ -148,7 +158,6 @@ class KeplerApp : public AppCocoaTouch {
 	Font			mFont;
 	Font			mFontBig;
 	Font			mFontMediSmall;
-	Font			mFontUltraSmall;	
 	Font			mFontMediTiny;
 	
 // MULTITOUCH
@@ -265,6 +274,32 @@ void KeplerApp::remainingSetup()
 	enableAccelerometer();
 	mAccelMatrix		= Matrix44f();
 	
+	
+	/*
+	Vec3f v1, v2, v3;
+	// INIT GYRO
+	mGyroData			= Vec3f::zero();
+	// TODO: Release on shutdown
+    mGyroQueue			= [[NSOperationQueue alloc] init];
+    // TODO: Release on shutdown
+    mMotionManager		= [[CMMotionManager alloc] init];
+	CMDeviceMotion *deviceMotion	= mMotionManager.deviceMotion;      
+	CMAttitude *attitude			= deviceMotion.attitude;
+	CMRotationMatrix rm				= attitude.rotationMatrix;
+	
+	v1 = Vec3f( rm.m11, rm.m12, rm.m13 );
+	v2 = Vec3f( rm.m21, rm.m22, rm.m23 );
+	v3 = Vec3f( rm.m31, rm.m32, rm.m33 );
+	
+    [mMotionManager startGyroUpdatesToQueue:mGyroQueue withHandler:^(CMGyroData *gyroData, NSError *error) {
+		*attitude			= deviceMotion.attitude;
+		mGyroMat	= Matrix44f( v1, v2, v3 );
+		console() << v1 << std::endl;
+	 }];
+	
+	*/
+	
+	
 	// ARCBALL
 	mMatrix	= Quatf();
 	mArcball.setWindowSize( getWindowSize() );
@@ -292,7 +327,6 @@ void KeplerApp::remainingSetup()
 	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
 	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
 	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
-	mFontUltraSmall		= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 14 );
 	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 12 );
 	
 	// TOUCH VARS
@@ -431,7 +465,8 @@ void KeplerApp::touchesBegan( TouchEvent event )
 
 void KeplerApp::touchesMoved( TouchEvent event )
 {
-    if (!mRemainingSetupCalled) return;    
+    if (!mRemainingSetupCalled) return;
+
     if ( mIsTouching ) {
         float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
         const vector<TouchEvent::Touch> touches = getActiveTouches();
@@ -443,7 +478,7 @@ void KeplerApp::touchesMoved( TouchEvent event )
                 mTouchVel		= currentPos - prevPos;
                 mTouchPos		= currentPos;
                 Vec3f worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
-                mArcball.mouseDrag( Vec2i(worldTouchPos.x, worldTouchPos.y) );
+                mArcball.mouseDrag( Vec2i( worldTouchPos.x, worldTouchPos.y ) );
             }
         }
     }
@@ -871,12 +906,13 @@ void KeplerApp::update()
     //mTextureLoader.update();
     
     if ( mRemainingSetupCalled ) {
-        mAccelMatrix			= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
+       // mAccelMatrix			= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
+		updateArcball();
+		
 		Matrix44f inverseMatrix = mMatrix.inverted();
         Vec3f invBbRight		= inverseMatrix * mBbRight;
         Vec3f invBbUp			= inverseMatrix * mBbUp;
 		
-        updateArcball();
         mWorld.update( mMatrix );
         mParticleController.update();
         
@@ -919,23 +955,21 @@ void KeplerApp::updateArcball()
         mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
 	}
 	
-//	if( G_ACCEL ){
-//		mMatrix = mAccelMatrix * mArcball.getQuat();
-//	} else {
+	if( G_ACCEL ){
+		mArcball.setQuat( mArcball.getQuat() + mGyroMat );
+		//mMatrix = mAccelMatrix * mArcball.getQuat();
 		mMatrix = mArcball.getQuat();
-//	}
-	
+	} else {
+		mMatrix = mArcball.getQuat();
+	}
 }
 
 
 void KeplerApp::updateCamera()
 {
+	double p		= constrain( getElapsedSeconds()-mTime, 0.0, G_DURATION );
 	
 	mCamDistPinchOffset -= ( mCamDistPinchOffset - mCamDistPinchOffsetDest ) * 0.4f;
-	
-	//float fadeSpeed = 2.0f;		// 3.0 fades right before 'pop'. 1.0 fades after small pinch
-	//mPinchAlphaOffset	= constrain( 1.0f - ( mCamDistPinchOffset - fadeSpeed ), 0.0f, 1.0f );
-	
 	
 	updateCameraPop();
 	
@@ -948,7 +982,7 @@ void KeplerApp::updateCamera()
 		mZoomDest		= selectedNode->mGen;
 		
 		mCenterFrom		+= selectedNode->mTransVel;
-
+		
 	} else {
 		mCamDistDest	= G_INIT_CAM_DIST * mCamDistPinchOffset;
 		mCenterDest		= mMatrix.transformPointAffine( Vec3f::zero() );
@@ -973,8 +1007,6 @@ void KeplerApp::updateCamera()
 		toggleAlphaWheel( false, false );
 	}
 
-	
-	double p		= constrain( getElapsedSeconds()-mTime, 0.0, G_DURATION );
 	mCenter			= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, G_DURATION );
 	mCamDist		= easeInOutQuad( p, mCamDistFrom, mCamDistDest - mCamDistFrom, G_DURATION );
 	mCamDist		= min( mCamDist, G_INIT_CAM_DIST );
@@ -1068,12 +1100,6 @@ void KeplerApp::drawScene()
 	
 	Node *artistNode = mState.getSelectedArtistNode();
 	if( artistNode ){
-		/*
-		if( mWorld.mPlayingTrackNode && G_DRAW_RINGS ){
-			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
-			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPlayheadProgressTex );
-		}
-		*/
 		gl::enableDepthRead();
 		gl::disableAlphaBlending();
 		glEnable( GL_LIGHTING );
@@ -1123,6 +1149,12 @@ void KeplerApp::drawScene()
 		mStarGlowTex.enableAndBind();
 		mParticleController.drawParticleVertexArray( mState.getSelectedArtistNode(), mMatrix );
 		mStarGlowTex.disable();
+	}
+	
+// STAR CENTER
+	NodeArtist* selectedArtist = (NodeArtist*)artistNode;
+	if( selectedArtist ){
+		selectedArtist->drawStarCenter( mStarTex );
 	}
 	
 // RINGS
@@ -1217,13 +1249,10 @@ void KeplerApp::drawScene()
     mBreadcrumbs.draw( mUiButtonsTex );
     mPlayControls.draw( mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
 	
-    // TODO: plans for this state.draw? currently an empty method
-	//mState.draw( mFont );
-	
 	if( G_HELP ) mHelpLayer.draw( mUiButtonsTex );
 	
 	gl::disableAlphaBlending();
-    if( G_DEBUG ) drawInfoPanel();
+//    if( G_DEBUG ) drawInfoPanel();
 }
 
 void KeplerApp::drawInfoPanel()

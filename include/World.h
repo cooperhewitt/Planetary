@@ -30,6 +30,7 @@ class World {
 	void initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
 							int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals );
 	void filterNodes();
+	void repulseNodes();
 	void deselectAllNodes();
     void setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
@@ -52,6 +53,9 @@ class World {
 	void drawRings( const ci::gl::Texture &tex, float camRingAlpha );
 	
 	Data *mData;
+	
+	int mAge;
+	int mEndRepulseAge;
 	
 	std::vector<Node*> mNodes;
 	std::vector<ci::gl::Texture> mNameTextures;

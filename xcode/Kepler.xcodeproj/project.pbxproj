@@ -59,6 +59,7 @@
 		E1A330391301013100CED126 /* starGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330361301013100CED126 /* starGlow.png */; };
 		E1A3303A1301013100CED126 /* star.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330371301013100CED126 /* star.png */; };
 		E1A332E21301068800CED126 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1A332E11301068800CED126 /* MediaPlayer.framework */; };
+		E1AA09A7135508B900B44147 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1AA09A6135508B900B44147 /* CoreMotion.framework */; };
 		E1B0DBB213510C890093EB9D /* HelpLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1B0DBB113510C890093EB9D /* HelpLayer.cpp */; };
 		E1B0DBC2135124130093EB9D /* helpPanel.png in Resources */ = {isa = PBXBuildFile; fileRef = E1B0DBC1135124130093EB9D /* helpPanel.png */; };
 		E1C2D90E133C4AFA00B4FEEB /* helpPanel.png in Resources */ = {isa = PBXBuildFile; fileRef = E1C2D90D133C4AF900B4FEEB /* helpPanel.png */; };
@@ -85,7 +86,7 @@
 
 /* Begin PBXFileReference section */
 		00CFDF6A1138442D0091E310 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		00CFDFDF11384CC60091E310 /* KeplerApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KeplerApp.cpp; path = ../src/KeplerApp.cpp; sourceTree = "<group>"; };
+		00CFDFDF11384CC60091E310 /* KeplerApp.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = KeplerApp.cpp; path = ../src/KeplerApp.cpp; sourceTree = "<group>"; };
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D6058910D05DD3D006BFB54 /* Planetary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Planetary.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -113,7 +114,6 @@
 		E12769811326E18A00E1FC3F /* clouds2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds2.png; sourceTree = "<group>"; };
 		E12769821326E18A00E1FC3F /* clouds4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds4.png; sourceTree = "<group>"; };
 		E12769831326E18A00E1FC3F /* clouds5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds5.png; sourceTree = "<group>"; };
-		E1276CA6132764E900E1FC3F /* Orbiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Orbiter.h; path = ../include/Orbiter.h; sourceTree = SOURCE_ROOT; };
 		E1276E49132821AA00E1FC3F /* CinderIPod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPod.h; sourceTree = "<group>"; };
 		E1276E4A132821AA00E1FC3F /* CinderIPodPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPodPlayer.h; sourceTree = "<group>"; };
 		E1276E4B132821AA00E1FC3F /* CinderIPodPlayerImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPodPlayerImpl.h; sourceTree = "<group>"; };
@@ -152,6 +152,7 @@
 		E1A332E11301068800CED126 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		E1A332EF1301072600CED126 /* Easing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Easing.h; path = ../include/Easing.h; sourceTree = SOURCE_ROOT; };
 		E1A332F01301072600CED126 /* Globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Globals.h; path = ../include/Globals.h; sourceTree = SOURCE_ROOT; };
+		E1AA09A6135508B900B44147 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		E1B0DBB113510C890093EB9D /* HelpLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HelpLayer.cpp; path = ../src/HelpLayer.cpp; sourceTree = "<group>"; };
 		E1B0DBB313510C9D0093EB9D /* HelpLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HelpLayer.h; path = ../include/HelpLayer.h; sourceTree = "<group>"; };
 		E1B0DBC1135124130093EB9D /* helpPanel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = helpPanel.png; path = ../resources/ui/helpPanel.png; sourceTree = "<group>"; };
@@ -201,6 +202,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E1AA09A7135508B900B44147 /* CoreMotion.framework in Frameworks */,
 				C725E001121DAC8F00FA186B /* AVFoundation.framework in Frameworks */,
 				C725DFFE121DAC7F00FA186B /* CoreMedia.framework in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
@@ -295,6 +297,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E1AA09A6135508B900B44147 /* CoreMotion.framework */,
 				C7FB19D5124BC0D70045AFD2 /* AudioToolbox.framework */,
 				C7FB19D5124BC0D70045AFD3 /* CoreText.framework */,
 				C727C02B121B400300192073 /* CoreMedia.framework */,
@@ -499,7 +502,6 @@
 				E25C872B131F1415000780A3 /* NodeArtist.h */,
 				E25C8740131F14A5000780A3 /* NodeAlbum.h */,
 				E25C8741131F14A5000780A3 /* NodeTrack.h */,
-				E1276CA6132764E900E1FC3F /* Orbiter.h */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";

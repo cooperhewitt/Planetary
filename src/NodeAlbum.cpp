@@ -26,7 +26,7 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	mIsHighlighted		= true;
 	mHasAlbumArt		= false;
 	mHasCreatedAlbumArt = false;
-	mIdealCameraDist	= mRadius * 8.0f;
+	mIdealCameraDist	= mRadius * 10.0f;
 	mEclipseStrength	= 0.0f;
 }
 
@@ -182,7 +182,7 @@ void NodeAlbum::update( const Matrix44f &mat )
 			float CAB	= acos( constrain( cos2, -1.0f, 1.0f ) );
 			float CAD	= CAB * 2.0f;
 			float intersectingArea = CBA * Rsqrd - 0.5f * Rsqrd * sin( CBD ) + 0.5f * CAD * rsqrd - 0.5f * rsqrd * sin( CAD );
-			mEclipseStrength = 1.0f - ( A - intersectingArea ) / A;
+			mEclipseStrength = ( A - intersectingArea ) / A;
 			/*
 			std::cout << "================== " << std::endl;
 			std::cout << "r = " << r << std::endl;
@@ -208,7 +208,7 @@ void NodeAlbum::update( const Matrix44f &mat )
 void NodeAlbum::drawEclipseGlow()
 {
 	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
-		mParentNode->mEclipseStrength = pow( mEclipseStrength, 2.0f ) * mZoomPer;
+		mParentNode->mEclipseStrength = mEclipseStrength * mZoomPer;
 	}
 
 	Node::drawEclipseGlow();
@@ -310,36 +310,35 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &planets, const vector<gl:
 			numVerts = mTotalVertsLoRes;
 		}
 		
-		gl::disableAlphaBlending();
+		gl::enableAlphaBlending();
 		
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		gl::pushModelView();
-		float radius = mRadius + 0.00025f;
-		gl::scale( Vec3f( radius, radius, radius ) );
-		glEnable( GL_RESCALE_NORMAL );
-		gl::rotate( mMatrix );
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt ) );
-// SHADOW CLOUDS
-		glDisable( GL_LIGHTING );
-		gl::disableAlphaBlending();
-		gl::enableAlphaBlending();
-		gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.5f ) );
-		clouds[mCloudTexIndex].enableAndBind();
-		glDrawArrays( GL_TRIANGLES, 0, numVerts );
-		gl::popModelView();
-		glEnable( GL_LIGHTING );		
+			gl::pushModelView();
+			float radius = mRadius + 0.00025f;
+			gl::scale( Vec3f( radius, radius, radius ) );
+			glEnable( GL_RESCALE_NORMAL );
+			gl::rotate( mMatrix );
+			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt ) );
+	// SHADOW CLOUDS
+			glDisable( GL_LIGHTING );
+			gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.5f ) );
+			clouds[mCloudTexIndex].enableAndBind();
+			glDrawArrays( GL_TRIANGLES, 0, numVerts );
+			glEnable( GL_LIGHTING );
+			gl::popModelView();
+				
 // LIT CLOUDS
-		gl::pushModelView();
-		radius = mRadius + 0.00035f;
-		gl::scale( Vec3f( radius, radius, radius ) );
-		glEnable( GL_RESCALE_NORMAL );
-		gl::rotate( mMatrix );
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt ) );
-		gl::enableAdditiveBlending();
-		gl::color( ColorA( mEclipseColor, mCamDistAlpha ) );
-		glDrawArrays( GL_TRIANGLES, 0, numVerts );
-		gl::popModelView();
+			gl::pushModelView();
+			radius = mRadius + 0.00035f;
+			gl::scale( Vec3f( radius, radius, radius ) );
+			glEnable( GL_RESCALE_NORMAL );
+			gl::rotate( mMatrix );
+			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt ) );
+			gl::enableAdditiveBlending();
+			gl::color( ColorA( mGlowColor, 1.0f ) );
+			glDrawArrays( GL_TRIANGLES, 0, numVerts );
+			gl::popModelView();
 		gl::popModelView();
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
