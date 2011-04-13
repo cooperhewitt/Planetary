@@ -186,11 +186,11 @@ void World::repulseNodes()
 				
 				if( distSqrd > 0.0f ){
 					float F = 1.0f/distSqrd;
-					dir.normalize();
+					dir = F * dir.normalized() * 3.5f;
 					
 					// acceleration = force / mass
-					(*p1)->mAcc += ( F * dir ) * 3.0f;
-					(*p2)->mAcc -= ( F * dir ) * 3.0f;
+					(*p1)->mAcc += dir;
+					(*p2)->mAcc -= dir;
 				}
 			}
 		}
@@ -200,24 +200,42 @@ void World::repulseNodes()
 
 void World::initVertexArrays()
 {
-    if (mRingVertsLowRes != NULL) delete[] mRingVertsLowRes;
+    if( mRingVertsLowRes != NULL ) delete[] mRingVertsLowRes;
+	//if( mRingColorsLowRes != NULL ) delete[] mRingColorsLowRes;
     
 	mRingVertsLowRes	= new float[ G_RING_LOW_RES*2 ]; // X,Y
+	//mRingColorsLowRes	= new float[ G_RING_LOW_RES*4 ];
 	for( int i=0; i<G_RING_LOW_RES; i++ ){
 		float per				= (float)i/(float)(G_RING_LOW_RES-1);
 		float angle				= per * TWO_PI;
 		mRingVertsLowRes[i*2+0]	= cos( angle );
 		mRingVertsLowRes[i*2+1]	= sin( angle );
+		/*
+		Color c	= lerp( COLOR_BRIGHT_BLUE, COLOR_BLUE, per );
+		mRingColorsLowRes[i*4+0] = c.r;
+		mRingColorsLowRes[i*4+1] = c.g;
+		mRingColorsLowRes[i*4+2] = c.b;
+		mRingColorsLowRes[i*4+3] = 1.0f - per;
+		*/
 	}
 
-    if (mRingVertsHighRes != NULL) delete[] mRingVertsHighRes;
-
+    if( mRingVertsHighRes != NULL ) delete[] mRingVertsHighRes;
+	//if( mRingColorsHighRes != NULL ) delete[] mRingColorsHighRes;
+	
 	mRingVertsHighRes	= new float[ G_RING_HIGH_RES*2 ]; // X,Y
+	//mRingColorsHighRes	= new float[ G_RING_HIGH_RES*4 ];
 	for( int i=0; i<G_RING_HIGH_RES; i++ ){
 		float per					= (float)i/(float)(G_RING_HIGH_RES-1);
 		float angle					= per * TWO_PI;
 		mRingVertsHighRes[i*2+0]	= cos( angle );
 		mRingVertsHighRes[i*2+1]	= sin( angle );
+		/*
+		Color c	= lerp( COLOR_BRIGHT_BLUE, COLOR_BLUE, per );
+		mRingColorsHighRes[i*4+0]	= c.r;
+		mRingColorsHighRes[i*4+1]	= c.g;
+		mRingColorsHighRes[i*4+2]	= c.b;
+		mRingColorsHighRes[i*4+3]	= 1.0f - per;
+		*/
 	}
 	
 	buildPlanetRingsVertexArray();
@@ -293,29 +311,6 @@ void World::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matri
 		if( (*it)->mIsHighlighted ){
 			(*it)->checkForSphereIntersect( nodes, ray, mat );
 		}
-	}
-}
-
-void World::update( const Matrix44f &mat )
-{
-	mAge ++;
-	if( mAge > mEndRepulseAge ){
-		mIsRepulsing = false;
-	}
-	
-	if( mIsRepulsing ){
-		repulseNodes();
-	}
-	
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->update( mat );
-	}
-}
-
-void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp )
-{
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->updateGraphics( cam, bbRight, bbUp );
 	}
 }
 
@@ -611,6 +606,35 @@ void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 		}
 	}
 }
+
+
+void World::update( const Matrix44f &mat )
+{
+	mAge ++;
+	if( mAge == mEndRepulseAge ){
+		mIsRepulsing = false;
+	}
+	
+	if( mAge == mEndRepulseAge + 1 ){
+		buildConstellation();
+	}
+	
+	if( mIsRepulsing ){
+		repulseNodes();
+	}
+	
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->update( mat );
+	}
+}
+
+void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp )
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->updateGraphics( cam, bbRight, bbUp );
+	}
+}
+
 
 void World::drawStarGlowsVertexArray( const Matrix44f &mat )
 {

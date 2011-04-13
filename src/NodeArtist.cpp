@@ -26,7 +26,7 @@ NodeArtist::NodeArtist( int index, const Font &font )
 	: Node( NULL, index, font )
 {
 	mPosDest		= Rand::randVec3f() * Rand::randFloat( 40.0f, 100.0f ); // 40.0f, 200.0f
-	mPos			= mPosDest + Rand::randVec3f() * 25.0f;
+	mPos			= mPosDest;// + Rand::randVec3f() * 25.0f;
 	
 	mIdealCameraDist = mRadius * 2.0f;
 	
@@ -45,12 +45,12 @@ NodeArtist::NodeArtist( int index, const Font &font )
 
 void NodeArtist::update( const Matrix44f &mat )
 {
-	if( mAge < 100.0f ){	// 50.0f
+	if( mAge < 100.0f ){
 		mPosDest += mAcc;
 		mAcc *= 0.99f;
 	}
 	
-	if( mAge < 200.0f ){	// 200.0f
+	if( mAge < 200.0f ){
 		mPos -= ( mPos - mPosDest ) * 0.1f;
 		mAge ++;
 	}
@@ -59,7 +59,7 @@ void NodeArtist::update( const Matrix44f &mat )
 	if( mAge > mBirthPause ){
 		if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
 			mRadius -= ( mRadius - 0.125f ) * 0.1f;
-			mRadius += Rand::randFloat( 0.0125f, 0.065f );
+			mRadius += Rand::randFloat( 0.0125f );
 		} else {
 			mRadius -= ( mRadius - mRadiusDest ) * 0.1f;
 		}
@@ -75,12 +75,12 @@ void NodeArtist::drawEclipseGlow()
 		Vec2f radius = Vec2f( mRadius, mRadius ) * ( ( mEclipseStrength ) ) * 44.0f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
-	
+	/*
 	if( G_IS_IPAD2 && mIsHighlighted ){
 		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
-	}
+	}*/
 	 
 	Node::drawEclipseGlow();
 }
@@ -98,7 +98,7 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 		if( G_ZOOM > G_ALPHA_LEVEL ){
 
 		} else {
-			gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
+			//gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
 		}
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
@@ -124,7 +124,7 @@ void NodeArtist::drawStarCenter( const gl::Texture &starTex )
 			glEnable( GL_ALPHA_TEST );
 			glAlphaFunc( GL_GREATER, 0.15f );
 			starTex.enableAndBind();
-			gl::color( ColorA( mColor, 1.0f ) );
+			gl::color( ColorA( mGlowColor, 1.0f ) );
 			Vec2f radius = Vec2f( mRadius, mRadius );
 			gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
 			starTex.disable();
@@ -175,7 +175,7 @@ void NodeArtist::select()
 
 void NodeArtist::setChildOrbitRadii()
 {
-	float orbitOffset = mRadiusDest * 1.5f;
+	float orbitOffset = mRadiusDest * 1.25f;
 	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
 		NodeAlbum* albumNode = (NodeAlbum*)(*it);
 		float amt = math<float>::max( albumNode->mNumTracks * 0.01f, 0.06f );

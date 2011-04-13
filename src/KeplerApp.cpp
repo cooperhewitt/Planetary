@@ -145,6 +145,7 @@ class KeplerApp : public AppCocoaTouch {
 	Vec3f			mEye, mCenter, mUp;
 	Vec3f			mCamVel;
 	Vec3f			mCenterDest, mCenterFrom;
+	Vec3f			mCamNormal;
 	float			mCamDist, mCamDistDest, mCamDistFrom;
 	float			mCamDistPinchOffset, mCamDistPinchOffsetDest;
 	float			mZoomFrom, mZoomDest;
@@ -189,7 +190,7 @@ class KeplerApp : public AppCocoaTouch {
     gl::Texture     mRingsTex;
 	gl::Texture		mUiButtonsTex;
 	gl::Texture		mCurrentTrackTex;
-    
+    gl::Texture		mAtmosphereTex;
 	vector<gl::Texture> mPlanetsTex;
 	vector<gl::Texture> mCloudsTex;
 	
@@ -217,12 +218,15 @@ void KeplerApp::setup()
     G_IS_IPAD2 = (strcmp("iPad1,1",machine) != 0);
     cout << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
     delete[] machine;
-        
+	
+	/*
 	if( G_IS_IPAD2 ){
 		G_NUM_PARTICLES = 1000;
 		G_NUM_DUSTS = 4000;
 	}
-    
+    */
+	
+	
     setInterfaceOrientation( getInterfaceOrientation() );
     
     mRemainingSetupCalled = false;
@@ -314,6 +318,7 @@ void KeplerApp::remainingSetup()
 	mCamDistFrom		= mCamDist;
 	mEye				= Vec3f( 0.0f, 0.0f, mCamDist );
 	mCenter				= Vec3f::zero();
+	mCamNormal			= Vec3f::zero();
 	mCenterDest			= mCenter;
 	mCenterFrom			= mCenter;
     // FIXME: let's put this setup stuff back in setup()
@@ -421,7 +426,7 @@ void KeplerApp::initTextures()
 	mPlayheadProgressTex.setWrap( GL_REPEAT, GL_REPEAT );
 	mParamsTex			= gl::Texture( 768, 75 );    
 	mUiButtonsTex		= loadImage( loadResource( "uiButtons.png" ) );
-    
+    mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
     mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "12.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "13.jpg" ) ) ) );
@@ -621,7 +626,7 @@ void KeplerApp::accelerated( AccelEvent event )
 
 void KeplerApp::orientationChanged( OrientationEvent event )
 {
-    console() << event << std::endl;
+    //console() << event << std::endl;
     
     setInterfaceOrientation(event.getInterfaceOrientation());
 
@@ -1024,6 +1029,8 @@ void KeplerApp::updateCamera()
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( mEye, mCenter, mUp );
 	mCam.getBillboardVectors( &mBbRight, &mBbUp );
+	mCamNormal = mEye - mCenter;
+	mCamNormal.normalize();
 	
 	
 	
@@ -1129,7 +1136,7 @@ void KeplerApp::drawScene()
 	}
 	
 	glDisable( GL_LIGHTING );
-	gl::enableAdditiveBlending();  
+	gl::enableAdditiveBlending();  	
 	gl::disableDepthRead();
 	
 // STARGLOWS bloom
@@ -1137,6 +1144,7 @@ void KeplerApp::drawScene()
 	mWorld.drawStarGlowsVertexArray( mMatrix );
 	mWorld.drawTouchHighlights();
 	mStarGlowTex.disable();
+
     
     
     gl::disableDepthWrite();
@@ -1179,7 +1187,7 @@ void KeplerApp::drawScene()
 		gl::enableAdditiveBlending();
 		mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 		if( G_DRAW_RINGS )
-			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPlayheadProgressTex );
+			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mPlayheadProgressTex );
 	}
 	
 	
@@ -1191,9 +1199,15 @@ void KeplerApp::drawScene()
 		mDottedTex.disable();
 	}
 	
+	gl::disableDepthRead();
+	// ATMOSPHERE
+	Node *albumNode = mState.getSelectedAlbumNode();
+	if( albumNode ){
+		albumNode->drawAtmosphere( mCamNormal, mAtmosphereTex );
+	}
 	
 
-	gl::disableDepthRead();
+	
 	gl::disableDepthWrite();
 	glEnable( GL_TEXTURE_2D );
 	gl::setMatricesWindow( getWindowSize() );

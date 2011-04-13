@@ -24,7 +24,7 @@ class NodeTrack : public Node
 	void drawClouds( const std::vector< ci::gl::Texture> &planets, const std::vector< ci::gl::Texture> &clouds );
 	void drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void buildPlayheadProgressVertexArray();
-	void drawPlayheadProgress( const ci::gl::Texture &tex );
+	void drawPlayheadProgress( float pinchAlphaPer, const ci::gl::Texture &tex );
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
 	ci::Vec3f getStartRelPos(){ return mMatrix * mStartRelPos; }
 	ci::Vec3f getRelPos(){ return mMatrix * mRelPos; }

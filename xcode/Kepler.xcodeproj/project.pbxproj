@@ -73,6 +73,7 @@
 		E1D99A9B134BDBFE003FC316 /* background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A9A134BDBFE003FC316 /* background.jpg */; };
 		E1D99AB2134D63B0003FC316 /* uiButtons.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99AB1134D63B0003FC316 /* uiButtons.png */; };
 		E1E663701317887F00E5E4B9 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E6636F1317887F00E5E4B9 /* State.cpp */; };
+		E1FA27E11355790500169830 /* atmosphere.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FA27E01355790500169830 /* atmosphere.png */; };
 		E1FC7DA11337E4D9007F333C /* Dust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1FC7D9F1337E4D9007F333C /* Dust.cpp */; };
 		E1FC7DA313381853007F333C /* eclipseGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC7DA213381853007F333C /* eclipseGlow.png */; };
 		E2171061132ECF7300ADCC17 /* AlphaWheel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */; };
@@ -171,6 +172,7 @@
 		E1D99AB1134D63B0003FC316 /* uiButtons.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = uiButtons.png; path = ../resources/ui/uiButtons.png; sourceTree = "<group>"; };
 		E1E6636E1317887600E5E4B9 /* State.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../include/State.h; sourceTree = SOURCE_ROOT; };
 		E1E6636F1317887F00E5E4B9 /* State.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = State.cpp; path = ../src/State.cpp; sourceTree = SOURCE_ROOT; };
+		E1FA27E01355790500169830 /* atmosphere.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = atmosphere.png; sourceTree = "<group>"; };
 		E1FC74B3130B256D007FE9D6 /* DoubleTapEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DoubleTapEvent.h; sourceTree = "<group>"; };
 		E1FC74B4130B256D007FE9D6 /* PhasedGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhasedGestureRecognizer.h; sourceTree = "<group>"; };
 		E1FC74B5130B256D007FE9D6 /* PinchRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinchRecognizer.h; sourceTree = "<group>"; };
@@ -429,6 +431,7 @@
 		E17667CE13202F4D006A4C2E /* planets */ = {
 			isa = PBXGroup;
 			children = (
+				E1FA27E01355790500169830 /* atmosphere.png */,
 				E127697A1326E18A00E1FC3F /* 11.jpg */,
 				E1363D12132C3EE800115512 /* 12.jpg */,
 				E19EA662132C78D800CEE740 /* 13.jpg */,
@@ -655,6 +658,7 @@
 				E1D99A9B134BDBFE003FC316 /* background.jpg in Resources */,
 				E1D99AB2134D63B0003FC316 /* uiButtons.png in Resources */,
 				E1B0DBC2135124130093EB9D /* helpPanel.png in Resources */,
+				E1FA27E11355790500169830 /* atmosphere.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

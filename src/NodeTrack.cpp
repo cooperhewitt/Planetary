@@ -67,15 +67,50 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 // ALBUM ART
 	Surface albumArt		= mTrack->getArtwork( Vec2i( 128, 128 ) );
 	if( albumArt ){
+		
 		int x				= (int)(normPlayCount*100);
 		int y				= c1Int%64;
-		int w				= 1;
-		int h				= normPlayCount * 64;
-		Area a				= Area( x, y, x+w, y+h );
+		Area a				= Area( x, y, x+28, y+64 );
 		Surface crop		= albumArt.clone( a );
+		
+		Surface::Iter iter	= crop.getIter();
+		while( iter.line() ) {
+			while( iter.pixel() ) {
+				if( iter.x() >= 14 ){
+					int xi = x + iter.x() - 14;
+					int yi = y + iter.y();
+					ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+					iter.r() = c.r * 255.0f;
+					iter.g() = c.g * 255.0f;
+					iter.b() = c.b * 255.0f;
+				} else {
+					int xi = x + 13 - iter.x();
+					int yi = y + iter.y();
+					ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+					iter.r() = c.r * 255.0f;
+					iter.g() = c.g * 255.0f;
+					iter.b() = c.b * 255.0f;
+				}
+			}
+		}
+		
+		
 		mAlbumArt			= gl::Texture( crop );
 		mHasAlbumArt		= true;
 	}
+	
+	
+//	Surface albumArt		= mTrack->getArtwork( Vec2i( 128, 128 ) );
+//	if( albumArt ){
+//		int x				= (int)(normPlayCount*100);
+//		int y				= c1Int%100;
+//		int w				= ;
+//		int h				= normPlayCount * 15;
+//		Area a				= Area( x, y, x+w, y+h );
+//		Surface crop		= albumArt.clone( a );
+//		mAlbumArt			= gl::Texture( crop );
+//		mHasAlbumArt		= true;
+//	}
 	
 	
 	mPlanetTexIndex			= (int)( normPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
@@ -163,20 +198,16 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 	if( mTotalOrbitVertices != mPrevTotalOrbitVertices ){
 		if (mOrbitVerts != NULL)		delete[] mOrbitVerts;
 		if( mOrbitTexCoords != NULL)	delete[] mOrbitTexCoords;
-		if( mOrbitColors != NULL)		delete[] mOrbitColors;
 		
 		mOrbitVerts		= new float[mTotalOrbitVertices*3];
 		mOrbitTexCoords	= new float[mTotalOrbitVertices*2];
-		mOrbitColors	= new float[mTotalOrbitVertices*4];
 		
 		mPrevTotalOrbitVertices = mTotalOrbitVertices;
 	}
 	
 	int vIndex		= 0;
 	int tIndex		= 0;
-	int cIndex		= 0;
 	int index		= 0;
-	Color col		= COLOR_BRIGHT_BLUE;
 	float radius	= mRadius;
 	float alpha		= constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f ) * 0.3f;
 	
@@ -198,16 +229,6 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 		
 		mOrbitTexCoords[tIndex++]	= app::getElapsedSeconds() + index;
 		mOrbitTexCoords[tIndex++]	= 1.0f;
-		
-		mOrbitColors[cIndex++]	= col.r;
-		mOrbitColors[cIndex++]	= col.g;
-		mOrbitColors[cIndex++]	= col.b;
-		mOrbitColors[cIndex++]	= alpha;
-		
-		mOrbitColors[cIndex++]	= col.r;
-		mOrbitColors[cIndex++]	= col.g;
-		mOrbitColors[cIndex++]	= col.b;
-		mOrbitColors[cIndex++]	= alpha;
 		
 		index ++;
 	}
@@ -379,6 +400,7 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 
 void NodeTrack::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
 {
+	// DRAW CLOUDS WAS STOPPED BY NODEALBUM
 	if( mSphereScreenRadius > 10.0f ){
 		if( mCamDistAlpha > 0.05f ){
 			glEnableClientState( GL_VERTEX_ARRAY );
@@ -426,18 +448,25 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &planets, const vector<gl:
 }
 
 void NodeTrack::drawOrbitRing( float pinchAlphaPer, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
-{
-	float alpha = 0.2f * pinchAlphaPer;
+{	
+	float newPinchAlphaPer = pinchAlphaPer;
+	if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
+		newPinchAlphaPer = pinchAlphaPer;
+	} else {
+		newPinchAlphaPer = 1.0f;
+	}
+	
 	
 	if( mIsMostPlayed )
-		gl::color( ColorA( COLOR_BRIGHT_BLUE, alpha ) );
+		gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.2f * newPinchAlphaPer ) );
 	else
-		gl::color( ColorA( COLOR_BLUE, alpha ) );		
+		gl::color( ColorA( COLOR_BLUE, 0.2f * newPinchAlphaPer ) );		
 	
 	gl::pushModelView();
 	gl::translate( mParentNode->mTransPos );
 	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
 	gl::rotate( mMatrix );
+	gl::rotate( Vec3f( 0.0f, 0.0f, toDegrees( mOrbitAngle ) ) );
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glVertexPointer( 2, GL_FLOAT, 0, ringVertsLowRes );
 	glDrawArrays( GL_LINE_STRIP, 0, G_RING_LOW_RES );
@@ -445,15 +474,21 @@ void NodeTrack::drawOrbitRing( float pinchAlphaPer, GLfloat *ringVertsLowRes, GL
 	gl::popModelView();
 }
 
-void NodeTrack::drawPlayheadProgress( const gl::Texture &tex )
+void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, const gl::Texture &tex )
 {
 	if( mIsPlaying ){
+		float newPinchAlphaPer = pinchAlphaPer;
+		if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
+			newPinchAlphaPer = pinchAlphaPer;
+		} else {
+			newPinchAlphaPer = 1.0f;
+		}
+		
+		gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.4f * newPinchAlphaPer ) );
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glEnableClientState( GL_COLOR_ARRAY );
 		glVertexPointer( 3, GL_FLOAT, 0, mOrbitVerts );
 		glTexCoordPointer( 2, GL_FLOAT, 0, mOrbitTexCoords );
-		glColorPointer( 4, GL_FLOAT, 0, mOrbitColors );
 		
 		tex.enableAndBind();
 		gl::pushModelView();
@@ -464,7 +499,6 @@ void NodeTrack::drawPlayheadProgress( const gl::Texture &tex )
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		glDisableClientState( GL_COLOR_ARRAY );
 		
 /*
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.25f ) );

@@ -72,7 +72,9 @@ class World {
 	GLfloat *mConstellationTexCoords;
 	
 	GLfloat *mRingVertsLowRes;
+	//GLfloat *mRingColorsLowRes;
 	GLfloat *mRingVertsHighRes;
+	//GLfloat *mRingColorsHighRes;
 	
 	int mTotalStarVertices;
     int mPrevTotalStarVertices; // so we only recreate frames

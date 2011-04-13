@@ -195,6 +195,10 @@ void Node::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfl
 	}
 }
 
+void Node::drawAtmosphere( const Vec3f &camNormal, const gl::Texture &tex )
+{
+}
+
 void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
