@@ -8,6 +8,7 @@
  */
 
 
+#include <deque>
 #include "World.h"
 #include "NodeArtist.h"
 #include "cinder/gl/gl.h"
@@ -801,3 +802,34 @@ void World::buildConstellation()
 		}
 	}
 }
+
+std::vector<Node*> World::getDepthSortedNodes(int fromGen, int toGen)
+{
+    std::deque<Node*> queue;
+    
+    // initialize queue with all artist nodes
+    copy( mNodes.begin(), mNodes.end(), queue.end() );
+
+    std::vector<Node*> sortedNodes;
+
+    while (queue.size() > 0) {
+        Node* node = queue.front();
+        // remove
+        queue.pop_front();
+        // collect this node if it's valid
+        if (node->mGen >= fromGen && node->mGen <= toGen) {
+            sortedNodes.push_back(node);
+        }
+        // add all node's children to the queue
+        copy( node->mChildNodes.begin(), node->mChildNodes.end(), queue.end() );
+    }
+    
+    sort(sortedNodes.begin(), sortedNodes.end(), nodeSortFunc);
+    
+    return sortedNodes;
+}
+
+bool nodeSortFunc(Node* a, Node* b) {
+    return a->mTransPos.z < b->mTransPos.z;
+}
+

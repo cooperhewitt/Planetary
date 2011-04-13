@@ -149,7 +149,7 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 		}
 		
 		if( closeWheel && distToCenter < 275 ){
-			mCallbacksWheelClosed.call( this );
+            setShowWheel(false);
 		}
 
         return distToCenter > 225 && distToCenter < 275;
@@ -270,3 +270,9 @@ void AlphaWheel::drawAlphaChar()
 	mAlphaTextures[mAlphaIndex].disable();
 	gl::enableAlphaBlending();
 }
+
+void AlphaWheel::setShowWheel( bool b ){ 
+    mShowWheel = b; 
+    mCallbacksWheelToggled.call(this);
+}
+

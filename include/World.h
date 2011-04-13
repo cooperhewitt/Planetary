@@ -8,6 +8,7 @@
  */
 
 #pragma once
+
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/Vector.h"
 #include "cinder/Font.h"
@@ -51,6 +52,7 @@ class World {
 	void drawClouds( const std::vector< ci::gl::Texture> &planets, const std::vector< ci::gl::Texture> &clouds );
 	void buildPlanetRingsVertexArray();
 	void drawRings( const ci::gl::Texture &tex, float camRingAlpha );
+    std::vector<Node*> getDepthSortedNodes(int fromGen, int toGen);
 	
 	Data *mData;
 	
@@ -102,3 +104,5 @@ class World {
 	float *mSphereHiResTexCoords;
 
 };
+
+bool nodeSortFunc(Node* a, Node* b);

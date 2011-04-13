@@ -30,8 +30,7 @@ public:
 	void	update( float fov );
 	void	setTimePinchEnded( float timePinchEnded );
 	void	draw( GLfloat *verts, GLfloat *texCoords, GLfloat *colors );
-    // TODO: if we're resetting prev alpha char here should we fire a callback?
-	void	setShowWheel( bool b ){ mShowWheel = b; if ( mShowWheel ) mPrevAlphaChar = ' '; }
+	void	setShowWheel( bool b );
 	bool	getShowWheel(){ return mShowWheel; }
 	float	getWheelScale(){ return mWheelScale; }
 	void	setAlphaChar( char c ){ mAlphaChar = c; }
@@ -43,8 +42,8 @@ public:
 	}
 	
 	template<typename T>
-	ci::CallbackId registerWheelClosed( T *obj, bool ( T::*callback )( AlphaWheel* ) ){
-		return mCallbacksWheelClosed.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
+	ci::CallbackId registerWheelToggled( T *obj, bool ( T::*callback )( AlphaWheel* ) ){
+		return mCallbacksWheelToggled.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
 	
 	
@@ -72,7 +71,7 @@ private:
 	std::vector<ci::gl::Texture> mAlphaTextures;
 	
 	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksAlphaCharSelected;
-	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksWheelClosed;
+	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksWheelToggled;
     
     ci::app::Orientation       mInterfaceOrientation;
     ci::Matrix44f              mOrientationMatrix;

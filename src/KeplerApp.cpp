@@ -81,10 +81,9 @@ class KeplerApp : public AppCocoaTouch {
     void            drawScene();
 	void			drawInfoPanel();
 	void			setParamsTex();
-	void			toggleAlphaWheel( bool b, bool resetSelection );
 	bool			onAlphaCharStateChanged( State *state );
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
-	bool			onWheelClosed( AlphaWheel *alphaWheel );
+	bool			onWheelToggled( AlphaWheel *alphaWheel );
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
 	bool			onHelpLayerButtonPressed( HelpLayer *helpLayer );
 	bool			onPlayControlsButtonPressed ( PlayControls::PlayButton button );
@@ -376,7 +375,7 @@ void KeplerApp::remainingSetup()
     // ALPHA WHEEL
 	mAlphaWheel.setup( this );
 	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
-	mAlphaWheel.registerWheelClosed( this, &KeplerApp::onWheelClosed );
+	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
 	mAlphaWheel.initAlphaTextures( mFontBig );	
 	
 	// STATE
@@ -650,10 +649,16 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
     mUp = getUpVectorForOrientation<float>( mInterfaceOrientation );    
 }
 
-bool KeplerApp::onWheelClosed( AlphaWheel *alphaWheel )
+bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 {
 //	std::cout << "wheel closed" << std::endl;
 	mFovDest = G_DEFAULT_FOV;
+    
+	if( mAlphaWheel.getShowWheel() ) mFovDest = G_MAX_FOV;
+	else							 mFovDest = G_DEFAULT_FOV;
+	
+	mCamDistPinchOffsetDest = 1.0f;
+    
 	return false;
 }
 
@@ -779,7 +784,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
             break;
 
         case PlayControls::SHOW_WHEEL:
-            toggleAlphaWheel( !mAlphaWheel.getShowWheel(), false ); // just toggle, dont reset selections
+            mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );
             break;
             
         default:
@@ -798,30 +803,15 @@ bool KeplerApp::onHelpLayerButtonPressed( HelpLayer *helpLayer )
 	return false;
 }
 
-
-void KeplerApp::toggleAlphaWheel( bool b, bool resetSelection )
-{
-	mAlphaWheel.setShowWheel( b );
-
-	if( mAlphaWheel.getShowWheel() ) mFovDest = G_MAX_FOV;
-	else							 mFovDest = G_DEFAULT_FOV;
-	
-	mCamDistPinchOffsetDest = 1.0f;
-		
-	if( resetSelection ){
-		mWorld.deselectAllNodes();
-		mState.setSelectedNode( NULL );
-		mState.setAlphaChar( ' ' );
-	}
-}
-
-
 bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 {
     Flurry::getInstrumentation()->logEvent("Breadcrumb Selected");
 	int level = event.getLevel();
 	if( level == G_HOME_LEVEL ){				// BACK TO HOME
-		toggleAlphaWheel( true, true );
+        mAlphaWheel.setShowWheel(true);
+		mWorld.deselectAllNodes();
+		mState.setSelectedNode( NULL );
+		mState.setAlphaChar( ' ' );
 	}
 	else if( level == G_ALPHA_LEVEL ){			// BACK TO ALPHA FILTER
 		mWorld.deselectAllNodes();
@@ -941,6 +931,9 @@ void KeplerApp::update()
 			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaPer, mCamRingAlpha );
 		}
         
+        vector<Node*> sortedNodes = mWorld.getDepthSortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
+        console() << "got " << sortedNodes.size() << " sorted album and track nodes" << std::endl;
+        
         mUiLayer.update();
 		if( G_HELP ) mHelpLayer.update();
 		mAlphaWheel.update( mFov );
@@ -1012,10 +1005,9 @@ void KeplerApp::updateCamera()
 	
 
 	if( mFovDest >= G_MAX_FOV - 10 && ! mAlphaWheel.getShowWheel() && currentLevel <= G_ALPHA_LEVEL ){
-		toggleAlphaWheel( true, false );
-
+        mAlphaWheel.setShowWheel( true );        
 	} else if( mFovDest < G_MAX_FOV - 10 && mAlphaWheel.getShowWheel() ){
-		toggleAlphaWheel( false, false );
+        mAlphaWheel.setShowWheel( false );        
 	}
 
 	mCenter			= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, G_DURATION );
