@@ -263,6 +263,7 @@ void KeplerApp::remainingSetup()
     mRemainingSetupCalled = true;
 
     mDataIsLoaded	= false;
+	mLoadingScreen.setEnabled( true );
 	G_DRAW_RINGS	= true;
 	G_DRAW_TEXT		= true;
 	//Rand::randomize();
@@ -558,7 +559,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		if( mCamDistPinchOffsetDest > 4.1f ){
 			mFovDest = 135.0f;//( 1.0f - event.getScaleDelta() ) * 20.0f;
 		} else {
-			mFovDest = G_DEFAULT_FOV + ( G_TRACK_LEVEL - G_ZOOM * 15.0f );
+			mFovDest = G_DEFAULT_FOV;
 		}
 	}
 	
@@ -904,6 +905,7 @@ void KeplerApp::update()
 	if( mData.update() ){
 		mWorld.initNodes( &mIpodPlayer, mFont );
 		mDataIsLoaded = true;
+		mLoadingScreen.setEnabled( false );
         // clear all the breadcrumbs etc.
         onSelectedNodeChanged( NULL );
         // and then make sure we know about the current track if there is one
@@ -1107,13 +1109,7 @@ void KeplerApp::drawScene()
 	mStarGlowTex.enableAndBind();
 	mWorld.drawStarGlowsVertexArray( mMatrix );
 	mStarGlowTex.disable();
- 	
-// ATMOSPHERE
-	Node *albumNode = mState.getSelectedAlbumNode();
-	if( albumNode ){
-		albumNode->drawAtmosphere( mAtmosphereTex );
-	}
-	
+
 	
 	Node *artistNode = mState.getSelectedArtistNode();
 	if( artistNode ){
@@ -1205,13 +1201,13 @@ void KeplerApp::drawScene()
 	}
 	
 	gl::disableDepthRead();
-	/*
+	
 // ATMOSPHERE
 	Node *albumNode = mState.getSelectedAlbumNode();
 	if( albumNode ){
 		albumNode->drawAtmosphere( mAtmosphereTex );
 	}
-	*/
+	
 
 	
 	gl::disableDepthWrite();
@@ -1323,7 +1319,8 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 
     Flurry::getInstrumentation()->logEvent("Player Library Changed");
 
-    mDataIsLoaded = false;    
+    mDataIsLoaded = false;
+	mLoadingScreen.setEnabled( true );
     mState.setup();    
     mData.setup();
     
