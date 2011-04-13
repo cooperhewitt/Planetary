@@ -45,6 +45,11 @@ NodeArtist::NodeArtist( int index, const Font &font )
 
 void NodeArtist::update( const Matrix44f &mat )
 {
+	Vec3f prevTransPos  = mTransPos;
+    // if mTransPos hasn't been set yet, use a guess:
+    // FIXME: set mTransPos correctly in the constructor
+    if (prevTransPos.length() < 0.0001) prevTransPos = mat * mPos;  
+	
 	if( mAge < 100.0f ){
 		mPosDest += mAcc;
 		mAcc *= 0.99f;
@@ -54,7 +59,6 @@ void NodeArtist::update( const Matrix44f &mat )
 		mPos -= ( mPos - mPosDest ) * 0.1f;
 		mAge ++;
 	}
-	
 	
 	if( mAge > mBirthPause ){
 		if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
@@ -66,6 +70,8 @@ void NodeArtist::update( const Matrix44f &mat )
 	}
 	
 	Node::update( mat );
+    
+	mTransVel = mTransPos - prevTransPos;    
 }
 
 void NodeArtist::drawEclipseGlow()

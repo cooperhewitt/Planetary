@@ -15,10 +15,17 @@
 class LoadingScreen {  
 public:
     void setup( ci::app::AppCocoaTouch *app );
+    void setEnabled( bool enabled );
     void draw( ci::gl::Texture starGlowTex );
     bool orientationChanged( ci::app::OrientationEvent event );
     void setInterfaceOrientation( const ci::app::Orientation &orientation );
 private:
+    
+    bool returnTrue(ci::app::TouchEvent event) { return true };
+    
+    ci::app::AppCocoaTouch mApp;
+    bool mEnabled;
+    
 	ci::gl::Texture	mPlanetaryTex;
 	ci::gl::Texture mPlanetTex;
 	ci::gl::Texture mBackgroundTex;
