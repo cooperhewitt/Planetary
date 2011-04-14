@@ -927,8 +927,13 @@ void KeplerApp::update()
 			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaPer, mCamRingAlpha );
 		}
         
-        //vector<Node*> sortedNodes = mWorld.getDepthSortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
-        //console() << "got " << sortedNodes.size() << " sorted album and track nodes" << std::endl;
+        vector<Node*> sortedNodes = mWorld.getDepthSortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
+        console() << "got " << sortedNodes.size() << " sorted album and track nodes" << std::endl;
+        for (int i = 0; i < sortedNodes.size(); i++) {
+            if (i > 0) console() << ", ";
+            console() << sortedNodes[i]->getName();
+        }
+        console() << std::endl;
         
         mUiLayer.update();
 		if( G_HELP ) mHelpLayer.update();
