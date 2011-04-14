@@ -196,7 +196,7 @@ void UiLayer::update()
     mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;
 	
     // adjust tab rect:
-    mPanelTabRect = Rectf( mPanelRect.x2 - 200.0f, mPanelRect.y1 - 49.0f,
+    mPanelTabRect = Rectf( mPanelRect.x2 - 200.0f, mPanelRect.y1 - 48.0f,
                            mPanelRect.x2, mPanelRect.y1 + 2.0f );
 }
 
@@ -221,10 +221,10 @@ void UiLayer::draw( const gl::Texture &uiButtonsTex )
 	
     if( mIsPanelTabTouched ){
 		v1 = 0.5f;
-		v2 = 0.69f;	// HA MGUNK!!!
+		v2 = 0.7f;	// HA MGUNK!!!
     } else {
 		v1 = 0.5f;
-		v2 = 0.69f;
+		v2 = 0.7f;
 	}
 	uiButtonsTex.enableAndBind();
 	drawButton( mPanelTabRect, u1, v1, u2, v2 );

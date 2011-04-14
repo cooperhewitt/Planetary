@@ -550,7 +550,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	//mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 3.5f );
 	
 	if( currentLevel <= G_ALPHA_LEVEL ){
-		mFovDest += ( 1.0f - event.getScaleDelta() ) * 100.0f;
+		mFovDest += ( 1.0f - event.getScaleDelta() ) * 150.0f;
 		
 	} else {
 		mCamDistPinchOffsetDest *= ( 1.0f - event.getScaleDelta() ) * 3.5f + 1.0f;

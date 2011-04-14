@@ -48,7 +48,7 @@ void HelpLayer::setInterfaceOrientation( const ci::app::Orientation &orientation
 	
     mPanelRect.x1	= border;
     mPanelRect.x2	= border + panelWidth;
-	mCloseRect		= Rectf( mPanelRect.x2 - 20.0f, mPanelRect.y1 - 20.0f, mPanelRect.x2 + 20.0f, mPanelRect.y1 + 20.0f );
+	mCloseRect		= Rectf( mPanelRect.x2 - 40.0f, mPanelRect.y1, mPanelRect.x2, mPanelRect.y1 + 40.0f );
 	
     // cancel interactions
     mIsCloseTouched = false;
@@ -89,6 +89,7 @@ void HelpLayer::setup( AppCocoaTouch *app )
 	float border			= ( getWindowWidth() - panelWidth ) * 0.5f;
 	
 	mPanelRect				= Rectf( border, border * 2.0f, border + panelWidth, border * 2.0f + panelHeight );
+	// REMEMBER, ACTUALLY SET IN setInterfaceOrientation() ^^ THATTA WAY
 	mCloseRect				= Rectf( mPanelRect.x2 - 35.0f, mPanelRect.y1, mPanelRect.x2, mPanelRect.y1 + 35.0f );
 
     // just do orientation stuff in here:
@@ -97,50 +98,60 @@ void HelpLayer::setup( AppCocoaTouch *app )
  
 bool HelpLayer::touchesBegan( TouchEvent event )
 {
-	Vec2f touchPos = event.getTouches().begin()->getPos();
+	if( G_HELP ){
+		Vec2f touchPos = event.getTouches().begin()->getPos();
 
-    // find where mPanelTabRect is being drawn in screen space (i.e. touchPos space)
-    Rectf closeRect = transformRect( mCloseRect, mOrientationMtx);
-
-    mIsCloseTouched = closeRect.contains( touchPos );
+		// find where mPanelTabRect is being drawn in screen space (i.e. touchPos space)
+		Rectf closeRect = transformRect( mCloseRect, mOrientationMtx );
+		Rectf panelRect	= transformRect( mPanelRect, mOrientationMtx );
 		
-	return mIsCloseTouched;
+		mIsCloseTouched = closeRect.contains( touchPos );
+		if( !mIsCloseTouched ) mIsCloseTouched = !panelRect.contains( touchPos );
+			
+		return mIsCloseTouched;
+	}
+	return false;
 }
 
 bool HelpLayer::touchesMoved( TouchEvent event )
 {
-	Vec2f touchPos = event.getTouches().begin()->getPos();
-    
-	if( mIsCloseTouched ){
-        // find where mPanelTabRect is being drawn in screen space (i.e. touchPos space)
-		Rectf closeRect = transformRect( mCloseRect, mOrientationMtx);
-        
-        // apply the touch pos and offset in screen space
-        Vec2f newPos = touchPos;
-        closeRect.offset(newPos - closeRect.getUpperLeft());
+	if( G_HELP ){
+		Vec2f touchPos = event.getTouches().begin()->getPos();
+		
+		if( mIsCloseTouched ){
+			// find where mPanelTabRect is being drawn in screen space (i.e. touchPos space)
+			Rectf closeRect = transformRect( mCloseRect, mOrientationMtx);
+			
+			// apply the touch pos and offset in screen space
+			Vec2f newPos = touchPos;
+			closeRect.offset(newPos - closeRect.getUpperLeft());
 
-        // pull the screen-space rect back into mPanelTabRect space
-        Rectf tabRect = transformRect( closeRect, mOrientationMtx.inverted() );
+			// pull the screen-space rect back into mPanelTabRect space
+			// TODO: IS THIS A RELIC? SAFE TO DELETE?
+			// Rectf tabRect = transformRect( closeRect, mOrientationMtx.inverted() );
+		}
+
+		return mIsCloseTouched;
 	}
 
-	return mIsCloseTouched;
+	return false;
 }
 
 bool HelpLayer::touchesEnded( TouchEvent event )
 {
-	vector<TouchEvent::Touch> touches = event.getTouches();
-	
-	Vec2f pos = touches.begin()->getPos();
-	pos = (mOrientationMtx.inverted() * Vec3f(pos,0)).xy();
-	
-	if( mIsCloseTouched ){
-        mCallbacksHelpButtonPressed.call( this );
-		mIsCloseTouched = false;
-    } else {
-		Rectf mailButton( mPanelRect.x1 + 147.0f, mPanelRect.y1 + 226.0f, mPanelRect.x1 + 246.0f, mPanelRect.y1 + 253.0f );
-		Rectf cinderButton( mPanelRect.x1 + 133.0f, mPanelRect.y1 + 315.0f, mPanelRect.x1 + 265.0f, mPanelRect.y1 + 336.0f );
+	if( G_HELP ){
+		vector<TouchEvent::Touch> touches = event.getTouches();
 		
-		if( G_HELP ){
+		Vec2f pos = touches.begin()->getPos();
+		pos = (mOrientationMtx.inverted() * Vec3f(pos,0)).xy();
+		
+		if( mIsCloseTouched ){
+			mCallbacksHelpButtonPressed.call( this );
+			mIsCloseTouched = false;
+		} else {
+			Rectf mailButton( mPanelRect.x1 + 147.0f, mPanelRect.y1 + 226.0f, mPanelRect.x1 + 246.0f, mPanelRect.y1 + 253.0f );
+			Rectf cinderButton( mPanelRect.x1 + 133.0f, mPanelRect.y1 + 315.0f, mPanelRect.x1 + 265.0f, mPanelRect.y1 + 336.0f );
+			
 			if( mailButton.contains( pos ) ){
 				Url mailtoLink( "mailto:planetary@bloom.io?subject=Planetary feedback" );
 				launchWebBrowser( mailtoLink );
@@ -149,8 +160,8 @@ bool HelpLayer::touchesEnded( TouchEvent event )
 				launchWebBrowser( cinderWebsite );
 			}
 		}
-	}
     
+	}
 	return false;
 }
 

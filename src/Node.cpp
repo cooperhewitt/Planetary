@@ -254,12 +254,6 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 		glDisable( GL_TEXTURE_2D );
 		gl::color( ColorA( COLOR_BLUE, 0.4f * mZoomPer * pinchAlphaPer ) );
 		gl::drawLine( pos1, pos2 );
-		
-		// draw hit areas
-		/*if( !mIsSelected ){
-			gl::drawSolidRect( mHitArea );
-			gl::drawSolidRect( mSphereHitArea );
-		}*/
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){

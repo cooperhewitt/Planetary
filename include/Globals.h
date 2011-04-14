@@ -31,7 +31,7 @@ static const int G_NUM_CLOUD_TYPES	= 4;
 
 static const float G_MIN_FOV		= 55.0f;
 static const float G_DEFAULT_FOV	= 60.0f;
-static const float G_MAX_FOV		= 120.0f;
+static const float G_MAX_FOV		= 110.0f;
 
 static const float G_DEFAULT_ARCBALL_RADIUS	= 500.0f;
 
