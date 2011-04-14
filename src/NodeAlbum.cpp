@@ -363,17 +363,18 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, float pinchAlphaPer )
 
 			gl::pushModelView();
 			gl::translate( mTransPos );
-			float screenDistFromCenter = ( mScreenPos.distance( app::getWindowCenter() ) )/500.0f;
-			float yStretch = 1.0f + screenDistFromCenter * 0.08f;
-			gl::scale( Vec3f( yStretch, yStretch, yStretch ) );
+			Vec2f dir		= mScreenPos - app::getWindowCenter();
+			float dirLength = dir.length()/500.0f;
+			float angle		= atan2( dir.y, dir.x );
+			float stretch	= 1.0f + dirLength * 0.1f;
 			gl::enableAdditiveBlending();
-			float alpha = 0.8f * ( 1.0f - screenDistFromCenter );
+			float alpha = 0.8f * ( 1.0f - dirLength );
 			if( G_ZOOM <= G_ALBUM_LEVEL )
 				alpha = pinchAlphaPer;
 			gl::color( ColorA( ( mGlowColor + COLOR_BRIGHT_BLUE ) * 0.5f, alpha ) );
-			Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;
+			Vec2f radius = Vec2f( mRadius * stretch, mRadius ) * 2.46f;
 			tex.enableAndBind();
-			gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
+			gl::drawBillboard( Vec3f::zero(), radius, -toDegrees( angle ), mBbRight, mBbUp );
 			tex.disable();
 			gl::popModelView();
 		}

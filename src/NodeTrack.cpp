@@ -473,21 +473,21 @@ void NodeTrack::drawAtmosphere( const gl::Texture &tex, float pinchAlphaPer )
 {
 	if( mDistFromCamZAxis < -0.005f ){
 		gl::enableAdditiveBlending();
-		
+
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		float screenDistFromCenter = ( mScreenPos.distance( app::getWindowCenter() ) )/500.0f;
-		float yStretch = 1.0f + screenDistFromCenter * 0.08f;
-		gl::scale( Vec3f( yStretch, yStretch, yStretch ) );
-		float alpha = 0.3f * ( 1.0f - screenDistFromCenter );
+		Vec2f dir		= mScreenPos - app::getWindowCenter();
+		float dirLength = dir.length()/500.0f;
+		float angle		= atan2( dir.y, dir.x );
+		float stretch	= 1.0f + dirLength * 0.1f;
+		gl::enableAdditiveBlending();
+		float alpha = 0.3f * ( 1.0f - dirLength );
 		if( G_ZOOM <= G_ALBUM_LEVEL )
-			alpha = 0.3f * pinchAlphaPer;
-		gl::color( ColorA( ( mGlowColor ), alpha ) );
-		
-		gl::color( ColorA( mEclipseColor, 0.3f * pinchAlphaPer ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 2.5f;
+			alpha = pinchAlphaPer;
+		gl::color( ColorA( ( mGlowColor + COLOR_BRIGHT_BLUE ) * 0.5f, alpha ) );
+		Vec2f radius = Vec2f( mRadius * stretch, mRadius ) * 2.5f;
 		tex.enableAndBind();
-		gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
+		gl::drawBillboard( Vec3f::zero(), radius, -toDegrees( angle ), mBbRight, mBbUp );
 		tex.disable();
 		gl::popModelView();
 	}
