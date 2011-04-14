@@ -22,7 +22,7 @@ class NodeArtist : public Node
 	void drawEclipseGlow();
 	void drawStarCenter( const ci::gl::Texture &starTex );
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
-	void drawClouds( const std::vector< ci::gl::Texture> &planets, const std::vector< ci::gl::Texture> &clouds );
+	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void select();
 	void setChildOrbitRadii();
     std::string getName();

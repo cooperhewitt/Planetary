@@ -49,7 +49,7 @@ class World {
 	void drawTouchHighlights();
 	void buildConstellation();
 	void drawPlanets( const std::vector< ci::gl::Texture> &planets );
-	void drawClouds( const std::vector< ci::gl::Texture> &planets, const std::vector< ci::gl::Texture> &clouds );
+	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void buildPlanetRingsVertexArray();
 	void drawRings( const ci::gl::Texture &tex, float camRingAlpha );
     std::vector<Node*> getDepthSortedNodes(int fromGen, int toGen);
@@ -65,6 +65,7 @@ class World {
 	NodeTrack *mPlayingTrackNode;
 	
 	bool mIsRepulsing;
+	bool mIsInitialized;
 	
 	std::vector<ci::Vec3f> mConstellation;
 	std::vector<float> mConstellationDistances;
@@ -102,6 +103,8 @@ class World {
 	float *mSphereHiResVerts; 
 	float *mSphereHiResNormals;
 	float *mSphereHiResTexCoords;
+	
+
 
 };
 

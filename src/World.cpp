@@ -46,8 +46,9 @@ void World::setup( Data *data )
 	initSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
 	
 	mAge = 0;
-	mEndRepulseAge = 250;//200
+	mEndRepulseAge = 150;//200
 	mIsRepulsing = true;
+	mIsInitialized = false;
 }
 
 
@@ -171,33 +172,9 @@ void World::initNodes( Player *player, const Font &font )
 	cout << (App::get()->getElapsedSeconds() - t) << " seconds to World::initNodes" << endl;
 
     initVertexArrays();
+	
+	mIsInitialized = true;
 }
-
-void World::repulseNodes()
-{
-	for( vector<Node*>::iterator p1 = mNodes.begin(); p1 != mNodes.end(); ++p1 ){
-		
-		vector<Node*>::iterator p2 = p1;
-		for( ++p2; p2 != mNodes.end(); ++p2 ) {
-			Vec3f dir = (*p1)->mPosDest - (*p2)->mPosDest;
-			
-			float thresh = 50.0f;
-			if( dir.x > -thresh && dir.x < thresh && dir.y > -thresh && dir.y < thresh && dir.z > -thresh && dir.z < thresh ){
-				float distSqrd = dir.lengthSquared();
-				
-				if( distSqrd > 0.0f ){
-					float F = 1.0f/distSqrd;
-					dir = F * dir.normalized() * 3.5f;
-					
-					// acceleration = force / mass
-					(*p1)->mAcc += dir;
-					(*p2)->mAcc -= dir;
-				}
-			}
-		}
-	}
-}
-
 
 void World::initVertexArrays()
 {
@@ -611,23 +588,54 @@ void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 
 void World::update( const Matrix44f &mat )
 {
-	mAge ++;
-	if( mAge == mEndRepulseAge ){
-		mIsRepulsing = false;
-	}
+	if( mIsInitialized ){
+		mAge ++;
 	
-	if( mAge == mEndRepulseAge + 100 ){
-		buildConstellation();
-	}
 	
-	if( mIsRepulsing ){
-		repulseNodes();
-	}
-	
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->update( mat );
+		if( mAge == mEndRepulseAge ){
+			mIsRepulsing = false;
+		}
+		
+		if( mAge == mEndRepulseAge + 100 ){
+			buildConstellation();
+		}
+		
+		if( mIsRepulsing ){
+			repulseNodes();
+		}
+		
+		for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+			(*it)->update( mat );
+		}
 	}
 }
+
+void World::repulseNodes()
+{
+	for( vector<Node*>::iterator p1 = mNodes.begin(); p1 != mNodes.end(); ++p1 ){
+		
+		vector<Node*>::iterator p2 = p1;
+		for( ++p2; p2 != mNodes.end(); ++p2 ) {
+			Vec3f dir = (*p1)->mPosDest - (*p2)->mPosDest;
+			
+			float thresh = 50.0f;
+			if( dir.x > -thresh && dir.x < thresh && dir.y > -thresh && dir.y < thresh && dir.z > -thresh && dir.z < thresh ){
+				float distSqrd = dir.lengthSquared();
+				
+				if( distSqrd > 0.0f ){
+					float F = 1.0f/distSqrd;
+					dir = F * dir.normalized() * 3.5f;
+					
+					// acceleration = force / mass
+					(*p1)->mAcc += dir;
+					(*p2)->mAcc -= dir;
+				}
+			}
+		}
+	}
+}
+
+
 
 void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp )
 {
@@ -671,10 +679,10 @@ void World::drawPlanets( const vector<gl::Texture> &planets )
 	}
 }
 
-void World::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
+void World::drawClouds( const vector<gl::Texture> &clouds )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawClouds( planets, clouds );
+		(*it)->drawClouds( clouds );
 	}
 }
 

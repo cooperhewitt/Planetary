@@ -33,16 +33,18 @@ class Node {
 	virtual void	update( const ci::Matrix44f &mat );
 	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	virtual void	drawEclipseGlow();
-	virtual void	drawPlanet( const std::vector< ci::gl::Texture> &planets );
-	virtual void	drawClouds( const std::vector< ci::gl::Texture> &planets, const std::vector< ci::gl::Texture> &clouds );
+	virtual void	drawPlanet( const std::vector< ci::gl::Texture> &planets ) {};
+	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds ) {};
+	virtual void	drawAtmosphere( const ci::gl::Texture &tex ) {};
 	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha );
 	virtual void	drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
-	virtual void	drawAtmosphere( const ci::gl::Texture &tex );
 	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
 	void			wasTapped(){ mIsTapped = true; mHighlightStrength = 1.0f; }
 	void			drawTouchHighlight();
 	void			checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
 	void			checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
+	
+	virtual bool	isMostPlayed(){ return false; }
 	
     virtual void	select();
 	void			deselect();
@@ -88,6 +90,7 @@ class Node {
 	
 // ROTATION
 	float				mAngularVelocity;	// Change in angle per frame
+	ci::Vec3f			mAxialRot;
     float               mAxialTilt;         // Planetary axis
     float               mAxialVel;          // Speed of rotation around mAxialTilt axis;
     

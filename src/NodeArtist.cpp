@@ -25,10 +25,8 @@ using namespace std;
 NodeArtist::NodeArtist( int index, const Font &font )
 	: Node( NULL, index, font )
 {
-	mPosDest		= Rand::randVec3f() * Rand::randFloat( 40.0f, 100.0f ); // 40.0f, 200.0f
+	mPosDest		= Rand::randVec3f() * Rand::randFloat( 40.0f, 75.0f ); // 40.0f, 200.0f
 	mPos			= mPosDest;// + Rand::randVec3f() * 25.0f;
-	
-	mIdealCameraDist = mRadius * 7.0f;
 	
 	mSphere			= Sphere( mPos, 3.65f );
 	
@@ -77,12 +75,12 @@ void NodeArtist::update( const Matrix44f &mat )
     // FIXME: set mTransPos correctly in the constructor
     if (prevTransPos.length() < 0.0001) prevTransPos = mat * mPos;  
 	
-	if( mAge < 100.0f ){
+	if( mAge < 50.0f ){
 		mPosDest += mAcc;
 		mAcc *= 0.99f;
 	}
 	
-	if( mAge < 200.0f ){
+	if( mAge < 100.0f ){
 		mPos -= ( mPos - mPosDest ) * 0.1f;
 		mAge ++;
 	}
@@ -139,13 +137,11 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
 	}
-	
-	Node::drawPlanet( planets );
 }
 
-void NodeArtist::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
+void NodeArtist::drawClouds( const vector<gl::Texture> &clouds )
 {
-	Node::drawClouds( planets, clouds );
+	Node::drawClouds( clouds );
 }
 
 void NodeArtist::drawStarCenter( const gl::Texture &starTex )
@@ -220,6 +216,7 @@ void NodeArtist::setChildOrbitRadii()
 		(*it)->mOrbitRadiusDest = orbitOffset;
 		orbitOffset += amt;
 	}
+	mIdealCameraDist = orbitOffset * 2.2f;
 }
 
 string NodeArtist::getName()

@@ -29,7 +29,8 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	mIsHighlighted		= true;
 	mHasAlbumArt		= false;
 	mHasCreatedAlbumArt = false;
-	mIdealCameraDist	= mRadius * 12.5f;
+// NOW SET IN setChildOrbitRadii()
+//	mIdealCameraDist	= mRadius * 13.5f;
 	mEclipseStrength	= 0.0f;
 }
 
@@ -204,6 +205,8 @@ void NodeAlbum::update( const Matrix44f &mat )
 		}
     }
 	
+	mAxialRot = Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt );
+	
 	mEclipseColor = ( mColor + Color::white() ) * 0.5f * eclipseDist;
     
 	Node::update( mat );
@@ -272,15 +275,13 @@ void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 		numVerts = mTotalVertsLoRes;
 	}
 	
-	gl::disableAlphaBlending();
-	
     gl::pushModelView();
 	gl::translate( mTransPos );
 	gl::scale( Vec3f( mRadius, mRadius, mRadius ) );
 	gl::rotate( mMatrix );
-	gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
-	gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, 0.0f ) );
+	gl::rotate( mAxialRot );
 	gl::color( mEclipseColor );
+	
 	if( mHasAlbumArt ){
 		mAlbumArt.enableAndBind();
 	} else {
@@ -293,12 +294,10 @@ void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	glDisableClientState( GL_NORMAL_ARRAY );	
-	
-	Node::drawPlanet( planets );
 }
 
 
-void NodeAlbum::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
+void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 {
     if( mCamDistAlpha > 0.05f ){
 		glEnableClientState( GL_VERTEX_ARRAY );
@@ -317,7 +316,6 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &planets, const vector<gl:
 			numVerts = mTotalVertsLoRes;
 		}
 		
-		Vec3f axialRot = Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt );
 		gl::enableAdditiveBlending();
 		
 		gl::pushModelView();
@@ -327,8 +325,8 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &planets, const vector<gl:
 			gl::scale( Vec3f( radius, radius, radius ) );
 			glEnable( GL_RESCALE_NORMAL );
 			gl::rotate( mMatrix );
-			gl::rotate( axialRot );
-	// SHADOW CLOUDS
+			gl::rotate( mAxialRot );
+// SHADOW CLOUDS
 			glDisable( GL_LIGHTING );
 			gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.5f ) );
 			clouds[mCloudTexIndex].enableAndBind();
@@ -342,7 +340,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &planets, const vector<gl:
 			gl::scale( Vec3f( radius, radius, radius ) );
 			glEnable( GL_RESCALE_NORMAL );
 			gl::rotate( mMatrix );
-			gl::rotate( axialRot );
+			gl::rotate( mAxialRot );
 			gl::enableAdditiveBlending();
 			gl::color( ColorA( mGlowColor, 1.0f ) );
 			glDrawArrays( GL_TRIANGLES, 0, numVerts );
@@ -353,8 +351,6 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &planets, const vector<gl:
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 		glDisableClientState( GL_NORMAL_ARRAY );
 	}
-    
-	Node::drawClouds( planets, clouds );
 }
 
 
@@ -363,27 +359,17 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex )
 	if( mIsSelected || mIsPlaying ){
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		//gl::translate( camNormal * 0.005f );
 		float screenDistFromCenter = ( mScreenPos.distance( app::getWindowCenter() ) )/500.0f;
-		//float yStretch = 1.0f + screenDistFromCenter * 0.55f;
-		//gl::scale( Vec3f( 1.0f, yStretch, 1.0f ) );
+		float yStretch = 1.0f + screenDistFromCenter * 0.08f;
+		gl::scale( Vec3f( yStretch, yStretch, yStretch ) );
 		gl::enableAdditiveBlending();
-		//if( G_ZOOM > G_ALPHA_LEVEL ){
-			//glEnable( GL_ALPHA_TEST );
-			//glAlphaFunc( GL_GREATER, 0.25f );
-			gl::color( ColorA( mColor, mZoomPer * 0.5f ) );
-			Vec2f radius = Vec2f( mRadius, mRadius ) * 2.45f;
+		gl::color( ColorA( mColor, mZoomPer * 0.5f * ( 1.0f - screenDistFromCenter ) ) );
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 2.5f;
 		tex.enableAndBind();
-			gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
+		gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
 		tex.disable();
-			//glDisable( GL_ALPHA_TEST );
-			
-			//gl::enableDepthRead();
-		//}
 		gl::popModelView();
 	}
-	
-	Node::drawAtmosphere( tex );
 }
 
 
@@ -451,6 +437,8 @@ void NodeAlbum::setChildOrbitRadii()
 		(*it)->mOrbitRadiusDest = orbitRadius;
 		orbitRadius += orbitOffset;
 	}
+	
+	mIdealCameraDist	= orbitRadius * 2.25f;
 }
 
 string NodeAlbum::getName()

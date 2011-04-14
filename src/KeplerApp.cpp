@@ -550,14 +550,22 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	//mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 3.5f );
 	
 	if( currentLevel <= G_ALPHA_LEVEL ){
-		mFovDest += ( 1.0f - event.getScaleDelta() ) * 150.0f;
+		mFovDest += ( 1.0f - event.getScaleDelta() ) * 100.0f;
 		
 	} else {
-		mCamDistPinchOffsetDest *= ( event.getScaleDelta() - 1.0f ) * -3.5f + 1.0f;
-		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 4.5f );
+		mCamDistPinchOffsetDest *= ( 1.0f - event.getScaleDelta() ) * 3.5f + 1.0f;
+		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 3.5f );
 		
-		if( mCamDistPinchOffsetDest > 4.1f ){
-			mFovDest = 115.0f;//( 1.0f - event.getScaleDelta() ) * 20.0f;
+		if( mCamDistPinchOffsetDest > 3.3f ){
+			if( G_ZOOM == G_TRACK_LEVEL ){
+				mFovDest = 85.0f;
+			} else if( G_ZOOM == G_ALBUM_LEVEL ){
+				mFovDest = 100.0f;
+			} else if( G_ZOOM == G_ARTIST_LEVEL ){
+				mFovDest = 125.0f;
+			} else {
+				mFovDest = 135.0f;
+			}
 		} else {
 			mFovDest = G_DEFAULT_FOV;
 		}
@@ -652,8 +660,6 @@ bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 {
 	if( mAlphaWheel.getShowWheel() ) mFovDest = G_MAX_FOV;
 	else							 mFovDest = G_DEFAULT_FOV;
-	
-	mCamDistPinchOffsetDest = 1.0f;
     
 	return false;
 }
@@ -683,7 +689,9 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
 	mTime			= getElapsedSeconds();
 	mCenterFrom		= mCenter;
 	mCamDistFrom	= mCamDist;	
-	mZoomFrom		= G_ZOOM;			
+	mZoomFrom		= G_ZOOM;
+	mFovDest		= G_DEFAULT_FOV;
+	mCamDistPinchOffsetDest = 1.0f;
 	mBreadcrumbs.setHierarchy( mState.getHierarchy() );
     	
 	if( node && node->mGen > G_ZOOM ){
@@ -926,15 +934,7 @@ void KeplerApp::update()
 		if( mState.getSelectedArtistNode() ){
 			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaPer, mCamRingAlpha );
 		}
-        
-        vector<Node*> sortedNodes = mWorld.getDepthSortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
-        console() << "got " << sortedNodes.size() << " sorted album and track nodes" << std::endl;
-        for (int i = 0; i < sortedNodes.size(); i++) {
-            if (i > 0) console() << ", ";
-            console() << sortedNodes[i]->getName();
-        }
-        console() << std::endl;
-        
+		
         mUiLayer.update();
 		if( G_HELP ) mHelpLayer.update();
 		mAlphaWheel.update( mFov );
@@ -1072,120 +1072,136 @@ void KeplerApp::draw()
 	}
 }
 
+
+
 void KeplerApp::drawScene()
 {		
+	vector<Node*> sortedNodes = mWorld.getDepthSortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
+
     gl::enableDepthWrite();
     gl::setMatrices( mCam );
 	
-//	float uiAlpha = constrain( 1.0f - mAlphaWheel.getWheelScale(), 0.0f, 1.0f );
-        
-// SKYDOME
+	// SKYDOME
     gl::pushModelView();
     gl::rotate( mMatrix );
     gl::color( Color::white() );
     mSkyDome.enableAndBind();
     gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS, 24 );
-	/*
-	gl::enableAlphaBlending();
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, uiAlpha ) );
-	mMilkyWayDome.enableAndBind();
-    gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS - 50.0f, 24 );
-	*/
     gl::popModelView();
     
     gl::enableAdditiveBlending();
     
     
-// STARS
+	// STARS
 	mStarTex.enableAndBind();
 	mWorld.drawStarsVertexArray( mMatrix );
 	mStarTex.disable();
     
-
-// ECLIPSEGLOWS OVERLAY
+	
+	// ECLIPSEGLOWS OVERLAY
 	mEclipseGlowTex.enableAndBind();
 	mWorld.drawEclipseGlows();
 	mEclipseGlowTex.disable();
 	
-// STARGLOWS occluded
+	// STARGLOWS occluded
 	mStarGlowTex.enableAndBind();
 	mWorld.drawStarGlowsVertexArray( mMatrix );
 	mStarGlowTex.disable();
-
+	
+	
 	
 	Node *artistNode = mState.getSelectedArtistNode();
+	
 	if( artistNode ){
-		gl::enableDepthRead();
-		gl::disableAlphaBlending();
-		glEnable( GL_LIGHTING );
-		//glEnable( GL_COLOR_MATERIAL );
-		glShadeModel( GL_SMOOTH );
+		for( int i = 0; i < sortedNodes.size(); i++ ){
+			gl::enableDepthRead();
+			gl::disableAlphaBlending();
+			glEnable( GL_LIGHTING );
+			glShadeModel( GL_SMOOTH );
+			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
+			
+			// LIGHT FROM ARTIST
+			glEnable( GL_LIGHT0 );
+			Vec3f lightPos          = artistNode->mTransPos;
+			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
+			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
+			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
+			
+			gl::disableAlphaBlending();
+			
+			sortedNodes[i]->drawPlanet( mPlanetsTex );
+			
+			sortedNodes[i]->drawClouds( mCloudsTex );
+			
+			if( sortedNodes[i]->mIsSelected ){
+				if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
+					glDisable( GL_LIGHTING );
+					gl::disableDepthRead();
+					sortedNodes[i]->drawAtmosphere( mAtmosphereTex );
+					gl::enableDepthRead();
+					
+				}
+			}
+			
+			if( sortedNodes[i]->mGen == G_TRACK_LEVEL && sortedNodes[i]->isMostPlayed() ){
+				glDisable( GL_LIGHTING );
+				gl::disableDepthRead();
+				sortedNodes[i]->drawAtmosphere( mAtmosphereTex );
+				gl::enableDepthRead();
+			}
+		}
 		
-		glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
-		
-		// LIGHT FROM ARTIST
-		glEnable( GL_LIGHT0 );
-		Vec3f lightPos          = artistNode->mTransPos;
-		GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
-		glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-		glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
-
-		
-// PLANETS
-		mWorld.drawPlanets( mPlanetsTex );
-		
-// CLOUDS
-		mWorld.drawClouds( mPlanetsTex, mCloudsTex );
+		// STAR CENTER
+		NodeArtist* selectedArtist = (NodeArtist*)artistNode;
+		if( selectedArtist ){
+			selectedArtist->drawPlanet( mPlanetsTex );
+		}
 	}
+	
+	
 	
 	glDisable( GL_LIGHTING );
 	gl::enableAdditiveBlending();  	
 	gl::disableDepthRead();
 	
-// STARGLOWS bloom
+	// STARGLOWS bloom
 	mStarGlowTex.enableAndBind();
 	mWorld.drawStarGlowsVertexArray( mMatrix );
 	mWorld.drawTouchHighlights();
 	mStarGlowTex.disable();
-
+	
     
     
     gl::disableDepthWrite();
     gl::enableAdditiveBlending();
 	gl::enableDepthRead();
-
 	
-// ORBITS
+	
+	// ORBITS
 	if( G_DRAW_RINGS ){
         mWorld.drawOrbitRings( mPinchAlphaPer );
 	}
 	
-// PARTICLES
+	// PARTICLES
 	if( mState.getSelectedArtistNode() ){
 		mStarGlowTex.enableAndBind();
 		mParticleController.drawParticleVertexArray( mState.getSelectedArtistNode(), mMatrix );
 		mStarGlowTex.disable();
 	}
 	
-// STAR CENTER
-	NodeArtist* selectedArtist = (NodeArtist*)artistNode;
-	if( selectedArtist ){
-		selectedArtist->drawStarCenter( mStarTex );
-	}
-	
-// RINGS
+	// RINGS
 	mWorld.drawRings( mRingsTex, mCamRingAlpha );
 	
-// DUSTS
+	// DUSTS
 	if( mState.getSelectedAlbumNode() ){
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
 		mParticleController.drawDustVertexArray( mState.getSelectedAlbumNode(), mMatrix );
 	}
 	
-
-		
-// CURRENT TRACK ORBIT PATH
+	
+	
+	// CURRENT TRACK ORBIT PATH
 	if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 		gl::enableAdditiveBlending();
 		mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
@@ -1194,7 +1210,7 @@ void KeplerApp::drawScene()
 	}
 	
 	
-// CONSTELLATION
+	// CONSTELLATION
 	if( mData.mFilteredArtists.size() > 1 ){
 		gl::enableAdditiveBlending();
 		mDottedTex.enableAndBind();
@@ -1203,22 +1219,13 @@ void KeplerApp::drawScene()
 	}
 	
 	gl::disableDepthRead();
-	
-// ATMOSPHERE
-	Node *albumNode = mState.getSelectedAlbumNode();
-	if( albumNode ){
-		albumNode->drawAtmosphere( mAtmosphereTex );
-	}
-	
-
-	
 	gl::disableDepthWrite();
 	glEnable( GL_TEXTURE_2D );
 	gl::setMatricesWindow( getWindowSize() );
 	gl::enableAdditiveBlending();
 	
 	
-// NAMES
+	// NAMES
 	if( G_DRAW_TEXT ){
         
         // TODO: write a function for getAngleForOrientation<float>( mInterfaceOrientation );
@@ -1237,36 +1244,38 @@ void KeplerApp::drawScene()
 	}
     
     glDisable( GL_TEXTURE_2D );
-
-//    for (int i = 0; i < mWorld.mNodes.size(); i++) {
-//        Node* artistNode = mWorld.mNodes[i];
-//        if (artistNode->mIsHighlighted) {
-//            gl::color(ColorA(0.0f,0.0f,1.0f,0.25f));
-//            gl::drawSolidRect(artistNode->mHitArea);
-//            gl::drawSolidRect(artistNode->mSphereHitArea);            
-//            for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-//                Node* albumNode = artistNode->mChildNodes[j];
-//                if (albumNode->mIsHighlighted) {
-//                    gl::color(ColorA(0.0f,1.0f,0.0f,0.25f));
-//                    gl::drawSolidRect(albumNode->mHitArea);
-//                    gl::drawSolidRect(albumNode->mSphereHitArea);            
-//                    for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-//                        Node *trackNode = albumNode->mChildNodes[k];
-//                        if (trackNode->mIsHighlighted) {
-//                            gl::color(ColorA(1.0f,0.0f,0.0f,0.25f));
-//                            gl::drawSolidRect(trackNode->mHitArea);
-//                            gl::drawSolidRect(trackNode->mSphereHitArea);
-//                        }
-//                    }            
-//                }
-//            }
-//        }
-//    }
+	
+	
+	// HIT AREA VISUALIZER
+	//    for (int i = 0; i < mWorld.mNodes.size(); i++) {
+	//        Node* artistNode = mWorld.mNodes[i];
+	//        if (artistNode->mIsHighlighted) {
+	//            gl::color(ColorA(0.0f,0.0f,1.0f,0.25f));
+	//            gl::drawSolidRect(artistNode->mHitArea);
+	//            gl::drawSolidRect(artistNode->mSphereHitArea);            
+	//            for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+	//                Node* albumNode = artistNode->mChildNodes[j];
+	//                if (albumNode->mIsHighlighted) {
+	//                    gl::color(ColorA(0.0f,1.0f,0.0f,0.25f));
+	//                    gl::drawSolidRect(albumNode->mHitArea);
+	//                    gl::drawSolidRect(albumNode->mSphereHitArea);            
+	//                    for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+	//                        Node *trackNode = albumNode->mChildNodes[k];
+	//                        if (trackNode->mIsHighlighted) {
+	//                            gl::color(ColorA(1.0f,0.0f,0.0f,0.25f));
+	//                            gl::drawSolidRect(trackNode->mHitArea);
+	//                            gl::drawSolidRect(trackNode->mSphereHitArea);
+	//                        }
+	//                    }            
+	//                }
+	//            }
+	//        }
+	//    }
     
     gl::disableAlphaBlending();
     gl::enableAlphaBlending();
 	
-// EVERYTHING ELSE
+	// EVERYTHING ELSE
 	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
     mUiLayer.draw( mUiButtonsTex );
     mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
@@ -1275,8 +1284,9 @@ void KeplerApp::drawScene()
 	if( G_HELP ) mHelpLayer.draw( mUiButtonsTex );
 	
 	gl::disableAlphaBlending();
-//    if( G_DEBUG ) drawInfoPanel();
+	//    if( G_DEBUG ) drawInfoPanel();
 }
+
 
 void KeplerApp::drawInfoPanel()
 {

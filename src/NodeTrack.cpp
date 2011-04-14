@@ -396,7 +396,7 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 	
 }
 
-void NodeTrack::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
+void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 {
 	if( mSphereScreenRadius > 5.0f ){
 		if( mCamDistAlpha > 0.05f && mIsMostPlayed ){
@@ -471,17 +471,15 @@ void NodeTrack::drawOrbitRing( float pinchAlphaPer, GLfloat *ringVertsLowRes, GL
 
 void NodeTrack::drawAtmosphere( const gl::Texture &tex )
 {
-	if( mIsMostPlayed ){
-		gl::pushModelView();
-		gl::translate( mTransPos );
-		gl::enableAdditiveBlending();
-		gl::color( ColorA( mEclipseColor, 0.75f ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 2.5f;
-		tex.enableAndBind();
-		gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
-		tex.disable();
-		gl::popModelView();
-	}
+	gl::pushModelView();
+	gl::translate( mTransPos );
+	gl::enableAdditiveBlending();
+	gl::color( ColorA( mEclipseColor, 0.75f ) );
+	Vec2f radius = Vec2f( mRadius, mRadius ) * 2.5f;
+	tex.enableAndBind();
+	gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
+	tex.disable();
+	gl::popModelView();
 }
 
 

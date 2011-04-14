@@ -21,7 +21,7 @@ class NodeTrack : public Node
 	void update( const ci::Matrix44f &mat );
 	void drawEclipseGlow();
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
-	void drawClouds( const std::vector< ci::gl::Texture> &planets, const std::vector< ci::gl::Texture> &clouds );
+	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void buildPlayheadProgressVertexArray();
 	void drawPlayheadProgress( float pinchAlphaPer, const ci::gl::Texture &tex );
@@ -31,6 +31,7 @@ class NodeTrack : public Node
 	ci::Vec3f getRelPos(){ return mMatrix * mRelPos; }
 	string getName();
     uint64_t getId();
+	bool isMostPlayed() { return mIsMostPlayed; }
 
 	// TODO: should this be from a getData() function? or private?
 	ci::ipod::TrackRef      mTrack;

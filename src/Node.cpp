@@ -165,19 +165,26 @@ void Node::drawEclipseGlow()
 	}
 }
 
-void Node::drawPlanet( const vector<gl::Texture> &planets )
-{
-	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawPlanet( planets );
-	}
-}
-
-void Node::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
-{
-	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawClouds( planets, clouds );
-	}
-}
+//void Node::drawPlanet( const vector<gl::Texture> &planets )
+//{
+//	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+//		(*nodeIt)->drawPlanet( planets );
+//	}
+//}
+//
+//void Node::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
+//{
+//	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+//		(*nodeIt)->drawClouds( planets, clouds );
+//	}
+//}
+//
+//void Node::drawAtmosphere( const gl::Texture &tex )
+//{
+//	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+//		(*nodeIt)->drawAtmosphere( tex );
+//	}
+//}
 
 void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha )
 {
@@ -193,12 +200,7 @@ void Node::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfl
 	}
 }
 
-void Node::drawAtmosphere( const gl::Texture &tex )
-{
-	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawAtmosphere( tex );
-	}
-}
+
 
 void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 {	
