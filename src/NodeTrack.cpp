@@ -37,7 +37,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	mOrbitTexCoords			= NULL;
 	mOrbitColors			= NULL;
 	
-	mIdealCameraDist	= 0.1f;
+	mIdealCameraDist	= 0.05f;
 }
 
 void NodeTrack::setData( TrackRef track, PlaylistRef album )

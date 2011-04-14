@@ -24,14 +24,14 @@ static const int G_ALBUM_LEVEL		= 3;
 static const int G_TRACK_LEVEL		= 4;
 static const int G_NUM_LEVELS		= 5;
 
-static const float G_INIT_CAM_DIST	= 220.0f;
+static const float G_INIT_CAM_DIST	= 300.0f;
 static const int G_NUM_PLANET_TYPES = 5;
 static const int G_NUM_PLANET_TYPE_OPTIONS = 3;
 static const int G_NUM_CLOUD_TYPES	= 4;
 
 static const float G_MIN_FOV		= 55.0f;
 static const float G_DEFAULT_FOV	= 60.0f;
-static const float G_MAX_FOV		= 100.0f;
+static const float G_MAX_FOV		= 130.0f;
 
 static const float G_DEFAULT_ARCBALL_RADIUS	= 500.0f;
 

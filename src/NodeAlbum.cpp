@@ -29,7 +29,7 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 	mIsHighlighted		= true;
 	mHasAlbumArt		= false;
 	mHasCreatedAlbumArt = false;
-	mIdealCameraDist	= mRadius * 15.0f;
+	mIdealCameraDist	= mRadius * 12.5f;
 	mEclipseStrength	= 0.0f;
 }
 
@@ -317,16 +317,17 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &planets, const vector<gl:
 			numVerts = mTotalVertsLoRes;
 		}
 		
+		Vec3f axialRot = Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt );
 		gl::enableAdditiveBlending();
 		
 		gl::pushModelView();
 		gl::translate( mTransPos );
 			gl::pushModelView();
-			float radius = mRadius + 0.00045f;
+			float radius = mRadius + 0.0005f;
 			gl::scale( Vec3f( radius, radius, radius ) );
 			glEnable( GL_RESCALE_NORMAL );
 			gl::rotate( mMatrix );
-			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt ) );
+			gl::rotate( axialRot );
 	// SHADOW CLOUDS
 			glDisable( GL_LIGHTING );
 			gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.5f ) );
@@ -337,11 +338,11 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &planets, const vector<gl:
 				
 // LIT CLOUDS
 			gl::pushModelView();
-			radius = mRadius + 0.00055f;
+			radius = mRadius + 0.00075f;
 			gl::scale( Vec3f( radius, radius, radius ) );
 			glEnable( GL_RESCALE_NORMAL );
 			gl::rotate( mMatrix );
-			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt ) );
+			gl::rotate( axialRot );
 			gl::enableAdditiveBlending();
 			gl::color( ColorA( mGlowColor, 1.0f ) );
 			glDrawArrays( GL_TRIANGLES, 0, numVerts );
@@ -445,7 +446,7 @@ void NodeAlbum::setChildOrbitRadii()
 	float orbitRadius = mOrbitRadiusMin;
 	float orbitOffset;
 	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
-		orbitOffset = (*it)->mRadius * 3.0f;
+		orbitOffset = (*it)->mRadius * 2.0f;
 		orbitRadius += orbitOffset;
 		(*it)->mOrbitRadiusDest = orbitRadius;
 		orbitRadius += orbitOffset;

@@ -43,6 +43,33 @@ NodeArtist::NodeArtist( int index, const Font &font )
 }
 
 
+void NodeArtist::setData( PlaylistRef playlist )
+{
+	mPlaylist = playlist;
+	
+	string name		= getName();
+	char c1			= ' ';
+	char c2			= ' ';
+	if( name.length() >= 3 ){
+		c1 = name[1];
+		c2 = name[2];
+	}
+	int c1Int = constrain( int(c1), 32, 127 );
+	int c2Int = constrain( int(c2), 32, 127 );
+	
+	int totalCharAscii = ( c1Int - 32 ) + ( c2Int - 32 );
+	float asciiPer = ( (float)totalCharAscii/( 190.0f ) ) * 293.0f ;
+	
+	mHue			= sin( asciiPer ) * 0.3f + 0.33f;
+	
+	
+	mSat			= 1.0f - sin( mHue * M_PI );
+	mColor			= Color( CM_HSV, mHue, mSat * 0.5f, 1.0f );
+	mGlowColor		= Color( CM_HSV, mHue, mSat * 0.5f + 0.5f, 1.0f );
+}
+
+
+
 void NodeArtist::update( const Matrix44f &mat )
 {
 	Vec3f prevTransPos  = mTransPos;
@@ -193,31 +220,6 @@ void NodeArtist::setChildOrbitRadii()
 		(*it)->mOrbitRadiusDest = orbitOffset;
 		orbitOffset += amt;
 	}
-}
-
-void NodeArtist::setData( PlaylistRef playlist )
-{
-	mPlaylist = playlist;
-	
-	string name		= getName();
-	char c1			= ' ';
-	char c2			= ' ';
-	if( name.length() >= 3 ){
-		c1 = name[1];
-		c2 = name[2];
-	}
-	int c1Int = constrain( int(c1), 32, 127 );
-	int c2Int = constrain( int(c2), 32, 127 );
-	
-	int totalCharAscii = ( c1Int - 32 ) + ( c2Int - 32 );
-	float asciiPer = ( (float)totalCharAscii/( ( 95.0f ) * 2.0f ) ) * 93.0f ;
-	
-	mHue			= sin( asciiPer ) * 0.3f + 0.33f;
-	
-
-	mSat			= 1.0f - sin( mHue * M_PI );
-	mColor			= Color( CM_HSV, mHue, mSat * 0.5f, 1.0f );
-	mGlowColor		= Color( CM_HSV, mHue, mSat * 0.5f + 0.5f, 1.0f );
 }
 
 string NodeArtist::getName()

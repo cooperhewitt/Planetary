@@ -172,7 +172,6 @@ class KeplerApp : public AppCocoaTouch {
     bool            positionTouchesWorld( Vec2f pos );
     vector<Ray>		mPinchRays;
     PinchRecognizer mPinchRecognizer;
-	float			mPinchScale;
 	float			mTimePinchEnded;
 	float			mPinchAlphaPer;
 	
@@ -523,7 +522,6 @@ void KeplerApp::touchesEnded( TouchEvent event )
 
 bool KeplerApp::onPinchBegan( PinchEvent event )
 {
-	mPinchScale = 1.0f;
     mPinchRays = event.getTouchRays( mCam );
 	
 	mTouchVel	= Vec2f::zero();
@@ -548,6 +546,9 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		currentLevel = selectedNode->mGen;
 	}
 	
+	//mCamDistPinchOffsetDest *= ( 1.0f - event.getScaleDelta() ) * 3.5f + 1.0f;
+	//mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 3.5f );
+	
 	if( currentLevel <= G_ALPHA_LEVEL ){
 		mFovDest += ( 1.0f - event.getScaleDelta() ) * 150.0f;
 		
@@ -556,11 +557,12 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 4.5f );
 		
 		if( mCamDistPinchOffsetDest > 4.1f ){
-			mFovDest = 135.0f;//( 1.0f - event.getScaleDelta() ) * 20.0f;
+			mFovDest = 115.0f;//( 1.0f - event.getScaleDelta() ) * 20.0f;
 		} else {
 			mFovDest = G_DEFAULT_FOV;
 		}
 	}
+	
 	
 	vector<PinchEvent::Touch> touches = event.getTouches();
 	Vec2f averageTouchPos;
@@ -572,18 +574,15 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	//mTouchThrowVel	= ( averageTouchPos - mTouchPos );
 	//mTouchVel		= mTouchThrowVel;
 	mTouchPos		= averageTouchPos;
-	
-	mPinchScale		= event.getScale();
-	//cout << "pinch scale: " << mPinchScale << endl;
+
     return false;
 }
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
     Flurry::getInstrumentation()->logEvent("Pinch");
-	//std::cout << "mCamDistPinchOffset = " << mCamDistPinchOffset << std::endl;
 
-	if( mCamDistPinchOffsetDest > 4.1f ){
+	if( mCamDistPinchOffsetDest > 3.3f ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
             console() << "backing out using pinch!" << std::endl;
@@ -651,9 +650,6 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 
 bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 {
-//	std::cout << "wheel closed" << std::endl;
-	mFovDest = G_DEFAULT_FOV;
-    
 	if( mAlphaWheel.getShowWheel() ) mFovDest = G_MAX_FOV;
 	else							 mFovDest = G_DEFAULT_FOV;
 	
@@ -931,8 +927,8 @@ void KeplerApp::update()
 			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaPer, mCamRingAlpha );
 		}
         
-        vector<Node*> sortedNodes = mWorld.getDepthSortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
-        console() << "got " << sortedNodes.size() << " sorted album and track nodes" << std::endl;
+        //vector<Node*> sortedNodes = mWorld.getDepthSortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
+        //console() << "got " << sortedNodes.size() << " sorted album and track nodes" << std::endl;
         
         mUiLayer.update();
 		if( G_HELP ) mHelpLayer.update();
@@ -998,17 +994,26 @@ void KeplerApp::updateCamera()
 	}
 	
 	// UPDATE FOV
-	mFovDest = constrain( mFovDest, G_MIN_FOV, 130.0f );
+	mFovDest = constrain( mFovDest, G_MIN_FOV, G_MAX_FOV );
 	mFov -= ( mFov - mFovDest ) * 0.25f;
 	
 	
-	
-
 	if( mFovDest >= G_MAX_FOV - 10 && ! mAlphaWheel.getShowWheel() && currentLevel <= G_ALPHA_LEVEL ){
-        mAlphaWheel.setShowWheel( true );        
+		mAlphaWheel.setShowWheel( true ); 
+		
 	} else if( mFovDest < G_MAX_FOV - 10 && mAlphaWheel.getShowWheel() ){
-        mAlphaWheel.setShowWheel( false );        
+		mAlphaWheel.setShowWheel( false ); 
 	}
+	
+	/*
+	if( currentLevel <= G_ALPHA_LEVEL ){
+		if( mCamDistPinchOffsetDest > 3.3f && ! mAlphaWheel.getShowWheel() ){
+			mAlphaWheel.setShowWheel( true );        
+		} else if( mCamDistPinchOffsetDest <= 3.3f && mAlphaWheel.getShowWheel() ){
+			mAlphaWheel.setShowWheel( false );        
+		}
+	}
+	*/
 
 	mCenter			= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, G_DURATION );
 	mCamDist		= easeInOutQuad( p, mCamDistFrom, mCamDistDest - mCamDistFrom, G_DURATION );
@@ -1045,7 +1050,7 @@ void KeplerApp::updatePlayhead()
 
 void KeplerApp::updateCameraPop()
 {
-	if( mCamDistPinchOffsetDest > 4.1f ){
+	if( mCamDistPinchOffsetDest > 3.3f ){
 		mPinchAlphaPer -= ( mPinchAlphaPer ) * 0.2f;
 	} else {
 		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.2f;

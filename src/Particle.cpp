@@ -23,9 +23,9 @@ Particle::Particle( int index, Vec3f pos, Vec3f vel )
 
 void Particle::setup()
 {
-	mPos		= Rand::randVec3f() * 0.39f;
+	mPos		= Rand::randVec3f() * 0.4f;
 	mPrevPos	= mPos;
-	mVel		= mPos * Rand::randFloat( 0.00125f, 0.0035f );
+	mVel		= mPos * Rand::randFloat( 0.00125f, 0.0025f );
 	mAcc		= Rand::randVec3f() * 0.01f;
 	mDecay		= 0.98f;
 	mAge		= 0;

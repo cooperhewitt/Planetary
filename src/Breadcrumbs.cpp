@@ -116,12 +116,12 @@ void Breadcrumbs::update()
 void Breadcrumbs::draw( const gl::Texture &uiButtonsTex, float y )
 {
 	// MAGIC NUMBER AHOY!
-	float yPer = ( mInterfaceSize.y - y ) / 60.0f;
+	float yPer = ( mInterfaceSize.y - y ) / 65.0f;
 	
     float rectHeight = 26.0f * yPer;
     Rectf breadcrumbRect( 0.0f, rectHeight, mInterfaceSize.x, 0.0f );
     float lineY = rectHeight + 1.0f;
-    float buttonY	= rectHeight - 21.0f;
+    float buttonY	= rectHeight - 22.0f;
         
     gl::pushModelView();
     gl::multModelView( mOrientationMtx );
