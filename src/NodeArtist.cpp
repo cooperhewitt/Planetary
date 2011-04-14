@@ -60,10 +60,9 @@ void NodeArtist::setData( PlaylistRef playlist )
 	
 	mHue			= sin( asciiPer ) * 0.3f + 0.33f;
 	
-	
-	mSat			= 1.0f - sin( mHue * M_PI );
-	mColor			= Color( CM_HSV, mHue, mSat * 0.5f, 1.0f );
-	mGlowColor		= Color( CM_HSV, mHue, mSat * 0.5f + 0.5f, 1.0f );
+	mSat			= ( 1.0f - sin( ( mHue + 0.15f ) * M_PI ) ) * 0.5f;
+	mColor			= Color( CM_HSV, mHue, mSat, 1.0f );
+	mGlowColor		= Color( CM_HSV, mHue, mSat + 0.5f, 1.0f );
 }
 
 
@@ -73,7 +72,7 @@ void NodeArtist::update( const Matrix44f &mat )
 	Vec3f prevTransPos  = mTransPos;
     // if mTransPos hasn't been set yet, use a guess:
     // FIXME: set mTransPos correctly in the constructor
-    if (prevTransPos.length() < 0.0001) prevTransPos = mat * mPos;  
+    if( prevTransPos.lengthSquared() < 0.0000001 ) prevTransPos = mat * mPos;  
 	
 	if( mAge < 50.0f ){
 		mPosDest += mAcc;
@@ -87,7 +86,7 @@ void NodeArtist::update( const Matrix44f &mat )
 	
 	if( mAge > mBirthPause ){
 		if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
-			mRadius -= ( mRadius - 0.125f ) * 0.1f;
+			mRadius -= ( mRadius - 0.25f ) * 0.1f;
 			mRadius += Rand::randFloat( 0.0125f );
 		} else {
 			mRadius -= ( mRadius - mRadiusDest ) * 0.1f;
@@ -96,7 +95,7 @@ void NodeArtist::update( const Matrix44f &mat )
 	
 	Node::update( mat );
     
-	mTransVel = mTransPos - prevTransPos;    
+	mTransVel = mTransPos - prevTransPos;
 }
 
 void NodeArtist::drawEclipseGlow()
@@ -123,17 +122,12 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 		glDisable( GL_TEXTURE_2D );
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		gl::color( ( mColor + Color::white() ) * 0.5f );
-		float radius = mRadius * 0.3f;
+		float radius = mRadius * 0.2875f;
 		gl::enableAlphaBlending();
-		if( G_ZOOM > G_ALPHA_LEVEL ){
-			//gl::disableDepthRead();
-			//gl::drawSphere( Vec3f::zero(), radius, 32 );
-			gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
-			//gl::enableDepthRead();
-		} else {
-			gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
-		}
+
+		gl::color( ( mColor + Color::white() ) * 0.5f );
+		gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
+
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
 	}
@@ -142,6 +136,11 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 void NodeArtist::drawClouds( const vector<gl::Texture> &clouds )
 {
 	Node::drawClouds( clouds );
+}
+
+void NodeArtist::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos )
+{
+	Node::drawRings( tex, planetRingVerts, planetRingTexCoords, camZPos );
 }
 
 void NodeArtist::drawStarCenter( const gl::Texture &starTex )

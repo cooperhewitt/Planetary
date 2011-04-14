@@ -354,7 +354,7 @@ void NodeTrack::drawEclipseGlow()
 
 void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 {	
-	if( mSphereScreenRadius > 2.0f ){
+	if( mSphereScreenRadius > 2.0f && mDistFromCamZAxis < -0.005f ){
 		glEnable( GL_RESCALE_NORMAL );
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -398,7 +398,7 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 
 void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 {
-	if( mSphereScreenRadius > 5.0f ){
+	if( mSphereScreenRadius > 5.0f && mDistFromCamZAxis < -0.005f ){
 		if( mCamDistAlpha > 0.05f && mIsMostPlayed ){
 			glEnableClientState( GL_VERTEX_ARRAY );
 			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -469,17 +469,28 @@ void NodeTrack::drawOrbitRing( float pinchAlphaPer, GLfloat *ringVertsLowRes, GL
 	gl::popModelView();
 }
 
-void NodeTrack::drawAtmosphere( const gl::Texture &tex )
+void NodeTrack::drawAtmosphere( const gl::Texture &tex, float pinchAlphaPer )
 {
-	gl::pushModelView();
-	gl::translate( mTransPos );
-	gl::enableAdditiveBlending();
-	gl::color( ColorA( mEclipseColor, 0.75f ) );
-	Vec2f radius = Vec2f( mRadius, mRadius ) * 2.5f;
-	tex.enableAndBind();
-	gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
-	tex.disable();
-	gl::popModelView();
+	if( mDistFromCamZAxis < -0.005f ){
+		gl::enableAdditiveBlending();
+		
+		gl::pushModelView();
+		gl::translate( mTransPos );
+		float screenDistFromCenter = ( mScreenPos.distance( app::getWindowCenter() ) )/500.0f;
+		float yStretch = 1.0f + screenDistFromCenter * 0.08f;
+		gl::scale( Vec3f( yStretch, yStretch, yStretch ) );
+		float alpha = 0.3f * ( 1.0f - screenDistFromCenter );
+		if( G_ZOOM <= G_ALBUM_LEVEL )
+			alpha = 0.3f * pinchAlphaPer;
+		gl::color( ColorA( ( mGlowColor ), alpha ) );
+		
+		gl::color( ColorA( mEclipseColor, 0.3f * pinchAlphaPer ) );
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 2.5f;
+		tex.enableAndBind();
+		gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
+		tex.disable();
+		gl::popModelView();
+	}
 }
 
 

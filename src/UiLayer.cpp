@@ -196,7 +196,7 @@ void UiLayer::update()
     mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;
 	
     // adjust tab rect:
-    mPanelTabRect = Rectf( mPanelRect.x2 - 200.0f, mPanelRect.y1 - 48.0f,
+    mPanelTabRect = Rectf( mPanelRect.x2 - 200.0f, mPanelRect.y1 - 38.0f,
                            mPanelRect.x2, mPanelRect.y1 + 2.0f );
 }
 
@@ -210,7 +210,7 @@ void UiLayer::draw( const gl::Texture &uiButtonsTex )
     drawButton( mPanelRect, 0.41f, 0.9f, 0.49f, 0.99f );
 	uiButtonsTex.disable();
 	
-	gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.125f ) );
+	gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.2f ) );
 	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 ), Vec2f( mPanelRect.x2, mPanelRect.y1 ) );
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	

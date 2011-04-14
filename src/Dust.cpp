@@ -21,7 +21,7 @@ Dust::Dust( int index, Vec3f pos, Vec3f vel )
 
 void Dust::setup()
 {
-	Vec2f randVec2 = Rand::randVec2f() * Rand::randFloat( 1.0f, 2.5f );
+	Vec2f randVec2 = Rand::randVec2f() * Rand::randFloat( 0.5f, 1.75f );
 	Vec3f randVec = Vec3f( randVec2, 0.0f );
 	mPos		= randVec * 0.1f;
 	mPrevPos	= mPos;

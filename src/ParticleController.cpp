@@ -57,7 +57,7 @@ void ParticleController::buildParticleVertexArray( const Vec3f &bbRight, const V
 	
 	for( list<Particle>::iterator it = mParticles.begin(); it != mParticles.end(); ++it ){
 		Vec3f pos				= it->mPos;
-		float radius			= it->mRadius * 0.5f * sin( it->mAgePer * M_PI );
+		float radius			= it->mRadius * it->mAgePer;
 		
 		Vec3f right				= bbRight * radius;
 		Vec3f up				= bbUp * radius;
@@ -122,8 +122,8 @@ void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaPer, 
 	int vIndex	= 0;
 	int cIndex	= 0;
 	float zoomPer = constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f );
-	float alpha	= ( zoomPer * dustAlpha ) * 3.0f * pinchAlphaPer;
-	Color col	= node->mGlowColor * 0.5f;
+	float alpha	= ( zoomPer * dustAlpha ) * pinchAlphaPer;
+	Color col	= node->mGlowColor * 0.1f;
 	
 	for( list<Dust>::iterator it = mDusts.begin(); it != mDusts.end(); ++it ){
 		//Vec3f prev				= it->mPrevPos;

@@ -22,8 +22,8 @@ class NodeAlbum : public Node
 	void drawEclipseGlow();
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
-	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha );
-	void drawAtmosphere( const ci::gl::Texture &tex );
+	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
+	void drawAtmosphere( const ci::gl::Texture &tex, float pinchAlphaPer );
 	void select();
 	void setChildOrbitRadii();
 	void setData( ci::ipod::PlaylistRef album );

@@ -134,7 +134,7 @@ void Breadcrumbs::draw( const gl::Texture &uiButtonsTex, float y )
 	uiButtonsTex.disable();
 
 	
-	gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.1f ) );
+	gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.2f ) );
 	gl::drawLine( Vec2f( 1.0f, lineY ), Vec2f( breadcrumbRect.x2, lineY ) );
     
 

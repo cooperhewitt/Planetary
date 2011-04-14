@@ -186,10 +186,10 @@ void Node::drawEclipseGlow()
 //	}
 //}
 
-void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha )
+void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawRings( tex, planetRingVerts, planetRingTexCoords, camRingAlpha );
+		(*nodeIt)->drawRings( tex, planetRingVerts, planetRingTexCoords, camZPos );
 	}
 }
 
@@ -298,7 +298,7 @@ void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix
 
 void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-    if( mSphereHitArea.contains( pos ) || (mNameTex != NULL && mHitArea.contains( pos )) ) {
+    if( mSphereHitArea.contains( pos ) || ( mNameTex != NULL && mHitArea.contains( pos ) && G_DRAW_TEXT ) ) {
         nodes.push_back( this );
     }
     vector<Node*>::iterator nodeIt;

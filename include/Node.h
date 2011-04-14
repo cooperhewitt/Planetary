@@ -35,8 +35,8 @@ class Node {
 	virtual void	drawEclipseGlow();
 	virtual void	drawPlanet( const std::vector< ci::gl::Texture> &planets ) {};
 	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds ) {};
-	virtual void	drawAtmosphere( const ci::gl::Texture &tex ) {};
-	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha );
+	virtual void	drawAtmosphere( const ci::gl::Texture &tex, float pinchAlphaPer ) {};
+	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
 	virtual void	drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
 	void			wasTapped(){ mIsTapped = true; mHighlightStrength = 1.0f; }

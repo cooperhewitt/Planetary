@@ -51,7 +51,7 @@ class World {
 	void drawPlanets( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void buildPlanetRingsVertexArray();
-	void drawRings( const ci::gl::Texture &tex, float camRingAlpha );
+	void drawRings( const ci::gl::Texture &tex, float camZPos );
     std::vector<Node*> getDepthSortedNodes(int fromGen, int toGen);
 	
 	Data *mData;

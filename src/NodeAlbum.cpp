@@ -171,7 +171,7 @@ void NodeAlbum::update( const Matrix44f &mat )
 		float rsqrd = r * r;
 		
 		Vec2f P		= mParentNode->mScreenPos;
-		float R		= mParentNode->mSphereScreenRadius * 0.4f;
+		float R		= mParentNode->mSphereScreenRadius * 0.325f;
 		float Rsqrd	= R * R;
 		float A		= M_PI * Rsqrd;
 		
@@ -258,123 +258,131 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaPer, GLfloat *ringVertsLowRes, GL
 
 void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 {	
-	glEnable( GL_RESCALE_NORMAL );
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	glEnableClientState( GL_NORMAL_ARRAY );
-	int numVerts;
-	if( mIsSelected ){
-		glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsHiRes );
-		glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsHiRes );
-		glNormalPointer( GL_FLOAT, 0, mSphereNormalsHiRes );
-		numVerts = mTotalVertsHiRes;
-	} else {
-		glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsLoRes );
-		glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsLoRes );
-		glNormalPointer( GL_FLOAT, 0, mSphereNormalsLoRes );
-		numVerts = mTotalVertsLoRes;
+	if( mDistFromCamZAxis < -0.02f ){
+			glEnable( GL_RESCALE_NORMAL );
+			glEnableClientState( GL_VERTEX_ARRAY );
+			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+			glEnableClientState( GL_NORMAL_ARRAY );
+			int numVerts;
+			if( mIsSelected ){
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsHiRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsHiRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereNormalsHiRes );
+				numVerts = mTotalVertsHiRes;
+			} else {
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsLoRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsLoRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereNormalsLoRes );
+				numVerts = mTotalVertsLoRes;
+			}
+			
+			gl::pushModelView();
+			gl::translate( mTransPos );
+			gl::scale( Vec3f( mRadius, mRadius, mRadius ) );
+			gl::rotate( mMatrix );
+			gl::rotate( mAxialRot );
+			gl::color( mEclipseColor );
+			
+			if( mHasAlbumArt ){
+				mAlbumArt.enableAndBind();
+			} else {
+				planets[mPlanetTexIndex].enableAndBind();
+			}
+			
+			glDrawArrays( GL_TRIANGLES, 0, numVerts );
+			gl::popModelView();
+			
+			glDisableClientState( GL_VERTEX_ARRAY );
+			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+			glDisableClientState( GL_NORMAL_ARRAY );
 	}
-	
-    gl::pushModelView();
-	gl::translate( mTransPos );
-	gl::scale( Vec3f( mRadius, mRadius, mRadius ) );
-	gl::rotate( mMatrix );
-	gl::rotate( mAxialRot );
-	gl::color( mEclipseColor );
-	
-	if( mHasAlbumArt ){
-		mAlbumArt.enableAndBind();
-	} else {
-		planets[mPlanetTexIndex].enableAndBind();
-	}
-	
-	glDrawArrays( GL_TRIANGLES, 0, numVerts );
-	gl::popModelView();
-	
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	glDisableClientState( GL_NORMAL_ARRAY );	
 }
 
 
 void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 {
-    if( mCamDistAlpha > 0.05f ){
-		glEnableClientState( GL_VERTEX_ARRAY );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glEnableClientState( GL_NORMAL_ARRAY );
-		int numVerts;
-		if( mIsSelected ){
-			glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsHiRes );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsHiRes );
-			glNormalPointer( GL_FLOAT, 0, mSphereNormalsHiRes );
-			numVerts = mTotalVertsHiRes;
-		} else {
-			glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsLoRes );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsLoRes );
-			glNormalPointer( GL_FLOAT, 0, mSphereNormalsLoRes );
-			numVerts = mTotalVertsLoRes;
-		}
-		
-		gl::enableAdditiveBlending();
-		
-		gl::pushModelView();
-		gl::translate( mTransPos );
-			gl::pushModelView();
-			float radius = mRadius + 0.0005f;
-			gl::scale( Vec3f( radius, radius, radius ) );
-			glEnable( GL_RESCALE_NORMAL );
-			gl::rotate( mMatrix );
-			gl::rotate( mAxialRot );
-// SHADOW CLOUDS
-			glDisable( GL_LIGHTING );
-			gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.5f ) );
-			clouds[mCloudTexIndex].enableAndBind();
-			glDrawArrays( GL_TRIANGLES, 0, numVerts );
-			glEnable( GL_LIGHTING );
-			gl::popModelView();
-				
-// LIT CLOUDS
-			gl::pushModelView();
-			radius = mRadius + 0.00075f;
-			gl::scale( Vec3f( radius, radius, radius ) );
-			glEnable( GL_RESCALE_NORMAL );
-			gl::rotate( mMatrix );
-			gl::rotate( mAxialRot );
+	if( mDistFromCamZAxis < -0.02f ){
+			glEnableClientState( GL_VERTEX_ARRAY );
+			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+			glEnableClientState( GL_NORMAL_ARRAY );
+			int numVerts;
+			if( mIsSelected ){
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsHiRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsHiRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereNormalsHiRes );
+				numVerts = mTotalVertsHiRes;
+			} else {
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsLoRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsLoRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereNormalsLoRes );
+				numVerts = mTotalVertsLoRes;
+			}
+			
 			gl::enableAdditiveBlending();
-			gl::color( ColorA( mGlowColor, 1.0f ) );
-			glDrawArrays( GL_TRIANGLES, 0, numVerts );
+			
+			gl::pushModelView();
+			gl::translate( mTransPos );
+				gl::pushModelView();
+				float radius = mRadius + 0.0005f;
+				gl::scale( Vec3f( radius, radius, radius ) );
+				glEnable( GL_RESCALE_NORMAL );
+				gl::rotate( mMatrix );
+				gl::rotate( mAxialRot );
+	// SHADOW CLOUDS
+				glDisable( GL_LIGHTING );
+				gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.5f ) );
+				clouds[mCloudTexIndex].enableAndBind();
+				glDrawArrays( GL_TRIANGLES, 0, numVerts );
+				glEnable( GL_LIGHTING );
+				gl::popModelView();
+					
+	// LIT CLOUDS
+				gl::pushModelView();
+				radius = mRadius + 0.00075f;
+				gl::scale( Vec3f( radius, radius, radius ) );
+				glEnable( GL_RESCALE_NORMAL );
+				gl::rotate( mMatrix );
+				gl::rotate( mAxialRot );
+				gl::enableAdditiveBlending();
+				gl::color( ColorA( mGlowColor, 1.0f ) );
+				glDrawArrays( GL_TRIANGLES, 0, numVerts );
+				gl::popModelView();
 			gl::popModelView();
-		gl::popModelView();
-		
-		glDisableClientState( GL_VERTEX_ARRAY );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		glDisableClientState( GL_NORMAL_ARRAY );
+			
+			glDisableClientState( GL_VERTEX_ARRAY );
+			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+			glDisableClientState( GL_NORMAL_ARRAY );
 	}
 }
 
 
-void NodeAlbum::drawAtmosphere( const gl::Texture &tex )
+void NodeAlbum::drawAtmosphere( const gl::Texture &tex, float pinchAlphaPer )
 {
-	if( mIsSelected || mIsPlaying ){
-		gl::pushModelView();
-		gl::translate( mTransPos );
-		float screenDistFromCenter = ( mScreenPos.distance( app::getWindowCenter() ) )/500.0f;
-		float yStretch = 1.0f + screenDistFromCenter * 0.08f;
-		gl::scale( Vec3f( yStretch, yStretch, yStretch ) );
-		gl::enableAdditiveBlending();
-		gl::color( ColorA( mColor, mZoomPer * 0.5f * ( 1.0f - screenDistFromCenter ) ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 2.5f;
-		tex.enableAndBind();
-		gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
-		tex.disable();
-		gl::popModelView();
+	if( mDistFromCamZAxis < -0.02f ){
+		if( mIsSelected || mIsPlaying ){
+
+			gl::pushModelView();
+			gl::translate( mTransPos );
+			float screenDistFromCenter = ( mScreenPos.distance( app::getWindowCenter() ) )/500.0f;
+			float yStretch = 1.0f + screenDistFromCenter * 0.08f;
+			gl::scale( Vec3f( yStretch, yStretch, yStretch ) );
+			gl::enableAdditiveBlending();
+			float alpha = 0.8f * ( 1.0f - screenDistFromCenter );
+			if( G_ZOOM <= G_ALBUM_LEVEL )
+				alpha = pinchAlphaPer;
+			gl::color( ColorA( ( mGlowColor + COLOR_BRIGHT_BLUE ) * 0.5f, alpha ) );
+			Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;
+			tex.enableAndBind();
+			gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
+			tex.disable();
+			gl::popModelView();
+		}
 	}
 }
 
 
 
-void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camRingAlpha )
+void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camAlpha )
 {
 	if( mHasRings && G_ZOOM > G_ARTIST_LEVEL ){
 		if( mIsSelected || mIsPlaying ){
@@ -385,9 +393,7 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 			gl::rotate( mMatrix );
 			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel * 0.2f, 0.0f ) );
 			
-			float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
-			float alpha = camRingAlpha * 42.5f * zoomOffset;
-			gl::color( ColorA( mColor, sin( alpha * M_PI ) ) );
+			gl::color( ColorA( mColor, camAlpha ) );
 			tex.enableAndBind();
 			glEnableClientState( GL_VERTEX_ARRAY );
 			glEnableClientState( GL_TEXTURE_COORD_ARRAY );

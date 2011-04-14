@@ -45,8 +45,8 @@ public:
 	ci::CallbackId registerWheelToggled( T *obj, bool ( T::*callback )( AlphaWheel* ) ){
 		return mCallbacksWheelToggled.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
-	
-	
+		
+	ci::gl::Texture	mWheelTex;
 private:
 	void	drawWheel();
 	void	drawWheelMask();
@@ -66,7 +66,7 @@ private:
 	char			mAlphaChar, mPrevAlphaChar;
 	float			mWheelScale;
 	
-	ci::gl::Texture	mWheelTex, mWheelMaskTex;
+	ci::gl::Texture	mWheelMaskTex;
 	ci::gl::Texture mBlurRectTex;
 	std::vector<ci::gl::Texture> mAlphaTextures;
 	
