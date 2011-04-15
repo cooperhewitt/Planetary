@@ -194,7 +194,7 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &cur
     
     float playheadPer	= 0.0f;
     if( totalTime > 0.0f ){
-        playheadPer = math<float>::constrain(currentTime/totalTime, 0.0, 1.0);
+        playheadPer = constrain<float>(currentTime/totalTime, 0.0, 1.0);
     }
     float bgx1			= sliderInset;
     float bgx2			= bgx1 + sliderWidth;
