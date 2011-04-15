@@ -404,7 +404,6 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &cur
         
         stringstream ss;
         ss << minsStr << ":" << secsStr << endl;
-        cout << minsStr << ":" << secsStr << endl;
         
         TextLayout layout;
         layout.setFont( font );
