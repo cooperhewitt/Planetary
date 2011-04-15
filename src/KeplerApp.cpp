@@ -78,6 +78,7 @@ class KeplerApp : public AppCocoaTouch {
 	void			updatePlayhead();
 	void			updateCameraPop();
 	virtual void	draw();
+	void			drawNoArtists();
     void            drawScene();
 	void			drawInfoPanel();
 	void			setParamsTex();
@@ -189,11 +190,12 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mUiButtonsTex;
 	gl::Texture		mCurrentTrackTex;
     gl::Texture		mAtmosphereTex;
+	gl::Texture		mNoArtistsTex;
 	vector<gl::Texture> mPlanetsTex;
 	vector<gl::Texture> mCloudsTex;
 	
 	float			mTime;
-	
+	bool			mHasNoArtists;
 	bool			mDataIsLoaded;
     bool            mRemainingSetupCalled; // setup() is short and fast, remainingSetup() is slow
 };
@@ -330,13 +332,13 @@ void KeplerApp::remainingSetup()
 	
 	// FONTS
 	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
-	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf" ), 256 );
+	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf"), 256 );
 	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
 	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 12 );
 	
 	// TOUCH VARS
-	mTouchPos			= Vec2f::zero();
-	mTouchVel			= Vec2f::zero();
+	mTouchPos			= getWindowCenter();
+	mTouchVel			= Vec2f( 3.0f, 0.0f );
 	mIsDragging			= false;
     mIsTouching         = false;
 	mTime				= getElapsedSeconds();
@@ -391,6 +393,8 @@ void KeplerApp::remainingSetup()
 
     // WORLD
     mWorld.setup( &mData );  
+	
+	mHasNoArtists = false;
 	
     std::cout << "setupEnd: " << getElapsedSeconds() << std::endl;
 }
@@ -900,12 +904,15 @@ void KeplerApp::update()
 		mWorld.initNodes( &mIpodPlayer, mFont );
 		mDataIsLoaded = true;
 		mLoadingScreen.setEnabled( false );
+		mUiLayer.setIsPanelOpen( true );
         // clear all the breadcrumbs etc.
         onSelectedNodeChanged( NULL );
         // and then make sure we know about the current track if there is one
         if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ) {
             onPlayerTrackChanged( &mIpodPlayer );
-        }
+        } else {
+			mAlphaWheel.setShowWheel( true );
+		}
 	}
     //mTextureLoader.update();
     
@@ -1060,6 +1067,11 @@ void KeplerApp::draw()
 	gl::clear( Color( 0, 0, 0 ), true );
 	if( !mDataIsLoaded ){
 		mLoadingScreen.draw( mStarGlowTex );
+	} else if( mData.mArtists.size() == 0 ){
+		if( !mHasNoArtists ) mNoArtistsTex = gl::Texture( loadImage( loadResource( "noArtists.png" ) ) );
+		
+		mHasNoArtists = true;
+		drawNoArtists();
 	} else {
 		drawScene();
 	}
@@ -1067,8 +1079,31 @@ void KeplerApp::draw()
 
 
 
+void KeplerApp::drawNoArtists()
+{
+	gl::setMatricesWindow( getWindowSize() );    
+	
+    gl::pushModelView();
+    gl::multModelView( mOrientationMatrix );
+	Vec2f interfaceSize = getWindowSize();
+	if( isLandscapeOrientation( mInterfaceOrientation ) ){
+		interfaceSize = interfaceSize.yx();
+	}
+    Vec2f center = interfaceSize * 0.5f;
+    gl::color( Color::white() );
+	
+	mNoArtistsTex.enableAndBind();
+	Vec2f v1( center - mNoArtistsTex.getSize() * 0.5f );
+	Vec2f v2( v1 + mNoArtistsTex.getSize() );
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+	gl::drawSolidRect( Rectf( v1, v2 ) );
+	mNoArtistsTex.disable();
+}
+
+
+
 void KeplerApp::drawScene()
-{		
+{	
 	vector<Node*> sortedNodes = mWorld.getDepthSortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
 
     gl::enableDepthWrite();

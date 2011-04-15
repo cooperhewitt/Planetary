@@ -38,6 +38,8 @@ class UiLayer {
     
 	float	getPanelYPos(){ return mPanelRect.y1; }	
     ci::Rectf getPanelTabRect() { return mPanelTabRect; }
+	bool	getIsPanelOpen() { return mIsPanelOpen; }
+	bool	setIsPanelOpen( bool b ){ mIsPanelOpen = b; mHasPanelBeenDragged = false; }
 	
  private:
 

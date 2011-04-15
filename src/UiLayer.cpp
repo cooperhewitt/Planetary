@@ -217,15 +217,9 @@ void UiLayer::draw( const gl::Texture &uiButtonsTex )
 	
 	float u1 = 0.5f;
 	float u2 = 1.0f;
-	float v1, v2;
-	
-    if( mIsPanelTabTouched ){
-		v1 = 0.5f;
-		v2 = 0.7f;	// HA MGUNK!!!
-    } else {
-		v1 = 0.5f;
-		v2 = 0.7f;
-	}
+	float v1 = 0.5f;
+	float v2 = 0.7f;
+
 	uiButtonsTex.enableAndBind();
 	drawButton( mPanelTabRect, u1, v1, u2, v2 );
 	
