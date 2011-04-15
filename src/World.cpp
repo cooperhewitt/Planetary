@@ -321,8 +321,8 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 	
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		Vec3f pos				= (*it)->mPos;
-		float radius			= (*it)->mRadius * 0.25f;
-		if( (*it)->mIsHighlighted ) radius += radius * 1.1f + math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
+		float radius			= (*it)->mRadius * 0.45f;
+		if( (*it)->mIsHighlighted ) radius = (*it)->mRadius * 0.25f + ( (*it)->mRadius * 0.25f ) * 1.1f + math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
 		
 		ColorA col				= ColorA( (*it)->mColor, 1.0f );
 		
@@ -502,8 +502,8 @@ void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
 			Vec3f pos				= (*it)->mPos;
-			float flickerAmt		= ( 8.5f + zoomOffset * Rand::randFloat( 12.0f, 15.0f ) );
-			float radius			= (*it)->mRadius * 0.5f * flickerAmt;
+			float flickerAmt		= ( 8.5f + zoomOffset * Rand::randFloat( 5.0f, 6.5f ) );
+			float radius			= (*it)->mRadius * 0.35f * flickerAmt;
 			
 			float glowAlpha			= 1.0f;
 			

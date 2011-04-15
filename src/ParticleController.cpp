@@ -122,7 +122,7 @@ void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaPer, 
 	int vIndex	= 0;
 	int cIndex	= 0;
 	float zoomPer = constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f );
-	float alpha	= ( zoomPer * dustAlpha ) * pinchAlphaPer * 0.5f;
+	float alpha	= ( zoomPer * dustAlpha ) * pinchAlphaPer * 0.25f;
 	Color col	= node->mGlowColor * 0.1f;
 	
 	for( list<Dust>::iterator it = mDusts.begin(); it != mDusts.end(); ++it ){

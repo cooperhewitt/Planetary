@@ -206,7 +206,8 @@ void Node::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfl
 void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
-		if( mIsPlaying || mIsSelected ){
+		//if( mIsPlaying || mIsSelected ){
+		if( mIsSelected || ( G_ZOOM < mGen && mIsPlaying ) ){
 			float alpha = 1.0f;
 			if( G_ZOOM < mGen - 1 )
 				alpha = constrain( ( G_ZOOM - mGen ) + 2.0f, 0.0f, 1.0f );

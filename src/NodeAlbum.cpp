@@ -301,7 +301,7 @@ void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 
 void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 {
-	if( mDistFromCamZAxis < -0.02f ){
+	if( mSphereScreenRadius > 5.0f && mDistFromCamZAxis < -0.02f ){
 			glEnableClientState( GL_VERTEX_ARRAY );
 			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 			glEnableClientState( GL_NORMAL_ARRAY );
@@ -366,7 +366,7 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, float pinchAlphaPer )
 			Vec2f dir		= mScreenPos - app::getWindowCenter();
 			float dirLength = dir.length()/500.0f;
 			float angle		= atan2( dir.y, dir.x );
-			float stretch	= 1.0f + dirLength * 0.1f;
+			float stretch	= 1.0f + dirLength * 0.15f;
 			gl::enableAdditiveBlending();
 			float alpha = 0.8f * ( 1.0f - dirLength );
 			if( G_ZOOM <= G_ALBUM_LEVEL )

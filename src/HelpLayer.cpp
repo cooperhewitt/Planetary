@@ -106,7 +106,7 @@ bool HelpLayer::touchesBegan( TouchEvent event )
 		Rectf panelRect	= transformRect( mPanelRect, mOrientationMtx );
 		
 		mIsCloseTouched = closeRect.contains( touchPos );
-		if( !mIsCloseTouched ) mIsCloseTouched = !panelRect.contains( touchPos );
+		//if( !mIsCloseTouched ) mIsCloseTouched = !panelRect.contains( touchPos );
 			
 		return mIsCloseTouched;
 	}
@@ -180,7 +180,7 @@ void HelpLayer::draw( const gl::Texture &uiButtonsTex )
 {	
     gl::pushModelView();
     gl::multModelView( mOrientationMtx );
-    
+    /*
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	gl::draw( mHelpPanelTex, mPanelRect );
 	
@@ -192,6 +192,6 @@ void HelpLayer::draw( const gl::Texture &uiButtonsTex )
 	uiButtonsTex.enableAndBind();
 	drawButton( mCloseRect, u1, v1, u2, v2 );
     uiButtonsTex.disable();
-        
+     */   
     gl::popModelView();    
 }

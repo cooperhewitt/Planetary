@@ -338,7 +338,7 @@ void KeplerApp::remainingSetup()
 	
 	// TOUCH VARS
 	mTouchPos			= getWindowCenter();
-	mTouchVel			= Vec2f( 3.0f, 0.0f );
+	mTouchVel			= Vec2f(2.1f, 0.3f );
 	mIsDragging			= false;
     mIsTouching         = false;
 	mTime				= getElapsedSeconds();
@@ -363,6 +363,7 @@ void KeplerApp::remainingSetup()
 
 	// PLAY CONTROLS
 	mPlayControls.setup( this, mIpodPlayer.getPlayState() == ipod::Player::StatePlaying );
+	mPlayControls.initHelpTextures( mFontMediSmall );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
 
@@ -922,9 +923,13 @@ void KeplerApp::update()
 		
 		updateArcball();
 		
+		if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
+			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
+		}
+		
         mWorld.update( mMatrix );
         mParticleController.update();
-        
+		
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 
@@ -1241,7 +1246,6 @@ void KeplerApp::drawScene()
 	// CURRENT TRACK ORBIT PATH
 	if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 		gl::enableAdditiveBlending();
-		mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 		if( G_DRAW_RINGS )
 			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mPlayheadProgressTex );
 	}
@@ -1315,7 +1319,7 @@ void KeplerApp::drawScene()
 	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
     mUiLayer.draw( mUiButtonsTex );
     mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
-    mPlayControls.draw( mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
+    mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
 	
 	if( G_HELP ) mHelpLayer.draw( mUiButtonsTex );
 	

@@ -37,7 +37,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	mOrbitTexCoords			= NULL;
 	mOrbitColors			= NULL;
 	
-	mIdealCameraDist	= 0.05f;
+	mIdealCameraDist	= 0.075f;
 }
 
 void NodeTrack::setData( TrackRef track, PlaylistRef album )
@@ -398,7 +398,7 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 
 void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 {
-	if( mSphereScreenRadius > 5.0f && mDistFromCamZAxis < -0.005f ){
+	if( mSphereScreenRadius > 2.0f && mDistFromCamZAxis < -0.005f ){
 		if( mCamDistAlpha > 0.05f && mIsMostPlayed ){
 			glEnableClientState( GL_VERTEX_ARRAY );
 			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
