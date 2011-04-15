@@ -1247,8 +1247,7 @@ void KeplerApp::drawScene()
     
     glDisable( GL_TEXTURE_2D );
 	
-	
-//	 //HIT AREA VISUALIZER
+	// HIT AREA VISUALIZER
 //	for (int i = 0; i < mWorld.mNodes.size(); i++) {
 //		Node* artistNode = mWorld.mNodes[i];
 //		if (artistNode->mIsHighlighted) {
@@ -1427,6 +1426,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 	else {
 		console() << "    trackchanged but nothing's playing" << endl;
 		mCurrentTrackTex.reset();
+        // FIXME: disable play button and zoom-to-current-track button
 	}
 
     updatePlayhead();

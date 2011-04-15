@@ -33,3 +33,11 @@ void drawButton( const ci::Rectf &rect, float u1, float v1, float u2, float v2 )
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );	
 }
+
+void inflateRect( ci::Rectf &rect, float amount )
+{
+    rect.x1 -= amount;
+    rect.x2 += amount;
+    rect.y1 -= amount;
+    rect.y2 += amount;
+}

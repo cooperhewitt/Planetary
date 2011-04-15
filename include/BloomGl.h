@@ -11,6 +11,7 @@
 #include "cinder/Rect.h"
 
 void drawButton( const ci::Rectf &rect, float u1, float v1, float u2, float v2 );
+void inflateRect( ci::Rectf &rect, float amount );
 
 class Triangle {
 public:

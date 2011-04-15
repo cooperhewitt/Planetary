@@ -11,6 +11,7 @@
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Text.h"
+#include "BloomGl.h"
 #include "Globals.h"
 #include "Node.h"
 
@@ -221,16 +222,6 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			createNameTexture();
 		}
 
-        Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
-        Vec2f o1(15,5);
-        Vec2f o2(mNameTex.getWidth() + 20, mNameTex.getHeight() + 10);
-        if (angle != 0) {
-            o1.rotate(angle);
-            o2.rotate(angle);
-        }
-        mHitArea = Rectf( p - o1, p + o2 );        
-        mHitArea.canonicalize();
-		
         Vec2f offset0 = Vec2f( mSphereScreenRadius * 0.275f, mSphereScreenRadius * 0.275f * 0.75f );
         offset0.rotate( angle );
 		Vec2f pos1 = mScreenPos + offset0;
@@ -239,17 +230,26 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 		Vec2f pos2 = pos1 + offset1;
         Vec2f offset2( 2.0f, -8.0f );
         offset2.rotate( angle );
+
+        Vec2f texCorner = mNameTex.getSize();
 		
 		gl::pushModelView();
-        
 		gl::translate( pos2 + offset2 );
-        gl::rotate( angle * 180.0f/M_PI );
+        if (angle != 0) {
+            gl::rotate( angle * 180.0f/M_PI );
+            texCorner.rotate( angle );
+        }
 		if( mIsPlaying ){
 			float s = mZoomPer * 0.25f + 1.0f;
 			gl::scale( Vec3f( s, s, 1.0f ) );
+            texCorner *= s;
 		}
 		gl::draw( mNameTex, Vec2f::zero() );
 		gl::popModelView();
+        
+        mHitArea = Rectf( pos2 + offset2, pos2 + offset2 + texCorner);
+        mHitArea.canonicalize();        
+        inflateRect( mHitArea, 5.0f );
 		
 		glDisable( GL_TEXTURE_2D );
 		gl::color( ColorA( COLOR_BLUE, 0.4f * mZoomPer * pinchAlphaPer ) );
