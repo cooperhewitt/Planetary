@@ -385,24 +385,31 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &cur
 	
 	
     // CURRENT TIME
-    mMinutes		= floor( currentTime/60 );
-    mPrevSeconds	= mSeconds;
-    mSeconds		= (int)currentTime%60;
+    int mMinutes	= floor( abs(currentTime)/60 );
+    int mSeconds	= (int)abs(currentTime)%60;
     
-    mMinutesTotal	= floor( totalTime/60 );
-    mSecondsTotal	= (int)totalTime%60;
+    int mMinutesTotal	= floor( totalTime/60 );
+    int mSecondsTotal	= (int)totalTime%60;
     
-    double timeLeft = totalTime - currentTime;
-    mMinutesLeft	= floor( timeLeft/60 );
-    mSecondsLeft	= (int)timeLeft%60;
+    double timeLeft = min(totalTime, totalTime - currentTime);
+    int mMinutesLeft	= floor( timeLeft/60 );
+    int mSecondsLeft	= (int)timeLeft%60;
+
     
     if( mSeconds != mPrevSeconds ){
-        string minsStr = to_string( mMinutes );
-        string secsStr = to_string( mSeconds );
+        string minsStr = to_string( abs(mMinutes) );
+        string secsStr = to_string( abs(mSeconds) );
         if( minsStr.length() == 1 ) minsStr = "0" + minsStr;
         if( secsStr.length() == 1 ) secsStr = "0" + secsStr;		
+        
         stringstream ss;
-        ss << minsStr << ":" << secsStr;
+        if (currentTime < 0) {
+            ss << "-" << minsStr << ":" << secsStr << endl;
+        }
+        else {
+            ss << minsStr << ":" << secsStr << endl;
+        }
+        
         TextLayout layout;
         layout.setFont( font );
         layout.setColor( COLOR_BRIGHT_BLUE );
