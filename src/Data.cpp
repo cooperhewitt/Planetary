@@ -62,7 +62,7 @@ void Data::backgroundInitArtists()
 //	}
 //	std::cout << (app::App::get()->getElapsedSeconds()-t) << " seconds to derive artists" << std::endl;
 	Flurry::getInstrumentation()->startTimeEvent("Music Loading");
-	pending = getArtists();		
+	pending = getArtists();
 	std::cout << "got " << pending.size() << " artists" << std::endl;
 	
 	
