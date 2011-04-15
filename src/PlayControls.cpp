@@ -194,7 +194,7 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &cur
     
     float playheadPer	= 0.0f;
     if( totalTime > 0.0f ){
-        playheadPer = constrain(currentTime/totalTime, 0.0, 1.0);
+        playheadPer = math<float>::constrain(currentTime/totalTime, 0.0, 1.0);
     }
     float bgx1			= sliderInset;
     float bgx2			= bgx1 + sliderWidth;
@@ -385,8 +385,6 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &cur
 	
 	
     // CURRENT TIME
-    cout << "currentTime: " << currentTime << endl;
-    
     mMinutes	= floor( abs(currentTime)/60.0f );
     mPrevSeconds = mSeconds;
     mSeconds	= (int)abs(currentTime)%60;
@@ -397,7 +395,6 @@ void PlayControls::draw( const gl::Texture &uiButtonsTex, const gl::Texture &cur
     double timeLeft = min(totalTime, totalTime - currentTime);
     mMinutesLeft	= floor( timeLeft/60.0f );
     mSecondsLeft	= (int)timeLeft%60;
-
     
     if( mSeconds != mPrevSeconds ){
         string minsStr = to_string( abs(mMinutes) );
