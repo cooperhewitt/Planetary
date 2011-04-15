@@ -202,7 +202,13 @@ class KeplerApp : public AppCocoaTouch {
 
 void KeplerApp::prepareSettings(Settings *settings)
 {
+#ifdef DEBUG
+    // "Kepler" ID:
     Flurry::getInstrumentation()->init("DZ7HPD6FE1GGADVNJ3EX");
+#else
+    // "Planetary" ID:
+    Flurry::getInstrumentation()->init("7FY9M7BIVCFVJRGNSD1E");
+#endif
 }
 
 void KeplerApp::setup()
