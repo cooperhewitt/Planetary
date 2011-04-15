@@ -228,7 +228,7 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
     
     float playheadPer	= 0.0f;
     if( totalTime > 0.0f ){
-        playheadPer = currentTime/totalTime;
+        playheadPer = constrain<float>(currentTime/totalTime, 0.0, 1.0);
     }
     float bgx1			= sliderInset;
     float bgx2			= bgx1 + sliderWidth;
@@ -419,24 +419,26 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 	
 	
     // CURRENT TIME
-    mMinutes		= floor( currentTime/60 );
-    mPrevSeconds	= mSeconds;
-    mSeconds		= (int)currentTime%60;
+    mMinutes	= floor( abs(currentTime)/60.0f );
+    mPrevSeconds = mSeconds;
+    mSeconds	= (int)abs(currentTime)%60;
     
-    mMinutesTotal	= floor( totalTime/60 );
+    mMinutesTotal	= floor( totalTime/60.0f );
     mSecondsTotal	= (int)totalTime%60;
     
-    double timeLeft = totalTime - currentTime;
-    mMinutesLeft	= floor( timeLeft/60 );
+    double timeLeft = min(totalTime, totalTime - currentTime);
+    mMinutesLeft	= floor( timeLeft/60.0f );
     mSecondsLeft	= (int)timeLeft%60;
     
     if( mSeconds != mPrevSeconds ){
-        string minsStr = to_string( mMinutes );
-        string secsStr = to_string( mSeconds );
+        string minsStr = to_string( abs(mMinutes) );
+        string secsStr = to_string( abs(mSeconds) );
         if( minsStr.length() == 1 ) minsStr = "0" + minsStr;
         if( secsStr.length() == 1 ) secsStr = "0" + secsStr;		
+        
         stringstream ss;
-        ss << minsStr << ":" << secsStr;
+        ss << minsStr << ":" << secsStr << endl;
+        
         TextLayout layout;
         layout.setFont( font );
         layout.setColor( COLOR_BRIGHT_BLUE );
@@ -457,6 +459,14 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
         layout2.setColor( COLOR_BRIGHT_BLUE );
         layout2.addLine( ss.str() );
         mRemainingTimeTex = layout2.render( true, false );
+    }
+    if (currentTime < 0) {
+        TextLayout layout3;
+        layout3.setFont( font );
+        layout3.setColor( COLOR_BRIGHT_BLUE );
+        layout3.addLine( "-" );
+        gl::Texture hyphenTex = layout3.render( true, false );        
+        gl::draw( hyphenTex,   Vec2f( bgx1 - 40.0f - hyphenTex.getWidth(), bgy1 + 2 ) );
     }
     gl::draw( mCurrentTimeTex,   Vec2f( bgx1 - 40.0f, bgy1 + 2 ) );
     gl::draw( mRemainingTimeTex, Vec2f( bgx2 + 8.0f, bgy1 + 2 ) );
