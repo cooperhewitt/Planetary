@@ -149,12 +149,18 @@ bool HelpLayer::touchesEnded( TouchEvent event )
 			mCallbacksHelpButtonPressed.call( this );
 			mIsCloseTouched = false;
 		} else {
-			Rectf mailButton( mPanelRect.x1 + 147.0f, mPanelRect.y1 + 226.0f, mPanelRect.x1 + 246.0f, mPanelRect.y1 + 253.0f );
-			Rectf cinderButton( mPanelRect.x1 + 133.0f, mPanelRect.y1 + 315.0f, mPanelRect.x1 + 265.0f, mPanelRect.y1 + 336.0f );
-			
+			Rectf mailButton( mPanelRect.x1 + 149.0f, mPanelRect.y1 + 226.0f, mPanelRect.x1 + 246.0f, mPanelRect.y1 + 253.0f );
+			Rectf bloomButton( mPanelRect.x1 + 90.0f, mPanelRect.y1 + 315.0f, mPanelRect.x1 + 208.0f, mPanelRect.y1 + 338.0f );
+			Rectf cinderButton( mPanelRect.x1 + 537.0f, mPanelRect.y1 + 315.0f, mPanelRect.x1 + 652.0f, mPanelRect.y1 + 338.0f );
+
 			if( mailButton.contains( pos ) ){
 				Url mailtoLink( "mailto:planetary@bloom.io?subject=Planetary feedback" );
 				launchWebBrowser( mailtoLink );
+				
+			} else if( bloomButton.contains( pos ) ){
+				Url cinderWebsite( "http://bloom.io" );
+				launchWebBrowser( cinderWebsite );
+				
 			} else if( cinderButton.contains( pos ) ){
 				Url cinderWebsite( "http://libcinder.org" );
 				launchWebBrowser( cinderWebsite );
