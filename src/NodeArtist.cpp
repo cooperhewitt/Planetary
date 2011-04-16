@@ -56,7 +56,9 @@ void NodeArtist::setData( PlaylistRef playlist )
 	int c2Int = constrain( int(c2), 32, 127 );
 	
 	int totalCharAscii = ( c1Int - 32 ) + ( c2Int - 32 );
-	float asciiPer = ( (float)totalCharAscii/( 190.0f ) ) * 293.0f ;
+	float asciiPer = ( (float)totalCharAscii/( 190.0f ) ) * 493.0f ;
+	
+	std::cout << asciiPer << std::endl;
 	
 	mHue			= sin( asciiPer ) * 0.3f + 0.33f;
 	

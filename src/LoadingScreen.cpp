@@ -85,7 +85,7 @@ void LoadingScreen::draw( gl::Texture mStarGlowTex )
 // PLANETARY TEXT
     mPlanetaryTex.enableAndBind();
 	float h		= mPlanetaryTex.getHeight();
-	v1			= Vec2f( center.x + 57.0f, center.y-h*0.5f );
+	v1			= Vec2f( center.x + 60.0f, center.y-h*0.5f );
 	v2			= v1 + mPlanetaryTex.getSize();
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
     gl::drawSolidRect( Rectf( v1, v2 ) );
@@ -151,7 +151,7 @@ void LoadingScreen::draw( gl::Texture mStarGlowTex )
 	cosAmt			= cos( speed );
 	if( cosAmt > 0.0f ){
 		pos				= Vec2f( sinAmt * 1500.0f, 0.0f );
-		radius			= 256.0f;
+		radius			= 300.0f;
 		v1				= center + pos - Vec2f( radius, radius );
 		v2				= v1 + Vec2f( radius, radius ) * 2.0f;
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
