@@ -15,6 +15,8 @@
 #include "cinder/Rect.h"
 #include "cinder/Color.h"
 #include "cinder/Font.h"
+#include "cinder/Text.h"
+#include "Globals.h"
 #include <vector>
 
 class HelpLayer {
@@ -29,8 +31,11 @@ class HelpLayer {
 	bool	touchesEnded( ci::app::TouchEvent event );
     bool    orientationChanged( ci::app::OrientationEvent event );
     void    setInterfaceOrientation( const ci::app::Orientation &orientation );
+	void	initHelpTextures( const ci::Font &font );
+	
 	void	update();
-	void	draw( const ci::gl::Texture &uiButtonsTex );
+	void	draw( const ci::gl::Texture &tex, float y );
+	
 	template<typename T>
 	ci::CallbackId registerHelpButtonPressed( T *obj, bool (T::*callback)( HelpLayer* ) )
 	{
@@ -53,6 +58,13 @@ class HelpLayer {
 	ci::Rectf		mPanelRect;				// Rect defining the panel width and height
 	ci::Rectf		mCloseRect;				// close button
 	bool			mIsCloseTouched;
+	
+	ci::Rectf mPlanetaryButton, mMailButton, mBloomButton, mCinderButton;
+	
+	float			mHelpPer;
+	ci::gl::Texture mDescTex;
+	std::vector<ci::gl::Texture> mHelpTextures;
+	ci::Vec2f		mHelpLocs[G_TOTAL_HELP_CALLOUTS];
 	
 	ci::app::Orientation mInterfaceOrientation;
     ci::Matrix44f   mOrientationMtx;

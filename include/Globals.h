@@ -40,6 +40,8 @@ static const int G_RING_HIGH_RES	= 500;
 
 static const int G_SKYDOME_RADIUS	= 1000.0f;
 
+static const int G_TOTAL_HELP_CALLOUTS = 8;
+
 static const ci::Color COLOR_BLUE			= ci::Color( 0.1f, 0.2f, 0.5f );
 static const ci::Color COLOR_BRIGHT_BLUE	= ci::Color( 0.4f, 0.8f, 1.0f );
 static const ci::Color COLOR_BRIGHT_YELLOW	= ci::Color( 1.0f, 1.0f, 0.75f );

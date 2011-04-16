@@ -163,6 +163,7 @@ bool UiLayer::touchesEnded( TouchEvent event )
                 Flurry::getInstrumentation()->logEvent("UIPanel Closed");
             }
 		}
+		G_HELP = false;
 	}
 
     // reset for next time
@@ -191,6 +192,7 @@ void UiLayer::update()
     else if (mPanelRect.y1 > mPanelClosedY) {
         mPanelRect.y1 = mPanelClosedY;
     }
+		
     
     // keep up y2!
     mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;

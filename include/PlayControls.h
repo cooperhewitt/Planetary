@@ -43,13 +43,11 @@ public:
 	bool touchesEnded( TouchEvent event );
     bool orientationChanged( OrientationEvent event );
     void setInterfaceOrientation( const Orientation &orientation);
-	void initHelpTextures( const ci::Font &font );
 	
 	void setPlaying(bool playing) { mIsPlaying = playing; }
 	bool isPlaying() { return mIsPlaying; }
 	
 	void draw( const Orientation &orientation, const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &currentTrackTex, AlphaWheel *alphaWheel, const Font &font, float y, float currentTime, float totalTime, float secsSinceTrackChange );
-	void drawHelp( float y, float dragAlphaPer, bool isLandscape );
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>
 	CallbackId registerButtonPressed( T *obj, bool (T::*callback)(PlayButton) )
@@ -79,8 +77,6 @@ private:
 	int mSeconds, mSecondsTotal, mSecondsLeft;
 	int mPrevSeconds;
 	
-	float mHelpPer;
-	
 	bool mIsDraggingPlayhead;
 	gl::Texture mCurrentTimeTex;
 	gl::Texture mRemainingTimeTex;
@@ -93,9 +89,6 @@ private:
     Orientation mInterfaceOrientation;
     Matrix44f   mOrientationMtx;
     Vec2f       mInterfaceSize;
-	
-	vector< ci::gl::Texture > mHelpTextures;
-	ci::Vec2f mHelpLocs[6];
     
 	// !!! EVENT STUFF (keep track of listeners)
 	CallbackMgr<bool(PlayButton)> mCallbacksButtonPressed;

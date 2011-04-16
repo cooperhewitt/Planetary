@@ -291,8 +291,8 @@ void KeplerApp::remainingSetup()
 	mGyroData			= Vec3f::zero();
 	// TODO: Release on shutdown
     mGyroQueue			= [[NSOperationQueue alloc] init];
-    // TODO: Release on shutdown
     mMotionManager		= [[CMMotionManager alloc] init];
+	// 
 	CMDeviceMotion *deviceMotion	= mMotionManager.deviceMotion;      
 	CMAttitude *attitude			= deviceMotion.attitude;
 	CMRotationMatrix rm				= attitude.rotationMatrix;
@@ -315,6 +315,7 @@ void KeplerApp::remainingSetup()
 	mArcball.setWindowSize( getWindowSize() );
 	mArcball.setCenter( getWindowCenter() );
 	mArcball.setRadius( G_DEFAULT_ARCBALL_RADIUS );
+	mArcball.setQuat( Quatf( 1.0, 0.0f, 0.0f ) );
 	
 	// CAMERA PERSP
 	mCamDist			= G_INIT_CAM_DIST;
@@ -369,7 +370,6 @@ void KeplerApp::remainingSetup()
 
 	// PLAY CONTROLS
 	mPlayControls.setup( this, mIpodPlayer.getPlayState() == ipod::Player::StatePlaying );
-	mPlayControls.initHelpTextures( mFontMediSmall );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
 
@@ -378,6 +378,7 @@ void KeplerApp::remainingSetup()
 
 	// HELP LAYER
 	mHelpLayer.setup( this );
+	mHelpLayer.initHelpTextures( mFontMediSmall );
 	mHelpLayer.registerHelpButtonPressed( this, &KeplerApp::onHelpLayerButtonPressed );
 	
     // ALPHA WHEEL
@@ -669,8 +670,12 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 
 bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 {
-	if( mAlphaWheel.getShowWheel() ) mFovDest = G_MAX_FOV;
-	else							 mFovDest = G_DEFAULT_FOV;
+	if( mAlphaWheel.getShowWheel() ){
+		mFovDest = G_MAX_FOV;
+	} else {
+		G_HELP = false;
+		mFovDest = G_DEFAULT_FOV;
+	}
     
 	return false;
 }
@@ -783,6 +788,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
         
         case PlayControls::HELP:
             G_HELP = !G_HELP;
+			if( G_HELP && !mAlphaWheel.getShowWheel() )
+				mAlphaWheel.setShowWheel( true );
             break;
         
         case PlayControls::DRAW_RINGS:
@@ -954,11 +961,10 @@ void KeplerApp::update()
 		}
 		
         mUiLayer.update();
-		if( G_HELP ) mHelpLayer.update();
+		mHelpLayer.update();
 		mAlphaWheel.update( mFov );
         mBreadcrumbs.update();
         mPlayControls.update();
-        
         updatePlayhead();
     }
     else {
@@ -1056,7 +1062,6 @@ void KeplerApp::updateCamera()
 
 void KeplerApp::updatePlayhead()
 {
-    // TODO: only call this once a second?
 	//if( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
 		mCurrentTrackPlayheadTime	= mIpodPlayer.getPlayheadTime();
         // TODO: cache this when playing track changes
@@ -1323,11 +1328,10 @@ void KeplerApp::drawScene()
 	
 	// EVERYTHING ELSE
 	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
+	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
     mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
-	
-	if( G_HELP ) mHelpLayer.draw( mUiButtonsTex );
 	
 	gl::disableAlphaBlending();
 	//    if( G_DEBUG ) drawInfoPanel();

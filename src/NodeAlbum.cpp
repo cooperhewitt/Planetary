@@ -57,7 +57,7 @@ void NodeAlbum::setData( PlaylistRef album )
 	
 // ORBIT RADIUS	
 	// FIXME: bad c++?
-	float numAlbums		= ((NodeArtist*)mParentNode)->mNumAlbums + 2.0f;
+	float numAlbums		= ((NodeArtist*)mParentNode)->getNumAlbums() + 2.0f;
 	
 	float invAlbumPer	= 1.0f/(float)numAlbums;
 	float albumNumPer	= (float)mIndex * invAlbumPer;
@@ -366,13 +366,13 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, float pinchAlphaPer )
 			Vec2f dir		= mScreenPos - app::getWindowCenter();
 			float dirLength = dir.length()/500.0f;
 			float angle		= atan2( dir.y, dir.x );
-			float stretch	= 1.0f + dirLength * 0.15f;
+			float stretch	= dirLength * 0.15f;
 			gl::enableAdditiveBlending();
 			float alpha = 0.8f * ( 1.0f - dirLength );
 			if( G_ZOOM <= G_ALBUM_LEVEL )
 				alpha = pinchAlphaPer;
 			gl::color( ColorA( ( mGlowColor + COLOR_BRIGHT_BLUE ) * 0.5f, alpha ) );
-			Vec2f radius = Vec2f( mRadius * stretch, mRadius ) * 2.46f;
+			Vec2f radius = Vec2f( mRadius * ( 1.0f + stretch ), mRadius * ( 1.0f + stretch * 0.5f ) ) * 2.46f;
 			tex.enableAndBind();
 			gl::drawBillboard( Vec3f::zero(), radius, -toDegrees( angle ), mBbRight, mBbUp );
 			tex.disable();

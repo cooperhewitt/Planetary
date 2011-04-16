@@ -26,30 +26,6 @@ void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
     mPrevSeconds	= 0;
     mIsDraggingPlayhead = false; 
     setInterfaceOrientation( app->getInterfaceOrientation() );
-	
-	mHelpPer = 0.0f;
-}
-
-void PlayControls::initHelpTextures( const Font &font )
-{
-	vector<string> names;
-	names.push_back( "• FLY TO CURRENT TRACK" );
-	names.push_back( "• CURRENT TRACK INFO" );
-	names.push_back( "SHOW/HIDE NAV •" );
-	names.push_back( "• SHOW/HIDE HELP" );
-	names.push_back( "• SHOW/HIDE ORBIT LINES" );
-	names.push_back( "• SHOW/HIDE TEXT" );
-	
-	int count = 0;
-	for( vector<string>::iterator it = names.begin(); it != names.end(); ++it ){
-		TextLayout layout;	
-		layout.setFont( font );
-		layout.setColor( ColorA( COLOR_BRIGHT_YELLOW, 1.0f ) );
-		layout.addCenteredLine( names[count] );
-		mHelpTextures.push_back( gl::Texture( layout.render( true, false ) ) );
-		
-		count ++;
-	}
 }
 
 void PlayControls::update()
@@ -147,13 +123,6 @@ void PlayControls::setInterfaceOrientation( const Orientation &orientation )
     if ( isLandscapeOrientation(orientation) ) {
         mInterfaceSize = mInterfaceSize.yx();
     }
-	
-	mHelpLocs[0] = Vec2f( 35.0f, mInterfaceSize.y - 110.0f );
-	mHelpLocs[1] = Vec2f( 70.0f, mInterfaceSize.y - 85.0f );
-	mHelpLocs[2] = Vec2f( mInterfaceSize.x * 0.5f - 95.0f, mInterfaceSize.y - 85.0f );
-	mHelpLocs[3] = Vec2f( mInterfaceSize.x - 292.0f, mInterfaceSize.y - 163.0f );
-	mHelpLocs[4] = Vec2f( mInterfaceSize.x - 257.0f, mInterfaceSize.y - 137.0f );
-	mHelpLocs[5] = Vec2f( mInterfaceSize.x - 222.0f, mInterfaceSize.y - 110.0f );
 }
 
 void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiButtonsTex, const gl::Texture &currentTrackTex, AlphaWheel *alphaWheel, const Font &font, float y, float currentTime, float totalTime, float secsSinceTrackChange )
@@ -470,56 +439,11 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
     }
     gl::draw( mCurrentTimeTex,   Vec2f( bgx1 - 40.0f, bgy1 + 2 ) );
     gl::draw( mRemainingTimeTex, Vec2f( bgx2 + 8.0f, bgy1 + 2 ) );
-	
-	
-	
-	if( G_HELP ){
-		mHelpPer -= ( mHelpPer - 1.0f ) * 0.2f;
-	} else {
-		mHelpPer -= mHelpPer * 0.2f;
-	}
-	
-	drawHelp( y, dragAlphaPer, isLandscapeOrientation(orientation) );
     
     gl::popModelView();
 	
 	//    gl::color( Color( 1.0f, 0, 0 ) );
 	//    gl::drawSolidRect( transformRect( lastDrawnBoundsRect, mOrientationMtx ) );
-}
-
-void PlayControls::drawHelp( float y, float dragAlphaPer, bool isLandscape )
-{		
-	if( mHelpPer > 0.001f ){
-		float yOffset = 65.0f - ( mInterfaceSize.y - y );
-		gl::color( ColorA( Color::white(), mHelpPer * dragAlphaPer ) );
-		
-		int count = 0;
-		for( vector<gl::Texture>::iterator it = mHelpTextures.begin(); it != mHelpTextures.end(); ++it ){
-			Vec2f offset( -3.0f, -15.0f + yOffset  );
-			gl::draw( *it, mHelpLocs[count] + offset );
-			count ++;
-		}
-		
-		glDisable( GL_TEXTURE_2D );
-		gl::color( ColorA( COLOR_BRIGHT_YELLOW, 0.25f * mHelpPer * dragAlphaPer ) );
-		for( int i=0; i<6; i++ ){
-			Vec2f offset = Vec2f( 0.0f, yOffset );
-			
-			if( isLandscape ){
-				if( i == 2 ){
-					offset.x = 95.0f;
-				} else {
-					offset.x -= 1.0f;
-				}
-			} else {
-				if( i == 2 ){
-					offset.x = 96.0f;
-				}
-			}
-			
-			gl::drawLine( mHelpLocs[i] + offset, Vec2f( mHelpLocs[i].x, mInterfaceSize.y - 66.0f ) + offset );		
-		}
-	}
 }
 
 
