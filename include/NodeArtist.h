@@ -29,11 +29,11 @@ class NodeArtist : public Node
     std::string getName();
     uint64_t getId();
 	void setData( ci::ipod::PlaylistRef playlist );
-
-    // TODO: should this be private?
-	int mNumAlbums;
+	int getNumAlbums(){ return mNumAlbums; }
+	
 	
   private:
 	void setColors();
 	ci::ipod::PlaylistRef mPlaylist;
+	int mNumAlbums;
 };
