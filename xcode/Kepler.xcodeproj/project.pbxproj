@@ -694,7 +694,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CINDER_PATH_jandersen = /Users/jandersen/libs/Cinder;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Bloom Studio Inc.";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bloom Studio Inc.";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
@@ -718,7 +719,8 @@
 					"-lz",
 				);
 				PRODUCT_NAME = Planetary;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
 				TARGETED_DEVICE_FAMILY = 2;
 				VALID_ARCHS = armv7;
 			};
@@ -728,8 +730,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Bloom Studio Inc.";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Distribution: Bloom Studio Inc.";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bloom Studio Inc.";
 				COPY_PHASE_STRIP = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -751,8 +754,9 @@
 					"-lz",
 				);
 				PRODUCT_NAME = Planetary;
-				"PROVISIONING_PROFILE[sdk=*]" = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				"PROVISIONING_PROFILE[sdk=*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
 				TARGETED_DEVICE_FAMILY = 2;
 				VALID_ARCHS = armv7;
 			};
@@ -765,8 +769,8 @@
 				CINDER_PATH = "$(CINDER_PATH_$(USER))";
 				CINDER_PATH_robert = ../../../../cinder_master;
 				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
-				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Robert Hodgin (S4H3GSX268)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Bloom Studio Inc.";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bloom Studio Inc.";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
@@ -775,7 +779,8 @@
 				HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/boost\"";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "4E5EBE7A-87B5-4D6D-A0B3-CD1BB8B9020E";
+				PROVISIONING_PROFILE = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" include";
@@ -789,8 +794,9 @@
 				CINDER_PATH = "$(CINDER_PATH_$(USER))";
 				CINDER_PATH_robert = ../../../../cinder_master;
 				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
-				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Robert Hodgin (Y2B24ZQA53)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Bloom Studio Inc.";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Distribution: Bloom Studio Inc.";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bloom Studio Inc.";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -798,7 +804,9 @@
 				HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/boost\"";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "90BFB82E-496C-4A03-A9E5-9E4D44AFC55F";
+				PROVISIONING_PROFILE = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				"PROVISIONING_PROFILE[sdk=*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" include";
@@ -812,7 +820,8 @@
 				CINDER_PATH = "$(CINDER_PATH_$(USER))";
 				CINDER_PATH_robert = ../../../../cinder_master;
 				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Bloom Studio Inc.";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Distribution: Bloom Studio Inc.";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bloom Studio Inc.";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
@@ -821,8 +830,9 @@
 				HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/boost\"";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				PREBINDING = NO;
-				PROVISIONING_PROFILE = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "85252141-5763-492B-83A8-1F7D65576B01";
+				PROVISIONING_PROFILE = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				"PROVISIONING_PROFILE[sdk=*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" include";
@@ -833,8 +843,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Bloom Studio Inc.";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Distribution: Bloom Studio Inc.";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bloom Studio Inc.";
 				COPY_PHASE_STRIP = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -856,8 +867,9 @@
 					"-lz",
 				);
 				PRODUCT_NAME = Planetary;
-				"PROVISIONING_PROFILE[sdk=*]" = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				"PROVISIONING_PROFILE[sdk=*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
 				TARGETED_DEVICE_FAMILY = 2;
 				VALID_ARCHS = armv7;
 			};
@@ -874,7 +886,7 @@
 				E2E91DD4135B78C600B062C5 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Distribution;
 		};
 		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Kepler" */ = {
 			isa = XCConfigurationList;
@@ -884,7 +896,7 @@
 				E2E91DD3135B78C600B062C5 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Distribution;
 		};
 /* End XCConfigurationList section */
 	};
