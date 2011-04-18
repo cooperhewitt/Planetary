@@ -86,7 +86,6 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
 	bool			onWheelToggled( AlphaWheel *alphaWheel );
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
-	bool			onHelpLayerButtonPressed( HelpLayer *helpLayer );
 	bool			onPlayControlsButtonPressed ( PlayControls::PlayButton button );
 	bool			onPlayControlsPlayheadMoved ( float amount );
 	bool			onSelectedNodeChanged( Node *node );
@@ -213,7 +212,9 @@ void KeplerApp::prepareSettings(Settings *settings)
 
 void KeplerApp::setup()
 {
-    std::cout << "setupStart: " << getElapsedSeconds() << std::endl;
+	Flurry::getInstrumentation()->startTimeEvent("Setup");
+    
+    //console() << "setupStart: " << getElapsedSeconds() << std::endl;
     
     // http://stackoverflow.com/questions/448162/determine-device-iphone-ipod-touch-with-iphone-sdk/1561920#1561920
     // http://www.clintharris.net/2009/iphone-model-via-sysctlbyname/
@@ -222,7 +223,7 @@ void KeplerApp::setup()
     char *machine = new char[size];
     sysctlbyname("hw.machine", machine, &size, NULL, 0);    
     G_IS_IPAD2 = (strcmp("iPad1,1",machine) != 0);
-    cout << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
+    console() << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
     delete[] machine;
 
 	if( G_IS_IPAD2 ){
@@ -260,12 +261,16 @@ void KeplerApp::setup()
     mLoadingScreen.setup( this );
 
     initLoadingTextures();
+
+    Flurry::getInstrumentation()->stopTimeEvent("Setup");
 }
 
 void KeplerApp::remainingSetup()
 {
     if (mRemainingSetupCalled) return;
-    
+
+    Flurry::getInstrumentation()->startTimeEvent("Remaining Setup");
+
     mRemainingSetupCalled = true;
 
     mDataIsLoaded	= false;
@@ -379,7 +384,6 @@ void KeplerApp::remainingSetup()
 	// HELP LAYER
 	mHelpLayer.setup( this );
 	mHelpLayer.initHelpTextures( mFontMediSmall );
-	mHelpLayer.registerHelpButtonPressed( this, &KeplerApp::onHelpLayerButtonPressed );
 	
     // ALPHA WHEEL
 	mAlphaWheel.setup( this );
@@ -403,14 +407,16 @@ void KeplerApp::remainingSetup()
     mWorld.setup( &mData );  
 	
 	mHasNoArtists = false;
-	
-    std::cout << "setupEnd: " << getElapsedSeconds() << std::endl;
+
+    Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
+
+    //console() << "setupEnd: " << getElapsedSeconds() << std::endl;
 }
 
 void KeplerApp::initLoadingTextures()
 {
-    float t = getElapsedSeconds();
-    std::cout << "initLoadingTextures, begin: " << t << std::endl;
+    //float t = getElapsedSeconds();
+    //console() << "initLoadingTextures, begin: " << t << std::endl;
     // only add textures here if they are *required* for LoadingScreen
     // otherwise add them to initTextures
 	
@@ -418,13 +424,14 @@ void KeplerApp::initLoadingTextures()
 	
 //    mTextureLoader.requestTexture( "star.png",     mStarTex );
 //    mTextureLoader.requestTexture( "starGlow.png", mStarGlowTex );
-    std::cout << "initLoadingTextures, duration: " << getElapsedSeconds() - t << std::endl;
+    //console() << "initLoadingTextures, duration: " << getElapsedSeconds() - t << std::endl;
 }
 
 void KeplerApp::initTextures()
 {
-	float t = getElapsedSeconds();
-	cout << "initTextures start time = " << t << endl;
+    Flurry::getInstrumentation()->startTimeEvent("Load Textures");    
+//	float t = getElapsedSeconds();
+//	console() << "initTextures start time = " << t << endl;
     mStarTex			= loadImage( loadResource( "star.png" ) );
 	mEclipseGlowTex		= loadImage( loadResource( "eclipseGlow.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
@@ -459,7 +466,8 @@ void KeplerApp::initTextures()
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds4.png" ) ) ) );
 	//mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
     
-	cout << "initTextures duration = " << (getElapsedSeconds()-t) << endl;
+	//console() << "initTextures duration = " << (getElapsedSeconds()-t) << endl;
+    Flurry::getInstrumentation()->stopTimeEvent("Load Textures");    
 }
 
 void KeplerApp::touchesBegan( TouchEvent event )
@@ -518,18 +526,16 @@ void KeplerApp::touchesEnded( TouchEvent event )
                 float v			= mTouchPos.y / (float) getWindowHeight();
                 Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
                 checkForNodeTouch( touchRay, mMatrix, mTouchPos );
-            } else {
-                Flurry::getInstrumentation()->logEvent("Camera Moved");
             }
         }
 	}
 	if (getActiveTouches().size() != 1) {
+        if (mIsDragging) {
+            Flurry::getInstrumentation()->logEvent("Camera Moved");
+        }
 		mIsDragging = false;
         mIsTouching = false;
-	} else {
-        // TODO: camera moved log is a bit suspect, better to log at mArcball.mouseDrag if mIsDragging, to be sure?
-        Flurry::getInstrumentation()->logEvent("Camera Moved");
-    }
+	}
 }
 
 bool KeplerApp::onPinchBegan( PinchEvent event )
@@ -600,7 +606,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
-    Flurry::getInstrumentation()->logEvent("Pinch");
+    Flurry::getInstrumentation()->logEvent("Pinch Ended");
 
 	if( mCamDistPinchOffsetDest > 3.3f ){
 		Node *selected = mState.getSelectedNode();
@@ -629,10 +635,6 @@ bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
     bool belowBreadcrumbs = worldPos.y > mBreadcrumbs.getHeight();
     bool notTab = !mUiLayer.getPanelTabRect().contains(worldPos);
     bool valid = aboveUI && belowBreadcrumbs && notTab;
-//    cout << "worldPos: " << worldPos << " aboveUI: " << aboveUI  
-//                                     << " belowBreadcrumbs: " << belowBreadcrumbs
-//                                     << " notTab: " << notTab << endl;
-//    cout << "screenPos: " << screenPos << " valid: " << valid << endl;
     return valid;
 }
 
@@ -644,10 +646,34 @@ void KeplerApp::accelerated( AccelEvent event )
 
 void KeplerApp::orientationChanged( OrientationEvent event )
 {
-    //console() << event << std::endl;
-    
     setInterfaceOrientation(event.getInterfaceOrientation());
 
+    std::map<string, string> params;
+    switch (event.getDeviceOrientation()) {
+        case PORTRAIT_ORIENTATION:
+            params["Device Orientation"] = "Portrait";
+            break;
+        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
+            params["Device Orientation"] = "Upside Down Portrait";
+            break;
+        case LANDSCAPE_LEFT_ORIENTATION:
+            params["Device Orientation"] = "Landscape Left";
+            break;
+        case LANDSCAPE_RIGHT_ORIENTATION:
+            params["Device Orientation"] = "Landscape Right";
+            break;
+        case FACE_UP_ORIENTATION:
+            params["Device Orientation"] = "Face Up";
+            break;
+        case FACE_DOWN_ORIENTATION:
+            params["Device Orientation"] = "Face Down";
+            break;
+        case UNKNOWN_ORIENTATION:
+            params["Device Orientation"] = "Unknown";
+            break;
+    }
+    Flurry::getInstrumentation()->logEvent("Orientation Changed", params);    
+    
     // Look over there!
     // heinous trickery follows...
     Orientation prevOrientation = event.getPrevInterfaceOrientation();
@@ -689,8 +715,13 @@ bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 bool KeplerApp::onAlphaCharStateChanged( State *state )
 {
 	mData.filterArtistsByAlpha( mState.getAlphaChar() );
-	
-	std::cout << "Letter " << mState.getAlphaChar() << " has " << mData.mFilteredArtists.size() << " artists" << std::endl;
+
+    std::map<string, string> parameters;
+    parameters["Letter"] = ""+mState.getAlphaChar();
+    parameters["Count"] = ""+mData.mFilteredArtists.size();
+    Flurry::getInstrumentation()->logEvent("Letter Selected" , parameters);
+
+//	console() << "Letter " << mState.getAlphaChar() << " has " << mData.mFilteredArtists.size() << " artists" << std::endl;
 	
 	mWorld.filterNodes();
 	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
@@ -716,6 +747,7 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
 
 	if( node != NULL ) {
         if (node->mGen == G_TRACK_LEVEL) {
+            // TODO: which track? album? artist?
             Flurry::getInstrumentation()->logEvent("Track Selected");
             // FIXME: is this a bad OOP thing or is there a cleaner/safer C++ way to handle it?
             NodeTrack* trackNode = (NodeTrack*)node;
@@ -728,12 +760,6 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
             else {
                 mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
             }
-        } 
-        else if (node->mGen == G_HOME_LEVEL) {
-            Flurry::getInstrumentation()->logEvent("Home Selected");
-        } 
-        else if (node->mGen == G_ALPHA_LEVEL) {
-            Flurry::getInstrumentation()->logEvent("Alpha Selected");
         } 
         else if (node->mGen == G_ARTIST_LEVEL) {
             Flurry::getInstrumentation()->logEvent("Artist Selected");
@@ -765,15 +791,15 @@ bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
 
 bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 {
-    Flurry::getInstrumentation()->logEvent("Player controlls Selected");
-    
     switch( button ) {
         
         case PlayControls::PREVIOUS_TRACK:
+            Flurry::getInstrumentation()->logEvent("Previous Track Button Selected");            
             mIpodPlayer.skipPrev();
             break;
         
         case PlayControls::PLAY_PAUSE:
+            Flurry::getInstrumentation()->logEvent("Play/Pause Button Selected");            
             if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
                 mIpodPlayer.pause();
             }
@@ -783,59 +809,59 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
             break;
         
         case PlayControls::NEXT_TRACK:
+            Flurry::getInstrumentation()->logEvent("Next Track Button Selected");            
             mIpodPlayer.skipNext();	
             break;
         
         case PlayControls::HELP:
+            Flurry::getInstrumentation()->logEvent("Help Button Selected");            
             G_HELP = !G_HELP;
 			if( G_HELP && !mAlphaWheel.getShowWheel() )
 				mAlphaWheel.setShowWheel( true );
             break;
         
         case PlayControls::DRAW_RINGS:
+            Flurry::getInstrumentation()->logEvent("Draw Rings Button Selected");            
             G_DRAW_RINGS = !G_DRAW_RINGS;
             break;
         
         case PlayControls::DRAW_TEXT:
+            Flurry::getInstrumentation()->logEvent("Draw Text Button Selected");            
             G_DRAW_TEXT = !G_DRAW_TEXT;
             break;
         
         case PlayControls::CURRENT_TRACK:
+            Flurry::getInstrumentation()->logEvent("Current Track Button Selected");            
             // pretend the track just got changed again, this will select it:
             onPlayerTrackChanged( &mIpodPlayer );
             break;
 
         case PlayControls::SHOW_WHEEL:
+            Flurry::getInstrumentation()->logEvent("Show Wheel Button Selected");            
             mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );
             break;
-            
-        default:
-            console() << "unknown button pressed!" << std::endl;
+
+        case PlayControls::NO_BUTTON:
+            //console() << "unknown button pressed!" << std::endl;
             break;
-            
+
 	} // switch
 
 	return false;
 }
 
-bool KeplerApp::onHelpLayerButtonPressed( HelpLayer *helpLayer )
-{
-	G_HELP = !G_HELP;
-	
-	return false;
-}
-
 bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 {
-    Flurry::getInstrumentation()->logEvent("Breadcrumb Selected");
 	int level = event.getLevel();
 	if( level == G_HOME_LEVEL ){				// BACK TO HOME
+        Flurry::getInstrumentation()->logEvent("Home Breadcrumb Selected");
         mAlphaWheel.setShowWheel(true);
 		mWorld.deselectAllNodes();
 		mState.setSelectedNode( NULL );
 		mState.setAlphaChar( ' ' );
 	}
 	else if( level == G_ALPHA_LEVEL ){			// BACK TO ALPHA FILTER
+        Flurry::getInstrumentation()->logEvent("Alpha Breadcrumb Selected");
 		mWorld.deselectAllNodes();
 		mData.filterArtistsByAlpha( mState.getAlphaChar() );
 		mWorld.filterNodes();
@@ -843,6 +869,15 @@ bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 		mCamDistPinchOffsetDest = 1.0f;
 	}
 	else if( level >= G_ARTIST_LEVEL ){			// BACK TO ARTIST/ALBUM/TRACK
+        if( level == G_ARTIST_LEVEL ){			// BACK TO ARTIST/ALBUM/TRACK
+            Flurry::getInstrumentation()->logEvent("Artist Breadcrumb Selected");
+        }
+        else if( level == G_ALBUM_LEVEL ){			// BACK TO ARTIST/ALBUM/TRACK
+            Flurry::getInstrumentation()->logEvent("Album Breadcrumb Selected");
+        }
+        else {
+            Flurry::getInstrumentation()->logEvent("Track Breadcrumb Selected");            
+        }
 		// get Artist, Album or Track from selectedNode
 		Node *current = mState.getSelectedNode();
 		while (current != NULL && current->mGen > level) {
@@ -875,15 +910,17 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &
 		if( nodeWithHighestGen ){
 			if( highestGen == G_ARTIST_LEVEL ){
 				if( ! mState.getSelectedArtistNode() ) {
-                    console() << "setting artist node selection" << std::endl;                                        
+                    //console() << "setting artist node selection" << std::endl;                                        
+                    Flurry::getInstrumentation()->logEvent("Artist Node Touched");                    
 					mState.setSelectedNode( nodeWithHighestGen );
                 }
-                else {
-                    console() << "ignoring artist node selection" << std::endl;                                        
-                }
+//                else {
+//                    console() << "ignoring artist node selection" << std::endl;                                        
+//                }
 			} 
             else if ( highestGen == G_TRACK_LEVEL ){
-				if( nodeWithHighestGen != mState.getSelectedNode() ) {
+                Flurry::getInstrumentation()->logEvent("Track Node Touched");
+				if( nodeWithHighestGen != mState.getSelectedNode() ) {                    
                     mState.setSelectedNode( nodeWithHighestGen );
                 }
                 else {
@@ -898,7 +935,8 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &
                 
             }
             else {
-                console() << "setting node selection" << std::endl;
+                Flurry::getInstrumentation()->logEvent("Album Node Touched");
+                //console() << "setting node selection" << std::endl;
                 mState.setSelectedNode( nodeWithHighestGen );
 			}
 
@@ -907,9 +945,9 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &
             // TODO: shouldn't be possible... confirm!
         }        
 	}
-    else {
-        console() << "no nodes hit by touches" << std::endl;
-    }
+//    else {
+//        console() << "no nodes hit by touches" << std::endl;
+//    }
 }
 
 void KeplerApp::update()
@@ -923,8 +961,10 @@ void KeplerApp::update()
         onSelectedNodeChanged( NULL );
         // and then make sure we know about the current track if there is one
         if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ) {
+            Flurry::getInstrumentation()->logEvent("Startup with Track Playing");                        
             onPlayerTrackChanged( &mIpodPlayer );
         } else {
+            Flurry::getInstrumentation()->logEvent("Startup without Track Playing");                        
 			mAlphaWheel.setShowWheel( true );
 		}
 	}
@@ -1376,8 +1416,8 @@ void KeplerApp::setParamsTex()
 
 bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 {	
-	console() << "/////////////////////" << std::endl;
-	console() << "onPlayerLibraryChanged!" << std::endl;
+//	console() << "/////////////////////" << std::endl;
+//	console() << "onPlayerLibraryChanged!" << std::endl;
 
     Flurry::getInstrumentation()->logEvent("Player Library Changed");
 
@@ -1395,8 +1435,10 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
     
     mElapsedSecondsSinceTrackChange = getElapsedSeconds();
     
-	console() << "==================================================================" << std::endl;
-	console() << "onPlayerTrackChanged!" << std::endl;
+//	console() << "==================================================================" << std::endl;
+//	console() << "onPlayerTrackChanged!" << std::endl;
+
+    Flurry::getInstrumentation()->logEvent("Player Track Changed");
 
 	if (mIpodPlayer.hasPlayingTrack()) {
         
@@ -1436,17 +1478,17 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                         if (trackNode != NULL) {
 
                             if (!trackNode->mIsSelected) {
-                                console() << "    selecting track node" << std::endl;
+                                //console() << "    selecting track node" << std::endl;
                                 // this one gets selected in World
                                 mState.setSelectedNode(trackNode);
                             }
-                            else {
-                                console() << "    track node already selected" << std::endl;                            
-                            }
+//                            else {
+//                                console() << "    track node already selected" << std::endl;                            
+//                            }
                         }
                         else {
                             // TODO: log this in Flurry, with track details and current state details
-                            console() << "  track changed to a track we don't have a track node for - this should never happen" << std::endl;
+                            console() << "  track changed to a track we don't have a track node for - ideally this should never happen" << std::endl;
                         }
                     
 //                    }
@@ -1459,36 +1501,61 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                 }
                 else {
                     // TODO: log this in Flurry, with track details and current state details
-                    console() << "  track changed to a track we don't have an album node for - this should never happen" << std::endl;
+                    console() << "  track changed to a track we don't have an album node for - ideally this should never happen" << std::endl;
                 }                
             }
             else {
                 // TODO: log this in Flurry, with track details and current state details
-                console() << "  track changed to a track we don't have an artist node for - this should never happen" << std::endl;
+                console() << "  track changed to a track we don't have an artist node for - ideally this should never happen" << std::endl;
             }
         }
-        else {
-            console() << "    track changed but we've already selected the node for that track" << std::endl;
-        }
+//        else {
+//            console() << "    track changed but we've already selected the node for that track" << std::endl;
+//        }
         
 	}
 	else {
-		console() << "    trackchanged but nothing's playing" << endl;
+//		console() << "    trackchanged but nothing's playing" << endl;
 		mCurrentTrackTex.reset();
         // FIXME: disable play button and zoom-to-current-track button
 	}
 
     updatePlayhead();
     
-    console() << "onPlayerTrackChanged done in " << (getElapsedSeconds() - mElapsedSecondsSinceTrackChange) << " seconds" << std::endl;
-	console() << "==================================================================" << std::endl;
+    // TODO: profile with Flurry start/stopTimedEvent?
+    
+//    console() << "onPlayerTrackChanged done in " << (getElapsedSeconds() - mElapsedSecondsSinceTrackChange) << " seconds" << std::endl;
+//	console() << "==================================================================" << std::endl;
 
     return false;
 }
 
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
-    // TODO: does Flurry care about this?
+    // TODO: a tidy getStringForPlayerState function?
+    std::map<string, string> params;
+    switch(player->getPlayState()) {
+        case ipod::Player::StateStopped:
+            params["State"] = "Stopped";
+            break;
+        case ipod::Player::StatePlaying:
+            params["State"] = "Playing";
+            break;
+        case ipod::Player::StatePaused:
+            params["State"] = "Paused";
+            break;
+        case ipod::Player::StateInterrupted:
+            params["State"] = "Interrupted";
+            break;
+        case ipod::Player::StateSeekingForward:
+            params["State"] = "Seeking Forward";
+            break;
+        case ipod::Player::StateSeekingBackward:
+            params["State"] = "Seeking Backward";
+            break;
+    }
+    Flurry::getInstrumentation()->logEvent("Player State Changed", params);
+    
     if ( mState.getSelectedNode() == NULL ) {
         onPlayerTrackChanged( player );
     }

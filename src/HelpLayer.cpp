@@ -175,7 +175,7 @@ bool HelpLayer::touchesEnded( TouchEvent event )
 		Vec2f pos = touches.begin()->getPos();
 		pos = (mOrientationMtx.inverted() * Vec3f(pos,0)).xy();
 
-		
+		// TODO: should we use a callback for these and handle the actions in the main app?
 		
 		Url mailToLink( "mailto:planetary@bloom.io?subject=Planetary feedback" );
 		Url planetaryWebsite( "http://planetary.bloom.io" );
@@ -183,15 +183,18 @@ bool HelpLayer::touchesEnded( TouchEvent event )
 		Url cinderWebsite( "http://libcinder.org" );
 		
 		if( mMailButton.contains( pos ) ){
+            Flurry::getInstrumentation()->logEvent("Email Link Selected");            
 			launchWebBrowser( mailToLink );
-			
 		} else if( mPlanetaryButton.contains( pos ) ){
+            Flurry::getInstrumentation()->logEvent("Planetary Link Selected");            
 			launchWebBrowser( planetaryWebsite );
 			
 		} else if( mBloomButton.contains( pos ) ){
+            Flurry::getInstrumentation()->logEvent("Bloom Link Selected");            
 			launchWebBrowser( bloomWebsite );
 			
 		} else if( mCinderButton.contains( pos ) ){
+            Flurry::getInstrumentation()->logEvent("Cinder Link Selected");            
 			launchWebBrowser( cinderWebsite );
 		}    
 	}

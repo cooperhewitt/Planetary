@@ -36,16 +36,7 @@ class HelpLayer {
 	void	update();
 	void	draw( const ci::gl::Texture &tex, float y );
 	
-	template<typename T>
-	ci::CallbackId registerHelpButtonPressed( T *obj, bool (T::*callback)( HelpLayer* ) )
-	{
-		return mCallbacksHelpButtonPressed.registerCb(std::bind1st(std::mem_fun(callback), obj));
-	}
-	
-	
  private:
-	ci::CallbackMgr<bool(HelpLayer*)> mCallbacksHelpButtonPressed;
-	
 	
     ci::Rectf   transformRect( const ci::Rectf &worldRect, const ci::Matrix44f &matrix );
     
