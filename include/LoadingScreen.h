@@ -11,13 +11,14 @@
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/app/AppCocoaTouch.h"
+#include "Orientation.h"
+#include "OrientationEvent.h"
 
 class LoadingScreen {  
 public:
-    void setup( ci::app::AppCocoaTouch *app );
+    void setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation );
     void setEnabled( bool enabled );
     void draw( ci::gl::Texture starGlowTex );
-    bool orientationChanged( ci::app::OrientationEvent event );
     void setInterfaceOrientation( const ci::app::Orientation &orientation );
 private:
     

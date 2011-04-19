@@ -8,6 +8,7 @@
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
 #include "cinder/Utilities.h"
+#include "OrientationHelper.h"
 #include "Globals.h"
 #include "Easing.h"
 #include "World.h"
@@ -70,7 +71,7 @@ class KeplerApp : public AppCocoaTouch {
 	virtual void	touchesMoved( TouchEvent event );
 	virtual void	touchesEnded( TouchEvent event );
 	virtual void	accelerated( AccelEvent event );
-	virtual void	orientationChanged( OrientationEvent event );
+	bool            orientationChanged( OrientationEvent event );
     void            setInterfaceOrientation( const Orientation &orientation );
 	virtual void	update();
 	void			updateArcball();
@@ -109,6 +110,7 @@ class KeplerApp : public AppCocoaTouch {
 	Data			mData;
 
 // ORIENTATION
+    OrientationHelper mOrientationHelper;    
     Orientation     mInterfaceOrientation;
     Matrix44f       mOrientationMatrix;
     Matrix44f       mInverseOrientationMatrix;    
@@ -231,8 +233,9 @@ void KeplerApp::setup()
 		G_NUM_DUSTS = 4000;
 	}
 	
-	
-    setInterfaceOrientation( getInterfaceOrientation() );
+	mOrientationHelper.setup();
+    mOrientationHelper.registerOrientationChanged( this, &KeplerApp::orientationChanged );    
+    setInterfaceOrientation( mOrientationHelper.getInterfaceOrientation() );
     
     mRemainingSetupCalled = false;
 
@@ -258,7 +261,7 @@ void KeplerApp::setup()
     mRotationSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = upSteps;
     
     // !!! this has to be set up before any other UI things so it can consume touch events
-    mLoadingScreen.setup( this );
+    mLoadingScreen.setup( this, mOrientationHelper.getInterfaceOrientation() );
 
     initLoadingTextures();
 
@@ -369,24 +372,24 @@ void KeplerApp::remainingSetup()
     // NB:- order of UI init is important to register callbacks in correct order
     
 	// BREADCRUMBS
-	mBreadcrumbs.setup( this, mFontMediSmall );
+	mBreadcrumbs.setup( this, mFontMediSmall, mOrientationHelper.getInterfaceOrientation() );
 	mBreadcrumbs.registerBreadcrumbSelected( this, &KeplerApp::onBreadcrumbSelected );
 	mBreadcrumbs.setHierarchy(mState.getHierarchy());
 
 	// PLAY CONTROLS
-	mPlayControls.setup( this, mIpodPlayer.getPlayState() == ipod::Player::StatePlaying );
+	mPlayControls.setup( this, mIpodPlayer.getPlayState() == ipod::Player::StatePlaying, mOrientationHelper.getInterfaceOrientation() );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
 
 	// UILAYER
-	mUiLayer.setup( this );
+	mUiLayer.setup( this, mOrientationHelper.getInterfaceOrientation() );
 
 	// HELP LAYER
-	mHelpLayer.setup( this );
+	mHelpLayer.setup( this, mOrientationHelper.getInterfaceOrientation() );
 	mHelpLayer.initHelpTextures( mFontMediSmall );
 	
     // ALPHA WHEEL
-	mAlphaWheel.setup( this );
+	mAlphaWheel.setup( this, mOrientationHelper.getInterfaceOrientation() );
 	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
 	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
 	mAlphaWheel.initAlphaTextures( mFontBig );	
@@ -644,34 +647,21 @@ void KeplerApp::accelerated( AccelEvent event )
 	mNewAccelMatrix.invert();
 }
 
-void KeplerApp::orientationChanged( OrientationEvent event )
+bool KeplerApp::orientationChanged( OrientationEvent event )
 {
-    setInterfaceOrientation(event.getInterfaceOrientation());
+    Orientation orientation = event.getInterfaceOrientation();
+    mLoadingScreen.setInterfaceOrientation(orientation);
+    if (mDataIsLoaded) {
+        mPlayControls.setInterfaceOrientation(orientation);
+        mHelpLayer.setInterfaceOrientation(orientation);
+        mUiLayer.setInterfaceOrientation(orientation);
+        mAlphaWheel.setInterfaceOrientation(orientation);
+        mBreadcrumbs.setInterfaceOrientation(orientation);    
+    }
+    setInterfaceOrientation(orientation);
 
     std::map<string, string> params;
-    switch (event.getDeviceOrientation()) {
-        case PORTRAIT_ORIENTATION:
-            params["Device Orientation"] = "Portrait";
-            break;
-        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
-            params["Device Orientation"] = "Upside Down Portrait";
-            break;
-        case LANDSCAPE_LEFT_ORIENTATION:
-            params["Device Orientation"] = "Landscape Left";
-            break;
-        case LANDSCAPE_RIGHT_ORIENTATION:
-            params["Device Orientation"] = "Landscape Right";
-            break;
-        case FACE_UP_ORIENTATION:
-            params["Device Orientation"] = "Face Up";
-            break;
-        case FACE_DOWN_ORIENTATION:
-            params["Device Orientation"] = "Face Down";
-            break;
-        case UNKNOWN_ORIENTATION:
-            params["Device Orientation"] = "Unknown";
-            break;
-    }
+    params["Device Orientation"] = getOrientationString(event.getDeviceOrientation());
     Flurry::getInstrumentation()->logEvent("Orientation Changed", params);    
     
     // Look over there!
@@ -684,14 +674,16 @@ void KeplerApp::orientationChanged( OrientationEvent event )
         }
     }
     // ... end heinous trickery
+    
+    return false;
 }
 
 void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 {
     mInterfaceOrientation = orientation;
-    mOrientationMatrix = getOrientationMatrix44<float>( mInterfaceOrientation );
+    mOrientationMatrix = getOrientationMatrix44( mInterfaceOrientation, getWindowSize() );
     mInverseOrientationMatrix = mOrientationMatrix.inverted();
-    mUp = getUpVectorForOrientation<float>( mInterfaceOrientation );    
+    mUp = getUpVectorForOrientation( mInterfaceOrientation );    
 }
 
 bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
@@ -841,6 +833,10 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
             mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );
             break;
 
+        case PlayControls::SLIDER:
+            // TODO: Flurry log?
+            break;
+            
         case PlayControls::NO_BUTTON:
             //console() << "unknown button pressed!" << std::endl;
             break;
@@ -1319,20 +1315,7 @@ void KeplerApp::drawScene()
 	
 	// NAMES
 	if( G_DRAW_TEXT ){
-        
-        // TODO: write a function for getAngleForOrientation<float>( mInterfaceOrientation );
-        float nameAngle = 0;
-        if (mInterfaceOrientation == UPSIDE_DOWN_PORTRAIT_ORIENTATION) {
-            nameAngle = M_PI;
-        }
-        else if (mInterfaceOrientation == LANDSCAPE_LEFT_ORIENTATION) {
-            nameAngle = M_PI/2.0;
-        }
-        else if (mInterfaceOrientation == LANDSCAPE_RIGHT_ORIENTATION) {
-            nameAngle = -M_PI/2;
-        }        
-        
-		mWorld.drawNames( mCam, mPinchAlphaPer, nameAngle );
+		mWorld.drawNames( mCam, mPinchAlphaPer, getAngleForOrientation(mInterfaceOrientation) );
 	}
     
     glDisable( GL_TEXTURE_2D );

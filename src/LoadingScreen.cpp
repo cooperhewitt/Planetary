@@ -16,14 +16,13 @@
 using namespace ci;
 using namespace ci::app;
 
-void LoadingScreen::setup( AppCocoaTouch *app )
+void LoadingScreen::setup( AppCocoaTouch *app, const Orientation &orientation )
 {
     mEnabled = true;
-    app->registerOrientationChanged(this, &LoadingScreen::orientationChanged);
     app->registerTouchesBegan(this, &LoadingScreen::onTouchEvent);
     app->registerTouchesMoved(this, &LoadingScreen::onTouchEvent);
     app->registerTouchesEnded(this, &LoadingScreen::onTouchEvent);            
-    setInterfaceOrientation( app->getInterfaceOrientation() );
+    setInterfaceOrientation( orientation );
 	mPlanetaryTex	= gl::Texture( loadImage( loadResource( "planetary.png" ) ) );
 	mPlanetTex		= gl::Texture( loadImage( loadResource( "planet.png" ) ) );
 	mBackgroundTex	= gl::Texture( loadImage( loadResource( "background.jpg" ) ) );
@@ -34,19 +33,11 @@ void LoadingScreen::setEnabled( bool enabled )
     mEnabled = enabled;
 }
 
-bool LoadingScreen::orientationChanged( OrientationEvent event )
-{
-    if ( isValidInterfaceOrientation(event.getInterfaceOrientation()) ) {
-        setInterfaceOrientation( event.getInterfaceOrientation() );
-    }
-    return false;
-}
-
 void LoadingScreen::setInterfaceOrientation( const Orientation &orientation )
 {
     mInterfaceOrientation = orientation;    
     
-    mOrientationMatrix = getOrientationMatrix44<float>(mInterfaceOrientation);
+    mOrientationMatrix = getOrientationMatrix44(mInterfaceOrientation, getWindowSize());
 
     mInterfaceSize = getWindowSize();
     

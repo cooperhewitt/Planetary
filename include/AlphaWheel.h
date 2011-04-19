@@ -15,17 +15,18 @@
 #include "cinder/Rect.h"
 #include "cinder/Color.h"
 #include "cinder/Font.h"
+#include "Orientation.h"
+#include "OrientationEvent.h"
 
 class AlphaWheel {
 public:
 	AlphaWheel();
 	~AlphaWheel();
-	void	setup( ci::app::AppCocoaTouch *app );
+	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation );
 	void	initAlphaTextures( const ci::Font &font );
 	bool	touchesBegan( ci::app::TouchEvent event );
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
-    bool    orientationChanged( ci::app::OrientationEvent event );
     void    setInterfaceOrientation( const ci::app::Orientation &orientation );
 	void	update( float fov );
 	void	setTimePinchEnded( float timePinchEnded );

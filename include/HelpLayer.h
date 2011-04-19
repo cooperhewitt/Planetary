@@ -16,6 +16,8 @@
 #include "cinder/Color.h"
 #include "cinder/Font.h"
 #include "cinder/Text.h"
+#include "Orientation.h"
+#include "OrientationEvent.h"
 #include "Globals.h"
 #include <vector>
 
@@ -24,12 +26,11 @@ class HelpLayer {
 	
     HelpLayer();
 	~HelpLayer();
-	void	setup( ci::app::AppCocoaTouch *app );
+	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation );
 	
     bool	touchesBegan( ci::app::TouchEvent event );
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
-    bool    orientationChanged( ci::app::OrientationEvent event );
     void    setInterfaceOrientation( const ci::app::Orientation &orientation );
 	void	initHelpTextures( const ci::Font &font );
 	

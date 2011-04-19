@@ -11,12 +11,11 @@
 #include "Globals.h"
 #include "BloomGl.h"
 
-void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
+void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState, const Orientation &orientation )
 {
     mApp			= app;
     // TODO: unregister these in destructor!
     cbTouchesBegan	= mApp->registerTouchesBegan( this, &PlayControls::touchesBegan );
-    cbOrientationChanged = mApp->registerOrientationChanged( this, &PlayControls::orientationChanged );    
     cbTouchesEnded	= 0;
     cbTouchesMoved	= 0;		
     lastTouchedType = NO_BUTTON;
@@ -25,7 +24,7 @@ void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState )
     mSeconds		= 60;
     mPrevSeconds	= 0;
     mIsDraggingPlayhead = false; 
-    setInterfaceOrientation( app->getInterfaceOrientation() );
+    setInterfaceOrientation( orientation );
 }
 
 void PlayControls::update()
@@ -44,7 +43,7 @@ void PlayControls::update()
 
 bool PlayControls::touchesBegan( TouchEvent event )
 {
-    Rectf transformedBounds = transformRect( lastDrawnBoundsRect, mOrientationMtx );
+    Rectf transformedBounds = transformRect( lastDrawnBoundsRect, mOrientationMatrix );
     vector<TouchEvent::Touch> touches = event.getTouches();
     if (touches.size() > 0 && transformedBounds.contains(touches[0].getPos())) {
         if (cbTouchesEnded == 0) {
@@ -76,7 +75,7 @@ bool PlayControls::touchesMoved( TouchEvent event )
         if( touches.size() == 1 ){
             
             Vec2f pos = touches.begin()->getPos();
-            pos = (mOrientationMtx.inverted() * Vec3f(pos,0)).xy();
+            pos = (mOrientationMatrix.inverted() * Vec3f(pos,0)).xy();
             
 			// MAGIC NUMBER: beware these hard-coded nasties!
             float border = 110.0f;
@@ -102,23 +101,13 @@ bool PlayControls::touchesEnded( TouchEvent event )
     return false;
 }
 
-bool PlayControls::orientationChanged( OrientationEvent event )
-{
-    if (event.getInterfaceOrientation() != mInterfaceOrientation) {
-        setInterfaceOrientation( event.getInterfaceOrientation() );
-    }
-    return false;
-}
-
 void PlayControls::setInterfaceOrientation( const Orientation &orientation )
 {
     mInterfaceOrientation = orientation;
     
-    Vec2f deviceSize = app::getWindowSize();
+    mOrientationMatrix = getOrientationMatrix44(mInterfaceOrientation, getWindowSize());
     
-    mOrientationMtx = getOrientationMatrix44<float>(orientation);
-    
-    mInterfaceSize = deviceSize;
+    mInterfaceSize = getWindowSize();
     
     if ( isLandscapeOrientation(orientation) ) {
         mInterfaceSize = mInterfaceSize.yx();
@@ -130,7 +119,7 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 	float dragAlphaPer = pow( ( mInterfaceSize.y - y ) / 65.0f, 2.0f );
 	
     gl::pushModelView();
-    gl::multModelView( mOrientationMtx );    
+    gl::multModelView( mOrientationMatrix );    
     
     lastDrawnBoundsRect = Rectf(0, y, mInterfaceSize.x, mInterfaceSize.y );
     
@@ -443,18 +432,18 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
     gl::popModelView();
 	
 	//    gl::color( Color( 1.0f, 0, 0 ) );
-	//    gl::drawSolidRect( transformRect( lastDrawnBoundsRect, mOrientationMtx ) );
+	//    gl::drawSolidRect( transformRect( lastDrawnBoundsRect, mOrientationMatrix ) );
 }
 
 
 PlayControls::PlayButton PlayControls::findButtonUnderTouches(vector<TouchEvent::Touch> touches) {
-    Rectf transformedBounds = transformRect( lastDrawnBoundsRect, mOrientationMtx );
+    Rectf transformedBounds = transformRect( lastDrawnBoundsRect, mOrientationMatrix );
     for (int j = 0; j < touches.size(); j++) {
         TouchEvent::Touch touch = touches[j];
         Vec2f pos = touch.getPos();
         if ( transformedBounds.contains( pos ) ) {
             for (int i = 0; i < touchRects.size(); i++) {
-                Rectf rect = transformRect( touchRects[i], mOrientationMtx );
+                Rectf rect = transformRect( touchRects[i], mOrientationMatrix );
 //                if (touchTypes[i] == SLIDER) {
 //                    std::cout << "testing slider rect: " << touchRects[i] << std::endl;
 //                    std::cout << "      transformRect: " << rect << std::endl;

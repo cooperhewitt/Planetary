@@ -15,6 +15,8 @@
 #include "cinder/Rect.h"
 #include "cinder/Color.h"
 #include "cinder/Font.h"
+#include "Orientation.h"
+#include "OrientationEvent.h"
 #include <vector>
 
 class UiLayer {
@@ -25,12 +27,11 @@ class UiLayer {
     
 	enum	ButtonTexId { TEX_PANEL_UP, TEX_PANEL_UP_ON, TEX_PANEL_DOWN, TEX_PANEL_DOWN_ON };
 	
-	void	setup( ci::app::AppCocoaTouch *app );
+	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation );
 	
     bool	touchesBegan( ci::app::TouchEvent event );
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
-    bool    orientationChanged( ci::app::OrientationEvent event );
     void    setInterfaceOrientation( const ci::app::Orientation &orientation );
     
 	void	update();

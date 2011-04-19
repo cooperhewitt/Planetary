@@ -29,13 +29,12 @@ HelpLayer::~HelpLayer()
 	mApp->unregisterTouchesBegan( mCbTouchesBegan );
 	mApp->unregisterTouchesMoved( mCbTouchesMoved );
 	mApp->unregisterTouchesEnded( mCbTouchesEnded );
-    mApp->unregisterOrientationChanged( mCbOrientationChanged );
 }
 
 void HelpLayer::setInterfaceOrientation( const ci::app::Orientation &orientation )
 {
 	mInterfaceOrientation = orientation;
-	mOrientationMtx = getOrientationMatrix44<float>( orientation );
+	mOrientationMtx = getOrientationMatrix44( orientation, getWindowSize() );
     
     mInterfaceSize = getWindowSize();
 	
@@ -79,12 +78,6 @@ void HelpLayer::setInterfaceOrientation( const ci::app::Orientation &orientation
 	mCinderButton		= Rectf( mPanelRect.x1 + 60.0f, mPanelRect.y1 + 140.0f, mPanelRect.x1 + 120.0f, mPanelRect.y1 + 160.0f );
 }
 
-bool HelpLayer::orientationChanged( OrientationEvent event )
-{
-	setInterfaceOrientation( event.getInterfaceOrientation() );
-	return false;
-}
-
 // TODO: move this to an operator in Cinder's Matrix class?
 Rectf HelpLayer::transformRect( const Rectf &rect, const Matrix44f &matrix )
 {
@@ -95,14 +88,13 @@ Rectf HelpLayer::transformRect( const Rectf &rect, const Matrix44f &matrix )
     return newRect;
 }
 
-void HelpLayer::setup( AppCocoaTouch *app )
+void HelpLayer::setup( AppCocoaTouch *app, const Orientation &orientation )
 {
 	mApp = app;
 	
 	mCbTouchesBegan       = mApp->registerTouchesBegan( this, &HelpLayer::touchesBegan );
 	mCbTouchesMoved       = mApp->registerTouchesMoved( this, &HelpLayer::touchesMoved );
 	mCbTouchesEnded       = mApp->registerTouchesEnded( this, &HelpLayer::touchesEnded );
-    mCbOrientationChanged = mApp->registerOrientationChanged( this, &HelpLayer::orientationChanged );
 
 	mIsCloseTouched		= false;
 
@@ -119,7 +111,7 @@ void HelpLayer::setup( AppCocoaTouch *app )
 	//mCloseRect			= Rectf( mPanelRect.x2 - 35.0f, mPanelRect.y1, mPanelRect.x2, mPanelRect.y1 + 35.0f );
 
     // just do orientation stuff in here:
-	setInterfaceOrientation( mApp->getInterfaceOrientation() );
+	setInterfaceOrientation( orientation );
 }
 
 

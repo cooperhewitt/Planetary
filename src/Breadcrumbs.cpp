@@ -12,17 +12,15 @@
 
 using namespace pollen::flurry;
 
-void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font )
+void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font, const Orientation &orientation )
 {	
 	if (mApp != NULL) {
 		mApp->unregisterTouchesEnded( mCallbackTouchesEnded );
 		mApp->unregisterTouchesEnded( mCallbackTouchesBegan );
-        mApp->unregisterOrientationChanged( mCallbackOrientationChanged );
 	}
 	mCallbackTouchesBegan = app->registerTouchesBegan( this, &Breadcrumbs::touchesBegan );
 	mCallbackTouchesEnded = app->registerTouchesEnded( this, &Breadcrumbs::touchesEnded );
-    mCallbackOrientationChanged = app->registerOrientationChanged( this, &Breadcrumbs::orientationChanged );
-    setInterfaceOrientation( app->getInterfaceOrientation() );
+    setInterfaceOrientation( orientation );
     
 	mApp = app;
 	mFont = font;
@@ -37,18 +35,10 @@ void Breadcrumbs::setup( AppCocoaTouch *app, const Font &font )
 	mSeparatorTexture = gl::Texture( layout.render( true, PREMULT ) );
 }
 
-bool Breadcrumbs::orientationChanged( OrientationEvent event )
-{
-    if (event.getInterfaceOrientation() != mInterfaceOrientation) {
-        setInterfaceOrientation( event.getInterfaceOrientation() );
-    }
-    return false;
-}
-
 void Breadcrumbs::setInterfaceOrientation( const Orientation &orientation )
 {
     mInterfaceOrientation = orientation;
-    mOrientationMtx = getOrientationMatrix44<float>(orientation);
+    mOrientationMatrix = getOrientationMatrix44(mInterfaceOrientation, getWindowSize());
     mInterfaceSize = app::getWindowSize();
     if (isLandscapeOrientation(orientation)) {
         mInterfaceSize = mInterfaceSize.yx();
@@ -124,7 +114,7 @@ void Breadcrumbs::draw( const gl::Texture &uiButtonsTex, float y )
     float buttonY	= rectHeight - 22.0f;
         
     gl::pushModelView();
-    gl::multModelView( mOrientationMtx );
+    gl::multModelView( mOrientationMatrix );
     
 	gl::enableAlphaBlending();
 	
@@ -166,7 +156,7 @@ void Breadcrumbs::draw( const gl::Texture &uiButtonsTex, float y )
         
         Vec3f topLeft( buttonX-xMargin, buttonY-yMargin, 0 );
         Vec3f bottomRight( buttonX+mTextures[i].getWidth()+xMargin, buttonY+mTextures[i].getHeight()+yMargin, 0 );
-        Rectf clickRect( (mOrientationMtx * topLeft).xy(), (mOrientationMtx * bottomRight).xy() );
+        Rectf clickRect( (mOrientationMatrix * topLeft).xy(), (mOrientationMatrix * bottomRight).xy() );
 		clickRects.push_back( clickRect.canonicalized() );
         
 		mHeight = max(mHeight, (float)(mTextures[i].getHeight()));

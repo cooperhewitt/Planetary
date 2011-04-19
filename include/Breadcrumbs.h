@@ -17,6 +17,8 @@
 #include "cinder/Text.h"
 #include "cinder/Font.h"
 #include "cinder/Function.h"
+#include "Orientation.h"
+#include "OrientationEvent.h"
 #include "Globals.h"
 
 using namespace ci;
@@ -60,10 +62,9 @@ public:
 		return mCallbacksBreadcrumbSelected.registerCb(std::bind1st(std::mem_fun(callback), obj));
 	}	
 	
-	void setup( AppCocoaTouch *app, const Font &font);
+	void setup( AppCocoaTouch *app, const Font &font, const ci::app::Orientation &orientation);
 	bool touchesBegan( TouchEvent event );
 	bool touchesEnded( TouchEvent event );
-    bool orientationChanged( OrientationEvent event );
     void setInterfaceOrientation( const ci::app::Orientation &orientation );
 	void setHierarchy(vector<string> hierarchy);
 	const vector<string>& getHierarchy();
@@ -88,7 +89,7 @@ private:
 	int prevSelectedIndex;
     
     Orientation mInterfaceOrientation;
-    Matrix44f mOrientationMtx;
+    Matrix44f mOrientationMatrix;
     Vec2f mInterfaceSize;
 	
 	CallbackId mCallbackTouchesBegan;

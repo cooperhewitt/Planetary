@@ -27,20 +27,13 @@ UiLayer::~UiLayer()
 	mApp->unregisterTouchesBegan( mCbTouchesBegan );
 	mApp->unregisterTouchesMoved( mCbTouchesMoved );
 	mApp->unregisterTouchesEnded( mCbTouchesEnded );
-    mApp->unregisterOrientationChanged( mCbOrientationChanged );
-}
-
-bool UiLayer::orientationChanged( OrientationEvent event )
-{
-    setInterfaceOrientation(event.getInterfaceOrientation());
-    return false;
 }
 
 void UiLayer::setInterfaceOrientation( const Orientation &orientation )
 {
     mInterfaceOrientation = orientation;
     
-    mOrientationMatrix = getOrientationMatrix44<float>(mInterfaceOrientation);
+    mOrientationMatrix = getOrientationMatrix44(mInterfaceOrientation, getWindowSize());
     
     Vec2f interfaceSize = getWindowSize();
 
@@ -76,14 +69,13 @@ Rectf UiLayer::transformRect( const Rectf &rect, const Matrix44f &matrix )
     return newRect;
 }
 
-void UiLayer::setup( AppCocoaTouch *app )
+void UiLayer::setup( AppCocoaTouch *app, const Orientation &orientation )
 {
 	mApp = app;
 	
 	mCbTouchesBegan       = mApp->registerTouchesBegan( this, &UiLayer::touchesBegan );
 	mCbTouchesMoved       = mApp->registerTouchesMoved( this, &UiLayer::touchesMoved );
 	mCbTouchesEnded       = mApp->registerTouchesEnded( this, &UiLayer::touchesEnded );
-    mCbOrientationChanged = mApp->registerOrientationChanged( this, &UiLayer::orientationChanged );
 
     mIsPanelOpen			= false;
 	mIsPanelTabTouched		= false;
@@ -98,7 +90,7 @@ void UiLayer::setup( AppCocoaTouch *app )
     mPanelOpenY             = getWindowHeight() - mPanelHeight;
 
     // make sure we've got everything the right way around
-    setInterfaceOrientation(mApp->getInterfaceOrientation());
+    setInterfaceOrientation(orientation);
 }
  
 bool UiLayer::touchesBegan( TouchEvent event )

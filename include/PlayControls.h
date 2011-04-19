@@ -14,6 +14,8 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/Font.h"
 #include "cinder/Text.h"
+#include "Orientation.h"
+#include "OrientationEvent.h"
 #include "AlphaWheel.h"
 
 using namespace ci;
@@ -34,14 +36,13 @@ public:
 	enum PlayButton { NO_BUTTON, CURRENT_TRACK, SHOW_WHEEL, PREVIOUS_TRACK, PLAY_PAUSE, NEXT_TRACK, SLIDER, HELP, DRAW_RINGS, DRAW_TEXT };
 	enum ButtonTexId { TEX_BUTTONS, TEX_SLIDER_BUTTON, TEX_HELP, TEX_DRAW_RINGS, TEX_DRAW_TEXT };	
 	
-	void setup( AppCocoaTouch *app, bool initialPlayState );
+	void setup( AppCocoaTouch *app, bool initialPlayState, const ci::app::Orientation &orientation );
     	
 	void update();
 
 	bool touchesBegan( TouchEvent event );
 	bool touchesMoved( TouchEvent event );	
 	bool touchesEnded( TouchEvent event );
-    bool orientationChanged( OrientationEvent event );
     void setInterfaceOrientation( const Orientation &orientation);
 	
 	void setPlaying(bool playing) { mIsPlaying = playing; }
@@ -87,7 +88,7 @@ private:
     Rectf transformRect( const Rectf &rect, const Matrix44f &matrix );
     
     Orientation mInterfaceOrientation;
-    Matrix44f   mOrientationMtx;
+    Matrix44f   mOrientationMatrix;
     Vec2f       mInterfaceSize;
     
 	// !!! EVENT STUFF (keep track of listeners)

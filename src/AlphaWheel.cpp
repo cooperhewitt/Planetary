@@ -29,18 +29,15 @@ AlphaWheel::~AlphaWheel()
 	mApp->unregisterTouchesBegan( mCbTouchesBegan );
 	mApp->unregisterTouchesMoved( mCbTouchesMoved );
 	mApp->unregisterTouchesEnded( mCbTouchesEnded );
-	mApp->unregisterOrientationChanged( mCbOrientationChanged );
 }
 
-
-void AlphaWheel::setup( AppCocoaTouch *app )
+void AlphaWheel::setup( AppCocoaTouch *app, const Orientation &orientation )
 {
 	mApp = app;
 	
 	mCbTouchesBegan = mApp->registerTouchesBegan( this, &AlphaWheel::touchesBegan );
 	mCbTouchesMoved = mApp->registerTouchesMoved( this, &AlphaWheel::touchesMoved );
 	mCbTouchesEnded = mApp->registerTouchesEnded( this, &AlphaWheel::touchesEnded );
-    mCbOrientationChanged = mApp->registerOrientationChanged( this, &AlphaWheel::orientationChanged );
 	
 	// Textures
 	mWheelTex		= gl::Texture( loadImage( loadResource( "alphaWheel.png" ) ) );
@@ -55,7 +52,7 @@ void AlphaWheel::setup( AppCocoaTouch *app )
 	mWheelScale		= 1.0f;	
 
     // just do orientation stuff in here:
-    setInterfaceOrientation(mApp->getInterfaceOrientation());
+    setInterfaceOrientation(orientation);
 }
 
 void AlphaWheel::initAlphaTextures( const Font &font )
@@ -72,19 +69,11 @@ void AlphaWheel::initAlphaTextures( const Font &font )
 	}
 }
 
-bool AlphaWheel::orientationChanged( OrientationEvent event )
-{
-    if (mInterfaceOrientation != event.getInterfaceOrientation()) {
-        setInterfaceOrientation(event.getInterfaceOrientation()); 
-    }
-    return false;
-}
-
 void AlphaWheel::setInterfaceOrientation( const Orientation &orientation )
 {
     mInterfaceOrientation = orientation;
     
-    mOrientationMatrix = getOrientationMatrix44<float>( mInterfaceOrientation );
+    mOrientationMatrix = getOrientationMatrix44( mInterfaceOrientation, getWindowSize() );
     
     Vec2f interfaceSize = getWindowSize();
     
