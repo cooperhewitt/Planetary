@@ -81,6 +81,8 @@
 		E25C8745131F14B3000780A3 /* NodeTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8743131F14B3000780A3 /* NodeTrack.cpp */; };
 		E28FDA811339AF15005EDBB4 /* Breadcrumbs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */; };
 		E28FDA831339B782005EDBB4 /* PlayControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA821339B782005EDBB4 /* PlayControls.cpp */; };
+		E2D20ECC135CF2F400A29743 /* OrientationHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = E2D20EC9135CF2F400A29743 /* OrientationHelper.mm */; };
+		E2D20ECE135CFBC500A29743 /* Orientation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2D20ECD135CFBC500A29743 /* Orientation.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -193,6 +195,11 @@
 		E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Breadcrumbs.cpp; path = ../src/Breadcrumbs.cpp; sourceTree = "<group>"; };
 		E28FDA821339B782005EDBB4 /* PlayControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayControls.cpp; path = ../src/PlayControls.cpp; sourceTree = "<group>"; };
 		E2A1FF8E132599290007F4DA /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../include/PlayControls.h; sourceTree = SOURCE_ROOT; };
+		E2D20EC1135CEEA900A29743 /* Orientation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Orientation.h; sourceTree = "<group>"; };
+		E2D20EC2135CEEA900A29743 /* OrientationEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrientationEvent.h; sourceTree = "<group>"; };
+		E2D20EC3135CEEA900A29743 /* OrientationHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrientationHelper.h; sourceTree = "<group>"; };
+		E2D20EC9135CF2F400A29743 /* OrientationHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OrientationHelper.mm; sourceTree = "<group>"; };
+		E2D20ECD135CFBC500A29743 /* Orientation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Orientation.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -464,6 +471,7 @@
 		E1A332D9130105EC00CED126 /* Blocks */ = {
 			isa = PBXGroup;
 			children = (
+				E2D20EBF135CEEA900A29743 /* CinderOrientation */,
 				77B447EC133BCB3A00987E13 /* CinderFlurry */,
 				E1276E22132821AA00E1FC3F /* CinderIPod */,
 				E1FC74B1130B255A007FE9D6 /* CinderGestures */,
@@ -561,6 +569,35 @@
 				E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */,
 			);
 			name = Ui;
+			sourceTree = "<group>";
+		};
+		E2D20EBF135CEEA900A29743 /* CinderOrientation */ = {
+			isa = PBXGroup;
+			children = (
+				E2D20EC0135CEEA900A29743 /* include */,
+				E2D20EC6135CF2F400A29743 /* src */,
+			);
+			name = CinderOrientation;
+			path = ../blocks/CinderOrientation;
+			sourceTree = "<group>";
+		};
+		E2D20EC0135CEEA900A29743 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				E2D20EC1135CEEA900A29743 /* Orientation.h */,
+				E2D20EC2135CEEA900A29743 /* OrientationEvent.h */,
+				E2D20EC3135CEEA900A29743 /* OrientationHelper.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		E2D20EC6135CF2F400A29743 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				E2D20ECD135CFBC500A29743 /* Orientation.cpp */,
+				E2D20EC9135CF2F400A29743 /* OrientationHelper.mm */,
+			);
+			path = src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -683,6 +720,8 @@
 				77B44848133BCB3A00987E13 /* CinderFlurry.mm in Sources */,
 				E177A6CE134E7B850014AD55 /* BloomGl.cpp in Sources */,
 				E1B0DBB213510C890093EB9D /* HelpLayer.cpp in Sources */,
+				E2D20ECC135CF2F400A29743 /* OrientationHelper.mm in Sources */,
+				E2D20ECE135CFBC500A29743 /* Orientation.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -693,9 +732,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CINDER_PATH_jandersen = /Users/jandersen/libs/Cinder;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Bloom Studio Inc.";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bloom Studio Inc.";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
@@ -704,12 +744,14 @@
 				GCC_PREFIX_HEADER = Kepler_Prefix.pch;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INFOPLIST_FILE = "Kepler-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../blocks/CinderFlurry/lib/FlurryLib\"",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				"OTHER_LDFLAGS[sdk=iphoneos*][arch=*]" = (
 					"\"$(CINDER_PATH)/lib/libcinder-iphone_d.a\"",
 					"-lz",
@@ -719,10 +761,10 @@
 					"-lz",
 				);
 				PRODUCT_NAME = Planetary;
-				PROVISIONING_PROFILE = "9C72FC69-6D34-45D4-BA9C-254562231157";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				TARGETED_DEVICE_FAMILY = 2;
-				VALID_ARCHS = armv7;
+				VALID_ARCHS = "armv6 armv7";
 			};
 			name = Debug;
 		};
@@ -730,21 +772,24 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Bloom Studio Inc.";
-				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Distribution: Bloom Studio Inc.";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bloom Studio Inc.";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Kepler_Prefix.pch;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INFOPLIST_FILE = "Kepler-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../blocks/CinderFlurry/lib/FlurryLib\"",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				"OTHER_LDFLAGS[sdk=iphoneos*][arch=*]" = (
 					"\"$(CINDER_PATH)/lib/libcinder-iphone.a\"",
 					"-lz",
@@ -754,33 +799,35 @@
 					"-lz",
 				);
 				PRODUCT_NAME = Planetary;
-				PROVISIONING_PROFILE = "9C72FC69-6D34-45D4-BA9C-254562231157";
-				"PROVISIONING_PROFILE[sdk=*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=*]" = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				TARGETED_DEVICE_FAMILY = 2;
-				VALID_ARCHS = armv7;
+				VALID_ARCHS = "armv6 armv7";
 			};
 			name = Release;
 		};
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = armv7;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CINDER_PATH = "$(CINDER_PATH_$(USER))";
 				CINDER_PATH_robert = ../../../../cinder_master;
 				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Bloom Studio Inc.";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bloom Studio Inc.";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/boost\"";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				PROVISIONING_PROFILE = "9C72FC69-6D34-45D4-BA9C-254562231157";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" include";
@@ -790,23 +837,25 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = armv7;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CINDER_PATH = "$(CINDER_PATH_$(USER))";
 				CINDER_PATH_robert = ../../../../cinder_master;
 				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Bloom Studio Inc.";
-				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Distribution: Bloom Studio Inc.";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bloom Studio Inc.";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/boost\"";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				PROVISIONING_PROFILE = "9C72FC69-6D34-45D4-BA9C-254562231157";
-				"PROVISIONING_PROFILE[sdk=*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=*]" = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" include";
@@ -816,23 +865,25 @@
 		E2E91DD3135B78C600B062C5 /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = armv7;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CINDER_PATH = "$(CINDER_PATH_$(USER))";
 				CINDER_PATH_robert = ../../../../cinder_master;
 				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Bloom Studio Inc.";
-				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Distribution: Bloom Studio Inc.";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bloom Studio Inc.";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/boost\"";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				PROVISIONING_PROFILE = "9C72FC69-6D34-45D4-BA9C-254562231157";
-				"PROVISIONING_PROFILE[sdk=*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=*]" = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" include";
@@ -843,21 +894,24 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Bloom Studio Inc.";
-				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Distribution: Bloom Studio Inc.";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bloom Studio Inc.";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Kepler_Prefix.pch;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INFOPLIST_FILE = "Kepler-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../blocks/CinderFlurry/lib/FlurryLib\"",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				"OTHER_LDFLAGS[sdk=iphoneos*][arch=*]" = (
 					"\"$(CINDER_PATH)/lib/libcinder-iphone.a\"",
 					"-lz",
@@ -867,11 +921,11 @@
 					"-lz",
 				);
 				PRODUCT_NAME = Planetary;
-				PROVISIONING_PROFILE = "9C72FC69-6D34-45D4-BA9C-254562231157";
-				"PROVISIONING_PROFILE[sdk=*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9C72FC69-6D34-45D4-BA9C-254562231157";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=*]" = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				TARGETED_DEVICE_FAMILY = 2;
-				VALID_ARCHS = armv7;
+				VALID_ARCHS = "armv6 armv7";
 			};
 			name = Distribution;
 		};
