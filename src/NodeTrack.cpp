@@ -107,9 +107,9 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	Surface albumArt		= mTrack->getArtwork( Vec2i( 128, 128 ) );
 	if( albumArt ){
 		int x				= (int)(mNormPlayCount*100);
-		int y				= c1Int%100;
+		int y				= c1Int%50;
 		int w				= 1;
-		int h				= mNormPlayCount * 15;
+		int h				= mNormPlayCount * 60;
 		Area a				= Area( x, y, x+w, y+h );
 		Surface crop		= albumArt.clone( a );
 		mAlbumArt			= gl::Texture( crop );

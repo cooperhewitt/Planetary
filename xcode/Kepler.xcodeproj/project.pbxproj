@@ -34,6 +34,8 @@
 		E1276E7B132821AA00E1FC3F /* CinderIPodPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1276E5C132821AA00E1FC3F /* CinderIPodPlayer.mm */; };
 		E1276E7C132821AA00E1FC3F /* CinderIPodPlayerImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1276E5D132821AA00E1FC3F /* CinderIPodPlayerImpl.mm */; };
 		E128E33F1357B63E00707AA8 /* noArtists.png in Resources */ = {isa = PBXBuildFile; fileRef = E128E33E1357B63E00707AA8 /* noArtists.png */; };
+		E12D40DD1373792D0079EF3B /* Orientation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E12D40DB1373792D0079EF3B /* Orientation.cpp */; };
+		E12D40DE1373792D0079EF3B /* OrientationHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = E12D40DC1373792D0079EF3B /* OrientationHelper.mm */; };
 		E1363D16132C3EE800115512 /* 12.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1363D12132C3EE800115512 /* 12.jpg */; };
 		E1363D17132C3EE800115512 /* 32.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1363D13132C3EE800115512 /* 32.jpg */; };
 		E1363D18132C3EE800115512 /* 42.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1363D14132C3EE800115512 /* 42.jpg */; };
@@ -81,15 +83,13 @@
 		E25C8745131F14B3000780A3 /* NodeTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8743131F14B3000780A3 /* NodeTrack.cpp */; };
 		E28FDA811339AF15005EDBB4 /* Breadcrumbs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */; };
 		E28FDA831339B782005EDBB4 /* PlayControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA821339B782005EDBB4 /* PlayControls.cpp */; };
-		E2D20ECC135CF2F400A29743 /* OrientationHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = E2D20EC9135CF2F400A29743 /* OrientationHelper.mm */; };
-		E2D20ECE135CFBC500A29743 /* Orientation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2D20ECD135CFBC500A29743 /* Orientation.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		00CFDF6A1138442D0091E310 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		00CFDFDF11384CC60091E310 /* KeplerApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KeplerApp.cpp; path = ../src/KeplerApp.cpp; sourceTree = "<group>"; };
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		1D6058910D05DD3D006BFB54 /* Planetary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Planetary.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* PlanetaryDev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlanetaryDev.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		28FD14FF0DC6FC520079059D /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		28FD15070DC6FC5B0079059D /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -121,6 +121,11 @@
 		E1276E5C132821AA00E1FC3F /* CinderIPodPlayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CinderIPodPlayer.mm; sourceTree = "<group>"; };
 		E1276E5D132821AA00E1FC3F /* CinderIPodPlayerImpl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CinderIPodPlayerImpl.mm; sourceTree = "<group>"; };
 		E128E33E1357B63E00707AA8 /* noArtists.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = noArtists.png; path = ../resources/ui/noArtists.png; sourceTree = "<group>"; };
+		E12D40D71373792D0079EF3B /* Orientation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Orientation.h; sourceTree = "<group>"; };
+		E12D40D81373792D0079EF3B /* OrientationEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrientationEvent.h; sourceTree = "<group>"; };
+		E12D40D91373792D0079EF3B /* OrientationHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrientationHelper.h; sourceTree = "<group>"; };
+		E12D40DB1373792D0079EF3B /* Orientation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Orientation.cpp; sourceTree = "<group>"; };
+		E12D40DC1373792D0079EF3B /* OrientationHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OrientationHelper.mm; sourceTree = "<group>"; };
 		E1363D12132C3EE800115512 /* 12.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 12.jpg; sourceTree = "<group>"; };
 		E1363D13132C3EE800115512 /* 32.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 32.jpg; sourceTree = "<group>"; };
 		E1363D14132C3EE800115512 /* 42.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 42.jpg; sourceTree = "<group>"; };
@@ -195,11 +200,6 @@
 		E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Breadcrumbs.cpp; path = ../src/Breadcrumbs.cpp; sourceTree = "<group>"; };
 		E28FDA821339B782005EDBB4 /* PlayControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayControls.cpp; path = ../src/PlayControls.cpp; sourceTree = "<group>"; };
 		E2A1FF8E132599290007F4DA /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../include/PlayControls.h; sourceTree = SOURCE_ROOT; };
-		E2D20EC1135CEEA900A29743 /* Orientation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Orientation.h; sourceTree = "<group>"; };
-		E2D20EC2135CEEA900A29743 /* OrientationEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrientationEvent.h; sourceTree = "<group>"; };
-		E2D20EC3135CEEA900A29743 /* OrientationHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrientationHelper.h; sourceTree = "<group>"; };
-		E2D20EC9135CF2F400A29743 /* OrientationHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OrientationHelper.mm; sourceTree = "<group>"; };
-		E2D20ECD135CFBC500A29743 /* Orientation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Orientation.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -262,7 +262,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D6058910D05DD3D006BFB54 /* Planetary.app */,
+				1D6058910D05DD3D006BFB54 /* PlanetaryDev.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -402,6 +402,25 @@
 				E1276E5B132821AA00E1FC3F /* CinderIPod.mm */,
 				E1276E5C132821AA00E1FC3F /* CinderIPodPlayer.mm */,
 				E1276E5D132821AA00E1FC3F /* CinderIPodPlayerImpl.mm */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		E12D40D61373792D0079EF3B /* include */ = {
+			isa = PBXGroup;
+			children = (
+				E12D40D71373792D0079EF3B /* Orientation.h */,
+				E12D40D81373792D0079EF3B /* OrientationEvent.h */,
+				E12D40D91373792D0079EF3B /* OrientationHelper.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		E12D40DA1373792D0079EF3B /* src */ = {
+			isa = PBXGroup;
+			children = (
+				E12D40DB1373792D0079EF3B /* Orientation.cpp */,
+				E12D40DC1373792D0079EF3B /* OrientationHelper.mm */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -574,30 +593,11 @@
 		E2D20EBF135CEEA900A29743 /* CinderOrientation */ = {
 			isa = PBXGroup;
 			children = (
-				E2D20EC0135CEEA900A29743 /* include */,
-				E2D20EC6135CF2F400A29743 /* src */,
+				E12D40D61373792D0079EF3B /* include */,
+				E12D40DA1373792D0079EF3B /* src */,
 			);
 			name = CinderOrientation;
 			path = ../blocks/CinderOrientation;
-			sourceTree = "<group>";
-		};
-		E2D20EC0135CEEA900A29743 /* include */ = {
-			isa = PBXGroup;
-			children = (
-				E2D20EC1135CEEA900A29743 /* Orientation.h */,
-				E2D20EC2135CEEA900A29743 /* OrientationEvent.h */,
-				E2D20EC3135CEEA900A29743 /* OrientationHelper.h */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		E2D20EC6135CF2F400A29743 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				E2D20ECD135CFBC500A29743 /* Orientation.cpp */,
-				E2D20EC9135CF2F400A29743 /* OrientationHelper.mm */,
-			);
-			path = src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -617,7 +617,7 @@
 			);
 			name = Kepler;
 			productName = Kepler;
-			productReference = 1D6058910D05DD3D006BFB54 /* Planetary.app */;
+			productReference = 1D6058910D05DD3D006BFB54 /* PlanetaryDev.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -720,8 +720,8 @@
 				77B44848133BCB3A00987E13 /* CinderFlurry.mm in Sources */,
 				E177A6CE134E7B850014AD55 /* BloomGl.cpp in Sources */,
 				E1B0DBB213510C890093EB9D /* HelpLayer.cpp in Sources */,
-				E2D20ECC135CF2F400A29743 /* OrientationHelper.mm in Sources */,
-				E2D20ECE135CFBC500A29743 /* Orientation.cpp in Sources */,
+				E12D40DD1373792D0079EF3B /* Orientation.cpp in Sources */,
+				E12D40DE1373792D0079EF3B /* OrientationHelper.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -760,7 +760,7 @@
 					"\"$(CINDER_PATH)/lib/libcinder-iphone-sim_d.a\"",
 					"-lz",
 				);
-				PRODUCT_NAME = Planetary;
+				PRODUCT_NAME = PlanetaryDev;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				TARGETED_DEVICE_FAMILY = 2;
@@ -798,7 +798,7 @@
 					"\"$(CINDER_PATH)/lib/libcinder-iphone-sim.a\"",
 					"-lz",
 				);
-				PRODUCT_NAME = Planetary;
+				PRODUCT_NAME = PlanetaryDev;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=*]" = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -920,7 +920,7 @@
 					"\"$(CINDER_PATH)/lib/libcinder-iphone-sim.a\"",
 					"-lz",
 				);
-				PRODUCT_NAME = Planetary;
+				PRODUCT_NAME = PlanetaryDev;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=*]" = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";

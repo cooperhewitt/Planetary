@@ -172,11 +172,11 @@ void AlphaWheel::draw( GLfloat *verts, GLfloat *texCoords, GLfloat *colors )
 
 
         drawWheelMask();
-        drawWheelData( verts, texCoords, colors );
+//        drawWheelData( verts, texCoords, colors );
 		drawWheel();
 		
-		if( mAlphaChar != ' ' )
-			drawAlphaChar();
+//		if( mAlphaChar != ' ' )
+//			drawAlphaChar();
         
         gl::popModelView();
 	}

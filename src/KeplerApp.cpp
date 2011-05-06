@@ -547,7 +547,7 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 	
 	mTouchVel	= Vec2f::zero();
 	vector<PinchEvent::Touch> touches = event.getTouches();
-	Vec2f averageTouchPos;
+	Vec2f averageTouchPos = Vec2f::zero();
 	for( vector<PinchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
 		averageTouchPos += it->mPos;
 	}
@@ -594,7 +594,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	
 	
 	vector<PinchEvent::Touch> touches = event.getTouches();
-	Vec2f averageTouchPos;
+	Vec2f averageTouchPos = Vec2f::zero();
 	for( vector<PinchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
 		averageTouchPos += it->mPos;
 	}
@@ -1350,11 +1350,12 @@ void KeplerApp::drawScene()
     gl::enableAlphaBlending();
 	
 	// EVERYTHING ELSE
-	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
-	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
     mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
+	
+	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
+	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
 	
 	gl::disableAlphaBlending();
 	//    if( G_DEBUG ) drawInfoPanel();
@@ -1408,6 +1409,7 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 	mLoadingScreen.setEnabled( true );
     mState.setup();    
     mData.setup();
+	mWorld.setup( &mData );
     
     return false;
 }

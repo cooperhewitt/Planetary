@@ -56,11 +56,11 @@ void NodeArtist::setData( PlaylistRef playlist )
 	int c2Int = constrain( int(c2), 32, 127 );
 	
 	int totalCharAscii = ( c1Int - 32 ) + ( c2Int - 32 );
-	float asciiPer = ( (float)totalCharAscii/( 190.0f ) ) * 493.0f ;
+	float asciiPer = ( (float)totalCharAscii/( 190.0f ) ) * 5000.0f ;
 	
 	std::cout << asciiPer << std::endl;
 	
-	mHue			= sin( asciiPer ) * 0.3f + 0.33f;
+	mHue			= sin( asciiPer ) * 0.27f + 0.3f;
 	
 	mSat			= ( 1.0f - sin( ( mHue + 0.15f ) * M_PI ) ) * 0.5f;
 	mColor			= Color( CM_HSV, mHue, mSat, 1.0f );

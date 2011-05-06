@@ -112,27 +112,31 @@ void NodeAlbum::setData( PlaylistRef album )
 
 void NodeAlbum::update( const Matrix44f &mat )
 {
+	int totalWidth = 256;
 	if( !mHasCreatedAlbumArt && mChildNodes.size() > 0 ){
-		Surface albumArt	= ((NodeTrack*)mChildNodes[0])->mTrack->getArtwork( Vec2i( 256, 256 ) );
+		Surface albumArt	= ((NodeTrack*)mChildNodes[0])->mTrack->getArtwork( Vec2i( totalWidth, totalWidth ) );
 		if( albumArt ){
+			int w			= 128;
+			int halfWidth	= w/2;
+			int h			= 128;
+			int halfHeight	= h/2;
+			int x			= mAsciiPer * ( totalWidth - w );
+			int y			= mAsciiPer * halfHeight;
+			Area a			= Area( x, y, x+w, y+h );
+			Surface crop	= albumArt.clone( a );
 			
-			int x				= mAsciiPer * 160 + 20;
-			int y				= mAsciiPer * 64;
-			Area a				= Area( x, y, x+50, y+128 );
-			Surface crop		= albumArt.clone( a );
-			
-			Surface::Iter iter	= crop.getIter();
+			Surface::Iter iter = crop.getIter();
 			while( iter.line() ) {
 				while( iter.pixel() ) {
-					if( iter.x() >= 25 ){
-						int xi = x + iter.x() - 25;
+					if( iter.x() >= halfWidth ){
+						int xi = x + iter.x() - halfWidth;
 						int yi = y + iter.y();
 						ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
 						iter.r() = c.r * 255.0f;
 						iter.g() = c.g * 255.0f;
 						iter.b() = c.b * 255.0f;
 					} else {
-						int xi = x + 24 - iter.x();
+						int xi = x + (halfWidth-1) - iter.x();
 						int yi = y + iter.y();
 						ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
 						iter.r() = c.r * 255.0f;

@@ -41,14 +41,17 @@ void World::setup( Data *data )
 {
     mData = data;
 
-    // VERTEX ARRAY SPHERE
-	initSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
-	initSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+	if( !mIsInitialized ){
+		// VERTEX ARRAY SPHERE
+		initSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
+		initSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+	}
 	
-	mAge = 0;
-	mEndRepulseAge = 150;//200
-	mIsRepulsing = true;
-	mIsInitialized = false;
+	
+	mAge			= 0;
+	mEndRepulseAge	= 150;//200
+	mIsRepulsing	= true;
+	mIsInitialized	= false;
 }
 
 

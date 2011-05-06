@@ -116,6 +116,7 @@ bool Data::update()
 {
 	if (!isIniting && wasIniting) {
 		// TODO: time this, is it OK in one frame?
+		// TODO: switch state to enum. potential cause of freeze-on-load-screen bug
 		mArtists.insert(mArtists.end(),pending.begin(),pending.end());
 		pending.clear();
         wasIniting = isIniting;
