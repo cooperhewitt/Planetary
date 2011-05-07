@@ -56,6 +56,7 @@ private:
 	bool		mIsPopulated;
 	bool		mIsMostPlayed;
 	bool		mHasAlbumArt;
+	bool		mHasCreatedAlbumArt;
 	ci::gl::Texture mAlbumArt;
 	
 	int			mTotalOrbitVertices;

@@ -22,7 +22,13 @@ class Node {
   public:
 
 	Node( Node *parent, int index, const ci::Font &font );
-	virtual ~Node(){ deselect(); }	
+	virtual ~Node(){ 
+		for( std::vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+			delete (*nodeIt);
+		}
+			
+		mChildNodes.clear();
+	}	
 	
 	// METHODS
 	void			setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
@@ -43,6 +49,7 @@ class Node {
 	void			drawTouchHighlight();
 	void			checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
 	void			checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
+	void			setIsDying( bool isDying );
 	
 	virtual bool	isMostPlayed(){ return false; }
 	
@@ -133,12 +140,16 @@ class Node {
     float				mEclipseStrength;
 	
 	int					mAge;
+	int					mDeathCount;
+	int					mDeathThresh;
 	int					mBirthPause;
 	bool				mIsTapped;			// Highlight when tapped
 	float				mHighlightStrength;	// Falloff for the highlight glow
 	bool				mIsSelected;		// Node has been chosen
 	bool				mIsHighlighted;		// Node is able to be chosen
     bool                mIsPlaying;         // Node represents something about the currently playing track (album/artist)
+	bool				mIsDying;
+	bool				mIsDead;
 	
 // SPHERE DATA
 	int					mTotalVertsHiRes;

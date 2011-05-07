@@ -38,7 +38,7 @@ Node::Node( Node *parent, int index, const Font &font )
 
 	mOrbitStartAngle	= Rand::randFloat( TWO_PI );
 	mOrbitAngle			= mOrbitStartAngle;
-	mOrbitPeriod		= Rand::randFloat( 25.0f, 150.0f );
+	mOrbitPeriod		= Rand::randFloat( 125.0f, 150.0f ); // TODO: move to NodeArtist and make non-random
 	mOrbitRadius		= 0.01f;
 	mAngularVelocity	= 0.0f;
 	mPercentPlayed		= 0.0f;
@@ -56,6 +56,11 @@ Node::Node( Node *parent, int index, const Font &font )
 	mIsSelected			= false;
     mIsPlaying          = false;
 	mIsHighlighted		= false;
+	
+	mIsDying			= false;
+	mIsDead				= false;
+	mDeathCount			= 0;
+	mDeathThresh		= 40;
 }
 
 void Node::init()
@@ -75,7 +80,17 @@ void Node::initWithParent()
 	mGen				= mParentNode->mGen + 1;
 	mPos				= mParentNode->mPos;
 	mTransVel			= Vec3f::zero();
-	mOrbitPeriod		= Rand::randFloat( 35.0f, 50.0f );
+	mOrbitPeriod		= 0.0f;//Rand::randFloat( 35.0f, 50.0f );
+}
+
+void Node::setIsDying( bool isDying )
+{
+	mIsDying = isDying;
+	
+	if( mIsDying = false ){
+		mIsDead = false;
+		mDeathCount = 0;
+	}
 }
 
 void Node::setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
@@ -102,7 +117,7 @@ void Node::createNameTexture()
 }
 
 void Node::update( const Matrix44f &mat )
-{
+{	
 	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
 	mMatrix         = mat;
 	mTransPos       = mMatrix * mPos;
@@ -117,8 +132,30 @@ void Node::update( const Matrix44f &mat )
     }
 	mZoomPer = pow( mZoomPer, 5.0f );
 	
+	
+	if( mIsDying ){
+		mDeathCount ++;
+		if( mDeathCount > mDeathThresh ){
+			mIsDead = true;
+		}
+	}
+	
+	
+	
+	bool clearChildNodes = false;
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		if( (*nodeIt)->mIsDead ){
+			clearChildNodes = true;
+		}
 		(*nodeIt)->update( mat );
+	}
+	
+	if( clearChildNodes ){
+		mIsSelected = false;
+		for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+			delete (*nodeIt);
+		}
+		mChildNodes.clear();
 	}
 }
 
@@ -311,17 +348,29 @@ void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 void Node::select()
 {
 	mIsSelected = true;
+	setIsDying( false );
+	
+    vector<Node*>::iterator nodeIt;
+	for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+        (*nodeIt)->setIsDying( false );
+    }
 }
 
 void Node::deselect()
 {
 	// TODO: Instead of killing them right away, sentence them to die but only after
-	// their gen is 1.0 greater than the current zoom level. 
-	mIsSelected = false;
+	// their gen is 1.0 greater than the current zoom level.
+	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		delete (*nodeIt);
+		(*nodeIt)->mIsDying = true;
 	}
-	mChildNodes.clear();
+	
+	
+//	mIsSelected = false;
+//	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+//		delete (*nodeIt);
+//	}
+//	mChildNodes.clear();
 }
 
 

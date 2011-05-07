@@ -30,6 +30,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	mIsMostPlayed		= false;
 	mIsPopulated		= false;
 	mHasAlbumArt		= false;
+	mHasCreatedAlbumArt = false;
 	
 	mTotalOrbitVertices		= 0;
 	mPrevTotalOrbitVertices = -1;
@@ -67,55 +68,19 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	//normalize playcount data
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	mNormPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
-
-//// ALBUM ART
+	
 //	Surface albumArt		= mTrack->getArtwork( Vec2i( 128, 128 ) );
 //	if( albumArt ){
-//		
 //		int x				= (int)(mNormPlayCount*100);
-//		int y				= c1Int%64;
-//		Area a				= Area( x, y, x+28, y+64 );
+//		int y				= c1Int%50;
+//		int w				= 1;
+//		int h				= mNormPlayCount * 60;
+//		Area a				= Area( x, y, x+w, y+h );
 //		Surface crop		= albumArt.clone( a );
-//		
-//		Surface::Iter iter	= crop.getIter();
-//		while( iter.line() ) {
-//			while( iter.pixel() ) {
-//				if( iter.x() >= 14 ){
-//					int xi = x + iter.x() - 14;
-//					int yi = y + iter.y();
-//					ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
-//					iter.r() = c.r * 255.0f;
-//					iter.g() = c.g * 255.0f;
-//					iter.b() = c.b * 255.0f;
-//				} else {
-//					int xi = x + 13 - iter.x();
-//					int yi = y + iter.y();
-//					ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
-//					iter.r() = c.r * 255.0f;
-//					iter.g() = c.g * 255.0f;
-//					iter.b() = c.b * 255.0f;
-//				}
-//			}
-//		}
-//		
-//		
 //		mAlbumArt			= gl::Texture( crop );
 //		mHasAlbumArt		= true;
 //	}
-	
-	
-	Surface albumArt		= mTrack->getArtwork( Vec2i( 128, 128 ) );
-	if( albumArt ){
-		int x				= (int)(mNormPlayCount*100);
-		int y				= c1Int%50;
-		int w				= 1;
-		int h				= mNormPlayCount * 60;
-		Area a				= Area( x, y, x+w, y+h );
-		Surface crop		= albumArt.clone( a );
-		mAlbumArt			= gl::Texture( crop );
-		mHasAlbumArt		= true;
-	}
-	
+//	
 	
 	mPlanetTexIndex			= (int)( mNormPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
 	mCloudTexIndex			= Rand::randInt( G_NUM_CLOUD_TYPES );
@@ -278,6 +243,51 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 
 void NodeTrack::update( const Matrix44f &mat )
 {	
+	int totalWidth = 128;
+	if( !mHasCreatedAlbumArt ){
+		Surface albumArt	= mTrack->getArtwork( Vec2i( totalWidth, totalWidth ) );
+		if( albumArt ){
+			int w			= 24;
+			int halfWidth	= w/2;
+			int h			= 50;
+			int x			= (int)(mNormPlayCount*50);
+			int y			= Rand::randInt( totalWidth/2 );
+			Area a			= Area( x, y, x+w, y+( mNormPlayCount * h ) );
+			Surface crop	= albumArt.clone( a );
+			
+			Surface::Iter iter = crop.getIter();
+			while( iter.line() ) {
+				while( iter.pixel() ) {
+					if( iter.x() >= halfWidth ){
+						int xi = x + iter.x() - halfWidth;
+						int yi = y + iter.y();
+						ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+						iter.r() = c.r * 255.0f;
+						iter.g() = c.g * 255.0f;
+						iter.b() = c.b * 255.0f;
+					} else {
+						int xi = x + (halfWidth-1) - iter.x();
+						int yi = y + iter.y();
+						ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+						iter.r() = c.r * 255.0f;
+						iter.g() = c.g * 255.0f;
+						iter.b() = c.b * 255.0f;
+					}
+				}
+			}
+			
+			
+			mAlbumArt			= gl::Texture( crop );
+			mHasAlbumArt		= true;
+		}
+		
+		mHasCreatedAlbumArt = true;
+	}
+	
+	
+	
+	
+	
 	if( !mIsPlaying ){
 		// TODO: THIS IS AWKWARD. This is so the non-playing tracks still orbit
 		mPercentPlayed	= ( app::getElapsedSeconds() + mIndex * 50.0f )/mOrbitPeriod;

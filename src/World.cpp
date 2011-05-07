@@ -269,7 +269,7 @@ void World::setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId 
                 // FIXME: what's the proper C++ way to do this cast?
                 Node *trackNode = albumNode->mChildNodes[k];
                 trackNode->mIsPlaying = trackNode->getId() == trackId;
-				if( trackNode->mIsPlaying ){
+				if( trackNode->mIsPlaying && !trackNode->mIsDying ){
 					mPlayingTrackNode = (NodeTrack*)trackNode;
 				}
             }            

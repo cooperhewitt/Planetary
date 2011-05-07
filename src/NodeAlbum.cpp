@@ -419,21 +419,29 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 
 void NodeAlbum::select( )
 {
-	if( !mIsSelected && mChildNodes.size() == 0 ){
-		for (int i = 0; i < mNumTracks; i++) {
-			TrackRef track		= (*mAlbum)[i];
-			string name			= track->getTitle();
-			NodeTrack *newNode	= new NodeTrack( this, i, mFont );
-			mChildNodes.push_back( newNode );
-			newNode->setData( track, mAlbum );
+	if( !mIsSelected ){
+		if( mChildNodes.size() == 0 ){
+			for (int i = 0; i < mNumTracks; i++) {
+				TrackRef track		= (*mAlbum)[i];
+				string name			= track->getTitle();
+				NodeTrack *newNode	= new NodeTrack( this, i, mFont );
+				mChildNodes.push_back( newNode );
+				newNode->setData( track, mAlbum );
+			}
+			
+			for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
+				(*it)->setSphereData( mTotalVertsHiRes, mSphereVertsHiRes, mSphereTexCoordsHiRes, mSphereNormalsHiRes,
+									 mTotalVertsLoRes, mSphereVertsLoRes, mSphereTexCoordsLoRes, mSphereNormalsLoRes );
+			}
+			
+			setChildOrbitRadii();
+			
+			
+		} else {
+			for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
+				(*it)->setIsDying( false );
+			}
 		}
-		
-		for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
-			(*it)->setSphereData( mTotalVertsHiRes, mSphereVertsHiRes, mSphereTexCoordsHiRes, mSphereNormalsHiRes,
-								  mTotalVertsLoRes, mSphereVertsLoRes, mSphereTexCoordsLoRes, mSphereNormalsLoRes );
-		}
-		
-		setChildOrbitRadii();
 	}	
 	Node::select();
 }

@@ -172,36 +172,44 @@ void NodeArtist::drawStarCenter( const gl::Texture &starTex )
 
 void NodeArtist::select()
 {
-	if (!mIsSelected) {
-
-
+	if( !mIsSelected )
+	{
 		// TODO: switch this to use artist ID
         Flurry::getInstrumentation()->startTimeEvent("Albums loaded");
 		vector<ipod::PlaylistRef> albumsBySelectedArtist = getAlbumsWithArtist( mPlaylist->getArtistName() );
 		mNumAlbums = albumsBySelectedArtist.size();
 		
-		int i=0;
-        int trackcount = 0;
-		for(vector<PlaylistRef>::iterator it = albumsBySelectedArtist.begin(); it != albumsBySelectedArtist.end(); ++it){
-			PlaylistRef album	= *it;
-			NodeAlbum *newNode = new NodeAlbum( this, i, mFont );
-			mChildNodes.push_back( newNode );
-            trackcount += album->m_tracks.size();
-			newNode->setData( album );
-			i++;
+		if( mChildNodes.size() == 0 ){
+			int i=0;
+			int trackcount = 0;
+			for(vector<PlaylistRef>::iterator it = albumsBySelectedArtist.begin(); it != albumsBySelectedArtist.end(); ++it){
+				PlaylistRef album	= *it;
+				NodeAlbum *newNode = new NodeAlbum( this, i, mFont );
+				mChildNodes.push_back( newNode );
+				trackcount += album->m_tracks.size();
+				newNode->setData( album );
+				i++;
+			}
+			
+			for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
+				(*it)->setSphereData( mTotalVertsHiRes, mSphereVertsHiRes, mSphereTexCoordsHiRes, mSphereNormalsHiRes,
+									 mTotalVertsLoRes, mSphereVertsLoRes, mSphereTexCoordsLoRes, mSphereNormalsLoRes );
+			}
+			
+			setChildOrbitRadii();
+			
+			std::map<string, string> params;
+			params["Artist"] = mPlaylist->getArtistName();
+			params["NumAlbums"] = i_to_string(mChildNodes.size());
+			params["NumTracks"] = i_to_string(trackcount);
+			Flurry::getInstrumentation()->stopTimeEvent("Albums loaded", params);
+			
+			
+		} else {
+			for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
+				(*it)->setIsDying( false );
+			}
 		}
-        std::map<string, string> params;
-        params["Artist"] = mPlaylist->getArtistName();
-        params["NumAlbums"] = i_to_string(mChildNodes.size());
-        params["NumTracks"] = i_to_string(trackcount);
-        Flurry::getInstrumentation()->stopTimeEvent("Albums loaded", params);
-
-		for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
-			(*it)->setSphereData( mTotalVertsHiRes, mSphereVertsHiRes, mSphereTexCoordsHiRes, mSphereNormalsHiRes,
-								  mTotalVertsLoRes, mSphereVertsLoRes, mSphereTexCoordsLoRes, mSphereNormalsLoRes );
-		}
-		
-		setChildOrbitRadii();
 		
 	}
 	Node::select();

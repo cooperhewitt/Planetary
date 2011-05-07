@@ -58,9 +58,9 @@ void State::setAlphaChar( const string &name )
 
 void State::setSelectedNode( Node* node )
 {
-	if (node == mSelectedNode) {
-		return;
-	}
+//	if (node == mSelectedNode) {
+//		return;
+//	}
 	
 	if (node == NULL) {
 		// clear currently selected node and all parents
@@ -105,8 +105,14 @@ void State::setSelectedNode( Node* node )
 			}
 		}
 		
-		// ensure that the new selection is selected
-		node->select();
+//		// ensure that the new selection is selected
+//		node->select();
+		
+		// select everything in the next chain that isn't in the current chain
+        for (int i = currentChain.size(); i < nextChain.size(); i++) {
+            nextChain[i]->select();
+        }
+		
 		mSelectedNode = node;
 	}
     

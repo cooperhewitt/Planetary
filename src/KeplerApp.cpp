@@ -1495,6 +1495,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
             }
         }
 //        else {
+//			// For when you have tapped "fly to current track" 
+//			onSelectedNodeChanged( selectedNode );
 //            console() << "    track changed but we've already selected the node for that track" << std::endl;
 //        }
         
