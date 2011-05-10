@@ -17,12 +17,17 @@ ParticleController::ParticleController()
 	mPrevTotalDustVertices = -1;
     mDustVerts			= NULL;
 	mDustColors			= NULL;
+	mBbRight			= Vec3f::xAxis();
+	mBbUp				= Vec3f::yAxis();
 }
 
-void ParticleController::update()
+void ParticleController::update( float radius, const Vec3f &bbRight, const Vec3f &bbUp )
 {
+	mBbRight = bbRight;
+	mBbUp	 = bbUp;
+	
 	for( list<Particle>::iterator p = mParticles.begin(); p != mParticles.end(); ++p ){
-		p->update();
+		p->update( radius, mBbRight, mBbUp );
 	}
 	
 	for( list<Dust>::iterator d = mDusts.begin(); d != mDusts.end(); ++d ){
@@ -31,9 +36,13 @@ void ParticleController::update()
 }
 
 
-void ParticleController::buildParticleVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
+void ParticleController::buildParticleVertexArray()
 {
-	mTotalParticleVertices	= G_NUM_PARTICLES * 6;	// 6 = 2 triangles per quad
+	int vIndex = 0;
+	int tIndex = 0;
+	Vec3f lookVec = mBbRight.cross( mBbUp ) * 0.025f;
+	
+	mTotalParticleVertices	= G_NUM_PARTICLES * 6;
 	
     if (mTotalParticleVertices != mPrevTotalParticleVertices) {
         if (mParticleVerts != NULL)		delete[] mParticleVerts; 
@@ -45,8 +54,7 @@ void ParticleController::buildParticleVertexArray( const Vec3f &bbRight, const V
         mPrevTotalParticleVertices = mTotalParticleVertices;
     }
 	
-	int vIndex = 0;
-	int tIndex = 0;
+	
 	
 	float u1				= 0.0f;
 	float u2				= 1.0f;
@@ -56,11 +64,12 @@ void ParticleController::buildParticleVertexArray( const Vec3f &bbRight, const V
 	// TODO: figure out why we use inverted matrix * billboard vec
 	
 	for( list<Particle>::iterator it = mParticles.begin(); it != mParticles.end(); ++it ){
-		Vec3f pos				= it->mPos;
+		Vec3f pos				= it->mPos + lookVec;
 		float radius			= it->mRadius * it->mAgePer;
 		
-		Vec3f right				= bbRight * radius;
-		Vec3f up				= bbUp * radius;
+		Vec3f right				= mBbRight * radius;
+		Vec3f up				= mBbUp * radius;
+		
 		
 		Vec3f p1				= pos - right - up;
 		Vec3f p2				= pos + right - up;
@@ -206,7 +215,7 @@ void ParticleController::addParticles( int amt )
 		Vec3f pos = Rand::randVec3f() * Rand::randFloat( 100.0f, 200.0f );
 		Vec3f vel = Rand::randVec3f();
 		
-		mParticles.push_back( Particle( i, pos, vel ) );
+		mParticles.push_back( Particle( i, pos, vel, mBbRight, mBbUp ) );
 	}
 }
 

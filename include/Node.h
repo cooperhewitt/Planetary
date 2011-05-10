@@ -41,7 +41,7 @@ class Node {
 	virtual void	drawEclipseGlow();
 	virtual void	drawPlanet( const std::vector< ci::gl::Texture> &planets ) {};
 	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds ) {};
-	virtual void	drawAtmosphere( const ci::gl::Texture &tex, float pinchAlphaPer ) {};
+	virtual void	drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer ) {};
 	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
 	virtual void	drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
 	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
@@ -137,11 +137,14 @@ class Node {
 	ci::Color			mColor;				// Color of the node
 	ci::Color			mGlowColor;			// Color of the star glow
 	ci::Color           mEclipseColor;      // Color during eclipse
-    float				mEclipseStrength;
+    float				mEclipseStrength;	// Strength of the eclipse (0, no occlusion. 1, full occlusion)
+	float				mEclipseAngle;		// screenspace angle of eclipse effect
+	float				mEclipseDirBasedAlpha;	// The alpha of the directional eclipse effect based on screenspace distance
 	
 	int					mAge;
 	int					mDeathCount;
 	int					mDeathThresh;
+	float				mDeathPer;	
 	int					mBirthPause;
 	bool				mIsTapped;			// Highlight when tapped
 	float				mHighlightStrength;	// Falloff for the highlight glow

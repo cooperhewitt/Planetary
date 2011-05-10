@@ -36,7 +36,8 @@ class State {
 	}
 
 	Node* getSelectedNode() { return mSelectedNode; }
-	void setSelectedNode(Node* selectedNode);
+	void setSelectedNode( Node* selectedNode );
+	float getDistBetweenNodes() { return mDistBetweenPrevAndCurrentNode; }
 	
 	template<typename T>
 	CallbackId registerNodeSelected( T *obj, bool (T::*callback)(Node*) ){
@@ -66,6 +67,8 @@ private:
 	CallbackMgr<bool(NodeTrack*)> mCallbacksNodePlaying;
 
 	Node *mSelectedNode;
+	Node *mPrevSelectedNode;
+	float mDistBetweenPrevAndCurrentNode;  // used to control duration of the tween
 	char mAlphaChar;
 };
 

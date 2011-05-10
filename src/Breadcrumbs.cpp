@@ -130,7 +130,7 @@ void Breadcrumbs::draw( const gl::Texture &uiButtonsTex, float y )
 
 	gl::color( Color::white() );
 	float buttonX	= 25.0f;
-	float xMargin	= 5.0f;
+	float xMargin	= 2.0f;
 	float yMargin	= 20.0f;
 	mHeight = 0;
 	clickRects.clear();

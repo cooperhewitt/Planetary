@@ -33,7 +33,7 @@ NodeArtist::NodeArtist( int index, const Font &font )
 	mAge			= 0.0f;
 	mBirthPause		= Rand::randFloat( 50.0f );
 	
-	mRadiusDest		= mRadius * 0.66f;
+	mRadiusDest		= 1.0f + Rand::randFloat( 0.6f );
 	mRadius			= 0.0f;
 	
 	mOrbitRadiusMin	= mRadiusDest * 1.0f;
@@ -58,11 +58,9 @@ void NodeArtist::setData( PlaylistRef playlist )
 	int totalCharAscii = ( c1Int - 32 ) + ( c2Int - 32 );
 	float asciiPer = ( (float)totalCharAscii/( 190.0f ) ) * 5000.0f ;
 	
-	std::cout << asciiPer << std::endl;
-	
 	mHue			= sin( asciiPer ) * 0.27f + 0.3f;
 	
-	mSat			= ( 1.0f - sin( ( mHue + 0.15f ) * M_PI ) ) * 0.5f;
+	mSat			= ( 1.0f - sin( ( mHue + 0.15f ) * M_PI ) ) * 0.875f;
 	mColor			= Color( CM_HSV, mHue, mSat, 1.0f );
 	mGlowColor		= Color( CM_HSV, mHue, mSat + 0.5f, 1.0f );
 }
@@ -70,7 +68,7 @@ void NodeArtist::setData( PlaylistRef playlist )
 
 
 void NodeArtist::update( const Matrix44f &mat )
-{
+{	
 	Vec3f prevTransPos  = mTransPos;
     // if mTransPos hasn't been set yet, use a guess:
     // FIXME: set mTransPos correctly in the constructor
@@ -103,17 +101,16 @@ void NodeArtist::update( const Matrix44f &mat )
 void NodeArtist::drawEclipseGlow()
 {
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
-        gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer * ( 1.0f - mEclipseStrength ) ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * ( ( mEclipseStrength ) ) * 44.0f;
+        gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer * ( 1.0f - mEclipseStrength ) * 2.0f ) );
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 30.0f;
+		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+
+		float alpha = G_ALPHA_LEVEL - ( G_ZOOM - 1.0f );
+		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer * ( 1.0f - mEclipseStrength ) * alpha ) );
+		radius = Vec2f( mRadius, mRadius ) * 27.5f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 	}
-	/*
-	if( G_IS_IPAD2 && mIsHighlighted ){
-		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
-		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
-	}
-	 */
+	
 	Node::drawEclipseGlow();
 }
 
@@ -125,11 +122,22 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 		gl::pushModelView();
 		gl::translate( mTransPos );
 		float radius = mRadius * 0.2875f;
+		
+
+		gl::color( mColor );
 		gl::enableAlphaBlending();
-
-		gl::color( ( mColor + Color::white() ) * 0.5f );
 		gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
-
+		
+		
+		gl::enableAdditiveBlending();
+		gl::pushModelView();
+		gl::color( mGlowColor );
+		gl::translate( Vec3f::zAxis() * -0.015f );
+		gl::drawSolidCircle( Vec2f::zero(), radius * 0.975f, 64 );
+		gl::translate( Vec3f::zAxis() * -0.015f );
+		gl::drawSolidCircle( Vec2f::zero(), radius * 0.95f, 64 );
+		gl::popModelView();
+		
 		gl::popModelView();
 		glEnable( GL_LIGHTING );
 	}
@@ -143,31 +151,6 @@ void NodeArtist::drawClouds( const vector<gl::Texture> &clouds )
 void NodeArtist::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos )
 {
 	Node::drawRings( tex, planetRingVerts, planetRingTexCoords, camZPos );
-}
-
-void NodeArtist::drawStarCenter( const gl::Texture &starTex )
-{
-	/*
-	if( mIsSelected ){
-		gl::pushModelView();
-		gl::translate( mTransPos );
-		gl::enableAdditiveBlending();
-		if( G_ZOOM > G_ALPHA_LEVEL ){
-			//gl::disableDepthRead();
-			//gl::drawSphere( Vec3f::zero(), radius, 32 );
-			//glEnable( GL_ALPHA_TEST );
-			//glAlphaFunc( GL_GREATER, 0.15f );
-			starTex.enableAndBind();
-			gl::color( ColorA( mGlowColor, 1.0f ) );
-			Vec2f radius = Vec2f( mRadius, mRadius );
-			gl::drawBillboard( Vec3f::zero(), radius, 0.0f, mBbRight, mBbUp );
-			starTex.disable();
-			//glDisable( GL_ALPHA_TEST );
-			
-			//gl::enableDepthRead();
-		}
-		gl::popModelView();
-	}*/
 }
 
 void NodeArtist::select()

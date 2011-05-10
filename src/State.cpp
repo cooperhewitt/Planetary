@@ -26,6 +26,8 @@ void State::setup()
 {
 	mAlphaChar = ' ';
 	mSelectedNode = NULL;
+	mPrevSelectedNode = NULL;
+	mDistBetweenPrevAndCurrentNode = 1.0f;
 }
 
 void State::draw( const Font &font )
@@ -77,13 +79,13 @@ void State::setSelectedNode( Node* node )
 		deque<Node*> currentChain;
 		deque<Node*> nextChain;
 		
-		Node* current = mSelectedNode;
+		Node* current = mSelectedNode;	// track, album, artist
 		while (current != NULL) {
 			currentChain.push_front(current);
 			current = current->mParentNode;
 		}
 
-		Node* next = node;
+		Node* next = node;				// new track, album, artist
 		while (next != NULL) {
 			nextChain.push_front(next);
 			next = next->mParentNode;
@@ -105,15 +107,24 @@ void State::setSelectedNode( Node* node )
 			}
 		}
 		
-//		// ensure that the new selection is selected
-//		node->select();
+		// ensure that the new selection is selected
+		// node->select();
+		mPrevSelectedNode = mSelectedNode;
+		mSelectedNode = node;
+		
+		if( mPrevSelectedNode && mSelectedNode )
+			mDistBetweenPrevAndCurrentNode = mPrevSelectedNode->mTransPos.distance( mSelectedNode->mTransPos );
+		
+		std::cout << "mDistBetweenPrevAndCurrentNode = " << mDistBetweenPrevAndCurrentNode << std::endl;
 		
 		// select everything in the next chain that isn't in the current chain
-        for (int i = currentChain.size(); i < nextChain.size(); i++) {
+		// SANITY CHECK: I changed this for loop
+		// from
+		// for (int i = currentChain.size(); i < nextChain.size(); i++) {
+		// to
+        for (int i = 0; i < nextChain.size(); i++) {
             nextChain[i]->select();
         }
-		
-		mSelectedNode = node;
 	}
     
 	// and then spread the good word

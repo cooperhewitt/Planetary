@@ -148,6 +148,7 @@ class KeplerApp : public AppCocoaTouch {
 	Vec3f			mCenterDest, mCenterFrom;
 	Vec3f			mCamNormal;
 	float			mCamDist, mCamDistDest, mCamDistFrom;
+	float			mCamDistAnim;
 	float			mCamDistPinchOffset, mCamDistPinchOffsetDest;
 	float			mZoomFrom, mZoomDest;
 	Arcball			mArcball;
@@ -190,8 +191,9 @@ class KeplerApp : public AppCocoaTouch {
     gl::Texture     mRingsTex;
 	gl::Texture		mUiButtonsTex;
 	gl::Texture		mCurrentTrackTex;
-    gl::Texture		mAtmosphereTex;
+    gl::Texture		mAtmosphereTex, mAtmosphereDirectionalTex;
 	gl::Texture		mNoArtistsTex;
+	gl::Texture		mParticleTex;
 	vector<gl::Texture> mPlanetsTex;
 	vector<gl::Texture> mCloudsTex;
 	
@@ -283,7 +285,7 @@ void KeplerApp::remainingSetup()
 	//Rand::randomize();
     
 	mElapsedSecondsSinceTrackChange = 0.0f;
-	
+
 	
     // TEXTURES
     initTextures();
@@ -331,6 +333,7 @@ void KeplerApp::remainingSetup()
 	mCamDistPinchOffset	= 1.0f;
 	mCamDistPinchOffsetDest = 1.0f;
 	mCamDistFrom		= mCamDist;
+	mCamDistAnim		= 0.0f;
 	mEye				= Vec3f( 0.0f, 0.0f, mCamDist );
 	mCenter				= Vec3f::zero();
 	mCamNormal			= Vec3f::zero();
@@ -437,7 +440,7 @@ void KeplerApp::initTextures()
 //	console() << "initTextures start time = " << t << endl;
     mStarTex			= loadImage( loadResource( "star.png" ) );
 	mEclipseGlowTex		= loadImage( loadResource( "eclipseGlow.png" ) );
-	mSkyDome			= loadImage( loadResource( "skydome.jpg" ) );
+	mSkyDome			= loadImage( loadResource( "skydome.png" ) );
 	//mMilkyWayDome		= loadImage( loadResource( "skydome.png" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
@@ -447,6 +450,8 @@ void KeplerApp::initTextures()
 	mParamsTex			= gl::Texture( 768, 75 );    
 	mUiButtonsTex		= loadImage( loadResource( "uiButtons.png" ) );
     mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
+	mAtmosphereDirectionalTex = loadImage( loadResource( "atmosphereDirectional.png" ) );
+	mParticleTex		= loadImage( loadResource( "particle.png" ) );
     mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "12.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "13.jpg" ) ) ) );
@@ -463,11 +468,16 @@ void KeplerApp::initTextures()
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "52.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "53.jpg" ) ) ) );
     
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds1.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds2.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds3.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds4.png" ) ) ) );
-	//mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "clouds5.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds1.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds2.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds3.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds4.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds5.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds1.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds2.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds3.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds4.png" ) ) ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds5.png" ) ) ) );
     
 	//console() << "initTextures duration = " << (getElapsedSeconds()-t) << endl;
     Flurry::getInstrumentation()->stopTimeEvent("Load Textures");    
@@ -744,6 +754,7 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
             // FIXME: is this a bad OOP thing or is there a cleaner/safer C++ way to handle it?
             NodeTrack* trackNode = (NodeTrack*)node;
             if ( mIpodPlayer.hasPlayingTrack() ){
+				trackNode->setStartAngle();
                 ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
                 if ( trackNode->getId() != playingTrack->getItemId() ) {
                     mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
@@ -906,7 +917,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &
 		if( nodeWithHighestGen ){
 			if( highestGen == G_ARTIST_LEVEL ){
 				if( ! mState.getSelectedArtistNode() ) {
-                    //console() << "setting artist node selection" << std::endl;                                        
+                    console() << "setting artist node selection" << std::endl;                                        
                     Flurry::getInstrumentation()->logEvent("Artist Node Touched");                    
 					mState.setSelectedNode( nodeWithHighestGen );
                 }
@@ -977,7 +988,6 @@ void KeplerApp::update()
 		}
 		
         mWorld.update( mMatrix );
-        mParticleController.update();
 		
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
@@ -990,9 +1000,11 @@ void KeplerApp::update()
             mWorld.buildStarsVertexArray( invBbRight, invBbUp );
             mWorld.buildStarGlowsVertexArray( invBbRight, invBbUp );
         }
-		mParticleController.update();
-		mParticleController.buildParticleVertexArray( invBbRight, invBbUp );
-		if( mState.getSelectedArtistNode() ){
+		
+		Node *selectedNode = mState.getSelectedArtistNode();
+		if( selectedNode ){
+			mParticleController.update( selectedNode->mRadius * 0.27f, invBbRight, invBbUp );
+			mParticleController.buildParticleVertexArray();
 			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaPer, sqrt( 1.0f - mCamRingAlpha ) * 0.125f );
 		}
 		
@@ -1031,9 +1043,7 @@ void KeplerApp::updateArcball()
 
 
 void KeplerApp::updateCamera()
-{
-	double p		= constrain( getElapsedSeconds()-mTime, 0.0, G_DURATION );
-	
+{	
 	mCamDistPinchOffset -= ( mCamDistPinchOffset - mCamDistPinchOffsetDest ) * 0.4f;
 	
 	updateCameraPop();
@@ -1080,13 +1090,24 @@ void KeplerApp::updateCamera()
 	}
 	*/
 
-	mCenter			= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, G_DURATION );
-	mCamDist		= easeInOutQuad( p, mCamDistFrom, mCamDistDest - mCamDistFrom, G_DURATION );
+	// TODO: make the duration a factor of how far it is traveling
+	float distToTravel = mState.getDistBetweenNodes();
+	double duration = 5.0f;
+	if( distToTravel < 1.0f )		duration = 2.0;
+	else if( distToTravel < 5.0f )	duration = 3.0f;
+		
+	
+	double p		= constrain( getElapsedSeconds()-mTime, 0.0, duration );
+	
+	mCenter			= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, duration );
+	mCamDist		= easeInOutQuad( p, mCamDistFrom, mCamDistDest - mCamDistFrom, duration );
 	mCamDist		= min( mCamDist, G_INIT_CAM_DIST );
-	G_ZOOM			= easeInOutQuad( p, mZoomFrom, mZoomDest - mZoomFrom, G_DURATION );
+	mCamDistAnim	= easeInOutQuad( p, 0.0f, 1.0f, duration );
+	
+	G_ZOOM			= easeInOutQuad( p, mZoomFrom, mZoomDest - mZoomFrom, duration );
 	
 	Vec3f prevEye	= mEye;
-	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist );
+	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist - sin( mCamDistAnim * M_PI ) * distToTravel );
 	mCamVel			= mEye - prevEye;
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
@@ -1184,9 +1205,9 @@ void KeplerApp::drawScene()
 	mEclipseGlowTex.disable();
 	
 	// STARGLOWS occluded
-	mStarGlowTex.enableAndBind();
+	mEclipseGlowTex.enableAndBind();
 	mWorld.drawStarGlowsVertexArray( mMatrix );
-	mStarGlowTex.disable();
+	mEclipseGlowTex.disable();
 	
 	
 	
@@ -1205,7 +1226,7 @@ void KeplerApp::drawScene()
 			Vec3f lightPos          = artistNode->mTransPos;
 			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) * 0.5f, 1.0f ) );
+			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) , 1.0f ) );
 			
 			gl::disableAlphaBlending();
 			
@@ -1217,7 +1238,7 @@ void KeplerApp::drawScene()
 				if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
 					glDisable( GL_LIGHTING );
 					gl::disableDepthRead();
-					sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mPinchAlphaPer );
+					sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
 					gl::enableDepthRead();
 					
 				}
@@ -1226,7 +1247,7 @@ void KeplerApp::drawScene()
 			if( sortedNodes[i]->mGen == G_TRACK_LEVEL && sortedNodes[i]->isMostPlayed() ){
 				glDisable( GL_LIGHTING );
 				gl::disableDepthRead();
-				sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mPinchAlphaPer );
+				sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
 				gl::enableDepthRead();
 			}
 		}
@@ -1264,9 +1285,9 @@ void KeplerApp::drawScene()
 	
 	// PARTICLES
 	if( mState.getSelectedArtistNode() ){
-		mEclipseGlowTex.enableAndBind();
+		mParticleTex.enableAndBind();
 		mParticleController.drawParticleVertexArray( mState.getSelectedArtistNode(), mMatrix );
-		mEclipseGlowTex.disable();
+		mParticleTex.disable();
 	}
 	
 	
@@ -1460,8 +1481,10 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                         //       the transition is too jarring/annoying
                         //       better to use this opportunity to update info about the currently playing track
                         Node* trackNode = getPlayingTrackNode( playingTrack, albumNode );
+						NodeTrack* tn = (NodeTrack*)trackNode;
                         if (trackNode != NULL) {
-
+							
+							tn->setStartAngle();
                             if (!trackNode->mIsSelected) {
                                 //console() << "    selecting track node" << std::endl;
                                 // this one gets selected in World

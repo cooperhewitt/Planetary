@@ -34,6 +34,8 @@ Node::Node( Node *parent, int index, const Font &font )
 	mScreenPos			= Vec2f::zero();
 	mEclipsePer			= 1.0f;
 	mEclipseStrength	= 0.0f;
+	mEclipseAngle		= 0.0f;
+	mEclipseDirBasedAlpha = 0.0f;
 	mTransPos			= Vec3f::zero();
 
 	mOrbitStartAngle	= Rand::randFloat( TWO_PI );
@@ -60,14 +62,13 @@ Node::Node( Node *parent, int index, const Font &font )
 	mIsDying			= false;
 	mIsDead				= false;
 	mDeathCount			= 0;
-	mDeathThresh		= 40;
+	mDeathThresh		= 100;
+	mDeathPer			= 0.0f;
 }
 
 void Node::init()
 {
 	mGen				= G_ARTIST_LEVEL;
-	mRadiusDest			= 2.0f;
-	mRadius				= 2.0f;
 	mPos				= Rand::randVec3f();
 	mAcc				= Vec3f::zero();
 	mTransVel			= Vec3f::zero();
@@ -130,15 +131,18 @@ void Node::update( const Matrix44f &mat )
 	} else {
         mZoomPer    = constrain( 1.0f - abs( G_ZOOM - mGen + 1.0f ), 0.0f, 1.0f );
     }
-	mZoomPer = pow( mZoomPer, 5.0f );
+	mZoomPer = pow( mZoomPer, 4.0f );
 	
 	
 	if( mIsDying ){
 		mDeathCount ++;
 		if( mDeathCount > mDeathThresh ){
 			mIsDead = true;
+			mIsSelected = false;
 		}
 	}
+	
+	mDeathPer = 1.0f - (float)mDeathCount/(float)mDeathThresh;
 	
 	
 	
@@ -183,7 +187,7 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
         mScreenPos              = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
 		mDistFromCamZAxis		= cam.worldToEyeDepth( mTransPos );
-		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * -0.35f, 0.0f, 1.0f );
+		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * -0.5f, 0.0f, 1.0f ); // REL: -0.35f
 		mSphereScreenRadius     = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() ) * 0.4f;
         //Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
 		Vec2f p = mScreenPos;
@@ -243,7 +247,10 @@ void Node::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfl
 void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
-		//if( mIsPlaying || mIsSelected ){
+		Vec2f pos1, pos2;
+		Vec2f offset0, offset1, offset2;
+		float screenRadNew = mSphereScreenRadius * 0.25f;
+		
 		if( mIsSelected || ( G_ZOOM < mGen && mIsPlaying ) ){
 			float alpha = 1.0f;
 			if( G_ZOOM < mGen - 1 )
@@ -251,22 +258,22 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			else if( G_ZOOM < mGen )
 				alpha = pinchAlphaPer;
 			
-			gl::color( ColorA( Color::white(), alpha ) );
+			gl::color( ColorA( Color::white(), alpha * mDeathPer ) );
 		} else {
-			gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.45f * mZoomPer * pinchAlphaPer ) );
+			gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.45f * mZoomPer * mDeathPer ) );
 		}
 
 		if (mNameTex == NULL) {
 			createNameTexture();
 		}
 
-        Vec2f offset0 = Vec2f( mSphereScreenRadius * 0.275f, mSphereScreenRadius * 0.275f * 0.75f );
+        offset0 = Vec2f( screenRadNew, screenRadNew );
         offset0.rotate( angle );
-		Vec2f pos1 = mScreenPos + offset0;
-        Vec2f offset1( 10.0f, 7.5f );
+		pos1 = mScreenPos + offset0;
+        offset1 = Vec2f( 10.0f, 10.0f );
         offset1.rotate( angle );
-		Vec2f pos2 = pos1 + offset1;
-        Vec2f offset2( 2.0f, -8.0f );
+		pos2 = pos1 + offset1;
+        offset2 = Vec2f( 2.0f, -8.0f );
         offset2.rotate( angle );
 
         Vec2f texCorner = mNameTex.getSize();
@@ -290,9 +297,34 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
         inflateRect( mHitArea, 5.0f );
 		
 		glDisable( GL_TEXTURE_2D );
-		gl::color( ColorA( COLOR_BLUE, 0.4f * mZoomPer * pinchAlphaPer ) );
+		
+		
+		gl::color( ColorA( COLOR_BLUE, 0.4f * mZoomPer * mDeathPer ) );
 		gl::drawLine( pos1, pos2 );
+		
+		
+		/*
+		// For viewing node states
+		if( mIsHighlighted ){
+			gl::color( Color( 1.0f, 0.0f, 0.0f ) );
+			gl::drawLine( pos1 + Vec2f( 1.0f, -1.0f ), pos1 + Vec2f( -1.0f, 1.0f ) );
+		}
+		
+		if( mIsSelected ){
+			gl::color( Color( 0.0f, 1.0f, 0.0f ) );
+			gl::drawLine( pos1 + Vec2f( 3.0f, 1.0f ), pos1 + Vec2f( 1.0f, 3.0f ) );
+		}
+		
+		if( mIsPlaying ){
+			gl::color( Color( 0.0f, 0.0f, 1.0f ) );
+			gl::drawLine( pos1 + Vec2f( 5.0f, 3.0f ), pos1 + Vec2f( 3.0f, 5.0f ) );
+		}
+		 */
 	}
+	
+
+	
+	
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->drawName( cam, pinchAlphaPer, angle );
@@ -358,15 +390,11 @@ void Node::select()
 
 void Node::deselect()
 {
-	// TODO: Instead of killing them right away, sentence them to die but only after
-	// their gen is 1.0 greater than the current zoom level.
-	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->mIsDying = true;
 	}
+	mIsSelected = false;
 	
-	
-//	mIsSelected = false;
 //	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 //		delete (*nodeIt);
 //	}

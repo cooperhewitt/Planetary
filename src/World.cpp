@@ -505,17 +505,10 @@ void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
 			Vec3f pos				= (*it)->mPos;
-			float flickerAmt		= ( 8.5f + zoomOffset * Rand::randFloat( 5.0f, 6.5f ) );
+			float flickerAmt		= 3.0f;// + zoomOffset * Rand::randFloat( 5.0f, 6.5f );
 			float radius			= (*it)->mRadius * 0.35f * flickerAmt;
-			
-			float glowAlpha			= 1.0f;
-			
-			if( !(*it)->mIsSelected && !(*it)->mIsPlaying ){
-				glowAlpha = zoomOffset;
-			}
 			   
-			   
-			ColorA col				= ColorA( (*it)->mGlowColor, (*it)->mDistFromCamZAxisPer * glowAlpha * 0.5f );
+			ColorA col				= ColorA( (*it)->mGlowColor, (*it)->mDistFromCamZAxisPer * ( 1.0f - (*it)->mEclipseStrength ) );
 			
 			Vec3f right				= bbRight * radius;
 			Vec3f up				= bbUp * radius;

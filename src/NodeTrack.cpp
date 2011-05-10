@@ -38,6 +38,8 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	mOrbitTexCoords			= NULL;
 	mOrbitColors			= NULL;
 	
+	mMyTime				= 0.0f;//Rand::randFloat( 250.0 );
+	
 	mIdealCameraDist	= 0.075f;
 }
 
@@ -83,16 +85,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 //	
 	
 	mPlanetTexIndex			= (int)( mNormPlayCount * ( G_NUM_PLANET_TYPES - 1 ) );
-	mCloudTexIndex			= Rand::randInt( G_NUM_CLOUD_TYPES );
-   // mPlanetTexIndex *= G_NUM_PLANET_TYPE_OPTIONS + Rand::randInt( G_NUM_PLANET_TYPE_OPTIONS );
-	
-	if( mPlayCount > 50 ){
-		mCloudTexIndex = 2;
-	} else if( mPlayCount > 10 ){
-		mCloudTexIndex = 1;
-	} else {
-		mCloudTexIndex = 0;
-	}
+	mCloudTexIndex			= c1Int%G_NUM_CLOUD_TYPES + G_NUM_CLOUD_TYPES;
 	
 	if( album->size() > 1 ){
 		if( mPlayCount == mParentNode->mHighestPlayCount ){
@@ -114,11 +107,21 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mSphere				= Sphere( mPos, mRadius * 7.5f );
 	
 	mOrbitPeriod		= mTrackLength;
+
+	setStartAngle();
+	
 	mAxialTilt			= Rand::randFloat( 5.0f, 30.0f );
-    mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
+    mAxialVel			= Rand::randFloat( 30.0f, 95.0f );
 
 	mStartRelPos		= Vec3f( cos( mOrbitStartAngle ), sin( mOrbitStartAngle ), 0.0f ) * mOrbitRadius;
 	mStartPos			= ( mParentNode->mPos + mStartRelPos ); 
+}
+
+void NodeTrack::setStartAngle()
+{
+	mPercentPlayed		= 0.0f;
+	float timeOffset	= ( mMyTime )/mOrbitPeriod;
+	mOrbitStartAngle	= timeOffset * TWO_PI;
 }
 
 void NodeTrack::updateAudioData( double currentPlayheadTime )
@@ -187,10 +190,10 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 		mOrbitVerts[vIndex++]	= pos2.y;
 		mOrbitVerts[vIndex++]	= pos2.z;
 		
-		mOrbitTexCoords[tIndex++]	= app::getElapsedSeconds() + index;
+		mOrbitTexCoords[tIndex++]	= mMyTime;
 		mOrbitTexCoords[tIndex++]	= 0.0f;
 		
-		mOrbitTexCoords[tIndex++]	= app::getElapsedSeconds() + index;
+		mOrbitTexCoords[tIndex++]	= mMyTime;
 		mOrbitTexCoords[tIndex++]	= 1.0f;
 		
 		index ++;
@@ -286,14 +289,17 @@ void NodeTrack::update( const Matrix44f &mat )
 	
 	
 	
-	
+	mPrevTime		= mCurrentTime;
+	mCurrentTime	= (float)app::getElapsedSeconds();
 	
 	if( !mIsPlaying ){
-		// TODO: THIS IS AWKWARD. This is so the non-playing tracks still orbit
-		mPercentPlayed	= ( app::getElapsedSeconds() + mIndex * 50.0f )/mOrbitPeriod;
-		mOrbitAngle		= mPercentPlayed * TWO_PI;
-		mOrbitStartAngle = mOrbitAngle;
+		mMyTime			+= mCurrentTime - mPrevTime;
 	}
+	
+	// TODO: THIS IS AWKWARD. This is so the non-playing tracks still orbit
+	float timeOffset	= mMyTime/mOrbitPeriod;
+	mOrbitAngle		= ( mPercentPlayed + timeOffset ) * TWO_PI;
+	//mOrbitStartAngle = mOrbitAngle;
 	
 	Vec3f prevTransPos  = mTransPos;
     // if mTransPos hasn't been set yet, use a guess:
@@ -324,7 +330,7 @@ void NodeTrack::update( const Matrix44f &mat )
 		
 		float totalRadius = r + R;
 		float c		= p.distance( P );
-		if( c < totalRadius && mIsSelected )
+		if( mIsSelected )
 		{
 			float csqrd = c * c;
 			float cos1	= ( Rsqrd + csqrd - rsqrd )/( 2.0f * R * c );
@@ -335,17 +341,22 @@ void NodeTrack::update( const Matrix44f &mat )
 			float CAB	= acos( constrain( cos2, -1.0f, 1.0f ) );
 			float CAD	= CAB * 2.0f;
 			float intersectingArea = CBA * Rsqrd - 0.5f * Rsqrd * sin( CBD ) + 0.5f * CAD * rsqrd - 0.5f * rsqrd * sin( CAD );
-			mEclipseStrength = ( A - intersectingArea ) / A;
-			/*
-			 std::cout << "================== " << std::endl;
-			 std::cout << "c = " << c << std::endl;
-			 std::cout << "A = " << A << std::endl;
-			 std::cout << "CBA = " << CBA << std::endl;
-			 std::cout << "CAB = " << CAB << std::endl;
-			 std::cout << "intersectingArea = " << intersectingArea << std::endl;
-			 std::cout << "totalRadius = " << totalRadius << std::endl;		
-			 std::cout << "mEclipseStrength = " << mEclipseStrength << std::endl;
-			 */
+			mEclipseStrength = 1.0f - ( A - intersectingArea ) / A;
+
+			if( mDistFromCamZAxisPer > 0.0f ){
+				if( mEclipseStrength > mParentNode->mParentNode->mEclipseStrength )
+					mParentNode->mParentNode->mEclipseStrength = mEclipseStrength;
+			}
+			
+//			std::cout << "================== " << std::endl;
+//			std::cout << "c = " << c << std::endl;
+//			std::cout << "A = " << A << std::endl;
+//			std::cout << "CBA = " << CBA << std::endl;
+//			std::cout << "CAB = " << CAB << std::endl;
+//			std::cout << "intersectingArea = " << intersectingArea << std::endl;
+//			std::cout << "totalRadius = " << totalRadius << std::endl;		
+//			std::cout << "mEclipseStrength = " << mEclipseStrength << std::endl;
+
 		}
 	}
 	mEclipseColor = ( mColor + Color::white() ) * 0.5f * eclipseDist;
@@ -358,7 +369,8 @@ void NodeTrack::update( const Matrix44f &mat )
 void NodeTrack::drawEclipseGlow()
 {
 	if( mIsSelected && mDistFromCamZAxisPer > 0.0f ){
-        mParentNode->mParentNode->mEclipseStrength = mEclipseStrength * mZoomPer;
+		if( mEclipseStrength > mParentNode->mParentNode->mEclipseStrength )
+			mParentNode->mParentNode->mEclipseStrength = mEclipseStrength;
 	}
 }
 
@@ -386,10 +398,10 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 		
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		gl::scale( Vec3f( mRadius, mRadius, mRadius ) );
+		gl::scale( Vec3f( mRadius, mRadius, mRadius ) * mDeathPer );
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
-		gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, 0.0f ) );
+		gl::rotate( Vec3f( 90.0f, mCurrentTime * mAxialVel, 0.0f ) );
 		gl::color( mEclipseColor );
 		if( mHasAlbumArt ){
 			mAlbumArt.enableAndBind();
@@ -433,12 +445,12 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			glEnable( GL_LIGHTING );
 			// LIT CLOUDS
 			gl::pushModelView();
-			float radius = mRadius + 0.000025f;
+			float radius = mRadius * mDeathPer + 0.000025f;
 			gl::scale( Vec3f( radius, radius, radius ) );
 			glEnable( GL_RESCALE_NORMAL );
 			gl::rotate( mMatrix );
 			gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
-			gl::rotate( Vec3f( 90.0f, app::getElapsedSeconds() * mAxialVel, 0.0f ) );
+			gl::rotate( Vec3f( 90.0f, mCurrentTime * mAxialVel, 0.0f ) );
 			gl::enableAdditiveBlending();
 			gl::color( ColorA( mEclipseColor, mCamDistAlpha * 0.5f ) );
 			glDrawArrays( GL_TRIANGLES, 0, numVerts );
@@ -463,9 +475,9 @@ void NodeTrack::drawOrbitRing( float pinchAlphaPer, GLfloat *ringVertsLowRes, GL
 	
 	
 	if( mIsMostPlayed )
-		gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.2f * newPinchAlphaPer ) );
+		gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.2f * mDeathPer ) );
 	else
-		gl::color( ColorA( COLOR_BLUE, 0.2f * newPinchAlphaPer ) );		
+		gl::color( ColorA( COLOR_BLUE, 0.2f * mDeathPer ) );		
 	
 	gl::pushModelView();
 	gl::translate( mParentNode->mTransPos );
@@ -479,7 +491,7 @@ void NodeTrack::drawOrbitRing( float pinchAlphaPer, GLfloat *ringVertsLowRes, GL
 	gl::popModelView();
 }
 
-void NodeTrack::drawAtmosphere( const gl::Texture &tex, float pinchAlphaPer )
+void NodeTrack::drawAtmosphere( const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
 	if( mDistFromCamZAxis < -0.005f ){
 		gl::enableAdditiveBlending();
@@ -491,9 +503,12 @@ void NodeTrack::drawAtmosphere( const gl::Texture &tex, float pinchAlphaPer )
 		float angle		= atan2( dir.y, dir.x );
 		float stretch	= 1.0f + dirLength * 0.1f;
 		gl::enableAdditiveBlending();
-		float alpha = 0.3f * ( 1.0f - dirLength );
-		if( G_ZOOM <= G_ALBUM_LEVEL )
-			alpha = pinchAlphaPer;
+		float alpha = 1.0f;
+		
+//		float alpha = 0.3f * ( 1.0f - dirLength );
+//		if( G_ZOOM <= G_ALBUM_LEVEL )
+//			alpha = pinchAlphaPer;
+
 		gl::color( ColorA( ( mGlowColor + COLOR_BRIGHT_BLUE ) * 0.5f, alpha ) );
 		Vec2f radius = Vec2f( mRadius * stretch, mRadius ) * 2.5f;
 		tex.enableAndBind();

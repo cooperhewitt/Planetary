@@ -7,8 +7,8 @@
 class ParticleController {
  public:
 	ParticleController();
-	void update();
-	void buildParticleVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	void update( float radius, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	void buildParticleVertexArray();
 	void buildDustVertexArray( Node *node, float pinchAlphaOffset, float dustAlpha );
 	void drawParticleVertexArray( Node *node, const ci::Matrix44f &mat );
 	void drawDustVertexArray( Node *node, const ci::Matrix44f &mat );
@@ -32,5 +32,7 @@ class ParticleController {
 	GLfloat *mDustVerts;
 	GLfloat *mDustColors;
 	
+	ci::Vec3f mBbRight;
+	ci::Vec3f mBbUp;
 	
 };
