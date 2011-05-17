@@ -72,6 +72,7 @@ void State::setSelectedNode( Node* node )
 			selection = selection->mParentNode;
 		}
 		mSelectedNode = NULL;
+		mDistBetweenPrevAndCurrentNode = 20.0f;
 	}
 	else {
 		

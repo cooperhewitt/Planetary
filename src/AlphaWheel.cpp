@@ -122,11 +122,14 @@ bool AlphaWheel::touchesEnded( TouchEvent event )
 
 bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 {
+	float minDiam = 275;
+	float maxDiam = 325;
+	
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
 	if( mShowWheel && timeSincePinchEnded > 0.5f ){ 
         Vec2f dir = (mOrientationMatrix.inverted() * Vec3f(mTouchPos,0)).xy() - mInterfaceCenter;
 		float distToCenter = dir.length();
-		if( distToCenter > 225 && distToCenter < 275 ){
+		if( distToCenter > minDiam && distToCenter < maxDiam ){
 			float touchAngle	= atan2( dir.y, dir.x ) + M_PI;				// RANGE 0 -> TWO_PI
 			float anglePer		= ( touchAngle + 0.11365f + M_PI*1.5f )/TWO_PI;
 			mAlphaIndex			= (int)( anglePer * 27 )%27;
@@ -137,11 +140,11 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 			}
 		}
 		
-		if( closeWheel && distToCenter < 275 ){
+		if( closeWheel && distToCenter < maxDiam ){
             setShowWheel(false);
 		}
 
-        return distToCenter > 225 && distToCenter < 275;
+        return distToCenter > minDiam && distToCenter < maxDiam;
 	}
     return false;
 }

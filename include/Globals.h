@@ -31,7 +31,7 @@ static const int G_NUM_CLOUD_TYPES	= 5;
 
 static const float G_MIN_FOV		= 55.0f;
 static const float G_DEFAULT_FOV	= 60.0f;
-static const float G_MAX_FOV		= 95.0f;
+static const float G_MAX_FOV		= 90.0f;
 
 static const float G_DEFAULT_ARCBALL_RADIUS	= 500.0f;
 
@@ -49,11 +49,13 @@ static const ci::Color COLOR_BRIGHT_YELLOW	= ci::Color( 1.0f, 1.0f, 0.75f );
 
 // TODO: move into State.h
 extern float G_ZOOM;
+extern int G_CURRENT_LEVEL;
 extern bool G_DEBUG;
 extern bool G_HELP;
 extern bool G_ACCEL;
 extern bool G_DRAW_RINGS;
 extern bool G_DRAW_TEXT;
+extern bool G_USE_GYRO;
 
 extern bool G_IS_IPAD2;
 extern int G_NUM_PARTICLES;

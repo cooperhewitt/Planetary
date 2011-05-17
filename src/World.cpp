@@ -49,7 +49,7 @@ void World::setup( Data *data )
 	
 	
 	mAge			= 0;
-	mEndRepulseAge	= 150;//200
+	mEndRepulseAge	= 50;//200
 	mIsRepulsing	= true;
 	mIsInitialized	= false;
 }
@@ -181,42 +181,25 @@ void World::initNodes( Player *player, const Font &font )
 
 void World::initVertexArrays()
 {
-    if( mRingVertsLowRes != NULL ) delete[] mRingVertsLowRes;
-	//if( mRingColorsLowRes != NULL ) delete[] mRingColorsLowRes;
-    
-	mRingVertsLowRes	= new float[ G_RING_LOW_RES*2 ]; // X,Y
-	//mRingColorsLowRes	= new float[ G_RING_LOW_RES*4 ];
+    if( mRingVertsLowRes  != NULL ) delete[] mRingVertsLowRes;
+	if( mRingVertsHighRes != NULL ) delete[] mRingVertsHighRes;
+	
+	mRingVertsLowRes	= new float[ G_RING_LOW_RES*2 ];	// X,Y
+	mRingVertsHighRes	= new float[ G_RING_HIGH_RES*2 ];	// X,Y
+	
+	
 	for( int i=0; i<G_RING_LOW_RES; i++ ){
 		float per				= (float)i/(float)(G_RING_LOW_RES-1);
 		float angle				= per * TWO_PI;
 		mRingVertsLowRes[i*2+0]	= cos( angle );
 		mRingVertsLowRes[i*2+1]	= sin( angle );
-		/*
-		Color c	= lerp( COLOR_BRIGHT_BLUE, COLOR_BLUE, per );
-		mRingColorsLowRes[i*4+0] = c.r;
-		mRingColorsLowRes[i*4+1] = c.g;
-		mRingColorsLowRes[i*4+2] = c.b;
-		mRingColorsLowRes[i*4+3] = 1.0f - per;
-		*/
 	}
 
-    if( mRingVertsHighRes != NULL ) delete[] mRingVertsHighRes;
-	//if( mRingColorsHighRes != NULL ) delete[] mRingColorsHighRes;
-	
-	mRingVertsHighRes	= new float[ G_RING_HIGH_RES*2 ]; // X,Y
-	//mRingColorsHighRes	= new float[ G_RING_HIGH_RES*4 ];
 	for( int i=0; i<G_RING_HIGH_RES; i++ ){
 		float per					= (float)i/(float)(G_RING_HIGH_RES-1);
 		float angle					= per * TWO_PI;
 		mRingVertsHighRes[i*2+0]	= cos( angle );
 		mRingVertsHighRes[i*2+1]	= sin( angle );
-		/*
-		Color c	= lerp( COLOR_BRIGHT_BLUE, COLOR_BLUE, per );
-		mRingColorsHighRes[i*4+0]	= c.r;
-		mRingColorsHighRes[i*4+1]	= c.g;
-		mRingColorsHighRes[i*4+2]	= c.b;
-		mRingColorsHighRes[i*4+3]	= 1.0f - per;
-		*/
 	}
 	
 	buildPlanetRingsVertexArray();
@@ -295,7 +278,7 @@ void World::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matri
 	}
 }
 
-void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
+void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, float zoomAlpha )
 {
 	mTotalStarVertices	= mData->mArtists.size() * 6;	// 6 = 2 triangles per quad
 
@@ -311,37 +294,31 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
         mPrevTotalStarVertices = mTotalStarVertices;
     }
 	
-	int vIndex = 0;
-	int tIndex = 0;
-	int cIndex = 0;
-	
-	float u1				= 0.0f;
-	float u2				= 1.0f;
-	float v1				= 0.0f;
-	float v2				= 1.0f;
-	
-	// TODO: figure out why we use inverted matrix * billboard vec
+	int vIndex	= 0;
+	int tIndex	= 0;
+	int cIndex	= 0;
 	
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		Vec3f pos				= (*it)->mPos;
-		float radius			= (*it)->mRadius * 0.5f;
-		if( (*it)->mIsHighlighted ) radius = (*it)->mRadius * 0.2f + ( (*it)->mRadius * 0.25f ) * 1.1f + math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
+		Vec3f pos	= (*it)->mPos;
+		float r		= (*it)->mRadius * 0.25f;
+		if( !(*it)->mIsHighlighted )
+			r		= r - zoomAlpha;
 		
-		ColorA col				= ColorA( (*it)->mColor, 1.0f );
+		ColorA col	= ColorA( (*it)->mColor, 1.0f );
 		
-		Vec3f right				= bbRight * radius;
-		Vec3f up				= bbUp * radius;
+		Vec3f right	= bbRight * r;
+		Vec3f up	= bbUp * r;
 		
-		Vec3f p1				= pos - right - up;
-		Vec3f p2				= pos + right - up;
-		Vec3f p3				= pos - right + up;
-		Vec3f p4				= pos + right + up;
+		Vec3f p1	= pos - right - up;
+		Vec3f p2	= pos + right - up;
+		Vec3f p3	= pos - right + up;
+		Vec3f p4	= pos + right + up;
 		
 		mStarVerts[vIndex++]		= p1.x;
 		mStarVerts[vIndex++]		= p1.y;
 		mStarVerts[vIndex++]		= p1.z;
-		mStarTexCoords[tIndex++]	= u1;
-		mStarTexCoords[tIndex++]	= v1;
+		mStarTexCoords[tIndex++]	= 0.0f;
+		mStarTexCoords[tIndex++]	= 0.0f;
 		mStarColors[cIndex++]		= col.r;
 		mStarColors[cIndex++]		= col.g;
 		mStarColors[cIndex++]		= col.b;
@@ -350,8 +327,8 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 		mStarVerts[vIndex++]		= p2.x;
 		mStarVerts[vIndex++]		= p2.y;
 		mStarVerts[vIndex++]		= p2.z;
-		mStarTexCoords[tIndex++]	= u2;
-		mStarTexCoords[tIndex++]	= v1;
+		mStarTexCoords[tIndex++]	= 1.0f;
+		mStarTexCoords[tIndex++]	= 0.0f;
 		mStarColors[cIndex++]		= col.r;
 		mStarColors[cIndex++]		= col.g;
 		mStarColors[cIndex++]		= col.b;
@@ -360,8 +337,8 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 		mStarVerts[vIndex++]		= p3.x;
 		mStarVerts[vIndex++]		= p3.y;
 		mStarVerts[vIndex++]		= p3.z;
-		mStarTexCoords[tIndex++]	= u1;
-		mStarTexCoords[tIndex++]	= v2;
+		mStarTexCoords[tIndex++]	= 0.0f;
+		mStarTexCoords[tIndex++]	= 1.0f;
 		mStarColors[cIndex++]		= col.r;
 		mStarColors[cIndex++]		= col.g;
 		mStarColors[cIndex++]		= col.b;
@@ -370,8 +347,8 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 		mStarVerts[vIndex++]		= p2.x;
 		mStarVerts[vIndex++]		= p2.y;
 		mStarVerts[vIndex++]		= p2.z;
-		mStarTexCoords[tIndex++]	= u2;
-		mStarTexCoords[tIndex++]	= v1;
+		mStarTexCoords[tIndex++]	= 1.0f;
+		mStarTexCoords[tIndex++]	= 0.0f;
 		mStarColors[cIndex++]		= col.r;
 		mStarColors[cIndex++]		= col.g;
 		mStarColors[cIndex++]		= col.b;
@@ -380,8 +357,8 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 		mStarVerts[vIndex++]		= p3.x;
 		mStarVerts[vIndex++]		= p3.y;
 		mStarVerts[vIndex++]		= p3.z;
-		mStarTexCoords[tIndex++]	= u1;
-		mStarTexCoords[tIndex++]	= v2;
+		mStarTexCoords[tIndex++]	= 0.0f;
+		mStarTexCoords[tIndex++]	= 1.0f;
 		mStarColors[cIndex++]		= col.r;
 		mStarColors[cIndex++]		= col.g;
 		mStarColors[cIndex++]		= col.b;
@@ -390,8 +367,8 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
 		mStarVerts[vIndex++]		= p4.x;
 		mStarVerts[vIndex++]		= p4.y;
 		mStarVerts[vIndex++]		= p4.z;
-		mStarTexCoords[tIndex++]	= u2;
-		mStarTexCoords[tIndex++]	= v2;
+		mStarTexCoords[tIndex++]	= 1.0f;
+		mStarTexCoords[tIndex++]	= 1.0f;
 		mStarColors[cIndex++]		= col.r;
 		mStarColors[cIndex++]		= col.g;
 		mStarColors[cIndex++]		= col.b;
@@ -417,6 +394,106 @@ void World::drawStarsVertexArray( const Matrix44f &mat )
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	glDisableClientState( GL_COLOR_ARRAY );
+}
+
+void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, float zoomAlpha )
+{
+	mTotalStarGlowVertices	= mData->mFilteredArtists.size() * 6;	// 6 = 2 triangles per quad
+	
+    if (mTotalStarGlowVertices != mPrevTotalStarGlowVertices) {
+        if (mStarGlowVerts != NULL)		delete[] mStarGlowVerts; 
+		if (mStarGlowTexCoords != NULL) delete[] mStarGlowTexCoords; 
+		if (mStarGlowColors != NULL)	delete[] mStarGlowColors;
+		
+        mStarGlowVerts			= new float[mTotalStarGlowVertices*3];
+        mStarGlowTexCoords		= new float[mTotalStarGlowVertices*2];
+        mStarGlowColors			= new float[mTotalStarGlowVertices*4];
+		
+        mPrevTotalStarGlowVertices = mTotalStarGlowVertices;
+    }
+	
+	int vIndex = 0;
+	int tIndex = 0;
+	int cIndex = 0;
+	
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		if( (*it)->mIsHighlighted ){
+			Vec3f pos			= (*it)->mPos;
+			float r				= (*it)->mRadius * 2.0f;
+			if( !(*it)->mIsSelected )
+				r				-= zoomAlpha;
+			
+			ColorA col			= ColorA( (*it)->mGlowColor, (*it)->mDistFromCamZAxisPer * ( 1.0f - (*it)->mEclipseStrength ) );
+			
+			Vec3f right			= bbRight * r;
+			Vec3f up			= bbUp * r;
+			
+			Vec3f p1			= pos - right - up;
+			Vec3f p2			= pos + right - up;
+			Vec3f p3			= pos - right + up;
+			Vec3f p4			= pos + right + up;
+			
+			mStarGlowVerts[vIndex++]		= p1.x;
+			mStarGlowVerts[vIndex++]		= p1.y;
+			mStarGlowVerts[vIndex++]		= p1.z;
+			mStarGlowTexCoords[tIndex++]	= 0.0f;
+			mStarGlowTexCoords[tIndex++]	= 0.0f;
+			mStarGlowColors[cIndex++]		= col.r;
+			mStarGlowColors[cIndex++]		= col.g;
+			mStarGlowColors[cIndex++]		= col.b;
+			mStarGlowColors[cIndex++]		= col.a;
+			
+			mStarGlowVerts[vIndex++]		= p2.x;
+			mStarGlowVerts[vIndex++]		= p2.y;
+			mStarGlowVerts[vIndex++]		= p2.z;
+			mStarGlowTexCoords[tIndex++]	= 1.0f;
+			mStarGlowTexCoords[tIndex++]	= 0.0f;
+			mStarGlowColors[cIndex++]		= col.r;
+			mStarGlowColors[cIndex++]		= col.g;
+			mStarGlowColors[cIndex++]		= col.b;
+			mStarGlowColors[cIndex++]		= col.a;
+			
+			mStarGlowVerts[vIndex++]		= p3.x;
+			mStarGlowVerts[vIndex++]		= p3.y;
+			mStarGlowVerts[vIndex++]		= p3.z;
+			mStarGlowTexCoords[tIndex++]	= 0.0f;
+			mStarGlowTexCoords[tIndex++]	= 1.0f;
+			mStarGlowColors[cIndex++]		= col.r;
+			mStarGlowColors[cIndex++]		= col.g;
+			mStarGlowColors[cIndex++]		= col.b;
+			mStarGlowColors[cIndex++]		= col.a;
+			
+			mStarGlowVerts[vIndex++]		= p2.x;
+			mStarGlowVerts[vIndex++]		= p2.y;
+			mStarGlowVerts[vIndex++]		= p2.z;
+			mStarGlowTexCoords[tIndex++]	= 1.0f;
+			mStarGlowTexCoords[tIndex++]	= 0.0f;
+			mStarGlowColors[cIndex++]		= col.r;
+			mStarGlowColors[cIndex++]		= col.g;
+			mStarGlowColors[cIndex++]		= col.b;
+			mStarGlowColors[cIndex++]		= col.a;
+			
+			mStarGlowVerts[vIndex++]		= p3.x;
+			mStarGlowVerts[vIndex++]		= p3.y;
+			mStarGlowVerts[vIndex++]		= p3.z;
+			mStarGlowTexCoords[tIndex++]	= 0.0f;
+			mStarGlowTexCoords[tIndex++]	= 1.0f;
+			mStarGlowColors[cIndex++]		= col.r;
+			mStarGlowColors[cIndex++]		= col.g;
+			mStarGlowColors[cIndex++]		= col.b;
+			mStarGlowColors[cIndex++]		= col.a;
+			
+			mStarGlowVerts[vIndex++]		= p4.x;
+			mStarGlowVerts[vIndex++]		= p4.y;
+			mStarGlowVerts[vIndex++]		= p4.z;
+			mStarGlowTexCoords[tIndex++]	= 1.0f;
+			mStarGlowTexCoords[tIndex++]	= 1.0f;
+			mStarGlowColors[cIndex++]		= col.r;
+			mStarGlowColors[cIndex++]		= col.g;
+			mStarGlowColors[cIndex++]		= col.b;
+			mStarGlowColors[cIndex++]		= col.a;
+		}
+	}
 }
 
 void World::buildPlanetRingsVertexArray()
@@ -474,113 +551,6 @@ void World::buildPlanetRingsVertexArray()
 	mPlanetRingTexCoords[t++]		= 1.0f;
 }
 
-void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp )
-{
-	mTotalStarGlowVertices	= mData->mFilteredArtists.size() * 6;	// 6 = 2 triangles per quad
-	
-    if (mTotalStarGlowVertices != mPrevTotalStarGlowVertices) {
-        if (mStarGlowVerts != NULL)		delete[] mStarGlowVerts; 
-		if (mStarGlowTexCoords != NULL) delete[] mStarGlowTexCoords; 
-		if (mStarGlowColors != NULL)	delete[] mStarGlowColors;
-		
-        mStarGlowVerts			= new float[mTotalStarGlowVertices*3];
-        mStarGlowTexCoords		= new float[mTotalStarGlowVertices*2];
-        mStarGlowColors			= new float[mTotalStarGlowVertices*4];
-		
-        mPrevTotalStarGlowVertices = mTotalStarGlowVertices;
-    }
-	
-	int vIndex = 0;
-	int tIndex = 0;
-	int cIndex = 0;
-	
-	float u1				= 0.0f;
-	float u2				= 1.0f;
-	float v1				= 0.0f;
-	float v2				= 1.0f;
-	float zoomOffset		= math<float>::max( G_ARTIST_LEVEL - G_ZOOM, 0.0f );
-	
-	// TODO: figure out why we use inverted matrix * billboard vec
-	
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		if( (*it)->mIsHighlighted ){
-			Vec3f pos				= (*it)->mPos;
-			float flickerAmt		= 3.0f;// + zoomOffset * Rand::randFloat( 5.0f, 6.5f );
-			float radius			= (*it)->mRadius * 0.35f * flickerAmt;
-			   
-			ColorA col				= ColorA( (*it)->mGlowColor, (*it)->mDistFromCamZAxisPer * ( 1.0f - (*it)->mEclipseStrength ) );
-			
-			Vec3f right				= bbRight * radius;
-			Vec3f up				= bbUp * radius;
-			
-			Vec3f p1				= pos - right - up;
-			Vec3f p2				= pos + right - up;
-			Vec3f p3				= pos - right + up;
-			Vec3f p4				= pos + right + up;
-			
-			mStarGlowVerts[vIndex++]		= p1.x;
-			mStarGlowVerts[vIndex++]		= p1.y;
-			mStarGlowVerts[vIndex++]		= p1.z;
-			mStarGlowTexCoords[tIndex++]	= u1;
-			mStarGlowTexCoords[tIndex++]	= v1;
-			mStarGlowColors[cIndex++]		= col.r;
-			mStarGlowColors[cIndex++]		= col.g;
-			mStarGlowColors[cIndex++]		= col.b;
-			mStarGlowColors[cIndex++]		= col.a;
-			
-			mStarGlowVerts[vIndex++]		= p2.x;
-			mStarGlowVerts[vIndex++]		= p2.y;
-			mStarGlowVerts[vIndex++]		= p2.z;
-			mStarGlowTexCoords[tIndex++]	= u2;
-			mStarGlowTexCoords[tIndex++]	= v1;
-			mStarGlowColors[cIndex++]		= col.r;
-			mStarGlowColors[cIndex++]		= col.g;
-			mStarGlowColors[cIndex++]		= col.b;
-			mStarGlowColors[cIndex++]		= col.a;
-			
-			mStarGlowVerts[vIndex++]		= p3.x;
-			mStarGlowVerts[vIndex++]		= p3.y;
-			mStarGlowVerts[vIndex++]		= p3.z;
-			mStarGlowTexCoords[tIndex++]	= u1;
-			mStarGlowTexCoords[tIndex++]	= v2;
-			mStarGlowColors[cIndex++]		= col.r;
-			mStarGlowColors[cIndex++]		= col.g;
-			mStarGlowColors[cIndex++]		= col.b;
-			mStarGlowColors[cIndex++]		= col.a;
-			
-			mStarGlowVerts[vIndex++]		= p2.x;
-			mStarGlowVerts[vIndex++]		= p2.y;
-			mStarGlowVerts[vIndex++]		= p2.z;
-			mStarGlowTexCoords[tIndex++]	= u2;
-			mStarGlowTexCoords[tIndex++]	= v1;
-			mStarGlowColors[cIndex++]		= col.r;
-			mStarGlowColors[cIndex++]		= col.g;
-			mStarGlowColors[cIndex++]		= col.b;
-			mStarGlowColors[cIndex++]		= col.a;
-			
-			mStarGlowVerts[vIndex++]		= p3.x;
-			mStarGlowVerts[vIndex++]		= p3.y;
-			mStarGlowVerts[vIndex++]		= p3.z;
-			mStarGlowTexCoords[tIndex++]	= u1;
-			mStarGlowTexCoords[tIndex++]	= v2;
-			mStarGlowColors[cIndex++]		= col.r;
-			mStarGlowColors[cIndex++]		= col.g;
-			mStarGlowColors[cIndex++]		= col.b;
-			mStarGlowColors[cIndex++]		= col.a;
-			
-			mStarGlowVerts[vIndex++]		= p4.x;
-			mStarGlowVerts[vIndex++]		= p4.y;
-			mStarGlowVerts[vIndex++]		= p4.z;
-			mStarGlowTexCoords[tIndex++]	= u2;
-			mStarGlowTexCoords[tIndex++]	= v2;
-			mStarGlowColors[cIndex++]		= col.r;
-			mStarGlowColors[cIndex++]		= col.g;
-			mStarGlowColors[cIndex++]		= col.b;
-			mStarGlowColors[cIndex++]		= col.a;
-		}
-	}
-}
-
 
 void World::update( const Matrix44f &mat )
 {
@@ -620,7 +590,8 @@ void World::repulseNodes()
 				
 				if( distSqrd > 0.0f ){
 					float F = 1.0f/distSqrd;
-					dir = F * dir.normalized() * 3.5f;
+					dir = F * dir.normalized() * 0.75f;
+					dir.y *= 0.7f;
 					
 					// acceleration = force / mass
 					(*p1)->mAcc += dir;
@@ -715,7 +686,7 @@ void World::drawTouchHighlights()
 void World::drawConstellation( const Matrix44f &mat )
 {
 	if( mTotalConstellationVertices > 2 ){
-		float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.2f;
+		float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.4f;
 		
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );

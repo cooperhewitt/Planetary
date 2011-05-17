@@ -25,19 +25,21 @@ using namespace std;
 NodeArtist::NodeArtist( int index, const Font &font )
 	: Node( NULL, index, font )
 {
-	mPosDest		= Rand::randVec3f() * Rand::randFloat( 40.0f, 75.0f ); // 40.0f, 200.0f
+	mGen			= G_ARTIST_LEVEL;
+	//mPosDest		= Rand::randVec3f() * Rand::randFloat( 40.0f, 75.0f ); // 40.0f, 200.0f
+	Vec2f randVec	= Rand::randVec2f();
+	randVec			*= Rand::randFloat( 30.0f, 65.0f );
+	mPosDest		= Vec3f( randVec.x, Rand::randFloat( -0.5f, 0.5f ), randVec.y );
 	mPos			= mPosDest;// + Rand::randVec3f() * 25.0f;
-	
+	mAcc			= Vec3f::zero();
 	mSphere			= Sphere( mPos, 3.65f );
 	
 	mAge			= 0.0f;
 	mBirthPause		= Rand::randFloat( 50.0f );
 	
-	mRadiusDest		= 1.0f + Rand::randFloat( 0.6f );
-	mRadius			= 0.0f;
-	
-	mOrbitRadiusMin	= mRadiusDest * 1.0f;
-	mOrbitRadiusMax	= mRadiusDest * 2.5f;
+	mOrbitRadiusDest	= 0.0f;
+	mOrbitRadiusMin		= mRadiusDest * 1.0f;
+	mOrbitRadiusMax		= mRadiusDest * 2.5f;
 }
 
 
@@ -63,6 +65,9 @@ void NodeArtist::setData( PlaylistRef playlist )
 	mSat			= ( 1.0f - sin( ( mHue + 0.15f ) * M_PI ) ) * 0.875f;
 	mColor			= Color( CM_HSV, mHue, mSat, 1.0f );
 	mGlowColor		= Color( CM_HSV, mHue, mSat + 0.5f, 1.0f );
+	
+	mRadiusDest		= 1.0f + ( 0.66f - mHue ) * 2.0f;
+	mRadius			= 0.0f;
 }
 
 
@@ -85,12 +90,18 @@ void NodeArtist::update( const Matrix44f &mat )
 	}
 	
 	if( mAge > mBirthPause ){
-		if( G_ZOOM > G_ALPHA_LEVEL + 0.5f && !mIsSelected ){
-			mRadius -= ( mRadius - 0.25f ) * 0.1f;
-			mRadius += Rand::randFloat( 0.0125f );
-		} else {
-			mRadius -= ( mRadius - mRadiusDest ) * 0.1f;
-		}
+		mRadius -= ( mRadius - mRadiusDest ) * 0.2f;
+		
+//		if( mIsSelected ){
+//			mRadius -= ( mRadius - mRadiusDest ) * 0.2f;
+//		} else {
+//			if( G_ZOOM > G_ALPHA_LEVEL + 0.5f ){
+//				mRadius -= ( mRadius - 0.1f ) * 0.1f;
+//				mRadius += Rand::randFloat( 0.0125f );
+//			} else {
+//				mRadius -= ( mRadius - 0.2f ) * 0.2f;
+//			}
+//		}
 	}
 	
 	Node::update( mat );
@@ -101,14 +112,17 @@ void NodeArtist::update( const Matrix44f &mat )
 void NodeArtist::drawEclipseGlow()
 {
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
+		/*
         gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer * ( 1.0f - mEclipseStrength ) * 2.0f ) );
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 30.0f;
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 10.0f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
-
+		 */
+		
 		float alpha = G_ALPHA_LEVEL - ( G_ZOOM - 1.0f );
 		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer * ( 1.0f - mEclipseStrength ) * alpha ) );
-		radius = Vec2f( mRadius, mRadius ) * 27.5f;
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 10.0f;
 		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+
 	}
 	
 	Node::drawEclipseGlow();
@@ -119,11 +133,11 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
 		glDisable( GL_TEXTURE_2D );
+/*
 		gl::pushModelView();
 		gl::translate( mTransPos );
 		float radius = mRadius * 0.2875f;
 		
-
 		gl::color( mColor );
 		gl::enableAlphaBlending();
 		gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
@@ -132,10 +146,12 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 		gl::enableAdditiveBlending();
 		gl::pushModelView();
 		gl::color( mGlowColor );
-		gl::translate( Vec3f::zAxis() * -0.015f );
+		gl::translate( Vec3f::zAxis() * -0.025f );
 		gl::drawSolidCircle( Vec2f::zero(), radius * 0.975f, 64 );
-		gl::translate( Vec3f::zAxis() * -0.015f );
+		gl::translate( Vec3f::zAxis() * -0.025f );
 		gl::drawSolidCircle( Vec2f::zero(), radius * 0.95f, 64 );
+ 
+ */
 		gl::popModelView();
 		
 		gl::popModelView();
@@ -152,6 +168,7 @@ void NodeArtist::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GL
 {
 	Node::drawRings( tex, planetRingVerts, planetRingTexCoords, camZPos );
 }
+
 
 void NodeArtist::select()
 {

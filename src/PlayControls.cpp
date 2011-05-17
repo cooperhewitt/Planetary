@@ -170,8 +170,12 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 	Rectf prevButton( x1, y1, x2, y2 );
 
 	
-	y1 += 5.0f;
-	x1 -= bSize * 1.625f;
+	y1 += 5.0f;				// accommodate for the smaller button size
+	x1 -= bSize * 1.25f;
+	x2 = x1 + bSizeSmall;
+	Rectf useGyroButton( x1, y1, x2, y1 + bSizeSmall );
+	
+	x1 -= bSizeSmall - 5.0f;
 	x2 = x1 + bSizeSmall;
 	Rectf drawTextButton( x1, y1, x2, y1 + bSizeSmall );
 	
@@ -231,6 +235,8 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
     touchTypes.push_back( DRAW_RINGS );
     touchRects.push_back( drawTextButton );
     touchTypes.push_back( DRAW_TEXT );
+	touchRects.push_back( useGyroButton );
+    touchTypes.push_back( USE_GYRO );
 	
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, dragAlphaPer ) );
     uiButtonsTex.enableAndBind();
@@ -311,6 +317,13 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 		drawButton( drawTextButton, u1, v2, u2, v3 );
 	else 
 		drawButton( drawTextButton, u1, v1, u2, v2 );
+
+// USE GYRO
+	u1 = uw * 3.0f; u2 = u1 + uw;
+	if( G_USE_GYRO )
+		drawButton( useGyroButton, u1, v2, u2, v3 );
+	else 
+		drawButton( useGyroButton, u1, v1, u2, v2 );
 	
 	
 // SLIDER BG
@@ -328,7 +341,7 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 	
 // SLIDER BUTTON
 	v1 = 0.5f; v2 = 0.7f; v3 = 0.9f;
-	u1 = uw * 3.0f; u2 = u1 + uw;
+	u1 = uw * 4.0f; u2 = u1 + uw;
     if( lastTouchedType == SLIDER )
 		drawButton( sliderButton, u1, v2, u2, v3 );
 	else 

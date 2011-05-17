@@ -30,8 +30,12 @@ void ParticleController::update( float radius, const Vec3f &bbRight, const Vec3f
 		p->update( radius, mBbRight, mBbUp );
 	}
 	
+	bool isGalaxyDust = false;
+	if( G_ZOOM < G_ARTIST_LEVEL - 0.5f )
+		isGalaxyDust = true;
+	
 	for( list<Dust>::iterator d = mDusts.begin(); d != mDusts.end(); ++d ){
-		d->update();
+		d->update( isGalaxyDust );
 	}
 }
 
@@ -130,9 +134,17 @@ void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaPer, 
 	
 	int vIndex	= 0;
 	int cIndex	= 0;
-	float zoomPer = constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f );
-	float alpha	= ( zoomPer * dustAlpha ) * pinchAlphaPer * 0.25f;
-	Color col	= node->mGlowColor * 0.1f;
+	float alpha;
+	Color col;
+	
+	if( G_ZOOM < G_ARTIST_LEVEL ){
+		alpha	= 0.5f;
+		col		= COLOR_BLUE;
+	} else {
+		alpha	= dustAlpha * pinchAlphaPer;
+		if( node )
+			col	= node->mColor * 0.1f;
+	}
 	
 	for( list<Dust>::iterator it = mDusts.begin(); it != mDusts.end(); ++it ){
 		//Vec3f prev				= it->mPrevPos;
@@ -145,16 +157,7 @@ void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaPer, 
 		mDustColors[cIndex++]	= col.r;
 		mDustColors[cIndex++]	= col.g;
 		mDustColors[cIndex++]	= col.b;
-		mDustColors[cIndex++]	= alpha;//Rand::randFloat( 0.25f ) * per;
-/*
-		mDustVerts[vIndex++]	= prev.x;
-		mDustVerts[vIndex++]	= prev.y;
-		mDustVerts[vIndex++]	= prev.z;
-		
-		mDustColors[cIndex++]	= col.r;
-		mDustColors[cIndex++]	= col.g;
-		mDustColors[cIndex++]	= col.b;
-		mDustColors[cIndex++]	= 0.0f;*/
+		mDustColors[cIndex++]	= alpha;
 	}
 }
 	
@@ -188,7 +191,9 @@ void ParticleController::drawDustVertexArray( Node *node, const Matrix44f &mat )
 	glVertexPointer( 3, GL_FLOAT, 0, mDustVerts );
 	glColorPointer( 4, GL_FLOAT, 0, mDustColors );
 	gl::pushModelView();
-	gl::translate( node->mTransPos );
+	if( node )
+		gl::translate( node->mTransPos );
+		
 	gl::rotate( mat );
 	glDrawArrays( GL_POINTS, 0, mTotalDustVertices );
 	gl::popModelView();

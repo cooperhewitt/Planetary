@@ -42,11 +42,13 @@ using std::stringstream;
 using namespace pollen::flurry;
 
 float G_ZOOM			= 0;
+int G_CURRENT_LEVEL		= 0;
 bool G_ACCEL			= true;
 bool G_DEBUG			= false;
 bool G_HELP             = false;
 bool G_DRAW_RINGS		= false;
 bool G_DRAW_TEXT		= false;
+bool G_USE_GYRO			= false;
 bool G_IS_IPAD2			= false;
 int G_NUM_PARTICLES		= 250;
 int G_NUM_DUSTS			= 250;
@@ -66,23 +68,24 @@ class KeplerApp : public AppCocoaTouch {
     void            remainingSetup();
 	void			initLoadingTextures();
 	void			initTextures();
-	void			initSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals );
+	void			initGalaxyVertexArray();
+	void			initDarkMatterVertexArray();
 	virtual void	touchesBegan( TouchEvent event );
 	virtual void	touchesMoved( TouchEvent event );
 	virtual void	touchesEnded( TouchEvent event );
-	virtual void	accelerated( AccelEvent event );
 	bool            orientationChanged( OrientationEvent event );
     void            setInterfaceOrientation( const Orientation &orientation );
 	virtual void	update();
+	void			updateGyro();
 	void			updateArcball();
 	void			updateCamera();
 	void			updatePlayhead();
-	void			updateCameraPop();
 	virtual void	draw();
 	void			drawNoArtists();
     void            drawScene();
 	void			drawInfoPanel();
 	void			setParamsTex();
+	virtual void    shutdown();
 	bool			onAlphaCharStateChanged( State *state );
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
 	bool			onWheelToggled( AlphaWheel *alphaWheel );
@@ -114,17 +117,13 @@ class KeplerApp : public AppCocoaTouch {
     Orientation     mInterfaceOrientation;
     Matrix44f       mOrientationMatrix;
     Matrix44f       mInverseOrientationMatrix;    
+	Quatf			mGyroQuat;
     std::map<Orientation, std::map<Orientation, int> > mRotationSteps;
-    
-// ACCELEROMETER
-	Matrix44f		mAccelMatrix;
-	Matrix44f		mNewAccelMatrix;
+	// Objective C
+    CMMotionManager *motionManager;
+    CMAttitude *referenceAttitude;
+
 	
-// GYRO
-	CMMotionManager		*mMotionManager;
-    NSOperationQueue	*mGyroQueue;
-	Vec3f				mGyroData;
-	Matrix44f			mGyroMat;
 	
 // AUDIO
 	ipod::Player		mIpodPlayer;
@@ -156,6 +155,12 @@ class KeplerApp : public AppCocoaTouch {
 	Vec3f			mBbRight, mBbUp;
 	float			mCamRingAlpha; // 1.0 = camera is viewing rings side-on
 								   // 0.0 = camera is viewing rings from above or below
+	float			mFadeInAlphaToArtist;
+	float			mFadeInArtistToAlbum;
+	float			mFadeInAlbumToTrack;
+	float			mFadeOverFullZoomDuration;
+	
+	
 	
 // FONTS
 	Font			mFont;
@@ -185,7 +190,7 @@ class KeplerApp : public AppCocoaTouch {
 //    TextureLoader   mTextureLoader;
 	gl::Texture		mParamsTex;
 	gl::Texture		mStarTex, mStarGlowTex, mEclipseGlowTex;
-	gl::Texture		mSkyDome;//, mMilkyWayDome;
+	gl::Texture		mSkyDome, mGalaxyDome;
 	gl::Texture		mDottedTex;
 	gl::Texture		mPlayheadProgressTex;
     gl::Texture     mRingsTex;
@@ -194,8 +199,21 @@ class KeplerApp : public AppCocoaTouch {
     gl::Texture		mAtmosphereTex, mAtmosphereDirectionalTex;
 	gl::Texture		mNoArtistsTex;
 	gl::Texture		mParticleTex;
+	gl::Texture		mGalaxyTex;
+	gl::Texture		mDarkMatterTex;
+	gl::Texture		mGodRaysTex;
 	vector<gl::Texture> mPlanetsTex;
 	vector<gl::Texture> mCloudsTex;
+	
+// GALAXY
+	GLfloat			*mGalaxyVerts;
+	GLfloat			*mGalaxyTexCoords;
+	GLfloat			*mDarkMatterVerts;
+	GLfloat			*mDarkMatterTexCoords;
+	int				mDarkMatterCylinderRes;
+	float			mLightMatterBaseRadius;
+	float			mDarkMatterBaseRadius;
+	
 	
 	float			mTime;
 	bool			mHasNoArtists;
@@ -231,8 +249,13 @@ void KeplerApp::setup()
     delete[] machine;
 
 	if( G_IS_IPAD2 ){
-		G_NUM_PARTICLES = 1000;
-		G_NUM_DUSTS = 4000;
+		//G_NUM_PARTICLES = 1000;
+		//G_NUM_DUSTS = 4000;
+		motionManager = [[CMMotionManager alloc] init];
+		[motionManager startDeviceMotionUpdates];
+		
+		CMDeviceMotion *dm = motionManager.deviceMotion;
+		referenceAttitude = [dm.attitude retain];
 	}
 	
 	mOrientationHelper.setup();
@@ -289,35 +312,6 @@ void KeplerApp::remainingSetup()
 	
     // TEXTURES
     initTextures();
-	    
-	// INIT ACCELEROMETER
-	enableAccelerometer();
-	mAccelMatrix		= Matrix44f();
-	
-	
-	/*
-	Vec3f v1, v2, v3;
-	// INIT GYRO
-	mGyroData			= Vec3f::zero();
-	// TODO: Release on shutdown
-    mGyroQueue			= [[NSOperationQueue alloc] init];
-    mMotionManager		= [[CMMotionManager alloc] init];
-	// 
-	CMDeviceMotion *deviceMotion	= mMotionManager.deviceMotion;      
-	CMAttitude *attitude			= deviceMotion.attitude;
-	CMRotationMatrix rm				= attitude.rotationMatrix;
-	
-	v1 = Vec3f( rm.m11, rm.m12, rm.m13 );
-	v2 = Vec3f( rm.m21, rm.m22, rm.m23 );
-	v3 = Vec3f( rm.m31, rm.m32, rm.m33 );
-	
-    [mMotionManager startGyroUpdatesToQueue:mGyroQueue withHandler:^(CMGyroData *gyroData, NSError *error) {
-		*attitude			= deviceMotion.attitude;
-		mGyroMat	= Matrix44f( v1, v2, v3 );
-		console() << v1 << std::endl;
-	 }];
-	
-	*/
 	
 	
 	// ARCBALL
@@ -347,6 +341,11 @@ void KeplerApp::remainingSetup()
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.0001f, 1200.0f );
 	mBbRight			= Vec3f::xAxis();
 	mBbUp				= Vec3f::yAxis();
+	mFadeInAlphaToArtist = 0.0f;
+	mFadeInArtistToAlbum = 0.0f;
+	mFadeInAlbumToTrack = 0.0f;
+	mFadeOverFullZoomDuration = 0.0f;
+	
 	
 	// FONTS
 	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
@@ -410,9 +409,15 @@ void KeplerApp::remainingSetup()
     mData.setup(); // NB:- is asynchronous, see update() for what happens when it's done
 
     // WORLD
-    mWorld.setup( &mData );  
+    mWorld.setup( &mData );
 	
 	mHasNoArtists = false;
+	
+	mDarkMatterCylinderRes = 48;
+	initGalaxyVertexArray();
+	initDarkMatterVertexArray();
+	mLightMatterBaseRadius = G_INIT_CAM_DIST * 0.5f;
+	mDarkMatterBaseRadius = G_INIT_CAM_DIST * 0.6f;
 
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
 
@@ -441,7 +446,7 @@ void KeplerApp::initTextures()
     mStarTex			= loadImage( loadResource( "star.png" ) );
 	mEclipseGlowTex		= loadImage( loadResource( "eclipseGlow.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.png" ) );
-	//mMilkyWayDome		= loadImage( loadResource( "skydome.png" ) );
+	mGalaxyDome			= loadImage( loadResource( "skydome.jpg" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
 	mRingsTex           = loadImage( loadResource( "rings.png" ) );
@@ -452,6 +457,10 @@ void KeplerApp::initTextures()
     mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
 	mAtmosphereDirectionalTex = loadImage( loadResource( "atmosphereDirectional.png" ) );
 	mParticleTex		= loadImage( loadResource( "particle.png" ) );
+	mGalaxyTex			= loadImage( loadResource( "galaxy.jpg" ) );
+	mDarkMatterTex		= loadImage( loadResource( "darkMatter.png" ) );
+	mGodRaysTex			= loadImage( loadResource( "godRays.png" ) );
+	
     mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "12.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "13.jpg" ) ) ) );
@@ -482,6 +491,127 @@ void KeplerApp::initTextures()
 	//console() << "initTextures duration = " << (getElapsedSeconds()-t) << endl;
     Flurry::getInstrumentation()->stopTimeEvent("Load Textures");    
 }
+
+void KeplerApp::initGalaxyVertexArray()
+{
+	std::cout << "initializing Galaxy Vertex Array" << std::endl;
+	mGalaxyVerts		= new float[18];
+	mGalaxyTexCoords	= new float[12];
+	int i	= 0;
+	int t	= 0;
+	float w	= 400.0f;
+	Vec3f corner;
+	
+	
+	corner			= Vec3f( -w, 0.0f, -w );
+	mGalaxyVerts[i++]			= corner.x;
+	mGalaxyVerts[i++]			= corner.y;
+	mGalaxyVerts[i++]			= corner.z;
+	mGalaxyTexCoords[t++]		= 0.0f;
+	mGalaxyTexCoords[t++]		= 0.0f;
+	
+	corner			= Vec3f( w, 0.0f, -w );
+	mGalaxyVerts[i++]			= corner.x;
+	mGalaxyVerts[i++]			= corner.y;
+	mGalaxyVerts[i++]			= corner.z;
+	mGalaxyTexCoords[t++]		= 1.0f;
+	mGalaxyTexCoords[t++]		= 0.0f;
+	
+	corner			= Vec3f( w, 0.0f, w );	
+	mGalaxyVerts[i++]			= corner.x;
+	mGalaxyVerts[i++]			= corner.y;
+	mGalaxyVerts[i++]			= corner.z;
+	mGalaxyTexCoords[t++]		= 1.0f;
+	mGalaxyTexCoords[t++]		= 1.0f;
+	
+	corner			= Vec3f( -w, 0.0f, -w );
+	mGalaxyVerts[i++]			= corner.x;
+	mGalaxyVerts[i++]			= corner.y;
+	mGalaxyVerts[i++]			= corner.z;
+	mGalaxyTexCoords[t++]		= 0.0f;
+	mGalaxyTexCoords[t++]		= 0.0f;
+	
+	corner			= Vec3f( w, 0.0f, w );	
+	mGalaxyVerts[i++]			= corner.x;
+	mGalaxyVerts[i++]			= corner.y;
+	mGalaxyVerts[i++]			= corner.z;
+	mGalaxyTexCoords[t++]		= 1.0f;
+	mGalaxyTexCoords[t++]		= 1.0f;
+	
+	corner			= Vec3f( -w, 0.0f, w );	
+	mGalaxyVerts[i++]			= corner.x;
+	mGalaxyVerts[i++]			= corner.y;
+	mGalaxyVerts[i++]			= corner.z;
+	mGalaxyTexCoords[t++]		= 0.0f;
+	mGalaxyTexCoords[t++]		= 1.0f;
+}
+
+
+void KeplerApp::initDarkMatterVertexArray()
+{
+	std::cout << "initializing Dark Matter Vertex Array" << std::endl;
+	mDarkMatterVerts		= new float[ mDarkMatterCylinderRes * 6 * 3 ]; // cylinderRes * two-triangles * 3d
+	mDarkMatterTexCoords	= new float[ mDarkMatterCylinderRes * 6 * 2 ]; // cylinderRes * two-triangles * 2d
+	
+	int i	= 0;
+	int t	= 0;
+	
+	for( int x=0; x<mDarkMatterCylinderRes; x++ ){
+		float per1		= (float)x/(float)mDarkMatterCylinderRes;
+		float per2		= (float)(x+1)/(float)mDarkMatterCylinderRes;
+		float angle1	= per1 * TWO_PI;
+		float angle2	= per2 * TWO_PI;
+		
+		float sa1 = sin( angle1 );
+		float ca1 = cos( angle1 );
+		float sa2 = sin( angle2 );
+		float ca2 = cos( angle2 );
+		
+		float h = 0.5f;
+		Vec3f v1 = Vec3f( ca1, -h, sa1 );
+		Vec3f v2 = Vec3f( ca2, -h, sa2 );
+		Vec3f v3 = Vec3f( ca1,  h, sa1 );
+		Vec3f v4 = Vec3f( ca2,  h, sa2 );
+		
+		mDarkMatterVerts[i++]		= v1.x;
+		mDarkMatterVerts[i++]		= v1.y;
+		mDarkMatterVerts[i++]		= v1.z;
+		mDarkMatterTexCoords[t++]	= per1;
+		mDarkMatterTexCoords[t++]	= 0.0f;
+		
+		mDarkMatterVerts[i++]		= v2.x;
+		mDarkMatterVerts[i++]		= v2.y;
+		mDarkMatterVerts[i++]		= v2.z;
+		mDarkMatterTexCoords[t++]	= per2;
+		mDarkMatterTexCoords[t++]	= 0.0f;
+		
+		mDarkMatterVerts[i++]		= v3.x;
+		mDarkMatterVerts[i++]		= v3.y;
+		mDarkMatterVerts[i++]		= v3.z;
+		mDarkMatterTexCoords[t++]	= per1;
+		mDarkMatterTexCoords[t++]	= 1.0f;
+		
+		mDarkMatterVerts[i++]		= v2.x;
+		mDarkMatterVerts[i++]		= v2.y;
+		mDarkMatterVerts[i++]		= v2.z;
+		mDarkMatterTexCoords[t++]	= per2;
+		mDarkMatterTexCoords[t++]	= 0.0f;
+		
+		mDarkMatterVerts[i++]		= v4.x;
+		mDarkMatterVerts[i++]		= v4.y;
+		mDarkMatterVerts[i++]		= v4.z;
+		mDarkMatterTexCoords[t++]	= per2;
+		mDarkMatterTexCoords[t++]	= 1.0f;
+		
+		mDarkMatterVerts[i++]		= v3.x;
+		mDarkMatterVerts[i++]		= v3.y;
+		mDarkMatterVerts[i++]		= v3.z;
+		mDarkMatterTexCoords[t++]	= per1;
+		mDarkMatterTexCoords[t++]	= 1.0f;
+	}
+}
+
+
 
 void KeplerApp::touchesBegan( TouchEvent event )
 {	
@@ -584,18 +714,18 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		mFovDest += ( 1.0f - event.getScaleDelta() ) * 150.0f;
 		
 	} else {
-		mCamDistPinchOffsetDest *= ( 1.0f - event.getScaleDelta() ) * 3.5f + 1.0f;
-		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 3.5f );
+		mCamDistPinchOffsetDest *= ( 1.0f - event.getScaleDelta() ) * 4.0f + 1.0f;
+		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 4.0f );
 		
-		if( mCamDistPinchOffsetDest > 3.3f ){
+		if( mCamDistPinchOffsetDest > 3.8f ){
 			if( G_ZOOM == G_TRACK_LEVEL ){
 				mFovDest = 85.0f;
 			} else if( G_ZOOM == G_ALBUM_LEVEL ){
-				mFovDest = 100.0f;
+				mFovDest = 90.0f;
 			} else if( G_ZOOM == G_ARTIST_LEVEL ){
-				mFovDest = 125.0f;
+				mFovDest = 95.0f;
 			} else {
-				mFovDest = 135.0f;
+				mFovDest = 100.0f;
 			}
 		} else {
 			mFovDest = G_DEFAULT_FOV;
@@ -621,7 +751,7 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 {
     Flurry::getInstrumentation()->logEvent("Pinch Ended");
 
-	if( mCamDistPinchOffsetDest > 3.3f ){
+	if( mCamDistPinchOffsetDest > 3.8f ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
             console() << "backing out using pinch!" << std::endl;
@@ -651,11 +781,6 @@ bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
     return valid;
 }
 
-void KeplerApp::accelerated( AccelEvent event )
-{
-	mNewAccelMatrix = event.getMatrix();
-	mNewAccelMatrix.invert();
-}
 
 bool KeplerApp::orientationChanged( OrientationEvent event )
 {
@@ -723,7 +848,7 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
     parameters["Count"] = ""+mData.mFilteredArtists.size();
     Flurry::getInstrumentation()->logEvent("Letter Selected" , parameters);
 
-//	console() << "Letter " << mState.getAlphaChar() << " has " << mData.mFilteredArtists.size() << " artists" << std::endl;
+	//console() << "Letter " << mState.getAlphaChar() << " has " << mData.mFilteredArtists.size() << " artists" << std::endl;
 	
 	mWorld.filterNodes();
 	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
@@ -833,6 +958,11 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
             G_DRAW_TEXT = !G_DRAW_TEXT;
             break;
         
+		case PlayControls::USE_GYRO:
+            Flurry::getInstrumentation()->logEvent("Use Gyro Button Selected");            
+            G_USE_GYRO = !G_USE_GYRO;
+            break;
+			
         case PlayControls::CURRENT_TRACK:
             Flurry::getInstrumentation()->logEvent("Current Track Button Selected");            
             // pretend the track just got changed again, this will select it:
@@ -979,8 +1109,8 @@ void KeplerApp::update()
     
     if ( mRemainingSetupCalled )
 	{
-        mAccelMatrix			= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
-		
+		if( G_IS_IPAD2 && G_USE_GYRO )
+			updateGyro();
 		updateArcball();
 		
 		if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
@@ -997,15 +1127,19 @@ void KeplerApp::update()
         Vec3f invBbUp			= inverseMatrix * mBbUp;        
         
         if( mDataIsLoaded ){
-            mWorld.buildStarsVertexArray( invBbRight, invBbUp );
-            mWorld.buildStarGlowsVertexArray( invBbRight, invBbUp );
+            mWorld.buildStarsVertexArray( invBbRight, invBbUp, mFadeInAlphaToArtist * 0.3f );
+            mWorld.buildStarGlowsVertexArray( invBbRight, invBbUp, mFadeInAlphaToArtist * 3.0f );
         }
 		
 		Node *selectedNode = mState.getSelectedArtistNode();
 		if( selectedNode ){
-			mParticleController.update( selectedNode->mRadius * 0.27f, invBbRight, invBbUp );
+			mParticleController.update( selectedNode->mRadius * 0.15f, invBbRight, invBbUp );
 			mParticleController.buildParticleVertexArray();
-			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaPer, sqrt( 1.0f - mCamRingAlpha ) * 0.125f );
+			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaPer, sqrt( 1.0f - mCamRingAlpha ) * 0.03125f * mFadeInArtistToAlbum );
+		} else {
+			mParticleController.update( 100.0f, invBbRight, invBbUp );
+			mParticleController.buildParticleVertexArray();
+			mParticleController.buildDustVertexArray( NULL, mPinchAlphaPer, sqrt( 1.0f - mCamRingAlpha ) );
 		}
 		
         mUiLayer.update();
@@ -1023,22 +1157,45 @@ void KeplerApp::update()
     }
 }
 
+
+void KeplerApp::updateGyro()
+{
+	CMQuaternion quat;
+	
+    CMDeviceMotion *deviceMotion = motionManager.deviceMotion;		
+    CMAttitude *attitude = deviceMotion.attitude;
+    
+    // If we have a reference attitude, multiply attitude by its inverse
+    // After this call, attitude will contain the rotation from referenceAttitude
+    // to the current orientation instead of from the fixed reference frame to the
+    // current orientation
+	/*
+    if (referenceAttitude != nil) {
+        [attitude multiplyByInverseOfAttitude:referenceAttitude];
+    }
+	*/
+
+	quat		= attitude.quaternion;
+	mGyroQuat	= Quatf( quat.w, quat.x, -quat.y, quat.z );
+}
+
+
 void KeplerApp::updateArcball()
 {	
 	if( mTouchVel.length() > 2.0f && !mIsDragging ){
-        Vec3f downPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
-        mArcball.mouseDown( Vec2i(downPos.x, downPos.y) );        
-        Vec3f dragPos = mInverseOrientationMatrix * Vec3f(mTouchPos + mTouchVel,0);
+        Vec3f downPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos,0) );
+        mArcball.mouseDown( Vec2i(downPos.x, downPos.y) );
+		
+        Vec3f dragPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos + mTouchVel,0) );
         mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
 	}
 	
-	//if( G_ACCEL ){
-	//	mArcball.setQuat( mArcball.getQuat() + mGyroMat );
-		//mMatrix = mAccelMatrix * mArcball.getQuat();
-	//	mMatrix = mArcball.getQuat();
-	//} else {
+	
+	if( G_IS_IPAD2 ){
+		mMatrix = mArcball.getQuat() * mGyroQuat;
+	} else {
 		mMatrix = mArcball.getQuat();
-	//}
+	}
 }
 
 
@@ -1046,7 +1203,11 @@ void KeplerApp::updateCamera()
 {	
 	mCamDistPinchOffset -= ( mCamDistPinchOffset - mCamDistPinchOffsetDest ) * 0.4f;
 	
-	updateCameraPop();
+	if( mCamDistPinchOffsetDest > 3.3f ){
+		mPinchAlphaPer -= ( mPinchAlphaPer ) * 0.2f;
+	} else {
+		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.2f;
+	}
 	
 	int currentLevel = 0;
 	Node* selectedNode = mState.getSelectedNode();
@@ -1054,6 +1215,7 @@ void KeplerApp::updateCamera()
 		currentLevel	= selectedNode->mGen;
 		mCamDistDest	= selectedNode->mIdealCameraDist * mCamDistPinchOffset;
 		mCenterDest		= selectedNode->mTransPos; //mMatrix.transformPointAffine( selectedNode->mPos );
+		G_CURRENT_LEVEL = selectedNode->mGen;
 		mZoomDest		= selectedNode->mGen;
 		
 		mCenterFrom		+= selectedNode->mTransVel;
@@ -1090,24 +1252,28 @@ void KeplerApp::updateCamera()
 	}
 	*/
 
-	// TODO: make the duration a factor of how far it is traveling
+
 	float distToTravel = mState.getDistBetweenNodes();
-	double duration = 5.0f;
-	if( distToTravel < 1.0f )		duration = 2.0;
-	else if( distToTravel < 5.0f )	duration = 3.0f;
-		
-	
+	double duration = 3.3f;
+	if( distToTravel < 1.0f )		duration = 1.5;
+	else if( distToTravel < 5.0f )	duration = 2.2f;
 	double p		= constrain( getElapsedSeconds()-mTime, 0.0, duration );
 	
-	mCenter			= easeInOutQuad( p, mCenterFrom, mCenterDest - mCenterFrom, duration );
-	mCamDist		= easeInOutQuad( p, mCamDistFrom, mCamDistDest - mCamDistFrom, duration );
+	mCenter			= easeInOutCubic( p, mCenterFrom, mCenterDest - mCenterFrom, duration );
+	mCamDist		= easeInOutCubic( p, mCamDistFrom, mCamDistDest - mCamDistFrom, duration );
 	mCamDist		= min( mCamDist, G_INIT_CAM_DIST );
-	mCamDistAnim	= easeInOutQuad( p, 0.0f, 1.0f, duration );
+	mCamDistAnim	= easeInOutCubic( p, 0.0f, M_PI, duration );
 	
-	G_ZOOM			= easeInOutQuad( p, mZoomFrom, mZoomDest - mZoomFrom, duration );
+	G_ZOOM			= easeInOutCubic( p, mZoomFrom, mZoomDest - mZoomFrom, duration );
+	
+	mFadeInAlphaToArtist	= constrain( G_ZOOM - G_ALPHA_LEVEL, 0.0f, 1.0f );
+	mFadeInArtistToAlbum	= constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f );
+	mFadeInAlbumToTrack		= constrain( G_ZOOM - G_ALBUM_LEVEL, 0.0f, 1.0f );
+	mFadeOverFullZoomDuration = p/duration;
+	
 	
 	Vec3f prevEye	= mEye;
-	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist - sin( mCamDistAnim * M_PI ) * distToTravel );
+	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist - sin( mCamDistAnim ) * distToTravel );
 	mCamVel			= mEye - prevEye;
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
@@ -1124,15 +1290,6 @@ void KeplerApp::updatePlayhead()
         // TODO: cache this when playing track changes
 		mCurrentTrackLength			= mIpodPlayer.getPlayingTrack()->getLength();
 	//}
-}
-
-void KeplerApp::updateCameraPop()
-{
-	if( mCamDistPinchOffsetDest > 3.3f ){
-		mPinchAlphaPer -= ( mPinchAlphaPer ) * 0.2f;
-	} else {
-		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.2f;
-	}
 }
 
 void KeplerApp::draw()
@@ -1179,46 +1336,142 @@ void KeplerApp::drawScene()
 {	
 	vector<Node*> sortedNodes = mWorld.getDepthSortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
 
+	// For doing galaxy-axis fades
+	Vec3f transEye = mMatrix.inverted() * mEye;
+	float zoomOff = 1.0f - mFadeInAlphaToArtist;//constrain( ( G_ARTIST_LEVEL - G_ZOOM ), 0.0f, 1.0f );
+	float camGalaxyAlpha = constrain( abs( transEye.y ) * 0.004f, 0.0f, 1.0f );
+	float alpha, radius;
+	float invAlpha = pow( 1.0f - camGalaxyAlpha, 2.5f ) * zoomOff;
+	
     gl::enableDepthWrite();
     gl::setMatrices( mCam );
 	
-	// SKYDOME
+// SKYDOME
     gl::pushModelView();
     gl::rotate( mMatrix );
-    gl::color( Color::white() );
+    gl::color( Color::white() * pow( 1.0f - zoomOff, 3.0f ) );
     mSkyDome.enableAndBind();
     gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS, 24 );
+	
+	
+	
+	gl::enableAdditiveBlending();
+	
+	
+	
+// LIGHTMATTER
+	if( invAlpha > 0.01f ){
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, invAlpha ) );
+		radius = mLightMatterBaseRadius * 0.9f;
+		gl::pushModelView();
+			mGalaxyDome.enableAndBind();
+			glEnableClientState( GL_VERTEX_ARRAY );
+			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+			glVertexPointer( 3, GL_FLOAT, 0, mDarkMatterVerts );
+			glTexCoordPointer( 2, GL_FLOAT, 0, mDarkMatterTexCoords );
+			
+			gl::scale( Vec3f( radius, radius * 0.69f, radius ) );
+			gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -2.0f, 0.0f ) );
+			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+		
+			gl::scale( Vec3f( 1.25, 1.15f, 1.25f ) );
+			gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -0.5f, 0.0f ) );
+			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+
+			glDisableClientState( GL_VERTEX_ARRAY );
+			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+			mGalaxyDome.disable();
+		gl::popModelView();
+	}
+	
+	
+	gl::enableAdditiveBlending();
+	
+	
+	
+// GALAXY SPIRAL PLANES
+	alpha = 0.75f * zoomOff;//sqrt(camGalaxyAlpha) * zoomOff;
+	if( alpha > 0.01f ){
+		mGalaxyTex.enableAndBind();
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glVertexPointer( 3, GL_FLOAT, 0, mGalaxyVerts );
+		glTexCoordPointer( 2, GL_FLOAT, 0, mGalaxyTexCoords );
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha ) );
+		
+		gl::translate( Vec3f( 0.0f, 2.5f, 0.0f ) );
+		gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -4.0f, 0.0f ) );
+		  glDrawArrays( GL_TRIANGLES, 0, 6 );
+		
+		gl::translate( Vec3f( 0.0f, -5.0f, 0.0f ) );
+		gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -2.0f, 0.0f ) );
+		  glDrawArrays( GL_TRIANGLES, 0, 6 );
+		
+		gl::translate( Vec3f( 0.0f, 2.5f, 0.0f ) );
+		gl::scale( Vec3f( 0.5f, 0.5f, 0.5f ) );
+		gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -15.0f, 0.0f ) );
+		  glDrawArrays( GL_TRIANGLES, 0, 6 );
+		
+		glDisableClientState( GL_VERTEX_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		mGalaxyTex.disable();
+	}
+	
     gl::popModelView();
-    
-    gl::enableAdditiveBlending();
-    
-    
+	
+	
+	
+// CENTER OF GALAXY
+	if( invAlpha > 0.01f ){
+		mGodRaysTex.enableAndBind();
+		gl::color( ColorA( COLOR_BLUE, invAlpha ) );
+		gl::drawBillboard( Vec3f::zero(), Vec2f( 300.0f, 300.0f ), getElapsedSeconds() * 10.0f, mBbRight, mBbUp );
+		gl::color( ColorA( COLOR_BRIGHT_BLUE, invAlpha * 1.5f ) );
+		gl::drawBillboard( Vec3f::zero(), Vec2f( 200.0f, 200.0f ), -getElapsedSeconds() * 7.0f, mBbRight, mBbUp );
+		mGodRaysTex.disable();
+	}
+	
+	
+
+	
+	gl::enableAdditiveBlending();
+	
+	
+	
+	
 	// STARS
 	mStarTex.enableAndBind();
 	mWorld.drawStarsVertexArray( mMatrix );
 	mStarTex.disable();
     
 	
-	// ECLIPSEGLOWS OVERLAY
+// ECLIPSEGLOWS OVERLAY
 	mEclipseGlowTex.enableAndBind();
 	mWorld.drawEclipseGlows();
 	mEclipseGlowTex.disable();
 	
-	// STARGLOWS occluded
+	
+// STARGLOWS occluded
 	mEclipseGlowTex.enableAndBind();
 	mWorld.drawStarGlowsVertexArray( mMatrix );
 	mEclipseGlowTex.disable();
+
 	
+// STARGLOWS bloom
+	mStarGlowTex.enableAndBind();
+	mWorld.drawTouchHighlights();
+	mStarGlowTex.disable();
 	
 	
 	Node *artistNode = mState.getSelectedArtistNode();
 	
 	if( artistNode ){
+		NodeArtist* selectedArtist = (NodeArtist*)artistNode;
+
 		for( int i = 0; i < sortedNodes.size(); i++ ){
 			gl::enableDepthRead();
 			gl::disableAlphaBlending();
 			glEnable( GL_LIGHTING );
-			glShadeModel( GL_SMOOTH );
 			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
 			
 			// LIGHT FROM ARTIST
@@ -1226,15 +1479,14 @@ void KeplerApp::drawScene()
 			Vec3f lightPos          = artistNode->mTransPos;
 			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( ( artistNode->mGlowColor + Color::white() ) , 1.0f ) );
+			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor * 1.3f, 1.0f ) );
 			
 			gl::disableAlphaBlending();
 			
 			sortedNodes[i]->drawPlanet( mPlanetsTex );
-			
 			sortedNodes[i]->drawClouds( mCloudsTex );
 			
-			if( sortedNodes[i]->mIsSelected ){
+			if( sortedNodes[i]->mIsSelected || sortedNodes[i]->mIsPlaying ){
 				if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
 					glDisable( GL_LIGHTING );
 					gl::disableDepthRead();
@@ -1253,7 +1505,6 @@ void KeplerApp::drawScene()
 		}
 		
 		// STAR CENTER
-		NodeArtist* selectedArtist = (NodeArtist*)artistNode;
 		if( selectedArtist ){
 			selectedArtist->drawPlanet( mPlanetsTex );
 		}
@@ -1262,20 +1513,19 @@ void KeplerApp::drawScene()
 	
 	
 	glDisable( GL_LIGHTING );
-	gl::enableAdditiveBlending();  	
+	gl::enableAdditiveBlending();
 	gl::disableDepthRead();
 	
 	// STARGLOWS bloom
 	mStarGlowTex.enableAndBind();
 	mWorld.drawStarGlowsVertexArray( mMatrix );
-	mWorld.drawTouchHighlights();
 	mStarGlowTex.disable();
 	
+	
     
-    
-    gl::disableDepthWrite();
-    gl::enableAdditiveBlending();
-	gl::enableDepthRead();
+	gl::enableDepthRead();	
+	gl::disableDepthWrite();
+	gl::enableAdditiveBlending();
 	
 	
 	// ORBITS
@@ -1293,25 +1543,28 @@ void KeplerApp::drawScene()
 	
 	// RINGS
 	if( artistNode ){
-		Vec3f transEye = mMatrix.inverted() * mEye;
 		float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
-		
-		mCamRingAlpha = constrain( abs( transEye.z - artistNode->mPos.z ) * 50.0f * zoomOffset, 0.0f, 0.6f );
-		float alpha = pow( mCamRingAlpha, 2.0f );
-		
-		mWorld.drawRings( mRingsTex, mCamRingAlpha - alpha * 0.5f );
+		mCamRingAlpha = constrain( abs( transEye.y - artistNode->mPos.y ) * 50.0f * zoomOffset, 0.0f, 0.6f );
+		alpha = pow( mCamRingAlpha, 2.0f );
+		mWorld.drawRings( mRingsTex, mCamRingAlpha );
 	}
 	
-	// DUSTS
-	if( mState.getSelectedAlbumNode() ){
+	
+// DUSTS
+// If zoom is between Artist and Album, switch to dark planetary dust.
+// else draw the additive dust in the Galaxy.
+	if( mState.getSelectedAlbumNode() && G_ZOOM > G_ARTIST_LEVEL + 0.5f ){
 		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
 		mParticleController.drawDustVertexArray( mState.getSelectedAlbumNode(), mMatrix );
+	} else {
+		mParticleController.drawDustVertexArray( NULL, mMatrix );
 	}
 	
 	
 	
-	// CURRENT TRACK ORBIT PATH
+	
+// CURRENT TRACK ORBIT PATH
 	if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 		gl::enableAdditiveBlending();
 		if( G_DRAW_RINGS )
@@ -1319,13 +1572,51 @@ void KeplerApp::drawScene()
 	}
 	
 	
-	// CONSTELLATION
-	if( mData.mFilteredArtists.size() > 1 ){
+// CONSTELLATION
+	if( mData.mFilteredArtists.size() > 1 && G_DRAW_RINGS ){
 		gl::enableAdditiveBlending();
 		mDottedTex.enableAndBind();
 		mWorld.drawConstellation( mMatrix );
 		mDottedTex.disable();
 	}
+	
+	
+	gl::enableAlphaBlending();
+	
+	
+	
+// DARKMATTER //////////////////////////////////////////////////////////////////////////////////////////
+	if( invAlpha > 0.01f ){
+		glEnable( GL_CULL_FACE ); 
+		glCullFace( GL_FRONT ); 
+		alpha = pow( 1.0f - camGalaxyAlpha, 8.0f ) * zoomOff;
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, invAlpha ) );
+		radius = mDarkMatterBaseRadius * 0.85f;
+		gl::pushModelView();
+		gl::rotate( mMatrix );
+		mDarkMatterTex.enableAndBind();
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glVertexPointer( 3, GL_FLOAT, 0, mDarkMatterVerts );
+		glTexCoordPointer( 2, GL_FLOAT, 0, mDarkMatterTexCoords );
+		
+		gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -2.0f, 0.0f ) );
+		gl::scale( Vec3f( radius, radius * 0.5f, radius ) );
+			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+		
+		gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -0.5f, 0.0f ) );
+		gl::scale( Vec3f( 1.3f, 1.3f, 1.3f ) );
+			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+
+		
+		glDisableClientState( GL_VERTEX_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		mDarkMatterTex.disable();
+		gl::popModelView();
+		glDisable( GL_CULL_FACE ); 
+	}
+	
+	
 	
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
@@ -1371,12 +1662,12 @@ void KeplerApp::drawScene()
     gl::enableAlphaBlending();
 	
 	// EVERYTHING ELSE
-    mUiLayer.draw( mUiButtonsTex );
-    mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
-    mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
 	
 	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
+    mUiLayer.draw( mUiButtonsTex );
+    mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
+    mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
 	
 	gl::disableAlphaBlending();
 	//    if( G_DEBUG ) drawInfoPanel();
@@ -1627,5 +1918,13 @@ Node* KeplerApp::getPlayingArtistNode( ipod::TrackRef playingTrack )
     }    
     return NULL;
 }
+
+void KeplerApp::shutdown()
+{
+    [motionManager stopDeviceMotionUpdates];
+    [motionManager release];
+    [referenceAttitude release];
+}
+
 
 CINDER_APP_COCOA_TOUCH( KeplerApp, RendererGl )

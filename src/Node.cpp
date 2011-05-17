@@ -21,14 +21,6 @@ using namespace std;
 Node::Node( Node *parent, int index, const Font &font )
 	: mParentNode( parent ), mIndex( index ), mFont( font )
 {
-	if( mParentNode ){
-		initWithParent();
-	} else {
-		init();
-	}
-
-	//createNameTexture();
-	
     mZoomPer            = 0.0f;
     
 	mScreenPos			= Vec2f::zero();
@@ -37,7 +29,8 @@ Node::Node( Node *parent, int index, const Font &font )
 	mEclipseAngle		= 0.0f;
 	mEclipseDirBasedAlpha = 0.0f;
 	mTransPos			= Vec3f::zero();
-
+	mTransVel			= Vec3f::zero();
+	
 	mOrbitStartAngle	= Rand::randFloat( TWO_PI );
 	mOrbitAngle			= mOrbitStartAngle;
 	mOrbitPeriod		= Rand::randFloat( 125.0f, 150.0f ); // TODO: move to NodeArtist and make non-random
@@ -54,34 +47,17 @@ Node::Node( Node *parent, int index, const Font &font )
 		
 	mHitArea			= Rectf( 0.0f, 0.0f, 10.0f, 10.0f ); //just for init.
 	mHighlightStrength	= 0.0f;
+	
 	mIsTapped			= false;
 	mIsSelected			= false;
     mIsPlaying          = false;
 	mIsHighlighted		= false;
-	
 	mIsDying			= false;
 	mIsDead				= false;
+	
 	mDeathCount			= 0;
 	mDeathThresh		= 100;
 	mDeathPer			= 0.0f;
-}
-
-void Node::init()
-{
-	mGen				= G_ARTIST_LEVEL;
-	mPos				= Rand::randVec3f();
-	mAcc				= Vec3f::zero();
-	mTransVel			= Vec3f::zero();
-	mOrbitRadiusDest	= 0.0f;
-	mOrbitPeriod		= 0.0f;
-}
-
-void Node::initWithParent()
-{
-	mGen				= mParentNode->mGen + 1;
-	mPos				= mParentNode->mPos;
-	mTransVel			= Vec3f::zero();
-	mOrbitPeriod		= 0.0f;//Rand::randFloat( 35.0f, 50.0f );
 }
 
 void Node::setIsDying( bool isDying )
@@ -126,8 +102,7 @@ void Node::update( const Matrix44f &mat )
 	mSphere.setCenter( mTransPos );
 
     if( mIsPlaying || mIsSelected ){
-        mZoomPer    = constrain( ( G_ZOOM - mGen ) + 1.0f, 0.0f, 1.0f );
-//        mZoomPer    = constrain( 1.0f - abs( G_ZOOM - mGen + 1.0f ), 0.0f, 1.0f ); 
+        mZoomPer    = constrain( ( G_ZOOM - mGen ) + 2.0f, 0.0f, 1.0f );
 	} else {
         mZoomPer    = constrain( 1.0f - abs( G_ZOOM - mGen + 1.0f ), 0.0f, 1.0f );
     }
@@ -247,60 +222,73 @@ void Node::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfl
 void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
-		Vec2f pos1, pos2;
-		Vec2f offset0, offset1, offset2;
-		float screenRadNew = mSphereScreenRadius * 0.25f;
+		float alpha;
 		
-		if( mIsSelected || ( G_ZOOM < mGen && mIsPlaying ) ){
-			float alpha = 1.0f;
-			if( G_ZOOM < mGen - 1 )
-				alpha = constrain( ( G_ZOOM - mGen ) + 2.0f, 0.0f, 1.0f );
-			else if( G_ZOOM < mGen )
-				alpha = pinchAlphaPer;
+		if( mIsSelected || ( G_CURRENT_LEVEL < mGen && mIsPlaying ) ){
+//			if( G_CURRENT_LEVEL >= mGen - 2 )
+//				alpha = pinchAlphaPer * mZoomPer * mDeathPer;
+//			else
+//				alpha = 0.0f;
+//			
+			alpha = mZoomPer;
 			
-			gl::color( ColorA( Color::white(), alpha * mDeathPer ) );
+			gl::color( ColorA( Color::white(), alpha ) );
 		} else {
-			gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.45f * mZoomPer * mDeathPer ) );
+			if( G_CURRENT_LEVEL >= mGen - 1 )
+				alpha = 0.5f * pinchAlphaPer * mZoomPer * mDeathPer;
+			else
+				alpha = 0.0f;
+			
+			gl::color( ColorA( COLOR_BRIGHT_BLUE, alpha ) );
 		}
+		
+		
+		if( alpha > 0 ){
+			Vec2f pos1, pos2;
+			Vec2f offset0, offset1, offset2;
+			float screenRadNew = mSphereScreenRadius * 0.25f;
+			if( mGen == G_ARTIST_LEVEL ) screenRadNew = mSphereScreenRadius * 0.125f;
+			
+			if (mNameTex == NULL) {
+				createNameTexture();
+			}
 
-		if (mNameTex == NULL) {
-			createNameTexture();
+			offset0 = Vec2f( screenRadNew, screenRadNew );
+			offset0.rotate( angle );
+			pos1 = mScreenPos + offset0;
+			offset1 = Vec2f( 10.0f, 10.0f );
+			offset1.rotate( angle );
+			pos2 = pos1 + offset1;
+			offset2 = Vec2f( 2.0f, -8.0f );
+			offset2.rotate( angle );
+
+			Vec2f texCorner = mNameTex.getSize();
+			
+			gl::pushModelView();
+			gl::translate( pos2 + offset2 );
+			if (angle != 0) {
+				gl::rotate( angle * 180.0f/M_PI );
+				texCorner.rotate( angle );
+			}
+			if( mIsPlaying ){
+				float s = mZoomPer * 0.25f + 1.0f;
+				gl::scale( Vec3f( s, s, 1.0f ) );
+				texCorner *= s;
+			}
+			
+			gl::draw( mNameTex, Vec2f::zero() );
+			gl::popModelView();
+			
+			mHitArea = Rectf( pos2 + offset2, pos2 + offset2 + texCorner);
+			mHitArea.canonicalize();        
+			inflateRect( mHitArea, 5.0f );
+			
+			glDisable( GL_TEXTURE_2D );
+			
+			gl::color( ColorA( COLOR_BRIGHT_BLUE, alpha * 0.5f ) );
+			gl::drawLine( pos1, pos2 );
 		}
-
-        offset0 = Vec2f( screenRadNew, screenRadNew );
-        offset0.rotate( angle );
-		pos1 = mScreenPos + offset0;
-        offset1 = Vec2f( 10.0f, 10.0f );
-        offset1.rotate( angle );
-		pos2 = pos1 + offset1;
-        offset2 = Vec2f( 2.0f, -8.0f );
-        offset2.rotate( angle );
-
-        Vec2f texCorner = mNameTex.getSize();
 		
-		gl::pushModelView();
-		gl::translate( pos2 + offset2 );
-        if (angle != 0) {
-            gl::rotate( angle * 180.0f/M_PI );
-            texCorner.rotate( angle );
-        }
-		if( mIsPlaying ){
-			float s = mZoomPer * 0.25f + 1.0f;
-			gl::scale( Vec3f( s, s, 1.0f ) );
-            texCorner *= s;
-		}
-		gl::draw( mNameTex, Vec2f::zero() );
-		gl::popModelView();
-        
-        mHitArea = Rectf( pos2 + offset2, pos2 + offset2 + texCorner);
-        mHitArea.canonicalize();        
-        inflateRect( mHitArea, 5.0f );
-		
-		glDisable( GL_TEXTURE_2D );
-		
-		
-		gl::color( ColorA( COLOR_BLUE, 0.4f * mZoomPer * mDeathPer ) );
-		gl::drawLine( pos1, pos2 );
 		
 		
 		/*
@@ -335,10 +323,16 @@ void Node::drawTouchHighlight()
 {
 	if( mIsHighlighted ){
 		if( mIsTapped ){
+			Vec2f radius = Vec2f( mRadius * 5.0f, mRadius * 5.0f );
 			gl::color( ColorA( mColor, mHighlightStrength ) );
-			Vec2f radius = Vec2f( mRadius * 25.0f, mRadius * 25.0f );
-			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 			mHighlightStrength -= ( mHighlightStrength - 0.0f ) * 0.15f;
+			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+		} else {
+			if( ( mIsPlaying || mIsSelected ) && mGen > G_ARTIST_LEVEL ){
+				Vec2f radius = Vec2f( mRadius * 5.0f, mRadius * 5.0f );
+				gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.5f ) );
+				gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+			}
 		}
 		
 		if( mHighlightStrength < 0.01f ){

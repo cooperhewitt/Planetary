@@ -23,6 +23,7 @@ class NodeArtist : public Node
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
+	
 	void select();
 	void setChildOrbitRadii();
     std::string getName();

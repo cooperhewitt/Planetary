@@ -33,8 +33,6 @@ class Node {
 	// METHODS
 	void			setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
 								  int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals );
-	void			init();
-	void			initWithParent();
 	void			createNameTexture();
 	virtual void	update( const ci::Matrix44f &mat );
 	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
