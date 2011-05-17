@@ -389,8 +389,8 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
     mSecondsLeft	= (int)timeLeft%60;
     
     if( mSeconds != mPrevSeconds ){
-        string minsStr = to_string( abs(mMinutes) );
-        string secsStr = to_string( abs(mSeconds) );
+        string minsStr = ci::toString( abs(mMinutes) );
+        string secsStr = ci::toString( abs(mSeconds) );
         if( minsStr.length() == 1 ) minsStr = "0" + minsStr;
         if( secsStr.length() == 1 ) secsStr = "0" + secsStr;		
         
@@ -405,8 +405,8 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
         
         
         
-        minsStr = to_string( mMinutesLeft );
-        secsStr = to_string( mSecondsLeft );
+        minsStr = ci::toString( mMinutesLeft );
+        secsStr = ci::toString( mSecondsLeft );
         if( minsStr.length() == 1 ) minsStr = "0" + minsStr;
         if( secsStr.length() == 1 ) secsStr = "0" + secsStr;		
         
