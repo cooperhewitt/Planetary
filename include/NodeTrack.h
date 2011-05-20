@@ -18,13 +18,13 @@ class NodeTrack : public Node
 	NodeTrack( Node *parent, int index, const ci::Font &font );
     void initVertexArray();
 	void updateAudioData( double currentPlayheadTime );
-	void update( const ci::Matrix44f &mat );
+	void update( const ci::Matrix44f &mat, const ci::Surface &surfaces );
 	void drawEclipseGlow();
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
-	void drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
+	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );
 	void buildPlayheadProgressVertexArray();
-	void drawPlayheadProgress( float pinchAlphaPer, const ci::gl::Texture &tex );
+	void drawPlayheadProgress( float pinchAlphaPer, float camAlpha, const ci::gl::Texture &tex, const ci::gl::Texture &originTex );
 	void drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
 	ci::Vec3f getStartRelPos(){ return mMatrix * mStartRelPos; }
@@ -61,6 +61,8 @@ private:
 	bool		mHasAlbumArt;
 	bool		mHasCreatedAlbumArt;
 	ci::gl::Texture mAlbumArt;
+	
+	float		mCloudLayerRadius;
 	
 	int			mTotalOrbitVertices;
     int			mPrevTotalOrbitVertices;

@@ -45,6 +45,7 @@ float G_ZOOM			= 0;
 int G_CURRENT_LEVEL		= 0;
 bool G_ACCEL			= true;
 bool G_DEBUG			= false;
+bool G_SHOW_SETTINGS	= false;
 bool G_HELP             = false;
 bool G_DRAW_RINGS		= false;
 bool G_DRAW_TEXT		= false;
@@ -87,6 +88,7 @@ class KeplerApp : public AppCocoaTouch {
 	void			setParamsTex();
 	virtual void    shutdown();
 	bool			onAlphaCharStateChanged( State *state );
+	bool			onPlaylistStateChanged( State *state );
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
 	bool			onWheelToggled( AlphaWheel *alphaWheel );
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
@@ -131,13 +133,14 @@ class KeplerApp : public AppCocoaTouch {
 	double				mCurrentTrackPlayheadTime;
 	double				mCurrentTrackLength;
 	float				mElapsedSecondsSinceTrackChange;
+	int					mPlaylistIndex;
 	
 // BREADCRUMBS
 	Breadcrumbs		mBreadcrumbs;	
 	
 // PLAY CONTROLS
 	PlayControls	mPlayControls;
-	float			mPlayheadPer;	// song percent complete 
+	float			mPlayheadPer;	// song percent complete
 	
 // CAMERA PERSP
 	CameraPersp		mCam;
@@ -202,8 +205,12 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mGalaxyTex;
 	gl::Texture		mDarkMatterTex;
 	gl::Texture		mGodRaysTex;
+	gl::Texture		mOrbitRingGradientTex;
+	gl::Texture		mTrackOriginTex;
 	vector<gl::Texture> mPlanetsTex;
 	vector<gl::Texture> mCloudsTex;
+	
+	Surface			mSurfaces;
 	
 // GALAXY
 	GLfloat			*mGalaxyVerts;
@@ -249,8 +256,8 @@ void KeplerApp::setup()
     delete[] machine;
 
 	if( G_IS_IPAD2 ){
-		//G_NUM_PARTICLES = 1000;
-		//G_NUM_DUSTS = 4000;
+		G_NUM_PARTICLES = 500;
+		G_NUM_DUSTS = 2000;
 		motionManager = [[CMMotionManager alloc] init];
 		[motionManager startDeviceMotionUpdates];
 		
@@ -399,11 +406,13 @@ void KeplerApp::remainingSetup()
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
 	mState.registerNodeSelected( this, &KeplerApp::onSelectedNodeChanged );
-		
+	mState.registerPlaylistStateChanged( this, &KeplerApp::onPlaylistStateChanged );
+	
 	// PLAYER
 	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
     mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
     mIpodPlayer.registerLibraryChanged( this, &KeplerApp::onPlayerLibraryChanged );
+	mPlaylistIndex = 0;
 	
     // DATA
     mData.setup(); // NB:- is asynchronous, see update() for what happens when it's done
@@ -460,6 +469,8 @@ void KeplerApp::initTextures()
 	mGalaxyTex			= loadImage( loadResource( "galaxy.jpg" ) );
 	mDarkMatterTex		= loadImage( loadResource( "darkMatter.png" ) );
 	mGodRaysTex			= loadImage( loadResource( "godRays.png" ) );
+	mOrbitRingGradientTex = loadImage( loadResource( "orbitRingGradient.png" ) );
+	mTrackOriginTex		= loadImage( loadResource( "origin.png" ) );
 	
     mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
 	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "12.jpg" ) ) ) );
@@ -487,6 +498,8 @@ void KeplerApp::initTextures()
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds3.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds4.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds5.png" ) ) ) );
+	
+	mSurfaces = Surface( loadImage( loadResource( "surfaces.png" ) ) );
     
 	//console() << "initTextures duration = " << (getElapsedSeconds()-t) << endl;
     Flurry::getInstrumentation()->stopTimeEvent("Load Textures");    
@@ -662,6 +675,7 @@ void KeplerApp::touchesEnded( TouchEvent event )
         Vec2f prevPos = touches.begin()->getPrevPos();   
         if (positionTouchesWorld(currentPos) && positionTouchesWorld(prevPos)) {
             mTouchPos = currentPos;
+			
             // if the nav wheel isnt showing and you havent been dragging
 			// and your touch is above the uiLayer panel and the Help panel isnt showing
             if( ! mAlphaWheel.getShowWheel() && ! mIsDragging && !G_HELP ){
@@ -719,13 +733,13 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		
 		if( mCamDistPinchOffsetDest > 3.8f ){
 			if( G_ZOOM == G_TRACK_LEVEL ){
-				mFovDest = 85.0f;
+				mFovDest = 75.0f;
 			} else if( G_ZOOM == G_ALBUM_LEVEL ){
-				mFovDest = 90.0f;
+				mFovDest = 80.0f;
 			} else if( G_ZOOM == G_ARTIST_LEVEL ){
-				mFovDest = 95.0f;
+				mFovDest = 85.0f;
 			} else {
-				mFovDest = 100.0f;
+				mFovDest = 90.0f;
 			}
 		} else {
 			mFovDest = G_DEFAULT_FOV;
@@ -858,6 +872,22 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 	return false;
 }
 
+bool KeplerApp::onPlaylistStateChanged( State *state )
+{
+	std::cout << "playlist changed" << std::endl;
+	mData.filterArtistsByPlaylist( mState.getPlaylist() );
+	mPlayControls.createPlaylistTexture( mState.getPlaylistName(), mFontMediTiny );
+	
+//    std::map<string, string> parameters;
+//    parameters["Playlist"] = ""+mState.getPlaylist();
+//    Flurry::getInstrumentation()->logEvent("Playlist Selected" , parameters);
+	
+	mWorld.filterNodes();
+    mState.setSelectedNode( NULL );
+    
+	return false;
+}
+
 bool KeplerApp::onSelectedNodeChanged( Node *node )
 {
 	mTime			= getElapsedSeconds();
@@ -942,25 +972,40 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
             break;
         
         case PlayControls::HELP:
-            Flurry::getInstrumentation()->logEvent("Help Button Selected");            
-            G_HELP = !G_HELP;
-			if( G_HELP && !mAlphaWheel.getShowWheel() )
-				mAlphaWheel.setShowWheel( true );
+			if( G_SHOW_SETTINGS ){
+				Flurry::getInstrumentation()->logEvent("Help Button Selected");            
+				G_HELP = !G_HELP;
+				if( G_HELP && !mAlphaWheel.getShowWheel() )
+					mAlphaWheel.setShowWheel( true );
+			}
             break;
         
         case PlayControls::DRAW_RINGS:
-            Flurry::getInstrumentation()->logEvent("Draw Rings Button Selected");            
-            G_DRAW_RINGS = !G_DRAW_RINGS;
+			if( G_SHOW_SETTINGS ){
+				Flurry::getInstrumentation()->logEvent("Draw Rings Button Selected");            
+				G_DRAW_RINGS = !G_DRAW_RINGS;
+			}
             break;
         
         case PlayControls::DRAW_TEXT:
-            Flurry::getInstrumentation()->logEvent("Draw Text Button Selected");            
-            G_DRAW_TEXT = !G_DRAW_TEXT;
+			if( G_SHOW_SETTINGS ){
+				Flurry::getInstrumentation()->logEvent("Draw Text Button Selected");            
+				G_DRAW_TEXT = !G_DRAW_TEXT;
+			}
             break;
         
 		case PlayControls::USE_GYRO:
-            Flurry::getInstrumentation()->logEvent("Use Gyro Button Selected");            
-            G_USE_GYRO = !G_USE_GYRO;
+			if( G_SHOW_SETTINGS ){
+				Flurry::getInstrumentation()->logEvent("Use Gyro Button Selected");            
+				G_USE_GYRO = !G_USE_GYRO;
+			}
+            break;
+			
+		case PlayControls::GALAXY:
+            Flurry::getInstrumentation()->logEvent("Galaxy Button Selected");            
+			mWorld.deselectAllNodes();
+			mState.setSelectedNode( NULL );
+			mState.setAlphaChar( ' ' );
             break;
 			
         case PlayControls::CURRENT_TRACK:
@@ -968,16 +1013,32 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
             // pretend the track just got changed again, this will select it:
             onPlayerTrackChanged( &mIpodPlayer );
             break;
-
-        case PlayControls::SHOW_WHEEL:
-            Flurry::getInstrumentation()->logEvent("Show Wheel Button Selected");            
-            mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );
+			
+		case PlayControls::SETTINGS:
+            Flurry::getInstrumentation()->logEvent("Settings Button Selected");            
+            G_SHOW_SETTINGS = !G_SHOW_SETTINGS;
             break;
 
         case PlayControls::SLIDER:
             // TODO: Flurry log?
             break;
-            
+        
+		case PlayControls::DEBUG_FEATURE:
+			G_DEBUG = !G_DEBUG;
+            break;
+			
+		case PlayControls::NEXT_PLAYLIST:
+			mPlaylistIndex ++;
+			mPlaylistIndex = constrain( mPlaylistIndex, 0, (int)mData.mPlaylists.size() - 1 );
+            mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
+            break;
+			
+		case PlayControls::PREVIOUS_PLAYLIST:
+            mPlaylistIndex --;
+			mPlaylistIndex = constrain( mPlaylistIndex, 0, (int)mData.mPlaylists.size() - 1 );
+            mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
+            break;	
+			
         case PlayControls::NO_BUTTON:
             //console() << "unknown button pressed!" << std::endl;
             break;
@@ -1028,7 +1089,6 @@ bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos )
 {
 	vector<Node*> nodes;
-	//mWorld.checkForSphereIntersect( nodes, ray, mat );
 	mWorld.checkForNameTouch( nodes, pos );
 
 	if( nodes.size() > 0 ){
@@ -1089,6 +1149,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &
 
 void KeplerApp::update()
 {
+	
 	if( mData.update() ){
 		mWorld.initNodes( &mIpodPlayer, mFont );
 		mDataIsLoaded = true;
@@ -1117,7 +1178,7 @@ void KeplerApp::update()
 			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 		}
 		
-        mWorld.update( mMatrix );
+        mWorld.update( mMatrix, mSurfaces );
 		
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
@@ -1135,12 +1196,13 @@ void KeplerApp::update()
 		if( selectedNode ){
 			mParticleController.update( selectedNode->mRadius * 0.15f, invBbRight, invBbUp );
 			mParticleController.buildParticleVertexArray();
-			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaPer, sqrt( 1.0f - mCamRingAlpha ) * 0.03125f * mFadeInArtistToAlbum );
-		} else {
+			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.03125f * mFadeInArtistToAlbum );
+		}
+		/*else {
 			mParticleController.update( 100.0f, invBbRight, invBbUp );
 			mParticleController.buildParticleVertexArray();
 			mParticleController.buildDustVertexArray( NULL, mPinchAlphaPer, sqrt( 1.0f - mCamRingAlpha ) );
-		}
+		}*/
 		
         mUiLayer.update();
 		mHelpLayer.update();
@@ -1215,7 +1277,6 @@ void KeplerApp::updateCamera()
 		currentLevel	= selectedNode->mGen;
 		mCamDistDest	= selectedNode->mIdealCameraDist * mCamDistPinchOffset;
 		mCenterDest		= selectedNode->mTransPos; //mMatrix.transformPointAffine( selectedNode->mPos );
-		G_CURRENT_LEVEL = selectedNode->mGen;
 		mZoomDest		= selectedNode->mGen;
 		
 		mCenterFrom		+= selectedNode->mTransVel;
@@ -1229,6 +1290,8 @@ void KeplerApp::updateCamera()
 			mZoomDest	= G_ALPHA_LEVEL;
 		}
 	}
+	
+	G_CURRENT_LEVEL = mZoomDest;
 	
 	// UPDATE FOV
 	mFovDest = constrain( mFovDest, G_MIN_FOV, G_MAX_FOV );
@@ -1254,9 +1317,9 @@ void KeplerApp::updateCamera()
 
 
 	float distToTravel = mState.getDistBetweenNodes();
-	double duration = 3.3f;
-	if( distToTravel < 1.0f )		duration = 1.5;
-	else if( distToTravel < 5.0f )	duration = 2.2f;
+	double duration = 3.0f;
+	if( distToTravel < 1.0f )		duration = 2.0;
+	else if( distToTravel < 5.0f )	duration = 2.75f;
 	double p		= constrain( getElapsedSeconds()-mTime, 0.0, duration );
 	
 	mCenter			= easeInOutCubic( p, mCenterFrom, mCenterDest - mCenterFrom, duration );
@@ -1273,7 +1336,7 @@ void KeplerApp::updateCamera()
 	
 	
 	Vec3f prevEye	= mEye;
-	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist - sin( mCamDistAnim ) * distToTravel );
+	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist - sin( mCamDistAnim ) * distToTravel * 0.25f );
 	mCamVel			= mEye - prevEye;
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
@@ -1335,7 +1398,9 @@ void KeplerApp::drawNoArtists()
 void KeplerApp::drawScene()
 {	
 	vector<Node*> sortedNodes = mWorld.getDepthSortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
-
+	Node *artistNode = mState.getSelectedArtistNode();
+	
+	
 	// For doing galaxy-axis fades
 	Vec3f transEye = mMatrix.inverted() * mEye;
 	float zoomOff = 1.0f - mFadeInAlphaToArtist;//constrain( ( G_ARTIST_LEVEL - G_ZOOM ), 0.0f, 1.0f );
@@ -1349,7 +1414,7 @@ void KeplerApp::drawScene()
 // SKYDOME
     gl::pushModelView();
     gl::rotate( mMatrix );
-    gl::color( Color::white() * pow( 1.0f - zoomOff, 3.0f ) );
+    gl::color( COLOR_BRIGHT_BLUE * pow( 1.0f - zoomOff, 3.0f ) );
     mSkyDome.enableAndBind();
     gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS, 24 );
 	
@@ -1361,7 +1426,8 @@ void KeplerApp::drawScene()
 	
 // LIGHTMATTER
 	if( invAlpha > 0.01f ){
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, invAlpha ) );
+		gl::color( ColorA( COLOR_BRIGHT_BLUE, invAlpha * 2.0f ) );
+
 		radius = mLightMatterBaseRadius * 0.9f;
 		gl::pushModelView();
 			mGalaxyDome.enableAndBind();
@@ -1390,7 +1456,7 @@ void KeplerApp::drawScene()
 	
 	
 // GALAXY SPIRAL PLANES
-	alpha = 0.75f * zoomOff;//sqrt(camGalaxyAlpha) * zoomOff;
+	alpha = ( 1.25f - camGalaxyAlpha ) * zoomOff;//sqrt(camGalaxyAlpha) * zoomOff;
 	if( alpha > 0.01f ){
 		mGalaxyTex.enableAndBind();
 		glEnableClientState( GL_VERTEX_ARRAY );
@@ -1459,50 +1525,63 @@ void KeplerApp::drawScene()
 	
 // STARGLOWS bloom
 	mStarGlowTex.enableAndBind();
-	mWorld.drawTouchHighlights();
+	mWorld.drawTouchHighlights( mFadeInArtistToAlbum );
 	mStarGlowTex.disable();
-	
-	
-	Node *artistNode = mState.getSelectedArtistNode();
-	
-	if( artistNode ){
-		NodeArtist* selectedArtist = (NodeArtist*)artistNode;
 
+	
+	
+	if( artistNode ){ // defined at top of method
+		float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
+		mCamRingAlpha = constrain( abs( transEye.y - artistNode->mPos.y ) * zoomOffset, 0.0f, 1.0f ); // WAS 0.6f
+		
+		
+		NodeArtist* selectedArtist = (NodeArtist*)artistNode;
+		
+		glCullFace( GL_BACK );
+		glEnable( GL_CULL_FACE );
+		glEnable( GL_COLOR_MATERIAL );
+		glMaterialfv( GL_FRONT, GL_AMBIENT, ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
+		glMaterialfv( GL_FRONT, GL_DIFFUSE, ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+		glMaterialfv( GL_FRONT, GL_SPECULAR, ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+		glMaterialf(  GL_FRONT, GL_SHININESS, 100.0f );
+		
 		for( int i = 0; i < sortedNodes.size(); i++ ){
 			gl::enableDepthRead();
 			gl::disableAlphaBlending();
 			glEnable( GL_LIGHTING );
-			glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_diffuse );				
+			//glMaterialfv( GL_FRONT, GL_EMISSION, ColorA( 0.0f, 0.0f, 0.15f, 1.0f ) );
 			
 			// LIGHT FROM ARTIST
 			glEnable( GL_LIGHT0 );
 			Vec3f lightPos          = artistNode->mTransPos;
 			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor * 1.3f, 1.0f ) );
+			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor, 1.0f ) );
+			glLightfv( GL_LIGHT0, GL_SPECULAR, ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+
 			
-			gl::disableAlphaBlending();
+			
 			
 			sortedNodes[i]->drawPlanet( mPlanetsTex );
+			
+			glLightfv( GL_LIGHT0, GL_SPECULAR, ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+			//glMaterialfv( GL_FRONT, GL_EMISSION, ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+			gl::enableAdditiveBlending();
 			sortedNodes[i]->drawClouds( mCloudsTex );
 			
-			if( sortedNodes[i]->mIsSelected || sortedNodes[i]->mIsPlaying ){
-				if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
-					glDisable( GL_LIGHTING );
-					gl::disableDepthRead();
-					sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
-					gl::enableDepthRead();
-					
-				}
+			gl::disableAlphaBlending();
+			glDisable( GL_LIGHTING );
+			gl::disableDepthRead();
+			
+			if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
+				sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
 			}
 			
 			if( sortedNodes[i]->mGen == G_TRACK_LEVEL && sortedNodes[i]->isMostPlayed() ){
-				glDisable( GL_LIGHTING );
-				gl::disableDepthRead();
 				sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
-				gl::enableDepthRead();
 			}
 		}
+		glDisable( GL_CULL_FACE );
 		
 		// STAR CENTER
 		if( selectedArtist ){
@@ -1511,12 +1590,11 @@ void KeplerApp::drawScene()
 	}
 	
 	
-	
 	glDisable( GL_LIGHTING );
 	gl::enableAdditiveBlending();
 	gl::disableDepthRead();
 	
-	// STARGLOWS bloom
+// STARGLOWS bloom
 	mStarGlowTex.enableAndBind();
 	mWorld.drawStarGlowsVertexArray( mMatrix );
 	mStarGlowTex.disable();
@@ -1528,12 +1606,12 @@ void KeplerApp::drawScene()
 	gl::enableAdditiveBlending();
 	
 	
-	// ORBITS
+// ORBITS
 	if( G_DRAW_RINGS ){
-        mWorld.drawOrbitRings( mPinchAlphaPer );
+        mWorld.drawOrbitRings( mPinchAlphaPer, mCamRingAlpha, mOrbitRingGradientTex );
 	}
 	
-	// PARTICLES
+// PARTICLES
 	if( mState.getSelectedArtistNode() ){
 		mParticleTex.enableAndBind();
 		mParticleController.drawParticleVertexArray( mState.getSelectedArtistNode(), mMatrix );
@@ -1541,12 +1619,10 @@ void KeplerApp::drawScene()
 	}
 	
 	
-	// RINGS
+// RINGS
 	if( artistNode ){
-		float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
-		mCamRingAlpha = constrain( abs( transEye.y - artistNode->mPos.y ) * 50.0f * zoomOffset, 0.0f, 0.6f );
-		alpha = pow( mCamRingAlpha, 2.0f );
-		mWorld.drawRings( mRingsTex, mCamRingAlpha );
+		//alpha = pow( mCamRingAlpha, 2.0f );
+		mWorld.drawRings( mRingsTex, mCamRingAlpha * 0.5f );
 	}
 	
 	
@@ -1554,7 +1630,6 @@ void KeplerApp::drawScene()
 // If zoom is between Artist and Album, switch to dark planetary dust.
 // else draw the additive dust in the Galaxy.
 	if( mState.getSelectedAlbumNode() && G_ZOOM > G_ARTIST_LEVEL + 0.5f ){
-		gl::disableAlphaBlending();
 		gl::enableAlphaBlending();
 		mParticleController.drawDustVertexArray( mState.getSelectedAlbumNode(), mMatrix );
 	} else {
@@ -1564,11 +1639,11 @@ void KeplerApp::drawScene()
 	
 	
 	
-// CURRENT TRACK ORBIT PATH
+// PLAYHEAD PROGRESS
 	if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 		gl::enableAdditiveBlending();
 		if( G_DRAW_RINGS )
-			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mPlayheadProgressTex );
+			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mCamRingAlpha * 2.0f, mPlayheadProgressTex, mTrackOriginTex );
 	}
 	
 	
@@ -1632,31 +1707,40 @@ void KeplerApp::drawScene()
     
     glDisable( GL_TEXTURE_2D );
 	
-	// HIT AREA VISUALIZER
-//	for (int i = 0; i < mWorld.mNodes.size(); i++) {
-//		Node* artistNode = mWorld.mNodes[i];
-//		if (artistNode->mIsHighlighted) {
-//			gl::color(ColorA(0.0f,0.0f,1.0f,0.25f));
-//			if( G_DRAW_TEXT ) gl::drawSolidRect(artistNode->mHitArea);
-//			gl::drawSolidRect(artistNode->mSphereHitArea);            
-//			for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-//				Node* albumNode = artistNode->mChildNodes[j];
-//				if (albumNode->mIsHighlighted) {
-//					gl::color(ColorA(0.0f,1.0f,0.0f,0.25f));
-//					if( G_DRAW_TEXT ) gl::drawSolidRect(albumNode->mHitArea);
-//					gl::drawSolidRect(albumNode->mSphereHitArea);            
-//					for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-//						Node *trackNode = albumNode->mChildNodes[k];
-//						if (trackNode->mIsHighlighted) {
-//							gl::color(ColorA(1.0f,0.0f,0.0f,0.25f));
-//							if( G_DRAW_TEXT ) gl::drawSolidRect(trackNode->mHitArea);
-//							gl::drawSolidRect(trackNode->mSphereHitArea);
-//						}
-//					}            
-//				}
-//			}
-//		}
-//	}
+	if( G_DEBUG ){
+		// HIT AREA VISUALIZER
+		for (int i = 0; i < mWorld.mNodes.size(); i++) {
+			Node* artistNode = mWorld.mNodes[i];
+			if (artistNode->mIsHighlighted) {
+				gl::color(ColorA(0.0f,0.0f,1.0f,0.25f));
+				if( artistNode->mDistFromCamZAxisPer > 0.0f ){
+					if( G_DRAW_TEXT && artistNode->mIsHighlighted ) gl::drawSolidRect(artistNode->mHitArea);
+					gl::drawSolidRect(artistNode->mSphereHitArea);       
+				}
+				
+				for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+					Node* albumNode = artistNode->mChildNodes[j];
+					if (albumNode->mIsHighlighted) {
+						gl::color(ColorA(0.0f,1.0f,0.0f,0.25f));
+						if( G_DRAW_TEXT ) gl::drawSolidRect(albumNode->mHitArea);
+						gl::drawSolidRect(albumNode->mSphereHitArea);
+						
+						for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+							Node *trackNode = albumNode->mChildNodes[k];
+							if (trackNode->mIsHighlighted) {
+								gl::color(ColorA(1.0f,0.0f,0.0f,0.25f));
+								if( G_DRAW_TEXT ) gl::drawSolidRect(trackNode->mHitArea);
+								gl::drawSolidRect(trackNode->mSphereHitArea);
+							}
+						}            
+					}
+				}
+			}
+		}
+	}
+	
+	
+	
     
     gl::disableAlphaBlending();
     gl::enableAlphaBlending();
@@ -1670,7 +1754,7 @@ void KeplerApp::drawScene()
     mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
 	
 	gl::disableAlphaBlending();
-	//    if( G_DEBUG ) drawInfoPanel();
+	if( G_DEBUG ) drawInfoPanel();
 }
 
 
@@ -1696,16 +1780,16 @@ void KeplerApp::setParamsTex()
 	layout.setColor( Color( 1.0f, 0.0f, 0.0f ) );
 
 	s.str("");
-	s << " FPS: " << getAverageFps();
+	s << "FPS: " << getAverageFps();
 	layout.addLine( s.str() );
 	
-	int currentLevel = G_HOME_LEVEL;
-	if (mState.getSelectedNode()) {
-		currentLevel = mState.getSelectedNode()->mGen;
-	}
-	else if (mState.getAlphaChar() != ' ') {
-		currentLevel = G_ALPHA_LEVEL;
-	}
+	s.str("");
+	s << "CURRENT LEVEL: " << G_CURRENT_LEVEL;
+	layout.addLine( s.str() );
+	
+	s.str("");
+	s << "ZOOM LEVEL: " << G_ZOOM;
+	layout.addLine( s.str() );
 	
 	mParamsTex = gl::Texture( layout.render( true, false ) );
 }

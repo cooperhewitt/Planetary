@@ -58,6 +58,15 @@ void State::setAlphaChar( const string &name )
 	setAlphaChar(firstLetter);
 }
 
+
+void State::setPlaylist( ci::ipod::PlaylistRef playlist )
+{
+	mCurrentPlaylist = playlist;
+	mCurrentPlaylistName = playlist->getPlaylistName();
+	mCallbacksPlaylistStateChanged.call( this );
+}
+
+
 void State::setSelectedNode( Node* node )
 {
 //	if (node == mSelectedNode) {

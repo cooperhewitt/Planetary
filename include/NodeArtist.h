@@ -18,7 +18,7 @@ class NodeArtist : public Node
   public:
 	NodeArtist( int index, const ci::Font &font );
 	
-	void update( const ci::Matrix44f &mat );
+	void update( const ci::Matrix44f &mat, const ci::Surface &surfaces );
 	void drawEclipseGlow();
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );

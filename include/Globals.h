@@ -44,13 +44,14 @@ static const int G_TOTAL_HELP_CALLOUTS = 8;
 
 static const ci::Color COLOR_BLUE			= ci::Color( 0.1f, 0.2f, 0.5f );
 static const ci::Color COLOR_BRIGHT_BLUE	= ci::Color( 0.4f, 0.8f, 1.0f );
-static const ci::Color COLOR_BRIGHT_YELLOW	= ci::Color( 1.0f, 1.0f, 0.75f );
+static const ci::Color COLOR_BRIGHT_YELLOW	= ci::Color( 1.0f, 0.9f, 0.65f );
 
 
 // TODO: move into State.h
 extern float G_ZOOM;
 extern int G_CURRENT_LEVEL;
 extern bool G_DEBUG;
+extern bool G_SHOW_SETTINGS;
 extern bool G_HELP;
 extern bool G_ACCEL;
 extern bool G_DRAW_RINGS;

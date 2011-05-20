@@ -33,8 +33,9 @@ inline std::string to_string( const T& t )
 class PlayControls {
 public:
 
-	enum PlayButton { NO_BUTTON, CURRENT_TRACK, SHOW_WHEEL, PREVIOUS_TRACK, PLAY_PAUSE, NEXT_TRACK, SLIDER, HELP, DRAW_RINGS, DRAW_TEXT, USE_GYRO };
-	enum ButtonTexId { TEX_BUTTONS, TEX_SLIDER_BUTTON, TEX_HELP, TEX_DRAW_RINGS, TEX_DRAW_TEXT, TEX_USE_GYRO };	
+	enum PlayButton { NO_BUTTON, PREVIOUS_PLAYLIST, NEXT_PLAYLIST, GALAXY, CURRENT_TRACK, SETTINGS, PREVIOUS_TRACK, 
+					  PLAY_PAUSE, NEXT_TRACK, SLIDER, HELP, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE };
+	enum ButtonTexId { TEX_BUTTONS, TEX_SLIDER_BUTTON, TEX_HELP, TEX_DRAW_RINGS, TEX_DRAW_TEXT, TEX_USE_GYRO, TEX_DEBUG_FEATURE };	
 	
 	void setup( AppCocoaTouch *app, bool initialPlayState, const ci::app::Orientation &orientation );
     	
@@ -62,6 +63,9 @@ public:
 		return mCallbacksPlayheadMoved.registerCb(std::bind1st(std::mem_fun(callback), obj));
 	}	
 	
+	
+	void createPlaylistTexture( string playlistName, const Font &font );
+	
 private:
 					  
 	AppCocoaTouch *mApp;
@@ -79,8 +83,11 @@ private:
 	int mPrevSeconds;
 	
 	bool mIsDraggingPlayhead;
+	
 	gl::Texture mCurrentTimeTex;
 	gl::Texture mRemainingTimeTex;
+	
+	gl::Texture mPlaylistNameTex;
 	
 	CallbackId cbTouchesBegan, cbTouchesMoved, cbTouchesEnded, cbOrientationChanged;
 			

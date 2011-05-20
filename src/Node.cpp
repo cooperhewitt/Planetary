@@ -37,13 +37,9 @@ Node::Node( Node *parent, int index, const Font &font )
 	mOrbitRadius		= 0.01f;
 	mAngularVelocity	= 0.0f;
 	mPercentPlayed		= 0.0f;
-	mCamDistAlpha		= 0.0f;
 	mDistFromCamZAxis	= 1000.0f;
 	mDistFromCamZAxisPer = 1.0f;
 	mPlanetTexIndex		= 0;
-    
-    mSphereRes          = 12;
-    mSphereResInt       = 12;
 		
 	mHitArea			= Rectf( 0.0f, 0.0f, 10.0f, 10.0f ); //just for init.
 	mHighlightStrength	= 0.0f;
@@ -64,7 +60,7 @@ void Node::setIsDying( bool isDying )
 {
 	mIsDying = isDying;
 	
-	if( mIsDying = false ){
+	if( mIsDying == false ){
 		mIsDead = false;
 		mDeathCount = 0;
 	}
@@ -93,7 +89,7 @@ void Node::createNameTexture()
 	mNameTex				= gl::Texture( nameSurface );
 }
 
-void Node::update( const Matrix44f &mat )
+void Node::update( const Matrix44f &mat, const Surface &surfaces )
 {	
 	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
 	mMatrix         = mat;
@@ -126,7 +122,7 @@ void Node::update( const Matrix44f &mat )
 		if( (*nodeIt)->mIsDead ){
 			clearChildNodes = true;
 		}
-		(*nodeIt)->update( mat );
+		(*nodeIt)->update( mat, surfaces );
 	}
 	
 	if( clearChildNodes ){
@@ -142,32 +138,16 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 {
 	mBbRight = bbRight;
 	mBbUp    = bbUp;
-    
-    if( mGen >= G_ALBUM_LEVEL ){
-        if( mIsSelected || mIsPlaying ){
-            mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
-            mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.1f;
-        } else {
-            mSphereRes		-= ( mSphereRes - 10 ) * 0.1f;
-            mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.1f;
-        }
-        
-		if( mSphereScreenRadius < 20 ){
-			mSphereRes		= 4;
-		}
-        mSphereResInt       = (int)mSphereRes * 2;
-    }
+
     
 	if( mIsHighlighted ){
         mScreenPos              = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
 		mDistFromCamZAxis		= cam.worldToEyeDepth( mTransPos );
 		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * -0.5f, 0.0f, 1.0f ); // REL: -0.35f
-		mSphereScreenRadius     = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() ) * 0.4f;
-        //Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
-		Vec2f p = mScreenPos;
-        float r = mSphereScreenRadius * 0.5f + 5.0f;        
-        mSphereHitArea	= Rectf( p.x - r, p.y - r, p.x + r, p.y + r );        
+		mSphereScreenRadius     = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() );
+        float r					= max( mSphereScreenRadius, 15.0f );        
+        mSphereHitArea			= Rectf( mScreenPos.x - r, mScreenPos.y - r, mScreenPos.x + r, mScreenPos.y + r );        
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
@@ -210,10 +190,10 @@ void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat 
 	}
 }
 
-void Node::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void Node::drawOrbitRing( float pinchAlphaOffset, float camAlpha, const gl::Texture &orbitRingGradient, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrbitRing( pinchAlphaOffset, ringVertsLowRes, ringVertsHighRes );
+		(*nodeIt)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRingGradient, ringVertsLowRes, ringTexLowRes, ringVertsHighRes, ringTexHighRes );
 	}
 }
 
@@ -223,37 +203,39 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
 		float alpha;
+		Color c;
 		
 		if( mIsSelected || ( G_CURRENT_LEVEL < mGen && mIsPlaying ) ){
-//			if( G_CURRENT_LEVEL >= mGen - 2 )
-//				alpha = pinchAlphaPer * mZoomPer * mDeathPer;
-//			else
-//				alpha = 0.0f;
-//			
-			alpha = mZoomPer;
+			c = Color::white();
 			
-			gl::color( ColorA( Color::white(), alpha ) );
+			if( G_CURRENT_LEVEL >= mGen - 2 )
+				alpha = mZoomPer * mDeathPer;
+			else
+				alpha = 0.0f;
+			
+			
 		} else {
+			c = COLOR_BRIGHT_BLUE;
+			
 			if( G_CURRENT_LEVEL >= mGen - 1 )
 				alpha = 0.5f * pinchAlphaPer * mZoomPer * mDeathPer;
 			else
 				alpha = 0.0f;
 			
-			gl::color( ColorA( COLOR_BRIGHT_BLUE, alpha ) );
 		}
+		
+		gl::color( ColorA( c, alpha ) );
 		
 		
 		if( alpha > 0 ){
 			Vec2f pos1, pos2;
 			Vec2f offset0, offset1, offset2;
-			float screenRadNew = mSphereScreenRadius * 0.25f;
-			if( mGen == G_ARTIST_LEVEL ) screenRadNew = mSphereScreenRadius * 0.125f;
 			
 			if (mNameTex == NULL) {
 				createNameTexture();
 			}
 
-			offset0 = Vec2f( screenRadNew, screenRadNew );
+			offset0 = Vec2f( mSphereScreenRadius, mSphereScreenRadius ) * 0.75f;
 			offset0.rotate( angle );
 			pos1 = mScreenPos + offset0;
 			offset1 = Vec2f( 10.0f, 10.0f );
@@ -287,6 +269,8 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			
 			gl::color( ColorA( COLOR_BRIGHT_BLUE, alpha * 0.5f ) );
 			gl::drawLine( pos1, pos2 );
+		} else {
+			mHitArea = Rectf( -10000.0f, -10000.0f, -9999.0f, -9999.0f );
 		}
 		
 		
@@ -319,20 +303,20 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 	}
 }
 
-void Node::drawTouchHighlight()
+void Node::drawTouchHighlight( float zoomAlpha )
 {
 	if( mIsHighlighted ){
 		if( mIsTapped ){
 			Vec2f radius = Vec2f( mRadius * 5.0f, mRadius * 5.0f );
 			gl::color( ColorA( mColor, mHighlightStrength ) );
-			mHighlightStrength -= ( mHighlightStrength - 0.0f ) * 0.15f;
+			mHighlightStrength -= ( mHighlightStrength - 0.0f ) * 0.1f;
 			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
-		} else {
-			if( ( mIsPlaying || mIsSelected ) && mGen > G_ARTIST_LEVEL ){
-				Vec2f radius = Vec2f( mRadius * 5.0f, mRadius * 5.0f );
-				gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.5f ) );
-				gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
-			}
+		}
+		
+		if( ( mIsPlaying || mIsSelected ) && mGen > G_ARTIST_LEVEL ){
+			Vec2f radius = Vec2f( mRadius * 5.0f, mRadius * 5.0f );
+			gl::color( ColorA( mGlowColor, zoomAlpha ) );
+			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 		}
 		
 		if( mHighlightStrength < 0.01f ){
@@ -340,31 +324,18 @@ void Node::drawTouchHighlight()
 		}
 
 		for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-			(*nodeIt)->drawTouchHighlight();
+			(*nodeIt)->drawTouchHighlight( zoomAlpha );
 		}
-	}
-}
-
-void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix44f &mat )
-{
-	mSphere.setCenter( mat.transformPointAffine( mPos ) );
-
-	if( mSphere.intersects( ray ) && mIsHighlighted && ! mIsSelected ){
-		std::cout << "HIT FOUND" << std::endl;
-		nodes.push_back( this );
-	}
-	
-	vector<Node*>::iterator nodeIt;
-	for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->checkForSphereIntersect( nodes, ray, mat );
 	}
 }
 
 void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-    if( mSphereHitArea.contains( pos ) || ( mNameTex != NULL && mHitArea.contains( pos ) && G_DRAW_TEXT ) ) {
-        nodes.push_back( this );
-    }
+	if( mDistFromCamZAxisPer > 0.0f ){
+		if( mSphereHitArea.contains( pos ) || ( mNameTex != NULL && mHitArea.contains( pos ) && G_DRAW_TEXT ) ) {
+			nodes.push_back( this );
+		}
+	}
     vector<Node*>::iterator nodeIt;
     for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
         (*nodeIt)->checkForNameTouch( nodes, pos );

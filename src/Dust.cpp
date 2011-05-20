@@ -13,7 +13,7 @@ Dust::Dust()
 Dust::Dust( int index, Vec3f pos, Vec3f vel )
 {
 	mIndex			= index;
-	mLifespan       = 2;//Rand::randInt( 35, 230 );
+	mLifespan       = Rand::randInt( 105, 230 );
 	mIsDead			= false;
 	
 	setup( true );
@@ -31,7 +31,7 @@ void Dust::setup( bool isGalaxyDust )
 	} else {
 		randVec2	= Rand::randVec2f() * Rand::randFloat( 0.5f, 1.75f );
 		randVec		= Vec3f( randVec2.x, 0.0f, randVec2.y );
-		mPos		= randVec * 0.1f;
+		mPos		= randVec * 0.2f;
 	}
 	
 	

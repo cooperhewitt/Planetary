@@ -27,6 +27,16 @@ void PlayControls::setup( AppCocoaTouch *app, bool initialPlayState, const Orien
     setInterfaceOrientation( orientation );
 }
 
+void PlayControls::createPlaylistTexture( string playlistName, const Font &font )
+{	
+	TextLayout layout;
+	layout.setFont( font );
+	layout.setColor( Color::white() );			
+	layout.addLine( playlistName );
+	bool PREMULT = false;
+	mPlaylistNameTex = gl::Texture( layout.render( true, PREMULT ) );
+}
+
 void PlayControls::update()
 {
     // TODO: update anything time based here, e.g. elapsed time of track playing
@@ -121,7 +131,7 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
     gl::pushModelView();
     gl::multModelView( mOrientationMatrix );    
     
-    lastDrawnBoundsRect = Rectf(0, y, mInterfaceSize.x, mInterfaceSize.y );
+    lastDrawnBoundsRect = Rectf(0, y - 40.0f, mInterfaceSize.x, mInterfaceSize.y );
     
     //gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
     //gl::drawSolidRect( lastDrawnBoundsRect ); // TODO: make height settable in setup()?
@@ -141,7 +151,7 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
         sliderWidth = 328.0f;
     }
     float sliderHeight	= 20.0f;
-    float sliderInset	= bSize + timeTexWidth;
+    float sliderInset	= bSize * 2.0f + buttonGap + timeTexWidth;
 	float x1, x2, y1, y2;
 	
 	
@@ -151,11 +161,15 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 	
 	x1 = sideBorder;
 	x2 = x1 + bSize;
-	Rectf currentTrackButton( x1, y1, x2, y2 );
+	Rectf galaxyButton( x1, y1, x2, y2 );
 	
-	x1 = mInterfaceSize.x / 2 - bSize/2;//bSize + timeTexWidth * 2.0f + sliderWidth;
+	x1 += bSize + buttonGap;
 	x2 = x1 + bSize;
-	Rectf showWheelButton( x1, y1, x2, y2 );
+	Rectf currentTrackButton( x1, y1, x2, y2 );
+
+	x1 = mInterfaceSize.x / 2 + bSize * 1.75f;//bSize + timeTexWidth * 2.0f + sliderWidth;
+	x2 = x1 + bSize;
+	Rectf settingsButton( x1, y1, x2, y2 );
 	
 	x1 = mInterfaceSize.x - sideBorder - bSize;
 	x2 = x1 + bSize;
@@ -170,8 +184,8 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 	Rectf prevButton( x1, y1, x2, y2 );
 
 	
-	y1 += 5.0f;				// accommodate for the smaller button size
-	x1 -= bSize * 1.25f;
+	y1 -= 47.0f;				// accommodate for the smaller button size
+	x1 -= bSize * 1.5f;
 	x2 = x1 + bSizeSmall;
 	Rectf useGyroButton( x1, y1, x2, y1 + bSizeSmall );
 	
@@ -186,8 +200,23 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 	x1 -= bSizeSmall - 5.0f;
 	x2 = x1 + bSizeSmall;
 	Rectf helpButton( x1, y1, x2, y1 + bSizeSmall );
+
+    x1 -= bSizeSmall - 5.0f;
+	x2 = x1 + bSizeSmall;
+	Rectf debugFeatureButton( x1, y1, x2, y1 + bSizeSmall );
 	
-    
+	
+	x1 = 10.0f;
+	x2 = x1 + bSize;
+	y1 = y - topBorder - bSize;
+	y2 = y1 + bSize;
+	Rectf prevPlaylistButton( x1, y1, x2, y2 );
+	
+	x1 += 200.0f;
+	x2 = x1 + bSize;
+	Rectf nextPlaylistButton( x1, y1, x2, y2 );
+	
+	
     float playheadPer	= 0.0f;
     if( totalTime > 0.0f ){
         playheadPer = constrain<float>(currentTime/totalTime, 0.0, 1.0);
@@ -217,10 +246,16 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 		currentTrackRect = Rectf( ctx1, cty1, ctx2, cty2 );
 	}
 	
+	touchRects.push_back( prevPlaylistButton );
+	touchTypes.push_back( PREVIOUS_PLAYLIST );
+	touchRects.push_back( nextPlaylistButton );
+	touchTypes.push_back( NEXT_PLAYLIST );
+	touchRects.push_back( galaxyButton );
+	touchTypes.push_back( GALAXY );
 	touchRects.push_back( currentTrackButton );
 	touchTypes.push_back( CURRENT_TRACK );
-	touchRects.push_back( showWheelButton );
-	touchTypes.push_back( SHOW_WHEEL );
+	touchRects.push_back( settingsButton );
+	touchTypes.push_back( SETTINGS );
     touchRects.push_back( prevButton );
     touchTypes.push_back( PREVIOUS_TRACK );
     touchRects.push_back( playButton );
@@ -237,6 +272,8 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
     touchTypes.push_back( DRAW_TEXT );
 	touchRects.push_back( useGyroButton );
     touchTypes.push_back( USE_GYRO );
+	touchRects.push_back( debugFeatureButton );
+    touchTypes.push_back( DEBUG_FEATURE );	
 	
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, dragAlphaPer ) );
     uiButtonsTex.enableAndBind();
@@ -246,26 +283,34 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 	float u1, u2, v1, v2, v3;
 	v1 = 0.0f; v2 = 0.25f; v3 = 0.5f;
 	float uw = 1.0f/8.0f;
-// CURRENT TRACK
+// GALAXY
 	u1 = uw * 0.0f;
+	u2 = u1 + uw;
+    if( lastTouchedType == GALAXY )
+		drawButton( galaxyButton, u1, v2, u2, v3 );
+    else
+		drawButton( galaxyButton, u1, v1, u2, v2 );
+
+	
+// CURRENT TRACK
+	u1 = uw * 1.0f;
 	u2 = u1 + uw;
     if( lastTouchedType == CURRENT_TRACK )
 		drawButton( currentTrackButton, u1, v2, u2, v3 );
     else
 		drawButton( currentTrackButton, u1, v1, u2, v2 );
-
 	
-// SHOW WHEEL
-	u1 = uw * 1.0f;
+// SETTINGS
+	u1 = uw * 2.0f;
 	u2 = u1 + uw;
-    if( alphaWheel->getShowWheel() )
-		drawButton( showWheelButton, u1, v2, u2, v3 );
+    if( G_SHOW_SETTINGS )
+		drawButton( settingsButton, u1, v2, u2, v3 );
     else
-		drawButton( showWheelButton, u1, v1, u2, v2 );	
+		drawButton( settingsButton, u1, v1, u2, v2 );
 	
 	
 // PREV
-	u1 = uw * 2.0f;
+	u1 = uw * 3.0f;
 	u2 = u1 + uw;
     if( lastTouchedType == PREVIOUS_TRACK )
 		drawButton( prevButton, u1, v2, u2, v3 );
@@ -275,9 +320,9 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
     
 // PLAY/PAUSE	
 	if( ! mIsPlaying )
-		u1 = uw * 3.0f;
-	else
 		u1 = uw * 4.0f;
+	else
+		u1 = uw * 5.0f;
 	u2 = u1 + uw;
 	if( lastTouchedType == PLAY_PAUSE )
 		drawButton( playButton, u1, v2, u2, v3 );
@@ -285,7 +330,7 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 		drawButton( playButton, u1, v1, u2, v2 );
     
 // NEXT
-	u1 = uw * 5.0f;
+	u1 = uw * 6.0f;
 	u2 = u1 + uw;
     if( lastTouchedType == NEXT_TRACK )
 		drawButton( nextButton, u1, v2, u2, v3 );
@@ -293,37 +338,69 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 		drawButton( nextButton, u1, v1, u2, v2 );
 	
 	
-	uw = 1.0f/10.0f;
-	
-	
-// HELP
-	u1 = 0.0f; u2 = u1 + uw;
-	v1 = 0.5f; v2 = 0.7f; v3 = 0.9f;
-	if( G_HELP )
-		drawButton( helpButton, u1, v2, u2, v3 );
-	else 
-		drawButton( helpButton, u1, v1, u2, v2 );		
-	
-// DRAW RINGS
-	u1 = uw * 1.0f; u2 = u1 + uw;
-    if( G_DRAW_RINGS )
-		drawButton( drawRingsButton, u1, v2, u2, v3 );
-	else 
-		drawButton( drawRingsButton, u1, v1, u2, v2 );
-	
-// DRAW TEXT
-	u1 = uw * 2.0f; u2 = u1 + uw;
-	if( G_DRAW_TEXT )
-		drawButton( drawTextButton, u1, v2, u2, v3 );
-	else 
-		drawButton( drawTextButton, u1, v1, u2, v2 );
+	if( G_SHOW_SETTINGS )
+	{
+		// PREV PLAYLIST
+		u1 = uw * 3.0f;
+		u2 = u1 + uw;
+		if( lastTouchedType == PREVIOUS_PLAYLIST )
+			drawButton( prevPlaylistButton, u1, v2, u2, v3 );
+		else
+			drawButton( prevPlaylistButton, u1, v1, u2, v2 );
+		
+		// NEXT PLAYLIST
+		u1 = uw * 6.0f;
+		u2 = u1 + uw;
+		if( lastTouchedType == NEXT_PLAYLIST )
+			drawButton( nextPlaylistButton, u1, v2, u2, v3 );
+		else
+			drawButton( nextPlaylistButton, u1, v1, u2, v2 );
+		
+		// PLAYLIST NAME
+		if( mPlaylistNameTex )
+			gl::draw( mPlaylistNameTex, Vec2f( 65.0f, y - bSize + 10.0f ) );
+		
+		
+		uw = 1.0f/10.0f;
+		
+		
+		// HELP
+		u1 = 0.0f; u2 = u1 + uw;
+		v1 = 0.5f; v2 = 0.7f; v3 = 0.9f;
+		if( G_HELP )
+			drawButton( helpButton, u1, v2, u2, v3 );
+		else 
+			drawButton( helpButton, u1, v1, u2, v2 );	
+		
+		// DRAW RINGS
+		u1 = uw * 1.0f; u2 = u1 + uw;
+		if( G_DRAW_RINGS )
+			drawButton( drawRingsButton, u1, v2, u2, v3 );
+		else 
+			drawButton( drawRingsButton, u1, v1, u2, v2 );
+		
+		// DRAW TEXT
+		u1 = uw * 2.0f; u2 = u1 + uw;
+		if( G_DRAW_TEXT )
+			drawButton( drawTextButton, u1, v2, u2, v3 );
+		else 
+			drawButton( drawTextButton, u1, v1, u2, v2 );
 
-// USE GYRO
-	u1 = uw * 3.0f; u2 = u1 + uw;
-	if( G_USE_GYRO )
-		drawButton( useGyroButton, u1, v2, u2, v3 );
-	else 
-		drawButton( useGyroButton, u1, v1, u2, v2 );
+		// USE GYRO
+		u1 = uw * 3.0f; u2 = u1 + uw;
+		if( G_USE_GYRO )
+			drawButton( useGyroButton, u1, v2, u2, v3 );
+		else 
+			drawButton( useGyroButton, u1, v1, u2, v2 );
+		
+		// DEBUG
+		u1 = uw * 4.0f; u2 = u1 + uw;
+		if( lastTouchedType == DEBUG_FEATURE )
+			drawButton( debugFeatureButton, u1, v2, u2, v3 );
+		else 
+			drawButton( debugFeatureButton, u1, v1, u2, v2 );
+	}
+	uw = 1.0f/10.0f;
 	
 	
 // SLIDER BG

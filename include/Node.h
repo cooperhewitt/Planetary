@@ -34,18 +34,17 @@ class Node {
 	void			setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
 								  int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals );
 	void			createNameTexture();
-	virtual void	update( const ci::Matrix44f &mat );
+	virtual void	update( const ci::Matrix44f &mat, const ci::Surface &surfaces );
 	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	virtual void	drawEclipseGlow();
 	virtual void	drawPlanet( const std::vector< ci::gl::Texture> &planets ) {};
 	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds ) {};
 	virtual void	drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer ) {};
 	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
-	virtual void	drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
+	virtual void	drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );
 	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
 	void			wasTapped(){ mIsTapped = true; mHighlightStrength = 1.0f; }
-	void			drawTouchHighlight();
-	void			checkForSphereIntersect( std::vector<Node*> &nodes, const ci::Ray &ray, ci::Matrix44f &mat );
+	void			drawTouchHighlight( float zoomAlpha );
 	void			checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
 	void			setIsDying( bool isDying );
 	
@@ -103,7 +102,6 @@ class Node {
 	float				mDistFromCamZAxis;	// Node's distance from Cam eye
 	float				mPrevDistFromCamZAxis;	// Node's previous distance from Cam eye
 	float				mDistFromCamZAxisPer; // normalized range.
-    float               mCamDistAlpha;      // Transparency change based on dist to camera
     
 // MUSIC LIB DATA
 	float				mPercentPlayed;		// Track: percent of playback (perhaps this can be pulled directly from player?)
@@ -123,9 +121,8 @@ class Node {
 	ci::Rectf			mHitArea;			// name hit area
 	ci::Rectf			mSphereHitArea;		// node hit area
 	
-	ci::Sphere			mSphere;			// Sphere used for name label alignment
+	ci::Sphere			mSphere;
 	float				mSphereScreenRadius;// mSphere radius in screenspace
-    float               mSphereRes, mSphereResInt;
    
     
 // COLORS

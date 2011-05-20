@@ -33,7 +33,7 @@ void Particle::setup( const Vec3f &bbRight, const Vec3f &bbUp )
 	mAcc		= Rand::randVec3f() * 0.01f;
 	mAge		= 0;
 	mAgePer		= 0.0f;
-	mRadius		= Rand::randFloat( 0.0125f, 0.055f );
+	mRadius		= Rand::randFloat( 0.025f, 0.1f );
 }
 
 void Particle::update( float radius, const Vec3f &bbRight, const Vec3f &bbUp )

@@ -43,8 +43,13 @@ void World::setup( Data *data )
 
 	if( !mIsInitialized ){
 		// VERTEX ARRAY SPHERE
-		initSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
-		initSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+		if( G_IS_IPAD2 ){
+			buildSphereVertexArray( 40, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
+			buildSphereVertexArray( 20, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+		} else {
+			buildSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
+			buildSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+		}
 	}
 	
 	
@@ -55,7 +60,7 @@ void World::setup( Data *data )
 }
 
 
-void World::initSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals )
+void World::buildSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals )
 {	
     if (sphereVerts != NULL) delete[] sphereVerts;
     if (sphereNormals != NULL) delete[] sphereNormals;
@@ -104,15 +109,15 @@ void World::initSphereVertexArray( int segments, int *numVerts, float* &sphereVe
 			
 			if( i > 0 ){
 				triangles.push_back( Triangle( oldv1, oldv2, newv1 ) );
-				triangles.push_back( Triangle( oldv2, newv1, newv2 ) );
+				triangles.push_back( Triangle( oldv2, newv2, newv1 ) );
 				
 				texCoords.push_back( oldt1 );
 				texCoords.push_back( oldt2 );
 				texCoords.push_back( newt1 );
 				
 				texCoords.push_back( oldt2 );
-				texCoords.push_back( newt1 );
 				texCoords.push_back( newt2 );
+				texCoords.push_back( newt1 );
 			}
 		}
 	}
@@ -181,29 +186,8 @@ void World::initNodes( Player *player, const Font &font )
 
 void World::initVertexArrays()
 {
-    if( mRingVertsLowRes  != NULL ) delete[] mRingVertsLowRes;
-	if( mRingVertsHighRes != NULL ) delete[] mRingVertsHighRes;
-	
-	mRingVertsLowRes	= new float[ G_RING_LOW_RES*2 ];	// X,Y
-	mRingVertsHighRes	= new float[ G_RING_HIGH_RES*2 ];	// X,Y
-	
-	
-	for( int i=0; i<G_RING_LOW_RES; i++ ){
-		float per				= (float)i/(float)(G_RING_LOW_RES-1);
-		float angle				= per * TWO_PI;
-		mRingVertsLowRes[i*2+0]	= cos( angle );
-		mRingVertsLowRes[i*2+1]	= sin( angle );
-	}
-
-	for( int i=0; i<G_RING_HIGH_RES; i++ ){
-		float per					= (float)i/(float)(G_RING_HIGH_RES-1);
-		float angle					= per * TWO_PI;
-		mRingVertsHighRes[i*2+0]	= cos( angle );
-		mRingVertsHighRes[i*2+1]	= sin( angle );
-	}
-	
+	buildOrbitRingsVertexArray();
 	buildPlanetRingsVertexArray();
-    
     initNodeSphereData( mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals,
                               mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals ); 
 }
@@ -265,15 +249,6 @@ void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
 			(*it)->checkForNameTouch( nodes, pos );
-		}
-	}
-}
-
-void World::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix44f &mat )
-{
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		if( (*it)->mIsHighlighted ){
-			(*it)->checkForSphereIntersect( nodes, ray, mat );
 		}
 	}
 }
@@ -552,7 +527,40 @@ void World::buildPlanetRingsVertexArray()
 }
 
 
-void World::update( const Matrix44f &mat )
+void World::buildOrbitRingsVertexArray()
+{
+	if( mRingVertsLowRes	!= NULL ) delete[] mRingVertsLowRes;
+	if( mRingTexLowRes		!= NULL ) delete[] mRingTexLowRes;
+	if( mRingVertsHighRes	!= NULL ) delete[] mRingVertsHighRes;
+	if( mRingTexHighRes		!= NULL ) delete[] mRingTexHighRes;
+	
+	mRingVertsLowRes	= new float[ G_RING_LOW_RES*2 ];	// X,Y
+	mRingTexLowRes		= new float[ G_RING_LOW_RES*2 ];	// U,V
+	mRingVertsHighRes	= new float[ G_RING_HIGH_RES*2 ];	// X,Y
+	mRingTexHighRes		= new float[ G_RING_HIGH_RES*2 ];	// U,V
+	
+	Color c				= COLOR_BRIGHT_BLUE;
+	
+	for( int i=0; i<G_RING_LOW_RES; i++ ){
+		float per				 = (float)i/(float)(G_RING_LOW_RES-1);
+		float angle				 = per * TWO_PI;
+		mRingVertsLowRes[i*2+0]	 = cos( angle );
+		mRingVertsLowRes[i*2+1]	 = sin( angle );
+		mRingTexLowRes[i*2+0] = per;
+		mRingTexLowRes[i*2+1] = 0.5f;
+	}
+	
+	for( int i=0; i<G_RING_HIGH_RES; i++ ){
+		float per				 = (float)i/(float)(G_RING_HIGH_RES-1);
+		float angle				 = per * TWO_PI;
+		mRingVertsHighRes[i*2+0] = cos( angle );
+		mRingVertsHighRes[i*2+1] = sin( angle );
+		mRingTexHighRes[i*2+0] = per;
+		mRingTexHighRes[i*2+1] = 0.5f;
+	}
+}
+
+void World::update( const Matrix44f &mat, const Surface &surfaces )
 {
 	if( mIsInitialized ){
 		mAge ++;
@@ -571,7 +579,7 @@ void World::update( const Matrix44f &mat )
 		}
 		
 		for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-			(*it)->update( mat );
+			(*it)->update( mat, surfaces );
 		}
 	}
 }
@@ -669,17 +677,17 @@ void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset, float ang
 	}
 }
 
-void World::drawOrbitRings( float pinchAlphaOffset )
+void World::drawOrbitRings( float pinchAlphaOffset, float camAlpha, const gl::Texture &orbitRingGradient )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawOrbitRing( pinchAlphaOffset, mRingVertsLowRes, mRingVertsHighRes );
+		(*it)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRingGradient, mRingVertsLowRes, mRingTexLowRes, mRingVertsHighRes, mRingTexHighRes );
 	}
 }
 
-void World::drawTouchHighlights()
+void World::drawTouchHighlights( float zoomAlpha )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawTouchHighlight();
+		(*it)->drawTouchHighlight( zoomAlpha );
 	}
 }
 
@@ -741,7 +749,29 @@ void World::buildConstellation()
 		//mConstellationColors.push_back( ColorA( child1->mGlowColor, 0.15f ) );
 		//mConstellationColors.push_back( ColorA( nearestChild->mGlowColor, 0.15f ) );
 	}
-
+	
+	
+	/*
+	// CONSTELLATION IN ALPHABETICAL ORDER
+	Node *child1;
+	Node *child2;
+	int index = 0;
+	vector<float> distances;	// used for tex coords of the dotted line
+	for( vector<int>::iterator it = mData->mFilteredArtists.begin(); it != mData->mFilteredArtists.end(); ++it ){
+		if( index > 0 ){
+			child2 = mNodes[*it];
+				
+			Vec3f dirBetweenChildren = child1->mPosDest - child2->mPosDest;
+			float distBetweenChildren = dirBetweenChildren.length();
+			
+			distances.push_back( distBetweenChildren );
+			mConstellation.push_back( child1->mPosDest );
+			mConstellation.push_back( child2->mPosDest );
+		}
+		child1 = mNodes[*it];
+		index ++;
+	}
+	*/
 
 
 

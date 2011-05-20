@@ -32,7 +32,6 @@ NodeArtist::NodeArtist( int index, const Font &font )
 	mPosDest		= Vec3f( randVec.x, Rand::randFloat( -0.5f, 0.5f ), randVec.y );
 	mPos			= mPosDest;// + Rand::randVec3f() * 25.0f;
 	mAcc			= Vec3f::zero();
-	mSphere			= Sphere( mPos, 3.65f );
 	
 	mAge			= 0.0f;
 	mBirthPause		= Rand::randFloat( 50.0f );
@@ -66,14 +65,18 @@ void NodeArtist::setData( PlaylistRef playlist )
 	mColor			= Color( CM_HSV, mHue, mSat, 1.0f );
 	mGlowColor		= Color( CM_HSV, mHue, mSat + 0.5f, 1.0f );
 	
-	mRadiusDest		= 1.0f + ( 0.66f - mHue ) * 2.0f;
+	mRadiusDest		= 1.3f + ( 0.66f - mHue ) * 2.0f;
 	mRadius			= 0.0f;
+	
+	mSphere			= Sphere( mPos, mRadiusDest * 0.165f );
 }
 
 
 
-void NodeArtist::update( const Matrix44f &mat )
+void NodeArtist::update( const Matrix44f &mat, const Surface &surfaces )
 {	
+	mEclipseStrength = 0.0f;
+	
 	Vec3f prevTransPos  = mTransPos;
     // if mTransPos hasn't been set yet, use a guess:
     // FIXME: set mTransPos correctly in the constructor
@@ -104,7 +107,7 @@ void NodeArtist::update( const Matrix44f &mat )
 //		}
 	}
 	
-	Node::update( mat );
+	Node::update( mat, surfaces );
     
 	mTransVel = mTransPos - prevTransPos;
 }
@@ -217,10 +220,10 @@ void NodeArtist::select()
 
 void NodeArtist::setChildOrbitRadii()
 {
-	float orbitOffset = mRadiusDest * 1.25f;
+	float orbitOffset = mRadiusDest;// * 1.0f;
 	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
 		NodeAlbum* albumNode = (NodeAlbum*)(*it);
-		float amt = math<float>::max( albumNode->mNumTracks * 0.02f, 0.06f );
+		float amt = math<float>::max( albumNode->mNumTracks * 0.04f, 0.1f );
 		orbitOffset += amt;
 		(*it)->mOrbitRadiusDest = orbitOffset;
 		orbitOffset += amt;

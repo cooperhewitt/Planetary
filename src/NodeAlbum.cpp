@@ -25,12 +25,9 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
 {
 	mGen				= G_ALBUM_LEVEL;
 	mPos				= mParentNode->mPos;
-	mRadiusDest			= mParentNode->mRadiusDest * Rand::randFloat( 0.01f, 0.035f );//0.01f;
-	mRadius				= mRadiusDest;
 	
 	mIsHighlighted		= true;
 	mHasAlbumArt		= false;
-	mHasCreatedAlbumArt = false;
 // NOW SET IN setChildOrbitRadii()
 //	mIdealCameraDist	= mRadius * 13.5f;
 	mEclipseStrength	= 0.0f;
@@ -92,13 +89,18 @@ void NodeAlbum::setData( PlaylistRef album )
 
 
 // PHYSICAL PROPERTIES
-	mRadius				*= 0.85f;
-	mSphere				= Sphere( mPos, mRadius * 7.5f );
-	mAxialTilt			= Rand::randFloat( 5.0f );
-    mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
 	mHasRings			= false;
 	if( mNumTracks > 2 ) mHasRings = true;
+	mTotalLength		= mAlbum->getTotalLength();
+	mReleaseYear		= (*mAlbum)[0]->getReleaseYear();
 	
+	mRadiusDest			= mParentNode->mRadiusDest * constrain( mTotalLength * 0.00002f, 0.01f, 0.04f );//Rand::randFloat( 0.01f, 0.035f );
+	mRadius				= mRadiusDest;
+	mCloudLayerRadius	= mRadiusDest * 0.025f;
+	
+	mSphere				= Sphere( mPos, mRadius );
+	mAxialTilt			= Rand::randFloat( 5.0f );
+    mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
 	
 // CHILD ORBIT RADIUS CONSTRAINTS
 	mOrbitRadiusMin		= mRadius * 3.0f;
@@ -108,54 +110,51 @@ void NodeAlbum::setData( PlaylistRef album )
 // TEXTURE IDs
     mPlanetTexIndex		= 3 * G_NUM_PLANET_TYPE_OPTIONS + c1Int%6;
 	mCloudTexIndex		= c2Int%G_NUM_CLOUD_TYPES;
+	
+	
+// CREATE PLANET TEXTURE
+	int totalWidth		= 256;
+	Surface albumArt	= (*mAlbum)[0]->getArtwork( Vec2i( totalWidth, totalWidth ) );
+	if( albumArt ){
+		int w			= 128;
+		int halfWidth	= w/2;
+		int h			= 128;
+		int halfHeight	= h/2;
+		int x			= mAsciiPer * ( totalWidth - w );
+		int y			= mAsciiPer * halfHeight;
+		Area a			= Area( x, y, x+w, y+h );
+		Surface crop	= albumArt.clone( a );
+		
+		Surface::Iter iter = crop.getIter();
+		while( iter.line() ) {
+			while( iter.pixel() ) {
+				if( iter.x() >= halfWidth ){
+					int xi = x + iter.x() - halfWidth;
+					int yi = y + iter.y();
+					ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+					iter.r() = c.r * 255.0f;
+					iter.g() = c.g * 255.0f;
+					iter.b() = c.b * 255.0f;
+				} else {
+					int xi = x + (halfWidth-1) - iter.x();
+					int yi = y + iter.y();
+					ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+					iter.r() = c.r * 255.0f;
+					iter.g() = c.g * 255.0f;
+					iter.b() = c.b * 255.0f;
+				}
+			}
+		}
+		
+		
+		mAlbumArt			= gl::Texture( crop );
+		mHasAlbumArt		= true;
+	}
 }
 
 
-void NodeAlbum::update( const Matrix44f &mat )
+void NodeAlbum::update( const Matrix44f &mat, const Surface &surfaces )
 {
-	int totalWidth = 256;
-	if( !mHasCreatedAlbumArt && mChildNodes.size() > 0 ){
-		Surface albumArt	= ((NodeTrack*)mChildNodes[0])->mTrack->getArtwork( Vec2i( totalWidth, totalWidth ) );
-		if( albumArt ){
-			int w			= 128;
-			int halfWidth	= w/2;
-			int h			= 128;
-			int halfHeight	= h/2;
-			int x			= mAsciiPer * ( totalWidth - w );
-			int y			= mAsciiPer * halfHeight;
-			Area a			= Area( x, y, x+w, y+h );
-			Surface crop	= albumArt.clone( a );
-			
-			Surface::Iter iter = crop.getIter();
-			while( iter.line() ) {
-				while( iter.pixel() ) {
-					if( iter.x() >= halfWidth ){
-						int xi = x + iter.x() - halfWidth;
-						int yi = y + iter.y();
-						ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
-						iter.r() = c.r * 255.0f;
-						iter.g() = c.g * 255.0f;
-						iter.b() = c.b * 255.0f;
-					} else {
-						int xi = x + (halfWidth-1) - iter.x();
-						int yi = y + iter.y();
-						ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
-						iter.r() = c.r * 255.0f;
-						iter.g() = c.g * 255.0f;
-						iter.b() = c.b * 255.0f;
-					}
-				}
-			}
-			
-			
-			mAlbumArt			= gl::Texture( crop );
-			mHasAlbumArt		= true;
-		}
-		
-		mHasCreatedAlbumArt = true;
-	}
-	
-	
 	double playbackTime		= app::getElapsedSeconds();
 	double percentPlayed	= playbackTime/mOrbitPeriod;
 	mOrbitAngle				= percentPlayed * TWO_PI + mOrbitStartAngle;
@@ -168,27 +167,29 @@ void NodeAlbum::update( const Matrix44f &mat )
 	mRelPos		= Vec3f( cos( mOrbitAngle ), 0.0f, sin( mOrbitAngle ) ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mRelPos;
     
+	
+	
+/////////////////////////
+// CALCULATE ECLIPSE VARS
     float eclipseDist = 1.0f;
-    if( mParentNode->mDistFromCamZAxisPer > 0.02f )
+    if( mParentNode->mDistFromCamZAxisPer > 0.02f && mDistFromCamZAxisPer > 0.02f ) //&& ( mIsSelected || mIsPlaying )
 	{		
 		Vec2f p		= mScreenPos;
-		float r		= mSphereScreenRadius * 0.45f;
+		float r		= mSphereScreenRadius;
 		float rsqrd = r * r;
 		
 		Vec2f P		= mParentNode->mScreenPos;
-		float R		= mParentNode->mSphereScreenRadius * 0.225f;
+		float R		= mParentNode->mSphereScreenRadius;
 		float Rsqrd	= R * R;
 		float A		= M_PI * Rsqrd;
 		
-		
-		//float totalRadius = r + R;
 		float c		= p.distance( P );
-		if( mIsSelected && mDistFromCamZAxisPer > 0.02f )
-		{
-			mEclipseDirBasedAlpha = 1.0f - constrain( c, 0.0f, 750.0f )/750.0f;
-			if( mEclipseDirBasedAlpha > 0.9f )
-				mEclipseDirBasedAlpha = 0.9f - ( mEclipseDirBasedAlpha - 0.9f ) * 9.0f;
-				
+		mEclipseDirBasedAlpha = 1.0f - constrain( c, 0.0f, 750.0f )/750.0f;
+		if( mEclipseDirBasedAlpha > 0.9f )
+			mEclipseDirBasedAlpha = 0.9f - ( mEclipseDirBasedAlpha - 0.9f ) * 9.0f;
+		
+		
+		if( c < r + R ){
 			float csqrd = c * c;
 			float cos1	= ( Rsqrd + csqrd - rsqrd )/( 2.0f * R * c );
 			float CBA	= acos( constrain( cos1, -1.0f, 1.0f ) );
@@ -201,20 +202,19 @@ void NodeAlbum::update( const Matrix44f &mat )
 			mEclipseStrength = pow( 1.0f - ( A - intersectingArea ) / A, 2.0f );
 			
 			if( mDistFromCamZAxisPer > 0.0f ){
-				mParentNode->mEclipseStrength = mEclipseStrength;
+				if( mEclipseStrength > mParentNode->mEclipseStrength )
+					mParentNode->mEclipseStrength = mEclipseStrength;
 			}
-			
-			mEclipseAngle = atan2( P.y - p.y, P.x - p.x );
-
-//			std::cout << "parentPos = " << P << std::endl;
-//			std::cout << "childPos  = " << p << std::endl;
-//			std::cout << "eclipse angle = " << mEclipseAngle << std::endl;
 		}
+		
+		mEclipseAngle = atan2( P.y - p.y, P.x - p.x );
     }
-	
 	mEclipseColor = ( mColor + Color::white() ) * 0.5f * eclipseDist;
-    
-	Node::update( mat );
+// END CALCULATE ECLIPSE VARS
+/////////////////////////////
+	
+	
+	Node::update( mat, surfaces );
 	
 	mTransVel = mTransPos - prevTransPos;	
 }
@@ -223,39 +223,6 @@ void NodeAlbum::drawEclipseGlow()
 {
 	Node::drawEclipseGlow();
 }
-
-void NodeAlbum::drawOrbitRing( float pinchAlphaPer, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
-{		
-	float newPinchAlphaPer = pinchAlphaPer;
-	if( G_ZOOM < G_ALBUM_LEVEL - 0.5f ){
-		newPinchAlphaPer = pinchAlphaPer;
-	} else {
-		newPinchAlphaPer = 1.0f;
-	}
-	
-	
-	if( mIsPlaying ){
-		gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.45f * mDeathPer ) );
-	} else {
-		gl::color( ColorA( COLOR_BLUE, 0.2f * mDeathPer ) );
-	}
-	
-	gl::pushModelView();
-	gl::translate( mParentNode->mTransPos );
-	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
-	gl::rotate( mMatrix );
-	gl::rotate( Vec3f( 90.0f, 0.0f, toDegrees( mOrbitAngle ) ) );
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glVertexPointer( 2, GL_FLOAT, 0, ringVertsHighRes );
-	glDrawArrays( GL_LINE_STRIP, 0, G_RING_HIGH_RES );
-	glDisableClientState( GL_VERTEX_ARRAY );
-	gl::popModelView();
-	
-	
-	
-	Node::drawOrbitRing( pinchAlphaPer, ringVertsLowRes, ringVertsHighRes );
-}
-
 
 void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 {	
@@ -304,60 +271,61 @@ void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 
 void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 {
-	if( mSphereScreenRadius > 5.0f && mDistFromCamZAxis < -0.02f ){
-			mAxialRot = Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel, mAxialTilt );
+	if( mSphereScreenRadius > 5.0f && mDistFromCamZAxisPer > 0.0f ){
+		mAxialRot = Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel, mAxialTilt );
 		
-			glEnableClientState( GL_VERTEX_ARRAY );
-			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-			glEnableClientState( GL_NORMAL_ARRAY );
-			int numVerts;
-			if( mIsSelected ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsHiRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsHiRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereNormalsHiRes );
-				numVerts = mTotalVertsHiRes;
-			} else {
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsLoRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsLoRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereNormalsLoRes );
-				numVerts = mTotalVertsLoRes;
-			}
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glEnableClientState( GL_NORMAL_ARRAY );
+		int numVerts;
+		if( mDistFromCamZAxisPer < 0.5f ){
+			glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsHiRes );
+			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsHiRes );
+			glNormalPointer( GL_FLOAT, 0, mSphereNormalsHiRes );
+			numVerts = mTotalVertsHiRes;
+		} else {
+			glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsLoRes );
+			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsLoRes );
+			glNormalPointer( GL_FLOAT, 0, mSphereNormalsLoRes );
+			numVerts = mTotalVertsLoRes;
+		}
+		
+		
+		gl::enableAlphaBlending();
+		gl::pushModelView();
+		gl::translate( mTransPos );
+		gl::pushModelView();
+		float radius = mRadius * mDeathPer + mCloudLayerRadius;
+		float alpha = max( ( mDistFromCamZAxis + 5.0f ) * 0.25f, 0.0f );
+		gl::scale( Vec3f( radius, radius, radius ) );
+		//glEnable( GL_RESCALE_NORMAL );
+		gl::rotate( mMatrix );
+		gl::rotate( mAxialRot );
+// SHADOW CLOUDS
+//				glDisable( GL_LIGHTING );
+		gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha * 0.5f ) );
+		clouds[mCloudTexIndex].enableAndBind();
+		glDrawArrays( GL_TRIANGLES, 0, numVerts );
+//				glEnable( GL_LIGHTING );
+		gl::popModelView();
 			
-			
-			gl::enableAlphaBlending();
-			gl::pushModelView();
-			gl::translate( mTransPos );
-				gl::pushModelView();
-		float radius = mRadius * mDeathPer + 0.0005f;
-				gl::scale( Vec3f( radius, radius, radius ) );
-				glEnable( GL_RESCALE_NORMAL );
-				gl::rotate( mMatrix );
-				gl::rotate( mAxialRot );
-	// SHADOW CLOUDS
-				glDisable( GL_LIGHTING );
-				gl::color( ColorA( 0.0f, 0.0f, 0.0f, mCamDistAlpha * 0.5f ) );
-				clouds[mCloudTexIndex].enableAndBind();
-				glDrawArrays( GL_TRIANGLES, 0, numVerts );
-				glEnable( GL_LIGHTING );
-				gl::popModelView();
-					
-	// LIT CLOUDS
-			gl::enableAdditiveBlending();
-				gl::pushModelView();
-				radius = mRadius * mDeathPer + 0.00075f;
-				gl::scale( Vec3f( radius, radius, radius ) );
-				glEnable( GL_RESCALE_NORMAL );
-				gl::rotate( mMatrix );
-				gl::rotate( mAxialRot );
-				gl::enableAdditiveBlending();
-				gl::color( ColorA( mGlowColor, 1.0f ) );
-				glDrawArrays( GL_TRIANGLES, 0, numVerts );
-				gl::popModelView();
-			gl::popModelView();
-			
-			glDisableClientState( GL_VERTEX_ARRAY );
-			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-			glDisableClientState( GL_NORMAL_ARRAY );
+// LIT CLOUDS
+		gl::enableAdditiveBlending();
+		gl::pushModelView();
+		radius = mRadius * mDeathPer + mCloudLayerRadius*2.0f;
+		gl::scale( Vec3f( radius, radius, radius ) );
+		//glEnable( GL_RESCALE_NORMAL );
+		gl::rotate( mMatrix );
+		gl::rotate( mAxialRot );
+		gl::enableAdditiveBlending();
+		gl::color( ColorA( mColor, alpha ) );
+		glDrawArrays( GL_TRIANGLES, 0, numVerts );
+		gl::popModelView();
+		gl::popModelView();
+		
+		glDisableClientState( GL_VERTEX_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		glDisableClientState( GL_NORMAL_ARRAY );
 	}
 }
 
@@ -366,36 +334,68 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 {
 	//if( mIsHighlighted || mIsSelected || mIsPlaying ){
 		if( mDistFromCamZAxisPer > 0.02f ){
-			gl::pushModelView();
-			gl::translate( mTransPos );
 			Vec2f dir		= mScreenPos - app::getWindowCenter();
 			float dirLength = dir.length()/500.0f;
 			float angle		= atan2( dir.y, dir.x );
-			float stretch	= dirLength * 0.15f;
+			float stretch	= dirLength * 0.165f;
 			gl::enableAdditiveBlending();
-			float alpha = 1.0f * mDeathPer;
+			float alpha = ( 1.0f - dirLength * 0.5f ) + ( mEclipseStrength );
 			
-//			float alpha = ( 1.0f - dirLength ) + ( mEclipseStrength );
-//			if( G_ZOOM <= G_ALBUM_LEVEL )
-//				alpha = pinchAlphaPer;
-//			
+			gl::color( ColorA( mColor, alpha * ( 1.0f - mEclipseDirBasedAlpha ) * mDeathPer ) );
 			
-			gl::color( ColorA( mColor, alpha * ( 1.0f - mEclipseDirBasedAlpha ) ) );
-			Vec2f radius = Vec2f( mRadius * ( 1.0f + stretch ), mRadius * ( 1.0f + stretch * 0.5f ) ) * 2.46f;
+			Vec2f radius = Vec2f( mRadius * ( 1.0f + stretch ), mRadius * ( 1.0f + stretch * 0.15f ) ) * 2.46f;
 			
 			tex.enableAndBind();
-			gl::drawBillboard( Vec3f::zero(), radius, -toDegrees( angle ), mBbRight, mBbUp );
+			gl::drawBillboard( mTransPos - Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.025f, radius, -toDegrees( angle ), mBbRight, mBbUp );
 			tex.disable();
 			
 		
-			gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha ) );
+			gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha * mDeathPer ) );
 			directionalTex.enableAndBind();
-			gl::drawBillboard( Vec3f::zero(), radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
+			gl::drawBillboard( mTransPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
 			directionalTex.disable();
-			
-			gl::popModelView();
 		}
 	//}
+}
+
+
+void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Texture &orbitRingGradient, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes )
+{		
+	float newPinchAlphaPer = pinchAlphaPer;
+	if( G_ZOOM < G_ALBUM_LEVEL - 0.5f ){
+		newPinchAlphaPer = pinchAlphaPer;
+	} else {
+		newPinchAlphaPer = 1.0f;
+	}
+	
+	
+	
+	if( mIsPlaying ){
+		gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.5f * mDeathPer ) );
+	} else {
+		gl::color( ColorA( COLOR_BLUE, 0.5f * mDeathPer ) );
+	}
+	
+	gl::pushModelView();
+	gl::translate( mParentNode->mTransPos );
+	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
+	gl::rotate( mMatrix );
+	gl::rotate( Vec3f( 90.0f, 0.0f, toDegrees( mOrbitAngle ) ) );
+	
+	orbitRingGradient.enableAndBind();
+	glEnableClientState( GL_VERTEX_ARRAY );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glVertexPointer( 2, GL_FLOAT, 0, ringVertsHighRes );
+	glTexCoordPointer( 2, GL_FLOAT, 0, ringTexHighRes );
+	glDrawArrays( GL_LINE_STRIP, 0, G_RING_HIGH_RES );
+	glDisableClientState( GL_VERTEX_ARRAY );
+	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	orbitRingGradient.disable();
+	gl::popModelView();
+	
+	
+	
+	Node::drawOrbitRing( pinchAlphaPer, camAlpha, orbitRingGradient, ringVertsLowRes, ringTexLowRes, ringVertsHighRes, ringTexHighRes );
 }
 
 
@@ -404,21 +404,24 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 {
 	if( mHasRings && G_ZOOM > G_ARTIST_LEVEL ){
 		if( mIsSelected || mIsPlaying ){
+			gl::enableAdditiveBlending();
+			
 			gl::pushModelView();
 			gl::translate( mTransPos );
-			float c = mRadius * 9.0f;
+			float c = mRadius * 7.0f;
 			gl::scale( Vec3f( c, c, c ) );
 			gl::rotate( mMatrix );
 			gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel * 0.2f, 0.0f ) );
 			
-			gl::color( ColorA( mColor, camAlpha * mDeathPer ) );
+			
+			float zoomPer = constrain( 1.0f - ( mGen - G_ZOOM ), 0.0f, 1.0f );
+			gl::color( ColorA( mColor, camAlpha * zoomPer ) );
 			tex.enableAndBind();
 			glEnableClientState( GL_VERTEX_ARRAY );
 			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 			glVertexPointer( 3, GL_FLOAT, 0, planetRingVerts );
 			glTexCoordPointer( 2, GL_FLOAT, 0, planetRingTexCoords );
 			
-			gl::enableAdditiveBlending();
 			glDrawArrays( GL_TRIANGLES, 0, 6 );
 			
 			glDisableClientState( GL_VERTEX_ARRAY );
@@ -470,7 +473,7 @@ void NodeAlbum::setChildOrbitRadii()
 		orbitRadius += orbitOffset;
 	}
 	
-	mIdealCameraDist	= orbitRadius * 2.25f;
+	mIdealCameraDist	= orbitRadius * 2.5f;
 }
 
 string NodeAlbum::getName()
