@@ -20,7 +20,7 @@ class Particle {
 	float		mAngle;
 	float		mCosAngle, mSinAngle;
 	ci::Color	mColor;
-	float		mRadius;
+	float		mRadius, mRadiusDest;
 	float		mDecay;
 	int			mAge;
 	float         mLifespan;

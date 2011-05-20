@@ -313,9 +313,9 @@ void Node::drawTouchHighlight( float zoomAlpha )
 			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 		}
 		
-		if( ( mIsPlaying || mIsSelected ) && mGen > G_ARTIST_LEVEL ){
-			Vec2f radius = Vec2f( mRadius * 5.0f, mRadius * 5.0f );
-			gl::color( ColorA( mGlowColor, zoomAlpha ) );
+		if( mEclipseStrength > 0.01f && mIsHighlighted ){
+			Vec2f radius = Vec2f( mRadius, mRadius );
+			gl::color( ColorA( 1.0f, 1.0f, 1.0f, mEclipseStrength ) );
 			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 		}
 		

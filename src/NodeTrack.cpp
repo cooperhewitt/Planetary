@@ -245,7 +245,7 @@ void NodeTrack::update( const Matrix44f &mat, const Surface &surfaces )
 					ColorA albumColor	= crop.getPixel( Vec2i( iter.x(), iter.y() ) );
 					ColorA surfaceColor	= planetSurface.getPixel( Vec2i( iter.x(), iter.y() ) );
 					float planetVal		= surfaceColor.r;
-					float cloudShadow	= surfaceColor.g * 0.5f + 0.5f;
+					float cloudShadow	= ( 1.0f - surfaceColor.g ) * 0.5f + 0.5f;
 					float highlight		= surfaceColor.b;
 					
 					ColorA final		= albumColor * 0.75f + planetVal * 0.25f;// + highlight;
@@ -482,6 +482,12 @@ void NodeTrack::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 		tex.enableAndBind();
 		gl::drawBillboard( mTransPos, radius, -toDegrees( angle ), mBbRight, mBbUp );
 		tex.disable();
+		
+		
+		gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha * mDeathPer ) );
+		directionalTex.enableAndBind();
+		gl::drawBillboard( mTransPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
+		directionalTex.disable();
 	}
 }
 

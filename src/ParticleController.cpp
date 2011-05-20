@@ -40,7 +40,7 @@ void ParticleController::update( float radius, const Vec3f &bbRight, const Vec3f
 }
 
 
-void ParticleController::buildParticleVertexArray()
+void ParticleController::buildParticleVertexArray( float eclipseStrength )
 {
 	int vIndex = 0;
 	int tIndex = 0;
@@ -69,10 +69,10 @@ void ParticleController::buildParticleVertexArray()
 	
 	for( list<Particle>::iterator it = mParticles.begin(); it != mParticles.end(); ++it ){
 		Vec3f pos				= it->mPos + lookVec;
-		float radius			= it->mRadius * it->mAgePer;
+		float radius			= it->mRadius * sin( it->mAgePer * M_PI );
 		
-		Vec3f right				= mBbRight * radius;
-		Vec3f up				= mBbUp * radius;
+		Vec3f right				= mBbRight * radius * eclipseStrength;
+		Vec3f up				= mBbUp * radius * eclipseStrength;
 		
 		
 		Vec3f p1				= pos - right - up;

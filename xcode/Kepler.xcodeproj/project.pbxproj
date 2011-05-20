@@ -24,6 +24,7 @@
 		E10D86D41384EAD100346445 /* orbitRingGradient.png in Resources */ = {isa = PBXBuildFile; fileRef = E10D86D31384EAD100346445 /* orbitRingGradient.png */; };
 		E10D86D61384FF8200346445 /* origin.png in Resources */ = {isa = PBXBuildFile; fileRef = E10D86D51384FF8200346445 /* origin.png */; };
 		E10D86DE1386077900346445 /* surfaces.png in Resources */ = {isa = PBXBuildFile; fileRef = E10D86DD1386077800346445 /* surfaces.png */; };
+		E10D86E01386428500346445 /* rainbowGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E10D86DF1386428500346445 /* rainbowGlow.png */; };
 		E12769841326E18A00E1FC3F /* 11.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E127697A1326E18A00E1FC3F /* 11.jpg */; };
 		E12769851326E18A00E1FC3F /* 21.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E127697B1326E18A00E1FC3F /* 21.jpg */; };
 		E12769861326E18A00E1FC3F /* 31.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E127697C1326E18A00E1FC3F /* 31.jpg */; };
@@ -123,6 +124,7 @@
 		E10D86D31384EAD100346445 /* orbitRingGradient.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = orbitRingGradient.png; path = ../resources/orbitRingGradient.png; sourceTree = "<group>"; };
 		E10D86D51384FF8200346445 /* origin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = origin.png; path = ../resources/ui/origin.png; sourceTree = "<group>"; };
 		E10D86DD1386077800346445 /* surfaces.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = surfaces.png; sourceTree = "<group>"; };
+		E10D86DF1386428500346445 /* rainbowGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rainbowGlow.png; path = ../resources/rainbowGlow.png; sourceTree = "<group>"; };
 		E127697A1326E18A00E1FC3F /* 11.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 11.jpg; sourceTree = "<group>"; };
 		E127697B1326E18A00E1FC3F /* 21.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 21.jpg; sourceTree = "<group>"; };
 		E127697C1326E18A00E1FC3F /* 31.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 31.jpg; sourceTree = "<group>"; };
@@ -606,6 +608,7 @@
 		E1C942C8137E0A8D00F88EA2 /* glows */ = {
 			isa = PBXGroup;
 			children = (
+				E10D86DF1386428500346445 /* rainbowGlow.png */,
 				E1C942C9137E0AAA00F88EA2 /* godRays.png */,
 				E1729B1A13774C9A00C62C97 /* particle.png */,
 				E1FC7DA213381853007F333C /* eclipseGlow.png */,
@@ -774,6 +777,7 @@
 				E10D86D41384EAD100346445 /* orbitRingGradient.png in Resources */,
 				E10D86D61384FF8200346445 /* origin.png in Resources */,
 				E10D86DE1386077900346445 /* surfaces.png in Resources */,
+				E10D86E01386428500346445 /* rainbowGlow.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

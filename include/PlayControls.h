@@ -76,6 +76,7 @@ private:
 	PlayButton lastTouchedType;
 
     Rectf lastDrawnBoundsRect;
+	Rectf otherBoundsRect;
     
 	bool mIsPlaying;
 	int mMinutes, mMinutesTotal, mMinutesLeft;

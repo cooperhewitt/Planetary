@@ -54,9 +54,10 @@ void PlayControls::update()
 bool PlayControls::touchesBegan( TouchEvent event )
 {
     Rectf transformedBounds = transformRect( lastDrawnBoundsRect, mOrientationMatrix );
+	Rectf otherTransBounds	= transformRect( otherBoundsRect, mOrientationMatrix );
     vector<TouchEvent::Touch> touches = event.getTouches();
-    if (touches.size() > 0 && transformedBounds.contains(touches[0].getPos())) {
-        if (cbTouchesEnded == 0) {
+    if( touches.size() > 0 && ( transformedBounds.contains(touches[0].getPos()) || otherBoundsRect.contains(touches[0].getPos()) ) ){
+        if( cbTouchesEnded == 0 ){
             cbTouchesEnded = mApp->registerTouchesEnded( this, &PlayControls::touchesEnded );
             cbTouchesMoved = mApp->registerTouchesMoved( this, &PlayControls::touchesMoved );			
         }
@@ -131,7 +132,8 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
     gl::pushModelView();
     gl::multModelView( mOrientationMatrix );    
     
-    lastDrawnBoundsRect = Rectf(0, y - 40.0f, mInterfaceSize.x, mInterfaceSize.y );
+    lastDrawnBoundsRect = Rectf(0, y - 20.0f, mInterfaceSize.x, mInterfaceSize.y );
+	otherBoundsRect = Rectf( 0, y - 50.0f, mInterfaceSize.x - 170.0f, mInterfaceSize.y - 20.0f );
     
     //gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
     //gl::drawSolidRect( lastDrawnBoundsRect ); // TODO: make height settable in setup()?
@@ -528,10 +530,11 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 
 PlayControls::PlayButton PlayControls::findButtonUnderTouches(vector<TouchEvent::Touch> touches) {
     Rectf transformedBounds = transformRect( lastDrawnBoundsRect, mOrientationMatrix );
+    Rectf otherTransBounds  = transformRect( otherBoundsRect, mOrientationMatrix );
     for (int j = 0; j < touches.size(); j++) {
         TouchEvent::Touch touch = touches[j];
         Vec2f pos = touch.getPos();
-        if ( transformedBounds.contains( pos ) ) {
+        if ( transformedBounds.contains( pos ) || otherTransBounds.contains( pos ) ) {
             for (int i = 0; i < touchRects.size(); i++) {
                 Rectf rect = transformRect( touchRects[i], mOrientationMatrix );
 //                if (touchTypes[i] == SLIDER) {

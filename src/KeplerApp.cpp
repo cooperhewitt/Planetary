@@ -18,7 +18,7 @@
 #include "State.h"
 #include "Data.h"
 #include "PlayControls.h"
-#include "Breadcrumbs.h"
+//#include "Breadcrumbs.h"
 #include "CinderIPod.h"
 #include "CinderIPodPlayer.h"
 #include "PinchRecognizer.h"
@@ -91,7 +91,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onPlaylistStateChanged( State *state );
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
 	bool			onWheelToggled( AlphaWheel *alphaWheel );
-	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
+//	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
 	bool			onPlayControlsButtonPressed ( PlayControls::PlayButton button );
 	bool			onPlayControlsPlayheadMoved ( float amount );
 	bool			onSelectedNodeChanged( Node *node );
@@ -136,7 +136,7 @@ class KeplerApp : public AppCocoaTouch {
 	int					mPlaylistIndex;
 	
 // BREADCRUMBS
-	Breadcrumbs		mBreadcrumbs;	
+//	Breadcrumbs		mBreadcrumbs;	
 	
 // PLAY CONTROLS
 	PlayControls	mPlayControls;
@@ -192,7 +192,7 @@ class KeplerApp : public AppCocoaTouch {
 	// TEXTURES
 //    TextureLoader   mTextureLoader;
 	gl::Texture		mParamsTex;
-	gl::Texture		mStarTex, mStarGlowTex, mEclipseGlowTex;
+	gl::Texture		mStarTex, mStarGlowTex, mEclipseGlowTex, mRainbowGlowTex;
 	gl::Texture		mSkyDome, mGalaxyDome;
 	gl::Texture		mDottedTex;
 	gl::Texture		mPlayheadProgressTex;
@@ -256,8 +256,8 @@ void KeplerApp::setup()
     delete[] machine;
 
 	if( G_IS_IPAD2 ){
-		G_NUM_PARTICLES = 500;
-		G_NUM_DUSTS = 2000;
+		G_NUM_PARTICLES = 50;
+		G_NUM_DUSTS = 1000;
 		motionManager = [[CMMotionManager alloc] init];
 		[motionManager startDeviceMotionUpdates];
 		
@@ -381,9 +381,9 @@ void KeplerApp::remainingSetup()
     // NB:- order of UI init is important to register callbacks in correct order
     
 	// BREADCRUMBS
-	mBreadcrumbs.setup( this, mFontMediSmall, mOrientationHelper.getInterfaceOrientation() );
-	mBreadcrumbs.registerBreadcrumbSelected( this, &KeplerApp::onBreadcrumbSelected );
-	mBreadcrumbs.setHierarchy(mState.getHierarchy());
+//	mBreadcrumbs.setup( this, mFontMediSmall, mOrientationHelper.getInterfaceOrientation() );
+//	mBreadcrumbs.registerBreadcrumbSelected( this, &KeplerApp::onBreadcrumbSelected );
+//	mBreadcrumbs.setHierarchy(mState.getHierarchy());
 
 	// PLAY CONTROLS
 	mPlayControls.setup( this, mIpodPlayer.getPlayState() == ipod::Player::StatePlaying, mOrientationHelper.getInterfaceOrientation() );
@@ -454,6 +454,7 @@ void KeplerApp::initTextures()
 //	console() << "initTextures start time = " << t << endl;
     mStarTex			= loadImage( loadResource( "star.png" ) );
 	mEclipseGlowTex		= loadImage( loadResource( "eclipseGlow.png" ) );
+	mRainbowGlowTex		= loadImage( loadResource( "rainbowGlow.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.png" ) );
 	mGalaxyDome			= loadImage( loadResource( "skydome.jpg" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
@@ -728,10 +729,10 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		mFovDest += ( 1.0f - event.getScaleDelta() ) * 150.0f;
 		
 	} else {
-		mCamDistPinchOffsetDest *= ( 1.0f - event.getScaleDelta() ) * 4.0f + 1.0f;
-		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 4.0f );
+		mCamDistPinchOffsetDest *= ( 1.0f - event.getScaleDelta() ) * 3.5f + 1.0f;
+		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 3.5f );
 		
-		if( mCamDistPinchOffsetDest > 3.8f ){
+		if( mCamDistPinchOffsetDest > 3.4f ){
 			if( G_ZOOM == G_TRACK_LEVEL ){
 				mFovDest = 75.0f;
 			} else if( G_ZOOM == G_ALBUM_LEVEL ){
@@ -765,7 +766,7 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 {
     Flurry::getInstrumentation()->logEvent("Pinch Ended");
 
-	if( mCamDistPinchOffsetDest > 3.8f ){
+	if( mCamDistPinchOffsetDest > 3.4f ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
             console() << "backing out using pinch!" << std::endl;
@@ -789,9 +790,9 @@ bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
 {
     Vec2f worldPos = (mInverseOrientationMatrix * Vec3f(screenPos,0)).xy();
     bool aboveUI = worldPos.y < mUiLayer.getPanelYPos();
-    bool belowBreadcrumbs = worldPos.y > mBreadcrumbs.getHeight();
+//    bool belowBreadcrumbs = worldPos.y > mBreadcrumbs.getHeight();
     bool notTab = !mUiLayer.getPanelTabRect().contains(worldPos);
-    bool valid = aboveUI && belowBreadcrumbs && notTab;
+    bool valid = aboveUI && notTab;// && belowBreadcrumbs;
     return valid;
 }
 
@@ -805,7 +806,7 @@ bool KeplerApp::orientationChanged( OrientationEvent event )
         mHelpLayer.setInterfaceOrientation(orientation);
         mUiLayer.setInterfaceOrientation(orientation);
         mAlphaWheel.setInterfaceOrientation(orientation);
-        mBreadcrumbs.setInterfaceOrientation(orientation);    
+//        mBreadcrumbs.setInterfaceOrientation(orientation);    
     }
     setInterfaceOrientation(orientation);
 
@@ -865,7 +866,7 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 	//console() << "Letter " << mState.getAlphaChar() << " has " << mData.mFilteredArtists.size() << " artists" << std::endl;
 	
 	mWorld.filterNodes();
-	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
+//	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
     
     mState.setSelectedNode( NULL );
     
@@ -896,7 +897,7 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
 	mZoomFrom		= G_ZOOM;
 	mFovDest		= G_DEFAULT_FOV;
 	mCamDistPinchOffsetDest = 1.0f;
-	mBreadcrumbs.setHierarchy( mState.getHierarchy() );
+//	mBreadcrumbs.setHierarchy( mState.getHierarchy() );
     	
 	if( node && node->mGen > G_ZOOM ){
 		node->wasTapped();
@@ -1048,6 +1049,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 	return false;
 }
 
+/*
 bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 {
 	int level = event.getLevel();
@@ -1085,7 +1087,8 @@ bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
 	}
 	return false;
 }
-
+*/
+ 
 void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos )
 {
 	vector<Node*> nodes;
@@ -1155,7 +1158,6 @@ void KeplerApp::update()
 		mDataIsLoaded = true;
 		mLoadingScreen.setEnabled( false );
 		mUiLayer.setIsPanelOpen( true );
-        // clear all the breadcrumbs etc.
         onSelectedNodeChanged( NULL );
         // and then make sure we know about the current track if there is one
         if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ) {
@@ -1195,8 +1197,9 @@ void KeplerApp::update()
 		Node *selectedNode = mState.getSelectedArtistNode();
 		if( selectedNode ){
 			mParticleController.update( selectedNode->mRadius * 0.15f, invBbRight, invBbUp );
-			mParticleController.buildParticleVertexArray();
-			mParticleController.buildDustVertexArray( mState.getSelectedArtistNode(), mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.03125f * mFadeInArtistToAlbum );
+			float per = selectedNode->mEclipseStrength * 0.8f + 0.2f;
+			mParticleController.buildParticleVertexArray( sin( per * M_PI ) * sin( per * 0.5f ) );
+			mParticleController.buildDustVertexArray( selectedNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.03125f * mFadeInArtistToAlbum );
 		}
 		/*else {
 			mParticleController.update( 100.0f, invBbRight, invBbUp );
@@ -1207,7 +1210,7 @@ void KeplerApp::update()
         mUiLayer.update();
 		mHelpLayer.update();
 		mAlphaWheel.update( mFov );
-        mBreadcrumbs.update();
+//        mBreadcrumbs.update();
         mPlayControls.update();
         updatePlayhead();
     }
@@ -1523,10 +1526,10 @@ void KeplerApp::drawScene()
 	mEclipseGlowTex.disable();
 
 	
-// STARGLOWS bloom
-	mStarGlowTex.enableAndBind();
+// STARGLOWS bloom (TOUCH HIGHLIGHTS)
+	mRainbowGlowTex.enableAndBind();
 	mWorld.drawTouchHighlights( mFadeInArtistToAlbum );
-	mStarGlowTex.disable();
+	mRainbowGlowTex.disable();
 
 	
 	
@@ -1613,9 +1616,9 @@ void KeplerApp::drawScene()
 	
 // PARTICLES
 	if( mState.getSelectedArtistNode() ){
-		mParticleTex.enableAndBind();
+		mRainbowGlowTex.enableAndBind();
 		mParticleController.drawParticleVertexArray( mState.getSelectedArtistNode(), mMatrix );
-		mParticleTex.disable();
+		mRainbowGlowTex.disable();
 	}
 	
 	
@@ -1750,7 +1753,7 @@ void KeplerApp::drawScene()
 	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
-    mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
+//    mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
 	
 	gl::disableAlphaBlending();
@@ -1815,9 +1818,6 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
     // TODO: does Flurry care about this?
     
     mElapsedSecondsSinceTrackChange = getElapsedSeconds();
-    
-//	console() << "==================================================================" << std::endl;
-//	console() << "onPlayerTrackChanged!" << std::endl;
 
     Flurry::getInstrumentation()->logEvent("Player Track Changed");
 
@@ -1902,7 +1902,9 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 	else {
 //		console() << "    trackchanged but nothing's playing" << endl;
 		mCurrentTrackTex.reset();
-        // FIXME: disable play button and zoom-to-current-track button
+		// TOM: I put this next line in. Is this how to go to album level view when last track ends?
+		mState.setSelectedNode( mState.getSelectedAlbumNode() );
+        // FIXME: disable zoom-to-current-track button
 	}
 
     updatePlayhead();
