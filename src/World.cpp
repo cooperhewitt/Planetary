@@ -44,8 +44,8 @@ void World::setup( Data *data )
 	if( !mIsInitialized ){
 		// VERTEX ARRAY SPHERE
 		if( G_IS_IPAD2 ){
-			buildSphereVertexArray( 40, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
-			buildSphereVertexArray( 20, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+			buildSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
+			buildSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
 		} else {
 			buildSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
 			buildSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );

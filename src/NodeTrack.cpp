@@ -350,13 +350,14 @@ void NodeTrack::drawEclipseGlow()
 
 void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 {	
-	if( mSphereScreenRadius > 0.5f && mDistFromCamZAxis < -0.005f ){
+	if( mSphereScreenRadius > 0.5f && mDistFromCamZAxis < -0.005f )
+	{
 		glEnable( GL_RESCALE_NORMAL );
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glEnableClientState( GL_NORMAL_ARRAY );
 		int numVerts;
-		if( mIsSelected || mIsPlaying ){
+		if( mDistFromCamZAxisPer < 0.15f ){
 			glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsHiRes );
 			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsHiRes );
 			glNormalPointer( GL_FLOAT, 0, mSphereNormalsHiRes );

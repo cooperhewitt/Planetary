@@ -51,7 +51,7 @@ bool G_DRAW_RINGS		= false;
 bool G_DRAW_TEXT		= false;
 bool G_USE_GYRO			= false;
 bool G_IS_IPAD2			= false;
-int G_NUM_PARTICLES		= 250;
+int G_NUM_PARTICLES		= 25;
 int G_NUM_DUSTS			= 250;
 
 GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
@@ -256,7 +256,7 @@ void KeplerApp::setup()
     delete[] machine;
 
 	if( G_IS_IPAD2 ){
-		G_NUM_PARTICLES = 50;
+		G_NUM_PARTICLES = 25;
 		G_NUM_DUSTS = 1000;
 		motionManager = [[CMMotionManager alloc] init];
 		[motionManager startDeviceMotionUpdates];
@@ -1197,7 +1197,7 @@ void KeplerApp::update()
 		Node *selectedNode = mState.getSelectedArtistNode();
 		if( selectedNode ){
 			mParticleController.update( selectedNode->mRadius * 0.15f, invBbRight, invBbUp );
-			float per = selectedNode->mEclipseStrength * 0.8f + 0.2f;
+			float per = selectedNode->mEclipseStrength * 0.7f + 0.35f;
 			mParticleController.buildParticleVertexArray( sin( per * M_PI ) * sin( per * 0.5f ) );
 			mParticleController.buildDustVertexArray( selectedNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.03125f * mFadeInArtistToAlbum );
 		}
