@@ -18,8 +18,8 @@
 using namespace ci;
 using namespace std;
 
-Node::Node( Node *parent, int index, const Font &font )
-	: mParentNode( parent ), mIndex( index ), mFont( font )
+Node::Node( Node *parent, int index, const Font &font, const Surface &surfaces )
+	: mParentNode( parent ), mIndex( index ), mFont( font ), mSurfaces( surfaces )
 {
     mZoomPer            = 0.0f;
     
@@ -89,7 +89,7 @@ void Node::createNameTexture()
 	mNameTex				= gl::Texture( nameSurface );
 }
 
-void Node::update( const Matrix44f &mat, const Surface &surfaces )
+void Node::update( const Matrix44f &mat )
 {	
 	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
 	mMatrix         = mat;
@@ -122,7 +122,7 @@ void Node::update( const Matrix44f &mat, const Surface &surfaces )
 		if( (*nodeIt)->mIsDead ){
 			clearChildNodes = true;
 		}
-		(*nodeIt)->update( mat, surfaces );
+		(*nodeIt)->update( mat );
 	}
 	
 	if( clearChildNodes ){
@@ -306,16 +306,20 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 void Node::drawTouchHighlight( float zoomAlpha )
 {
 	if( mIsHighlighted ){
+		Vec2f radius = Vec2f( mRadius * 5.0f, mRadius * 5.0f );
 		if( mIsTapped ){
-			Vec2f radius = Vec2f( mRadius * 5.0f, mRadius * 5.0f );
 			gl::color( ColorA( mColor, mHighlightStrength ) );
 			mHighlightStrength -= ( mHighlightStrength - 0.0f ) * 0.1f;
 			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 		}
 		
-		if( mEclipseStrength > 0.01f && mIsHighlighted ){
-			Vec2f radius = Vec2f( mRadius, mRadius );
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, mEclipseStrength ) );
+		if( mGen == G_TRACK_LEVEL ){
+			float alpha = max( 0.7f - mDistFromCamZAxisPer, 0.0f );
+			gl::color( ColorA( COLOR_BRIGHT_BLUE, alpha + mEclipseStrength ) );
+			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+		} else if( mGen == G_ALBUM_LEVEL ){
+			float alpha = max( ( mDistFromCamZAxis + 5.0f ) * 0.25f, 0.0f );
+			gl::color( ColorA( COLOR_BRIGHT_BLUE, alpha + mEclipseStrength ) );
 			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 		}
 		

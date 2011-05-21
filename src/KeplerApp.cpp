@@ -1154,7 +1154,7 @@ void KeplerApp::update()
 {
 	
 	if( mData.update() ){
-		mWorld.initNodes( &mIpodPlayer, mFont );
+		mWorld.initNodes( &mIpodPlayer, mFont, mSurfaces );
 		mDataIsLoaded = true;
 		mLoadingScreen.setEnabled( false );
 		mUiLayer.setIsPanelOpen( true );
@@ -1180,7 +1180,7 @@ void KeplerApp::update()
 			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 		}
 		
-        mWorld.update( mMatrix, mSurfaces );
+        mWorld.update( mMatrix );
 		
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
@@ -1191,14 +1191,14 @@ void KeplerApp::update()
         
         if( mDataIsLoaded ){
             mWorld.buildStarsVertexArray( invBbRight, invBbUp, mFadeInAlphaToArtist * 0.3f );
-            mWorld.buildStarGlowsVertexArray( invBbRight, invBbUp, mFadeInAlphaToArtist * 3.0f );
+            mWorld.buildStarGlowsVertexArray( invBbRight, invBbUp, mFadeInAlphaToArtist );
         }
 		
 		Node *selectedNode = mState.getSelectedArtistNode();
 		if( selectedNode ){
 			mParticleController.update( selectedNode->mRadius * 0.15f, invBbRight, invBbUp );
 			float per = selectedNode->mEclipseStrength * 0.7f + 0.35f;
-			mParticleController.buildParticleVertexArray( sin( per * M_PI ) * sin( per * 0.5f ) );
+			mParticleController.buildParticleVertexArray( sin( per * M_PI ) * sin( per * 0.25f ) );
 			mParticleController.buildDustVertexArray( selectedNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.03125f * mFadeInArtistToAlbum );
 		}
 		/*else {
@@ -1308,16 +1308,6 @@ void KeplerApp::updateCamera()
 		mAlphaWheel.setShowWheel( false ); 
 	}
 	
-	/*
-	if( currentLevel <= G_ALPHA_LEVEL ){
-		if( mCamDistPinchOffsetDest > 3.3f && ! mAlphaWheel.getShowWheel() ){
-			mAlphaWheel.setShowWheel( true );        
-		} else if( mCamDistPinchOffsetDest <= 3.3f && mAlphaWheel.getShowWheel() ){
-			mAlphaWheel.setShowWheel( false );        
-		}
-	}
-	*/
-
 
 	float distToTravel = mState.getDistBetweenNodes();
 	double duration = 3.0f;
@@ -1508,7 +1498,7 @@ void KeplerApp::drawScene()
 	
 	
 	
-	// STARS
+// STARS
 	mStarTex.enableAndBind();
 	mWorld.drawStarsVertexArray( mMatrix );
 	mStarTex.disable();
@@ -1527,9 +1517,9 @@ void KeplerApp::drawScene()
 
 	
 // STARGLOWS bloom (TOUCH HIGHLIGHTS)
-	mRainbowGlowTex.enableAndBind();
+	mEclipseGlowTex.enableAndBind();
 	mWorld.drawTouchHighlights( mFadeInArtistToAlbum );
-	mRainbowGlowTex.disable();
+	mEclipseGlowTex.disable();
 
 	
 	
@@ -1539,6 +1529,15 @@ void KeplerApp::drawScene()
 		
 		
 		NodeArtist* selectedArtist = (NodeArtist*)artistNode;
+		
+		/*
+		// STAR CENTER
+		if( selectedArtist ){
+			gl::enableDepthRead();
+			gl::enableDepthWrite();
+			selectedArtist->drawPlanet( mPlanetsTex );
+		}
+		*/
 		
 		glCullFace( GL_BACK );
 		glEnable( GL_CULL_FACE );
@@ -1585,11 +1584,6 @@ void KeplerApp::drawScene()
 			}
 		}
 		glDisable( GL_CULL_FACE );
-		
-		// STAR CENTER
-		if( selectedArtist ){
-			selectedArtist->drawPlanet( mPlanetsTex );
-		}
 	}
 	
 	
@@ -1646,7 +1640,7 @@ void KeplerApp::drawScene()
 	if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 		gl::enableAdditiveBlending();
 		if( G_DRAW_RINGS )
-			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mCamRingAlpha * 2.0f, mPlayheadProgressTex, mTrackOriginTex );
+			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mCamRingAlpha * 5.0f, mPlayheadProgressTex, mTrackOriginTex );
 	}
 	
 	

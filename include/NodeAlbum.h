@@ -15,9 +15,9 @@
 class NodeAlbum : public Node
 {
   public:
-	NodeAlbum( Node *parent, int index, const ci::Font &font );
-	
-	void update( const ci::Matrix44f &mat, const ci::Surface &surfaces );
+	NodeAlbum( Node *parent, int index, const ci::Font &font, const ci::Surface &surfaces );
+	void setData( ci::ipod::PlaylistRef album );
+	void update( const ci::Matrix44f &mat );
 	void drawEclipseGlow();
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
@@ -26,12 +26,12 @@ class NodeAlbum : public Node
 	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );
 	void select();
 	void setChildOrbitRadii();
-	void setData( ci::ipod::PlaylistRef album );
 	string getName();
     uint64_t getId();
 
 	// TODO: should this be private?
 	int mNumTracks;
+	ci::Surface	mAlbumArtSurface;
 
   private:
 	float		mReleaseYear;
@@ -41,8 +41,7 @@ class NodeAlbum : public Node
 	bool		mHasRings;
 	bool		mHasClouds;
 	bool		mIsPopulated;
-	ci::gl::Texture mAlbumArt;
+	ci::gl::Texture mAlbumArtTex;
 	ci::ipod::PlaylistRef mAlbum;
-	
 	float		mCloudLayerRadius;
 };

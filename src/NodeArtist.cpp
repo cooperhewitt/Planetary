@@ -22,8 +22,8 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeArtist::NodeArtist( int index, const Font &font )
-	: Node( NULL, index, font )
+NodeArtist::NodeArtist( int index, const Font &font, const Surface &surfaces )
+	: Node( NULL, index, font, surfaces )
 {
 	mGen			= G_ARTIST_LEVEL;
 	//mPosDest		= Rand::randVec3f() * Rand::randFloat( 40.0f, 75.0f ); // 40.0f, 200.0f
@@ -73,7 +73,7 @@ void NodeArtist::setData( PlaylistRef playlist )
 
 
 
-void NodeArtist::update( const Matrix44f &mat, const Surface &surfaces )
+void NodeArtist::update( const Matrix44f &mat )
 {	
 	mEclipseStrength = 0.0f;
 	
@@ -107,7 +107,7 @@ void NodeArtist::update( const Matrix44f &mat, const Surface &surfaces )
 //		}
 	}
 	
-	Node::update( mat, surfaces );
+	Node::update( mat );
     
 	mTransVel = mTransPos - prevTransPos;
 }
@@ -136,28 +136,16 @@ void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
 		glDisable( GL_TEXTURE_2D );
-/*
+
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		float radius = mRadius * 0.2875f;
+		float radius = mRadius * 0.17f;
 		
 		gl::color( mColor );
 		gl::enableAlphaBlending();
 		gl::drawSolidCircle( Vec2f::zero(), radius, 64 );
-		
-		
-		gl::enableAdditiveBlending();
-		gl::pushModelView();
-		gl::color( mGlowColor );
-		gl::translate( Vec3f::zAxis() * -0.025f );
-		gl::drawSolidCircle( Vec2f::zero(), radius * 0.975f, 64 );
-		gl::translate( Vec3f::zAxis() * -0.025f );
-		gl::drawSolidCircle( Vec2f::zero(), radius * 0.95f, 64 );
- 
- */
 		gl::popModelView();
 		
-		gl::popModelView();
 		glEnable( GL_LIGHTING );
 	}
 }
@@ -187,7 +175,7 @@ void NodeArtist::select()
 			int trackcount = 0;
 			for(vector<PlaylistRef>::iterator it = albumsBySelectedArtist.begin(); it != albumsBySelectedArtist.end(); ++it){
 				PlaylistRef album	= *it;
-				NodeAlbum *newNode = new NodeAlbum( this, i, mFont );
+				NodeAlbum *newNode = new NodeAlbum( this, i, mFont, mSurfaces );
 				mChildNodes.push_back( newNode );
 				trackcount += album->m_tracks.size();
 				newNode->setData( album );

@@ -15,7 +15,7 @@ Particle::Particle( int index, Vec3f pos, Vec3f vel, const Vec3f &bbRight, const
 	mIndex			= index;
 	mColor			= ColorA( 1.0f, 1.0f, 1.0f, 1.0f );
 	
-	mLifespan       = pow( Rand::randFloat(), 2.0f );
+	mLifespan       = pow( Rand::randFloat( 0.5f, 1.0f ), 2.0f );
 	mLifespan		*= 100.0f;
 	mIsDead			= false;
 	mAngle			= Rand::randFloat( 6.2832f );

@@ -15,10 +15,11 @@
 class NodeTrack : public Node
 {
   public:
-	NodeTrack( Node *parent, int index, const ci::Font &font );
+	NodeTrack( Node *parent, int index, const ci::Font &font, const ci::Surface &surfaces );
+	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album, const ci::Surface &albumArt );
     void initVertexArray();
 	void updateAudioData( double currentPlayheadTime );
-	void update( const ci::Matrix44f &mat, const ci::Surface &surfaces );
+	void update( const ci::Matrix44f &mat );
 	void drawEclipseGlow();
 	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
@@ -26,7 +27,7 @@ class NodeTrack : public Node
 	void buildPlayheadProgressVertexArray();
 	void drawPlayheadProgress( float pinchAlphaPer, float camAlpha, const ci::gl::Texture &tex, const ci::gl::Texture &originTex );
 	void drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
-	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
+	
 	ci::Vec3f getStartRelPos(){ return mMatrix * mStartRelPos; }
 	ci::Vec3f getRelPos(){ return mMatrix * mRelPos; }
 	void setStartAngle();

@@ -20,8 +20,8 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font )
-	: Node( parent, index, font )
+NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, const Surface &surfaces )
+	: Node( parent, index, font, surfaces )
 {
 	mGen				= G_ALBUM_LEVEL;
 	mPos				= mParentNode->mPos;
@@ -114,8 +114,8 @@ void NodeAlbum::setData( PlaylistRef album )
 	
 // CREATE PLANET TEXTURE
 	int totalWidth		= 256;
-	Surface albumArt	= (*mAlbum)[0]->getArtwork( Vec2i( totalWidth, totalWidth ) );
-	if( albumArt ){
+	mAlbumArtSurface	= (*mAlbum)[0]->getArtwork( Vec2i( totalWidth, totalWidth ) );
+	if( mAlbumArtSurface ){
 		int w			= 128;
 		int halfWidth	= w/2;
 		int h			= 128;
@@ -123,7 +123,7 @@ void NodeAlbum::setData( PlaylistRef album )
 		int x			= mAsciiPer * ( totalWidth - w );
 		int y			= mAsciiPer * halfHeight;
 		Area a			= Area( x, y, x+w, y+h );
-		Surface crop	= albumArt.clone( a );
+		Surface crop	= mAlbumArtSurface.clone( a );
 		
 		Surface::Iter iter = crop.getIter();
 		while( iter.line() ) {
@@ -131,29 +131,27 @@ void NodeAlbum::setData( PlaylistRef album )
 				if( iter.x() >= halfWidth ){
 					int xi = x + iter.x() - halfWidth;
 					int yi = y + iter.y();
-					ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+					ColorA c = mAlbumArtSurface.getPixel( Vec2i( xi, yi ) );
 					iter.r() = c.r * 255.0f;
 					iter.g() = c.g * 255.0f;
 					iter.b() = c.b * 255.0f;
 				} else {
 					int xi = x + (halfWidth-1) - iter.x();
 					int yi = y + iter.y();
-					ColorA c = albumArt.getPixel( Vec2i( xi, yi ) );
+					ColorA c = mAlbumArtSurface.getPixel( Vec2i( xi, yi ) );
 					iter.r() = c.r * 255.0f;
 					iter.g() = c.g * 255.0f;
 					iter.b() = c.b * 255.0f;
 				}
 			}
 		}
-		
-		
-		mAlbumArt			= gl::Texture( crop );
+		mAlbumArtTex		= gl::Texture( crop );
 		mHasAlbumArt		= true;
 	}
 }
 
 
-void NodeAlbum::update( const Matrix44f &mat, const Surface &surfaces )
+void NodeAlbum::update( const Matrix44f &mat )
 {
 	double playbackTime		= app::getElapsedSeconds();
 	double percentPlayed	= playbackTime/mOrbitPeriod;
@@ -214,7 +212,7 @@ void NodeAlbum::update( const Matrix44f &mat, const Surface &surfaces )
 /////////////////////////////
 	
 	
-	Node::update( mat, surfaces );
+	Node::update( mat );
 	
 	mTransVel = mTransPos - prevTransPos;	
 }
@@ -254,7 +252,7 @@ void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 			gl::color( mEclipseColor );
 			
 			if( mHasAlbumArt ){
-				mAlbumArt.enableAndBind();
+				mAlbumArtTex.enableAndBind();
 			} else {
 				planets[mPlanetTexIndex].enableAndBind();
 			}
@@ -337,16 +335,18 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 			Vec2f dir		= mScreenPos - app::getWindowCenter();
 			float dirLength = dir.length()/500.0f;
 			float angle		= atan2( dir.y, dir.x );
-			float stretch	= dirLength * 0.165f;
+			float stretch	= dirLength * 0.1f;
 			gl::enableAdditiveBlending();
-			float alpha = ( 1.0f - dirLength * 0.5f ) + ( mEclipseStrength );
+			float alpha = ( 1.0f - dirLength * 0.75f ) + ( mEclipseStrength );
 			
-			gl::color( ColorA( mColor, alpha * ( 1.0f - mEclipseDirBasedAlpha ) * mDeathPer ) );
+			gl::color( ColorA( ( mGlowColor + Color::white() ) * 0.5f, alpha * ( 1.0f - mEclipseDirBasedAlpha ) * mDeathPer ) );
 			
-			Vec2f radius = Vec2f( mRadius * ( 1.0f + stretch ), mRadius * ( 1.0f + stretch * 0.15f ) ) * 2.46f;
+			Vec2f radius = Vec2f( mRadius * ( 1.0f + stretch ), mRadius ) * 2.46f;
+			//Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;
 			
 			tex.enableAndBind();
-			gl::drawBillboard( mTransPos - Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.025f, radius, -toDegrees( angle ), mBbRight, mBbUp );
+			Vec3f posOffset =  Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.0125f;
+			gl::drawBillboard( mTransPos, radius, -toDegrees( angle ), mBbRight, mBbUp );
 			tex.disable();
 			
 		
@@ -433,16 +433,16 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 }
 
 
-void NodeAlbum::select( )
+void NodeAlbum::select()
 {
 	if( !mIsSelected ){
 		if( mChildNodes.size() == 0 ){
 			for (int i = 0; i < mNumTracks; i++) {
 				TrackRef track		= (*mAlbum)[i];
 				string name			= track->getTitle();
-				NodeTrack *newNode	= new NodeTrack( this, i, mFont );
+				NodeTrack *newNode	= new NodeTrack( this, i, mFont, mSurfaces );
 				mChildNodes.push_back( newNode );
-				newNode->setData( track, mAlbum );
+				newNode->setData( track, mAlbum, mAlbumArtSurface );
 			}
 			
 			for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){

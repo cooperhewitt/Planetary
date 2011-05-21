@@ -45,7 +45,7 @@ void World::setup( Data *data )
 		// VERTEX ARRAY SPHERE
 		if( G_IS_IPAD2 ){
 			buildSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
-			buildSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+			buildSphereVertexArray( 20, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
 		} else {
 			buildSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
 			buildSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
@@ -159,7 +159,7 @@ void World::buildSphereVertexArray( int segments, int *numVerts, float* &sphereV
 	}
 }
 
-void World::initNodes( Player *player, const Font &font )
+void World::initNodes( Player *player, const Font &font, const Surface &surfaces )
 {
 	float t = App::get()->getElapsedSeconds();
 
@@ -172,7 +172,7 @@ void World::initNodes( Player *player, const Font &font )
 	int i=0;
 	for(vector<PlaylistRef>::iterator it = mData->mArtists.begin(); it != mData->mArtists.end(); ++it){
 		PlaylistRef artist	= *it;
-		NodeArtist *newNode = new NodeArtist( i++, font );
+		NodeArtist *newNode = new NodeArtist( i++, font, surfaces );
 		newNode->setData(artist);
 		mNodes.push_back( newNode );
 	}
@@ -394,11 +394,15 @@ void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, 
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
 			Vec3f pos			= (*it)->mPos;
-			float r				= (*it)->mRadius * 2.0f;
-			if( !(*it)->mIsSelected )
-				r				-= zoomAlpha;
+			float r				= (*it)->mRadius * 1.4f; // HERE IS WHERE YOU CAN MAKE THE GLOW HUGER/BIGGER/AWESOMER
+			//if( !(*it)->mIsSelected )
+			//	r				-= zoomAlpha;
 			
-			ColorA col			= ColorA( (*it)->mGlowColor, (*it)->mDistFromCamZAxisPer * ( 1.0f - (*it)->mEclipseStrength ) );
+			float alpha			= (*it)->mDistFromCamZAxisPer * ( 1.0f - (*it)->mEclipseStrength );
+			if( !(*it)->mIsSelected && !(*it)->mIsPlaying )
+				alpha			= 1.0f - zoomAlpha;
+			
+			ColorA col			= ColorA( (*it)->mGlowColor, alpha );
 			
 			Vec3f right			= bbRight * r;
 			Vec3f up			= bbUp * r;
@@ -560,7 +564,7 @@ void World::buildOrbitRingsVertexArray()
 	}
 }
 
-void World::update( const Matrix44f &mat, const Surface &surfaces )
+void World::update( const Matrix44f &mat )
 {
 	if( mIsInitialized ){
 		mAge ++;
@@ -579,7 +583,7 @@ void World::update( const Matrix44f &mat, const Surface &surfaces )
 		}
 		
 		for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-			(*it)->update( mat, surfaces );
+			(*it)->update( mat );
 		}
 	}
 }

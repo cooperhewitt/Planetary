@@ -19,8 +19,8 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
-	: Node( parent, index, font )
+NodeTrack::NodeTrack( Node *parent, int index, const Font &font, const Surface &surfaces )
+	: Node( parent, index, font, surfaces )
 {	
 	mGen				= G_TRACK_LEVEL;
 	mPos				= mParentNode->mPos;
@@ -44,7 +44,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font )
 	mMyTime				= Rand::randFloat( 250.0 );
 }
 
-void NodeTrack::setData( TrackRef track, PlaylistRef album )
+void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &albumArt )
 {
 	mAlbum			= album;
 // TRACK INFORMATION
@@ -52,8 +52,6 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	mTrackLength	= (*mAlbum)[mIndex]->getLength();
 	mPlayCount		= (*mAlbum)[mIndex]->getPlayCount();
 	mStarRating		= (*mAlbum)[mIndex]->getStarRating();
-	if( mStarRating == 0 ) mStarRating = 3;
-	
 	
 	string name		= getName();
 	char c1			= ' ';
@@ -72,11 +70,13 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
 	mNormPlayCount			= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
 	
-	mPlanetTexIndex			= constrain( (int)( mNormPlayCount * 8 ), 0, 7 );
-	mCloudTexIndex			= c1Int%G_NUM_CLOUD_TYPES + G_NUM_CLOUD_TYPES;
-	mPlanetTexIndex			= mStarRating - 1;
-	mCloudTexIndex			= mStarRating - 1 + G_NUM_CLOUD_TYPES;
-
+	if( mStarRating == 0 ){
+		mPlanetTexIndex			= constrain( (int)( mNormPlayCount * 8 ), 0, 7 );
+		mCloudTexIndex			= c1Int%G_NUM_CLOUD_TYPES + G_NUM_CLOUD_TYPES;
+	} else {
+		mPlanetTexIndex			= mStarRating - 1;
+		mCloudTexIndex			= mStarRating - 1 + G_NUM_CLOUD_TYPES;
+	}
 	
 	if( album->size() > 1 ){
 		if( mPlayCount == mParentNode->mHighestPlayCount ){
@@ -104,11 +104,81 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album )
 	setStartAngle();
 	
 	mAxialTilt			= Rand::randFloat( -5.0f, 20.0f );
-    mAxialVel			= Rand::randFloat( 30.0f, 95.0f );
+    mAxialVel			= Rand::randFloat( 30.0f, 40.0f ) * ( mStarRating + 1 );
 
 	mStartRelPos		= Vec3f( cos( mOrbitStartAngle ), sin( mOrbitStartAngle ), 0.0f ) * mOrbitRadius;
 	mStartPos			= ( mParentNode->mPos + mStartRelPos ); 
+
+	
+	//////////////////////
+	// CREATE MOON TEXTURE
+	if( !mHasCreatedAlbumArt ){
+		int totalWidth		= 256; // dont forget to change the actual textures too
+		int halfWidth		= totalWidth/2;
+		if( albumArt ){
+			int x			= (int)(mNormPlayCount*halfWidth);
+			int y			= Rand::randInt( halfWidth );
+			
+			int w			= (int)(mNormPlayCount*halfWidth);
+			int h			= (int)(mNormPlayCount*halfWidth);
+			
+			// grab a section of the album art
+			Area a			= Area( x, y, x+w, y+h );
+			Surface crop	= Surface( totalWidth, totalWidth, false );
+			ci::ip::resize( albumArt, a, &crop, Area( 0, 0, halfWidth, totalWidth ), FilterCubic() );
+			
+			// iterate through it to make it a mirror image
+			Surface::Iter iter = crop.getIter();
+			while( iter.line() ) {
+				while( iter.pixel() ) {
+					int xi, yi;
+					if( iter.x() >= halfWidth ){
+						xi = iter.x() - halfWidth;
+						yi = iter.y();
+					} else {
+						xi = (halfWidth-1) - iter.x();
+						yi = iter.y();	
+					}
+					ColorA c = crop.getPixel( Vec2i( xi, yi ) );
+					iter.r() = c.r * 255.0f;
+					iter.g() = c.g * 255.0f;
+					iter.b() = c.b * 255.0f;
+				}
+			}
+			
+			// add the planet texture
+			// and add the shadow from the cloud layer
+			Area planetArea			= Area( 0, totalWidth * mPlanetTexIndex, totalWidth, totalWidth * ( mPlanetTexIndex + 1 ) );
+			Surface planetSurface	= mSurfaces.clone( planetArea );
+			
+			iter = planetSurface.getIter();
+			while( iter.line() ) {
+				while( iter.pixel() ) {
+					ColorA albumColor	= crop.getPixel( Vec2i( iter.x(), iter.y() ) );
+					ColorA surfaceColor	= planetSurface.getPixel( Vec2i( iter.x(), iter.y() ) );
+					float planetVal		= surfaceColor.r;
+					float cloudShadow	= ( 1.0f - surfaceColor.g ) * 0.5f + 0.5f;
+					//float highlight		= surfaceColor.b;
+					
+					ColorA final		= albumColor * 0.75f + planetVal * 0.25f;// + highlight;
+					final *= cloudShadow;
+					
+					iter.r() = final.r * 255.0f;// + 25.0f;
+					iter.g() = final.g * 255.0f;// + 25.0f;
+					iter.b() = final.b * 255.0f;// + 25.0f;
+				}
+			}
+			
+			mAlbumArt			= gl::Texture( planetSurface );
+			mHasAlbumArt		= true;
+		}
+		
+		mHasCreatedAlbumArt = true;
+	}
+	// END CREATE MOON TEXTURE	
+	//////////////////////////	
 }
+
 
 void NodeTrack::setStartAngle()
 {
@@ -116,6 +186,7 @@ void NodeTrack::setStartAngle()
 	float timeOffset	= ( mMyTime )/mOrbitPeriod;
 	mOrbitStartAngle	= timeOffset * TWO_PI;
 }
+
 
 void NodeTrack::updateAudioData( double currentPlayheadTime )
 {
@@ -130,7 +201,7 @@ void NodeTrack::updateAudioData( double currentPlayheadTime )
 		mOrbitPath.push_back( Vec3f( cos( mOrbitStartAngle ), 0.0f, sin( mOrbitStartAngle ) ) );
 		
 		// Add middle positions
-		int maxNumVecs		= 500;
+		int maxNumVecs		= 400;
 		int currentNumVecs	= mPercentPlayed * maxNumVecs;
 		for( int i=0; i<currentNumVecs; i++ ){
 			float per = (float)(i)/(float)(maxNumVecs);
@@ -167,7 +238,7 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 	int vIndex		= 0;
 	int tIndex		= 0;
 	int index		= 0;
-	float radius	= mRadius;
+	float radius	= mRadius * 1.1f;
 //	float alpha		= constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f ) * 0.3f;
 	
 	for( vector<Vec3f>::iterator it = mOrbitPath.begin(); it != mOrbitPath.end(); ++it )
@@ -195,79 +266,8 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 }
 
 
-void NodeTrack::update( const Matrix44f &mat, const Surface &surfaces )
+void NodeTrack::update( const Matrix44f &mat )
 {	
-//////////////////////
-// CREATE MOON TEXTURE
-	if( !mHasCreatedAlbumArt ){
-		int totalWidth		= 256;
-		int halfWidth		= totalWidth/2;
-		Surface albumArt	= mTrack->getArtwork( Vec2i( totalWidth, totalWidth ) );
-		if( albumArt ){
-			int x			= (int)(mNormPlayCount*halfWidth);
-			int y			= Rand::randInt( halfWidth );
-			
-			int w			= (int)(mNormPlayCount*halfWidth);
-			int h			= (int)(mNormPlayCount*halfWidth);
-			
-		// grab a section of the album art
-			Area a			= Area( x, y, x+w, y+h );
-			Surface crop	= Surface( totalWidth, totalWidth, false );
-			ci::ip::resize( albumArt, a, &crop, Area( 0, 0, halfWidth, totalWidth ), FilterSincBlackman() );
-			
-		// iterate through it to make it a mirror image
-			Surface::Iter iter = crop.getIter();
-			while( iter.line() ) {
-				while( iter.pixel() ) {
-					int xi, yi;
-					if( iter.x() >= halfWidth ){
-						xi = iter.x() - halfWidth;
-						yi = iter.y();
-					} else {
-						xi = (halfWidth-1) - iter.x();
-						yi = iter.y();	
-					}
-					ColorA c = crop.getPixel( Vec2i( xi, yi ) );
-					iter.r() = c.r * 255.0f;
-					iter.g() = c.g * 255.0f;
-					iter.b() = c.b * 255.0f;
-				}
-			}
-			
-		// add the planet texture
-		// and add the shadow from the cloud layer
-			Area planetArea			= Area( 0, totalWidth * mPlanetTexIndex, totalWidth, totalWidth * ( mPlanetTexIndex + 1 ) );
-			Surface planetSurface	= surfaces.clone( planetArea );
-
-			iter = planetSurface.getIter();
-			while( iter.line() ) {
-				while( iter.pixel() ) {
-					ColorA albumColor	= crop.getPixel( Vec2i( iter.x(), iter.y() ) );
-					ColorA surfaceColor	= planetSurface.getPixel( Vec2i( iter.x(), iter.y() ) );
-					float planetVal		= surfaceColor.r;
-					float cloudShadow	= ( 1.0f - surfaceColor.g ) * 0.5f + 0.5f;
-					float highlight		= surfaceColor.b;
-					
-					ColorA final		= albumColor * 0.75f + planetVal * 0.25f;// + highlight;
-					final *= cloudShadow;
-
-					iter.r() = final.r * 255.0f;// + 25.0f;
-					iter.g() = final.g * 255.0f;// + 25.0f;
-					iter.b() = final.b * 255.0f;// + 25.0f;
-				}
-			}
-			
-			mAlbumArt			= gl::Texture( planetSurface );
-			mHasAlbumArt		= true;
-		}
-		
-		mHasCreatedAlbumArt = true;
-	}
-// END CREATE MOON TEXTURE	
-//////////////////////////	
-	
-	
-	
 	mPrevTime		= mCurrentTime;
 	mCurrentTime	= (float)app::getElapsedSeconds();
 	
@@ -335,7 +335,7 @@ void NodeTrack::update( const Matrix44f &mat, const Surface &surfaces )
 /////////////////////////////
 	
 	
-	Node::update( mat, surfaces );
+	Node::update( mat );
 
 	mTransVel = mTransPos - prevTransPos;	
 }
@@ -551,7 +551,7 @@ void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, const
 		
 		Vec3f pos = Vec3f( cos( mOrbitStartAngle ), 0.0f, sin( mOrbitStartAngle ) );
 
-		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, 1.0f ) );
+		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, camAlpha ) );
 		originTex.enableAndBind();
 		gl::drawBillboard( mParentNode->mTransPos + ( mMatrix * pos ) * mOrbitRadius, Vec2f( mRadius, mRadius ) * 2.15f, 0.0f, mMatrix * Vec3f::xAxis(), mMatrix * Vec3f::zAxis() );
 		originTex.disable();

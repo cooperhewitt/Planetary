@@ -125,7 +125,6 @@ void State::setSelectedNode( Node* node )
 		if( mPrevSelectedNode && mSelectedNode )
 			mDistBetweenPrevAndCurrentNode = mPrevSelectedNode->mTransPos.distance( mSelectedNode->mTransPos );
 		
-		std::cout << "mDistBetweenPrevAndCurrentNode = " << mDistBetweenPrevAndCurrentNode << std::endl;
 		
 		// select everything in the next chain that isn't in the current chain
 		// SANITY CHECK: I changed this for loop

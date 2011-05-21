@@ -21,7 +21,7 @@
 class Node {
   public:
 
-	Node( Node *parent, int index, const ci::Font &font );
+	Node( Node *parent, int index, const ci::Font &font, const ci::Surface &surfaces );
 	virtual ~Node(){ 
 		for( std::vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 			delete (*nodeIt);
@@ -34,7 +34,7 @@ class Node {
 	void			setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
 								  int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals );
 	void			createNameTexture();
-	virtual void	update( const ci::Matrix44f &mat, const ci::Surface &surfaces );
+	virtual void	update( const ci::Matrix44f &mat );
 	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	virtual void	drawEclipseGlow();
 	virtual void	drawPlanet( const std::vector< ci::gl::Texture> &planets ) {};
@@ -118,6 +118,7 @@ class Node {
 	// NAME
 	ci::Font			mFont;
 	ci::gl::Texture		mNameTex;			// Texture of the name
+	ci::Surface			mSurfaces;			// Images for Track moon surface
 	ci::Rectf			mHitArea;			// name hit area
 	ci::Rectf			mSphereHitArea;		// node hit area
 	

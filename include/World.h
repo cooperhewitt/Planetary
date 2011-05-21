@@ -33,7 +33,7 @@ class World {
 	void buildStarsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, float zoomAlpha );
 	void buildStarGlowsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, float zoomAlpha );
 	
-	void initNodes( ci::ipod::Player *player, const ci::Font &font );
+	void initNodes( ci::ipod::Player *player, const ci::Font &font, const ci::Surface &surfaces );
 	void initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
 							int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals );
 	void filterNodes();
@@ -41,7 +41,7 @@ class World {
 	void deselectAllNodes();
     void setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
-	void update( const ci::Matrix44f &mat, const ci::Surface &surfaces );
+	void update( const ci::Matrix44f &mat );
 	void updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 
 	void drawStarsVertexArray( const ci::Matrix44f &mat );
