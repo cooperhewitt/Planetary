@@ -27,6 +27,8 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, const Surface &
 	mPos				= mParentNode->mPos;
 	
 	mIsHighlighted		= true;
+	mIsBlockedBySun		= false;
+	mBlockedBySunPer	= 0.0f;
 	mHasAlbumArt		= false;
 // NOW SET IN setChildOrbitRadii()
 //	mIdealCameraDist	= mRadius * 13.5f;
@@ -169,7 +171,6 @@ void NodeAlbum::update( const Matrix44f &mat )
 	
 /////////////////////////
 // CALCULATE ECLIPSE VARS
-    float eclipseDist = 1.0f;
     if( mParentNode->mDistFromCamZAxisPer > 0.02f && mDistFromCamZAxisPer > 0.02f ) //&& ( mIsSelected || mIsPlaying )
 	{		
 		Vec2f p		= mScreenPos;
@@ -206,8 +207,19 @@ void NodeAlbum::update( const Matrix44f &mat )
 		}
 		
 		mEclipseAngle = atan2( P.y - p.y, P.x - p.x );
+		
+		// if the album is further away from the camera than the sun,
+		// check to see if it is behind the sun.
+		if( mDistFromCamZAxis < mParentNode->mDistFromCamZAxis ){
+			if( c < R * 2.0f && c > R ){
+				mBlockedBySunPer = ( c - R )/R;
+			}
+		} else {
+			mBlockedBySunPer = 1.0f;
+		}
     }
-	mEclipseColor = ( mColor + Color::white() ) * 0.5f * eclipseDist;
+
+	mEclipseColor = ( mColor + Color::white() ) * 0.5f * ( 1.0f - mEclipseStrength * 0.5f );
 // END CALCULATE ECLIPSE VARS
 /////////////////////////////
 	
@@ -249,7 +261,7 @@ void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 			gl::scale( Vec3f( mRadius, mRadius, mRadius ) * mDeathPer );
 			gl::rotate( mMatrix );
 			gl::rotate( mAxialRot );
-			gl::color( mEclipseColor );
+			gl::color( ColorA( mEclipseColor + ( 1.0f - mBlockedBySunPer ), mBlockedBySunPer ) );
 			
 			if( mHasAlbumArt ){
 				mAlbumArtTex.enableAndBind();
@@ -316,7 +328,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot );
 		gl::enableAdditiveBlending();
-		gl::color( ColorA( mColor, alpha ) );
+		gl::color( ColorA( mEclipseColor, alpha ) );
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
 		gl::popModelView();
@@ -339,7 +351,7 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 			gl::enableAdditiveBlending();
 			float alpha = ( 1.0f - dirLength * 0.75f ) + ( mEclipseStrength );
 			
-			gl::color( ColorA( ( mGlowColor + Color::white() ) * 0.5f, alpha * ( 1.0f - mEclipseDirBasedAlpha ) * mDeathPer ) );
+			gl::color( ColorA( ( mGlowColor + Color::white() ) * 0.5f, alpha * ( 1.0f - mEclipseDirBasedAlpha ) * mDeathPer * mBlockedBySunPer ) );
 			
 			Vec2f radius = Vec2f( mRadius * ( 1.0f + stretch ), mRadius ) * 2.46f;
 			//Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;
@@ -350,7 +362,7 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 			tex.disable();
 			
 		
-			gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha * mDeathPer ) );
+			gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha * mDeathPer * mBlockedBySunPer ) );
 			directionalTex.enableAndBind();
 			gl::drawBillboard( mTransPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
 			directionalTex.disable();

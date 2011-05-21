@@ -40,7 +40,8 @@ class NodeAlbum : public Node
 	bool		mHasAlbumArt;
 	bool		mHasRings;
 	bool		mHasClouds;
-	bool		mIsPopulated;
+	bool		mIsBlockedBySun;
+	float		mBlockedBySunPer;
 	ci::gl::Texture mAlbumArtTex;
 	ci::ipod::PlaylistRef mAlbum;
 	float		mCloudLayerRadius;

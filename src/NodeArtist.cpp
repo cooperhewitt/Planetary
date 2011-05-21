@@ -68,7 +68,7 @@ void NodeArtist::setData( PlaylistRef playlist )
 	mRadiusDest		= 1.3f + ( 0.66f - mHue ) * 2.0f;
 	mRadius			= 0.0f;
 	
-	mSphere			= Sphere( mPos, mRadiusDest * 0.165f );
+	mSphere			= Sphere( mPos, mRadiusDest * 0.175f );
 }
 
 

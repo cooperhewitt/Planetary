@@ -31,7 +31,6 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font, const Surface &
     mIsPlaying			= false;
 	mHasClouds			= false;
 	mIsMostPlayed		= false;
-	mIsPopulated		= false;
 	mHasAlbumArt		= false;
 	mHasCreatedAlbumArt = false;
 	
@@ -158,9 +157,9 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 					ColorA surfaceColor	= planetSurface.getPixel( Vec2i( iter.x(), iter.y() ) );
 					float planetVal		= surfaceColor.r;
 					float cloudShadow	= ( 1.0f - surfaceColor.g ) * 0.5f + 0.5f;
-					//float highlight		= surfaceColor.b;
+					float highlight		= surfaceColor.b;
 					
-					ColorA final		= albumColor * 0.75f + planetVal * 0.25f;// + highlight;
+					ColorA final		= albumColor * 0.5f + planetVal * 0.25f + highlight * 0.25f;
 					final *= cloudShadow;
 					
 					iter.r() = final.r * 255.0f;// + 25.0f;
@@ -294,7 +293,6 @@ void NodeTrack::update( const Matrix44f &mat )
 	
 /////////////////////////
 // CALCULATE ECLIPSE VARS
-    float eclipseDist	= 1.0f;
 	if( mParentNode->mParentNode->mDistFromCamZAxisPer > 0.001f && mDistFromCamZAxisPer > 0.001f )
 	{
 		Vec2f p		= mScreenPos;
@@ -330,7 +328,7 @@ void NodeTrack::update( const Matrix44f &mat )
 			
 		mEclipseAngle = atan2( P.y - p.y, P.x - p.x );
 	}
-	mEclipseColor = ( mColor + Color::white() ) * 0.5f * eclipseDist;
+	mEclipseColor = ( mColor + Color::white() ) * 0.5f * ( 1.0f - mEclipseStrength * 0.5f );
 // END CALCULATE ECLIPSE VARS
 /////////////////////////////
 	
@@ -450,7 +448,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
 			gl::rotate( Vec3f( 0.0f, mCurrentTime * mAxialVel, 0.0f ) );
 			float alpha = max( 0.7f - mDistFromCamZAxisPer, 0.0f );
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha ) );
+			gl::color( ColorA( mEclipseColor, alpha ) );
 			glDrawArrays( GL_TRIANGLES, 0, numVerts );
 			gl::popModelView();
 			gl::popModelView();

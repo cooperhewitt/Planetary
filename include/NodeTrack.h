@@ -57,7 +57,6 @@ private:
 	double		mPercentPlayed;
 	
 	bool		mHasClouds;
-	bool		mIsPopulated;
 	bool		mIsMostPlayed;
 	bool		mHasAlbumArt;
 	bool		mHasCreatedAlbumArt;

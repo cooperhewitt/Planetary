@@ -1528,10 +1528,11 @@ void KeplerApp::drawScene()
 		mCamRingAlpha = constrain( abs( transEye.y - artistNode->mPos.y ) * zoomOffset, 0.0f, 1.0f ); // WAS 0.6f
 		
 		
-		NodeArtist* selectedArtist = (NodeArtist*)artistNode;
+
 		
 		/*
 		// STAR CENTER
+		NodeArtist* selectedArtist = (NodeArtist*)artistNode;
 		if( selectedArtist ){
 			gl::enableDepthRead();
 			gl::enableDepthWrite();
@@ -1543,13 +1544,12 @@ void KeplerApp::drawScene()
 		glEnable( GL_CULL_FACE );
 		glEnable( GL_COLOR_MATERIAL );
 		glMaterialfv( GL_FRONT, GL_AMBIENT, ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
-		glMaterialfv( GL_FRONT, GL_DIFFUSE, ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
-		glMaterialfv( GL_FRONT, GL_SPECULAR, ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+		glMaterialfv( GL_FRONT, GL_DIFFUSE, ColorA( Color::white(), 1.0f ) );
+		glMaterialfv( GL_FRONT, GL_SPECULAR, ColorA( Color::white(), 1.0f ) );
 		glMaterialf(  GL_FRONT, GL_SHININESS, 100.0f );
 		
 		for( int i = 0; i < sortedNodes.size(); i++ ){
 			gl::enableDepthRead();
-			gl::disableAlphaBlending();
 			glEnable( GL_LIGHTING );
 			//glMaterialfv( GL_FRONT, GL_EMISSION, ColorA( 0.0f, 0.0f, 0.15f, 1.0f ) );
 			
@@ -1559,11 +1559,11 @@ void KeplerApp::drawScene()
 			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
 			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor, 1.0f ) );
-			glLightfv( GL_LIGHT0, GL_SPECULAR, ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			glLightfv( GL_LIGHT0, GL_SPECULAR, ColorA( Color::white(), 1.0f ) );
 
 			
-			
-			
+			//gl::disableAlphaBlending();
+			gl::enableAlphaBlending();
 			sortedNodes[i]->drawPlanet( mPlanetsTex );
 			
 			glLightfv( GL_LIGHT0, GL_SPECULAR, ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
@@ -1704,37 +1704,37 @@ void KeplerApp::drawScene()
     
     glDisable( GL_TEXTURE_2D );
 	
-	if( G_DEBUG ){
-		// HIT AREA VISUALIZER
-		for (int i = 0; i < mWorld.mNodes.size(); i++) {
-			Node* artistNode = mWorld.mNodes[i];
-			if (artistNode->mIsHighlighted) {
-				gl::color(ColorA(0.0f,0.0f,1.0f,0.25f));
-				if( artistNode->mDistFromCamZAxisPer > 0.0f ){
-					if( G_DRAW_TEXT && artistNode->mIsHighlighted ) gl::drawSolidRect(artistNode->mHitArea);
-					gl::drawSolidRect(artistNode->mSphereHitArea);       
-				}
-				
-				for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-					Node* albumNode = artistNode->mChildNodes[j];
-					if (albumNode->mIsHighlighted) {
-						gl::color(ColorA(0.0f,1.0f,0.0f,0.25f));
-						if( G_DRAW_TEXT ) gl::drawSolidRect(albumNode->mHitArea);
-						gl::drawSolidRect(albumNode->mSphereHitArea);
-						
-						for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-							Node *trackNode = albumNode->mChildNodes[k];
-							if (trackNode->mIsHighlighted) {
-								gl::color(ColorA(1.0f,0.0f,0.0f,0.25f));
-								if( G_DRAW_TEXT ) gl::drawSolidRect(trackNode->mHitArea);
-								gl::drawSolidRect(trackNode->mSphereHitArea);
-							}
-						}            
-					}
-				}
-			}
-		}
-	}
+//	if( G_DEBUG ){
+//		// HIT AREA VISUALIZER
+//		for (int i = 0; i < mWorld.mNodes.size(); i++) {
+//			Node* artistNode = mWorld.mNodes[i];
+//			if (artistNode->mIsHighlighted) {
+//				gl::color(ColorA(0.0f,0.0f,1.0f,0.25f));
+//				if( artistNode->mDistFromCamZAxisPer > 0.0f ){
+//					if( G_DRAW_TEXT && artistNode->mIsHighlighted ) gl::drawSolidRect(artistNode->mHitArea);
+//					gl::drawSolidRect(artistNode->mSphereHitArea);       
+//				}
+//				
+//				for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+//					Node* albumNode = artistNode->mChildNodes[j];
+//					if (albumNode->mIsHighlighted) {
+//						gl::color(ColorA(0.0f,1.0f,0.0f,0.25f));
+//						if( G_DRAW_TEXT ) gl::drawSolidRect(albumNode->mHitArea);
+//						gl::drawSolidRect(albumNode->mSphereHitArea);
+//						
+//						for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+//							Node *trackNode = albumNode->mChildNodes[k];
+//							if (trackNode->mIsHighlighted) {
+//								gl::color(ColorA(1.0f,0.0f,0.0f,0.25f));
+//								if( G_DRAW_TEXT ) gl::drawSolidRect(trackNode->mHitArea);
+//								gl::drawSolidRect(trackNode->mSphereHitArea);
+//							}
+//						}            
+//					}
+//				}
+//			}
+//		}
+//	}
 	
 	
 	
@@ -1751,7 +1751,7 @@ void KeplerApp::drawScene()
     mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
 	
 	gl::disableAlphaBlending();
-	if( G_DEBUG ) drawInfoPanel();
+	//if( G_DEBUG ) drawInfoPanel();
 }
 
 
