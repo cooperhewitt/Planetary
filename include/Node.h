@@ -21,7 +21,7 @@
 class Node {
   public:
 
-	Node( Node *parent, int index, const ci::Font &font, const ci::Surface &surfaces );
+	Node( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &surfaces );
 	virtual ~Node(){ 
 		for( std::vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 			delete (*nodeIt);
@@ -31,8 +31,10 @@ class Node {
 	}	
 	
 	// METHODS
-	void			setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
-								  int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals );
+	void			setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals,
+								   int totalMdVertices, float *sphereMdVerts, float *sphereMdTexCoords, float *sphereMdNormals,
+								   int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
+								   int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals );
 	void			createNameTexture();
 	virtual void	update( const ci::Matrix44f &mat );
 	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
@@ -49,6 +51,8 @@ class Node {
 	void			setIsDying( bool isDying );
 	
 	virtual bool	isMostPlayed(){ return false; }
+	virtual float	getReleaseYear(){ return 0.0f; };
+	virtual int		getTrackNumber(){ return -1; };
 	
     virtual void	select();
 	void			deselect();
@@ -70,7 +74,6 @@ class Node {
 	ci::Vec3f			mAcc;				// acceleration used for initial repulsion
 	ci::Vec3f			mTransPos;			// global position * mMatrix
 	ci::Vec2f			mScreenPos;			// screen position
-	float				mEclipsePer;		// ECLIPSE!
 	ci::Vec3f			mRelPos;			// relative position
 	ci::Vec3f			mTransVel;			// velocity based on mTransPos for helping the camera
 	ci::Matrix44f		mMatrix;
@@ -99,7 +102,7 @@ class Node {
     float               mAxialVel;          // Speed of rotation around mAxialTilt axis;
     
 // DIST FROM CAMERA
-	float				mDistFromCamZAxis;	// Node's distance from Cam eye
+	float				mDistFromCamZAxis;	// Node's distance from Cam eye (negative is further away than positive)
 	float				mPrevDistFromCamZAxis;	// Node's previous distance from Cam eye
 	float				mDistFromCamZAxisPer; // normalized range.
     
@@ -107,7 +110,7 @@ class Node {
 	float				mPercentPlayed;		// Track: percent of playback (perhaps this can be pulled directly from player?)
 	float				mHighestPlayCount;	// Album: used to normalize track playcount data
 	float				mLowestPlayCount;	// Album: used to normalize track playcount data
-
+	std::string			mGenre;				// Genre
 
     float               mZoomPer;           // 0.0 to 1.0 based on G_ZOOM vs mGen   
     
@@ -116,7 +119,7 @@ class Node {
 	float				mIdealCameraDist;	// Ideal distance from node to camera
 	
 	// NAME
-	ci::Font			mFont;
+	ci::Font			mFont, mSmallFont;
 	ci::gl::Texture		mNameTex;			// Texture of the name
 	ci::Surface			mSurfaces;			// Images for Track moon surface
 	ci::Rectf			mHitArea;			// name hit area
@@ -151,12 +154,20 @@ class Node {
 	bool				mIsDead;
 	
 // SPHERE DATA
-	int					mTotalVertsHiRes;
-	int					mTotalVertsLoRes;
-	float				*mSphereVertsHiRes;
-	float				*mSphereTexCoordsHiRes;
-	float				*mSphereNormalsHiRes;
-	float				*mSphereVertsLoRes;
-	float				*mSphereTexCoordsLoRes;
-	float				*mSphereNormalsLoRes;
+	int					mTotalHiVertsRes;
+	int					mTotalMdVertsRes;
+	int					mTotalLoVertsRes;
+	int					mTotalTyVertsRes;
+	float				*mSphereHiVertsRes;
+	float				*mSphereHiTexCoordsRes;
+	float				*mSphereHiNormalsRes;
+	float				*mSphereMdVertsRes;
+	float				*mSphereMdTexCoordsRes;
+	float				*mSphereMdNormalsRes;
+	float				*mSphereLoVertsRes;
+	float				*mSphereLoTexCoordsRes;
+	float				*mSphereLoNormalsRes;
+	float				*mSphereTyVertsRes;
+	float				*mSphereTyTexCoordsRes;
+	float				*mSphereTyNormalsRes;
 };

@@ -14,17 +14,18 @@
 #include "BloomGl.h"
 #include "Globals.h"
 #include "Node.h"
+#include <boost/lexical_cast.hpp>
+
 
 using namespace ci;
 using namespace std;
 
-Node::Node( Node *parent, int index, const Font &font, const Surface &surfaces )
-	: mParentNode( parent ), mIndex( index ), mFont( font ), mSurfaces( surfaces )
+Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, const Surface &surfaces )
+	: mParentNode( parent ), mIndex( index ), mFont( font ), mSmallFont( smallFont ), mSurfaces( surfaces )
 {
     mZoomPer            = 0.0f;
     
 	mScreenPos			= Vec2f::zero();
-	mEclipsePer			= 1.0f;
 	mEclipseStrength	= 0.0f;
 	mEclipseAngle		= 0.0f;
 	mEclipseDirBasedAlpha = 0.0f;
@@ -33,7 +34,7 @@ Node::Node( Node *parent, int index, const Font &font, const Surface &surfaces )
 	
 	mOrbitStartAngle	= Rand::randFloat( TWO_PI );
 	mOrbitAngle			= mOrbitStartAngle;
-	mOrbitPeriod		= Rand::randFloat( 125.0f, 150.0f ); // TODO: move to NodeArtist and make non-random
+	mOrbitPeriod		= Rand::randFloat( 225.0f, 250.0f ); // TODO: move to NodeArtist and make non-random
 	mOrbitRadius		= 0.01f;
 	mAngularVelocity	= 0.0f;
 	mPercentPlayed		= 0.0f;
@@ -43,6 +44,8 @@ Node::Node( Node *parent, int index, const Font &font, const Surface &surfaces )
 		
 	mHitArea			= Rectf( 0.0f, 0.0f, 10.0f, 10.0f ); //just for init.
 	mHighlightStrength	= 0.0f;
+	
+	mGenre				= " ";
 	
 	mIsTapped			= false;
 	mIsSelected			= false;
@@ -66,25 +69,58 @@ void Node::setIsDying( bool isDying )
 	}
 }
 
-void Node::setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
-						 int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals )
+void Node::setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals,
+						  int totalMdVertices, float *sphereMdVerts, float *sphereMdTexCoords, float *sphereMdNormals,
+						  int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
+						  int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals )
 {
-	mTotalVertsHiRes		= totalHiVertices;
-	mTotalVertsLoRes		= totalLoVertices;
-	mSphereVertsHiRes		= sphereHiVerts;
-	mSphereTexCoordsHiRes	= sphereHiTexCoords;
-	mSphereNormalsHiRes		= sphereHiNormals;
-	mSphereVertsLoRes		= sphereLoVerts;
-	mSphereTexCoordsLoRes	= sphereLoTexCoords;
-	mSphereNormalsLoRes		= sphereLoNormals;
+	mTotalHiVertsRes		= totalHiVertices;
+	mTotalMdVertsRes		= totalMdVertices;
+	mTotalLoVertsRes		= totalLoVertices;
+	mTotalTyVertsRes		= totalTyVertices;
+	mSphereHiVertsRes		= sphereHiVerts;
+	mSphereHiTexCoordsRes	= sphereHiTexCoords;
+	mSphereHiNormalsRes		= sphereHiNormals;
+	mSphereMdVertsRes		= sphereMdVerts;
+	mSphereMdTexCoordsRes	= sphereMdTexCoords;
+	mSphereMdNormalsRes		= sphereMdNormals;
+	mSphereLoVertsRes		= sphereLoVerts;
+	mSphereLoTexCoordsRes	= sphereLoTexCoords;
+	mSphereLoNormalsRes		= sphereLoNormals;
+	mSphereTyVertsRes		= sphereTyVerts;
+	mSphereTyTexCoordsRes	= sphereTyTexCoords;
+	mSphereTyNormalsRes		= sphereTyNormals;
 }
 
 void Node::createNameTexture()
 {
 	TextLayout layout;
+	layout.setColor( Color( 0.5f, 0.5f, 0.5f ) );
+	string name = "";
+	if( mGen == G_TRACK_LEVEL ){
+		layout.setFont( mSmallFont );
+		name = boost::lexical_cast<string>( getTrackNumber() ) + ". ";
+	}
+	layout.addLine( name );
 	layout.setFont( mFont );
 	layout.setColor( Color( 1.0f, 1.0f, 1.0f ) );
-	layout.addLine( getName() );
+	layout.append( getName() );
+	
+	if( mGen == G_ALBUM_LEVEL ){
+		layout.setFont( mSmallFont );
+		layout.setColor( Color( 0.5f, 0.5f, 0.5f ) );
+		
+		string yearStr = "";
+		int year = getReleaseYear();
+		if( year < 0 ){
+			yearStr = "Unknown Year of Release";
+		} else if( year < 1900 ){
+			yearStr = "Incorrect Data";
+		} else {
+			yearStr = boost::lexical_cast<string>( getReleaseYear() );	
+		}
+		layout.addLine( yearStr );
+	}
 	Surface8u nameSurface	= Surface8u( layout.render( true, false ) );
 	mNameTex				= gl::Texture( nameSurface );
 }
@@ -215,13 +251,11 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			
 			
 		} else {
-			c = COLOR_BRIGHT_BLUE;
-			
+			c = BRIGHT_BLUE;
 			if( G_CURRENT_LEVEL >= mGen - 1 )
 				alpha = 0.5f * pinchAlphaPer * mZoomPer * mDeathPer;
 			else
 				alpha = 0.0f;
-			
 		}
 		
 		gl::color( ColorA( c, alpha ) );
@@ -238,7 +272,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			offset0 = Vec2f( mSphereScreenRadius, mSphereScreenRadius ) * 0.75f;
 			offset0.rotate( angle );
 			pos1 = mScreenPos + offset0;
-			offset1 = Vec2f( 10.0f, 10.0f );
+			offset1 = Vec2f( 5.0f, 5.0f );
 			offset1.rotate( angle );
 			pos2 = pos1 + offset1;
 			offset2 = Vec2f( 2.0f, -8.0f );
@@ -267,7 +301,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			
 			glDisable( GL_TEXTURE_2D );
 			
-			gl::color( ColorA( COLOR_BRIGHT_BLUE, alpha * 0.5f ) );
+			gl::color( ColorA( BRIGHT_BLUE, alpha * 0.5f ) );
 			gl::drawLine( pos1, pos2 );
 		} else {
 			mHitArea = Rectf( -10000.0f, -10000.0f, -9999.0f, -9999.0f );
@@ -313,14 +347,17 @@ void Node::drawTouchHighlight( float zoomAlpha )
 			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 		}
 		
-		if( mGen == G_TRACK_LEVEL ){
-			float alpha = max( 0.7f - mDistFromCamZAxisPer, 0.0f );
-			gl::color( ColorA( COLOR_BRIGHT_BLUE, alpha + mEclipseStrength ) );
-			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
-		} else if( mGen == G_ALBUM_LEVEL ){
-			float alpha = max( ( mDistFromCamZAxis + 5.0f ) * 0.25f, 0.0f );
-			gl::color( ColorA( COLOR_BRIGHT_BLUE, alpha + mEclipseStrength ) );
-			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+		
+		if( G_DRAW_RINGS ){
+			if( mGen == G_TRACK_LEVEL ){
+				float alpha = mDeathPer;//max( 0.7f - mDistFromCamZAxisPer, 0.0f );
+				gl::color( ColorA( BRIGHT_BLUE, alpha + mEclipseStrength * mDeathPer ) );
+				gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+			} else if( mGen == G_ALBUM_LEVEL ){
+				float alpha = max( ( mDistFromCamZAxis + 5.0f ) * 0.25f, 0.0f );
+				gl::color( ColorA( BRIGHT_BLUE, alpha + mEclipseStrength * mDeathPer ) );
+				gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+			}
 		}
 		
 		if( mHighlightStrength < 0.01f ){

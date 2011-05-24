@@ -16,7 +16,7 @@
 class NodeArtist : public Node
 {
   public:
-	NodeArtist( int index, const ci::Font &font, const ci::Surface &surfaces );
+	NodeArtist( int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &surfaces );
 	
 	void update( const ci::Matrix44f &mat );
 	void drawEclipseGlow();
@@ -37,3 +37,5 @@ class NodeArtist : public Node
 	ci::ipod::PlaylistRef mPlaylist;
 	int mNumAlbums;
 };
+
+bool yearSortFunc(Node* a, Node* b);

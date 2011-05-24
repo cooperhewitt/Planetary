@@ -15,7 +15,7 @@
 class NodeTrack : public Node
 {
   public:
-	NodeTrack( Node *parent, int index, const ci::Font &font, const ci::Surface &surfaces );
+	NodeTrack( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &surfaces );
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album, const ci::Surface &albumArt );
     void initVertexArray();
 	void updateAudioData( double currentPlayheadTime );
@@ -31,6 +31,7 @@ class NodeTrack : public Node
 	ci::Vec3f getStartRelPos(){ return mMatrix * mStartRelPos; }
 	ci::Vec3f getRelPos(){ return mMatrix * mRelPos; }
 	void setStartAngle();
+	int getTrackNumber();
 
 	string getName();
     uint64_t getId();

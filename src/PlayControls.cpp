@@ -491,7 +491,7 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
         
         TextLayout layout;
         layout.setFont( font );
-        layout.setColor( COLOR_BRIGHT_BLUE );
+        layout.setColor( BRIGHT_BLUE );
         layout.addLine( ss.str() );
         mCurrentTimeTex = layout.render( true, false );
         
@@ -506,14 +506,14 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
         ss << "-" << minsStr << ":" << secsStr;
         TextLayout layout2;
         layout2.setFont( font );
-        layout2.setColor( COLOR_BRIGHT_BLUE );
+        layout2.setColor( BRIGHT_BLUE );
         layout2.addLine( ss.str() );
         mRemainingTimeTex = layout2.render( true, false );
     }
     if (currentTime < 0) {
         TextLayout layout3;
         layout3.setFont( font );
-        layout3.setColor( COLOR_BRIGHT_BLUE );
+        layout3.setColor( BRIGHT_BLUE );
         layout3.addLine( "-" );
         gl::Texture hyphenTex = layout3.render( true, false );        
         gl::draw( hyphenTex,   Vec2f( bgx1 - 40.0f - hyphenTex.getWidth(), bgy1 + 2 ) );

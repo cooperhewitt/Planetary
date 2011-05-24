@@ -139,7 +139,7 @@ void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaPer, 
 	
 	if( G_ZOOM < G_ARTIST_LEVEL ){
 		alpha	= 0.5f * dustAlpha;
-		col		= COLOR_BLUE;
+		col		= BLUE;
 	} else {
 		alpha	= dustAlpha * pinchAlphaPer;
 		if( node )

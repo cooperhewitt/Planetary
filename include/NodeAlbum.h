@@ -15,7 +15,7 @@
 class NodeAlbum : public Node
 {
   public:
-	NodeAlbum( Node *parent, int index, const ci::Font &font, const ci::Surface &surfaces );
+	NodeAlbum( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &surfaces );
 	void setData( ci::ipod::PlaylistRef album );
 	void update( const ci::Matrix44f &mat );
 	void drawEclipseGlow();
@@ -27,6 +27,7 @@ class NodeAlbum : public Node
 	void select();
 	void setChildOrbitRadii();
 	string getName();
+	float getReleaseYear();
     uint64_t getId();
 
 	// TODO: should this be private?

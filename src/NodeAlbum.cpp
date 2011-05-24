@@ -20,15 +20,15 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, const Surface &surfaces )
-	: Node( parent, index, font, surfaces )
+NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, const Font &smallFont, const Surface &surfaces )
+	: Node( parent, index, font, smallFont, surfaces )
 {
 	mGen				= G_ALBUM_LEVEL;
 	mPos				= mParentNode->mPos;
 	
 	mIsHighlighted		= true;
 	mIsBlockedBySun		= false;
-	mBlockedBySunPer	= 0.0f;
+	mBlockedBySunPer	= 1.0f;
 	mHasAlbumArt		= false;
 // NOW SET IN setChildOrbitRadii()
 //	mIdealCameraDist	= mRadius * 13.5f;
@@ -37,9 +37,7 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, const Surface &
 
 
 void NodeAlbum::setData( PlaylistRef album )
-{
-// ALBUM ART IS HANDLED IN UPDATE()
-	
+{	
 	
 // ALBUM INFORMATION
 	mAlbum				= album;
@@ -166,12 +164,10 @@ void NodeAlbum::update( const Matrix44f &mat )
 	
 	mRelPos		= Vec3f( cos( mOrbitAngle ), 0.0f, sin( mOrbitAngle ) ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mRelPos;
-    
-	
 	
 /////////////////////////
 // CALCULATE ECLIPSE VARS
-    if( mParentNode->mDistFromCamZAxisPer > 0.02f && mDistFromCamZAxisPer > 0.02f ) //&& ( mIsSelected || mIsPlaying )
+    if( mParentNode->mDistFromCamZAxis < 0.0f && mDistFromCamZAxis < 0.0f ) //&& ( mIsSelected || mIsPlaying )
 	{		
 		Vec2f p		= mScreenPos;
 		float r		= mSphereScreenRadius;
@@ -211,13 +207,19 @@ void NodeAlbum::update( const Matrix44f &mat )
 		// if the album is further away from the camera than the sun,
 		// check to see if it is behind the sun.
 		if( mDistFromCamZAxis < mParentNode->mDistFromCamZAxis ){
-			if( c < R * 2.0f && c > R ){
-				mBlockedBySunPer = ( c - R )/R;
+			if( c < R * 1.6f && c > R * 0.8f ){
+				mBlockedBySunPer = ( c - R )/(R*0.8f);
+			} else if( c < R * 0.8f ){
+				mBlockedBySunPer = 0.0f;
+			} else {
+				mBlockedBySunPer = 1.0f;
 			}
 		} else {
 			mBlockedBySunPer = 1.0f;
 		}
-    }
+    } else {
+		mBlockedBySunPer = 1.0f;
+	}
 
 	mEclipseColor = ( mColor + Color::white() ) * 0.5f * ( 1.0f - mEclipseStrength * 0.5f );
 // END CALCULATE ECLIPSE VARS
@@ -237,50 +239,71 @@ void NodeAlbum::drawEclipseGlow()
 void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
 {	
 	if( mDistFromCamZAxis < -0.02f ){
-			mAxialRot = Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt );
+		mAxialRot = Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt );
+		glEnable( GL_RESCALE_NORMAL );
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glEnableClientState( GL_NORMAL_ARRAY );
+		int numVerts;
 		
-			glEnable( GL_RESCALE_NORMAL );
-			glEnableClientState( GL_VERTEX_ARRAY );
-			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-			glEnableClientState( GL_NORMAL_ARRAY );
-			int numVerts;
-			if( mIsSelected ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsHiRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsHiRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereNormalsHiRes );
-				numVerts = mTotalVertsHiRes;
+		// when the planet goes offscreen, the screenradius becomes huge. 
+		// so if the screen radius is greater than 500, assume it is offscreen and just render a lo-res version
+		// consider frustum culling?
+		if( mSphereScreenRadius < 500.0f ){
+			if( mSphereScreenRadius > 75.0f ){
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereHiVertsRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereHiTexCoordsRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereHiNormalsRes );
+				numVerts = mTotalHiVertsRes;
+			} else if( mSphereScreenRadius > 35.0f ){
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereMdVertsRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereMdTexCoordsRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereMdNormalsRes );
+				numVerts = mTotalMdVertsRes;
+			} else if( mSphereScreenRadius > 10.0f ){
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
+				numVerts = mTotalLoVertsRes;
 			} else {
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsLoRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsLoRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereNormalsLoRes );
-				numVerts = mTotalVertsLoRes;
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereTyVertsRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTyTexCoordsRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereTyNormalsRes );
+				numVerts = mTotalTyVertsRes;
 			}
-			
-			gl::pushModelView();
-			gl::translate( mTransPos );
-			gl::scale( Vec3f( mRadius, mRadius, mRadius ) * mDeathPer );
-			gl::rotate( mMatrix );
-			gl::rotate( mAxialRot );
-			gl::color( ColorA( mEclipseColor + ( 1.0f - mBlockedBySunPer ), mBlockedBySunPer ) );
-			
-			if( mHasAlbumArt ){
-				mAlbumArtTex.enableAndBind();
-			} else {
-				planets[mPlanetTexIndex].enableAndBind();
-			}
-			
-			glDrawArrays( GL_TRIANGLES, 0, numVerts );
-			gl::popModelView();
-			
-			glDisableClientState( GL_VERTEX_ARRAY );
-			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-			glDisableClientState( GL_NORMAL_ARRAY );
+		} else {
+			glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
+			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
+			glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
+			numVerts = mTotalLoVertsRes;
+		}
+		
+		gl::pushModelView();
+		gl::translate( mTransPos );
+		gl::scale( Vec3f( mRadius, mRadius, mRadius ) * mDeathPer );
+		gl::rotate( mMatrix );
+		gl::rotate( mAxialRot );
+		gl::color( ColorA( mEclipseColor + ( 1.0f - mBlockedBySunPer ), mBlockedBySunPer ) );
+		
+		if( mHasAlbumArt ){
+			mAlbumArtTex.enableAndBind();
+		} else {
+			planets[mPlanetTexIndex].enableAndBind();
+		}
+		
+		glDrawArrays( GL_TRIANGLES, 0, numVerts );
+		gl::popModelView();
+		
+		glDisableClientState( GL_VERTEX_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		glDisableClientState( GL_NORMAL_ARRAY );
 	}
 }
 
 
 void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 {
+	/*
 	if( mSphereScreenRadius > 5.0f && mDistFromCamZAxisPer > 0.0f ){
 		mAxialRot = Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel, mAxialTilt );
 		
@@ -288,16 +311,36 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glEnableClientState( GL_NORMAL_ARRAY );
 		int numVerts;
-		if( mDistFromCamZAxisPer < 0.5f ){
-			glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsHiRes );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsHiRes );
-			glNormalPointer( GL_FLOAT, 0, mSphereNormalsHiRes );
-			numVerts = mTotalVertsHiRes;
+		// when the planet goes offscreen, the screenradius becomes huge. 
+		// so if the screen radius is greater than 500, assume it is offscreen and just render a lo-res version
+		// consider frustum culling?
+		if( mSphereScreenRadius < 500.0f ){
+			if( mSphereScreenRadius > 75.0f ){
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereHiVertsRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereHiTexCoordsRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereHiNormalsRes );
+				numVerts = mTotalHiVertsRes;
+			} else if( mSphereScreenRadius > 35.0f ){
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereMdVertsRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereMdTexCoordsRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereMdNormalsRes );
+				numVerts = mTotalMdVertsRes;
+			} else if( mSphereScreenRadius > 10.0f ){
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
+				numVerts = mTotalLoVertsRes;
+			} else {
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereTyVertsRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTyTexCoordsRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereTyNormalsRes );
+				numVerts = mTotalTyVertsRes;
+			}
 		} else {
-			glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsLoRes );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsLoRes );
-			glNormalPointer( GL_FLOAT, 0, mSphereNormalsLoRes );
-			numVerts = mTotalVertsLoRes;
+			glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
+			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
+			glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
+			numVerts = mTotalLoVertsRes;
 		}
 		
 		
@@ -337,6 +380,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 		glDisableClientState( GL_NORMAL_ARRAY );
 	}
+	 */
 }
 
 
@@ -351,17 +395,16 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 			gl::enableAdditiveBlending();
 			float alpha = ( 1.0f - dirLength * 0.75f ) + ( mEclipseStrength );
 			
-			gl::color( ColorA( ( mGlowColor + Color::white() ) * 0.5f, alpha * ( 1.0f - mEclipseDirBasedAlpha ) * mDeathPer * mBlockedBySunPer ) );
+			gl::color( ColorA( mColor, alpha * mDeathPer * mBlockedBySunPer ) );
 			
 			Vec2f radius = Vec2f( mRadius * ( 1.0f + stretch ), mRadius ) * 2.46f;
 			//Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;
 			
 			tex.enableAndBind();
-			Vec3f posOffset =  Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.0125f;
-			gl::drawBillboard( mTransPos, radius, -toDegrees( angle ), mBbRight, mBbUp );
+			Vec3f posOffset = Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.1f;
+			gl::drawBillboard( mTransPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
 			tex.disable();
-			
-		
+
 			gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha * mDeathPer * mBlockedBySunPer ) );
 			directionalTex.enableAndBind();
 			gl::drawBillboard( mTransPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
@@ -383,9 +426,9 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 	
 	
 	if( mIsPlaying ){
-		gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.5f * mDeathPer ) );
+		gl::color( ColorA( BRIGHT_BLUE, 0.5f * camAlpha * mDeathPer ) );
 	} else {
-		gl::color( ColorA( COLOR_BLUE, 0.5f * mDeathPer ) );
+		gl::color( ColorA( BLUE, 0.5f * camAlpha * mDeathPer ) );
 	}
 	
 	gl::pushModelView();
@@ -452,14 +495,16 @@ void NodeAlbum::select()
 			for (int i = 0; i < mNumTracks; i++) {
 				TrackRef track		= (*mAlbum)[i];
 				string name			= track->getTitle();
-				NodeTrack *newNode	= new NodeTrack( this, i, mFont, mSurfaces );
+				NodeTrack *newNode	= new NodeTrack( this, i, mFont, mSmallFont, mSurfaces );
 				mChildNodes.push_back( newNode );
 				newNode->setData( track, mAlbum, mAlbumArtSurface );
 			}
 			
 			for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
-				(*it)->setSphereData( mTotalVertsHiRes, mSphereVertsHiRes, mSphereTexCoordsHiRes, mSphereNormalsHiRes,
-									 mTotalVertsLoRes, mSphereVertsLoRes, mSphereTexCoordsLoRes, mSphereNormalsLoRes );
+				(*it)->setSphereData( mTotalHiVertsRes, mSphereHiVertsRes, mSphereHiTexCoordsRes, mSphereHiNormalsRes,
+									  mTotalMdVertsRes, mSphereMdVertsRes, mSphereMdTexCoordsRes, mSphereMdNormalsRes,
+									  mTotalLoVertsRes, mSphereLoVertsRes, mSphereLoTexCoordsRes, mSphereLoNormalsRes,
+									  mTotalTyVertsRes, mSphereTyVertsRes, mSphereTyTexCoordsRes, mSphereTyNormalsRes );
 			}
 			
 			setChildOrbitRadii();
@@ -479,13 +524,18 @@ void NodeAlbum::setChildOrbitRadii()
 	float orbitRadius = mOrbitRadiusMin;
 	float orbitOffset;
 	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
-		orbitOffset = (*it)->mRadius * 2.0f;
+		orbitOffset = (*it)->mRadiusDest * 2.0f;
 		orbitRadius += orbitOffset;
 		(*it)->mOrbitRadiusDest = orbitRadius;
 		orbitRadius += orbitOffset;
 	}
 	
-	mIdealCameraDist	= orbitRadius * 2.5f;
+	mIdealCameraDist	= orbitRadius * 2.0f;
+}
+
+float NodeAlbum::getReleaseYear()
+{
+	return mReleaseYear;
 }
 
 string NodeAlbum::getName()

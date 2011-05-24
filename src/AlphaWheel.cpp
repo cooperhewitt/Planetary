@@ -254,7 +254,7 @@ void AlphaWheel::drawAlphaChar()
 	float w = mAlphaTextures[mAlphaIndex].getWidth() * 0.5f;
 	float h = mAlphaTextures[mAlphaIndex].getHeight() * 0.5f;
 	
-	gl::color( ColorA( COLOR_BLUE, 1.0f - mWheelScale ) );
+	gl::color( ColorA( BLUE, 1.0f - mWheelScale ) );
 	
 	gl::enableAdditiveBlending();
     mAlphaTextures[mAlphaIndex].enableAndBind();

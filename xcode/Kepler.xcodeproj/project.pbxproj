@@ -528,12 +528,12 @@
 		E17667CE13202F4D006A4C2E /* misc */ = {
 			isa = PBXGroup;
 			children = (
+				E1FA27E01355790500169830 /* atmosphere.png */,
+				E1729B2A1378B7F700C62C97 /* atmosphereDirectional.png */,
 				E1C942C6137B9BD900F88EA2 /* darkMatter.png */,
 				E1D98D9E137B4BC000D80467 /* galaxy.jpg */,
 				E1555A0A131E05140079B05A /* skydome.jpg */,
 				E1729B221377F10C00C62C97 /* skydome.png */,
-				E1729B2A1378B7F700C62C97 /* atmosphereDirectional.png */,
-				E1FA27E01355790500169830 /* atmosphere.png */,
 				E17667DD13202FB7006A4C2E /* rings.png */,
 			);
 			name = misc;

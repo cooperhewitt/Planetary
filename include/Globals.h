@@ -42,9 +42,12 @@ static const int G_SKYDOME_RADIUS	= 1000.0f;
 
 static const int G_TOTAL_HELP_CALLOUTS = 8;
 
-static const ci::Color COLOR_BLUE			= ci::Color( 0.1f, 0.2f, 0.5f );
-static const ci::Color COLOR_BRIGHT_BLUE	= ci::Color( 0.4f, 0.8f, 1.0f );
-static const ci::Color COLOR_BRIGHT_YELLOW	= ci::Color( 1.0f, 0.9f, 0.65f );
+static const ci::Color DARK_BLUE		= ci::Color( 0.05f, 0.1f, 0.25f );
+static const ci::Color BLUE				= ci::Color( 0.1f, 0.2f, 0.5f );
+static const ci::Color BLUE_PURPLE		= ci::Color( 0.3f, 0.1f, 0.5f );
+static const ci::Color PURPLE_RED		= ci::Color( 0.5f, 0.1f, 0.2f );
+static const ci::Color BRIGHT_BLUE		= ci::Color( 0.4f, 0.8f, 1.0f );
+static const ci::Color BRIGHT_YELLOW	= ci::Color( 1.0f, 0.9f, 0.65f );
 
 
 // TODO: move into State.h

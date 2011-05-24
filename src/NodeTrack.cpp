@@ -19,13 +19,11 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeTrack::NodeTrack( Node *parent, int index, const Font &font, const Surface &surfaces )
-	: Node( parent, index, font, surfaces )
+NodeTrack::NodeTrack( Node *parent, int index, const Font &font, const Font &smallFont, const Surface &surfaces )
+	: Node( parent, index, font, smallFont, surfaces )
 {	
 	mGen				= G_TRACK_LEVEL;
 	mPos				= mParentNode->mPos;
-	mRadiusDest			= mParentNode->mRadiusDest * Rand::randFloat( 0.05f, 0.1f );//0.01f;
-	mRadius				= mRadiusDest;
 	
 	mIsHighlighted		= true;
     mIsPlaying			= false;
@@ -92,11 +90,11 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 	mGlowColor			= mParentNode->mGlowColor;
 	mEclipseColor		= mColor;
 	
-	mRadius				= mParentNode->mRadiusDest * 0.1f;
-	mRadius				= math<float>::max( (mParentNode->mRadiusDest * 0.1f) * pow( mNormPlayCount + 0.5f, 2.0f ), 0.0025f );
-	mSphere				= Sphere( mPos, mRadius );
-	mIdealCameraDist	= mRadius * 14.0f;
-	mCloudLayerRadius	= mRadiusDest * 0.1f;
+	mRadiusDest 		= math<float>::max( (mParentNode->mRadiusDest * 0.1f) * pow( mNormPlayCount + 0.5f, 2.0f ), 0.0025f );
+	mRadius				= 0.0f;
+	mSphere				= Sphere( mPos, mRadiusDest );
+	mIdealCameraDist	= math<float>::max( mRadiusDest * 14.0f, 0.5f );
+	mCloudLayerRadius	= mRadiusDest * 0.05f;
 	
 	mOrbitPeriod		= mTrackLength;
 
@@ -114,12 +112,13 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 	if( !mHasCreatedAlbumArt ){
 		int totalWidth		= 256; // dont forget to change the actual textures too
 		int halfWidth		= totalWidth/2;
+		int quarterWidth	= totalWidth/4;
 		if( albumArt ){
 			int x			= (int)(mNormPlayCount*halfWidth);
-			int y			= Rand::randInt( halfWidth );
+			int y			= (int)( halfWidth * mAsciiPer );
 			
-			int w			= (int)(mNormPlayCount*halfWidth);
-			int h			= (int)(mNormPlayCount*halfWidth);
+			int w			= (int)(mNormPlayCount*quarterWidth);
+			int h			= (int)(mNormPlayCount*quarterWidth);
 			
 			// grab a section of the album art
 			Area a			= Area( x, y, x+w, y+h );
@@ -159,7 +158,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 					float cloudShadow	= ( 1.0f - surfaceColor.g ) * 0.5f + 0.5f;
 					float highlight		= surfaceColor.b;
 					
-					ColorA final		= albumColor * 0.5f + planetVal * 0.25f + highlight * 0.25f;
+					ColorA final		= albumColor * mNormPlayCount + planetVal * ( 1.0f - mNormPlayCount );
 					final *= cloudShadow;
 					
 					iter.r() = final.r * 255.0f;// + 25.0f;
@@ -267,6 +266,8 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 
 void NodeTrack::update( const Matrix44f &mat )
 {	
+	mRadius			-= ( mRadius - mRadiusDest ) * 0.2f;
+	
 	mPrevTime		= mCurrentTime;
 	mCurrentTime	= (float)app::getElapsedSeconds();
 	
@@ -355,17 +356,28 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glEnableClientState( GL_NORMAL_ARRAY );
 		int numVerts;
-		if( mDistFromCamZAxisPer < 0.15f ){
-			glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsHiRes );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsHiRes );
-			glNormalPointer( GL_FLOAT, 0, mSphereNormalsHiRes );
-			numVerts = mTotalVertsHiRes;
+		if( mDistFromCamZAxisPer < 0.1f ){
+			glVertexPointer( 3, GL_FLOAT, 0, mSphereHiVertsRes );
+			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereHiTexCoordsRes );
+			glNormalPointer( GL_FLOAT, 0, mSphereHiNormalsRes );
+			numVerts = mTotalHiVertsRes;
+		} else if( mDistFromCamZAxisPer < 0.25f ){
+			glVertexPointer( 3, GL_FLOAT, 0, mSphereMdVertsRes );
+			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereMdTexCoordsRes );
+			glNormalPointer( GL_FLOAT, 0, mSphereMdNormalsRes );
+			numVerts = mTotalMdVertsRes;
+		} else if( mDistFromCamZAxisPer < 0.5f ){
+			glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
+			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
+			glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
+			numVerts = mTotalLoVertsRes;
 		} else {
-			glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsLoRes );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsLoRes );
-			glNormalPointer( GL_FLOAT, 0, mSphereNormalsLoRes );
-			numVerts = mTotalVertsLoRes;
+			glVertexPointer( 3, GL_FLOAT, 0, mSphereTyVertsRes );
+			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTyTexCoordsRes );
+			glNormalPointer( GL_FLOAT, 0, mSphereTyNormalsRes );
+			numVerts = mTotalTyVertsRes;
 		}
+		
 		
 		gl::disableAlphaBlending();
 		
@@ -415,22 +427,32 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 {
 	if( mSphereScreenRadius > 2.0f && mDistFromCamZAxisPer > 0.0f ){
 		if( mIsMostPlayed ){
-			
 			glEnableClientState( GL_VERTEX_ARRAY );
 			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 			glEnableClientState( GL_NORMAL_ARRAY );
 			int numVerts;
-			if( mDistFromCamZAxisPer < 0.5f ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsHiRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsHiRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereNormalsHiRes );
-				numVerts = mTotalVertsHiRes;
+			if( mDistFromCamZAxisPer < 0.1f ){
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereHiVertsRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereHiTexCoordsRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereHiNormalsRes );
+				numVerts = mTotalHiVertsRes;
+			} else if( mDistFromCamZAxisPer < 0.25f ){
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereMdVertsRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereMdTexCoordsRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereMdNormalsRes );
+				numVerts = mTotalMdVertsRes;
+			} else if( mDistFromCamZAxisPer < 0.5f ){
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
+				numVerts = mTotalLoVertsRes;
 			} else {
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereVertsLoRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTexCoordsLoRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereNormalsLoRes );
-				numVerts = mTotalVertsLoRes;
+				glVertexPointer( 3, GL_FLOAT, 0, mSphereTyVertsRes );
+				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTyTexCoordsRes );
+				glNormalPointer( GL_FLOAT, 0, mSphereTyNormalsRes );
+				numVerts = mTotalTyVertsRes;
 			}
+		
 
 			gl::pushModelView();
 			gl::translate( mTransPos );
@@ -441,7 +463,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			
 			gl::enableAdditiveBlending();
 			gl::pushModelView();
-			float radius = mRadius * mDeathPer + mCloudLayerRadius + ( (float)mGen - G_ZOOM ) * 0.001f;
+			float radius = mRadius * mDeathPer + mCloudLayerRadius;
 			gl::scale( Vec3f( radius, radius, radius ) );
 			
 			gl::rotate( mMatrix );
@@ -470,13 +492,13 @@ void NodeTrack::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 		float angle		= atan2( dir.y, dir.x );
 		float stretch	= 1.0f + dirLength * 0.1f;
 		gl::enableAdditiveBlending();
-		float alpha = 1.0f;
+		float alpha = mDeathPer;
 		
 //		float alpha = 0.3f * ( 1.0f - dirLength );
 //		if( G_ZOOM <= G_ALBUM_LEVEL )
 //			alpha = pinchAlphaPer;
 
-		gl::color( ColorA( ( mGlowColor + COLOR_BRIGHT_BLUE ) * 0.5f, alpha ) );
+		gl::color( ColorA( BRIGHT_YELLOW, alpha ) );
 		Vec2f radius = Vec2f( mRadius * stretch, mRadius ) * 2.45f;
 		tex.enableAndBind();
 		gl::drawBillboard( mTransPos, radius, -toDegrees( angle ), mBbRight, mBbUp );
@@ -501,7 +523,7 @@ void NodeTrack::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 		newPinchAlphaPer = 1.0f;
 	}
 	
-	gl::color( ColorA( COLOR_BLUE, camAlpha * mDeathPer ) );		
+	gl::color( ColorA( BLUE, camAlpha * mDeathPer ) );		
 	
 	gl::pushModelView();
 	gl::translate( mParentNode->mTransPos );
@@ -549,7 +571,8 @@ void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, const
 		
 		Vec3f pos = Vec3f( cos( mOrbitStartAngle ), 0.0f, sin( mOrbitStartAngle ) );
 
-		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, camAlpha ) );
+		gl::enableAlphaBlending();
+		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, camAlpha * 2.0f ) );
 		originTex.enableAndBind();
 		gl::drawBillboard( mParentNode->mTransPos + ( mMatrix * pos ) * mOrbitRadius, Vec2f( mRadius, mRadius ) * 2.15f, 0.0f, mMatrix * Vec3f::xAxis(), mMatrix * Vec3f::zAxis() );
 		originTex.disable();
@@ -558,6 +581,11 @@ void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, const
 		
 				
 	}
+}
+
+int NodeTrack::getTrackNumber()
+{
+	return ( mIndex + 1 );
 }
 
 string NodeTrack::getName()

@@ -124,7 +124,7 @@ void Breadcrumbs::draw( const gl::Texture &uiButtonsTex, float y )
 	uiButtonsTex.disable();
 
 	
-	gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.2f ) );
+	gl::color( ColorA( BRIGHT_BLUE, 0.2f ) );
 	gl::drawLine( Vec2f( 1.0f, lineY ), Vec2f( breadcrumbRect.x2, lineY ) );
     
 
@@ -139,7 +139,7 @@ void Breadcrumbs::draw( const gl::Texture &uiButtonsTex, float y )
 		if( i == mPreviousHierarchy.size() - 1 ){
 			gl::color( ColorA( Color::white(), yPer ) );
 		} else {
-			gl::color( ColorA( COLOR_BRIGHT_BLUE, yPer ) );	
+			gl::color( ColorA( BRIGHT_BLUE, yPer ) );	
 		}
         
 		if( i > 0 ){

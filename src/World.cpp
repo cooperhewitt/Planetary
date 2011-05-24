@@ -45,10 +45,14 @@ void World::setup( Data *data )
 		// VERTEX ARRAY SPHERE
 		if( G_IS_IPAD2 ){
 			buildSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
-			buildSphereVertexArray( 20, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+			buildSphereVertexArray( 20, &mNumSphereMdResVerts, mSphereMdResVerts, mSphereMdResTexCoords, mSphereMdResNormals );
+			buildSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+			buildSphereVertexArray( 10, &mNumSphereTyResVerts, mSphereTyResVerts, mSphereTyResTexCoords, mSphereTyResNormals );
 		} else {
 			buildSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
-			buildSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+			buildSphereVertexArray( 26, &mNumSphereMdResVerts, mSphereMdResVerts, mSphereMdResTexCoords, mSphereMdResNormals );
+			buildSphereVertexArray( 12, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
+			buildSphereVertexArray( 8,  &mNumSphereTyResVerts, mSphereTyResVerts, mSphereTyResTexCoords, mSphereTyResNormals );
 		}
 	}
 	
@@ -159,7 +163,7 @@ void World::buildSphereVertexArray( int segments, int *numVerts, float* &sphereV
 	}
 }
 
-void World::initNodes( Player *player, const Font &font, const Surface &surfaces )
+void World::initNodes( Player *player, const Font &font, const Font &smallFont, const Surface &surfaces )
 {
 	float t = App::get()->getElapsedSeconds();
 
@@ -172,7 +176,7 @@ void World::initNodes( Player *player, const Font &font, const Surface &surfaces
 	int i=0;
 	for(vector<PlaylistRef>::iterator it = mData->mArtists.begin(); it != mData->mArtists.end(); ++it){
 		PlaylistRef artist	= *it;
-		NodeArtist *newNode = new NodeArtist( i++, font, surfaces );
+		NodeArtist *newNode = new NodeArtist( i++, font, smallFont, surfaces );
 		newNode->setData(artist);
 		mNodes.push_back( newNode );
 	}
@@ -189,14 +193,21 @@ void World::initVertexArrays()
 	buildOrbitRingsVertexArray();
 	buildPlanetRingsVertexArray();
     initNodeSphereData( mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals,
-                              mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals ); 
+					    mNumSphereMdResVerts, mSphereMdResVerts, mSphereMdResTexCoords, mSphereMdResNormals,
+					    mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals,
+					    mNumSphereTyResVerts, mSphereTyResVerts, mSphereTyResTexCoords, mSphereTyResNormals ); 
 }
 
-void World::initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
-							   int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals )
+void World::initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals,
+							    int totalMdVertices, float *sphereMdVerts, float *sphereMdTexCoords, float *sphereMdNormals,
+							    int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
+							    int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->setSphereData( totalHiVertices, sphereHiVerts, sphereHiTexCoords, sphereHiNormals, totalLoVertices, sphereLoVerts, sphereLoTexCoords, sphereLoNormals );
+		(*it)->setSphereData( totalHiVertices, sphereHiVerts, sphereHiTexCoords, sphereHiNormals,
+							  totalMdVertices, sphereMdVerts, sphereMdTexCoords, sphereMdNormals,
+							  totalLoVertices, sphereLoVerts, sphereLoTexCoords, sphereLoNormals,
+							  totalTyVertices, sphereTyVerts, sphereTyTexCoords, sphereTyNormals );
 	}
 }
 
@@ -275,9 +286,9 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, floa
 	
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		Vec3f pos	= (*it)->mPos;
-		float r		= (*it)->mRadius * 0.25f;
+		float r		= (*it)->mRadius * 0.4f;
 		if( !(*it)->mIsHighlighted )
-			r		= r - zoomAlpha;
+			r		= r - zoomAlpha * 2.0f;
 		
 		ColorA col	= ColorA( (*it)->mColor, 1.0f );
 		
@@ -394,7 +405,7 @@ void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, 
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
 			Vec3f pos			= (*it)->mPos;
-			float r				= (*it)->mRadius * 1.4f; // HERE IS WHERE YOU CAN MAKE THE GLOW HUGER/BIGGER/AWESOMER
+			float r				= (*it)->mRadius * ( (*it)->mEclipseStrength * 2.0f + 1.75f ); // HERE IS WHERE YOU CAN MAKE THE GLOW HUGER/BIGGER/AWESOMER
 			//if( !(*it)->mIsSelected )
 			//	r				-= zoomAlpha;
 			
@@ -543,7 +554,7 @@ void World::buildOrbitRingsVertexArray()
 	mRingVertsHighRes	= new float[ G_RING_HIGH_RES*2 ];	// X,Y
 	mRingTexHighRes		= new float[ G_RING_HIGH_RES*2 ];	// U,V
 	
-	Color c				= COLOR_BRIGHT_BLUE;
+	Color c				= BRIGHT_BLUE;
 	
 	for( int i=0; i<G_RING_LOW_RES; i++ ){
 		float per				 = (float)i/(float)(G_RING_LOW_RES-1);

@@ -357,8 +357,8 @@ void KeplerApp::remainingSetup()
 	// FONTS
 	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
 	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf"), 256 );
-	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
-	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 12 );
+	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 12 );
+	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 10 );
 	
 	// TOUCH VARS
 	mTouchPos			= getWindowCenter();
@@ -708,6 +708,10 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 	}
 	averageTouchPos /= touches.size();
 	mTouchPos = averageTouchPos;
+// using pinch to control arcball is weird because of the pop
+// from one finger to two fingers. disabled until a fix is found.
+//	Vec3f worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
+//	mArcball.mouseDrag( Vec2i( worldTouchPos.x, worldTouchPos.y ) );
 	
     return false;
 }
@@ -754,6 +758,10 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		averageTouchPos += it->mPos;
 	}
 	averageTouchPos /= touches.size();
+// using pinch to control arcball is weird because of the pop
+// from one finger to two fingers. disabled until a fix is found.
+//	Vec3f worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
+//	mArcball.mouseDrag( Vec2i( worldTouchPos.x, worldTouchPos.y ) );
 	
 	//mTouchThrowVel	= ( averageTouchPos - mTouchPos );
 	//mTouchVel		= mTouchThrowVel;
@@ -877,7 +885,7 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
 {
 	std::cout << "playlist changed" << std::endl;
 	mData.filterArtistsByPlaylist( mState.getPlaylist() );
-	mPlayControls.createPlaylistTexture( mState.getPlaylistName(), mFontMediTiny );
+	mPlayControls.createPlaylistTexture( mState.getPlaylistName(), mFontMediSmall );
 	
 //    std::map<string, string> parameters;
 //    parameters["Playlist"] = ""+mState.getPlaylist();
@@ -1154,7 +1162,7 @@ void KeplerApp::update()
 {
 	
 	if( mData.update() ){
-		mWorld.initNodes( &mIpodPlayer, mFont, mSurfaces );
+		mWorld.initNodes( &mIpodPlayer, mFont, mFontMediTiny, mSurfaces );
 		mDataIsLoaded = true;
 		mLoadingScreen.setEnabled( false );
 		mUiLayer.setIsPanelOpen( true );
@@ -1407,7 +1415,7 @@ void KeplerApp::drawScene()
 // SKYDOME
     gl::pushModelView();
     gl::rotate( mMatrix );
-    gl::color( COLOR_BRIGHT_BLUE * pow( 1.0f - zoomOff, 3.0f ) );
+    gl::color( BRIGHT_BLUE * pow( 1.0f - zoomOff, 3.0f ) );
     mSkyDome.enableAndBind();
     gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS, 24 );
 	
@@ -1419,7 +1427,7 @@ void KeplerApp::drawScene()
 	
 // LIGHTMATTER
 	if( invAlpha > 0.01f ){
-		gl::color( ColorA( COLOR_BRIGHT_BLUE, invAlpha * 2.0f ) );
+		gl::color( ColorA( BRIGHT_BLUE, invAlpha * 2.0f ) );
 
 		radius = mLightMatterBaseRadius * 0.9f;
 		gl::pushModelView();
@@ -1483,9 +1491,9 @@ void KeplerApp::drawScene()
 // CENTER OF GALAXY
 	if( invAlpha > 0.01f ){
 		mGodRaysTex.enableAndBind();
-		gl::color( ColorA( COLOR_BLUE, invAlpha ) );
+		gl::color( ColorA( BLUE, invAlpha ) );
 		gl::drawBillboard( Vec3f::zero(), Vec2f( 300.0f, 300.0f ), getElapsedSeconds() * 10.0f, mBbRight, mBbUp );
-		gl::color( ColorA( COLOR_BRIGHT_BLUE, invAlpha * 1.5f ) );
+		gl::color( ColorA( BRIGHT_BLUE, invAlpha * 1.5f ) );
 		gl::drawBillboard( Vec3f::zero(), Vec2f( 200.0f, 200.0f ), -getElapsedSeconds() * 7.0f, mBbRight, mBbUp );
 		mGodRaysTex.disable();
 	}
@@ -1525,7 +1533,7 @@ void KeplerApp::drawScene()
 	
 	if( artistNode ){ // defined at top of method
 		float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
-		mCamRingAlpha = constrain( abs( transEye.y - artistNode->mPos.y ) * zoomOffset, 0.0f, 1.0f ); // WAS 0.6f
+		mCamRingAlpha = constrain( abs( transEye.y - artistNode->mPos.y ), 0.0f, 1.0f ); // WAS 0.6f
 		
 		
 
@@ -1543,15 +1551,14 @@ void KeplerApp::drawScene()
 		glCullFace( GL_BACK );
 		glEnable( GL_CULL_FACE );
 		glEnable( GL_COLOR_MATERIAL );
-		glMaterialfv( GL_FRONT, GL_AMBIENT, ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
+		glMaterialfv( GL_FRONT, GL_AMBIENT, ColorA( 0.01f, 0.025f, 0.1f, 1.0f ) );
 		glMaterialfv( GL_FRONT, GL_DIFFUSE, ColorA( Color::white(), 1.0f ) );
-		glMaterialfv( GL_FRONT, GL_SPECULAR, ColorA( Color::white(), 1.0f ) );
-		glMaterialf(  GL_FRONT, GL_SHININESS, 100.0f );
+//		glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, ColorA( Color::white(), 1.0f ) );
+//		glMaterialf(  GL_FRONT_AND_BACK, GL_SHININESS, 20.0f );
 		
 		for( int i = 0; i < sortedNodes.size(); i++ ){
 			gl::enableDepthRead();
 			glEnable( GL_LIGHTING );
-			//glMaterialfv( GL_FRONT, GL_EMISSION, ColorA( 0.0f, 0.0f, 0.15f, 1.0f ) );
 			
 			// LIGHT FROM ARTIST
 			glEnable( GL_LIGHT0 );
@@ -1559,16 +1566,13 @@ void KeplerApp::drawScene()
 			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
 			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor, 1.0f ) );
-			glLightfv( GL_LIGHT0, GL_SPECULAR, ColorA( Color::white(), 1.0f ) );
+//			glLightfv( GL_LIGHT0, GL_SPECULAR, ColorA( artistNode->mGlowColor, 1.0f ) );
 
-			
-			//gl::disableAlphaBlending();
+	
 			gl::enableAlphaBlending();
 			sortedNodes[i]->drawPlanet( mPlanetsTex );
 			
-			glLightfv( GL_LIGHT0, GL_SPECULAR, ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
-			//glMaterialfv( GL_FRONT, GL_EMISSION, ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
-			gl::enableAdditiveBlending();
+			gl::enableAlphaBlending();
 			sortedNodes[i]->drawClouds( mCloudsTex );
 			
 			gl::disableAlphaBlending();
@@ -1605,7 +1609,7 @@ void KeplerApp::drawScene()
 	
 // ORBITS
 	if( G_DRAW_RINGS ){
-        mWorld.drawOrbitRings( mPinchAlphaPer, mCamRingAlpha, mOrbitRingGradientTex );
+        mWorld.drawOrbitRings( mPinchAlphaPer, sqrt( mCamRingAlpha ), mOrbitRingGradientTex );
 	}
 	
 // PARTICLES
@@ -1748,10 +1752,10 @@ void KeplerApp::drawScene()
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
 //    mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
-    mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
+    mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
 	
 	gl::disableAlphaBlending();
-	//if( G_DEBUG ) drawInfoPanel();
+	if( G_DEBUG ) drawInfoPanel();
 }
 
 

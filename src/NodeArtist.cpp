@@ -15,6 +15,7 @@
 #include "cinder/gl/gl.h"
 #include "Globals.h"
 #import <map>
+#include <deque>
 #import "CinderFlurry.h"
 
 using namespace pollen::flurry;
@@ -22,8 +23,8 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeArtist::NodeArtist( int index, const Font &font, const Surface &surfaces )
-	: Node( NULL, index, font, surfaces )
+NodeArtist::NodeArtist( int index, const Font &font, const Font &smallFont, const Surface &surfaces )
+	: Node( NULL, index, font, smallFont, surfaces )
 {
 	mGen			= G_ARTIST_LEVEL;
 	//mPosDest		= Rand::randVec3f() * Rand::randFloat( 40.0f, 75.0f ); // 40.0f, 200.0f
@@ -175,7 +176,7 @@ void NodeArtist::select()
 			int trackcount = 0;
 			for(vector<PlaylistRef>::iterator it = albumsBySelectedArtist.begin(); it != albumsBySelectedArtist.end(); ++it){
 				PlaylistRef album	= *it;
-				NodeAlbum *newNode = new NodeAlbum( this, i, mFont, mSurfaces );
+				NodeAlbum *newNode = new NodeAlbum( this, i, mFont, mSmallFont, mSurfaces );
 				mChildNodes.push_back( newNode );
 				trackcount += album->m_tracks.size();
 				newNode->setData( album );
@@ -183,8 +184,10 @@ void NodeArtist::select()
 			}
 			
 			for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
-				(*it)->setSphereData( mTotalVertsHiRes, mSphereVertsHiRes, mSphereTexCoordsHiRes, mSphereNormalsHiRes,
-									 mTotalVertsLoRes, mSphereVertsLoRes, mSphereTexCoordsLoRes, mSphereNormalsLoRes );
+				(*it)->setSphereData( mTotalHiVertsRes, mSphereHiVertsRes, mSphereHiTexCoordsRes, mSphereHiNormalsRes,
+									 mTotalMdVertsRes, mSphereMdVertsRes, mSphereMdTexCoordsRes, mSphereMdNormalsRes,
+									 mTotalLoVertsRes, mSphereLoVertsRes, mSphereLoTexCoordsRes, mSphereLoNormalsRes,
+									 mTotalTyVertsRes, mSphereTyVertsRes, mSphereTyTexCoordsRes, mSphereTyNormalsRes );
 			}
 			
 			setChildOrbitRadii();
@@ -206,17 +209,26 @@ void NodeArtist::select()
 	Node::select();
 }
 
+bool yearSortFunc( Node* a, Node* b ){
+	return a->getReleaseYear() < b->getReleaseYear();
+}
+
 void NodeArtist::setChildOrbitRadii()
 {
-	float orbitOffset = mRadiusDest;// * 1.0f;
-	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
-		NodeAlbum* albumNode = (NodeAlbum*)(*it);
-		float amt = math<float>::max( albumNode->mNumTracks * 0.04f, 0.1f );
-		orbitOffset += amt;
-		(*it)->mOrbitRadiusDest = orbitOffset;
-		orbitOffset += amt;
+	std::vector<Node*> sortedNodes;
+	if( mChildNodes.size() > 0 ){
+		sort( mChildNodes.begin(), mChildNodes.end(), yearSortFunc );
+
+		float orbitOffset = mRadiusDest;// * 1.0f;
+		for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
+			NodeAlbum* albumNode = (NodeAlbum*)(*it);
+			float amt = math<float>::max( albumNode->mNumTracks * 0.04f, 0.1f );
+			orbitOffset += amt;
+			(*it)->mOrbitRadiusDest = orbitOffset;
+			orbitOffset += amt;
+		}
+		mIdealCameraDist = orbitOffset * 2.2f;
 	}
-	mIdealCameraDist = orbitOffset * 2.2f;
 }
 
 string NodeArtist::getName()

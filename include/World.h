@@ -33,9 +33,11 @@ class World {
 	void buildStarsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, float zoomAlpha );
 	void buildStarGlowsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, float zoomAlpha );
 	
-	void initNodes( ci::ipod::Player *player, const ci::Font &font, const ci::Surface &surfaces );
-	void initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
-							int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals );
+	void initNodes( ci::ipod::Player *player, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &surfaces );
+	void initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals,
+							 int totalMdVertices, float *sphereMdVerts, float *sphereMdTexCoords, float *sphereMdNormals,
+							 int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
+							 int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals );
 	void filterNodes();
 	void repulseNodes();
 	void deselectAllNodes();
@@ -99,10 +101,18 @@ class World {
 	GLfloat *mPlanetRingTexCoords;
 
     // VERTEX ARRAYS
+	int mNumSphereTyResVerts;
+	float *mSphereTyResVerts; 
+	float *mSphereTyResNormals;
+	float *mSphereTyResTexCoords;
 	int mNumSphereLoResVerts;
 	float *mSphereLoResVerts; 
 	float *mSphereLoResNormals;
 	float *mSphereLoResTexCoords;
+	int mNumSphereMdResVerts;
+	float *mSphereMdResVerts; 
+	float *mSphereMdResNormals;
+	float *mSphereMdResTexCoords;
 	int mNumSphereHiResVerts;
 	float *mSphereHiResVerts; 
 	float *mSphereHiResNormals;
