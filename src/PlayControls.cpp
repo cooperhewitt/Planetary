@@ -125,7 +125,7 @@ void PlayControls::setInterfaceOrientation( const Orientation &orientation )
     }
 }
 
-void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiButtonsTex, const gl::Texture &currentTrackTex, AlphaWheel *alphaWheel, const Font &font, float y, float currentTime, float totalTime, float secsSinceTrackChange )
+void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiButtonsTex, const gl::Texture &currentTrackTex, const Font &font, float y, float currentTime, float totalTime, float secsSinceTrackChange )
 {   
 	float dragAlphaPer = pow( ( mInterfaceSize.y - y ) / 65.0f, 2.0f );
 	
@@ -249,17 +249,17 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 	}
 	
 	touchRects.push_back( prevPlaylistButton );
-	touchTypes.push_back( PREVIOUS_PLAYLIST );
+	touchTypes.push_back( PREV_PLAYLIST );
 	touchRects.push_back( nextPlaylistButton );
 	touchTypes.push_back( NEXT_PLAYLIST );
 	touchRects.push_back( galaxyButton );
-	touchTypes.push_back( GALAXY );
+	touchTypes.push_back( GOTO_GALAXY );
 	touchRects.push_back( currentTrackButton );
-	touchTypes.push_back( CURRENT_TRACK );
+	touchTypes.push_back( GOTO_CURRENT_TRACK );
 	touchRects.push_back( settingsButton );
 	touchTypes.push_back( SETTINGS );
     touchRects.push_back( prevButton );
-    touchTypes.push_back( PREVIOUS_TRACK );
+    touchTypes.push_back( PREV_TRACK );
     touchRects.push_back( playButton );
     touchTypes.push_back( PLAY_PAUSE );
     touchRects.push_back( nextButton );
@@ -288,7 +288,7 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 // GALAXY
 	u1 = uw * 0.0f;
 	u2 = u1 + uw;
-    if( lastTouchedType == GALAXY )
+    if( lastTouchedType == GOTO_GALAXY )
 		drawButton( galaxyButton, u1, v2, u2, v3 );
     else
 		drawButton( galaxyButton, u1, v1, u2, v2 );
@@ -297,7 +297,7 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 // CURRENT TRACK
 	u1 = uw * 1.0f;
 	u2 = u1 + uw;
-    if( lastTouchedType == CURRENT_TRACK )
+    if( lastTouchedType == GOTO_CURRENT_TRACK )
 		drawButton( currentTrackButton, u1, v2, u2, v3 );
     else
 		drawButton( currentTrackButton, u1, v1, u2, v2 );
@@ -314,7 +314,7 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 // PREV
 	u1 = uw * 3.0f;
 	u2 = u1 + uw;
-    if( lastTouchedType == PREVIOUS_TRACK )
+    if( lastTouchedType == PREV_TRACK )
 		drawButton( prevButton, u1, v2, u2, v3 );
     else
 		drawButton( prevButton, u1, v1, u2, v2 );
@@ -345,7 +345,7 @@ void PlayControls::draw( const Orientation &orientation, const gl::Texture &uiBu
 		// PREV PLAYLIST
 		u1 = uw * 3.0f;
 		u2 = u1 + uw;
-		if( lastTouchedType == PREVIOUS_PLAYLIST )
+		if( lastTouchedType == PREV_PLAYLIST )
 			drawButton( prevPlaylistButton, u1, v2, u2, v3 );
 		else
 			drawButton( prevPlaylistButton, u1, v1, u2, v2 );

@@ -15,7 +15,7 @@
 class NodeTrack : public Node
 {
   public:
-	NodeTrack( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &surfaces );
+	NodeTrack( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &hiResSurfaces, const ci::Surface &loResSurfaces, const ci::Surface &noAlbumArt );
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album, const ci::Surface &albumArt );
     void initVertexArray();
 	void updateAudioData( double currentPlayheadTime );
@@ -61,7 +61,8 @@ private:
 	bool		mIsMostPlayed;
 	bool		mHasAlbumArt;
 	bool		mHasCreatedAlbumArt;
-	ci::gl::Texture mAlbumArt;
+	ci::gl::Texture mAlbumArtTex;
+	ci::Surface	mAlbumArtSurface;
 	
 	float		mCloudLayerRadius;
 	

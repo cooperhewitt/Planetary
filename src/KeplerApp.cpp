@@ -210,7 +210,9 @@ class KeplerApp : public AppCocoaTouch {
 	vector<gl::Texture> mPlanetsTex;
 	vector<gl::Texture> mCloudsTex;
 	
-	Surface			mSurfaces;
+	Surface			mHighResSurfaces;
+	Surface			mLowResSurfaces;
+	Surface			mNoAlbumArtSurface;
 	
 // GALAXY
 	GLfloat			*mGalaxyVerts;
@@ -425,8 +427,8 @@ void KeplerApp::remainingSetup()
 	mDarkMatterCylinderRes = 48;
 	initGalaxyVertexArray();
 	initDarkMatterVertexArray();
-	mLightMatterBaseRadius = G_INIT_CAM_DIST * 0.5f;
-	mDarkMatterBaseRadius = G_INIT_CAM_DIST * 0.6f;
+	mLightMatterBaseRadius = G_INIT_CAM_DIST * 0.75f;
+	mDarkMatterBaseRadius = G_INIT_CAM_DIST * 0.86f;
 
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
 
@@ -500,8 +502,10 @@ void KeplerApp::initTextures()
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds4.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds5.png" ) ) ) );
 	
-	mSurfaces = Surface( loadImage( loadResource( "surfaces.png" ) ) );
-    
+	mHighResSurfaces	= Surface( loadImage( loadResource( "surfacesHighRes.png" ) ) );
+	mLowResSurfaces		= Surface( loadImage( loadResource( "surfacesLowRes.png" ) ) );
+	
+    mNoAlbumArtSurface = Surface( loadImage( loadResource( "noAlbumArt.png" ) ) );
 	//console() << "initTextures duration = " << (getElapsedSeconds()-t) << endl;
     Flurry::getInstrumentation()->stopTimeEvent("Load Textures");    
 }
@@ -960,7 +964,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 {
     switch( button ) {
         
-        case PlayControls::PREVIOUS_TRACK:
+        case PlayControls::PREV_TRACK:
             Flurry::getInstrumentation()->logEvent("Previous Track Button Selected");            
             mIpodPlayer.skipPrev();
             break;
@@ -1010,14 +1014,14 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 			}
             break;
 			
-		case PlayControls::GALAXY:
+		case PlayControls::GOTO_GALAXY:
             Flurry::getInstrumentation()->logEvent("Galaxy Button Selected");            
 			mWorld.deselectAllNodes();
 			mState.setSelectedNode( NULL );
 			mState.setAlphaChar( ' ' );
             break;
 			
-        case PlayControls::CURRENT_TRACK:
+        case PlayControls::GOTO_CURRENT_TRACK:
             Flurry::getInstrumentation()->logEvent("Current Track Button Selected");            
             // pretend the track just got changed again, this will select it:
             onPlayerTrackChanged( &mIpodPlayer );
@@ -1042,7 +1046,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
             mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
             break;
 			
-		case PlayControls::PREVIOUS_PLAYLIST:
+		case PlayControls::PREV_PLAYLIST:
             mPlaylistIndex --;
 			mPlaylistIndex = constrain( mPlaylistIndex, 0, (int)mData.mPlaylists.size() - 1 );
             mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
@@ -1056,6 +1060,110 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 
 	return false;
 }
+
+
+
+
+//bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
+//{
+//    switch( button ) {
+//        
+//        case PlayControls::PREVIOUS_TRACK:
+//            Flurry::getInstrumentation()->logEvent("Previous Track Button Selected");            
+//            mIpodPlayer.skipPrev();
+//            break;
+//        
+//        case PlayControls::PLAY_PAUSE:
+//            Flurry::getInstrumentation()->logEvent("Play/Pause Button Selected");            
+//            if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
+//                mIpodPlayer.pause();
+//            }
+//            else {
+//                mIpodPlayer.play();
+//            }
+//            break;
+//        
+//        case PlayControls::NEXT_TRACK:
+//            Flurry::getInstrumentation()->logEvent("Next Track Button Selected");            
+//            mIpodPlayer.skipNext();	
+//            break;
+//        
+//        case PlayControls::HELP:
+//			if( G_SHOW_SETTINGS ){
+//				Flurry::getInstrumentation()->logEvent("Help Button Selected");            
+//				G_HELP = !G_HELP;
+//				if( G_HELP && !mAlphaWheel.getShowWheel() )
+//					mAlphaWheel.setShowWheel( true );
+//			}
+//            break;
+//        
+//        case PlayControls::DRAW_RINGS:
+//			if( G_SHOW_SETTINGS ){
+//				Flurry::getInstrumentation()->logEvent("Draw Rings Button Selected");            
+//				G_DRAW_RINGS = !G_DRAW_RINGS;
+//			}
+//            break;
+//        
+//        case PlayControls::DRAW_TEXT:
+//			if( G_SHOW_SETTINGS ){
+//				Flurry::getInstrumentation()->logEvent("Draw Text Button Selected");            
+//				G_DRAW_TEXT = !G_DRAW_TEXT;
+//			}
+//            break;
+//        
+//		case PlayControls::USE_GYRO:
+//			if( G_SHOW_SETTINGS ){
+//				Flurry::getInstrumentation()->logEvent("Use Gyro Button Selected");            
+//				G_USE_GYRO = !G_USE_GYRO;
+//			}
+//            break;
+//			
+//		case PlayControls::GALAXY:
+//            Flurry::getInstrumentation()->logEvent("Galaxy Button Selected");            
+//			mWorld.deselectAllNodes();
+//			mState.setSelectedNode( NULL );
+//			mState.setAlphaChar( ' ' );
+//            break;
+//			
+//        case PlayControls::CURRENT_TRACK:
+//            Flurry::getInstrumentation()->logEvent("Current Track Button Selected");            
+//            // pretend the track just got changed again, this will select it:
+//            onPlayerTrackChanged( &mIpodPlayer );
+//            break;
+//			
+//		case PlayControls::SETTINGS:
+//            Flurry::getInstrumentation()->logEvent("Settings Button Selected");            
+//            G_SHOW_SETTINGS = !G_SHOW_SETTINGS;
+//            break;
+//
+//        case PlayControls::SLIDER:
+//            // TODO: Flurry log?
+//            break;
+//        
+//		case PlayControls::DEBUG_FEATURE:
+//			G_DEBUG = !G_DEBUG;
+//            break;
+//			
+//		case PlayControls::NEXT_PLAYLIST:
+//			mPlaylistIndex ++;
+//			mPlaylistIndex = constrain( mPlaylistIndex, 0, (int)mData.mPlaylists.size() - 1 );
+//            mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
+//            break;
+//			
+//		case PlayControls::PREVIOUS_PLAYLIST:
+//            mPlaylistIndex --;
+//			mPlaylistIndex = constrain( mPlaylistIndex, 0, (int)mData.mPlaylists.size() - 1 );
+//            mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
+//            break;	
+//			
+//        case PlayControls::NO_BUTTON:
+//            //console() << "unknown button pressed!" << std::endl;
+//            break;
+//
+//	} // switch
+//
+//	return false;
+//}
 
 /*
 bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
@@ -1162,7 +1270,7 @@ void KeplerApp::update()
 {
 	
 	if( mData.update() ){
-		mWorld.initNodes( &mIpodPlayer, mFont, mFontMediTiny, mSurfaces );
+		mWorld.initNodes( &mIpodPlayer, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
 		mDataIsLoaded = true;
 		mLoadingScreen.setEnabled( false );
 		mUiLayer.setIsPanelOpen( true );
@@ -1204,7 +1312,7 @@ void KeplerApp::update()
 		
 		Node *selectedNode = mState.getSelectedArtistNode();
 		if( selectedNode ){
-			mParticleController.update( selectedNode->mRadius * 0.15f, invBbRight, invBbUp );
+			mParticleController.update( selectedNode->mRadius * 0.2f, invBbRight, invBbUp );
 			float per = selectedNode->mEclipseStrength * 0.7f + 0.35f;
 			mParticleController.buildParticleVertexArray( sin( per * M_PI ) * sin( per * 0.25f ) );
 			mParticleController.buildDustVertexArray( selectedNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.03125f * mFadeInArtistToAlbum );
@@ -1337,7 +1445,7 @@ void KeplerApp::updateCamera()
 	
 	
 	Vec3f prevEye	= mEye;
-	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist - sin( mCamDistAnim ) * distToTravel * 0.25f );
+	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist );//- sin( mCamDistAnim ) * distToTravel * 0.25f );
 	mCamVel			= mEye - prevEye;
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
@@ -1510,29 +1618,29 @@ void KeplerApp::drawScene()
 	mStarTex.enableAndBind();
 	mWorld.drawStarsVertexArray( mMatrix );
 	mStarTex.disable();
-    
-	
-// ECLIPSEGLOWS OVERLAY
-	mEclipseGlowTex.enableAndBind();
-	mWorld.drawEclipseGlows();
-	mEclipseGlowTex.disable();
 	
 	
-// STARGLOWS occluded
-	mEclipseGlowTex.enableAndBind();
-	mWorld.drawStarGlowsVertexArray( mMatrix );
-	mEclipseGlowTex.disable();
+//// ECLIPSEGLOWS OVERLAY
+//	mEclipseGlowTex.enableAndBind();
+//	mWorld.drawEclipseGlows();
+//	mEclipseGlowTex.disable();
 
-	
+
+// STARGLOWS occluded
+//	mEclipseGlowTex.enableAndBind();
+//	mWorld.drawStarGlowsVertexArray( mMatrix );
+//	mEclipseGlowTex.disable();
+
+
+
 // STARGLOWS bloom (TOUCH HIGHLIGHTS)
 	mEclipseGlowTex.enableAndBind();
 	mWorld.drawTouchHighlights( mFadeInArtistToAlbum );
 	mEclipseGlowTex.disable();
-
 	
 	
 	if( artistNode ){ // defined at top of method
-		float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
+		//float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
 		mCamRingAlpha = constrain( abs( transEye.y - artistNode->mPos.y ), 0.0f, 1.0f ); // WAS 0.6f
 		
 		
@@ -1551,8 +1659,9 @@ void KeplerApp::drawScene()
 		glCullFace( GL_BACK );
 		glEnable( GL_CULL_FACE );
 		glEnable( GL_COLOR_MATERIAL );
-		glMaterialfv( GL_FRONT, GL_AMBIENT, ColorA( 0.01f, 0.025f, 0.1f, 1.0f ) );
-		glMaterialfv( GL_FRONT, GL_DIFFUSE, ColorA( Color::white(), 1.0f ) );
+		glEnable( GL_RESCALE_NORMAL );
+		glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT, ColorA( 0.1f, 0.025f, 0.01f, 1.0f ) );
+		glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, ColorA( Color::white(), 1.0f ) );
 //		glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, ColorA( Color::white(), 1.0f ) );
 //		glMaterialf(  GL_FRONT_AND_BACK, GL_SHININESS, 20.0f );
 		
@@ -1570,9 +1679,10 @@ void KeplerApp::drawScene()
 
 	
 			gl::enableAlphaBlending();
+			//glMaterialfv( GL_FRONT_AND_BACK, GL_EMISSION, ColorA( 0.4f, 0.1f, 0.0f, 1.0f ) );
 			sortedNodes[i]->drawPlanet( mPlanetsTex );
-			
-			gl::enableAlphaBlending();
+
+			//glMaterialfv( GL_FRONT_AND_BACK, GL_EMISSION, ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
 			sortedNodes[i]->drawClouds( mCloudsTex );
 			
 			gl::disableAlphaBlending();
@@ -1583,11 +1693,12 @@ void KeplerApp::drawScene()
 				sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
 			}
 			
-			if( sortedNodes[i]->mGen == G_TRACK_LEVEL && sortedNodes[i]->isMostPlayed() ){
+			if( sortedNodes[i]->mGen == G_TRACK_LEVEL ){//&& sortedNodes[i]->isMostPlayed() ){
 				sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
 			}
 		}
 		glDisable( GL_CULL_FACE );
+		glDisable( GL_RESCALE_NORMAL );
 	}
 	
 	
@@ -1644,7 +1755,7 @@ void KeplerApp::drawScene()
 	if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 		gl::enableAdditiveBlending();
 		if( G_DRAW_RINGS )
-			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mCamRingAlpha * 5.0f, mPlayheadProgressTex, mTrackOriginTex );
+			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mCamRingAlpha, mPlayheadProgressTex, mTrackOriginTex );
 	}
 	
 	
@@ -1752,8 +1863,7 @@ void KeplerApp::drawScene()
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
 //    mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
-    mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
-	
+    mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, mFontMediSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
 	gl::disableAlphaBlending();
 	if( G_DEBUG ) drawInfoPanel();
 }

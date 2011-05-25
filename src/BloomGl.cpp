@@ -34,6 +34,31 @@ void drawButton( const ci::Rectf &rect, float u1, float v1, float u2, float v2 )
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );	
 }
 
+void drawButton( const ci::Rectf &rect, const ci::Rectf &texRect )
+{
+	glEnableClientState( GL_VERTEX_ARRAY );
+	GLfloat verts[8];
+	glVertexPointer( 2, GL_FLOAT, 0, verts );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	GLfloat texCoords[8];
+	glTexCoordPointer( 2, GL_FLOAT, 0, texCoords );
+	int vi = 0;
+	int ti = 0;
+	verts[vi++] = rect.getX2(); texCoords[ti++] = texRect.x2;
+	verts[vi++] = rect.getY1(); texCoords[ti++] = texRect.y1;
+	verts[vi++] = rect.getX1(); texCoords[ti++] = texRect.x1;
+	verts[vi++] = rect.getY1(); texCoords[ti++] = texRect.y1;
+	verts[vi++] = rect.getX2(); texCoords[ti++] = texRect.x2;
+	verts[vi++] = rect.getY2(); texCoords[ti++] = texRect.y2;
+	verts[vi++] = rect.getX1(); texCoords[ti++] = texRect.x1;
+	verts[vi++] = rect.getY2(); texCoords[ti++] = texRect.y2;
+	
+	glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
+	
+	glDisableClientState( GL_VERTEX_ARRAY );
+	glDisableClientState( GL_TEXTURE_COORD_ARRAY );	
+}
+
 void inflateRect( ci::Rectf &rect, float amount )
 {
     rect.x1 -= amount;

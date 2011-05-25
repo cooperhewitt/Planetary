@@ -223,6 +223,7 @@ void Data::filterArtistsByAlpha( char c )
 		int index = 0;
 		for( vector<PlaylistRef>::iterator it = mArtists.begin(); it != mArtists.end(); ++it ){
 			string name		= (*it)->getArtistName();
+			
 			string the		= name.substr( 0, 4 );
 			char firstLetter;
 			

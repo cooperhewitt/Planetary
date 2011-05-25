@@ -19,12 +19,11 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeTrack::NodeTrack( Node *parent, int index, const Font &font, const Font &smallFont, const Surface &surfaces )
-	: Node( parent, index, font, smallFont, surfaces )
+NodeTrack::NodeTrack( Node *parent, int index, const Font &font, const Font &smallFont, const Surface &hiResSurfaces, const Surface &loResSurfaces, const Surface &noAlbumArt )
+	: Node( parent, index, font, smallFont, hiResSurfaces, loResSurfaces, noAlbumArt )
 {	
 	mGen				= G_TRACK_LEVEL;
 	mPos				= mParentNode->mPos;
-	
 	mIsHighlighted		= true;
     mIsPlaying			= false;
 	mHasClouds			= false;
@@ -43,6 +42,7 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font, const Font &sma
 
 void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &albumArt )
 {
+	mAlbumArtSurface = albumArt;
 	mAlbum			= album;
 // TRACK INFORMATION
 	mTrack			= track;
@@ -65,7 +65,12 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 	
 	//normalize playcount data
 	float playCountDelta	= ( mParentNode->mHighestPlayCount - mParentNode->mLowestPlayCount ) + 1.0f;
-	mNormPlayCount			= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
+	if( playCountDelta == 1.0f )
+		mNormPlayCount		= 1.0f;
+	else
+		mNormPlayCount		= ( mPlayCount - mParentNode->mLowestPlayCount )/playCountDelta;
+	
+	
 	
 	if( mStarRating == 0 ){
 		mPlanetTexIndex			= constrain( (int)( mNormPlayCount * 8 ), 0, 7 );
@@ -93,7 +98,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 	mRadiusDest 		= math<float>::max( (mParentNode->mRadiusDest * 0.1f) * pow( mNormPlayCount + 0.5f, 2.0f ), 0.0025f );
 	mRadius				= 0.0f;
 	mSphere				= Sphere( mPos, mRadiusDest );
-	mIdealCameraDist	= math<float>::max( mRadiusDest * 14.0f, 0.5f );
+	mIdealCameraDist	= math<float>::max( mRadiusDest * 10.0f, 0.5f );
 	mCloudLayerRadius	= mRadiusDest * 0.05f;
 	
 	mOrbitPeriod		= mTrackLength;
@@ -101,80 +106,12 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 	setStartAngle();
 	
 	mAxialTilt			= Rand::randFloat( -5.0f, 20.0f );
-    mAxialVel			= Rand::randFloat( 30.0f, 40.0f ) * ( mStarRating + 1 );
+    mAxialVel			= Rand::randFloat( 15.0f, 20.0f ) * ( mStarRating + 1 );
 
 	mStartRelPos		= Vec3f( cos( mOrbitStartAngle ), sin( mOrbitStartAngle ), 0.0f ) * mOrbitRadius;
 	mStartPos			= ( mParentNode->mPos + mStartRelPos ); 
 
-	
-	//////////////////////
-	// CREATE MOON TEXTURE
-	if( !mHasCreatedAlbumArt ){
-		int totalWidth		= 256; // dont forget to change the actual textures too
-		int halfWidth		= totalWidth/2;
-		int quarterWidth	= totalWidth/4;
-		if( albumArt ){
-			int x			= (int)(mNormPlayCount*halfWidth);
-			int y			= (int)( halfWidth * mAsciiPer );
-			
-			int w			= (int)(mNormPlayCount*quarterWidth);
-			int h			= (int)(mNormPlayCount*quarterWidth);
-			
-			// grab a section of the album art
-			Area a			= Area( x, y, x+w, y+h );
-			Surface crop	= Surface( totalWidth, totalWidth, false );
-			ci::ip::resize( albumArt, a, &crop, Area( 0, 0, halfWidth, totalWidth ), FilterCubic() );
-			
-			// iterate through it to make it a mirror image
-			Surface::Iter iter = crop.getIter();
-			while( iter.line() ) {
-				while( iter.pixel() ) {
-					int xi, yi;
-					if( iter.x() >= halfWidth ){
-						xi = iter.x() - halfWidth;
-						yi = iter.y();
-					} else {
-						xi = (halfWidth-1) - iter.x();
-						yi = iter.y();	
-					}
-					ColorA c = crop.getPixel( Vec2i( xi, yi ) );
-					iter.r() = c.r * 255.0f;
-					iter.g() = c.g * 255.0f;
-					iter.b() = c.b * 255.0f;
-				}
-			}
-			
-			// add the planet texture
-			// and add the shadow from the cloud layer
-			Area planetArea			= Area( 0, totalWidth * mPlanetTexIndex, totalWidth, totalWidth * ( mPlanetTexIndex + 1 ) );
-			Surface planetSurface	= mSurfaces.clone( planetArea );
-			
-			iter = planetSurface.getIter();
-			while( iter.line() ) {
-				while( iter.pixel() ) {
-					ColorA albumColor	= crop.getPixel( Vec2i( iter.x(), iter.y() ) );
-					ColorA surfaceColor	= planetSurface.getPixel( Vec2i( iter.x(), iter.y() ) );
-					float planetVal		= surfaceColor.r;
-					float cloudShadow	= ( 1.0f - surfaceColor.g ) * 0.5f + 0.5f;
-					float highlight		= surfaceColor.b;
-					
-					ColorA final		= albumColor * mNormPlayCount + planetVal * ( 1.0f - mNormPlayCount );
-					final *= cloudShadow;
-					
-					iter.r() = final.r * 255.0f;// + 25.0f;
-					iter.g() = final.g * 255.0f;// + 25.0f;
-					iter.b() = final.b * 255.0f;// + 25.0f;
-				}
-			}
-			
-			mAlbumArt			= gl::Texture( planetSurface );
-			mHasAlbumArt		= true;
-		}
-		
-		mHasCreatedAlbumArt = true;
-	}
-	// END CREATE MOON TEXTURE	
-	//////////////////////////	
+	// TEXTURE CREATION MOVED TO UPDATE
 }
 
 
@@ -182,6 +119,7 @@ void NodeTrack::setStartAngle()
 {
 	mPercentPlayed		= 0.0f;
 	float timeOffset	= ( mMyTime )/mOrbitPeriod;
+	//float angle			= atan2( mPos.z - mParentNode->mPos.z, mPos.x - mParentNode->mPos.x );
 	mOrbitStartAngle	= timeOffset * TWO_PI;
 }
 
@@ -266,6 +204,101 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 
 void NodeTrack::update( const Matrix44f &mat )
 {	
+	//////////////////////
+	// CREATE MOON TEXTURE
+	if( !mHasCreatedAlbumArt && mAge>mIndex * 2 ){
+		int totalWidth		= 128; // dont forget to change the actual textures too
+		int halfWidth		= totalWidth/2;
+		int quarterWidth	= totalWidth/4;
+		if( mAlbumArtSurface ){
+			int x			= (int)(mNormPlayCount*halfWidth);
+			int y			= (int)( halfWidth * mAsciiPer );
+			
+			int w			= (int)(mNormPlayCount*quarterWidth);
+			int h			= (int)(mNormPlayCount*quarterWidth);
+			
+			// grab a section of the album art
+			Area a			= Area( x, y, x+w, y+h );
+			Surface crop	= Surface( totalWidth, totalWidth, false );
+			Surface crop2	= Surface( totalWidth, totalWidth, false );
+			ci::ip::resize( mAlbumArtSurface, a, &crop, Area( 0, 0, halfWidth, totalWidth ), FilterCubic() );
+			
+			// iterate through it to make it a mirror image
+			Surface::Iter iter = crop2.getIter();
+			while( iter.line() ) {
+				while( iter.pixel() ) {
+					int xi, yi;
+					if( iter.x() >= halfWidth ){
+						xi = iter.x() - halfWidth;
+						yi = iter.y();
+					} else {
+						xi = (halfWidth-1) - iter.x();
+						yi = iter.y();	
+					}
+					ColorA c = crop.getPixel( Vec2i( xi, yi ) );
+					iter.r() = c.r * 255.0f;
+					iter.g() = c.g * 255.0f;
+					iter.b() = c.b * 255.0f;
+				}
+			}
+			
+			// fix the polar pinching
+			Surface::Iter iter2 = crop.getIter();
+			while( iter2.line() ) {
+				float cosTheta = cos( M_PI * ( iter2.y() - (float)( totalWidth - 1 )/2.0f ) / (float)( totalWidth - 1 ) );
+				
+				while( iter2.pixel() ) {
+					float phi	= TWO_PI * ( iter2.x() - halfWidth ) / (double)totalWidth;
+					float phi2	= phi * cosTheta;
+					int i2 = phi2 * totalWidth/TWO_PI + halfWidth;
+					
+					if( i2 < 0 || i2 > totalWidth-1 ){
+						iter2.r() = 255.0f;
+						iter2.g() = 0.0f;
+						iter2.b() = 0.0f;
+					} else {
+						ColorA c = crop2.getPixel( Vec2i( i2, iter2.y() ) );
+						iter2.r() = c.r * 255.0f;
+						iter2.g() = c.g * 255.0f;
+						iter2.b() = c.b * 255.0f;
+					}
+				}
+			}
+			
+			// add the planet texture
+			// and add the shadow from the cloud layer
+			Area planetArea			= Area( 0, totalWidth * mPlanetTexIndex, totalWidth, totalWidth * ( mPlanetTexIndex + 1 ) );
+			Surface planetSurface	= mLowResSurfaces.clone( planetArea );
+			
+			iter = planetSurface.getIter();
+			while( iter.line() ) {
+				while( iter.pixel() ) {
+					ColorA albumColor	= crop.getPixel( Vec2i( iter.x(), iter.y() ) );
+					ColorA surfaceColor	= planetSurface.getPixel( Vec2i( iter.x(), iter.y() ) );
+					float planetVal		= surfaceColor.r;
+					float cloudShadow	= ( 1.0f - surfaceColor.g ) * 0.5f + 0.5f;
+					//float highlight		= surfaceColor.b;
+					
+					ColorA final		= albumColor * mNormPlayCount + planetVal * ( 1.0f - mNormPlayCount );
+					final *= cloudShadow;
+					
+					iter.r() = final.r * 255.0f;// + 25.0f;
+					iter.g() = final.g * 255.0f;// + 25.0f;
+					iter.b() = final.b * 255.0f;// + 25.0f;
+				}
+			}
+			
+			mAlbumArtTex		= gl::Texture( planetSurface );
+			mHasAlbumArt		= true;
+		}
+		
+		mHasCreatedAlbumArt = true;
+	}
+	// END CREATE MOON TEXTURE	
+	//////////////////////////	
+	
+	
+	
 	mRadius			-= ( mRadius - mRadiusDest ) * 0.2f;
 	
 	mPrevTime		= mCurrentTime;
@@ -306,7 +339,7 @@ void NodeTrack::update( const Matrix44f &mat )
 		float A		= M_PI * Rsqrd;
 		
 		float c		= p.distance( P );
-		mEclipseDirBasedAlpha = 1.0f - constrain( c, 0.0f, 750.0f )/750.0f;
+		mEclipseDirBasedAlpha = 1.0f - constrain( c, 0.0f, 2750.0f )/2750.0f;
 		if( mEclipseDirBasedAlpha > 0.9f )
 			mEclipseDirBasedAlpha = 0.9f - ( mEclipseDirBasedAlpha - 0.9f ) * 9.0f;
 		
@@ -333,6 +366,7 @@ void NodeTrack::update( const Matrix44f &mat )
 // END CALCULATE ECLIPSE VARS
 /////////////////////////////
 	
+	//mClosenessFadeAlpha = constrain( ( mDistFromCamZAxis - mRadius ) * 80.0f, 0.0f, 1.0f );
 	
 	Node::update( mat );
 
@@ -349,7 +383,8 @@ void NodeTrack::drawEclipseGlow()
 
 void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 {	
-	if( mSphereScreenRadius > 0.5f && mDistFromCamZAxis < -0.005f )
+	// closer than -0.01? fade out?
+	if( mSphereScreenRadius > 0.5f && mClosenessFadeAlpha > 0.0f )
 	{
 		glEnable( GL_RESCALE_NORMAL );
 		glEnableClientState( GL_VERTEX_ARRAY );
@@ -378,9 +413,6 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 			numVerts = mTotalTyVertsRes;
 		}
 		
-		
-		gl::disableAlphaBlending();
-		
 		gl::pushModelView();
 		gl::translate( mTransPos );
 		float radius = mRadius * mDeathPer;
@@ -388,9 +420,9 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
 		gl::rotate( Vec3f( 0.0f, mCurrentTime * mAxialVel, 0.0f ) );
-		gl::color( mEclipseColor );
+		gl::color( ColorA( mEclipseColor, mClosenessFadeAlpha ) );
 		if( mHasAlbumArt ){
-			mAlbumArt.enableAndBind();
+			mAlbumArtTex.enableAndBind();
 		} else {
 			planets[mPlanetTexIndex].enableAndBind();
 		}
@@ -470,7 +502,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
 			gl::rotate( Vec3f( 0.0f, mCurrentTime * mAxialVel, 0.0f ) );
 			float alpha = max( 0.7f - mDistFromCamZAxisPer, 0.0f );
-			gl::color( ColorA( mEclipseColor, alpha ) );
+			gl::color( ColorA( mEclipseColor, alpha * mClosenessFadeAlpha ) );
 			glDrawArrays( GL_TRIANGLES, 0, numVerts );
 			gl::popModelView();
 			gl::popModelView();
@@ -484,7 +516,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 
 void NodeTrack::drawAtmosphere( const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
-	if( mDistFromCamZAxis < -0.005f ){
+	if( mClosenessFadeAlpha > 0.0f ){
 		gl::enableAdditiveBlending();
 
 		Vec2f dir		= mScreenPos - app::getWindowCenter();
@@ -492,20 +524,20 @@ void NodeTrack::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 		float angle		= atan2( dir.y, dir.x );
 		float stretch	= 1.0f + dirLength * 0.1f;
 		gl::enableAdditiveBlending();
-		float alpha = mDeathPer;
+		float alpha = mNormPlayCount * 0.5f * mDeathPer;
 		
 //		float alpha = 0.3f * ( 1.0f - dirLength );
 //		if( G_ZOOM <= G_ALBUM_LEVEL )
 //			alpha = pinchAlphaPer;
 
-		gl::color( ColorA( BRIGHT_YELLOW, alpha ) );
+		gl::color( ColorA( BRIGHT_YELLOW, alpha * mClosenessFadeAlpha ) );
 		Vec2f radius = Vec2f( mRadius * stretch, mRadius ) * 2.45f;
 		tex.enableAndBind();
 		gl::drawBillboard( mTransPos, radius, -toDegrees( angle ), mBbRight, mBbUp );
 		tex.disable();
 		
 		
-		gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha * mDeathPer ) );
+		gl::color( ColorA( mColor, alpha * mClosenessFadeAlpha * mEclipseDirBasedAlpha * mDeathPer ) );
 		directionalTex.enableAndBind();
 		gl::drawBillboard( mTransPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
 		directionalTex.disable();
@@ -545,19 +577,19 @@ void NodeTrack::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, const gl::Texture &tex, const gl::Texture &originTex )
 {
 	if( mIsPlaying ){
-//		float newPinchAlphaPer = pinchAlphaPer;
-//		if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
-//			newPinchAlphaPer = pinchAlphaPer;
-//		} else {
-//			newPinchAlphaPer = 1.0f;
-//		}
-//		
+		float newPinchAlphaPer = pinchAlphaPer;
+		if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
+			newPinchAlphaPer = pinchAlphaPer;
+		} else {
+			newPinchAlphaPer = 1.0f;
+		}
+		
 		
 		tex.enableAndBind();
 		gl::pushModelView();
 		gl::translate( mParentNode->mTransPos );
 		gl::rotate( mMatrix );
-		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, camAlpha ) );
+		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, camAlpha * newPinchAlphaPer ) );
 		
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -572,7 +604,7 @@ void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, const
 		Vec3f pos = Vec3f( cos( mOrbitStartAngle ), 0.0f, sin( mOrbitStartAngle ) );
 
 		gl::enableAlphaBlending();
-		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, camAlpha * 2.0f ) );
+		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, camAlpha * 2.0f * pinchAlphaPer ) );
 		originTex.enableAndBind();
 		gl::drawBillboard( mParentNode->mTransPos + ( mMatrix * pos ) * mOrbitRadius, Vec2f( mRadius, mRadius ) * 2.15f, 0.0f, mMatrix * Vec3f::xAxis(), mMatrix * Vec3f::zAxis() );
 		originTex.disable();

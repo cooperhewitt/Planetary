@@ -23,8 +23,8 @@ using namespace ci;
 using namespace ci::ipod;
 using namespace std;
 
-NodeArtist::NodeArtist( int index, const Font &font, const Font &smallFont, const Surface &surfaces )
-	: Node( NULL, index, font, smallFont, surfaces )
+NodeArtist::NodeArtist( int index, const Font &font, const Font &smallFont, const Surface &hiResSurfaces, const Surface &loResSurfaces, const Surface &noAlbumArt )
+	: Node( NULL, index, font, smallFont, hiResSurfaces, loResSurfaces, noAlbumArt )
 {
 	mGen			= G_ARTIST_LEVEL;
 	//mPosDest		= Rand::randVec3f() * Rand::randFloat( 40.0f, 75.0f ); // 40.0f, 200.0f
@@ -90,7 +90,6 @@ void NodeArtist::update( const Matrix44f &mat )
 	
 	if( mAge < 100.0f ){
 		mPos -= ( mPos - mPosDest ) * 0.1f;
-		mAge ++;
 	}
 	
 	if( mAge > mBirthPause ){
@@ -176,7 +175,7 @@ void NodeArtist::select()
 			int trackcount = 0;
 			for(vector<PlaylistRef>::iterator it = albumsBySelectedArtist.begin(); it != albumsBySelectedArtist.end(); ++it){
 				PlaylistRef album	= *it;
-				NodeAlbum *newNode = new NodeAlbum( this, i, mFont, mSmallFont, mSurfaces );
+				NodeAlbum *newNode = new NodeAlbum( this, i, mFont, mSmallFont, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
 				mChildNodes.push_back( newNode );
 				trackcount += album->m_tracks.size();
 				newNode->setData( album );
@@ -222,7 +221,7 @@ void NodeArtist::setChildOrbitRadii()
 		float orbitOffset = mRadiusDest;// * 1.0f;
 		for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
 			NodeAlbum* albumNode = (NodeAlbum*)(*it);
-			float amt = math<float>::max( albumNode->mNumTracks * 0.04f, 0.1f );
+			float amt = math<float>::max( albumNode->mNumTracks * 0.025f, 0.05f );
 			orbitOffset += amt;
 			(*it)->mOrbitRadiusDest = orbitOffset;
 			orbitOffset += amt;

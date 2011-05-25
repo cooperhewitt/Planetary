@@ -21,7 +21,7 @@
 class Node {
   public:
 
-	Node( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &surfaces );
+	Node( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &hiResSurfaces, const ci::Surface &loResSurfaces, const ci::Surface &noAlbumArt );
 	virtual ~Node(){ 
 		for( std::vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 			delete (*nodeIt);
@@ -83,6 +83,7 @@ class Node {
     
 // RADII
 	float				mRadius;			// Radius of the Node
+	float				mInvRadius;			// 1.0f/radius
 	float				mRadiusDest;		// Destination radius
 	float				mGlowRadius;		// Radius of the glow image
     
@@ -102,7 +103,7 @@ class Node {
     float               mAxialVel;          // Speed of rotation around mAxialTilt axis;
     
 // DIST FROM CAMERA
-	float				mDistFromCamZAxis;	// Node's distance from Cam eye (negative is further away than positive)
+	float				mDistFromCamZAxis;	// Node's distance from Cam eye
 	float				mPrevDistFromCamZAxis;	// Node's previous distance from Cam eye
 	float				mDistFromCamZAxisPer; // normalized range.
     
@@ -121,7 +122,9 @@ class Node {
 	// NAME
 	ci::Font			mFont, mSmallFont;
 	ci::gl::Texture		mNameTex;			// Texture of the name
-	ci::Surface			mSurfaces;			// Images for Track moon surface
+	ci::Surface			mHighResSurfaces;	// Images for Track moon surface
+	ci::Surface			mLowResSurfaces;	// Images for Track moon surface
+	ci::Surface			mNoAlbumArtSurface;
 	ci::Rectf			mHitArea;			// name hit area
 	ci::Rectf			mSphereHitArea;		// node hit area
 	
@@ -139,7 +142,7 @@ class Node {
     float				mEclipseStrength;	// Strength of the eclipse (0, no occlusion. 1, full occlusion)
 	float				mEclipseAngle;		// screenspace angle of eclipse effect
 	float				mEclipseDirBasedAlpha;	// The alpha of the directional eclipse effect based on screenspace distance
-	
+	float				mClosenessFadeAlpha; // makes objects fade out if they are too close to the camera. prevents clipping poops
 	int					mAge;
 	int					mDeathCount;
 	int					mDeathThresh;

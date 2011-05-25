@@ -20,8 +20,9 @@
 using namespace ci;
 using namespace std;
 
-Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, const Surface &surfaces )
-	: mParentNode( parent ), mIndex( index ), mFont( font ), mSmallFont( smallFont ), mSurfaces( surfaces )
+Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, const Surface &hiResSurfaces, const Surface &loResSurfaces, const Surface &noAlbumArt )
+	: mParentNode( parent ), mIndex( index ), mFont( font ), mSmallFont( smallFont ),
+	  mHighResSurfaces( hiResSurfaces ), mLowResSurfaces( loResSurfaces ), mNoAlbumArtSurface( noAlbumArt )
 {
     mZoomPer            = 0.0f;
     
@@ -127,6 +128,9 @@ void Node::createNameTexture()
 
 void Node::update( const Matrix44f &mat )
 {	
+	mInvRadius		= ( 1.0f/mRadius ) * 0.5f;
+	mClosenessFadeAlpha = constrain( ( mDistFromCamZAxis - mRadius ) * mInvRadius, 0.0f, 1.0f );
+	
 	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
 	mMatrix         = mat;
 	mTransPos       = mMatrix * mPos;
@@ -150,7 +154,7 @@ void Node::update( const Matrix44f &mat )
 	}
 	
 	mDeathPer = 1.0f - (float)mDeathCount/(float)mDeathThresh;
-	
+	mAge ++;
 	
 	
 	bool clearChildNodes = false;
@@ -179,8 +183,8 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 	if( mIsHighlighted ){
         mScreenPos              = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
-		mDistFromCamZAxis		= cam.worldToEyeDepth( mTransPos );
-		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * -0.5f, 0.0f, 1.0f ); // REL: -0.35f
+		mDistFromCamZAxis		= -cam.worldToEyeDepth( mTransPos );
+		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * 0.5f, 0.0f, 1.0f ); // REL: -0.35f
 		mSphereScreenRadius     = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() );
         float r					= max( mSphereScreenRadius, 15.0f );        
         mSphereHitArea			= Rectf( mScreenPos.x - r, mScreenPos.y - r, mScreenPos.x + r, mScreenPos.y + r );        
@@ -272,7 +276,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			offset0 = Vec2f( mSphereScreenRadius, mSphereScreenRadius ) * 0.75f;
 			offset0.rotate( angle );
 			pos1 = mScreenPos + offset0;
-			offset1 = Vec2f( 5.0f, 5.0f );
+			offset1 = Vec2f( 3.5f, 3.5f ) * ( ( G_TRACK_LEVEL + 1.0f ) - mGen );
 			offset1.rotate( angle );
 			pos2 = pos1 + offset1;
 			offset2 = Vec2f( 2.0f, -8.0f );
@@ -348,14 +352,14 @@ void Node::drawTouchHighlight( float zoomAlpha )
 		}
 		
 		
-		if( G_DRAW_RINGS ){
+		if( G_DRAW_RINGS && mClosenessFadeAlpha > 0.0f ){
 			if( mGen == G_TRACK_LEVEL ){
-				float alpha = mDeathPer;//max( 0.7f - mDistFromCamZAxisPer, 0.0f );
-				gl::color( ColorA( BRIGHT_BLUE, alpha + mEclipseStrength * mDeathPer ) );
+				float alpha = max( ( 0.7f - mDistFromCamZAxisPer ) * mDeathPer, 0.0f );
+				gl::color( ColorA( BRIGHT_BLUE, ( alpha + mEclipseStrength * mDeathPer ) * mClosenessFadeAlpha ) );
 				gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 			} else if( mGen == G_ALBUM_LEVEL ){
-				float alpha = max( ( mDistFromCamZAxis + 5.0f ) * 0.25f, 0.0f );
-				gl::color( ColorA( BRIGHT_BLUE, alpha + mEclipseStrength * mDeathPer ) );
+				float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 1.0f );
+				gl::color( ColorA( BRIGHT_BLUE, ( alpha + mEclipseStrength * mDeathPer ) * mClosenessFadeAlpha ) );
 				gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
 			}
 		}

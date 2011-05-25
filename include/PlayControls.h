@@ -16,7 +16,6 @@
 #include "cinder/Text.h"
 #include "Orientation.h"
 #include "OrientationEvent.h"
-#include "AlphaWheel.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -33,7 +32,7 @@ inline std::string to_string( const T& t )
 class PlayControls {
 public:
 
-	enum PlayButton { NO_BUTTON, PREVIOUS_PLAYLIST, NEXT_PLAYLIST, GALAXY, CURRENT_TRACK, SETTINGS, PREVIOUS_TRACK, 
+	enum PlayButton { NO_BUTTON, PREV_PLAYLIST, NEXT_PLAYLIST, GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, PREV_TRACK, 
 					  PLAY_PAUSE, NEXT_TRACK, SLIDER, HELP, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE };
 	enum ButtonTexId { TEX_BUTTONS, TEX_SLIDER_BUTTON, TEX_HELP, TEX_DRAW_RINGS, TEX_DRAW_TEXT, TEX_USE_GYRO, TEX_DEBUG_FEATURE };	
 	
@@ -49,7 +48,7 @@ public:
 	void setPlaying(bool playing) { mIsPlaying = playing; }
 	bool isPlaying() { return mIsPlaying; }
 	
-	void draw( const Orientation &orientation, const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &currentTrackTex, AlphaWheel *alphaWheel, const Font &font, float y, float currentTime, float totalTime, float secsSinceTrackChange );
+	void draw( const Orientation &orientation, const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &currentTrackTex, const Font &font, float y, float currentTime, float totalTime, float secsSinceTrackChange );
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>
 	CallbackId registerButtonPressed( T *obj, bool (T::*callback)(PlayButton) )

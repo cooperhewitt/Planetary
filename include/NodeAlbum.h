@@ -15,7 +15,7 @@
 class NodeAlbum : public Node
 {
   public:
-	NodeAlbum( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &surfaces );
+	NodeAlbum( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &hiResSurfaces, const ci::Surface &loResSurfaces, const ci::Surface &noAlbumArt );
 	void setData( ci::ipod::PlaylistRef album );
 	void update( const ci::Matrix44f &mat );
 	void drawEclipseGlow();

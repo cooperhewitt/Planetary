@@ -163,7 +163,7 @@ void World::buildSphereVertexArray( int segments, int *numVerts, float* &sphereV
 	}
 }
 
-void World::initNodes( Player *player, const Font &font, const Font &smallFont, const Surface &surfaces )
+void World::initNodes( Player *player, const Font &font, const Font &smallFont, const Surface &highResSurfaces, const Surface &lowResSurfaces, const Surface &noAlbumArt )
 {
 	float t = App::get()->getElapsedSeconds();
 
@@ -176,7 +176,7 @@ void World::initNodes( Player *player, const Font &font, const Font &smallFont, 
 	int i=0;
 	for(vector<PlaylistRef>::iterator it = mData->mArtists.begin(); it != mData->mArtists.end(); ++it){
 		PlaylistRef artist	= *it;
-		NodeArtist *newNode = new NodeArtist( i++, font, smallFont, surfaces );
+		NodeArtist *newNode = new NodeArtist( i++, font, smallFont, highResSurfaces, lowResSurfaces, noAlbumArt );
 		newNode->setData(artist);
 		mNodes.push_back( newNode );
 	}
@@ -283,12 +283,15 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, floa
 	int vIndex	= 0;
 	int tIndex	= 0;
 	int cIndex	= 0;
+	float scaleOffset	= 0.5f - constrain( G_ARTIST_LEVEL - G_ZOOM, 0.0f, 1.0f ) * 0.25f;
+	float zoomOffset	= zoomAlpha * 3.5f;
 	
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		Vec3f pos	= (*it)->mPos;
-		float r		= (*it)->mRadius * 0.4f;
+		float r		= (*it)->mRadius * scaleOffset;
 		if( !(*it)->mIsHighlighted )
-			r		= r - zoomAlpha * 2.0f;
+			r		-= zoomOffset;
+
 		
 		ColorA col	= ColorA( (*it)->mColor, 1.0f );
 		
@@ -405,7 +408,7 @@ void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, 
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
 			Vec3f pos			= (*it)->mPos;
-			float r				= (*it)->mRadius * ( (*it)->mEclipseStrength * 2.0f + 1.75f ); // HERE IS WHERE YOU CAN MAKE THE GLOW HUGER/BIGGER/AWESOMER
+			float r				= (*it)->mRadius * ( (*it)->mEclipseStrength * 2.0f + 2.25f ); // HERE IS WHERE YOU CAN MAKE THE GLOW HUGER/BIGGER/AWESOMER
 			//if( !(*it)->mIsSelected )
 			//	r				-= zoomAlpha;
 			

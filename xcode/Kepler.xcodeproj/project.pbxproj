@@ -23,7 +23,7 @@
 		C7FB19D6124BC0D70045AFD3 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C7FB19D5124BC0D70045AFD3 /* CoreText.framework */; };
 		E10D86D41384EAD100346445 /* orbitRingGradient.png in Resources */ = {isa = PBXBuildFile; fileRef = E10D86D31384EAD100346445 /* orbitRingGradient.png */; };
 		E10D86D61384FF8200346445 /* origin.png in Resources */ = {isa = PBXBuildFile; fileRef = E10D86D51384FF8200346445 /* origin.png */; };
-		E10D86DE1386077900346445 /* surfaces.png in Resources */ = {isa = PBXBuildFile; fileRef = E10D86DD1386077800346445 /* surfaces.png */; };
+		E10D86DE1386077900346445 /* surfacesHighRes.png in Resources */ = {isa = PBXBuildFile; fileRef = E10D86DD1386077800346445 /* surfacesHighRes.png */; };
 		E10D86E01386428500346445 /* rainbowGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E10D86DF1386428500346445 /* rainbowGlow.png */; };
 		E12769841326E18A00E1FC3F /* 11.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E127697A1326E18A00E1FC3F /* 11.jpg */; };
 		E12769851326E18A00E1FC3F /* 21.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E127697B1326E18A00E1FC3F /* 21.jpg */; };
@@ -36,11 +36,15 @@
 		E128E33F1357B63E00707AA8 /* noArtists.png in Resources */ = {isa = PBXBuildFile; fileRef = E128E33E1357B63E00707AA8 /* noArtists.png */; };
 		E12D40DD1373792D0079EF3B /* Orientation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E12D40DB1373792D0079EF3B /* Orientation.cpp */; };
 		E12D40DE1373792D0079EF3B /* OrientationHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = E12D40DC1373792D0079EF3B /* OrientationHelper.mm */; };
+		E133FF85138C2FEA00A87B27 /* noAlbumArt.png in Resources */ = {isa = PBXBuildFile; fileRef = E133FF84138C2FEA00A87B27 /* noAlbumArt.png */; };
 		E1363D16132C3EE800115512 /* 12.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1363D12132C3EE800115512 /* 12.jpg */; };
 		E1363D17132C3EE800115512 /* 32.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1363D13132C3EE800115512 /* 32.jpg */; };
 		E1363D18132C3EE800115512 /* 42.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1363D14132C3EE800115512 /* 42.jpg */; };
 		E1363D19132C3EE800115512 /* 52.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1363D15132C3EE800115512 /* 52.jpg */; };
 		E1363D1B132C3F6F00115512 /* 22.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1363D1A132C3F6F00115512 /* 22.jpg */; };
+		E1406960138C9BE00091D93E /* Button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E140695E138C9BE00091D93E /* Button.cpp */; };
+		E1406962138CA1D00091D93E /* uiBigButtons.png in Resources */ = {isa = PBXBuildFile; fileRef = E1406961138CA1D00091D93E /* uiBigButtons.png */; };
+		E1406978138D8C6F0091D93E /* surfacesLowRes.png in Resources */ = {isa = PBXBuildFile; fileRef = E1406977138D8C6F0091D93E /* surfacesLowRes.png */; };
 		E1555A0B131E05140079B05A /* skydome.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1555A0A131E05140079B05A /* skydome.jpg */; };
 		E1555CA5131EEBEB0079B05A /* dotted.png in Resources */ = {isa = PBXBuildFile; fileRef = E1555CA4131EEBEB0079B05A /* dotted.png */; };
 		E1555E7A131F2C560079B05A /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1555E79131F2C560079B05A /* Node.cpp */; };
@@ -123,7 +127,7 @@
 		C7FB19D5124BC0D70045AFD3 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		E10D86D31384EAD100346445 /* orbitRingGradient.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = orbitRingGradient.png; path = ../resources/orbitRingGradient.png; sourceTree = "<group>"; };
 		E10D86D51384FF8200346445 /* origin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = origin.png; path = ../resources/ui/origin.png; sourceTree = "<group>"; };
-		E10D86DD1386077800346445 /* surfaces.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = surfaces.png; sourceTree = "<group>"; };
+		E10D86DD1386077800346445 /* surfacesHighRes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = surfacesHighRes.png; sourceTree = "<group>"; };
 		E10D86DF1386428500346445 /* rainbowGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rainbowGlow.png; path = ../resources/rainbowGlow.png; sourceTree = "<group>"; };
 		E127697A1326E18A00E1FC3F /* 11.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 11.jpg; sourceTree = "<group>"; };
 		E127697B1326E18A00E1FC3F /* 21.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 21.jpg; sourceTree = "<group>"; };
@@ -142,11 +146,16 @@
 		E12D40D91373792D0079EF3B /* OrientationHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrientationHelper.h; sourceTree = "<group>"; };
 		E12D40DB1373792D0079EF3B /* Orientation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Orientation.cpp; sourceTree = "<group>"; };
 		E12D40DC1373792D0079EF3B /* OrientationHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OrientationHelper.mm; sourceTree = "<group>"; };
+		E133FF84138C2FEA00A87B27 /* noAlbumArt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = noAlbumArt.png; path = ../resources/noAlbumArt.png; sourceTree = "<group>"; };
 		E1363D12132C3EE800115512 /* 12.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 12.jpg; sourceTree = "<group>"; };
 		E1363D13132C3EE800115512 /* 32.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 32.jpg; sourceTree = "<group>"; };
 		E1363D14132C3EE800115512 /* 42.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 42.jpg; sourceTree = "<group>"; };
 		E1363D15132C3EE800115512 /* 52.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 52.jpg; sourceTree = "<group>"; };
 		E1363D1A132C3F6F00115512 /* 22.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 22.jpg; sourceTree = "<group>"; };
+		E140695D138C9BCF0091D93E /* Button.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Button.h; path = ../include/Button.h; sourceTree = "<group>"; };
+		E140695E138C9BE00091D93E /* Button.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Button.cpp; path = ../src/Button.cpp; sourceTree = "<group>"; };
+		E1406961138CA1D00091D93E /* uiBigButtons.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = uiBigButtons.png; path = ../resources/ui/uiBigButtons.png; sourceTree = "<group>"; };
+		E1406977138D8C6F0091D93E /* surfacesLowRes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = surfacesLowRes.png; sourceTree = "<group>"; };
 		E1555A0A131E05140079B05A /* skydome.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = skydome.jpg; path = ../resources/skydome.jpg; sourceTree = SOURCE_ROOT; };
 		E1555CA4131EEBEB0079B05A /* dotted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dotted.png; path = ../resources/dotted.png; sourceTree = SOURCE_ROOT; };
 		E1555E78131F2C4A0079B05A /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../include/Node.h; sourceTree = SOURCE_ROOT; };
@@ -397,6 +406,8 @@
 		E12766401325E28900E1FC3F /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				E1406961138CA1D00091D93E /* uiBigButtons.png */,
+				E133FF84138C2FEA00A87B27 /* noAlbumArt.png */,
 				E10D86D51384FF8200346445 /* origin.png */,
 				E10D86D31384EAD100346445 /* orbitRingGradient.png */,
 				E128E33E1357B63E00707AA8 /* noArtists.png */,
@@ -486,7 +497,8 @@
 		E1729B2C1378DF2800C62C97 /* surfaces */ = {
 			isa = PBXGroup;
 			children = (
-				E10D86DD1386077800346445 /* surfaces.png */,
+				E1406977138D8C6F0091D93E /* surfacesLowRes.png */,
+				E10D86DD1386077800346445 /* surfacesHighRes.png */,
 				E127697A1326E18A00E1FC3F /* 11.jpg */,
 				E1363D12132C3EE800115512 /* 12.jpg */,
 				E19EA662132C78D800CEE740 /* 13.jpg */,
@@ -601,6 +613,7 @@
 				E1B0DBB313510C9D0093EB9D /* HelpLayer.h */,
 				E15C90B51300B2F100FB8389 /* UiLayer.h */,
 				E217105E132ECEFB00ADCC17 /* AlphaWheel.h */,
+				E140695D138C9BCF0091D93E /* Button.h */,
 			);
 			name = Ui;
 			sourceTree = "<group>";
@@ -660,6 +673,7 @@
 				E1B0DBB113510C890093EB9D /* HelpLayer.cpp */,
 				E15C90B61300B2F900FB8389 /* UiLayer.cpp */,
 				E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */,
+				E140695E138C9BE00091D93E /* Button.cpp */,
 			);
 			name = Ui;
 			sourceTree = "<group>";
@@ -776,8 +790,11 @@
 				E1C942CA137E0AAA00F88EA2 /* godRays.png in Resources */,
 				E10D86D41384EAD100346445 /* orbitRingGradient.png in Resources */,
 				E10D86D61384FF8200346445 /* origin.png in Resources */,
-				E10D86DE1386077900346445 /* surfaces.png in Resources */,
+				E10D86DE1386077900346445 /* surfacesHighRes.png in Resources */,
 				E10D86E01386428500346445 /* rainbowGlow.png in Resources */,
+				E133FF85138C2FEA00A87B27 /* noAlbumArt.png in Resources */,
+				E1406962138CA1D00091D93E /* uiBigButtons.png in Resources */,
+				E1406978138D8C6F0091D93E /* surfacesLowRes.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -812,6 +829,7 @@
 				E1B0DBB213510C890093EB9D /* HelpLayer.cpp in Sources */,
 				E12D40DD1373792D0079EF3B /* Orientation.cpp in Sources */,
 				E12D40DE1373792D0079EF3B /* OrientationHelper.mm in Sources */,
+				E1406960138C9BE00091D93E /* Button.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
