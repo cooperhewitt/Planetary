@@ -383,8 +383,8 @@ void KeplerApp::remainingSetup()
 	// FONTS
 	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
 	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf"), 256 );
-	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 12 );
-	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 10 );
+	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
+	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 11 );
 	
 	// TOUCH VARS
 	mTouchPos			= getWindowCenter();
@@ -1158,7 +1158,7 @@ void KeplerApp::update()
 		
 		Node *selectedArtistNode = mState.getSelectedArtistNode();
 		if( selectedArtistNode ){
-			mParticleController.update( mMatrix.inverted() * mCenter, selectedArtistNode->mRadius * 0.16f, invBbRight, invBbUp );
+			mParticleController.update( mMatrix.inverted() * mCenter, selectedArtistNode->mRadius * 0.125f, invBbRight, invBbUp );
 			float per = selectedArtistNode->mEclipseStrength * 0.5f + 0.25f;
 			mParticleController.buildParticleVertexArray( selectedArtistNode->mGlowColor, sin( per * M_PI ) * sin( per * 0.25f ) );
 			mParticleController.buildDustVertexArray( selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.05f * mFadeInArtistToAlbum );
