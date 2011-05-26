@@ -65,15 +65,6 @@ void ScrollingLabel::draw()
             Area a2( x1 + ctTexWidth + 10.0f, 0.0f, 
                      x1 + ctTexWidth + 10.0f + ctSpaceWidth, mTexture.getHeight() );
             gl::draw( mTexture, a2, mRect );			
-
-            // TODO: little fady bits
-
-            //        Area aLeft		 = Area( 200.0f, 140.0f, 214.0f, 150.0f ); 
-            //        Rectf coverLeft  = Rectf( currentTrackRect.x1, currentTrackRect.y1, currentTrackRect.x1 + 10.0f, currentTrackRect.y2 );
-            //        Rectf coverRight = Rectf( currentTrackRect.x2 + 1.0f, currentTrackRect.y1, currentTrackRect.x2 - 9.0f, currentTrackRect.y2 );
-            //        
-            //        gl::draw( uiButtonsTex, aLeft, coverLeft );
-            //        gl::draw( uiButtonsTex, aLeft, coverRight );        
         }    
     
     }

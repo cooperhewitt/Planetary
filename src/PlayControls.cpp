@@ -237,6 +237,15 @@ void PlayControls::draw(float y)
     mRemainingTimeLabel.draw();
     mTrackInfoLabel.draw();
 
+    // little fady bits on top of the current track info...
+    
+    Rectf infoRect   = mTrackInfoLabel.getRect();
+    Area aLeft		 = Area( 200.0f, 140.0f, 214.0f, 150.0f ); 
+    Rectf coverLeft  = Rectf( infoRect.x1, infoRect.y1, infoRect.x1 + 10.0f, infoRect.y2 );
+    Rectf coverRight = Rectf( infoRect.x2 + 1.0f, infoRect.y1, infoRect.x2 - 9.0f, infoRect.y2 );    
+    gl::draw( mTexture, aLeft, coverLeft );
+    gl::draw( mTexture, aLeft, coverRight );
+    
     gl::popModelView();
 }
 
