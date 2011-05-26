@@ -10,48 +10,63 @@
 #pragma once
 
 #include <sstream>
+
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Font.h"
 #include "cinder/Text.h"
+#include "cinder/Utilities.h"
+
 #include "Orientation.h"
 #include "OrientationEvent.h"
+
+#include "Buttons.h"
+#include "Slider.h"
+#include "TextLabel.h"
+#include "TimeLabel.h"
+#include "ScrollingLabel.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-template <class T>
-inline std::string to_string( const T& t )
-{
-	std::stringstream ss;
-	ss << t;
-	return ss.str();
-}
-
 class PlayControls {
 public:
 
-	enum PlayButton { NO_BUTTON, PREV_PLAYLIST, NEXT_PLAYLIST, GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, PREV_TRACK, 
-					  PLAY_PAUSE, NEXT_TRACK, SLIDER, HELP, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE };
-	enum ButtonTexId { TEX_BUTTONS, TEX_SLIDER_BUTTON, TEX_HELP, TEX_DRAW_RINGS, TEX_DRAW_TEXT, TEX_USE_GYRO, TEX_DEBUG_FEATURE };	
+	enum ButtonId { NO_BUTTON, PREV_PLAYLIST, NEXT_PLAYLIST, SHOW_WHEEL,
+                    GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, PREV_TRACK, 
+                    PLAY_PAUSE, NEXT_TRACK, SLIDER, HELP, DRAW_RINGS, 
+                    DRAW_TEXT, USE_GYRO, DEBUG_FEATURE };
 	
-	void setup( AppCocoaTouch *app, bool initialPlayState, const ci::app::Orientation &orientation );
-    	
+	void setup( AppCocoaTouch *app, Orientation orientation, Font font, gl::Texture texture );
 	void update();
+    void draw(float y);
 
 	bool touchesBegan( TouchEvent event );
 	bool touchesMoved( TouchEvent event );	
 	bool touchesEnded( TouchEvent event );
     void setInterfaceOrientation( const Orientation &orientation);
 	
-	void setPlaying(bool playing) { mIsPlaying = playing; }
-	bool isPlaying() { return mIsPlaying; }
-	
-	void draw( const Orientation &orientation, const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &currentTrackTex, const Font &font, float y, float currentTime, float totalTime, float secsSinceTrackChange );
+    // State stuff, passed onto UI classes directly...
+    // (not gettable, state lives elsewhere and UI changes are handled with callbacks)
+    // (all these things should be called in App::update())
+    // TODO: investigate doing this automagically with &references or *pointers?
+	void setPlaying(bool playing) { mPlayPauseButton.setOn(playing); }
+    //void setAlphaWheelVisible(bool visible) { mAlphaWheelButton.setOn(visible); };
+    void setOrbitsVisible(bool visible) { mOrbitsButton.setOn(visible); };
+    void setLabelsVisible(bool visible) { mLabelsButton.setOn(visible); };
+    void setHelpVisible(bool visible) { mHelpButton.setOn(visible); };
+    void setElapsedSeconds(int elapsedTime) { mElapsedTimeLabel.setSeconds(elapsedTime); }
+    void setRemainingSeconds(int remainingTime) { mRemainingTimeLabel.setSeconds(remainingTime); }
+    void setCurrentTrack(string currentTrack) { mTrackInfoLabel.setText(currentTrack); }
+    void setPlaylist(string playlist) { mPlaylistLabel.setText(playlist); }
+    void setLastTrackChangeTime(float time) { mTrackInfoLabel.setLastTrackChangeTime(time); }
+    void setPlayheadProgress(float value) { mPlayheadSlider.setValue(value); }
+    void setShowSettings(bool visible) { mShowSettings = visible; };
+
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>
-	CallbackId registerButtonPressed( T *obj, bool (T::*callback)(PlayButton) )
+	CallbackId registerButtonPressed( T *obj, bool (T::*callback)(ButtonId) )
 	{
 		return mCallbacksButtonPressed.registerCb(std::bind1st(std::mem_fun(callback), obj));
 	}
@@ -68,38 +83,93 @@ public:
 private:
 					  
 	AppCocoaTouch *mApp;
-	
-	// updated by draw() so that we can test in touchesEnded
-	vector<Rectf> touchRects;
-	vector<PlayButton> touchTypes;
-	PlayButton lastTouchedType;
 
-    Rectf lastDrawnBoundsRect;
-	Rectf otherBoundsRect;
-    
-	bool mIsPlaying;
-	int mMinutes, mMinutesTotal, mMinutesLeft;
-	int mSeconds, mSecondsTotal, mSecondsLeft;
-	int mPrevSeconds;
-	
-	bool mIsDraggingPlayhead;
-	
-	gl::Texture mCurrentTimeTex;
-	gl::Texture mRemainingTimeTex;
-	
-	gl::Texture mPlaylistNameTex;
-	
 	CallbackId cbTouchesBegan, cbTouchesMoved, cbTouchesEnded, cbOrientationChanged;
 			
-	PlayButton findButtonUnderTouches(vector<TouchEvent::Touch> touches);
+	ButtonId findButtonUnderTouches(vector<TouchEvent::Touch> touches);
     Rectf transformRect( const Rectf &rect, const Matrix44f &matrix );
+    void updateUIRects();
+    void dragPlayheadToPos(Vec2f pos);
+    
+    ButtonId mLastTouchedType;
+    float mLastDrawY;
+    
+    bool mShowSettings;
     
     Orientation mInterfaceOrientation;
     Matrix44f   mOrientationMatrix;
     Vec2f       mInterfaceSize;
     
 	// !!! EVENT STUFF (keep track of listeners)
-	CallbackMgr<bool(PlayButton)> mCallbacksButtonPressed;
+	CallbackMgr<bool(ButtonId)> mCallbacksButtonPressed;
 	CallbackMgr<bool(float)> mCallbacksPlayheadMoved;
 	
+    ///////////// Shared UI resources:
+    Font mFont;
+    gl::Texture mTexture;
+
+    ///////////// UI Classes:
+    
+    // Remember:
+    //
+    //   -- SimpleButton is just a trigger (down when touched, up when not)
+    //   -- ToggleButton is for things that are sticky, on or off
+    //   -- TwoStateButton is really just for Play/Pause, but who knows
+    //
+    // And furthermore thusly:
+    //
+    //   -- TextLabel is for simple static labels
+    //   -- ScrollingLabel will flutter back and forth if you tell it the lastSomethingOrOtherTime
+    //   -- TimeLabel will format a number of seconds as mm:ss
+    //
+
+    //
+    // To make these useful, be sure to:
+    //  * add the hit areas and ids in findButtonUnderTouches
+    //  * add a call to Button::draw() or Label::draw() in PlayControls::draw()
+    //  * add a call to Button::setup() or Label::setup() in PlayControls::setup()
+    //  * set all the positions in updateUIRects()
+    //
+    // If your UI thing requires state (on/off, text, numThings, etc) then
+    // add a setter in the public section of PlayControls and call it from
+    // KeplerApp::update() with all the others. Leave globals out of this 
+    // class if you can.
+    //
+    // Likewise, deal with actions that are triggered by buttons by looking 
+    // for the button ID in KeplerApp::onPlayControlsButtonPressed()
+    //
+    
+    // We'll make this better later.
+
+    // buttons for flying...
+    SimpleButton mGalaxyButton;
+    SimpleButton mCurrentTrackButton;
+
+    // current track info and playhead...
+    ScrollingLabel mTrackInfoLabel;
+    TimeLabel mElapsedTimeLabel;
+    Slider mPlayheadSlider;
+    TimeLabel mRemainingTimeLabel;    
+
+    // alpha wheel... ROBERT-FIXME: bring this back
+    //ToggleButton mAlphaWheelButton;
+
+    // playlist controls
+    SimpleButton mPreviousPlaylistButton;
+    TextLabel mPlaylistLabel;
+    SimpleButton mNextPlaylistButton;
+        
+    // settings...
+    ToggleButton mShowSettingsButton;
+        ToggleButton mHelpButton;
+        ToggleButton mOrbitsButton;
+        ToggleButton mLabelsButton;
+        ToggleButton mDebugButton;
+        ToggleButton mGyroButton;
+    
+ // track skip and play/pause controls
+    SimpleButton mPreviousTrackButton;
+    TwoStateButton mPlayPauseButton;
+    SimpleButton mNextTrackButton;
+        
 };

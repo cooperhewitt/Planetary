@@ -421,7 +421,11 @@ void NodeTrack::drawPlanet()
 		gl::rotate( Vec3f( 0.0f, mCurrentTime * mAxialVel, 0.0f ) );
 		gl::color( ColorA( mEclipseColor, mClosenessFadeAlpha ) );
 		
-		mAlbumArtTex.enableAndBind();
+        // ROBERT: this was crashing so I put a check for texture existence first
+        if (mAlbumArtTex) {
+            mAlbumArtTex.enableAndBind();
+        }
+        
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
 		
