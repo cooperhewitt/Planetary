@@ -22,6 +22,7 @@
 
 #include "Buttons.h"
 #include "Slider.h"
+#include "TextLabel.h"
 #include "TimeLabel.h"
 #include "ScrollingLabel.h"
 
@@ -32,7 +33,7 @@ using namespace std;
 class PlayControls {
 public:
 
-	enum ButtonId { NO_BUTTON, PREV_PLAYLIST, NEXT_PLAYLIST, SHOW_WHEEL
+	enum ButtonId { NO_BUTTON, PREV_PLAYLIST, NEXT_PLAYLIST, SHOW_WHEEL,
                     GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, PREV_TRACK, 
                     PLAY_PAUSE, NEXT_TRACK, SLIDER, HELP, DRAW_RINGS, 
                     DRAW_TEXT, USE_GYRO, DEBUG_FEATURE };
@@ -51,15 +52,17 @@ public:
     // (all these things should be called in App::update())
     // TODO: investigate doing this automagically with &references or *pointers?
 	void setPlaying(bool playing) { mPlayPauseButton.setOn(playing); }
-    void setAlphaWheelVisible(bool visible) { mAlphaWheelButton.setOn(visible); };
+    //void setAlphaWheelVisible(bool visible) { mAlphaWheelButton.setOn(visible); };
     void setOrbitsVisible(bool visible) { mOrbitsButton.setOn(visible); };
     void setLabelsVisible(bool visible) { mLabelsButton.setOn(visible); };
     void setHelpVisible(bool visible) { mHelpButton.setOn(visible); };
     void setElapsedSeconds(int elapsedTime) { mElapsedTimeLabel.setSeconds(elapsedTime); }
     void setRemainingSeconds(int remainingTime) { mRemainingTimeLabel.setSeconds(remainingTime); }
     void setCurrentTrack(string currentTrack) { mTrackInfoLabel.setText(currentTrack); }
+    void setPlaylist(string playlist) { mPlaylistLabel.setText(playlist); }
     void setLastTrackChangeTime(float time) { mTrackInfoLabel.setLastTrackChangeTime(time); }
     void setPlayheadProgress(float value) { mPlayheadSlider.setValue(value); }
+    void setShowSettings(bool visible) { mShowSettings = visible; };
 
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>
@@ -91,6 +94,8 @@ private:
     ButtonId mLastTouchedType;
     float mLastDrawY;
     
+    bool mShowSettings;
+    
     Orientation mInterfaceOrientation;
     Matrix44f   mOrientationMatrix;
     Vec2f       mInterfaceSize;
@@ -103,24 +108,66 @@ private:
     Font mFont;
     gl::Texture mTexture;
 
-    // FIXME: replace with a label
-	gl::Texture mPlaylistNameTex;
-    
     ///////////// UI Classes:
     
+    // Remember:
+    //
+    //   -- SimpleButton is just a trigger (down when touched, up when not)
+    //   -- ToggleButton is for things that are sticky, on or off
+    //   -- TwoStateButton is really just for Play/Pause, but who knows
+    //
+    // And furthermore thusly:
+    //
+    //   -- TextLabel is for simple static labels
+    //   -- ScrollingLabel will flutter back and forth if you tell it the lastSomethingOrOtherTime
+    //   -- TimeLabel will format a number of seconds as mm:ss
+    //
+
+    //
+    // To make these useful, be sure to:
+    //  * add the hit areas and ids in findButtonUnderTouches
+    //  * add a call to Button::draw() or Label::draw() in PlayControls::draw()
+    //  * add a call to Button::setup() or Label::setup() in PlayControls::setup()
+    //  * set all the positions in updateUIRects()
+    //
+    // If your UI thing requires state (on/off, text, numThings, etc) then
+    // add a setter in the public section of PlayControls and call it from
+    // KeplerApp::update() with all the others. Leave globals out of this 
+    // class if you can.
+    //
+    // Likewise, deal with actions that are triggered by buttons by looking 
+    // for the button ID in KeplerApp::onPlayControlsButtonPressed()
+    //
+    
+    // We'll make this better later.
+
+    // buttons for flying...
+    SimpleButton mGalaxyButton;
     SimpleButton mCurrentTrackButton;
 
+    // current track info and playhead...
     ScrollingLabel mTrackInfoLabel;
     TimeLabel mElapsedTimeLabel;
     Slider mPlayheadSlider;
     TimeLabel mRemainingTimeLabel;    
 
-    ToggleButton mAlphaWheelButton;
-    
-    ToggleButton mHelpButton;
-    ToggleButton mOrbitsButton;
-    ToggleButton mLabelsButton;
+    // alpha wheel... ROBERT-FIXME: bring this back
+    //ToggleButton mAlphaWheelButton;
 
+    // playlist controls
+    SimpleButton mPreviousPlaylistButton;
+    TextLabel mPlaylistLabel;
+    SimpleButton mNextPlaylistButton;
+        
+    // settings...
+    ToggleButton mShowSettingsButton;
+        ToggleButton mHelpButton;
+        ToggleButton mOrbitsButton;
+        ToggleButton mLabelsButton;
+        ToggleButton mDebugButton;
+        ToggleButton mGyroButton;
+    
+ // track skip and play/pause controls
     SimpleButton mPreviousTrackButton;
     TwoStateButton mPlayPauseButton;
     SimpleButton mNextTrackButton;

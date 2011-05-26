@@ -6,6 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#pragma once
 #include "cinder/Rect.h"
 #include "cinder/gl/gl.h"
 

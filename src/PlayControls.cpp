@@ -24,6 +24,8 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, Font font
     
     mLastTouchedType = NO_BUTTON;    
     
+    mShowSettings = false;
+    
     ////////
 
 	float uw = 1.0f/8.0f; // button tex width
@@ -31,16 +33,16 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, Font font
     float v2 = 0.25f;     // button tex on start y, off end y
     float v3 = 0.5f;      // button tex on end y
     
-    mCurrentTrackButton.setup(CURRENT_TRACK,   // ID
+    mCurrentTrackButton.setup(GOTO_CURRENT_TRACK,   // ID
                               Rectf(uw*0.0f,v2,uw*1.0f,v3),  // on texture
                               Rectf(uw*0.0f,v1,uw*1.0f,v2)); // off texture
 
-    mAlphaWheelButton.setup(SHOW_WHEEL,      // ID
-                            false,           // initial toggle state
-                            Rectf(uw*1.0f,v2,uw*2.0f,v3),  // on texture
-                            Rectf(uw*1.0f,v1,uw*2.0f,v2)); // off texture    
+//    mAlphaWheelButton.setup(SHOW_WHEEL,      // ID
+//                            false,           // initial toggle state
+//                            Rectf(uw*1.0f,v2,uw*2.0f,v3),  // on texture
+//                            Rectf(uw*1.0f,v1,uw*2.0f,v2)); // off texture    
 
-    mPreviousTrackButton.setup(PREVIOUS_TRACK, 
+    mPreviousTrackButton.setup(PREV_TRACK, 
                                Rectf(uw*2.0f,v2,uw*3.0f,v3),  // on texture
                                Rectf(uw*2.0f,v1,uw*3.0f,v2)); // off texture
 
@@ -54,28 +56,56 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, Font font
     mNextTrackButton.setup(NEXT_TRACK, 
                            Rectf(uw*5.0f,v2,uw*6.0f,v3),  // on texture
                            Rectf(uw*5.0f,v1,uw*6.0f,v2)); // off texture
+
+    mPreviousPlaylistButton.setup(PREV_PLAYLIST, 
+                                  Rectf(uw*2.0f,v2,uw*3.0f,v3),  // on texture
+                                  Rectf(uw*2.0f,v1,uw*3.0f,v2)); // off texture
     
+    mNextPlaylistButton.setup(NEXT_PLAYLIST,
+                              Rectf(uw*5.0f,v2,uw*6.0f,v3),  // on texture
+                              Rectf(uw*5.0f,v1,uw*6.0f,v2)); // off texture
+
+    
+    mShowSettingsButton.setup(SETTINGS, 
+                              false, 
+                              Rectf(uw*0.0f,v2,uw*1.0f,v3),  // on texture
+                              Rectf(uw*0.0f,v1,uw*1.0f,v2)); // off texture    
+
     // !!! SMALL BUTTONS !!!
     uw = 1.0/10.0f;
 	v1 = 0.5f; 
     v2 = 0.7f; 
     v3 = 0.9f;
     
-    mHelpButton.setup(HELP, 
-                      false, 
-                      Rectf(uw*0.0f,v2,uw*1.0f,v3),  // on texture
-                      Rectf(uw*0.0f,v1,uw*1.0f,v2)); // off texture
-    
-    mOrbitsButton.setup(DRAW_RINGS, 
-                        false, 
-                        Rectf(uw*1.0f,v2,uw*2.0f,v3),  // on texture
-                        Rectf(uw*1.0f,v1,uw*2.0f,v2)); // off texture
-    
-    mLabelsButton.setup(DRAW_TEXT, 
-                        false, 
-                        Rectf(uw*2.0f,v2,uw*3.0f,v3),  // on texture
-                        Rectf(uw*2.0f,v1,uw*3.0f,v2)); // off texture
+    {
+        mHelpButton.setup(HELP, 
+                          false, 
+                          Rectf(uw*0.0f,v2,uw*1.0f,v3),  // on texture
+                          Rectf(uw*0.0f,v1,uw*1.0f,v2)); // off texture
+        
+        mOrbitsButton.setup(DRAW_RINGS, 
+                            false, 
+                            Rectf(uw*1.0f,v2,uw*2.0f,v3),  // on texture
+                            Rectf(uw*1.0f,v1,uw*2.0f,v2)); // off texture
+        
+        mLabelsButton.setup(DRAW_TEXT, 
+                            false, 
+                            Rectf(uw*2.0f,v2,uw*3.0f,v3),  // on texture
+                            Rectf(uw*2.0f,v1,uw*3.0f,v2)); // off texture
 
+        // ROBERT-FIXME
+        mGyroButton.setup(USE_GYRO, 
+                          false, 
+                          Rectf(uw*2.0f,v2,uw*3.0f,v3),  // on texture
+                          Rectf(uw*2.0f,v1,uw*3.0f,v2)); // off texture
+
+        // ROBERT-FIXME
+        mDebugButton.setup(DEBUG_FEATURE, 
+                          false, 
+                          Rectf(uw*2.0f,v2,uw*3.0f,v3),  // on texture
+                          Rectf(uw*2.0f,v1,uw*3.0f,v2)); // off texture
+    }
+    
     mPlayheadSlider.setup(SLIDER,          // ID
                           Rectf(uw * 0.0f, 0.9f, uw * 1.0f, 1.0f),  // bg texture
                           Rectf(uw * 2.0f, 0.9f, uw * 3.0f, 1.0f),  // fg texture
@@ -83,6 +113,8 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, Font font
                           Rectf(uw * 3.0f, 0.5f, uw * 4.0f, 0.7f)); // thumb off texture
 
     /////// no textures please, we're British...
+    
+    mPlaylistLabel.setup(font, Color::white());    
     
     mTrackInfoLabel.setup(font, Color::white());
     
@@ -93,16 +125,6 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, Font font
     ///////
     
     setInterfaceOrientation(orientation);
-}
-
-void PlayControls::createPlaylistTexture( string playlistName, const Font &font )
-{	
-	TextLayout layout;
-	layout.setFont( font );
-	layout.setColor( Color::white() );			
-	layout.addLine( playlistName );
-	bool PREMULT = false;
-	mPlaylistNameTex = gl::Texture( layout.render( true, PREMULT ) );
 }
 
 void PlayControls::update()
@@ -162,11 +184,14 @@ void PlayControls::updateUIRects()
 	float x1 = sideBorder;
 	float x2 = x1 + bSize;        
     mCurrentTrackButton.setRect(Rectf(x1,y1,x2,y2));
+    
+    // ROBERT-FIXME!
+    mGalaxyButton.setRect(Rectf(0,0,0,0));
 
     // ALPHA WHEEL BUTTON
     x1 = mInterfaceSize.x / 2 - bSize / 2;
     x2 = x1 + bSize;
-    mAlphaWheelButton.setRect(Rectf(x1,y1,x2,y2));
+//    mAlphaWheelButton.setRect(Rectf(x1,y1,x2,y2));
 
     // NEXT / PLAY-PAUSE / PREVIOUS TRACK BUTTON
     x1 = mInterfaceSize.x - sideBorder - bSize;
@@ -180,6 +205,15 @@ void PlayControls::updateUIRects()
 	x1 -= bSize + buttonGap;
 	x2 = x1 + bSize;    
     mPreviousTrackButton.setRect(Rectf(x1,y1,x2,y2));
+
+    // ROBERT-FIXME!
+    mShowSettingsButton.setRect(Rectf(0,0,0,0));
+
+    // ROBERT-FIXME!
+    mDebugButton.setRect(Rectf(0,0,0,0));
+    
+    // ROBERT-FIXME!
+    mGyroButton.setRect(Rectf(0,0,0,0));
 
     // LABEL TOGGLE BUTTON
     y1 += 5.0f;
@@ -198,6 +232,16 @@ void PlayControls::updateUIRects()
 	x2 = x1 + bSizeSmall;
     mHelpButton.setRect(Rectf(x1,y1,x2,y2));
 
+	x1 = 10.0f;
+	x2 = x1 + bSize;
+	y1 = -topBorder - bSize;
+	y2 = y1 + bSize;
+	mPreviousPlaylistButton.setRect(Rectf( x1, y1, x2, y2 ));
+    
+	x1 += 200.0f;
+	x2 = x1 + bSize;
+	mNextPlaylistButton.setRect(Rectf( x1, y1, x2, y2 ));
+    
     float bgx1			= sliderInset;
     float bgx2			= bgx1 + sliderWidth;
     float bgy1			= 32.0f;
@@ -220,6 +264,9 @@ void PlayControls::updateUIRects()
 void PlayControls::draw(float y)
 {
     mLastDrawY = y;
+
+    // FIXME: make an mActive bool so we can skip interaction if the panel is hiding
+    //mActive = (mInterfaceSize.y - y ) > 60.0f;
     
     gl::pushModelView();
     gl::multModelView( mOrientationMatrix );
@@ -233,14 +280,21 @@ void PlayControls::draw(float y)
 	gl::enableAlphaBlending();    
     
     mCurrentTrackButton.draw();
+    mGalaxyButton.draw();
     
     mPlayheadSlider.draw();
     
-    mAlphaWheelButton.draw();
+//    mAlphaWheelButton.draw();
     
-    mHelpButton.draw();
-    mOrbitsButton.draw();
-    mLabelsButton.draw();
+    mShowSettingsButton.draw();
+    
+    if (mShowSettings) {
+        mHelpButton.draw();
+        mOrbitsButton.draw();
+        mLabelsButton.draw();
+        mDebugButton.draw();
+        mGyroButton.draw();
+    }
     
     mPreviousTrackButton.draw();
     mPlayPauseButton.draw();
@@ -252,6 +306,10 @@ void PlayControls::draw(float y)
     mRemainingTimeLabel.draw();
     mTrackInfoLabel.draw();
 
+    mPreviousPlaylistButton.draw();
+    mPlaylistLabel.draw();
+    mNextPlaylistButton.draw();
+    
     // little fady bits on top of the current track info...
     
     Rectf infoRect   = mTrackInfoLabel.getRect();
@@ -346,25 +404,42 @@ PlayControls::ButtonId PlayControls::findButtonUnderTouches(vector<TouchEvent::T
 
     // FIXME: this is really dumb, make a base class for touchable things and use pointers in a vector instead
     vector<Rectf> touchRects;
-    vector<int> touchTypes;
     touchRects.push_back(mCurrentTrackButton.getRect());
+    touchRects.push_back(mGalaxyButton.getRect());
     touchRects.push_back(mPlayheadSlider.getRect());
-    touchRects.push_back(mAlphaWheelButton.getRect());
-    touchRects.push_back(mHelpButton.getRect());
-    touchRects.push_back(mOrbitsButton.getRect());
-    touchRects.push_back(mLabelsButton.getRect());
+//    touchRects.push_back(mAlphaWheelButton.getRect());
+    touchRects.push_back(mShowSettingsButton.getRect());
+    if (mShowSettings) {
+        touchRects.push_back(mHelpButton.getRect());
+        touchRects.push_back(mOrbitsButton.getRect());
+        touchRects.push_back(mLabelsButton.getRect());
+        touchRects.push_back(mDebugButton.getRect());
+        touchRects.push_back(mGyroButton.getRect()); // FIXME: only if we're using Gyro
+    }
     touchRects.push_back(mPreviousTrackButton.getRect());
     touchRects.push_back(mPlayPauseButton.getRect());
     touchRects.push_back(mNextTrackButton.getRect());
+    touchRects.push_back(mPreviousPlaylistButton.getRect());
+    touchRects.push_back(mNextPlaylistButton.getRect());
+
+    vector<int> touchTypes;
     touchTypes.push_back(mCurrentTrackButton.getId());
+    touchTypes.push_back(mGalaxyButton.getId());
     touchTypes.push_back(mPlayheadSlider.getId());
-    touchTypes.push_back(mAlphaWheelButton.getId());
-    touchTypes.push_back(mHelpButton.getId());
-    touchTypes.push_back(mOrbitsButton.getId());
-    touchTypes.push_back(mLabelsButton.getId());
+//    touchTypes.push_back(mAlphaWheelButton.getId());
+    touchTypes.push_back(mShowSettingsButton.getId());    
+    if (mShowSettings) {
+        touchTypes.push_back(mHelpButton.getId());
+        touchTypes.push_back(mOrbitsButton.getId());
+        touchTypes.push_back(mLabelsButton.getId());
+        touchTypes.push_back(mDebugButton.getId());
+        touchTypes.push_back(mGyroButton.getId()); // FIXME: only if we're using Gyro    
+    }
     touchTypes.push_back(mPreviousTrackButton.getId());
     touchTypes.push_back(mPlayPauseButton.getId());
     touchTypes.push_back(mNextTrackButton.getId());    
+    touchTypes.push_back(mPreviousPlaylistButton.getId());
+    touchTypes.push_back(mNextPlaylistButton.getId());    
 
     // offset and transform:
     for (int i = 0; i < touchRects.size(); i++) {

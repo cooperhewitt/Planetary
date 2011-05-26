@@ -872,8 +872,10 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
 {
 	std::cout << "playlist changed" << std::endl;
 	mData.filterArtistsByPlaylist( mState.getPlaylist() );
-	mPlayControls.createPlaylistTexture( mState.getPlaylistName(), mFontMediSmall );
+    
+	mPlayControls.setPlaylist( mState.getPlaylistName() );
 	
+    // FIXME: enable this 
 //    std::map<string, string> parameters;
 //    parameters["Playlist"] = ""+mState.getPlaylist();
 //    Flurry::getInstrumentation()->logEvent("Playlist Selected" , parameters);
@@ -1175,10 +1177,12 @@ void KeplerApp::update()
 //        mBreadcrumbs.update();
         
         mPlayControls.update();
-        mPlayControls.setAlphaWheelVisible( mAlphaWheel.getShowWheel() );
+        // ROBERT-FIXME:
+        //mPlayControls.setAlphaWheelVisible( mAlphaWheel.getShowWheel() );
         mPlayControls.setOrbitsVisible( G_DRAW_RINGS );
         mPlayControls.setLabelsVisible( G_DRAW_TEXT );
         mPlayControls.setHelpVisible( G_HELP );
+        mPlayControls.setShowSettings( G_SHOW_SETTINGS );
         mPlayControls.setElapsedSeconds( (int)mCurrentTrackPlayheadTime );
         mPlayControls.setRemainingSeconds( -(int)(mCurrentTrackLength - mCurrentTrackPlayheadTime) );
         mPlayControls.setPlayheadProgress( mCurrentTrackPlayheadTime / mCurrentTrackLength );

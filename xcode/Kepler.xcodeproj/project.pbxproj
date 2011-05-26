@@ -32,7 +32,6 @@
 		E12D40DD1373792D0079EF3B /* Orientation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E12D40DB1373792D0079EF3B /* Orientation.cpp */; };
 		E12D40DE1373792D0079EF3B /* OrientationHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = E12D40DC1373792D0079EF3B /* OrientationHelper.mm */; };
 		E133FF85138C2FEA00A87B27 /* noAlbumArt.png in Resources */ = {isa = PBXBuildFile; fileRef = E133FF84138C2FEA00A87B27 /* noAlbumArt.png */; };
-		E1406960138C9BE00091D93E /* Button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E140695E138C9BE00091D93E /* Button.cpp */; };
 		E1406978138D8C6F0091D93E /* surfacesLowRes.png in Resources */ = {isa = PBXBuildFile; fileRef = E1406977138D8C6F0091D93E /* surfacesLowRes.png */; };
 		E1555A0B131E05140079B05A /* skydome.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1555A0A131E05140079B05A /* skydome.jpg */; };
 		E1555CA5131EEBEB0079B05A /* dotted.png in Resources */ = {isa = PBXBuildFile; fileRef = E1555CA4131EEBEB0079B05A /* dotted.png */; };
@@ -79,6 +78,7 @@
 		E1FC7DA11337E4D9007F333C /* Dust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1FC7D9F1337E4D9007F333C /* Dust.cpp */; };
 		E1FC7DA313381853007F333C /* eclipseGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC7DA213381853007F333C /* eclipseGlow.png */; };
 		E2171061132ECF7300ADCC17 /* AlphaWheel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */; };
+		E227B205138EFDC500AAAC7B /* TextLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E227B204138EFDC500AAAC7B /* TextLabel.cpp */; };
 		E22998CC1332D62E0043CDCA /* LoadingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */; };
 		E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C872D131F1420000780A3 /* NodeArtist.cpp */; };
 		E25C8744131F14B3000780A3 /* NodeAlbum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8742131F14B3000780A3 /* NodeAlbum.cpp */; };
@@ -87,7 +87,6 @@
 		E273044A138DAA6400A2A65B /* ScrollingLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */; };
 		E278F90813830E7E00738472 /* Buttons.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E278F90713830E7E00738472 /* Buttons.cpp */; };
 		E278F90F138333FB00738472 /* Slider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E278F90D138333FB00738472 /* Slider.cpp */; };
-		E28FDA811339AF15005EDBB4 /* Breadcrumbs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */; };
 		E28FDA831339B782005EDBB4 /* PlayControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA821339B782005EDBB4 /* PlayControls.cpp */; };
 /* End PBXBuildFile section */
 
@@ -128,8 +127,6 @@
 		E12D40DB1373792D0079EF3B /* Orientation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Orientation.cpp; sourceTree = "<group>"; };
 		E12D40DC1373792D0079EF3B /* OrientationHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OrientationHelper.mm; sourceTree = "<group>"; };
 		E133FF84138C2FEA00A87B27 /* noAlbumArt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = noAlbumArt.png; path = ../noAlbumArt.png; sourceTree = "<group>"; };
-		E140695D138C9BCF0091D93E /* Button.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Button.h; path = ../include/Button.h; sourceTree = "<group>"; };
-		E140695E138C9BE00091D93E /* Button.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Button.cpp; path = ../src/Button.cpp; sourceTree = "<group>"; };
 		E1406977138D8C6F0091D93E /* surfacesLowRes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = surfacesLowRes.png; sourceTree = "<group>"; };
 		E1555A0A131E05140079B05A /* skydome.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = skydome.jpg; path = ../resources/skydome.jpg; sourceTree = SOURCE_ROOT; };
 		E1555CA4131EEBEB0079B05A /* dotted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dotted.png; path = ../resources/dotted.png; sourceTree = SOURCE_ROOT; };
@@ -171,7 +168,6 @@
 		E1B0DBC1135124130093EB9D /* helpPanel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = helpPanel.png; path = ../resources/ui/helpPanel.png; sourceTree = "<group>"; };
 		E1C60003131848FB0022246C /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = World.h; path = ../include/World.h; sourceTree = SOURCE_ROOT; };
 		E1C600041318490F0022246C /* World.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = World.cpp; path = ../src/World.cpp; sourceTree = SOURCE_ROOT; };
-		E1C60254131C4B3D0022246C /* Breadcrumbs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Breadcrumbs.h; path = ../include/Breadcrumbs.h; sourceTree = SOURCE_ROOT; };
 		E1C6FFF11318479A0022246C /* Data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Data.h; path = ../include/Data.h; sourceTree = SOURCE_ROOT; };
 		E1C6FFF2131847A40022246C /* Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Data.cpp; path = ../src/Data.cpp; sourceTree = SOURCE_ROOT; };
 		E1C942C6137B9BD900F88EA2 /* darkMatter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = darkMatter.png; path = ../darkMatter.png; sourceTree = "<group>"; };
@@ -196,10 +192,11 @@
 		E1FC7DA213381853007F333C /* eclipseGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = eclipseGlow.png; path = ../resources/eclipseGlow.png; sourceTree = "<group>"; };
 		E217105E132ECEFB00ADCC17 /* AlphaWheel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlphaWheel.h; path = ../include/AlphaWheel.h; sourceTree = SOURCE_ROOT; };
 		E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AlphaWheel.cpp; path = ../src/AlphaWheel.cpp; sourceTree = SOURCE_ROOT; };
+		E227B203138EFD9400AAAC7B /* TextLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextLabel.h; path = ../include/TextLabel.h; sourceTree = "<group>"; };
+		E227B204138EFDC500AAAC7B /* TextLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextLabel.cpp; path = ../src/TextLabel.cpp; sourceTree = "<group>"; };
 		E22998C61332AD080043CDCA /* GestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureRecognizer.h; sourceTree = "<group>"; };
 		E22998CA1332D6210043CDCA /* LoadingScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LoadingScreen.h; path = ../include/LoadingScreen.h; sourceTree = "<group>"; };
 		E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoadingScreen.cpp; path = ../src/LoadingScreen.cpp; sourceTree = "<group>"; };
-		E22998CE1332E6FF0043CDCA /* TextureLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextureLoader.h; path = ../include/TextureLoader.h; sourceTree = "<group>"; };
 		E25C872B131F1415000780A3 /* NodeArtist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeArtist.h; path = ../include/NodeArtist.h; sourceTree = SOURCE_ROOT; };
 		E25C872D131F1420000780A3 /* NodeArtist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeArtist.cpp; path = ../src/NodeArtist.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8740131F14A5000780A3 /* NodeAlbum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeAlbum.h; path = ../include/NodeAlbum.h; sourceTree = SOURCE_ROOT; };
@@ -214,7 +211,6 @@
 		E278F90713830E7E00738472 /* Buttons.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Buttons.cpp; path = ../src/Buttons.cpp; sourceTree = "<group>"; };
 		E278F90D138333FB00738472 /* Slider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Slider.cpp; path = ../src/Slider.cpp; sourceTree = "<group>"; };
 		E278F9101383342400738472 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Slider.h; path = ../include/Slider.h; sourceTree = "<group>"; };
-		E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Breadcrumbs.cpp; path = ../src/Breadcrumbs.cpp; sourceTree = "<group>"; };
 		E28FDA821339B782005EDBB4 /* PlayControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayControls.cpp; path = ../src/PlayControls.cpp; sourceTree = "<group>"; };
 		E2A1FF8E132599290007F4DA /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../include/PlayControls.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -533,7 +529,6 @@
 			children = (
 				E1A332EF1301072600CED126 /* Easing.h */,
 				E1A332F01301072600CED126 /* Globals.h */,
-				E22998CE1332E6FF0043CDCA /* TextureLoader.h */,
 				E177A6CA134E657E0014AD55 /* BloomGl.h */,
 			);
 			name = Helpers;
@@ -564,16 +559,15 @@
 		E1C6023C131C4B0E0022246C /* Ui */ = {
 			isa = PBXGroup;
 			children = (
+				E227B203138EFD9400AAAC7B /* TextLabel.h */,
 				E273044B138DAA7400A2A65B /* ScrollingLabel.h */,
 				E2730443138DA82B00A2A65B /* TimeLabel.h */,
 				E278F9101383342400738472 /* Slider.h */,
 				E22998CA1332D6210043CDCA /* LoadingScreen.h */,
-				E1C60254131C4B3D0022246C /* Breadcrumbs.h */,
 				E2A1FF8E132599290007F4DA /* PlayControls.h */,
 				E1B0DBB313510C9D0093EB9D /* HelpLayer.h */,
 				E15C90B51300B2F100FB8389 /* UiLayer.h */,
 				E217105E132ECEFB00ADCC17 /* AlphaWheel.h */,
-				E140695D138C9BCF0091D93E /* Button.h */,
 				E278F90513830E5200738472 /* Buttons.h */,
 			);
 			name = Ui;
@@ -629,17 +623,16 @@
 		E2171053132ECE3900ADCC17 /* Ui */ = {
 			isa = PBXGroup;
 			children = (
+				E227B204138EFDC500AAAC7B /* TextLabel.cpp */,
 				E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */,
 				E2730444138DA83800A2A65B /* TimeLabel.cpp */,
 				E278F90D138333FB00738472 /* Slider.cpp */,
 				E278F90713830E7E00738472 /* Buttons.cpp */,
 				E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */,
-				E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */,
 				E28FDA821339B782005EDBB4 /* PlayControls.cpp */,
 				E1B0DBB113510C890093EB9D /* HelpLayer.cpp */,
 				E15C90B61300B2F900FB8389 /* UiLayer.cpp */,
 				E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */,
-				E140695E138C9BE00091D93E /* Button.cpp */,
 			);
 			name = Ui;
 			sourceTree = "<group>";
@@ -770,20 +763,17 @@
 				E167C8D6132EAFBE00CB496E /* ParticleController.cpp in Sources */,
 				E22998CC1332D62E0043CDCA /* LoadingScreen.cpp in Sources */,
 				E1FC7DA11337E4D9007F333C /* Dust.cpp in Sources */,
-				E28FDA811339AF15005EDBB4 /* Breadcrumbs.cpp in Sources */,
 				E28FDA831339B782005EDBB4 /* PlayControls.cpp in Sources */,
 				77B44848133BCB3A00987E13 /* CinderFlurry.mm in Sources */,
 				E177A6CE134E7B850014AD55 /* BloomGl.cpp in Sources */,
 				E1B0DBB213510C890093EB9D /* HelpLayer.cpp in Sources */,
 				E12D40DD1373792D0079EF3B /* Orientation.cpp in Sources */,
 				E12D40DE1373792D0079EF3B /* OrientationHelper.mm in Sources */,
-				E1406960138C9BE00091D93E /* Button.cpp in Sources */,
-				E2D20ECC135CF2F400A29743 /* OrientationHelper.mm in Sources */,
-				E2D20ECE135CFBC500A29743 /* Orientation.cpp in Sources */,
 				E278F90813830E7E00738472 /* Buttons.cpp in Sources */,
 				E278F90F138333FB00738472 /* Slider.cpp in Sources */,
 				E2730445138DA83800A2A65B /* TimeLabel.cpp in Sources */,
 				E273044A138DAA6400A2A65B /* ScrollingLabel.cpp in Sources */,
+				E227B205138EFDC500AAAC7B /* TextLabel.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

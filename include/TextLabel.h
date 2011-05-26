@@ -1,5 +1,5 @@
 //
-//  ScrollingLabel.h
+//  TextLabel.h
 //  Kepler
 //
 //  Created by Tom Carden on 5/25/11.
@@ -13,16 +13,17 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/Text.h"
 #include "cinder/Rect.h"
+#include "cinder/Utilities.h"
 
-using namespace std;
 using namespace ci;
+using namespace std;
 
-class ScrollingLabel {
-
+class TextLabel {
+    
 public:
-
-    ScrollingLabel() {}
-    ~ScrollingLabel() {}
+    
+    TextLabel() {}
+    ~TextLabel() {}
     
     void setup(Font font, Color color) {
         mFont = font;
@@ -33,7 +34,6 @@ public:
     void draw();
 
     void setText(string text);
-    void setLastTrackChangeTime(float lastTrackChangeTime) { mLastTrackChangeTime = lastTrackChangeTime; }
 
     void setRect(Rectf rect) { mRect = rect; }
     Rectf getRect() { return mRect; }
@@ -45,10 +45,8 @@ private:
     Rectf mRect;
     Font mFont;
     Color mColor;
-
     string mText;
-    float mLastTrackChangeTime;
-    
+
     gl::Texture mTexture;
     
 };
