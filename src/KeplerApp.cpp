@@ -131,7 +131,6 @@ class KeplerApp : public AppCocoaTouch {
 	ipod::PlaylistRef	mCurrentAlbum;
 	double				mCurrentTrackPlayheadTime;
 	double				mCurrentTrackLength;
-	float				mElapsedSecondsSinceTrackChange;
 	
 // BREADCRUMBS
 	Breadcrumbs		mBreadcrumbs;	
@@ -281,9 +280,6 @@ void KeplerApp::remainingSetup()
 	G_DRAW_TEXT		= true;
 	//Rand::randomize();
     
-	mElapsedSecondsSinceTrackChange = 0.0f;
-	
-	
     // TEXTURES
     initTextures();
 	    
@@ -1425,7 +1421,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	
     // TODO: does Flurry care about this?
     
-    mElapsedSecondsSinceTrackChange = getElapsedSeconds();
+    mPlayControls.setLastTrackChangeTime( getElapsedSeconds() );
     
 //	console() << "==================================================================" << std::endl;
 //	console() << "onPlayerTrackChanged!" << std::endl;

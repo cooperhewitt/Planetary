@@ -32,6 +32,7 @@ public:
     void draw();
 
     void setText(string text);
+    void setLastTrackChangeTime(float lastTrackChangeTime) { mLastTrackChangeTime = lastTrackChangeTime; }
 
     void setRect(Rectf rect) { mRect = rect; }
     Rectf getRect() { return mRect; }
@@ -43,7 +44,9 @@ private:
     Rectf mRect;
     Font mFont;
     Color mColor;
+
     string mText;
+    float mLastTrackChangeTime;
     
     gl::Texture mTexture;
     

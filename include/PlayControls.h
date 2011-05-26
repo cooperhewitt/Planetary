@@ -55,6 +55,7 @@ public:
     void setElapsedTime(float elapsedTime) { mElapsedTimeLabel.setTime(elapsedTime); }
     void setRemainingTime(float remainingTime) { mRemainingTimeLabel.setTime(remainingTime); }
     void setCurrentTrack(string currentTrack) { mTrackInfoLabel.setText(currentTrack); }
+    void setLastTrackChangeTime(float time) { mTrackInfoLabel.setLastTrackChangeTime(time); }
     void setPlayheadProgress(float value) { mPlayheadSlider.setValue(value); }
 
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)

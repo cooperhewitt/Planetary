@@ -197,7 +197,7 @@ void PlayControls::updateUIRects()
     float ctx1 = bgx1 - 43.0f;
     float ctx2 = bgx2 + 50.0f;
     float cty1 = bgy1 - 14.0f;
-    float cty2 = cty1 + 10.0f; // FIXME: 10.0f was currentTrackTex.getHeight();
+    float cty2 = cty1; // NB:- will be overridden in ScrollingLabel::draw()
     mTrackInfoLabel.setRect(Rectf(ctx1, cty1, ctx2, cty2));
 
     // FIXME: bottom right coords are made up... maybe just setPos (and getWidth) for these?
