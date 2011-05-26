@@ -87,7 +87,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
 	bool			onWheelToggled( AlphaWheel *alphaWheel );
 	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
-	bool			onPlayControlsButtonPressed ( PlayControls::PlayButton button );
+	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
 	bool			onPlayControlsPlayheadMoved ( float amount );
 	bool			onSelectedNodeChanged( Node *node );
 	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos );
@@ -189,7 +189,6 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mPlayheadProgressTex;
     gl::Texture     mRingsTex;
 	gl::Texture		mUiButtonsTex;
-	gl::Texture		mCurrentTrackTex;
     gl::Texture		mAtmosphereTex;
 	gl::Texture		mNoArtistsTex;
 	vector<gl::Texture> mPlanetsTex;
@@ -377,7 +376,7 @@ void KeplerApp::remainingSetup()
 	mBreadcrumbs.setHierarchy(mState.getHierarchy());
 
 	// PLAY CONTROLS
-	mPlayControls.setup( this, mIpodPlayer.getPlayState() == ipod::Player::StatePlaying, mOrientationHelper.getInterfaceOrientation() );
+	mPlayControls.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontMediTiny, mUiButtonsTex);
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
 
@@ -781,7 +780,7 @@ bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
     return false;
 }
 
-bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
+bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 {
     switch( button ) {
         
@@ -971,7 +970,10 @@ void KeplerApp::update()
         mAccelMatrix			= lerp( mAccelMatrix, mNewAccelMatrix, 0.35f );
 		
 		updateArcball();
-		
+
+        // set mCurrentTrackPlayheadTime & mCurrentTrackLength for mPlayControls and mWorld.mPlayingTrackNode
+        updatePlayhead();
+
 		if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 		}
@@ -1000,8 +1002,16 @@ void KeplerApp::update()
 		mHelpLayer.update();
 		mAlphaWheel.update( mFov );
         mBreadcrumbs.update();
+                
         mPlayControls.update();
-        updatePlayhead();
+        mPlayControls.setPlaying(false /*bool playing*/);
+        mPlayControls.setAlphaWheelVisible(false /*bool visible*/);
+        mPlayControls.setOrbitsVisible(false /*bool visible*/);
+        mPlayControls.setLabelsVisible(false /*bool visible*/);
+        mPlayControls.setHelpVisible(false /*bool visible*/);
+        mPlayControls.setElapsedTime(0 /*float elapsedTime*/);
+        mPlayControls.setRemainingTime(0 /*float remainingTime*/);
+        mPlayControls.setPlayheadProgress(mCurrentTrackPlayheadTime / mCurrentTrackLength);        
     }
     else {
         // make sure we've drawn the loading screen first
@@ -1128,8 +1138,6 @@ void KeplerApp::draw()
 		drawScene();
 	}
 }
-
-
 
 void KeplerApp::drawNoArtists()
 {
@@ -1354,7 +1362,9 @@ void KeplerApp::drawScene()
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
     mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
-    mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
+    
+    //mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
+    mPlayControls.draw( mUiLayer.getPanelYPos() );
 	
 	gl::disableAlphaBlending();
 	//    if( G_DEBUG ) drawInfoPanel();
@@ -1427,15 +1437,10 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         
 		ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
 
-	// Create current track text texture
-		TextLayout layout;
-		layout.setFont( mFontMediSmall );
-		layout.setColor( Color::white() );			
-		layout.addLine( " " + playingTrack->getArtist() + " • " + playingTrack->getAlbumTitle() + " • " + playingTrack->getTitle() + " " );
-		bool PREMULT = false;
-		mCurrentTrackTex = gl::Texture( layout.render( true, PREMULT ) );
-		 
-        
+        mPlayControls.setCurrentTrack(" " + playingTrack->getArtist() 
+                                      + " • " + playingTrack->getAlbumTitle() 
+                                      + " • " + playingTrack->getTitle() + " ");
+                
         Node *selectedNode = mState.getSelectedNode();
         if (!(selectedNode != NULL && selectedNode->getId() == playingTrack->getItemId())) {
         
@@ -1499,7 +1504,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 	}
 	else {
 //		console() << "    trackchanged but nothing's playing" << endl;
-		mCurrentTrackTex.reset();
+		//mCurrentTrackTex.reset();
+        mPlayControls.setCurrentTrack("");
         // FIXME: disable play button and zoom-to-current-track button
 	}
 

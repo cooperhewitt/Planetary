@@ -14,44 +14,52 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/Font.h"
 #include "cinder/Text.h"
+#include "cinder/Utilities.h"
 #include "Orientation.h"
 #include "OrientationEvent.h"
 #include "AlphaWheel.h"
+#include "Buttons.h"
+#include "Slider.h"
+#include "TimeLabel.h"
+#include "ScrollingLabel.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-template <class T>
-inline std::string to_string( const T& t )
-{
-	std::stringstream ss;
-	ss << t;
-	return ss.str();
-}
-
 class PlayControls {
 public:
 
-	enum PlayButton { NO_BUTTON, CURRENT_TRACK, SHOW_WHEEL, PREVIOUS_TRACK, PLAY_PAUSE, NEXT_TRACK, SLIDER, HELP, DRAW_RINGS, DRAW_TEXT };
-	enum ButtonTexId { TEX_BUTTONS, TEX_SLIDER_BUTTON, TEX_HELP, TEX_DRAW_RINGS, TEX_DRAW_TEXT };	
+	enum ButtonId { NO_BUTTON, CURRENT_TRACK, SHOW_WHEEL, PREVIOUS_TRACK, PLAY_PAUSE, NEXT_TRACK, SLIDER, HELP, DRAW_RINGS, DRAW_TEXT };
 	
-	void setup( AppCocoaTouch *app, bool initialPlayState, const ci::app::Orientation &orientation );
-    	
+	void setup( AppCocoaTouch *app, Orientation orientation, Font font, gl::Texture texture );
+//    void setup();
 	void update();
+    void draw(float y);
+//	void draw( const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &currentTrackTex, AlphaWheel *alphaWheel, const Font &font, float y, float currentTime, float totalTime, float secsSinceTrackChange );
 
 	bool touchesBegan( TouchEvent event );
 	bool touchesMoved( TouchEvent event );	
 	bool touchesEnded( TouchEvent event );
     void setInterfaceOrientation( const Orientation &orientation);
 	
-	void setPlaying(bool playing) { mIsPlaying = playing; }
-	bool isPlaying() { return mIsPlaying; }
-	
-	void draw( const Orientation &orientation, const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &currentTrackTex, AlphaWheel *alphaWheel, const Font &font, float y, float currentTime, float totalTime, float secsSinceTrackChange );
+    // State stuff, passed onto UI classes directly...
+    // (not gettable, state lives elsewhere and UI changes are handled with callbacks)
+    // (all these things should be called in App::update())
+    // TODO: investigate doing this automagically with &references or *pointers?
+	void setPlaying(bool playing) { mPlayPauseButton.setOn(playing); }
+    void setAlphaWheelVisible(bool visible) { mAlphaWheelButton.setOn(visible); };
+    void setOrbitsVisible(bool visible) { mOrbitsButton.setOn(visible); };
+    void setLabelsVisible(bool visible) { mLabelsButton.setOn(visible); };
+    void setHelpVisible(bool visible) { mHelpButton.setOn(visible); };
+    void setElapsedTime(float elapsedTime) { mElapsedTimeLabel.setTime(elapsedTime); }
+    void setRemainingTime(float remainingTime) { mRemainingTimeLabel.setTime(remainingTime); }
+    void setCurrentTrack(string currentTrack) { mTrackInfoLabel.setText(currentTrack); }
+    void setPlayheadProgress(float value) { mPlayheadSlider.setValue(value); }
+
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>
-	CallbackId registerButtonPressed( T *obj, bool (T::*callback)(PlayButton) )
+	CallbackId registerButtonPressed( T *obj, bool (T::*callback)(ButtonId) )
 	{
 		return mCallbacksButtonPressed.registerCb(std::bind1st(std::mem_fun(callback), obj));
 	}
@@ -66,33 +74,44 @@ private:
 					  
 	AppCocoaTouch *mApp;
 	
-	// updated by draw() so that we can test in touchesEnded
-	vector<Rectf> touchRects;
-	vector<PlayButton> touchTypes;
-	PlayButton lastTouchedType;
-
-    Rectf lastDrawnBoundsRect;
-    
-	bool mIsPlaying;
-	int mMinutes, mMinutesTotal, mMinutesLeft;
-	int mSeconds, mSecondsTotal, mSecondsLeft;
-	int mPrevSeconds;
-	
-	bool mIsDraggingPlayhead;
-	gl::Texture mCurrentTimeTex;
-	gl::Texture mRemainingTimeTex;
-	
 	CallbackId cbTouchesBegan, cbTouchesMoved, cbTouchesEnded, cbOrientationChanged;
 			
-	PlayButton findButtonUnderTouches(vector<TouchEvent::Touch> touches);
+	ButtonId findButtonUnderTouches(vector<TouchEvent::Touch> touches);
     Rectf transformRect( const Rectf &rect, const Matrix44f &matrix );
+    void updateUIRects();
+    
+    ButtonId mLastTouchedType;
+    float mLastDrawY;
     
     Orientation mInterfaceOrientation;
     Matrix44f   mOrientationMatrix;
     Vec2f       mInterfaceSize;
     
 	// !!! EVENT STUFF (keep track of listeners)
-	CallbackMgr<bool(PlayButton)> mCallbacksButtonPressed;
+	CallbackMgr<bool(ButtonId)> mCallbacksButtonPressed;
 	CallbackMgr<bool(float)> mCallbacksPlayheadMoved;
 	
+    ///////////// Shared UI resources:
+    Font mFont;
+    gl::Texture mTexture;
+    
+    ///////////// UI Classes:
+    
+    SimpleButton mCurrentTrackButton;
+
+    ScrollingLabel mTrackInfoLabel;
+    TimeLabel mElapsedTimeLabel;
+    Slider mPlayheadSlider;
+    TimeLabel mRemainingTimeLabel;    
+
+    ToggleButton mAlphaWheelButton;
+    
+    ToggleButton mHelpButton;
+    ToggleButton mOrbitsButton;
+    ToggleButton mLabelsButton;
+
+    SimpleButton mPreviousTrackButton;
+    TwoStateButton mPlayPauseButton;
+    SimpleButton mNextTrackButton;
+        
 };
