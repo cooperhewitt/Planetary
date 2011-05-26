@@ -12,6 +12,7 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/Text.h"
 #include "cinder/Rect.h"
+#include "cinder/Utilities.h"
 
 using namespace ci;
 using namespace std;
@@ -20,7 +21,7 @@ class TimeLabel {
     
 public:
     
-    TimeLabel() { mTime = -1; }
+    TimeLabel() { mSeconds = -100000; }
     ~TimeLabel() {}
     
     void setup(Font font, Color color) {
@@ -31,7 +32,7 @@ public:
     void update() {}
     void draw();
 
-    void setTime(float time);
+    void setSeconds(int seconds);
 
     void setRect(Rectf rect) { mRect = rect; }
     Rectf getRect() { return mRect; }
@@ -43,8 +44,8 @@ private:
     Rectf mRect;
     Font mFont;
     Color mColor;
-    float mTime;
+    int mSeconds;
 
-    gl::Texture mTexture;    
+    gl::Texture mTexture, mHyphenTexture;
     
 };

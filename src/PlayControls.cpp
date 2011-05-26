@@ -86,9 +86,9 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, Font font
     
     mTrackInfoLabel.setup(font, Color::white());
     
-    mElapsedTimeLabel.setup(font, Color::white());
+    mElapsedTimeLabel.setup(font, COLOR_BRIGHT_BLUE);
     
-    mRemainingTimeLabel.setup(font, Color::white());
+    mRemainingTimeLabel.setup(font, COLOR_BRIGHT_BLUE);
         
     ///////
     

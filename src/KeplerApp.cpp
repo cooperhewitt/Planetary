@@ -1004,8 +1004,8 @@ void KeplerApp::update()
         mPlayControls.setOrbitsVisible( G_DRAW_RINGS );
         mPlayControls.setLabelsVisible( G_DRAW_TEXT );
         mPlayControls.setHelpVisible( G_HELP );
-        mPlayControls.setElapsedTime( mCurrentTrackPlayheadTime );
-        mPlayControls.setRemainingTime( mCurrentTrackPlayheadTime - mCurrentTrackLength );
+        mPlayControls.setElapsedSeconds( (int)mCurrentTrackPlayheadTime );
+        mPlayControls.setRemainingSeconds( -(int)(mCurrentTrackLength - mCurrentTrackPlayheadTime) );
         mPlayControls.setPlayheadProgress( mCurrentTrackPlayheadTime / mCurrentTrackLength );
     }
     else {

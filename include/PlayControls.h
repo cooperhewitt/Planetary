@@ -52,8 +52,8 @@ public:
     void setOrbitsVisible(bool visible) { mOrbitsButton.setOn(visible); };
     void setLabelsVisible(bool visible) { mLabelsButton.setOn(visible); };
     void setHelpVisible(bool visible) { mHelpButton.setOn(visible); };
-    void setElapsedTime(float elapsedTime) { mElapsedTimeLabel.setTime(elapsedTime); }
-    void setRemainingTime(float remainingTime) { mRemainingTimeLabel.setTime(remainingTime); }
+    void setElapsedSeconds(int elapsedTime) { mElapsedTimeLabel.setSeconds(elapsedTime); }
+    void setRemainingSeconds(int remainingTime) { mRemainingTimeLabel.setSeconds(remainingTime); }
     void setCurrentTrack(string currentTrack) { mTrackInfoLabel.setText(currentTrack); }
     void setLastTrackChangeTime(float time) { mTrackInfoLabel.setLastTrackChangeTime(time); }
     void setPlayheadProgress(float value) { mPlayheadSlider.setValue(value); }
