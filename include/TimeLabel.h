@@ -20,11 +20,10 @@ class TimeLabel {
     
 public:
     
-    TimeLabel() {}
+    TimeLabel() { mTime = -1; }
     ~TimeLabel() {}
     
-    void setup(Rectf rect, Font font, Color color) {
-        mRect = rect;
+    void setup(Font font, Color color) {
         mFont = font;
         mColor = color;
     }

@@ -1004,14 +1004,13 @@ void KeplerApp::update()
         mBreadcrumbs.update();
                 
         mPlayControls.update();
-        mPlayControls.setPlaying(false /*bool playing*/);
-        mPlayControls.setAlphaWheelVisible(false /*bool visible*/);
-        mPlayControls.setOrbitsVisible(false /*bool visible*/);
-        mPlayControls.setLabelsVisible(false /*bool visible*/);
-        mPlayControls.setHelpVisible(false /*bool visible*/);
-        mPlayControls.setElapsedTime(0 /*float elapsedTime*/);
-        mPlayControls.setRemainingTime(0 /*float remainingTime*/);
-        mPlayControls.setPlayheadProgress(mCurrentTrackPlayheadTime / mCurrentTrackLength);        
+        mPlayControls.setAlphaWheelVisible( mAlphaWheel.getShowWheel() );
+        mPlayControls.setOrbitsVisible( G_DRAW_RINGS );
+        mPlayControls.setLabelsVisible( G_DRAW_TEXT );
+        mPlayControls.setHelpVisible( G_HELP );
+        mPlayControls.setElapsedTime( mCurrentTrackPlayheadTime );
+        mPlayControls.setRemainingTime( mCurrentTrackPlayheadTime - mCurrentTrackLength );
+        mPlayControls.setPlayheadProgress( mCurrentTrackPlayheadTime / mCurrentTrackLength );
     }
     else {
         // make sure we've drawn the loading screen first

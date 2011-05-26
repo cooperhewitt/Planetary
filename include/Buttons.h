@@ -17,10 +17,9 @@ public:
     Button() {}
     virtual ~Button() {}    
 
-    void setup(int buttonId, Rectf rect)
+    void setup(int buttonId)
     {
-        mButtonId = buttonId; 
-        mRect = rect;
+        mButtonId = buttonId;
     }
     
     int getId() { return mButtonId; }
@@ -46,9 +45,12 @@ public:
     ToggleButton() {}
     ~ToggleButton() {}
     
-    void setup(int buttonId, Rectf touchRect, bool on, Rectf onTextureRect, Rectf offTextureRect)
+    void setup(int buttonId, 
+               bool on, 
+               Rectf onTextureRect, 
+               Rectf offTextureRect)
     {
-        Button::setup(buttonId, touchRect);
+        Button::setup(buttonId);
         mOn = on;
         mOnTextureRect = onTextureRect;
         mOffTextureRect = offTextureRect; 
@@ -73,10 +75,11 @@ public:
     SimpleButton() {}
     ~SimpleButton() {}
     
-    void setup(int buttonId, Rectf touchRect, 
-               Rectf downTextureRect, Rectf upTextureRect)
+    void setup(int buttonId, 
+               Rectf downTextureRect, 
+               Rectf upTextureRect)
     {
-        Button::setup(buttonId, touchRect),
+        Button::setup(buttonId),
         mDown = false;
         mDownTextureRect = downTextureRect;
         mUpTextureRect = upTextureRect;
@@ -101,11 +104,12 @@ public:
     TwoStateButton() {}
     ~TwoStateButton() {}
     
-    void setup(int buttonId, Rectf touchRect, bool on, 
-               Rectf onDownTextureRect, Rectf onUpTextureRect,
-               Rectf offDownTextureRect, Rectf offUpTextureRect)
+    void setup(int buttonId, 
+               bool on, 
+               Rectf offDownTextureRect, Rectf offUpTextureRect,
+               Rectf onDownTextureRect, Rectf onUpTextureRect)
     {
-        Button::setup(buttonId, touchRect),
+        Button::setup(buttonId),
         mOn = on;
         mDown = false;
         mOnDownTextureRect = onDownTextureRect;

@@ -32,31 +32,26 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, Font font
     float v3 = 0.5f;      // button tex on end y
     
     mCurrentTrackButton.setup(CURRENT_TRACK,   // ID
-                              Rectf(0,0,0,0),  // position (updateUIRects sets this correctly)
                               Rectf(uw*0.0f,v2,uw*1.0f,v3),  // on texture
                               Rectf(uw*0.0f,v1,uw*1.0f,v2)); // off texture
 
     mAlphaWheelButton.setup(SHOW_WHEEL,      // ID
-                            Rectf(0,0,0,0),  // position (updateUIRects sets this correctly)
                             false,           // initial toggle state
                             Rectf(uw*1.0f,v2,uw*2.0f,v3),  // on texture
                             Rectf(uw*1.0f,v1,uw*2.0f,v2)); // off texture    
 
     mPreviousTrackButton.setup(PREVIOUS_TRACK, 
-                               Rectf(0,0,0,0),  // position (updateUIRects sets this correctly)
                                Rectf(uw*2.0f,v2,uw*3.0f,v3),  // on texture
                                Rectf(uw*2.0f,v1,uw*3.0f,v2)); // off texture
 
     mPlayPauseButton.setup(PLAY_PAUSE, 
-                           Rectf(0,0,0,0),      // position (updateUIRects sets this correctly)
                            false,               // on
-                           Rectf(uw*3.0f,v2,uw*4.0f,v3), // onUp   
-                           Rectf(uw*3.0f,v1,uw*4.0f,v2), // onDown
-                           Rectf(uw*4.0f,v2,uw*5.0f,v3), // offUp
-                           Rectf(uw*4.0f,v1,uw*5.0f,v2));// offDown
+                           Rectf(uw*3.0f,v2,uw*4.0f,v3), // offUp   
+                           Rectf(uw*3.0f,v1,uw*4.0f,v2), // offDown
+                           Rectf(uw*4.0f,v2,uw*5.0f,v3), // onUp
+                           Rectf(uw*4.0f,v1,uw*5.0f,v2));// onDown
 
     mNextTrackButton.setup(NEXT_TRACK, 
-                           Rectf(0,0,0,0),      // position (updateUIRects sets this correctly)
                            Rectf(uw*5.0f,v2,uw*6.0f,v3),  // on texture
                            Rectf(uw*5.0f,v1,uw*6.0f,v2)); // off texture
     
@@ -67,25 +62,21 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, Font font
     v3 = 0.9f;
     
     mHelpButton.setup(HELP, 
-                      Rectf(0,0,0,0),  // position (updateUIRects sets this correctly)
                       false, 
                       Rectf(uw*0.0f,v2,uw*1.0f,v3),  // on texture
                       Rectf(uw*0.0f,v1,uw*1.0f,v2)); // off texture
     
     mOrbitsButton.setup(DRAW_RINGS, 
-                        Rectf(0,0,0,0),  // position (updateUIRects sets this correctly)
                         false, 
                         Rectf(uw*1.0f,v2,uw*2.0f,v3),  // on texture
                         Rectf(uw*1.0f,v1,uw*2.0f,v2)); // off texture
     
     mLabelsButton.setup(DRAW_TEXT, 
-                        Rectf(0,0,0,0),  // position (updateUIRects sets this correctly)
                         false, 
                         Rectf(uw*2.0f,v2,uw*3.0f,v3),  // on texture
                         Rectf(uw*2.0f,v1,uw*3.0f,v2)); // off texture
 
     mPlayheadSlider.setup(SLIDER,          // ID
-                          Rectf(0,0,0,0),  // position (updateUIRects sets this correctly)
                           Rectf(uw * 0.0f, 0.9f, uw * 1.0f, 1.0f),  // bg texture
                           Rectf(uw * 2.0f, 0.9f, uw * 3.0f, 1.0f),  // fg texture
                           Rectf(uw * 3.0f, 0.7f, uw * 4.0f, 0.9f),  // thumb on texture
@@ -93,17 +84,11 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, Font font
 
     /////// no textures please, we're British...
     
-    mTrackInfoLabel.setup(Rectf(0,0,0,0), // position (updateUIRects sets this correctly)
-                          font, 
-                          Color::white());
+    mTrackInfoLabel.setup(font, Color::white());
     
-    mElapsedTimeLabel.setup(Rectf(0,0,0,0), // position (updateUIRects sets this correctly)
-                            font, 
-                            Color::white());
+    mElapsedTimeLabel.setup(font, Color::white());
     
-    mRemainingTimeLabel.setup(Rectf(0,0,0,0), // position (updateUIRects sets this correctly)
-                              font, 
-                              Color::white());
+    mRemainingTimeLabel.setup(font, Color::white());
         
     ///////
     
@@ -119,6 +104,17 @@ void PlayControls::update()
         cbTouchesEnded = 0;
         cbTouchesMoved = 0;
     }		
+
+    // FIXME, have buttons handle this themselves
+    mCurrentTrackButton.setDown(mLastTouchedType == mCurrentTrackButton.getId());
+    //        mAlphaWheelButton.setDown(mLastTouchedType == mAlphaWheelButton.getId());
+    //        mHelpButton.setDown(mLastTouchedType == mHelpButton.getId());
+    //        mOrbitsButton.setDown(mLastTouchedType == mOrbitsButton.getId());
+    //        mLabelsButton.setDown(mLastTouchedType == mLabelsButton.getId());
+    mPreviousTrackButton.setDown(mLastTouchedType == mPreviousTrackButton.getId());
+    mPlayPauseButton.setDown(mLastTouchedType == mPlayPauseButton.getId());
+    mNextTrackButton.setDown(mLastTouchedType == mNextTrackButton.getId());         
+    
 }
 
 void PlayControls::setInterfaceOrientation( const Orientation &orientation )
@@ -223,10 +219,7 @@ void PlayControls::draw(float y)
     
     mCurrentTrackButton.draw();
     
-    mTrackInfoLabel.draw();
-    mElapsedTimeLabel.draw();
     mPlayheadSlider.draw();
-    mRemainingTimeLabel.draw();
     
     mAlphaWheelButton.draw();
     
@@ -239,31 +232,53 @@ void PlayControls::draw(float y)
     mNextTrackButton.draw();
     
     mTexture.unbind();
-    
+
+    mElapsedTimeLabel.draw();
+    mRemainingTimeLabel.draw();
+    mTrackInfoLabel.draw();
+
     gl::popModelView();
+}
+
+void PlayControls::dragPlayheadToPos(Vec2f pos) 
+{
+    // adjust for orientation
+    pos = (mOrientationMatrix.inverted() * Vec3f(pos,0)).xy();
+    
+    // FIXME: assumes slider is horizontal :)
+    Rectf rect = mPlayheadSlider.getRect();
+    float playheadPer = (pos.x - rect.x1) / (rect.x2 - rect.x1);
+    playheadPer = constrain( playheadPer, 0.0f, 1.0f );
+    
+    mPlayheadSlider.setValue( playheadPer );
+    mCallbacksPlayheadMoved.call( playheadPer );                
 }
 
 bool PlayControls::touchesBegan( TouchEvent event )
 {
-//    Rectf transformedBounds = transformRect( lastDrawnBoundsRect, mOrientationMatrix );
-//    vector<TouchEvent::Touch> touches = event.getTouches();
-//    if (touches.size() > 0 && transformedBounds.contains(touches[0].getPos())) {
-//        if (cbTouchesEnded == 0) {
-//            cbTouchesEnded = mApp->registerTouchesEnded( this, &PlayControls::touchesEnded );
-//            cbTouchesMoved = mApp->registerTouchesMoved( this, &PlayControls::touchesMoved );			
-//        }
-//
-//        lastTouchedType = findButtonUnderTouches(touches);
-//		
-//        if( lastTouchedType == SLIDER ){
-//            mIsDraggingPlayhead = true;
-//        }
-//        
-//        return true;
-//    }
-//    else {
-//        lastTouchedType = NO_BUTTON;
-//    }
+    Rectf transformedBounds = transformRect( Rectf(0, mLastDrawY, mInterfaceSize.x, mInterfaceSize.y), mOrientationMatrix );
+
+    vector<TouchEvent::Touch> touches = event.getTouches();
+    if (touches.size() > 0 && transformedBounds.contains(touches[0].getPos())) { // FIXME: test all touches in this touchesBegan batch
+        
+        if (cbTouchesEnded == 0) {
+            cbTouchesEnded = mApp->registerTouchesEnded( this, &PlayControls::touchesEnded );
+            cbTouchesMoved = mApp->registerTouchesMoved( this, &PlayControls::touchesMoved );			
+        }
+
+        mLastTouchedType = findButtonUnderTouches(touches);
+		
+        if (mLastTouchedType == SLIDER) {
+            mPlayheadSlider.setIsDragging(true);
+            dragPlayheadToPos(touches.begin()->getPos());
+        }
+             
+        return true;
+    }
+    else {
+        mLastTouchedType = NO_BUTTON;
+    }
+    
     return false;
 }
 
@@ -273,21 +288,11 @@ bool PlayControls::touchesMoved( TouchEvent event )
 
     mLastTouchedType = findButtonUnderTouches(touches);
 
-//    if( mIsDraggingPlayhead ){
-//        if( touches.size() == 1 ){
-//            
-//            Vec2f pos = touches.begin()->getPos();
-//            pos = (mOrientationMatrix.inverted() * Vec3f(pos,0)).xy();
-//            
-//			// MAGIC NUMBER: beware these hard-coded nasties!
-//            float border = 110.0f;
-//			float sliderLength = mInterfaceSize.x * 0.3f;
-//            float playheadPer = ( pos.x - border ) / sliderLength;
-//            
-//            // TODO: Make this callback take a double (between 0 and 1?)
-//            mCallbacksPlayheadMoved.call( constrain( playheadPer, 0.0f, 1.0f ) );
-//        }
-//    }
+    if( mPlayheadSlider.isDragging() ){
+        if( touches.size() == 1 ){
+            dragPlayheadToPos(touches.begin()->getPos());
+        }
+    }
     
     return false;
 }	
@@ -300,24 +305,57 @@ bool PlayControls::touchesEnded( TouchEvent event )
     }
 
     mLastTouchedType = NO_BUTTON;
-    //mIsDraggingPlayhead = false;
+    
+    mPlayheadSlider.setIsDragging(false);
+
     return false;
 }
 
 PlayControls::ButtonId PlayControls::findButtonUnderTouches(vector<TouchEvent::Touch> touches) {
-//    Rectf transformedBounds = transformRect( lastDrawnBoundsRect, mOrientationMatrix );
-//    for (int j = 0; j < touches.size(); j++) {
-//        TouchEvent::Touch touch = touches[j];
-//        Vec2f pos = touch.getPos();
-//        if ( transformedBounds.contains( pos ) ) {
-//            for (int i = 0; i < touchRects.size(); i++) {
-//                Rectf rect = transformRect( touchRects[i], mOrientationMatrix );
-//                if (rect.contains(pos)) {
-//                    return touchTypes[i];
-//                }
-//            }		
-//        }
-//    }		
+    Rectf transformedBounds = transformRect( Rectf(0, mLastDrawY, mInterfaceSize.x, mInterfaceSize.y), mOrientationMatrix );
+
+    // FIXME: this is really dumb, make a base class for touchable things and use pointers in a vector instead
+    vector<Rectf> touchRects;
+    vector<int> touchTypes;
+    touchRects.push_back(mCurrentTrackButton.getRect());
+    touchRects.push_back(mPlayheadSlider.getRect());
+    touchRects.push_back(mAlphaWheelButton.getRect());
+    touchRects.push_back(mHelpButton.getRect());
+    touchRects.push_back(mOrbitsButton.getRect());
+    touchRects.push_back(mLabelsButton.getRect());
+    touchRects.push_back(mPreviousTrackButton.getRect());
+    touchRects.push_back(mPlayPauseButton.getRect());
+    touchRects.push_back(mNextTrackButton.getRect());
+    touchTypes.push_back(mCurrentTrackButton.getId());
+    touchTypes.push_back(mPlayheadSlider.getId());
+    touchTypes.push_back(mAlphaWheelButton.getId());
+    touchTypes.push_back(mHelpButton.getId());
+    touchTypes.push_back(mOrbitsButton.getId());
+    touchTypes.push_back(mLabelsButton.getId());
+    touchTypes.push_back(mPreviousTrackButton.getId());
+    touchTypes.push_back(mPlayPauseButton.getId());
+    touchTypes.push_back(mNextTrackButton.getId());    
+
+    // offset and transform:
+    for (int i = 0; i < touchRects.size(); i++) {
+        Rectf rect = touchRects[i].getOffset( Vec2f(0, mLastDrawY) );
+        touchRects[i] = transformRect( rect, mOrientationMatrix );
+    }
+    
+    // check for touches and return first one found
+    // TODO: accept more than one touch, by ID?
+    for (int j = 0; j < touches.size(); j++) {
+        TouchEvent::Touch touch = touches[j];
+        Vec2f pos = touch.getPos();
+        if ( transformedBounds.contains( pos ) ) {
+            for (int i = 0; i < touchRects.size(); i++) {
+                if (touchRects[i].contains(pos)) {
+                    return ButtonId(touchTypes[i]);
+                }
+            }		
+        }
+    }
+    
     return NO_BUTTON;
 }
 

@@ -23,8 +23,7 @@ public:
     ScrollingLabel() {}
     ~ScrollingLabel() {}
     
-    void setup(Rectf rect, Font font, Color color) {
-        mRect = rect;
+    void setup(Font font, Color color) {
         mFont = font;
         mColor = color;
     }

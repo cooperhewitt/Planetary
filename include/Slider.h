@@ -18,15 +18,12 @@ public:
     ~Slider() {}
     
     void setup(int sliderId, 
-               Rectf rect, 
                Rectf bgTexRect, 
                Rectf fgTexRect, 
                Rectf thumbDownTexRect, 
                Rectf thumbUpTexRect)
     {
         mSliderId = sliderId;
-        // position:
-        mRect = rect;
         // textures:
         mBgTexRect = bgTexRect;
         mFgTexRect = fgTexRect;
@@ -40,7 +37,10 @@ public:
     
     Rectf getRect() { return mRect; }
     void setRect(Rectf rect) { mRect = rect; }
-    
+
+    bool isDragging() { return mIsDragging; }
+    void setIsDragging(bool isDragging) { mIsDragging = isDragging; }
+
     float getValue() { return mValue; }
     void setValue(float value) { mValue = value; }
     

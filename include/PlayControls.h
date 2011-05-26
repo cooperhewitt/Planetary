@@ -10,14 +10,16 @@
 #pragma once
 
 #include <sstream>
+
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Font.h"
 #include "cinder/Text.h"
 #include "cinder/Utilities.h"
+
 #include "Orientation.h"
 #include "OrientationEvent.h"
-#include "AlphaWheel.h"
+
 #include "Buttons.h"
 #include "Slider.h"
 #include "TimeLabel.h"
@@ -33,10 +35,8 @@ public:
 	enum ButtonId { NO_BUTTON, CURRENT_TRACK, SHOW_WHEEL, PREVIOUS_TRACK, PLAY_PAUSE, NEXT_TRACK, SLIDER, HELP, DRAW_RINGS, DRAW_TEXT };
 	
 	void setup( AppCocoaTouch *app, Orientation orientation, Font font, gl::Texture texture );
-//    void setup();
 	void update();
     void draw(float y);
-//	void draw( const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &currentTrackTex, AlphaWheel *alphaWheel, const Font &font, float y, float currentTime, float totalTime, float secsSinceTrackChange );
 
 	bool touchesBegan( TouchEvent event );
 	bool touchesMoved( TouchEvent event );	
@@ -79,6 +79,7 @@ private:
 	ButtonId findButtonUnderTouches(vector<TouchEvent::Touch> touches);
     Rectf transformRect( const Rectf &rect, const Matrix44f &matrix );
     void updateUIRects();
+    void dragPlayheadToPos(Vec2f pos);
     
     ButtonId mLastTouchedType;
     float mLastDrawY;
