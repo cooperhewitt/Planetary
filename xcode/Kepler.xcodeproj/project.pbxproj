@@ -83,6 +83,10 @@
 		E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C872D131F1420000780A3 /* NodeArtist.cpp */; };
 		E25C8744131F14B3000780A3 /* NodeAlbum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8742131F14B3000780A3 /* NodeAlbum.cpp */; };
 		E25C8745131F14B3000780A3 /* NodeTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8743131F14B3000780A3 /* NodeTrack.cpp */; };
+		E2730445138DA83800A2A65B /* TimeLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2730444138DA83800A2A65B /* TimeLabel.cpp */; };
+		E273044A138DAA6400A2A65B /* ScrollingLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */; };
+		E278F90813830E7E00738472 /* Buttons.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E278F90713830E7E00738472 /* Buttons.cpp */; };
+		E278F90F138333FB00738472 /* Slider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E278F90D138333FB00738472 /* Slider.cpp */; };
 		E28FDA811339AF15005EDBB4 /* Breadcrumbs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */; };
 		E28FDA831339B782005EDBB4 /* PlayControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA821339B782005EDBB4 /* PlayControls.cpp */; };
 /* End PBXBuildFile section */
@@ -202,6 +206,14 @@
 		E25C8741131F14A5000780A3 /* NodeTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeTrack.h; path = ../include/NodeTrack.h; sourceTree = SOURCE_ROOT; };
 		E25C8742131F14B3000780A3 /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8743131F14B3000780A3 /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
+		E2730443138DA82B00A2A65B /* TimeLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeLabel.h; path = ../include/TimeLabel.h; sourceTree = "<group>"; };
+		E2730444138DA83800A2A65B /* TimeLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeLabel.cpp; path = ../src/TimeLabel.cpp; sourceTree = "<group>"; };
+		E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScrollingLabel.cpp; path = ../src/ScrollingLabel.cpp; sourceTree = "<group>"; };
+		E273044B138DAA7400A2A65B /* ScrollingLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScrollingLabel.h; path = ../include/ScrollingLabel.h; sourceTree = "<group>"; };
+		E278F90513830E5200738472 /* Buttons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Buttons.h; path = ../include/Buttons.h; sourceTree = "<group>"; };
+		E278F90713830E7E00738472 /* Buttons.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Buttons.cpp; path = ../src/Buttons.cpp; sourceTree = "<group>"; };
+		E278F90D138333FB00738472 /* Slider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Slider.cpp; path = ../src/Slider.cpp; sourceTree = "<group>"; };
+		E278F9101383342400738472 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Slider.h; path = ../include/Slider.h; sourceTree = "<group>"; };
 		E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Breadcrumbs.cpp; path = ../src/Breadcrumbs.cpp; sourceTree = "<group>"; };
 		E28FDA821339B782005EDBB4 /* PlayControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayControls.cpp; path = ../src/PlayControls.cpp; sourceTree = "<group>"; };
 		E2A1FF8E132599290007F4DA /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../include/PlayControls.h; sourceTree = SOURCE_ROOT; };
@@ -552,6 +564,9 @@
 		E1C6023C131C4B0E0022246C /* Ui */ = {
 			isa = PBXGroup;
 			children = (
+				E273044B138DAA7400A2A65B /* ScrollingLabel.h */,
+				E2730443138DA82B00A2A65B /* TimeLabel.h */,
+				E278F9101383342400738472 /* Slider.h */,
 				E22998CA1332D6210043CDCA /* LoadingScreen.h */,
 				E1C60254131C4B3D0022246C /* Breadcrumbs.h */,
 				E2A1FF8E132599290007F4DA /* PlayControls.h */,
@@ -559,6 +574,7 @@
 				E15C90B51300B2F100FB8389 /* UiLayer.h */,
 				E217105E132ECEFB00ADCC17 /* AlphaWheel.h */,
 				E140695D138C9BCF0091D93E /* Button.h */,
+				E278F90513830E5200738472 /* Buttons.h */,
 			);
 			name = Ui;
 			sourceTree = "<group>";
@@ -613,6 +629,10 @@
 		E2171053132ECE3900ADCC17 /* Ui */ = {
 			isa = PBXGroup;
 			children = (
+				E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */,
+				E2730444138DA83800A2A65B /* TimeLabel.cpp */,
+				E278F90D138333FB00738472 /* Slider.cpp */,
+				E278F90713830E7E00738472 /* Buttons.cpp */,
 				E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */,
 				E28FDA801339AF15005EDBB4 /* Breadcrumbs.cpp */,
 				E28FDA821339B782005EDBB4 /* PlayControls.cpp */,
@@ -758,6 +778,12 @@
 				E12D40DD1373792D0079EF3B /* Orientation.cpp in Sources */,
 				E12D40DE1373792D0079EF3B /* OrientationHelper.mm in Sources */,
 				E1406960138C9BE00091D93E /* Button.cpp in Sources */,
+				E2D20ECC135CF2F400A29743 /* OrientationHelper.mm in Sources */,
+				E2D20ECE135CFBC500A29743 /* Orientation.cpp in Sources */,
+				E278F90813830E7E00738472 /* Buttons.cpp in Sources */,
+				E278F90F138333FB00738472 /* Slider.cpp in Sources */,
+				E2730445138DA83800A2A65B /* TimeLabel.cpp in Sources */,
+				E273044A138DAA6400A2A65B /* ScrollingLabel.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

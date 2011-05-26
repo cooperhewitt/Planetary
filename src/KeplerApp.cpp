@@ -92,7 +92,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
 	bool			onWheelToggled( AlphaWheel *alphaWheel );
 //	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
-	bool			onPlayControlsButtonPressed ( PlayControls::PlayButton button );
+	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
 	bool			onPlayControlsPlayheadMoved ( float amount );
 	bool			onSelectedNodeChanged( Node *node );
 	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos );
@@ -132,7 +132,6 @@ class KeplerApp : public AppCocoaTouch {
 	ipod::PlaylistRef	mCurrentAlbum;
 	double				mCurrentTrackPlayheadTime;
 	double				mCurrentTrackLength;
-	float				mElapsedSecondsSinceTrackChange;
 	int					mPlaylistIndex;
 	
 // BREADCRUMBS
@@ -211,7 +210,6 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mPlayheadProgressTex;
     gl::Texture     mRingsTex;
 	gl::Texture		mUiButtonsTex;
-	gl::Texture		mCurrentTrackTex;
     gl::Texture		mAtmosphereTex, mAtmosphereDirectionalTex;
 	gl::Texture		mNoArtistsTex;
 	gl::Texture		mParticleTex;
@@ -233,7 +231,6 @@ class KeplerApp : public AppCocoaTouch {
 	int				mDarkMatterCylinderRes;
 	float			mLightMatterBaseRadius;
 	float			mDarkMatterBaseRadius;
-	
 	
 	float			mTime;
 	bool			mHasNoArtists;
@@ -326,10 +323,7 @@ void KeplerApp::remainingSetup()
 	G_DRAW_RINGS	= true;
 	G_DRAW_TEXT		= true;
 	//Rand::randomize();
-    
-	mElapsedSecondsSinceTrackChange = 0.0f;
 
-	
     // TEXTURES
     initTextures();
 	
@@ -412,7 +406,7 @@ void KeplerApp::remainingSetup()
 //	mBreadcrumbs.setHierarchy(mState.getHierarchy());
 
 	// PLAY CONTROLS
-	mPlayControls.setup( this, mIpodPlayer.getPlayState() == ipod::Player::StatePlaying, mOrientationHelper.getInterfaceOrientation() );
+	mPlayControls.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontMediTiny, mUiButtonsTex);
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
 
@@ -951,7 +945,7 @@ bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
     return false;
 }
 
-bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
+bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 {
     switch( button ) {
         
@@ -1134,10 +1128,15 @@ void KeplerApp::update()
     
     if ( mRemainingSetupCalled )
 	{
-		if( G_IS_IPAD2 && G_USE_GYRO )
+		if( G_IS_IPAD2 && G_USE_GYRO ) {
 			updateGyro();
-		updateArcball();
-		updatePlayhead();
+        }
+
+        updateArcball();
+
+        // set mCurrentTrackPlayheadTime & mCurrentTrackLength for mPlayControls and mWorld.mPlayingTrackNode
+        updatePlayhead();
+
 		if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 		}
@@ -1172,8 +1171,18 @@ void KeplerApp::update()
         mUiLayer.update();
 		mHelpLayer.update();
 		mAlphaWheel.update( mFov );
+        
 //        mBreadcrumbs.update();
+        
         mPlayControls.update();
+        mPlayControls.setAlphaWheelVisible( mAlphaWheel.getShowWheel() );
+        mPlayControls.setOrbitsVisible( G_DRAW_RINGS );
+        mPlayControls.setLabelsVisible( G_DRAW_TEXT );
+        mPlayControls.setHelpVisible( G_HELP );
+        mPlayControls.setElapsedSeconds( (int)mCurrentTrackPlayheadTime );
+        mPlayControls.setRemainingSeconds( -(int)(mCurrentTrackLength - mCurrentTrackPlayheadTime) );
+        mPlayControls.setPlayheadProgress( mCurrentTrackPlayheadTime / mCurrentTrackLength );
+
     }
     else {
         // make sure we've drawn the loading screen first
@@ -1365,8 +1374,6 @@ void KeplerApp::draw()
 		drawScene();
 	}
 }
-
-
 
 void KeplerApp::drawNoArtists()
 {
@@ -1753,9 +1760,6 @@ void KeplerApp::drawScene()
 //			}
 //		}
 //	}
-	
-	
-	
     
     gl::disableAlphaBlending();
     gl::enableAlphaBlending();
@@ -1765,8 +1769,12 @@ void KeplerApp::drawScene()
 	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
+
 //    mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
-    mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, mFontMediSmall, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
+    
+    //mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
+    mPlayControls.draw( mUiLayer.getPanelYPos() );
+	
 	gl::disableAlphaBlending();
 	if( G_DEBUG ) drawInfoPanel();
 }
@@ -1828,7 +1836,10 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	
     // TODO: does Flurry care about this?
     
-    mElapsedSecondsSinceTrackChange = getElapsedSeconds();
+    mPlayControls.setLastTrackChangeTime( getElapsedSeconds() );
+    
+//	console() << "==================================================================" << std::endl;
+//	console() << "onPlayerTrackChanged!" << std::endl;
 
     Flurry::getInstrumentation()->logEvent("Player Track Changed");
 
@@ -1836,15 +1847,10 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         
 		ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
 
-	// Create current track text texture
-		TextLayout layout;
-		layout.setFont( mFontMediSmall );
-		layout.setColor( Color::white() );			
-		layout.addLine( " " + playingTrack->getArtist() + " • " + playingTrack->getAlbumTitle() + " • " + playingTrack->getTitle() + " " );
-		bool PREMULT = false;
-		mCurrentTrackTex = gl::Texture( layout.render( true, PREMULT ) );
-		 
-        
+        mPlayControls.setCurrentTrack(" " + playingTrack->getArtist() 
+                                      + " • " + playingTrack->getAlbumTitle() 
+                                      + " • " + playingTrack->getTitle() + " ");
+                
         Node *selectedNode = mState.getSelectedNode();
         if (!(selectedNode != NULL && selectedNode->getId() == playingTrack->getItemId())) {
         
@@ -1912,10 +1918,13 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 	}
 	else {
 //		console() << "    trackchanged but nothing's playing" << endl;
-		mCurrentTrackTex.reset();
+
+		//mCurrentTrackTex.reset();
+        mPlayControls.setCurrentTrack("");
 		// TOM: I put this next line in. Is this how to go to album level view when last track ends?
 		mState.setSelectedNode( mState.getSelectedAlbumNode() );
-        // FIXME: disable zoom-to-current-track button
+        // FIXME: disable play button and zoom-to-current-track button
+
 	}
 
     updatePlayhead();
