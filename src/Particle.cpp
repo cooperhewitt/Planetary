@@ -26,7 +26,7 @@ Particle::Particle( int index, Vec3f pos, Vec3f vel, const Vec3f &bbRight, const
 void Particle::setup( const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	mLifespan       = pow( Rand::randFloat( 0.5f, 1.0f ), 2.0f );
-	mLifespan		*= 200.0f;
+	mLifespan		*= 400.0f;
 	
 	mPos		= ( bbRight * mCosAngle + bbUp * mSinAngle ) * 0.35f;
 	mPrevPos	= mPos;
