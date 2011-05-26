@@ -15,10 +15,12 @@
 #include "Globals.h"
 #include "Node.h"
 #include <boost/lexical_cast.hpp>
-
+#include <boost/tokenizer.hpp>
+#include <boost/foreach.hpp>
 
 using namespace ci;
 using namespace std;
+using namespace boost;
 
 Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, const Surface &hiResSurfaces, const Surface &loResSurfaces, const Surface &noAlbumArt )
 	: mParentNode( parent ), mIndex( index ), mFont( font ), mSmallFont( smallFont ),
@@ -96,16 +98,56 @@ void Node::setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphe
 void Node::createNameTexture()
 {
 	TextLayout layout;
-	layout.setColor( Color( 0.5f, 0.5f, 0.5f ) );
-	string name = "";
+	
+	string name = getName();
+	string numberLine1, nameLine1;
+	string nameLine2 = "(";
+	bool isTwoLines = false;
 	if( mGen == G_TRACK_LEVEL ){
-		layout.setFont( mSmallFont );
-		name = boost::lexical_cast<string>( getTrackNumber() ) + ". ";
+		numberLine1 = boost::lexical_cast<string>( getTrackNumber() ) + ". ";
 	}
-	layout.addLine( name );
+	
+	layout.setFont( mSmallFont );
+	layout.setColor( Color( 0.5f, 0.5f, 0.5f ) );
+	layout.addLine( numberLine1 );
+	
 	layout.setFont( mFont );
 	layout.setColor( Color( 1.0f, 1.0f, 1.0f ) );
-	layout.append( getName() );
+		
+	if( name.length() > 25 ){
+		int counter = 0;
+		char_separator<char> sep("(");
+		tokenizer< char_separator<char> > tokens(name, sep);
+		BOOST_FOREACH(string t, tokens)
+		{
+			if( counter == 0 ){
+				nameLine1 = t;
+			} else {
+				nameLine2.append( t );
+				isTwoLines = true;
+			}
+			counter ++;
+		}
+	} else {
+		nameLine1 = name;
+	}
+
+	layout.append( nameLine1 );
+	if( isTwoLines ){
+		layout.setFont( mSmallFont );
+		layout.setColor( Color( 0.0f, 0.0f, 0.0f ) );
+		layout.addLine( numberLine1 );
+		
+		//layout.setFont( mFont );
+		layout.setColor( Color( 0.5f, 0.5f, 0.5f ) );
+		layout.append( nameLine2 );
+	}
+	
+	/*} else {
+		layout.setColor( Color( 1.0f, 1.0f, 1.0f ) );
+		layout.setFont( mFont );
+		layout.addLine( name );
+	}*/
 	
 	if( mGen == G_ALBUM_LEVEL ){
 		layout.setFont( mSmallFont );
@@ -114,7 +156,7 @@ void Node::createNameTexture()
 		string yearStr = "";
 		int year = getReleaseYear();
 		if( year < 0 ){
-			yearStr = "Unknown Year of Release";
+			yearStr = "Unknown";
 		} else if( year < 1900 ){
 			yearStr = "Incorrect Data";
 		} else {
@@ -201,27 +243,6 @@ void Node::drawEclipseGlow()
 		(*nodeIt)->drawEclipseGlow();
 	}
 }
-
-//void Node::drawPlanet( const vector<gl::Texture> &planets )
-//{
-//	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-//		(*nodeIt)->drawPlanet( planets );
-//	}
-//}
-//
-//void Node::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
-//{
-//	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-//		(*nodeIt)->drawClouds( planets, clouds );
-//	}
-//}
-//
-//void Node::drawAtmosphere( const gl::Texture &tex )
-//{
-//	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-//		(*nodeIt)->drawAtmosphere( tex );
-//	}
-//}
 
 void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos )
 {

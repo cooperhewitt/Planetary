@@ -63,7 +63,7 @@ void NodeArtist::setData( PlaylistRef playlist )
 	mHue			= sin( asciiPer ) * 0.27f + 0.3f;
 	
 	mSat			= ( 1.0f - sin( ( mHue + 0.15f ) * M_PI ) ) * 0.875f;
-	mColor			= Color( CM_HSV, mHue, mSat, 1.0f );
+	mColor			= Color( CM_HSV, mHue, mSat + 0.2f, 1.0f );
 	mGlowColor		= Color( CM_HSV, mHue, mSat + 0.5f, 1.0f );
 	
 	mRadiusDest		= 1.3f + ( 0.66f - mHue ) * 2.0f;
@@ -131,7 +131,7 @@ void NodeArtist::drawEclipseGlow()
 	Node::drawEclipseGlow();
 }
 
-void NodeArtist::drawPlanet( const vector<gl::Texture> &planets )
+void NodeArtist::drawPlanet()
 {
 	if( mIsSelected ){
 		glDisable( GL_LIGHTING );
@@ -226,7 +226,7 @@ void NodeArtist::setChildOrbitRadii()
 			(*it)->mOrbitRadiusDest = orbitOffset;
 			orbitOffset += amt;
 		}
-		mIdealCameraDist = orbitOffset * 2.2f;
+		mIdealCameraDist = orbitOffset * 2.5f;
 	}
 }
 

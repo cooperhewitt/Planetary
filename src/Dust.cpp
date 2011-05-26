@@ -13,40 +13,31 @@ Dust::Dust()
 Dust::Dust( int index, Vec3f pos, Vec3f vel )
 {
 	mIndex			= index;
-	mLifespan       = Rand::randInt( 105, 230 );
+	mLifespan       = Rand::randInt( 50, 100 );
 	mIsDead			= false;
 	
-	setup( true );
+	setup( Vec3f( 0.0f, 0.0f, 0.0f ) );
 }
 
-void Dust::setup( bool isGalaxyDust )
+void Dust::setup( const Vec3f &camEye )
 {
-	Vec2f randVec2;
-	Vec3f randVec;
+	Vec3f randVec  = Rand::randVec3f();
 	
-	if( isGalaxyDust ){
-		randVec2	= Rand::randVec2f() * Rand::randFloat( 0.25f, 1.75f );
-		randVec		= Vec3f( randVec2.x, 0.0f, randVec2.y );
-		mPos		= randVec * 65.0f;
-	} else {
-		randVec2	= Rand::randVec2f() * Rand::randFloat( 0.5f, 1.75f );
-		randVec		= Vec3f( randVec2.x, 0.0f, randVec2.y );
-		mPos		= randVec * 0.2f;
-	}
-	
+	mPos		= randVec * 0.5f;
 	
 	mPrevPos	= mPos;
-	mVel		= Vec3f( -randVec2.y, 0.0f, randVec2.x ) * 0.00005f;
+	mVel		= randVec * Rand::randFloat( 0.0005f, 0.002f );
 	mDecay		= 0.98f;
 	mAge		= 0;
 }
 
-void Dust::update( bool isGalaxyDust )
+void Dust::update( const Vec3f &camEye )
 {
 	mPrevPos = mPos;
     mPos += mVel;
     mAge ++;
+	mAgePer = sin( mAge/(float)mLifespan * M_PI );
     if( mAge > mLifespan ){
-        setup( isGalaxyDust );		
+        setup( camEye );		
     }
 }

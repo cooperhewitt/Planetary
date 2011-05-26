@@ -288,12 +288,12 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, floa
 	
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		Vec3f pos	= (*it)->mPos;
-		float r		= (*it)->mRadius * scaleOffset;
-		if( !(*it)->mIsHighlighted )
-			r		-= zoomOffset;
-
-		
 		ColorA col	= ColorA( (*it)->mColor, 1.0f );
+		float r		= (*it)->mRadius * scaleOffset;
+		if( !(*it)->mIsHighlighted ){
+			r		-= zoomOffset;
+		}
+
 		
 		Vec3f right	= bbRight * r;
 		Vec3f up	= bbUp * r;
@@ -665,10 +665,10 @@ void World::drawEclipseGlows()
 	}
 }
 
-void World::drawPlanets( const vector<gl::Texture> &planets )
+void World::drawPlanets()
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawPlanet( planets );
+		(*it)->drawPlanet();
 	}
 }
 

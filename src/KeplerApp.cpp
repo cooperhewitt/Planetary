@@ -148,10 +148,21 @@ class KeplerApp : public AppCocoaTouch {
 	Vec3f			mEye, mCenter, mUp;
 	Vec3f			mCamVel;
 	Vec3f			mCenterDest, mCenterFrom;
+	Vec3f			mCenterOffset;		// if pinch threshold is exceeded, look towards parent?
 	Vec3f			mCamNormal;
 	float			mCamDist, mCamDistDest, mCamDistFrom;
 	float			mCamDistAnim;
-	float			mCamDistPinchOffset, mCamDistPinchOffsetDest;
+	float			mPinchPerInit;
+	float			mPinchPer;			// 0.0 (max pinched) to 1.0 (max spread)
+	float			mPinchTotalDest;	// accumulation of pinch deltas
+	float			mPinchTotal;		// eases to pinchTotalDest
+	float			mPinchTotalInit;	// reset value of pinchTotalDest
+	float			mPinchScaleMax, mPinchScaleMin;
+	float			mPinchPerThresh;
+	float			mPinchPerFrom, mPinchTotalFrom;	// used to decelerate values post new node selection
+	float			mPinchHighlightRadius;
+	bool			mIsPastPinchThresh;
+	
 	float			mZoomFrom, mZoomDest;
 	Arcball			mArcball;
 	Matrix44f		mMatrix;
@@ -182,9 +193,11 @@ class KeplerApp : public AppCocoaTouch {
     bool            keepTouchForPinching( TouchEvent::Touch touch );
     bool            positionTouchesWorld( Vec2f pos );
     vector<Ray>		mPinchRays;
+	vector<Vec2f>	mPinchPositions;
     PinchRecognizer mPinchRecognizer;
 	float			mTimePinchEnded;
 	float			mPinchAlphaPer;
+	bool			mIsPinching;
 	
 // PARTICLES
     ParticleController mParticleController;
@@ -192,7 +205,7 @@ class KeplerApp : public AppCocoaTouch {
 	// TEXTURES
 //    TextureLoader   mTextureLoader;
 	gl::Texture		mParamsTex;
-	gl::Texture		mStarTex, mStarGlowTex, mEclipseGlowTex, mRainbowGlowTex;
+	gl::Texture		mStarTex, mStarGlowTex, mEclipseGlowTex;
 	gl::Texture		mSkyDome, mGalaxyDome;
 	gl::Texture		mDottedTex;
 	gl::Texture		mPlayheadProgressTex;
@@ -204,10 +217,8 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mParticleTex;
 	gl::Texture		mGalaxyTex;
 	gl::Texture		mDarkMatterTex;
-	gl::Texture		mGodRaysTex;
 	gl::Texture		mOrbitRingGradientTex;
 	gl::Texture		mTrackOriginTex;
-	vector<gl::Texture> mPlanetsTex;
 	vector<gl::Texture> mCloudsTex;
 	
 	Surface			mHighResSurfaces;
@@ -258,8 +269,8 @@ void KeplerApp::setup()
     delete[] machine;
 
 	if( G_IS_IPAD2 ){
-		G_NUM_PARTICLES = 25;
-		G_NUM_DUSTS = 1000;
+		G_NUM_PARTICLES = 40;
+		G_NUM_DUSTS = 2500;
 		motionManager = [[CMMotionManager alloc] init];
 		[motionManager startDeviceMotionUpdates];
 		
@@ -333,8 +344,20 @@ void KeplerApp::remainingSetup()
 	// CAMERA PERSP
 	mCamDist			= G_INIT_CAM_DIST;
 	mCamDistDest		= mCamDist;
-	mCamDistPinchOffset	= 1.0f;
-	mCamDistPinchOffsetDest = 1.0f;
+	mPinchPerInit		= 0.2f;
+	mPinchPer			= mPinchPerInit;
+	mPinchScaleMax		= 3.0f;
+	mPinchScaleMin		= 0.5f;
+	mPinchTotalInit		= ( mPinchScaleMax - mPinchScaleMin ) * mPinchPerInit + mPinchScaleMin;
+	mPinchTotal			= mPinchTotalInit;
+	mPinchTotalDest		= mPinchTotal;
+	mPinchPerThresh		= 0.65f;
+	mPinchPerFrom		= mPinchPer;
+	mPinchTotalFrom		= mPinchTotal;
+	mIsPinching			= false;
+	mPinchHighlightRadius = 50.0f;
+	mIsPastPinchThresh	= false;
+	
 	mCamDistFrom		= mCamDist;
 	mCamDistAnim		= 0.0f;
 	mEye				= Vec3f( 0.0f, 0.0f, mCamDist );
@@ -342,6 +365,7 @@ void KeplerApp::remainingSetup()
 	mCamNormal			= Vec3f::zero();
 	mCenterDest			= mCenter;
 	mCenterFrom			= mCenter;
+	mCenterOffset		= mCenter;
     // FIXME: let's put this setup stuff back in setup()
     // this was overriding the (correct) value which is now always set by setInterfaceOrientation
 //	mUp					= Vec3f::yAxis();
@@ -456,7 +480,7 @@ void KeplerApp::initTextures()
 //	console() << "initTextures start time = " << t << endl;
     mStarTex			= loadImage( loadResource( "star.png" ) );
 	mEclipseGlowTex		= loadImage( loadResource( "eclipseGlow.png" ) );
-	mRainbowGlowTex		= loadImage( loadResource( "rainbowGlow.png" ) );
+	mParticleTex		= loadImage( loadResource( "particle.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.png" ) );
 	mGalaxyDome			= loadImage( loadResource( "skydome.jpg" ) );
 	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
@@ -468,28 +492,10 @@ void KeplerApp::initTextures()
 	mUiButtonsTex		= loadImage( loadResource( "uiButtons.png" ) );
     mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
 	mAtmosphereDirectionalTex = loadImage( loadResource( "atmosphereDirectional.png" ) );
-	mParticleTex		= loadImage( loadResource( "particle.png" ) );
 	mGalaxyTex			= loadImage( loadResource( "galaxy.jpg" ) );
 	mDarkMatterTex		= loadImage( loadResource( "darkMatter.png" ) );
-	mGodRaysTex			= loadImage( loadResource( "godRays.png" ) );
 	mOrbitRingGradientTex = loadImage( loadResource( "orbitRingGradient.png" ) );
 	mTrackOriginTex		= loadImage( loadResource( "origin.png" ) );
-	
-    mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "11.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "12.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "13.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "21.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "22.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "23.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "31.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "32.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "33.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "41.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "42.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "43.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "51.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "52.jpg" ) ) ) );
-	mPlanetsTex.push_back( gl::Texture( loadImage( loadResource( "53.jpg" ) ) ) );
     
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds1.png" ) ) ) );
 	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds2.png" ) ) ) );
@@ -702,13 +708,17 @@ void KeplerApp::touchesEnded( TouchEvent event )
 
 bool KeplerApp::onPinchBegan( PinchEvent event )
 {
+	mIsPinching = true;
     mPinchRays = event.getTouchRays( mCam );
+	mPinchPositions.clear();
 	
 	mTouchVel	= Vec2f::zero();
 	vector<PinchEvent::Touch> touches = event.getTouches();
 	Vec2f averageTouchPos = Vec2f::zero();
+	
 	for( vector<PinchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
 		averageTouchPos += it->mPos;
+		mPinchPositions.push_back( it->mPos );
 	}
 	averageTouchPos /= touches.size();
 	mTouchPos = averageTouchPos;
@@ -723,6 +733,7 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 bool KeplerApp::onPinchMoved( PinchEvent event )
 {	
     mPinchRays = event.getTouchRays( mCam );
+	mPinchPositions.clear();
 	
 	Node *selectedNode = mState.getSelectedNode();
 	int currentLevel = 0;
@@ -730,36 +741,14 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 		currentLevel = selectedNode->mGen;
 	}
 	
-	//mCamDistPinchOffsetDest *= ( 1.0f - event.getScaleDelta() ) * 3.5f + 1.0f;
-	//mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 3.5f );
-	
-	if( currentLevel <= G_ALPHA_LEVEL ){
-		mFovDest += ( 1.0f - event.getScaleDelta() ) * 150.0f;
-		
-	} else {
-		mCamDistPinchOffsetDest *= ( 1.0f - event.getScaleDelta() ) * 3.5f + 1.0f;
-		mCamDistPinchOffsetDest = constrain( mCamDistPinchOffsetDest, 0.35f, 3.5f );
-		
-		if( mCamDistPinchOffsetDest > 3.4f ){
-			if( G_ZOOM == G_TRACK_LEVEL ){
-				mFovDest = 75.0f;
-			} else if( G_ZOOM == G_ALBUM_LEVEL ){
-				mFovDest = 80.0f;
-			} else if( G_ZOOM == G_ARTIST_LEVEL ){
-				mFovDest = 85.0f;
-			} else {
-				mFovDest = 90.0f;
-			}
-		} else {
-			mFovDest = G_DEFAULT_FOV;
-		}
-	}
-	
+	mPinchTotalDest *= ( 1.0f + ( 1.0f - event.getScaleDelta() ) * 0.65f * mPinchScaleMax );
+	mPinchTotalDest = constrain( mPinchTotalDest, mPinchScaleMin, mPinchScaleMax );
 	
 	vector<PinchEvent::Touch> touches = event.getTouches();
 	Vec2f averageTouchPos = Vec2f::zero();
 	for( vector<PinchEvent::Touch>::iterator it = touches.begin(); it != touches.end(); ++it ){
 		averageTouchPos += it->mPos;
+		mPinchPositions.push_back( it->mPos );
 	}
 	averageTouchPos /= touches.size();
 // using pinch to control arcball is weird because of the pop
@@ -778,18 +767,18 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 {
     Flurry::getInstrumentation()->logEvent("Pinch Ended");
 
-	if( mCamDistPinchOffsetDest > 3.4f ){
+	if( mPinchPer > mPinchPerThresh ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
             console() << "backing out using pinch!" << std::endl;
 			mState.setSelectedNode( selected->mParentNode );
-			mFovDest = G_DEFAULT_FOV;
 		}
-		mCamDistPinchOffsetDest = 1.0f;
 	}
+	
 	mTimePinchEnded = getElapsedSeconds();
 	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );	
     mPinchRays.clear();
+	mIsPinching = false;
     return false;
 }
 
@@ -906,11 +895,13 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
 	mTime			= getElapsedSeconds();
 	mCenterFrom		= mCenter;
 	mCamDistFrom	= mCamDist;	
+	mPinchPerFrom	= mPinchPer;
+	mPinchTotalFrom	= mPinchTotal;
 	mZoomFrom		= G_ZOOM;
-	mFovDest		= G_DEFAULT_FOV;
-	mCamDistPinchOffsetDest = 1.0f;
-//	mBreadcrumbs.setHierarchy( mState.getHierarchy() );
-    	
+	
+	mPinchPer		= mPinchPerInit;
+	mPinchTotalDest = mPinchTotalInit;
+
 	if( node && node->mGen > G_ZOOM ){
 		node->wasTapped();
 	}
@@ -1060,150 +1051,6 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
 
 	return false;
 }
-
-
-
-
-//bool KeplerApp::onPlayControlsButtonPressed( PlayControls::PlayButton button )
-//{
-//    switch( button ) {
-//        
-//        case PlayControls::PREVIOUS_TRACK:
-//            Flurry::getInstrumentation()->logEvent("Previous Track Button Selected");            
-//            mIpodPlayer.skipPrev();
-//            break;
-//        
-//        case PlayControls::PLAY_PAUSE:
-//            Flurry::getInstrumentation()->logEvent("Play/Pause Button Selected");            
-//            if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
-//                mIpodPlayer.pause();
-//            }
-//            else {
-//                mIpodPlayer.play();
-//            }
-//            break;
-//        
-//        case PlayControls::NEXT_TRACK:
-//            Flurry::getInstrumentation()->logEvent("Next Track Button Selected");            
-//            mIpodPlayer.skipNext();	
-//            break;
-//        
-//        case PlayControls::HELP:
-//			if( G_SHOW_SETTINGS ){
-//				Flurry::getInstrumentation()->logEvent("Help Button Selected");            
-//				G_HELP = !G_HELP;
-//				if( G_HELP && !mAlphaWheel.getShowWheel() )
-//					mAlphaWheel.setShowWheel( true );
-//			}
-//            break;
-//        
-//        case PlayControls::DRAW_RINGS:
-//			if( G_SHOW_SETTINGS ){
-//				Flurry::getInstrumentation()->logEvent("Draw Rings Button Selected");            
-//				G_DRAW_RINGS = !G_DRAW_RINGS;
-//			}
-//            break;
-//        
-//        case PlayControls::DRAW_TEXT:
-//			if( G_SHOW_SETTINGS ){
-//				Flurry::getInstrumentation()->logEvent("Draw Text Button Selected");            
-//				G_DRAW_TEXT = !G_DRAW_TEXT;
-//			}
-//            break;
-//        
-//		case PlayControls::USE_GYRO:
-//			if( G_SHOW_SETTINGS ){
-//				Flurry::getInstrumentation()->logEvent("Use Gyro Button Selected");            
-//				G_USE_GYRO = !G_USE_GYRO;
-//			}
-//            break;
-//			
-//		case PlayControls::GALAXY:
-//            Flurry::getInstrumentation()->logEvent("Galaxy Button Selected");            
-//			mWorld.deselectAllNodes();
-//			mState.setSelectedNode( NULL );
-//			mState.setAlphaChar( ' ' );
-//            break;
-//			
-//        case PlayControls::CURRENT_TRACK:
-//            Flurry::getInstrumentation()->logEvent("Current Track Button Selected");            
-//            // pretend the track just got changed again, this will select it:
-//            onPlayerTrackChanged( &mIpodPlayer );
-//            break;
-//			
-//		case PlayControls::SETTINGS:
-//            Flurry::getInstrumentation()->logEvent("Settings Button Selected");            
-//            G_SHOW_SETTINGS = !G_SHOW_SETTINGS;
-//            break;
-//
-//        case PlayControls::SLIDER:
-//            // TODO: Flurry log?
-//            break;
-//        
-//		case PlayControls::DEBUG_FEATURE:
-//			G_DEBUG = !G_DEBUG;
-//            break;
-//			
-//		case PlayControls::NEXT_PLAYLIST:
-//			mPlaylistIndex ++;
-//			mPlaylistIndex = constrain( mPlaylistIndex, 0, (int)mData.mPlaylists.size() - 1 );
-//            mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
-//            break;
-//			
-//		case PlayControls::PREVIOUS_PLAYLIST:
-//            mPlaylistIndex --;
-//			mPlaylistIndex = constrain( mPlaylistIndex, 0, (int)mData.mPlaylists.size() - 1 );
-//            mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
-//            break;	
-//			
-//        case PlayControls::NO_BUTTON:
-//            //console() << "unknown button pressed!" << std::endl;
-//            break;
-//
-//	} // switch
-//
-//	return false;
-//}
-
-/*
-bool KeplerApp::onBreadcrumbSelected( BreadcrumbEvent event )
-{
-	int level = event.getLevel();
-	if( level == G_HOME_LEVEL ){				// BACK TO HOME
-        Flurry::getInstrumentation()->logEvent("Home Breadcrumb Selected");
-        mAlphaWheel.setShowWheel(true);
-		mWorld.deselectAllNodes();
-		mState.setSelectedNode( NULL );
-		mState.setAlphaChar( ' ' );
-	}
-	else if( level == G_ALPHA_LEVEL ){			// BACK TO ALPHA FILTER
-        Flurry::getInstrumentation()->logEvent("Alpha Breadcrumb Selected");
-		mWorld.deselectAllNodes();
-		mData.filterArtistsByAlpha( mState.getAlphaChar() );
-		mWorld.filterNodes();
-		mState.setSelectedNode(NULL);
-		mCamDistPinchOffsetDest = 1.0f;
-	}
-	else if( level >= G_ARTIST_LEVEL ){			// BACK TO ARTIST/ALBUM/TRACK
-        if( level == G_ARTIST_LEVEL ){			// BACK TO ARTIST/ALBUM/TRACK
-            Flurry::getInstrumentation()->logEvent("Artist Breadcrumb Selected");
-        }
-        else if( level == G_ALBUM_LEVEL ){			// BACK TO ARTIST/ALBUM/TRACK
-            Flurry::getInstrumentation()->logEvent("Album Breadcrumb Selected");
-        }
-        else {
-            Flurry::getInstrumentation()->logEvent("Track Breadcrumb Selected");            
-        }
-		// get Artist, Album or Track from selectedNode
-		Node *current = mState.getSelectedNode();
-		while (current != NULL && current->mGen > level) {
-			current = current->mParentNode;
-		}
-		mState.setSelectedNode(current);
-	}
-	return false;
-}
-*/
  
 void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos )
 {
@@ -1268,7 +1115,6 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &
 
 void KeplerApp::update()
 {
-	
 	if( mData.update() ){
 		mWorld.initNodes( &mIpodPlayer, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
 		mDataIsLoaded = true;
@@ -1291,7 +1137,7 @@ void KeplerApp::update()
 		if( G_IS_IPAD2 && G_USE_GYRO )
 			updateGyro();
 		updateArcball();
-		
+		updatePlayhead();
 		if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 		}
@@ -1310,12 +1156,12 @@ void KeplerApp::update()
             mWorld.buildStarGlowsVertexArray( invBbRight, invBbUp, mFadeInAlphaToArtist );
         }
 		
-		Node *selectedNode = mState.getSelectedArtistNode();
-		if( selectedNode ){
-			mParticleController.update( selectedNode->mRadius * 0.2f, invBbRight, invBbUp );
-			float per = selectedNode->mEclipseStrength * 0.7f + 0.35f;
-			mParticleController.buildParticleVertexArray( sin( per * M_PI ) * sin( per * 0.25f ) );
-			mParticleController.buildDustVertexArray( selectedNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.03125f * mFadeInArtistToAlbum );
+		Node *selectedArtistNode = mState.getSelectedArtistNode();
+		if( selectedArtistNode ){
+			mParticleController.update( mMatrix.inverted() * mCenter, selectedArtistNode->mRadius * 0.16f, invBbRight, invBbUp );
+			float per = selectedArtistNode->mEclipseStrength * 0.5f + 0.25f;
+			mParticleController.buildParticleVertexArray( selectedArtistNode->mGlowColor, sin( per * M_PI ) * sin( per * 0.25f ) );
+			mParticleController.buildDustVertexArray( selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.05f * mFadeInArtistToAlbum );
 		}
 		/*else {
 			mParticleController.update( 100.0f, invBbRight, invBbUp );
@@ -1328,7 +1174,6 @@ void KeplerApp::update()
 		mAlphaWheel.update( mFov );
 //        mBreadcrumbs.update();
         mPlayControls.update();
-        updatePlayhead();
     }
     else {
         // make sure we've drawn the loading screen first
@@ -1360,7 +1205,6 @@ void KeplerApp::updateGyro()
 	mGyroQuat	= Quatf( quat.w, quat.x, -quat.y, quat.z );
 }
 
-
 void KeplerApp::updateArcball()
 {	
 	if( mTouchVel.length() > 2.0f && !mIsDragging ){
@@ -1382,61 +1226,104 @@ void KeplerApp::updateArcball()
 
 void KeplerApp::updateCamera()
 {	
-	mCamDistPinchOffset -= ( mCamDistPinchOffset - mCamDistPinchOffsetDest ) * 0.4f;
+	mPinchTotal -= ( mPinchTotal - mPinchTotalDest ) * 0.4f;
+	mPinchPer = ( mPinchTotal - mPinchScaleMin )/( mPinchScaleMax - mPinchScaleMin );
+	mPinchHighlightRadius -= ( mPinchHighlightRadius - 200.0f ) * 0.4f;
 	
-	if( mCamDistPinchOffsetDest > 3.3f ){
-		mPinchAlphaPer -= ( mPinchAlphaPer ) * 0.2f;
+	float cameraDistMulti = mPinchPer * 2.0f + 0.5f;
+	
+	if( mPinchPer > mPinchPerThresh ){
+		if( ! mIsPastPinchThresh ){
+			mPinchHighlightRadius = 650.0f;
+			mIsPastPinchThresh = true;
+		}
+		
+		
+		
+		mPinchAlphaPer -= ( mPinchAlphaPer ) * 0.1f;
+		
+		if( G_CURRENT_LEVEL == G_TRACK_LEVEL ){
+			mFovDest = 70.0f;
+		} else if( G_CURRENT_LEVEL == G_ALBUM_LEVEL ){
+			mFovDest = 85.0f;
+		} else if( G_CURRENT_LEVEL == G_ARTIST_LEVEL ){
+			mFovDest = 85.0f;
+		} else {
+			mFovDest = G_DEFAULT_FOV;
+		}
+		mFov -= ( mFov - mFovDest ) * 0.2f;
+		
 	} else {
-		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.2f;
+		if( mIsPastPinchThresh ){
+			mPinchHighlightRadius = 125.0f;
+			mIsPastPinchThresh = false;
+		}
+		
+		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.1f;
+		mFovDest = G_DEFAULT_FOV;
+		
+		mFov -= ( mFov - mFovDest ) * 0.04f;
 	}
+	
 	
 	int currentLevel = 0;
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){
 		currentLevel	= selectedNode->mGen;
-		mCamDistDest	= selectedNode->mIdealCameraDist * mCamDistPinchOffset;
-		mCenterDest		= selectedNode->mTransPos; //mMatrix.transformPointAffine( selectedNode->mPos );
-		mZoomDest		= selectedNode->mGen;
+		mCamDistDest	= selectedNode->mIdealCameraDist * cameraDistMulti;
 		
+		
+		
+		if( selectedNode->mParentNode && mPinchPer > mPinchPerThresh ){
+			Vec3f dirToParent = selectedNode->mParentNode->mTransPos - selectedNode->mTransPos;
+			mCenterOffset -= ( mCenterOffset - ( dirToParent * ( mPinchPer - mPinchPerThresh ) * 2.5f ) ) * 0.1f;
+			
+		} else {
+			mCenterOffset -= ( mCenterOffset - Vec3f::zero() ) * 0.05f;
+		}
+		mCenterDest		= selectedNode->mTransPos;
+		mZoomDest		= selectedNode->mGen;
 		mCenterFrom		+= selectedNode->mTransVel;
 		
 	} else {
-		mCamDistDest	= G_INIT_CAM_DIST * mCamDistPinchOffset;
+		mCamDistDest	= G_INIT_CAM_DIST * cameraDistMulti;
 		mCenterDest		= mMatrix.transformPointAffine( Vec3f::zero() );
 
 		mZoomDest		= G_HOME_LEVEL;
 		if( mState.getAlphaChar() != ' ' ){
 			mZoomDest	= G_ALPHA_LEVEL;
 		}
+		
+		mCenterOffset -= ( mCenterOffset - Vec3f::zero() ) * 0.05f;
 	}
 	
 	G_CURRENT_LEVEL = mZoomDest;
 	
-	// UPDATE FOV
-	mFovDest = constrain( mFovDest, G_MIN_FOV, G_MAX_FOV );
-	mFov -= ( mFov - mFovDest ) * 0.25f;
 	
-	
-	if( mFovDest >= G_MAX_FOV - 10 && ! mAlphaWheel.getShowWheel() && currentLevel <= G_ALPHA_LEVEL ){
+	if( mPinchPer > mPinchPerThresh && ! mAlphaWheel.getShowWheel() && currentLevel <= G_ALPHA_LEVEL ){
 		mAlphaWheel.setShowWheel( true ); 
 		
-	} else if( mFovDest < G_MAX_FOV - 10 && mAlphaWheel.getShowWheel() ){
+	} else if( mPinchPer <= mPinchPerThresh && mAlphaWheel.getShowWheel() ){
 		mAlphaWheel.setShowWheel( false ); 
 	}
 	
 
-	float distToTravel = mState.getDistBetweenNodes();
-	double duration = 3.0f;
-	if( distToTravel < 1.0f )		duration = 2.0;
-	else if( distToTravel < 5.0f )	duration = 2.75f;
+//	float distToTravel = mState.getDistBetweenNodes();
+//	double duration = 3.0f;
+//	if( distToTravel < 1.0f )		duration = 2.0;
+//	else if( distToTravel < 5.0f )	duration = 2.75f;
+	double duration = 2.0f;
 	double p		= constrain( getElapsedSeconds()-mTime, 0.0, duration );
 	
-	mCenter			= easeInOutCubic( p, mCenterFrom, mCenterDest - mCenterFrom, duration );
+	mCenter			= easeInOutCubic( p, mCenterFrom, (mCenterDest + mCenterOffset) - mCenterFrom, duration );
+//	mCenter			= easeInOutCubic( p, mCenterFrom, mCenterDest - mCenterFrom, duration );
 	mCamDist		= easeInOutCubic( p, mCamDistFrom, mCamDistDest - mCamDistFrom, duration );
 	mCamDist		= min( mCamDist, G_INIT_CAM_DIST );
 	mCamDistAnim	= easeInOutCubic( p, 0.0f, M_PI, duration );
-	
+	//mPinchPer		= easeInOutCubic( p, mPinchPerFrom, 0.5f, duration );
+	//mPinchTotalDest	= easeInOutCubic( p, mPinchTotalFrom, mPinchTotalInit, duration );
 	G_ZOOM			= easeInOutCubic( p, mZoomFrom, mZoomDest - mZoomFrom, duration );
+
 	
 	mFadeInAlphaToArtist	= constrain( G_ZOOM - G_ALPHA_LEVEL, 0.0f, 1.0f );
 	mFadeInArtistToAlbum	= constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f );
@@ -1449,7 +1336,7 @@ void KeplerApp::updateCamera()
 	mCamVel			= mEye - prevEye;
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
-	mCam.lookAt( mEye, mCenter, mUp );
+	mCam.lookAt( mEye - mCenterOffset, mCenter, mUp );
 	mCam.getBillboardVectors( &mBbRight, &mBbUp );
 	mCamNormal = mEye - mCenter;
 	mCamNormal.normalize();
@@ -1507,7 +1394,7 @@ void KeplerApp::drawNoArtists()
 void KeplerApp::drawScene()
 {	
 	vector<Node*> sortedNodes = mWorld.getDepthSortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
-	Node *artistNode = mState.getSelectedArtistNode();
+	Node *artistNode	= mState.getSelectedArtistNode();
 	
 	
 	// For doing galaxy-axis fades
@@ -1523,7 +1410,10 @@ void KeplerApp::drawScene()
 // SKYDOME
     gl::pushModelView();
     gl::rotate( mMatrix );
-    gl::color( BRIGHT_BLUE * pow( 1.0f - zoomOff, 3.0f ) );
+	Color c = Color( CM_HSV, mPinchPer * 0.2f + 0.475f, 1.0f - mPinchPer * 0.5f, 1.0f );
+	if( mIsPastPinchThresh )
+		c = Color( CM_HSV, mPinchPer * 0.3f + 0.7f, 1.0f - mPinchPer * 0.5f, 1.0f );
+    gl::color( c * pow( 1.0f - zoomOff, 3.0f ) );
     mSkyDome.enableAndBind();
     gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS, 24 );
 	
@@ -1598,12 +1488,12 @@ void KeplerApp::drawScene()
 	
 // CENTER OF GALAXY
 	if( invAlpha > 0.01f ){
-		mGodRaysTex.enableAndBind();
+		mStarGlowTex.enableAndBind();
 		gl::color( ColorA( BLUE, invAlpha ) );
 		gl::drawBillboard( Vec3f::zero(), Vec2f( 300.0f, 300.0f ), getElapsedSeconds() * 10.0f, mBbRight, mBbUp );
 		gl::color( ColorA( BRIGHT_BLUE, invAlpha * 1.5f ) );
 		gl::drawBillboard( Vec3f::zero(), Vec2f( 200.0f, 200.0f ), -getElapsedSeconds() * 7.0f, mBbRight, mBbUp );
-		mGodRaysTex.disable();
+		mStarGlowTex.disable();
 	}
 	
 	
@@ -1642,20 +1532,7 @@ void KeplerApp::drawScene()
 	if( artistNode ){ // defined at top of method
 		//float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
 		mCamRingAlpha = constrain( abs( transEye.y - artistNode->mPos.y ), 0.0f, 1.0f ); // WAS 0.6f
-		
-		
 
-		
-		/*
-		// STAR CENTER
-		NodeArtist* selectedArtist = (NodeArtist*)artistNode;
-		if( selectedArtist ){
-			gl::enableDepthRead();
-			gl::enableDepthWrite();
-			selectedArtist->drawPlanet( mPlanetsTex );
-		}
-		*/
-		
 		glCullFace( GL_BACK );
 		glEnable( GL_CULL_FACE );
 		glEnable( GL_COLOR_MATERIAL );
@@ -1680,7 +1557,7 @@ void KeplerApp::drawScene()
 	
 			gl::enableAlphaBlending();
 			//glMaterialfv( GL_FRONT_AND_BACK, GL_EMISSION, ColorA( 0.4f, 0.1f, 0.0f, 1.0f ) );
-			sortedNodes[i]->drawPlanet( mPlanetsTex );
+			sortedNodes[i]->drawPlanet();
 
 			//glMaterialfv( GL_FRONT_AND_BACK, GL_EMISSION, ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
 			sortedNodes[i]->drawClouds( mCloudsTex );
@@ -1725,9 +1602,9 @@ void KeplerApp::drawScene()
 	
 // PARTICLES
 	if( mState.getSelectedArtistNode() ){
-		mRainbowGlowTex.enableAndBind();
+		mParticleTex.enableAndBind();
 		mParticleController.drawParticleVertexArray( mState.getSelectedArtistNode(), mMatrix );
-		mRainbowGlowTex.disable();
+		mParticleTex.disable();
 	}
 	
 	
@@ -1739,16 +1616,11 @@ void KeplerApp::drawScene()
 	
 	
 // DUSTS
-// If zoom is between Artist and Album, switch to dark planetary dust.
-// else draw the additive dust in the Galaxy.
-	if( mState.getSelectedAlbumNode() && G_ZOOM > G_ARTIST_LEVEL + 0.5f ){
-		gl::enableAlphaBlending();
-		mParticleController.drawDustVertexArray( mState.getSelectedAlbumNode(), mMatrix );
-	} else {
-		mParticleController.drawDustVertexArray( NULL, mMatrix );
+	if( mState.getSelectedArtistNode() ){
+		gl::enableAdditiveBlending();
+		mParticleController.drawDustVertexArray( mState.getSelectedArtistNode(), mMatrix );
 	}
-	
-	
+
 	
 	
 // PLAYHEAD PROGRESS
@@ -1812,12 +1684,43 @@ void KeplerApp::drawScene()
 	gl::enableAdditiveBlending();
 	
 	
-	// NAMES
+// NAMES
 	if( G_DRAW_TEXT ){
 		mWorld.drawNames( mCam, mPinchAlphaPer, getAngleForOrientation(mInterfaceOrientation) );
 	}
+
+	
+// PINCH FINGER POSITIONS
+	if( mIsPinching ){
+		float radius = mPinchHighlightRadius;
+		float alpha = 1.0f;
+
+		if( mPinchPer > mPinchPerThresh ){
+			mStarGlowTex.enableAndBind();
+			alpha = 0.2f;
+			//c = BRIGHT_BLUE;
+		} else {
+			mStarGlowTex.enableAndBind();
+		}
+					  
+		gl::color( ColorA( c, max( mPinchPer - mPinchPerInit, 0.0f ) * alpha ) );
+		
+		for( vector<Vec2f>::iterator it = mPinchPositions.begin(); it != mPinchPositions.end(); ++it ){
+			gl::drawSolidRect( Rectf( it->x - radius, it->y - radius, it->x + radius, it->y + radius ) );
+		}
+	} else if( mIsTouching ){
+		float radius = 100.0f;
+		float alpha = 0.5f;
+		mStarGlowTex.enableAndBind();
+		gl::color( ColorA( BLUE, alpha ) );
+		
+		gl::drawSolidRect( Rectf( mTouchPos.x - radius, mTouchPos.y - radius, mTouchPos.x + radius, mTouchPos.y + radius ) );
+	}
     
+	
+	
     glDisable( GL_TEXTURE_2D );
+	
 	
 //	if( G_DEBUG ){
 //		// HIT AREA VISUALIZER

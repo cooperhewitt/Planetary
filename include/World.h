@@ -54,7 +54,7 @@ class World {
 	void drawConstellation( const ci::Matrix44f &mat );
 	void drawTouchHighlights( float zoomAlpha );
 	void buildConstellation();
-	void drawPlanets( const std::vector< ci::gl::Texture> &planets );
+	void drawPlanets();
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	
 	void drawRings( const ci::gl::Texture &tex, float camZPos );

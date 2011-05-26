@@ -295,7 +295,7 @@ void NodeAlbum::drawEclipseGlow()
 	Node::drawEclipseGlow();
 }
 
-void NodeAlbum::drawPlanet( const vector<gl::Texture> &planets )
+void NodeAlbum::drawPlanet()
 {	
 	// std::cout << mDistFromCamZAxis << std::endl;
 	// closer than 0.1? fade out?
@@ -449,8 +449,9 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 			float stretch	= dirLength * mRadius;
 			gl::enableAdditiveBlending();
 			float alpha = ( 1.0f - dirLength * 0.75f ) + mEclipseStrength;
+			alpha *= mDeathPer * mBlockedBySunPer * mClosenessFadeAlpha;
 			
-			gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, alpha * mDeathPer * mBlockedBySunPer ) );
+			gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, alpha ) );
 			
 			Vec2f radius = Vec2f( mRadius * ( 1.0f + stretch ), mRadius ) * 2.46f;
 			//Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;
@@ -460,7 +461,7 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 			gl::drawBillboard( mTransPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
 			tex.disable();
 
-			gl::color( ColorA( mColor, alpha * mClosenessFadeAlpha * mEclipseDirBasedAlpha * mDeathPer * mBlockedBySunPer ) );
+			gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha ) );
 			directionalTex.enableAndBind();
 			gl::drawBillboard( mTransPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
 			directionalTex.disable();
@@ -585,7 +586,7 @@ void NodeAlbum::setChildOrbitRadii()
 		orbitRadius += orbitOffset;
 	}
 	
-	mIdealCameraDist	= orbitRadius * 2.0f;
+	mIdealCameraDist = orbitRadius * 2.5f;
 }
 
 float NodeAlbum::getReleaseYear()

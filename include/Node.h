@@ -39,7 +39,7 @@ class Node {
 	virtual void	update( const ci::Matrix44f &mat );
 	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	virtual void	drawEclipseGlow();
-	virtual void	drawPlanet( const std::vector< ci::gl::Texture> &planets ) {};
+	virtual void	drawPlanet() {};
 	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds ) {};
 	virtual void	drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer ) {};
 	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );

@@ -21,7 +21,7 @@ ParticleController::ParticleController()
 	mBbUp				= Vec3f::yAxis();
 }
 
-void ParticleController::update( float radius, const Vec3f &bbRight, const Vec3f &bbUp )
+void ParticleController::update( const Vec3f &camEye, float radius, const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	mBbRight = bbRight;
 	mBbUp	 = bbUp;
@@ -35,26 +35,28 @@ void ParticleController::update( float radius, const Vec3f &bbRight, const Vec3f
 		isGalaxyDust = true;
 	
 	for( list<Dust>::iterator d = mDusts.begin(); d != mDusts.end(); ++d ){
-		d->update( isGalaxyDust );
+		d->update( camEye );
 	}
 }
 
 
-void ParticleController::buildParticleVertexArray( float eclipseStrength )
+void ParticleController::buildParticleVertexArray( Color c, float eclipseStrength )
 {
 	int vIndex = 0;
 	int tIndex = 0;
+	int cIndex = 0;
 	Vec3f lookVec = mBbRight.cross( mBbUp ) * 0.025f;
 	
 	mTotalParticleVertices	= G_NUM_PARTICLES * 6;
 	
     if (mTotalParticleVertices != mPrevTotalParticleVertices) {
-        if (mParticleVerts != NULL)		delete[] mParticleVerts; 
-		if (mParticleTexCoords != NULL) delete[] mParticleTexCoords; 
+        if( mParticleVerts != NULL )		delete[] mParticleVerts; 
+		if( mParticleTexCoords != NULL )	delete[] mParticleTexCoords; 
+		if( mParticleColors != NULL )		delete[] mParticleColors;
 		
         mParticleVerts			= new float[mTotalParticleVertices*3];
         mParticleTexCoords		= new float[mTotalParticleVertices*2];
-		
+        mParticleColors			= new float[mTotalParticleVertices*4];		
         mPrevTotalParticleVertices = mTotalParticleVertices;
     }
 	
@@ -68,8 +70,9 @@ void ParticleController::buildParticleVertexArray( float eclipseStrength )
 	// TODO: figure out why we use inverted matrix * billboard vec
 	
 	for( list<Particle>::iterator it = mParticles.begin(); it != mParticles.end(); ++it ){
-		Vec3f pos				= it->mPos + lookVec;
-		float radius			= it->mRadius * sin( it->mAgePer * M_PI );
+		Vec3f pos				= it->mPos;// + lookVec;
+		float radius			= it->mRadius * ( 1.0f - it->mAgePer );// * sin( it->mAgePer * M_PI );
+		float alpha				= it->mAgePer;
 		
 		Vec3f right				= mBbRight * radius * eclipseStrength;
 		Vec3f up				= mBbUp * radius * eclipseStrength;
@@ -85,36 +88,60 @@ void ParticleController::buildParticleVertexArray( float eclipseStrength )
 		mParticleVerts[vIndex++]		= p1.z;
 		mParticleTexCoords[tIndex++]	= u1;
 		mParticleTexCoords[tIndex++]	= v1;
+		mParticleColors[cIndex++]		= c.r;
+		mParticleColors[cIndex++]		= c.g;
+		mParticleColors[cIndex++]		= c.b;
+		mParticleColors[cIndex++]		= alpha;
 		
 		mParticleVerts[vIndex++]		= p2.x;
 		mParticleVerts[vIndex++]		= p2.y;
 		mParticleVerts[vIndex++]		= p2.z;
 		mParticleTexCoords[tIndex++]	= u2;
 		mParticleTexCoords[tIndex++]	= v1;
+		mParticleColors[cIndex++]		= c.r;
+		mParticleColors[cIndex++]		= c.g;
+		mParticleColors[cIndex++]		= c.b;
+		mParticleColors[cIndex++]		= alpha;
 		
 		mParticleVerts[vIndex++]		= p3.x;
 		mParticleVerts[vIndex++]		= p3.y;
 		mParticleVerts[vIndex++]		= p3.z;
 		mParticleTexCoords[tIndex++]	= u1;
 		mParticleTexCoords[tIndex++]	= v2;
+		mParticleColors[cIndex++]		= c.r;
+		mParticleColors[cIndex++]		= c.g;
+		mParticleColors[cIndex++]		= c.b;
+		mParticleColors[cIndex++]		= alpha;
 		
 		mParticleVerts[vIndex++]		= p2.x;
 		mParticleVerts[vIndex++]		= p2.y;
 		mParticleVerts[vIndex++]		= p2.z;
 		mParticleTexCoords[tIndex++]	= u2;
 		mParticleTexCoords[tIndex++]	= v1;
+		mParticleColors[cIndex++]		= c.r;
+		mParticleColors[cIndex++]		= c.g;
+		mParticleColors[cIndex++]		= c.b;
+		mParticleColors[cIndex++]		= alpha;
 		
 		mParticleVerts[vIndex++]		= p3.x;
 		mParticleVerts[vIndex++]		= p3.y;
 		mParticleVerts[vIndex++]		= p3.z;
 		mParticleTexCoords[tIndex++]	= u1;
 		mParticleTexCoords[tIndex++]	= v2;
+		mParticleColors[cIndex++]		= c.r;
+		mParticleColors[cIndex++]		= c.g;
+		mParticleColors[cIndex++]		= c.b;
+		mParticleColors[cIndex++]		= alpha;
 		
 		mParticleVerts[vIndex++]		= p4.x;
 		mParticleVerts[vIndex++]		= p4.y;
 		mParticleVerts[vIndex++]		= p4.z;
 		mParticleTexCoords[tIndex++]	= u2;
 		mParticleTexCoords[tIndex++]	= v2;
+		mParticleColors[cIndex++]		= c.r;
+		mParticleColors[cIndex++]		= c.g;
+		mParticleColors[cIndex++]		= c.b;
+		mParticleColors[cIndex++]		= alpha;
 	}
 }
 
@@ -137,14 +164,10 @@ void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaPer, 
 	float alpha;
 	Color col;
 	
-	if( G_ZOOM < G_ARTIST_LEVEL ){
-		alpha	= 0.5f * dustAlpha;
-		col		= BLUE;
-	} else {
-		alpha	= dustAlpha * pinchAlphaPer;
-		if( node )
-			col	= node->mColor * 0.1f;
-	}
+	alpha	= dustAlpha * pinchAlphaPer;
+	if( node )
+		col	= node->mGlowColor;
+
 	
 	for( list<Dust>::iterator it = mDusts.begin(); it != mDusts.end(); ++it ){
 		//Vec3f prev				= it->mPrevPos;
@@ -157,23 +180,25 @@ void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaPer, 
 		mDustColors[cIndex++]	= col.r;
 		mDustColors[cIndex++]	= col.g;
 		mDustColors[cIndex++]	= col.b;
-		mDustColors[cIndex++]	= alpha;
+		mDustColors[cIndex++]	= alpha * it->mAgePer;
 	}
 }
 	
 
 void ParticleController::drawParticleVertexArray( Node *node, const Matrix44f &mat )
 {
+	// PARTICLES
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glEnableClientState( GL_COLOR_ARRAY );
 	
 	glVertexPointer( 3, GL_FLOAT, 0, mParticleVerts );
 	glTexCoordPointer( 2, GL_FLOAT, 0, mParticleTexCoords );
+	glColorPointer( 4, GL_FLOAT, 0, mParticleColors );	
 	
 	gl::pushModelView();
 	if( node ){
 		gl::translate( node->mTransPos );
-		gl::color( ColorA( node->mGlowColor, 0.5f ) );
 	}
 	
 	gl::rotate( mat );
@@ -182,15 +207,18 @@ void ParticleController::drawParticleVertexArray( Node *node, const Matrix44f &m
 	
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableClientState( GL_COLOR_ARRAY );
 }
 
 void ParticleController::drawDustVertexArray( Node *node, const Matrix44f &mat )
 {
+	// DUST
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_COLOR_ARRAY );
 	glVertexPointer( 3, GL_FLOAT, 0, mDustVerts );
 	glColorPointer( 4, GL_FLOAT, 0, mDustColors );
 	gl::pushModelView();
+	
 	if( node )
 		gl::translate( node->mTransPos );
 		

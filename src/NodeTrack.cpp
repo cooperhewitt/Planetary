@@ -98,7 +98,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 	mRadiusDest 		= math<float>::max( (mParentNode->mRadiusDest * 0.1f) * pow( mNormPlayCount + 0.5f, 2.0f ), 0.0025f );
 	mRadius				= 0.0f;
 	mSphere				= Sphere( mPos, mRadiusDest );
-	mIdealCameraDist	= math<float>::max( mRadiusDest * 10.0f, 0.5f );
+	mIdealCameraDist	= 0.15f;//math<float>::max( mRadiusDest * 5.0f, 0.5f );
 	mCloudLayerRadius	= mRadiusDest * 0.05f;
 	
 	mOrbitPeriod		= mTrackLength;
@@ -381,9 +381,8 @@ void NodeTrack::drawEclipseGlow()
 	}
 }
 
-void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
+void NodeTrack::drawPlanet()
 {	
-	// closer than -0.01? fade out?
 	if( mSphereScreenRadius > 0.5f && mClosenessFadeAlpha > 0.0f )
 	{
 		glEnable( GL_RESCALE_NORMAL );
@@ -421,32 +420,10 @@ void NodeTrack::drawPlanet( const vector<gl::Texture> &planets )
 		gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
 		gl::rotate( Vec3f( 0.0f, mCurrentTime * mAxialVel, 0.0f ) );
 		gl::color( ColorA( mEclipseColor, mClosenessFadeAlpha ) );
-		if( mHasAlbumArt ){
-			mAlbumArtTex.enableAndBind();
-		} else {
-			planets[mPlanetTexIndex].enableAndBind();
-		}
+		
+		mAlbumArtTex.enableAndBind();
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
-		
-		/*
-		if( mHasAlbumArt && mNormPlayCount > 0.5f && ( mIsSelected || mIsPlaying ) ){
-			gl::enableAdditiveBlending();
-			gl::pushModelView();
-			gl::translate( mTransPos );
-			radius = ( mRadius + 0.00004f ) * mDeathPer;
-			gl::scale( Vec3f( radius, radius, radius ) );
-			gl::rotate( mMatrix );
-			gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
-			gl::rotate( Vec3f( 0.0f, mCurrentTime * mAxialVel, 0.0f ) );
-			gl::color( ColorA( mEclipseColor, 0.5f ) );
-			planets[mPlanetTexIndex].enableAndBind();
-			glDrawArrays( GL_TRIANGLES, 0, numVerts );
-			gl::popModelView();
-		}
-		 */
-		
-		
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -604,7 +581,8 @@ void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, const
 		Vec3f pos = Vec3f( cos( mOrbitStartAngle ), 0.0f, sin( mOrbitStartAngle ) );
 
 		gl::enableAlphaBlending();
-		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, camAlpha * 2.0f * pinchAlphaPer ) );
+		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, camAlpha * 2.0f * newPinchAlphaPer ) );
+
 		originTex.enableAndBind();
 		gl::drawBillboard( mParentNode->mTransPos + ( mMatrix * pos ) * mOrbitRadius, Vec2f( mRadius, mRadius ) * 2.15f, 0.0f, mMatrix * Vec3f::xAxis(), mMatrix * Vec3f::zAxis() );
 		originTex.disable();
