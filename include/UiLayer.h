@@ -50,6 +50,8 @@ class UiLayer {
 	ci::app::AppCocoaTouch *mApp;
 	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded, mCbOrientationChanged;
 	
+	float			mPanelOpenHeight;
+	float			mPanelSettingsHeight;
     float           mPanelHeight;           // TODO: const?
     float           mPanelOpenY;            // updated in orientationChanged, interfaceHeight-mPanelHeight
     float           mPanelClosedY;          // updated in orientationChanged, interfaceHeight

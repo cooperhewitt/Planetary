@@ -15,20 +15,24 @@
 class NodeTrack : public Node
 {
   public:
-	NodeTrack( Node *parent, int index, const ci::Font &font );
+	NodeTrack( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &hiResSurfaces, const ci::Surface &loResSurfaces, const ci::Surface &noAlbumArt );
+	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album, const ci::Surface &albumArt );
     void initVertexArray();
 	void updateAudioData( double currentPlayheadTime );
 	void update( const ci::Matrix44f &mat );
 	void drawEclipseGlow();
-	void drawPlanet( const std::vector< ci::gl::Texture> &planets );
+	void drawPlanet();
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
-	void drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes );
+	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );
 	void buildPlayheadProgressVertexArray();
-	void drawPlayheadProgress( float pinchAlphaPer, const ci::gl::Texture &tex );
-	void drawAtmosphere( const ci::gl::Texture &tex, float pinchAlphaPer );
-	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album );
+	void drawPlayheadProgress( float pinchAlphaPer, float camAlpha, const ci::gl::Texture &tex, const ci::gl::Texture &originTex );
+	void drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
+	
 	ci::Vec3f getStartRelPos(){ return mMatrix * mStartRelPos; }
 	ci::Vec3f getRelPos(){ return mMatrix * mRelPos; }
+	void setStartAngle();
+	int getTrackNumber();
+
 	string getName();
     uint64_t getId();
 	bool isMostPlayed() { return mIsMostPlayed; }
@@ -48,15 +52,19 @@ private:
 	ci::Vec3f	mStartPos, mTransStartPos, mStartRelPos;
 	vector<ci::Vec3f> mOrbitPath;
 	
+	float		mPrevTime, mCurrentTime, mMyTime;
 	double		mStartTime;
 	double		mPlaybackTime;
 	double		mPercentPlayed;
 	
 	bool		mHasClouds;
-	bool		mIsPopulated;
 	bool		mIsMostPlayed;
 	bool		mHasAlbumArt;
-	ci::gl::Texture mAlbumArt;
+	bool		mHasCreatedAlbumArt;
+	ci::gl::Texture mAlbumArtTex;
+	ci::Surface	mAlbumArtSurface;
+	
+	float		mCloudLayerRadius;
 	
 	int			mTotalOrbitVertices;
     int			mPrevTotalOrbitVertices;

@@ -13,29 +13,31 @@ Dust::Dust()
 Dust::Dust( int index, Vec3f pos, Vec3f vel )
 {
 	mIndex			= index;
-	mLifespan       = Rand::randInt( 20, 50 );
+	mLifespan       = Rand::randInt( 50, 100 );
 	mIsDead			= false;
 	
-	setup();
+	setup( Vec3f( 0.0f, 0.0f, 0.0f ) );
 }
 
-void Dust::setup()
+void Dust::setup( const Vec3f &camEye )
 {
-	Vec2f randVec2 = Rand::randVec2f() * Rand::randFloat( 0.5f, 1.75f );
-	Vec3f randVec = Vec3f( randVec2, 0.0f );
-	mPos		= randVec * 0.1f;
+	Vec3f randVec  = Rand::randVec3f();
+	
+	mPos		= randVec * 0.5f;
+	
 	mPrevPos	= mPos;
-	mVel		= Vec3f( -randVec2.y, randVec2.x, 0.0f ) * 0.00005f;
+	mVel		= randVec * Rand::randFloat( 0.0005f, 0.002f );
 	mDecay		= 0.98f;
 	mAge		= 0;
 }
 
-void Dust::update()
+void Dust::update( const Vec3f &camEye )
 {
 	mPrevPos = mPos;
     mPos += mVel;
     mAge ++;
+	mAgePer = sin( mAge/(float)mLifespan * M_PI );
     if( mAge > mLifespan ){
-        setup();		
+        setup( camEye );		
     }
 }

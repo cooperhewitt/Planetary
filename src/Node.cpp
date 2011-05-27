@@ -14,95 +14,165 @@
 #include "BloomGl.h"
 #include "Globals.h"
 #include "Node.h"
+#include <boost/lexical_cast.hpp>
+#include <boost/tokenizer.hpp>
+#include <boost/foreach.hpp>
 
 using namespace ci;
 using namespace std;
+using namespace boost;
 
-Node::Node( Node *parent, int index, const Font &font )
-	: mParentNode( parent ), mIndex( index ), mFont( font )
+Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, const Surface &hiResSurfaces, const Surface &loResSurfaces, const Surface &noAlbumArt )
+	: mParentNode( parent ), mIndex( index ), mFont( font ), mSmallFont( smallFont ),
+	  mHighResSurfaces( hiResSurfaces ), mLowResSurfaces( loResSurfaces ), mNoAlbumArtSurface( noAlbumArt )
 {
-	if( mParentNode ){
-		initWithParent();
-	} else {
-		init();
-	}
-
-	//createNameTexture();
-	
     mZoomPer            = 0.0f;
     
 	mScreenPos			= Vec2f::zero();
-	mEclipsePer			= 1.0f;
 	mEclipseStrength	= 0.0f;
+	mEclipseAngle		= 0.0f;
+	mEclipseDirBasedAlpha = 0.0f;
 	mTransPos			= Vec3f::zero();
-
+	mTransVel			= Vec3f::zero();
+	
 	mOrbitStartAngle	= Rand::randFloat( TWO_PI );
 	mOrbitAngle			= mOrbitStartAngle;
-	mOrbitPeriod		= Rand::randFloat( 25.0f, 150.0f );
+	mOrbitPeriod		= Rand::randFloat( 225.0f, 250.0f ); // TODO: move to NodeArtist and make non-random
 	mOrbitRadius		= 0.01f;
 	mAngularVelocity	= 0.0f;
 	mPercentPlayed		= 0.0f;
-	mCamDistAlpha		= 0.0f;
 	mDistFromCamZAxis	= 1000.0f;
 	mDistFromCamZAxisPer = 1.0f;
 	mPlanetTexIndex		= 0;
-    
-    mSphereRes          = 12;
-    mSphereResInt       = 12;
 		
 	mHitArea			= Rectf( 0.0f, 0.0f, 10.0f, 10.0f ); //just for init.
 	mHighlightStrength	= 0.0f;
+	
+	mGenre				= " ";
+	
 	mIsTapped			= false;
 	mIsSelected			= false;
     mIsPlaying          = false;
 	mIsHighlighted		= false;
+	mIsDying			= false;
+	mIsDead				= false;
+	
+	mDeathCount			= 0;
+	mDeathThresh		= 100;
+	mDeathPer			= 0.0f;
 }
 
-void Node::init()
+void Node::setIsDying( bool isDying )
 {
-	mGen				= G_ARTIST_LEVEL;
-	mRadiusDest			= 2.0f;
-	mRadius				= 2.0f;
-	mPos				= Rand::randVec3f();
-	mAcc				= Vec3f::zero();
-	mTransVel			= Vec3f::zero();
-	mOrbitRadiusDest	= 0.0f;
-	mOrbitPeriod		= 0.0f;
+	mIsDying = isDying;
+	
+	if( mIsDying == false ){
+		mIsDead = false;
+		mDeathCount = 0;
+	}
 }
 
-void Node::initWithParent()
+void Node::setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals,
+						  int totalMdVertices, float *sphereMdVerts, float *sphereMdTexCoords, float *sphereMdNormals,
+						  int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
+						  int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals )
 {
-	mGen				= mParentNode->mGen + 1;
-	mPos				= mParentNode->mPos;
-	mTransVel			= Vec3f::zero();
-	mOrbitPeriod		= Rand::randFloat( 35.0f, 50.0f );
-}
-
-void Node::setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals, 
-						 int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals )
-{
-	mTotalVertsHiRes		= totalHiVertices;
-	mTotalVertsLoRes		= totalLoVertices;
-	mSphereVertsHiRes		= sphereHiVerts;
-	mSphereTexCoordsHiRes	= sphereHiTexCoords;
-	mSphereNormalsHiRes		= sphereHiNormals;
-	mSphereVertsLoRes		= sphereLoVerts;
-	mSphereTexCoordsLoRes	= sphereLoTexCoords;
-	mSphereNormalsLoRes		= sphereLoNormals;
+	mTotalHiVertsRes		= totalHiVertices;
+	mTotalMdVertsRes		= totalMdVertices;
+	mTotalLoVertsRes		= totalLoVertices;
+	mTotalTyVertsRes		= totalTyVertices;
+	mSphereHiVertsRes		= sphereHiVerts;
+	mSphereHiTexCoordsRes	= sphereHiTexCoords;
+	mSphereHiNormalsRes		= sphereHiNormals;
+	mSphereMdVertsRes		= sphereMdVerts;
+	mSphereMdTexCoordsRes	= sphereMdTexCoords;
+	mSphereMdNormalsRes		= sphereMdNormals;
+	mSphereLoVertsRes		= sphereLoVerts;
+	mSphereLoTexCoordsRes	= sphereLoTexCoords;
+	mSphereLoNormalsRes		= sphereLoNormals;
+	mSphereTyVertsRes		= sphereTyVerts;
+	mSphereTyTexCoordsRes	= sphereTyTexCoords;
+	mSphereTyNormalsRes		= sphereTyNormals;
 }
 
 void Node::createNameTexture()
 {
 	TextLayout layout;
+	
+	string name = getName();
+	string numberLine1, nameLine1;
+	string nameLine2 = "(";
+	bool isTwoLines = false;
+	if( mGen == G_TRACK_LEVEL ){
+		numberLine1 = boost::lexical_cast<string>( getTrackNumber() ) + ". ";
+	}
+	
+	layout.setFont( mSmallFont );
+	layout.setColor( Color( 0.5f, 0.5f, 0.5f ) );
+	layout.addLine( numberLine1 );
+	
 	layout.setFont( mFont );
 	layout.setColor( Color( 1.0f, 1.0f, 1.0f ) );
-	layout.addLine( getName() );
+		
+	if( name.length() > 25 ){
+		int counter = 0;
+		char_separator<char> sep("(");
+		tokenizer< char_separator<char> > tokens(name, sep);
+		BOOST_FOREACH(string t, tokens)
+		{
+			if( counter == 0 ){
+				nameLine1 = t;
+			} else {
+				nameLine2.append( t );
+				isTwoLines = true;
+			}
+			counter ++;
+		}
+	} else {
+		nameLine1 = name;
+	}
+
+	layout.append( nameLine1 );
+	if( isTwoLines ){
+		layout.setFont( mSmallFont );
+		layout.setColor( Color( 0.0f, 0.0f, 0.0f ) );
+		layout.addLine( numberLine1 );
+		
+		//layout.setFont( mFont );
+		layout.setColor( Color( 0.5f, 0.5f, 0.5f ) );
+		layout.append( nameLine2 );
+	}
+	
+	/*} else {
+		layout.setColor( Color( 1.0f, 1.0f, 1.0f ) );
+		layout.setFont( mFont );
+		layout.addLine( name );
+	}*/
+	
+	if( mGen == G_ALBUM_LEVEL ){
+		layout.setFont( mSmallFont );
+		layout.setColor( Color( 0.5f, 0.5f, 0.5f ) );
+		
+		string yearStr = "";
+		int year = getReleaseYear();
+		if( year < 0 ){
+			yearStr = "Unknown";
+		} else if( year < 1900 ){
+			yearStr = "Incorrect Data";
+		} else {
+			yearStr = boost::lexical_cast<string>( getReleaseYear() );	
+		}
+		layout.addLine( yearStr );
+	}
 	Surface8u nameSurface	= Surface8u( layout.render( true, false ) );
 	mNameTex				= gl::Texture( nameSurface );
 }
 
 void Node::update( const Matrix44f &mat )
-{
+{	
+	mInvRadius		= ( 1.0f/mRadius ) * 0.5f;
+	mClosenessFadeAlpha = constrain( ( mDistFromCamZAxis - mRadius ) * mInvRadius, 0.0f, 1.0f );
+	
 	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
 	mMatrix         = mat;
 	mTransPos       = mMatrix * mPos;
@@ -110,15 +180,39 @@ void Node::update( const Matrix44f &mat )
 	mSphere.setCenter( mTransPos );
 
     if( mIsPlaying || mIsSelected ){
-        mZoomPer    = constrain( ( G_ZOOM - mGen ) + 1.0f, 0.0f, 1.0f );
-//        mZoomPer    = constrain( 1.0f - abs( G_ZOOM - mGen + 1.0f ), 0.0f, 1.0f ); 
+        mZoomPer    = constrain( ( G_ZOOM - mGen ) + 2.0f, 0.0f, 1.0f );
 	} else {
         mZoomPer    = constrain( 1.0f - abs( G_ZOOM - mGen + 1.0f ), 0.0f, 1.0f );
     }
-	mZoomPer = pow( mZoomPer, 5.0f );
+	mZoomPer = pow( mZoomPer, 4.0f );
 	
+	
+	if( mIsDying ){
+		mDeathCount ++;
+		if( mDeathCount > mDeathThresh ){
+			mIsDead = true;
+			mIsSelected = false;
+		}
+	}
+	
+	mDeathPer = 1.0f - (float)mDeathCount/(float)mDeathThresh;
+	mAge ++;
+	
+	
+	bool clearChildNodes = false;
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+		if( (*nodeIt)->mIsDead ){
+			clearChildNodes = true;
+		}
 		(*nodeIt)->update( mat );
+	}
+	
+	if( clearChildNodes ){
+		mIsSelected = false;
+		for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+			delete (*nodeIt);
+		}
+		mChildNodes.clear();
 	}
 }
 
@@ -126,32 +220,16 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 {
 	mBbRight = bbRight;
 	mBbUp    = bbUp;
-    
-    if( mGen >= G_ALBUM_LEVEL ){
-        if( mIsSelected || mIsPlaying ){
-            mSphereRes		-= ( mSphereRes - 16 ) * 0.1f;
-            mCamDistAlpha	-= ( mCamDistAlpha - 1.0f ) * 0.1f;
-        } else {
-            mSphereRes		-= ( mSphereRes - 10 ) * 0.1f;
-            mCamDistAlpha	-= ( mCamDistAlpha - 0.0f ) * 0.1f;
-        }
-        
-		if( mSphereScreenRadius < 20 ){
-			mSphereRes		= 4;
-		}
-        mSphereResInt       = (int)mSphereRes * 2;
-    }
+
     
 	if( mIsHighlighted ){
         mScreenPos              = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
-		mDistFromCamZAxis		= cam.worldToEyeDepth( mTransPos );
-		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * -0.35f, 0.0f, 1.0f );
-		mSphereScreenRadius     = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() ) * 0.4f;
-        //Vec2f p = mScreenPos + Vec2f( mSphereScreenRadius * 0.25f, 0.0f );
-		Vec2f p = mScreenPos;
-        float r = mSphereScreenRadius * 0.5f + 5.0f;        
-        mSphereHitArea	= Rectf( p.x - r, p.y - r, p.x + r, p.y + r );        
+		mDistFromCamZAxis		= -cam.worldToEyeDepth( mTransPos );
+		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * 0.5f, 0.0f, 1.0f ); // REL: -0.35f
+		mSphereScreenRadius     = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() );
+        float r					= max( mSphereScreenRadius, 15.0f );        
+        mSphereHitArea			= Rectf( mScreenPos.x - r, mScreenPos.y - r, mScreenPos.x + r, mScreenPos.y + r );        
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
@@ -166,27 +244,6 @@ void Node::drawEclipseGlow()
 	}
 }
 
-//void Node::drawPlanet( const vector<gl::Texture> &planets )
-//{
-//	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-//		(*nodeIt)->drawPlanet( planets );
-//	}
-//}
-//
-//void Node::drawClouds( const vector<gl::Texture> &planets, const vector<gl::Texture> &clouds )
-//{
-//	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-//		(*nodeIt)->drawClouds( planets, clouds );
-//	}
-//}
-//
-//void Node::drawAtmosphere( const gl::Texture &tex )
-//{
-//	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-//		(*nodeIt)->drawAtmosphere( tex );
-//	}
-//}
-
 void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
@@ -194,10 +251,10 @@ void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat 
 	}
 }
 
-void Node::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfloat *ringVertsHighRes )
+void Node::drawOrbitRing( float pinchAlphaOffset, float camAlpha, const gl::Texture &orbitRingGradient, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrbitRing( pinchAlphaOffset, ringVertsLowRes, ringVertsHighRes );
+		(*nodeIt)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRingGradient, ringVertsLowRes, ringTexLowRes, ringVertsHighRes, ringTexHighRes );
 	}
 }
 
@@ -206,70 +263,126 @@ void Node::drawOrbitRing( float pinchAlphaOffset, GLfloat *ringVertsLowRes, GLfl
 void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 {	
 	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
-		//if( mIsPlaying || mIsSelected ){
-		if( mIsSelected || ( G_ZOOM < mGen && mIsPlaying ) ){
-			float alpha = 1.0f;
-			if( G_ZOOM < mGen - 1 )
-				alpha = constrain( ( G_ZOOM - mGen ) + 2.0f, 0.0f, 1.0f );
-			else if( G_ZOOM < mGen )
-				alpha = pinchAlphaPer;
+		float alpha;
+		Color c;
+		
+		if( mIsSelected || ( G_CURRENT_LEVEL < mGen && mIsPlaying ) ){
+			c = Color::white();
 			
-			gl::color( ColorA( Color::white(), alpha ) );
+			if( G_CURRENT_LEVEL >= mGen - 2 )
+				alpha = mZoomPer * mDeathPer;
+			else
+				alpha = 0.0f;
+			
+			
 		} else {
-			gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.45f * mZoomPer * pinchAlphaPer ) );
+			c = BRIGHT_BLUE;
+			if( G_CURRENT_LEVEL >= mGen - 1 )
+				alpha = 0.5f * pinchAlphaPer * mZoomPer * mDeathPer;
+			else
+				alpha = 0.0f;
 		}
-
-		if (mNameTex == NULL) {
-			createNameTexture();
-		}
-
-        Vec2f offset0 = Vec2f( mSphereScreenRadius * 0.275f, mSphereScreenRadius * 0.275f * 0.75f );
-        offset0.rotate( angle );
-		Vec2f pos1 = mScreenPos + offset0;
-        Vec2f offset1( 10.0f, 7.5f );
-        offset1.rotate( angle );
-		Vec2f pos2 = pos1 + offset1;
-        Vec2f offset2( 2.0f, -8.0f );
-        offset2.rotate( angle );
-
-        Vec2f texCorner = mNameTex.getSize();
 		
-		gl::pushModelView();
-		gl::translate( pos2 + offset2 );
-        if (angle != 0) {
-            gl::rotate( angle * 180.0f/M_PI );
-            texCorner.rotate( angle );
-        }
+		gl::color( ColorA( c, alpha * ( 1.0f - mEclipseStrength ) ) );
+		
+		
+		if( alpha > 0 ){
+			Vec2f pos1, pos2;
+			Vec2f offset0, offset1, offset2;
+			
+			if (mNameTex == NULL) {
+				createNameTexture();
+			}
+
+			offset0 = Vec2f( mSphereScreenRadius, mSphereScreenRadius ) * 0.75f;
+			offset0.rotate( angle );
+			pos1 = mScreenPos + offset0;
+			offset1 = Vec2f( 3.5f, 3.5f ) * ( ( G_TRACK_LEVEL + 1.0f ) - mGen );
+			offset1.rotate( angle );
+			pos2 = pos1 + offset1;
+			offset2 = Vec2f( 2.0f, -8.0f );
+			offset2.rotate( angle );
+
+			Vec2f texCorner = mNameTex.getSize();
+			
+			gl::pushModelView();
+			gl::translate( pos2 + offset2 );
+			if (angle != 0) {
+				gl::rotate( angle * 180.0f/M_PI );
+				texCorner.rotate( angle );
+			}
+			if( mIsPlaying ){
+				float s = mZoomPer * 0.25f + 1.0f;
+				gl::scale( Vec3f( s, s, 1.0f ) );
+				texCorner *= s;
+			}
+			
+			gl::draw( mNameTex, Vec2f::zero() );
+			gl::popModelView();
+			
+			mHitArea = Rectf( pos2 + offset2, pos2 + offset2 + texCorner);
+			mHitArea.canonicalize();        
+			inflateRect( mHitArea, 5.0f );
+			
+			glDisable( GL_TEXTURE_2D );
+			
+			gl::color( ColorA( BRIGHT_BLUE, alpha * 0.5f ) );
+			gl::drawLine( pos1, pos2 );
+		} else {
+			mHitArea = Rectf( -10000.0f, -10000.0f, -9999.0f, -9999.0f );
+		}
+		
+		
+		
+		/*
+		// For viewing node states
+		if( mIsHighlighted ){
+			gl::color( Color( 1.0f, 0.0f, 0.0f ) );
+			gl::drawLine( pos1 + Vec2f( 1.0f, -1.0f ), pos1 + Vec2f( -1.0f, 1.0f ) );
+		}
+		
+		if( mIsSelected ){
+			gl::color( Color( 0.0f, 1.0f, 0.0f ) );
+			gl::drawLine( pos1 + Vec2f( 3.0f, 1.0f ), pos1 + Vec2f( 1.0f, 3.0f ) );
+		}
+		
 		if( mIsPlaying ){
-			float s = mZoomPer * 0.25f + 1.0f;
-			gl::scale( Vec3f( s, s, 1.0f ) );
-            texCorner *= s;
+			gl::color( Color( 0.0f, 0.0f, 1.0f ) );
+			gl::drawLine( pos1 + Vec2f( 5.0f, 3.0f ), pos1 + Vec2f( 3.0f, 5.0f ) );
 		}
-		gl::draw( mNameTex, Vec2f::zero() );
-		gl::popModelView();
-        
-        mHitArea = Rectf( pos2 + offset2, pos2 + offset2 + texCorner);
-        mHitArea.canonicalize();        
-        inflateRect( mHitArea, 5.0f );
-		
-		glDisable( GL_TEXTURE_2D );
-		gl::color( ColorA( COLOR_BLUE, 0.4f * mZoomPer * pinchAlphaPer ) );
-		gl::drawLine( pos1, pos2 );
+		 */
 	}
+	
+
+	
+	
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->drawName( cam, pinchAlphaPer, angle );
 	}
 }
 
-void Node::drawTouchHighlight()
+void Node::drawTouchHighlight( float zoomAlpha )
 {
 	if( mIsHighlighted ){
+		Vec2f radius = Vec2f( mRadius * 5.0f, mRadius * 5.0f );
 		if( mIsTapped ){
 			gl::color( ColorA( mColor, mHighlightStrength ) );
-			Vec2f radius = Vec2f( mRadius * 25.0f, mRadius * 25.0f );
+			mHighlightStrength -= ( mHighlightStrength - 0.0f ) * 0.1f;
 			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
-			mHighlightStrength -= ( mHighlightStrength - 0.0f ) * 0.15f;
+		}
+		
+		
+		if( G_DRAW_RINGS && mClosenessFadeAlpha > 0.0f ){
+			if( mGen == G_TRACK_LEVEL ){
+				float alpha = max( ( 0.7f - mDistFromCamZAxisPer ) * mDeathPer, 0.0f );
+				gl::color( ColorA( BRIGHT_BLUE, ( alpha + mEclipseStrength * mDeathPer ) * mClosenessFadeAlpha ) );
+				gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+			} else if( mGen == G_ALBUM_LEVEL ){
+				float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 1.0f );
+				gl::color( ColorA( BRIGHT_BLUE, ( alpha + mEclipseStrength * mDeathPer ) * mClosenessFadeAlpha ) );
+				gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+			}
 		}
 		
 		if( mHighlightStrength < 0.01f ){
@@ -277,31 +390,18 @@ void Node::drawTouchHighlight()
 		}
 
 		for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-			(*nodeIt)->drawTouchHighlight();
+			(*nodeIt)->drawTouchHighlight( zoomAlpha );
 		}
-	}
-}
-
-void Node::checkForSphereIntersect( vector<Node*> &nodes, const Ray &ray, Matrix44f &mat )
-{
-	mSphere.setCenter( mat.transformPointAffine( mPos ) );
-
-	if( mSphere.intersects( ray ) && mIsHighlighted && ! mIsSelected ){
-		std::cout << "HIT FOUND" << std::endl;
-		nodes.push_back( this );
-	}
-	
-	vector<Node*>::iterator nodeIt;
-	for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->checkForSphereIntersect( nodes, ray, mat );
 	}
 }
 
 void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-    if( mSphereHitArea.contains( pos ) || ( mNameTex != NULL && mHitArea.contains( pos ) && G_DRAW_TEXT ) ) {
-        nodes.push_back( this );
-    }
+	if( mDistFromCamZAxisPer > 0.0f ){
+		if( mSphereHitArea.contains( pos ) || ( mNameTex != NULL && mHitArea.contains( pos ) && G_DRAW_TEXT ) ) {
+			nodes.push_back( this );
+		}
+	}
     vector<Node*>::iterator nodeIt;
     for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
         (*nodeIt)->checkForNameTouch( nodes, pos );
@@ -311,17 +411,25 @@ void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 void Node::select()
 {
 	mIsSelected = true;
+	setIsDying( false );
+	
+    vector<Node*>::iterator nodeIt;
+	for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+        (*nodeIt)->setIsDying( false );
+    }
 }
 
 void Node::deselect()
 {
-	// TODO: Instead of killing them right away, sentence them to die but only after
-	// their gen is 1.0 greater than the current zoom level. 
-	mIsSelected = false;
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		delete (*nodeIt);
+		(*nodeIt)->mIsDying = true;
 	}
-	mChildNodes.clear();
+	mIsSelected = false;
+	
+//	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
+//		delete (*nodeIt);
+//	}
+//	mChildNodes.clear();
 }
 
 

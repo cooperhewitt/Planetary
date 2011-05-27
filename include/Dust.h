@@ -8,8 +8,8 @@ class Dust {
 public:
 	Dust();
 	Dust( int index, ci::Vec3f pos, ci::Vec3f vel );
-	void setup();
-	void update();
+	void setup( const ci::Vec3f &camEye );
+	void update( const ci::Vec3f &camEye );
 	
 	int			mIndex;
 	ci::Vec3f	mPos, mPrevPos;

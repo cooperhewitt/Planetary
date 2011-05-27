@@ -6,6 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#pragma once
 #include <string>
 #include "cinder/Font.h"
 #include "cinder/Color.h"
@@ -36,6 +37,8 @@ public:
 
     void setRect(Rectf rect) { mRect = rect; }
     Rectf getRect() { return mRect; }
+	bool isScrollingText() { return mIsScrolling; }
+	
 
 private:
     
@@ -49,5 +52,7 @@ private:
     float mLastTrackChangeTime;
     
     gl::Texture mTexture;
+	
+	bool mIsScrolling;
     
 };

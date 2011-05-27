@@ -26,7 +26,9 @@ void Slider::draw()
     Rectf thumbTexRect = mIsDragging ? mThumbDownTexRect : mThumbUpTexRect;
     
     drawTextureRect(mRect, mBgTexRect);
+	gl::enableAdditiveBlending();    
     drawTextureRect(fgRect, mFgTexRect);
+	gl::enableAlphaBlending();    
     drawTextureRect(thumbRect, thumbTexRect);
 }
 

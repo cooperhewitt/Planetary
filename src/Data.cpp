@@ -18,6 +18,7 @@
 #include <boost/algorithm/string.hpp>   
 #include "CinderFlurry.h"
 #include "stdlib.h"
+#include <set>
 
 using namespace ci;
 using namespace ci::ipod;
@@ -30,16 +31,18 @@ Data::Data()
 
 void Data::setup()
 {
+	mCurrentPlaylist = -1;
 	mArtists.clear();
+	mPlaylists.clear();
 	mFilteredArtists.clear();    
     mNumArtistsPerChar.clear();
     if (!isIniting) {
         isIniting = true;
-        std::thread loaderThread( &Data::backgroundInitArtists, this );	
+        std::thread artistLoaderThread( &Data::backgroundInit, this );	
     }
 }
 
-void Data::backgroundInitArtists()
+void Data::backgroundInit()
 {
 	NSAutoreleasePool *autoreleasepool = [[NSAutoreleasePool alloc] init];
 	
@@ -62,8 +65,8 @@ void Data::backgroundInitArtists()
 //	}
 //	std::cout << (app::App::get()->getElapsedSeconds()-t) << " seconds to derive artists" << std::endl;
 	Flurry::getInstrumentation()->startTimeEvent("Music Loading");
-	pending = getArtists();
-	std::cout << "got " << pending.size() << " artists" << std::endl;
+	pendingArtists = getArtists();
+	std::cout << "got " << pendingArtists.size() << " artists" << std::endl;
 	
 	
 // QUICK FIX FOR GETTING MORE DATA ONTO THE ALPHAWHEEL
@@ -72,7 +75,7 @@ void Data::backgroundInitArtists()
 		mNumArtistsPerChar[alphaString[i]] = 0;
 	}
 	float maxCount = 0.0001f;
-	for( vector<ci::ipod::PlaylistRef>::iterator it = pending.begin(); it != pending.end(); ++it ){
+	for( vector<ci::ipod::PlaylistRef>::iterator it = pendingArtists.begin(); it != pendingArtists.end(); ++it ){
 		string name		= (*it)->getArtistName();
 		string the		= name.substr( 0, 4 );
 		char firstLetter;
@@ -103,21 +106,38 @@ void Data::backgroundInitArtists()
 // END ALPHAWHEEL QUICK FIX
 	
 	Flurry::getInstrumentation()->stopTimeEvent("Music Loading");
+	
     std::map<string, string> params;
-    params["NumArtists"] = i_to_string(pending.size());
+    params["NumArtists"] = i_to_string(pendingArtists.size());
     Flurry::getInstrumentation()->logEvent("Artists loaded", params);
     
+	
+	
+	Flurry::getInstrumentation()->startTimeEvent("Playlists Loading");
+	pendingPlaylists = getPlaylists();
+	std::cout << "got " << pendingPlaylists.size() << " playlists" << std::endl;
+    params["NumPlaylists"] = i_to_string( pendingPlaylists.size());
+    Flurry::getInstrumentation()->logEvent("Playlists loaded", params);
+	
+	
+	
     [autoreleasepool release];	
     
 	isIniting = false;
 }
 
+
 bool Data::update()
 {
 	if (!isIniting && wasIniting) {
 		// TODO: time this, is it OK in one frame?
-		mArtists.insert(mArtists.end(),pending.begin(),pending.end());
-		pending.clear();
+		// TODO: switch state to enum. potential cause of freeze-on-load-screen bug
+		mArtists.insert( mArtists.end(), pendingArtists.begin(), pendingArtists.end() );
+		pendingArtists.clear();
+		
+		mPlaylists.insert( mPlaylists.end(), pendingPlaylists.begin(), pendingPlaylists.end() );
+		pendingPlaylists.clear();
+		
         wasIniting = isIniting;
 		return true;
 	}
@@ -189,6 +209,7 @@ void Data::buildVertexArray()
 }
 
 
+
 void Data::filterArtistsByAlpha( char c )
 {
 	mFilteredArtists.clear();
@@ -200,8 +221,9 @@ void Data::filterArtistsByAlpha( char c )
 		char cUpper = static_cast<char> ( toupper( c ) );
 		
 		int index = 0;
-		for( vector<ci::ipod::PlaylistRef>::iterator it = mArtists.begin(); it != mArtists.end(); ++it ){
+		for( vector<PlaylistRef>::iterator it = mArtists.begin(); it != mArtists.end(); ++it ){
 			string name		= (*it)->getArtistName();
+			
 			string the		= name.substr( 0, 4 );
 			char firstLetter;
 			
@@ -234,4 +256,36 @@ void Data::filterArtistsByAlpha( char c )
 			index ++;
 		}
 	}
+}
+
+
+void Data::filterArtistsByPlaylist( PlaylistRef playlist )
+{
+	
+	std::set<uint64_t> artistSet;
+	for( Playlist::Iter i = playlist->begin(); i != playlist->end(); i++ ){
+		TrackRef track = *i;
+		artistSet.insert( track->getArtistId() );
+	}
+	
+	
+	mFilteredArtists.clear();
+	
+	int index = 0;
+	for( vector<PlaylistRef>::iterator it = mArtists.begin(); it != mArtists.end(); ++it ){
+		uint64_t id				= (*it)->getArtistId();
+		
+		if (artistSet.find( id ) != artistSet.end()) {
+			mFilteredArtists.push_back( index );
+		}
+//		for( Playlist::Iter i = playlist->begin(); i != playlist->end(); i++ ){
+//			TrackRef track = *i;
+//			if( track->getArtistId() == id ){
+//				mFilteredArtists.push_back( index );
+//			}
+//		}
+		
+		index ++;
+	}
+	
 }

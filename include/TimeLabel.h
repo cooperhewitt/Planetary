@@ -6,6 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#pragma once
 #include <string>
 #include "cinder/Font.h"
 #include "cinder/Color.h"

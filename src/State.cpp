@@ -26,6 +26,8 @@ void State::setup()
 {
 	mAlphaChar = ' ';
 	mSelectedNode = NULL;
+	mPrevSelectedNode = NULL;
+	mDistBetweenPrevAndCurrentNode = 1.0f;
 }
 
 void State::draw( const Font &font )
@@ -56,11 +58,20 @@ void State::setAlphaChar( const string &name )
 	setAlphaChar(firstLetter);
 }
 
+
+void State::setPlaylist( ci::ipod::PlaylistRef playlist )
+{
+	mCurrentPlaylist = playlist;
+	mCurrentPlaylistName = playlist->getPlaylistName();
+	mCallbacksPlaylistStateChanged.call( this );
+}
+
+
 void State::setSelectedNode( Node* node )
 {
-	if (node == mSelectedNode) {
-		return;
-	}
+//	if (node == mSelectedNode) {
+//		return;
+//	}
 	
 	if (node == NULL) {
 		// clear currently selected node and all parents
@@ -70,6 +81,7 @@ void State::setSelectedNode( Node* node )
 			selection = selection->mParentNode;
 		}
 		mSelectedNode = NULL;
+		mDistBetweenPrevAndCurrentNode = 20.0f;
 	}
 	else {
 		
@@ -77,13 +89,13 @@ void State::setSelectedNode( Node* node )
 		deque<Node*> currentChain;
 		deque<Node*> nextChain;
 		
-		Node* current = mSelectedNode;
+		Node* current = mSelectedNode;	// track, album, artist
 		while (current != NULL) {
 			currentChain.push_front(current);
 			current = current->mParentNode;
 		}
 
-		Node* next = node;
+		Node* next = node;				// new track, album, artist
 		while (next != NULL) {
 			nextChain.push_front(next);
 			next = next->mParentNode;
@@ -106,8 +118,22 @@ void State::setSelectedNode( Node* node )
 		}
 		
 		// ensure that the new selection is selected
-		node->select();
+		// node->select();
+		mPrevSelectedNode = mSelectedNode;
 		mSelectedNode = node;
+		
+		if( mPrevSelectedNode && mSelectedNode )
+			mDistBetweenPrevAndCurrentNode = mPrevSelectedNode->mTransPos.distance( mSelectedNode->mTransPos );
+		
+		
+		// select everything in the next chain that isn't in the current chain
+		// SANITY CHECK: I changed this for loop
+		// from
+		// for (int i = currentChain.size(); i < nextChain.size(); i++) {
+		// to
+        for (int i = 0; i < nextChain.size(); i++) {
+            nextChain[i]->select();
+        }
 	}
     
 	// and then spread the good word

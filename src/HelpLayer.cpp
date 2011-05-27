@@ -131,7 +131,7 @@ void HelpLayer::initHelpTextures( const Font &font )
 	for( vector<string>::iterator it = names.begin(); it != names.end(); ++it ){
 		TextLayout layout;	
 		layout.setFont( font );
-		layout.setColor( ColorA( COLOR_BRIGHT_YELLOW, 1.0f ) );
+		layout.setColor( ColorA( BRIGHT_YELLOW, 1.0f ) );
 		layout.addCenteredLine( names[count] );
 		mHelpTextures.push_back( gl::Texture( layout.render( true, false ) ) );
 		
@@ -231,7 +231,7 @@ void HelpLayer::draw( const gl::Texture &tex, float y )
 		}
 		
 		glDisable( GL_TEXTURE_2D );
-		gl::color( ColorA( COLOR_BRIGHT_YELLOW, 0.25f * alpha ) );
+		gl::color( ColorA( BRIGHT_YELLOW, 0.25f * alpha ) );
 		for( int i=0; i<G_TOTAL_HELP_CALLOUTS; i++ ){
 			Vec2f offset = Vec2f( 0.0f, 0.0f );
 			

@@ -20,8 +20,9 @@ class Data {
 	bool update(); // TODO: split into bool isInited() and void update() ?
 
 	void filterArtistsByAlpha( char c );
-	
+	void filterArtistsByPlaylist( ci::ipod::PlaylistRef playlist );
 	std::vector<ci::ipod::PlaylistRef> mArtists;
+	std::vector<ci::ipod::PlaylistRef> mPlaylists;
 	std::vector<int> mFilteredArtists;
 	std::map< char, float > mNumArtistsPerChar;
 	
@@ -30,11 +31,12 @@ class Data {
 	GLfloat *mWheelDataColors;
 	
   private:
-	void backgroundInitArtists();
+	int mCurrentPlaylist;
+	void backgroundInit();
 	void buildVertexArray();
 	bool isIniting;
     bool wasIniting;
-	std::vector<ci::ipod::PlaylistRef> pending;
-	
+	std::vector<ci::ipod::PlaylistRef> pendingArtists;
+	std::vector<ci::ipod::PlaylistRef> pendingPlaylists;	
 	
 };

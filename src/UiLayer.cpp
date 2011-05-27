@@ -41,10 +41,10 @@ void UiLayer::setInterfaceOrientation( const Orientation &orientation )
         interfaceSize = interfaceSize.yx(); // swizzle it!
     }
     
-    mPanelOpenY = interfaceSize.y - mPanelHeight;
-    mPanelClosedY = interfaceSize.y;
-    mPanelRect.x1 = 0;
-    mPanelRect.x2 = interfaceSize.x;
+    mPanelOpenY		= interfaceSize.y - mPanelHeight;
+    mPanelClosedY	= interfaceSize.y;
+    mPanelRect.x1	= 0;
+    mPanelRect.x2	= interfaceSize.x;
 
     // cancel interactions
     mIsPanelTabTouched   = false;
@@ -82,7 +82,9 @@ void UiLayer::setup( AppCocoaTouch *app, const Orientation &orientation )
 	mHasPanelBeenDragged	= false;
 
 	// PANEL AND TAB
-	mPanelHeight			= 65.0f;
+	mPanelOpenHeight		= 68.0f;
+	mPanelSettingsHeight	= 125.0f;
+	mPanelHeight			= mPanelOpenHeight;
 	mPanelRect				= Rectf( 0.0f, getWindowHeight(), 
                                      getWindowWidth(), getWindowHeight()+mPanelHeight );
 
@@ -167,6 +169,14 @@ bool UiLayer::touchesEnded( TouchEvent event )
 
 void UiLayer::update()
 {
+	if( G_SHOW_SETTINGS ){
+		mPanelHeight = mPanelSettingsHeight;
+	} else {
+		mPanelHeight = mPanelOpenHeight;
+	}
+    mPanelOpenY		= getWindowHeight() - mPanelHeight;
+	
+	
     // if we're not dragging, animate to current state
     if ( !mHasPanelBeenDragged ) {
         if( mIsPanelOpen ){
@@ -175,19 +185,13 @@ void UiLayer::update()
         else {
             mPanelRect.y1 += (mPanelClosedY - mPanelRect.y1) * 0.25f;
         }
-    }
-    
-    // make sure we're not over the limits
-    if (mPanelRect.y1 < mPanelOpenY) {
-        mPanelRect.y1 = mPanelOpenY;
-    }
-    else if (mPanelRect.y1 > mPanelClosedY) {
-        mPanelRect.y1 = mPanelClosedY;
-    }
-		
+    } else {
+		mPanelRect.y1 = constrain( mPanelRect.y1, mPanelOpenY, mPanelClosedY );
+	}
+	
     
     // keep up y2!
-    mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;
+    mPanelRect.y2 = mPanelRect.y1 + mPanelSettingsHeight;
 	
     // adjust tab rect:
     mPanelTabRect = Rectf( mPanelRect.x2 - 200.0f, mPanelRect.y1 - 38.0f,
@@ -204,8 +208,13 @@ void UiLayer::draw( const gl::Texture &uiButtonsTex )
     drawButton( mPanelRect, 0.41f, 0.9f, 0.49f, 0.99f );
 	uiButtonsTex.disable();
 	
-	gl::color( ColorA( COLOR_BRIGHT_BLUE, 0.2f ) );
+	gl::color( ColorA( BRIGHT_BLUE, 0.2f ) );
 	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 ), Vec2f( mPanelRect.x2, mPanelRect.y1 ) );
+	
+	gl::color( ColorA( BRIGHT_BLUE, 0.1f ) );
+	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 + mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelRect.y1 + mPanelOpenHeight + 1.0f ) );
+
+	
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	
 	
