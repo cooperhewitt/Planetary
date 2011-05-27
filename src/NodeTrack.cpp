@@ -385,7 +385,6 @@ void NodeTrack::drawPlanet()
 {	
 	if( mSphereScreenRadius > 0.5f && mClosenessFadeAlpha > 0.0f )
 	{
-		glEnable( GL_RESCALE_NORMAL );
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glEnableClientState( GL_NORMAL_ARRAY );
@@ -472,7 +471,6 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			clouds[mCloudTexIndex].enableAndBind();
 			
 			//glEnable( GL_LIGHTING );
-			//glEnable( GL_RESCALE_NORMAL );
 			
 			gl::enableAdditiveBlending();
 			gl::pushModelView();
@@ -482,7 +480,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			gl::rotate( mMatrix );
 			gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
 			gl::rotate( Vec3f( 0.0f, mCurrentTime * mAxialVel, 0.0f ) );
-			float alpha = max( 0.7f - mDistFromCamZAxisPer, 0.0f );
+			float alpha = max( 1.0f - mDistFromCamZAxisPer, 0.0f );
 			gl::color( ColorA( mEclipseColor, alpha * mClosenessFadeAlpha ) );
 			glDrawArrays( GL_TRIANGLES, 0, numVerts );
 			gl::popModelView();
@@ -498,13 +496,11 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 void NodeTrack::drawAtmosphere( const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
 	if( mClosenessFadeAlpha > 0.0f ){
-		gl::enableAdditiveBlending();
 
 		Vec2f dir		= mScreenPos - app::getWindowCenter();
 		float dirLength = dir.length()/500.0f;
 		float angle		= atan2( dir.y, dir.x );
 		float stretch	= 1.0f + dirLength * 0.1f;
-		gl::enableAdditiveBlending();
 		float alpha = mNormPlayCount * 0.5f * mDeathPer;
 		
 //		float alpha = 0.3f * ( 1.0f - dirLength );
@@ -566,11 +562,13 @@ void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, const
 		}
 		
 		
+		float alpha = pow( camAlpha, 0.25f ) * newPinchAlphaPer;
+		
 		tex.enableAndBind();
 		gl::pushModelView();
 		gl::translate( mParentNode->mTransPos );
 		gl::rotate( mMatrix );
-		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, camAlpha * newPinchAlphaPer ) );
+		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, alpha ) );
 		
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -585,7 +583,6 @@ void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, const
 		Vec3f pos = Vec3f( cos( mOrbitStartAngle ), 0.0f, sin( mOrbitStartAngle ) );
 
 		gl::enableAlphaBlending();
-		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, camAlpha * 2.0f * newPinchAlphaPer ) );
 
 		originTex.enableAndBind();
 		gl::drawBillboard( mParentNode->mTransPos + ( mMatrix * pos ) * mOrbitRadius, Vec2f( mRadius, mRadius ) * 2.15f, 0.0f, mMatrix * Vec3f::xAxis(), mMatrix * Vec3f::zAxis() );

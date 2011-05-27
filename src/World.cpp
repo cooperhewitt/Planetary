@@ -283,13 +283,13 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, floa
 	int vIndex	= 0;
 	int tIndex	= 0;
 	int cIndex	= 0;
-	float scaleOffset	= 0.5f - constrain( G_ARTIST_LEVEL - G_ZOOM, 0.0f, 1.0f ) * 0.25f;
+	float scaleOffset	= 0.5f - constrain( G_ARTIST_LEVEL - G_ZOOM, 0.0f, 1.0f ) * 0.25f; // 0.25 -> 0.5
 	float zoomOffset	= zoomAlpha * 3.5f;
 	
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		Vec3f pos	= (*it)->mPos;
 		ColorA col	= ColorA( (*it)->mColor, 1.0f );
-		float r		= (*it)->mRadius * scaleOffset;
+		float r		= (*it)->mRadius * scaleOffset + ( 0.5f - scaleOffset );
 		if( !(*it)->mIsHighlighted ){
 			r		-= zoomOffset;
 		}
@@ -819,7 +819,7 @@ void World::buildConstellation()
 			mConstellationTexCoords[tIndex++]	= 0.0f;
 			mConstellationTexCoords[tIndex++]	= 0.5f;
 		} else {
-			mConstellationTexCoords[tIndex++]	= distances[distancesIndex] * 0.4f;
+			mConstellationTexCoords[tIndex++]	= distances[distancesIndex];// * 0.4f;
 			mConstellationTexCoords[tIndex++]	= 0.5f;
 			distancesIndex ++;
 		}

@@ -37,6 +37,8 @@ public:
 
     void setRect(Rectf rect) { mRect = rect; }
     Rectf getRect() { return mRect; }
+	bool isScrollingText() { return mIsScrolling; }
+	
 
 private:
     
@@ -50,5 +52,7 @@ private:
     float mLastTrackChangeTime;
     
     gl::Texture mTexture;
+	
+	bool mIsScrolling;
     
 };

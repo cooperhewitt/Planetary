@@ -405,11 +405,10 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::translate( mTransPos );
 		gl::pushModelView();
 		float radius = mRadius * mDeathPer + mCloudLayerRadius;
-		float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 0.5f ) * mClosenessFadeAlpha;
+		float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 0.334f ) * mClosenessFadeAlpha;
 		gl::scale( Vec3f( radius, radius, radius ) );
-		//glEnable( GL_RESCALE_NORMAL );
 		gl::rotate( mMatrix );
-		gl::rotate( mAxialRot );
+		gl::rotate( mAxialRot + Vec3f( 0.0f, 2.5f, 0.0f ) );
 // SHADOW CLOUDS
 //				glDisable( GL_LIGHTING );
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
@@ -419,14 +418,12 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::popModelView();
 			
 // LIT CLOUDS
-		gl::enableAdditiveBlending();
 		gl::pushModelView();
 		radius = mRadius * mDeathPer + mCloudLayerRadius*1.5f;
 		gl::scale( Vec3f( radius, radius, radius ) );
-		//glEnable( GL_RESCALE_NORMAL );
 		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot );
-		gl::enableAdditiveBlending();
+		//gl::enableAdditiveBlending();
 		gl::color( ColorA( mEclipseColor, alpha * 2.0f ) );
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
@@ -447,7 +444,6 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 			float dirLength = dir.length()/500.0f;
 			float angle		= atan2( dir.y, dir.x );
 			float stretch	= dirLength * mRadius;
-			gl::enableAdditiveBlending();
 			float alpha = ( 1.0f - dirLength * 0.75f ) + mEclipseStrength;
 			alpha *= mDeathPer * mBlockedBySunPer * mClosenessFadeAlpha;
 			

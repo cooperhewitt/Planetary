@@ -11,7 +11,8 @@
 
 void ScrollingLabel::setText(string text)
 { 
-    if (mText != text) { 
+    if (mText != text) {
+		mIsScrolling = false;
         mText = text; 
         updateTexture(); 
     }
@@ -45,6 +46,7 @@ void ScrollingLabel::draw()
         float ctTexWidth = mTexture.getWidth();
         
         if( ctTexWidth < ctSpaceWidth ){ 
+			mIsScrolling = false;
             // if the texture width is less than the rect to fit it in...
             gl::draw(mTexture, mRect.getUpperLeft());            
         }
@@ -53,6 +55,7 @@ void ScrollingLabel::draw()
             float x1;
             if( ci::app::getElapsedSeconds() - mLastTrackChangeTime > 5.0f ) { 
                 // but wait 5 seconds first
+				mIsScrolling = true;
                 x1 = fmodf( ( app::getElapsedSeconds() - ( mLastTrackChangeTime + 5.0f ) ) * 20.0f, ctTexWidth + 10.0f ) - ctTexWidth-10.0f;
             } else {
                 x1 = -ctTexWidth-10.0f;

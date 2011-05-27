@@ -283,7 +283,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 				alpha = 0.0f;
 		}
 		
-		gl::color( ColorA( c, alpha ) );
+		gl::color( ColorA( c, alpha * ( 1.0f - mEclipseStrength ) ) );
 		
 		
 		if( alpha > 0 ){

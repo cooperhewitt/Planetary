@@ -35,10 +35,12 @@ public:
 
 	enum ButtonId { NO_BUTTON, PREV_PLAYLIST, NEXT_PLAYLIST, SHOW_WHEEL,
                     GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, PREV_TRACK, 
-                    PLAY_PAUSE, NEXT_TRACK, SLIDER, HELP, DRAW_RINGS, 
+                    PLAY_PAUSE, NEXT_TRACK, SHUFFLE, REPEAT, SLIDER, HELP, DRAW_RINGS, 
                     DRAW_TEXT, USE_GYRO, DEBUG_FEATURE };
 	
-	void setup( AppCocoaTouch *app, Orientation orientation, Font font, gl::Texture texture );
+	void setup( AppCocoaTouch *app, Orientation orientation, const ci::Font &font, const ci::Font &fontSmall, const ci::gl::Texture &buttonsTex, 
+																												const ci::gl::Texture &bigButtonsTex, 
+																												const ci::gl::Texture &smallButtonsTex );
 	void update();
     void draw(float y);
 
@@ -106,7 +108,9 @@ private:
 	
     ///////////// Shared UI resources:
     Font mFont;
-    gl::Texture mTexture;
+    gl::Texture mButtonsTex;
+	gl::Texture mBigButtonsTex;
+	gl::Texture mSmallButtonsTex;
 
     ///////////// UI Classes:
     
@@ -166,6 +170,8 @@ private:
         ToggleButton mLabelsButton;
         ToggleButton mDebugButton;
         ToggleButton mGyroButton;
+		ToggleButton mShuffleButton;
+		ToggleButton mRepeatButton;
     
  // track skip and play/pause controls
     SimpleButton mPreviousTrackButton;

@@ -58,7 +58,7 @@ class State {
 	// TODO: should these use casts to get NodeArtist/NodeAlbum out?
 	Node* getSelectedArtistNode() { return getNodeAtLevel(G_ARTIST_LEVEL); }
 	Node* getSelectedAlbumNode() { return getNodeAtLevel(G_ALBUM_LEVEL); }
-	
+	Node* getSelectedTrackNode() { return getNodeAtLevel(G_TRACK_LEVEL); }	
 	Node* getNodeAtLevel(int level) {
 		if ( mSelectedNode != NULL && mSelectedNode->mGen >= level ) {
 			Node *retNode = mSelectedNode;
