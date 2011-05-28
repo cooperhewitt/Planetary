@@ -45,6 +45,7 @@ float G_ZOOM			= 0;
 int G_CURRENT_LEVEL		= 0;
 bool G_ACCEL			= true;
 bool G_DEBUG			= false;
+bool G_FEATURE			= false;
 bool G_SHUFFLE			= false;
 bool G_REPEAT			= false;
 bool G_SHOW_SETTINGS	= false;
@@ -737,12 +738,6 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
     mPinchRays = event.getTouchRays( mCam );
 	mPinchPositions.clear();
 	
-	Node *selectedNode = mState.getSelectedNode();
-	int currentLevel = 0;
-	if( selectedNode ){
-		currentLevel = selectedNode->mGen;
-	}
-	
 	mPinchTotalDest *= ( 1.0f + ( 1.0f - event.getScaleDelta() ) * 0.65f * mPinchScaleMax );
 	mPinchTotalDest = constrain( mPinchTotalDest, mPinchScaleMin, mPinchScaleMax );
 	
@@ -993,6 +988,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
         
         case PlayControls::HELP:
+			std::cout << "HELP!!!! IN PLAYCONTROLS!!!!" << std::endl;
 			if( G_SHOW_SETTINGS ){
 				Flurry::getInstrumentation()->logEvent("Help Button Selected");            
 				G_HELP = !G_HELP;
@@ -1047,6 +1043,10 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 		case PlayControls::DEBUG_FEATURE:
 			G_DEBUG = !G_DEBUG;
             break;
+		
+		case PlayControls::TEST_FEATURE:
+			G_FEATURE = !G_FEATURE;
+            break;
 			
 		case PlayControls::NEXT_PLAYLIST:
 			mPlaylistIndex ++;
@@ -1061,6 +1061,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;	
 			
 		case PlayControls::SHOW_WHEEL:
+			std::cout << "SHOW_WHEEL HAPPENED!!!! IN PLAYCONTROLS!!!!" << std::endl;
+			mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );
             break;	
 			
         case PlayControls::NO_BUTTON:
@@ -1194,15 +1196,27 @@ void KeplerApp::update()
 		mAlphaWheel.update( mFov );
         
         mPlayControls.update();
-        // ROBERT-FIXME:
-        //mPlayControls.setAlphaWheelVisible( mAlphaWheel.getShowWheel() );
+        mPlayControls.setAlphaWheelVisible( mAlphaWheel.getShowWheel() );
+        mPlayControls.setShowSettings( G_SHOW_SETTINGS );
         mPlayControls.setOrbitsVisible( G_DRAW_RINGS );
         mPlayControls.setLabelsVisible( G_DRAW_TEXT );
         mPlayControls.setHelpVisible( G_HELP );
-        mPlayControls.setShowSettings( G_SHOW_SETTINGS );
+		mPlayControls.setDebugVisible( G_DEBUG );
+		mPlayControls.setFeatureVisible( G_FEATURE );
+		mPlayControls.setShuffleVisible( G_SHUFFLE );
+		mPlayControls.setRepeatVisible( G_REPEAT );
+		mPlayControls.setGyroVisible( G_USE_GYRO );
+
         mPlayControls.setElapsedSeconds( (int)mCurrentTrackPlayheadTime );
         mPlayControls.setRemainingSeconds( -(int)(mCurrentTrackLength - mCurrentTrackPlayheadTime) );
         mPlayControls.setPlayheadProgress( mCurrentTrackPlayheadTime / mCurrentTrackLength );
+
+
+
+		// TOM: Sorry for the new globals. Can just query the player for these instead?
+
+
+		
 
     }
     else {
@@ -1266,47 +1280,33 @@ void KeplerApp::updateCamera()
 	
 	float cameraDistMulti = mPinchPer * 2.0f + 0.5f;
 	
+// IF THE PINCH IS PAST THE POP THRESHOLD...
 	if( mPinchPer > mPinchPerThresh ){
-		if( ! mIsPastPinchThresh ){
-			mPinchHighlightRadius = 650.0f;
-			mIsPastPinchThresh = true;
-		}
-		
-		
-		
+		if( ! mIsPastPinchThresh ) mPinchHighlightRadius = 650.0f;
 		mPinchAlphaPer -= ( mPinchAlphaPer ) * 0.1f;
+		mIsPastPinchThresh = true;
 		
-		if( G_CURRENT_LEVEL == G_TRACK_LEVEL ){
-			mFovDest = 70.0f;
-		} else if( G_CURRENT_LEVEL == G_ALBUM_LEVEL ){
-			mFovDest = 85.0f;
-		} else if( G_CURRENT_LEVEL == G_ARTIST_LEVEL ){
-			mFovDest = 85.0f;
-		} else {
-			mFovDest = G_DEFAULT_FOV;
-		}
+		if( G_CURRENT_LEVEL == G_TRACK_LEVEL )			mFovDest = 70.0f;
+		else if( G_CURRENT_LEVEL == G_ALBUM_LEVEL )		mFovDest = 85.0f;
+		else if( G_CURRENT_LEVEL == G_ARTIST_LEVEL )	mFovDest = 85.0f;
+		else											mFovDest = 85.0f;
+		
 		mFov -= ( mFov - mFovDest ) * 0.2f;
-		
+	
+// OTHERWISE...
 	} else {
-		if( mIsPastPinchThresh ){
-			mPinchHighlightRadius = 125.0f;
-			mIsPastPinchThresh = false;
-		}
-		
+		if( mIsPastPinchThresh ) mPinchHighlightRadius = 125.0f;
 		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.1f;
-		mFovDest = G_DEFAULT_FOV;
+		mIsPastPinchThresh = false;
 		
-		mFov -= ( mFov - mFovDest ) * 0.04f;
+		mFovDest = G_DEFAULT_FOV;
+		mFov -= ( mFov - mFovDest ) * 0.075f;
 	}
 	
 	
-	int currentLevel = 0;
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){
-		currentLevel	= selectedNode->mGen;
 		mCamDistDest	= selectedNode->mIdealCameraDist * cameraDistMulti;
-		
-		
 		
 		if( selectedNode->mParentNode && mPinchPer > mPinchPerThresh ){
 			Vec3f dirToParent = selectedNode->mParentNode->mTransPos - selectedNode->mTransPos;
@@ -1334,11 +1334,11 @@ void KeplerApp::updateCamera()
 	G_CURRENT_LEVEL = mZoomDest;
 	
 	
-	if( mPinchPer > mPinchPerThresh && ! mAlphaWheel.getShowWheel() && currentLevel <= G_ALPHA_LEVEL ){
-		mAlphaWheel.setShowWheel( true ); 
+	if( mPinchPer > mPinchPerThresh && ! mAlphaWheel.getShowWheel() && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
+		//mAlphaWheel.setShowWheel( true ); 
 		
 	} else if( mPinchPer <= mPinchPerThresh && mAlphaWheel.getShowWheel() ){
-		mAlphaWheel.setShowWheel( false ); 
+		//mAlphaWheel.setShowWheel( false ); 
 	}
 	
 
@@ -1444,7 +1444,7 @@ void KeplerApp::drawScene()
 // SKYDOME
 	Color c = Color( CM_HSV, mPinchPer * 0.2f + 0.475f, 1.0f - mPinchPer * 0.5f, 1.0f );
 	if( mIsPastPinchThresh )
-		c = Color( CM_HSV, mPinchPer * 0.3f + 0.7f, 1.0f - mPinchPer * 0.5f, 1.0f );
+		c = Color( CM_HSV, mPinchPer * 0.3f + 0.7f, 1.0f, 1.0f );
     gl::color( c * pow( 1.0f - zoomOff, 3.0f ) );
     mSkyDome.enableAndBind();
     gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS, 24 );
@@ -1582,16 +1582,9 @@ void KeplerApp::drawScene()
 			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
 			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor, 1.0f ) );
-//			glLightfv( GL_LIGHT0, GL_SPECULAR, ColorA( artistNode->mGlowColor, 1.0f ) );
-
-			//glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, ColorA( artistNode->mGlowColor, 1.0f ) );
-			//glMaterialf(  GL_FRONT_AND_BACK, GL_SHININESS, 20.0f );
 			
 			gl::enableAlphaBlending();
-			//glMaterialfv( GL_FRONT_AND_BACK, GL_EMISSION, ColorA( 0.4f, 0.1f, 0.0f, 1.0f ) );
 			sortedNodes[i]->drawPlanet();
-
-			//glMaterialfv( GL_FRONT_AND_BACK, GL_EMISSION, ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
 			sortedNodes[i]->drawClouds( mCloudsTex );
 			
 

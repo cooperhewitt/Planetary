@@ -470,8 +470,6 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			gl::translate( mTransPos );
 			clouds[mCloudTexIndex].enableAndBind();
 			
-			//glEnable( GL_LIGHTING );
-			
 			gl::enableAdditiveBlending();
 			gl::pushModelView();
 			float radius = mRadius * mDeathPer + mCloudLayerRadius;

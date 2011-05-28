@@ -35,8 +35,8 @@ public:
 
 	enum ButtonId { NO_BUTTON, PREV_PLAYLIST, NEXT_PLAYLIST, SHOW_WHEEL,
                     GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, PREV_TRACK, 
-                    PLAY_PAUSE, NEXT_TRACK, SHUFFLE, REPEAT, SLIDER, HELP, DRAW_RINGS, 
-                    DRAW_TEXT, USE_GYRO, DEBUG_FEATURE };
+                    PLAY_PAUSE, NEXT_TRACK, SHUFFLE, REPEAT, SLIDER, 
+					HELP, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE, TEST_FEATURE };
 	
 	void setup( AppCocoaTouch *app, Orientation orientation, const ci::Font &font, const ci::Font &fontSmall, const ci::gl::Texture &buttonsTex, 
 																												const ci::gl::Texture &bigButtonsTex, 
@@ -48,23 +48,31 @@ public:
 	bool touchesMoved( TouchEvent event );	
 	bool touchesEnded( TouchEvent event );
     void setInterfaceOrientation( const Orientation &orientation);
-	
+
+    void setShowSettings(bool visible) { mShowSettings = visible; mShowSettingsButton.setOn(visible); };
     // State stuff, passed onto UI classes directly...
     // (not gettable, state lives elsewhere and UI changes are handled with callbacks)
     // (all these things should be called in App::update())
     // TODO: investigate doing this automagically with &references or *pointers?
+
 	void setPlaying(bool playing) { mPlayPauseButton.setOn(playing); }
-    //void setAlphaWheelVisible(bool visible) { mAlphaWheelButton.setOn(visible); };
-    void setOrbitsVisible(bool visible) { mOrbitsButton.setOn(visible); };
-    void setLabelsVisible(bool visible) { mLabelsButton.setOn(visible); };
-    void setHelpVisible(bool visible) { mHelpButton.setOn(visible); };
+    void setAlphaWheelVisible(bool visible) { mAlphaWheelButton.setOn(visible); };
+
+    void setHelpVisible(bool visible) {		mHelpButton.setOn(visible); };
+	void setDebugVisible(bool visible) {	mDebugButton.setOn(visible); };
+	void setFeatureVisible(bool visible) {	mFeatureButton.setOn(visible); };
+	void setGyroVisible(bool visible) {		mGyroButton.setOn(visible); };
+    void setOrbitsVisible(bool visible) {	mOrbitsButton.setOn(visible); };
+    void setLabelsVisible(bool visible) {	mLabelsButton.setOn(visible); };	
+	void setRepeatVisible(bool visible) {	mRepeatButton.setOn(visible); };
+	void setShuffleVisible(bool visible) {	mShuffleButton.setOn(visible); };
+	
     void setElapsedSeconds(int elapsedTime) { mElapsedTimeLabel.setSeconds(elapsedTime); }
     void setRemainingSeconds(int remainingTime) { mRemainingTimeLabel.setSeconds(remainingTime); }
     void setCurrentTrack(string currentTrack) { mTrackInfoLabel.setText(currentTrack); }
     void setPlaylist(string playlist) { mPlaylistLabel.setText(playlist); }
     void setLastTrackChangeTime(float time) { mTrackInfoLabel.setLastTrackChangeTime(time); }
     void setPlayheadProgress(float value) { mPlayheadSlider.setValue(value); }
-    void setShowSettings(bool visible) { mShowSettings = visible; };
 
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>
@@ -155,8 +163,7 @@ private:
     Slider mPlayheadSlider;
     TimeLabel mRemainingTimeLabel;    
 
-    // alpha wheel... ROBERT-FIXME: bring this back
-    //ToggleButton mAlphaWheelButton;
+    ToggleButton mAlphaWheelButton;
 
     // playlist controls
     SimpleButton mPreviousPlaylistButton;
@@ -169,6 +176,7 @@ private:
         ToggleButton mOrbitsButton;
         ToggleButton mLabelsButton;
         ToggleButton mDebugButton;
+        ToggleButton mFeatureButton;
         ToggleButton mGyroButton;
 		ToggleButton mShuffleButton;
 		ToggleButton mRepeatButton;
