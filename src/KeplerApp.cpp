@@ -82,7 +82,6 @@ class KeplerApp : public AppCocoaTouch {
 	void			updateGyro();
 	void			updateArcball();
 	void			updateCamera();
-	void			updatePlayhead();
 	virtual void	draw();
 	void			drawNoArtists();
     void            drawScene();
@@ -127,21 +126,13 @@ class KeplerApp : public AppCocoaTouch {
     CMMotionManager *motionManager;
     CMAttitude *referenceAttitude;
 
-	
-	
 // AUDIO
 	ipod::Player		mIpodPlayer;
 	ipod::PlaylistRef	mCurrentAlbum;
-	double				mCurrentTrackPlayheadTime;
-	double				mCurrentTrackLength;
-	int					mPlaylistIndex;
-	
-// BREADCRUMBS
-//	Breadcrumbs		mBreadcrumbs;	
+	int					mPlaylistIndex; // FIXME: move this into State
 	
 // PLAY CONTROLS
 	PlayControls	mPlayControls;
-	float			mPlayheadPer;	// song percent complete
 	
 // CAMERA PERSP
 	CameraPersp		mCam;
@@ -1160,11 +1151,13 @@ void KeplerApp::update()
 
         updateArcball();
 
-        // set mCurrentTrackPlayheadTime & mCurrentTrackLength for mPlayControls and mWorld.mPlayingTrackNode
-        updatePlayhead();
+        // for mPlayControls and mWorld.mPlayingTrackNode
+		double currentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
+        // TODO: cache this when playing track changes
+		double currentTrackLength = mIpodPlayer.getPlayingTrack()->getLength();
 
 		if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
-			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
+			mWorld.mPlayingTrackNode->updateAudioData( currentTrackPlayheadTime );
 		}
 		
         mWorld.update( mMatrix );
@@ -1200,9 +1193,9 @@ void KeplerApp::update()
         mPlayControls.setLabelsVisible( G_DRAW_TEXT );
         mPlayControls.setHelpVisible( G_HELP );
         mPlayControls.setShowSettings( G_SHOW_SETTINGS );
-        mPlayControls.setElapsedSeconds( (int)mCurrentTrackPlayheadTime );
-        mPlayControls.setRemainingSeconds( -(int)(mCurrentTrackLength - mCurrentTrackPlayheadTime) );
-        mPlayControls.setPlayheadProgress( mCurrentTrackPlayheadTime / mCurrentTrackLength );
+        mPlayControls.setElapsedSeconds( (int)currentTrackPlayheadTime );
+        mPlayControls.setRemainingSeconds( -(int)(currentTrackLength - currentTrackPlayheadTime) );
+        mPlayControls.setPlayheadProgress( currentTrackPlayheadTime / currentTrackLength );
 
     }
     else {
@@ -1374,15 +1367,6 @@ void KeplerApp::updateCamera()
 	mCam.getBillboardVectors( &mBbRight, &mBbUp );
 	mCamNormal = mEye - mCenter;
 	mCamNormal.normalize();
-}
-
-void KeplerApp::updatePlayhead()
-{
-	//if( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ){
-		mCurrentTrackPlayheadTime	= mIpodPlayer.getPlayheadTime();
-        // TODO: cache this when playing track changes
-		mCurrentTrackLength			= mIpodPlayer.getPlayingTrack()->getLength();
-	//}
 }
 
 void KeplerApp::draw()
@@ -1796,9 +1780,6 @@ void KeplerApp::drawScene()
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
 
-//    mBreadcrumbs.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
-    
-    //mPlayControls.draw( mInterfaceOrientation, mUiButtonsTex, mCurrentTrackTex, &mAlphaWheel, mFontMediTiny, mUiLayer.getPanelYPos(), mCurrentTrackPlayheadTime, mCurrentTrackLength, mElapsedSecondsSinceTrackChange );
     mPlayControls.draw( mUiLayer.getPanelYPos() );
 	
 	if( G_DEBUG ){
@@ -1947,7 +1928,6 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 	else {
 //		console() << "    trackchanged but nothing's playing" << endl;
 
-		//mCurrentTrackTex.reset();
         mPlayControls.setCurrentTrack("");
 		// TOM: I put this next line in. Is this how to go to album level view when last track ends?
 		mState.setSelectedNode( mState.getSelectedAlbumNode() );
@@ -1955,8 +1935,6 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
 	}
 
-    updatePlayhead();
-    
     // TODO: profile with Flurry start/stopTimedEvent?
     
 //    console() << "onPlayerTrackChanged done in " << (getElapsedSeconds() - mElapsedSecondsSinceTrackChange) << " seconds" << std::endl;
@@ -1967,28 +1945,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
-    // TODO: a tidy getStringForPlayerState function?
     std::map<string, string> params;
-    switch(player->getPlayState()) {
-        case ipod::Player::StateStopped:
-            params["State"] = "Stopped";
-            break;
-        case ipod::Player::StatePlaying:
-            params["State"] = "Playing";
-            break;
-        case ipod::Player::StatePaused:
-            params["State"] = "Paused";
-            break;
-        case ipod::Player::StateInterrupted:
-            params["State"] = "Interrupted";
-            break;
-        case ipod::Player::StateSeekingForward:
-            params["State"] = "Seeking Forward";
-            break;
-        case ipod::Player::StateSeekingBackward:
-            params["State"] = "Seeking Backward";
-            break;
-    }
+    params["State"] = player->getPlayStateString();
     Flurry::getInstrumentation()->logEvent("Player State Changed", params);
     
     if ( mState.getSelectedNode() == NULL ) {
