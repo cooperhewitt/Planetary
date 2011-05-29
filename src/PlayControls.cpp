@@ -368,7 +368,7 @@ void PlayControls::updateElements()
         drawableElements.push_back(&mLabelsButton);
         drawableElements.push_back(&mDebugButton);
         drawableElements.push_back(&mFeatureButton);
-        drawableElements.push_back(&mGyroButton);
+        drawableElements.push_back(&mGyroButton); // FIXME: only if we're using Gyro
         drawableElements.push_back(&mShuffleButton);
         drawableElements.push_back(&mRepeatButton);
     }
@@ -409,8 +409,6 @@ void PlayControls::updateElements()
 
 void PlayControls::draw(float y)
 {
-    float t = app::getElapsedSeconds();
-    
     mLastDrawY = y;
 
     // FIXME: make an mActive bool so we can skip interaction if the panel is hiding
@@ -444,16 +442,14 @@ void PlayControls::draw(float y)
 	    
     gl::popModelView();
     
-    gl::disableAlphaBlending();
-    
-    float t2 = app::getElapsedSeconds() - t;
-    console() << "PlayControls::draw() elapsed time = " << t2 << std::endl;
+    gl::disableAlphaBlending();    
 }
 
 void PlayControls::dragPlayheadToPos(Vec2f pos) 
 {
-    // adjust for orientation
+    // adjust for orientation and offset
     pos = (mOrientationMatrix.inverted() * Vec3f(pos,0)).xy();
+    pos.y -= mLastDrawY;
     
     // FIXME: assumes slider is horizontal :)
     Rectf rect = mPlayheadSlider.getRect();

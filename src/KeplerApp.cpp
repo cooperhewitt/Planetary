@@ -394,18 +394,13 @@ void KeplerApp::remainingSetup()
 	
     // NB:- order of UI init is important to register callbacks in correct order
     
-	// BREADCRUMBS
-//	mBreadcrumbs.setup( this, mFontMediSmall, mOrientationHelper.getInterfaceOrientation() );
-//	mBreadcrumbs.registerBreadcrumbSelected( this, &KeplerApp::onBreadcrumbSelected );
-//	mBreadcrumbs.setHierarchy(mState.getHierarchy());
-
 	// PLAY CONTROLS
 	mPlayControls.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontMediSmall, mFontMediTiny, mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
 
 	// UILAYER
-	mUiLayer.setup( this, mOrientationHelper.getInterfaceOrientation() );
+	mUiLayer.setup( this, mOrientationHelper.getInterfaceOrientation(), G_SHOW_SETTINGS );
 
 	// HELP LAYER
 	mHelpLayer.setup( this, mOrientationHelper.getInterfaceOrientation() );
@@ -779,10 +774,8 @@ bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
 {
     Vec2f worldPos = (mInverseOrientationMatrix * Vec3f(screenPos,0)).xy();
     bool aboveUI = worldPos.y < mUiLayer.getPanelYPos();
-//    bool belowBreadcrumbs = worldPos.y > mBreadcrumbs.getHeight();
     bool notTab = !mUiLayer.getPanelTabRect().contains(worldPos);
-    bool valid = aboveUI && notTab;// && belowBreadcrumbs;
-    return valid;
+    return aboveUI && notTab;
 }
 
 
@@ -795,7 +788,6 @@ bool KeplerApp::orientationChanged( OrientationEvent event )
         mHelpLayer.setInterfaceOrientation(orientation);
         mUiLayer.setInterfaceOrientation(orientation);
         mAlphaWheel.setInterfaceOrientation(orientation);
-//        mBreadcrumbs.setInterfaceOrientation(orientation);    
     }
     setInterfaceOrientation(orientation);
 
@@ -855,10 +847,7 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
     parameters["Count"] = ""+mData.mFilteredArtists.size();
     Flurry::getInstrumentation()->logEvent("Letter Selected" , parameters);
 
-	//console() << "Letter " << mState.getAlphaChar() << " has " << mData.mFilteredArtists.size() << " artists" << std::endl;
-	
 	mWorld.filterNodes();
-//	mBreadcrumbs.setHierarchy( mState.getHierarchy() );	
     
     mState.setSelectedNode( NULL );
     
@@ -1184,7 +1173,9 @@ void KeplerApp::update()
 			mParticleController.buildDustVertexArray( selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.05f * mFadeInArtistToAlbum );
 		}
 		
+        mUiLayer.setShowSettings( G_SHOW_SETTINGS );
         mUiLayer.update();
+        
 		mHelpLayer.update();
 		mAlphaWheel.update( mFov );
         

@@ -27,12 +27,14 @@ class UiLayer {
     
 	enum	ButtonTexId { TEX_PANEL_UP, TEX_PANEL_UP_ON, TEX_PANEL_DOWN, TEX_PANEL_DOWN_ON };
 	
-	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation );
+	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation, const bool &showSettings );
 	
     bool	touchesBegan( ci::app::TouchEvent event );
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
+
     void    setInterfaceOrientation( const ci::app::Orientation &orientation );
+    void    setShowSettings( bool visible );
     
 	void	update();
 	void	draw( const ci::gl::Texture &uiButtonsTex );
@@ -43,16 +45,13 @@ class UiLayer {
 	void	setIsPanelOpen( bool b ){ mIsPanelOpen = b; mHasPanelBeenDragged = false; }
 	
  private:
-
-    void        setPanelPos( float y, bool doneDragging );
-    ci::Rectf   transformRect( const ci::Rectf &worldRect, const ci::Matrix44f &matrix );
     
 	ci::app::AppCocoaTouch *mApp;
 	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded, mCbOrientationChanged;
 	
 	float			mPanelOpenHeight;
 	float			mPanelSettingsHeight;
-    float           mPanelHeight;           // TODO: const?
+    float           mPanelHeight;           // varies depending on if settings are shown
     float           mPanelOpenY;            // updated in orientationChanged, interfaceHeight-mPanelHeight
     float           mPanelClosedY;          // updated in orientationChanged, interfaceHeight
 	ci::Rectf		mPanelRect;				// Rect defining the panel width and height
@@ -64,8 +63,10 @@ class UiLayer {
     ci::Vec2f		mPanelTabTouchOffset;	// Remember the touch position value when dragging
 	
     // TODO: use a Matrix32f (after we write one or someone adds one to Cinder - look at the Cairo one first)
-    ci::Matrix44f   mOrientationMatrix;     // For adjusting ui drawing and hitrects
-    
+    ci::Matrix44f        mOrientationMatrix;     // For adjusting ui drawing and hitrects    
     ci::app::Orientation mInterfaceOrientation;
+    ci::Vec2f            mInterfaceSize;
+
+    ci::Rectf   transformRect( const ci::Rectf &worldRect, const ci::Matrix44f &matrix );
 };
 
