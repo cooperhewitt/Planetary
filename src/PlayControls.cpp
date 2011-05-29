@@ -477,66 +477,41 @@ PlayControls::ButtonId PlayControls::findButtonUnderTouches(vector<TouchEvent::T
     Rectf transformedBounds = transformRect( Rectf(0, mLastDrawY, mInterfaceSize.x, mInterfaceSize.y), mOrientationMatrix );    
 	Rectf otherTransBounds	= transformRect( Rectf( 0, mLastDrawY - 50.0f, mInterfaceSize.x - 170.0f, mInterfaceSize.y - 20.0f ), mOrientationMatrix );
 
-    // FIXME: this is really dumb, make a base class for touchable things and use pointers in a vector instead
-    vector<Rectf> touchRects;
-    touchRects.push_back(mCurrentTrackButton.getRect());
-    touchRects.push_back(mGalaxyButton.getRect());
-    touchRects.push_back(mPlayheadSlider.getRect());
-    touchRects.push_back(mAlphaWheelButton.getRect());
-    touchRects.push_back(mShowSettingsButton.getRect());
+    // TODO: should we cache this and only update it if mShowSettings changes?
+    vector<UIElement*> elements;
+    elements.push_back(&mCurrentTrackButton);
+    elements.push_back(&mGalaxyButton);
+    elements.push_back(&mPlayheadSlider);
+    elements.push_back(&mAlphaWheelButton);
+    elements.push_back(&mShowSettingsButton);
     if (mShowSettings) {
-        touchRects.push_back(mHelpButton.getRect());
-        touchRects.push_back(mOrbitsButton.getRect());
-        touchRects.push_back(mLabelsButton.getRect());
-        touchRects.push_back(mDebugButton.getRect());
-        touchRects.push_back(mFeatureButton.getRect());
-        touchRects.push_back(mGyroButton.getRect()); // FIXME: only if we're using Gyro
-		touchRects.push_back(mShuffleButton.getRect());
-		touchRects.push_back(mRepeatButton.getRect());
+        elements.push_back(&mHelpButton);
+        elements.push_back(&mOrbitsButton);
+        elements.push_back(&mLabelsButton);
+        elements.push_back(&mDebugButton);
+        elements.push_back(&mFeatureButton);
+        elements.push_back(&mGyroButton); // FIXME: only if we're using Gyro
+		elements.push_back(&mShuffleButton);
+		elements.push_back(&mRepeatButton);
     }
-    touchRects.push_back(mPreviousTrackButton.getRect());
-    touchRects.push_back(mPlayPauseButton.getRect());
-    touchRects.push_back(mNextTrackButton.getRect());
-    touchRects.push_back(mPreviousPlaylistButton.getRect());
-    touchRects.push_back(mNextPlaylistButton.getRect());
+    elements.push_back(&mPreviousTrackButton);
+    elements.push_back(&mPlayPauseButton);
+    elements.push_back(&mNextTrackButton);
+    elements.push_back(&mPreviousPlaylistButton);
+    elements.push_back(&mNextPlaylistButton);
 
-    vector<int> touchTypes;
-    touchTypes.push_back(mCurrentTrackButton.getId());
-    touchTypes.push_back(mGalaxyButton.getId());
-    touchTypes.push_back(mPlayheadSlider.getId());
-    touchTypes.push_back(mAlphaWheelButton.getId());
-    touchTypes.push_back(mShowSettingsButton.getId());    
-    if (mShowSettings) {
-        touchTypes.push_back(mHelpButton.getId());
-        touchTypes.push_back(mOrbitsButton.getId());
-        touchTypes.push_back(mLabelsButton.getId());
-        touchTypes.push_back(mDebugButton.getId());
-        touchTypes.push_back(mFeatureButton.getId());
-        touchTypes.push_back(mGyroButton.getId()); // FIXME: only if we're using Gyro 
-		touchTypes.push_back(mShuffleButton.getId());
-		touchTypes.push_back(mRepeatButton.getId());
-    }
-    touchTypes.push_back(mPreviousTrackButton.getId());
-    touchTypes.push_back(mPlayPauseButton.getId());
-    touchTypes.push_back(mNextTrackButton.getId());    
-    touchTypes.push_back(mPreviousPlaylistButton.getId());
-    touchTypes.push_back(mNextPlaylistButton.getId());    
-
-    // offset and transform:
-    for (int i = 0; i < touchRects.size(); i++) {
-        Rectf rect = touchRects[i].getOffset( Vec2f(0, mLastDrawY) );
-        touchRects[i] = transformRect( rect, mOrientationMatrix );
-    }
-    
     // check for touches and return first one found
     // TODO: accept more than one touch, by ID?
     for (int j = 0; j < touches.size(); j++) {
         TouchEvent::Touch touch = touches[j];
         Vec2f pos = touch.getPos();
         if ( transformedBounds.contains( pos ) || otherTransBounds.contains( pos ) ) {
-            for (int i = 0; i < touchRects.size(); i++) {
-                if (touchRects[i].contains(pos)) {
-                    return ButtonId(touchTypes[i]);
+            for (int i = 0; i < elements.size(); i++) {
+                UIElement *element = elements[i];
+                // offset and transform:
+                Rectf rect = transformRect( element->getRect().getOffset( Vec2f(0, mLastDrawY) ), mOrientationMatrix );            
+                if (rect.contains(pos)) {
+                    return ButtonId(element->getId());
                 }
             }		
         }

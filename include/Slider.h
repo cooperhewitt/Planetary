@@ -7,12 +7,13 @@
 //
 
 #pragma once
+#include "UIElement.h"
 #include "cinder/Rect.h"
 #include "cinder/gl/gl.h"
 
 using namespace ci;
 
-class Slider {
+class Slider : public UIElement {
 public:
     
     Slider() {}

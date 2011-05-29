@@ -7,40 +7,12 @@
 //
 
 #pragma once
-#include "cinder/Rect.h"
+#include "UIElement.h"
 
 using namespace ci;
 
-// button is an interface class, draw() is pure virtual
-class Button {
-public:
-
-    Button() {}
-    virtual ~Button() {}    
-
-    void setup(int buttonId)
-    {
-        mButtonId = buttonId;
-    }
-    
-    int getId() { return mButtonId; }
-
-    void setRect(Rectf rect) { mRect = rect; }
-    Rectf getRect() { return mRect; }
-
-    virtual void draw() = 0;
-    
-protected:
-    
-    void drawTextureRect(Rectf textureRect);
-    
-    int mButtonId;    
-    Rectf mRect;
-    
-};
-
 // toggle button is either on or off (e.g. show orbits)
-class ToggleButton : public Button {
+class ToggleButton : public UIElement {
 public:
     
     ToggleButton() {}
@@ -51,7 +23,7 @@ public:
                Rectf onTextureRect, 
                Rectf offTextureRect)
     {
-        Button::setup(buttonId);
+        UIElement::setup(buttonId);
         mOn = on;
         mOnTextureRect = onTextureRect;
         mOffTextureRect = offTextureRect; 
@@ -70,7 +42,7 @@ protected:
 };
 
 // simple button is either being pressed or not (e.g. next, prev)
-class SimpleButton : public Button {
+class SimpleButton : public UIElement {
 public:
     
     SimpleButton() {}
@@ -80,7 +52,7 @@ public:
                Rectf downTextureRect, 
                Rectf upTextureRect)
     {
-        Button::setup(buttonId),
+        UIElement::setup(buttonId),
         mDown = false;
         mDownTextureRect = downTextureRect;
         mUpTextureRect = upTextureRect;
@@ -99,7 +71,7 @@ protected:
 };
 
 // two-state button is either being pressed or not and has two possible states (e.g. play/pause)
-class TwoStateButton : public Button {
+class TwoStateButton : public UIElement {
 public:
     
     TwoStateButton() {}
@@ -110,7 +82,7 @@ public:
                Rectf offDownTextureRect, Rectf offUpTextureRect,
                Rectf onDownTextureRect, Rectf onUpTextureRect)
     {
-        Button::setup(buttonId),
+        UIElement::setup(buttonId),
         mOn = on;
         mDown = false;
         mOnDownTextureRect = onDownTextureRect;

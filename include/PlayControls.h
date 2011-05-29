@@ -37,10 +37,15 @@ public:
                     GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, PREV_TRACK, 
                     PLAY_PAUSE, NEXT_TRACK, SHUFFLE, REPEAT, SLIDER, 
 					HELP, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE, TEST_FEATURE };
-	
-	void setup( AppCocoaTouch *app, Orientation orientation, const ci::Font &font, const ci::Font &fontSmall, const ci::gl::Texture &buttonsTex, 
-																												const ci::gl::Texture &bigButtonsTex, 
-																												const ci::gl::Texture &smallButtonsTex );
+
+    void setup( AppCocoaTouch *app, 
+                Orientation orientation, 
+                const ci::Font &font, 
+                const ci::Font &fontSmall, 
+                const ci::gl::Texture &buttonsTex, 
+                const ci::gl::Texture &bigButtonsTex, 
+                const ci::gl::Texture &smallButtonsTex );
+    
 	void update();
     void draw(float y);
 
@@ -86,9 +91,6 @@ public:
 	{
 		return mCallbacksPlayheadMoved.registerCb(std::bind1st(std::mem_fun(callback), obj));
 	}	
-	
-	
-	void createPlaylistTexture( string playlistName, const Font &font );
 	
 private:
 					  
