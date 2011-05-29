@@ -22,14 +22,14 @@ public:
     void setup(int buttonId, 
                bool on, 
                const gl::Texture &texture,
-               Rectf onTextureRect, 
-               Rectf offTextureRect)
+               Area onTextureArea, 
+               Area offTextureArea)
     {
         UIElement::setup(buttonId);
         mOn = on;
         mTexture = texture;
-        mOnTextureRect = onTextureRect;
-        mOffTextureRect = offTextureRect; 
+        mOnTextureArea = onTextureArea;
+        mOffTextureArea = offTextureArea; 
     }
     
     virtual void draw();
@@ -40,7 +40,7 @@ public:
 protected:
     
     bool mOn;
-    Rectf mOnTextureRect, mOffTextureRect;
+    Area mOnTextureArea, mOffTextureArea;
     gl::Texture mTexture;
 };
 
@@ -53,14 +53,14 @@ public:
     
     void setup(int buttonId, 
                const gl::Texture &texture,
-               Rectf downTextureRect, 
-               Rectf upTextureRect)
+               Area downTextureArea, 
+               Area upTextureArea)
     {
         UIElement::setup(buttonId),
         mTexture = texture;
         mDown = false;
-        mDownTextureRect = downTextureRect;
-        mUpTextureRect = upTextureRect;
+        mDownTextureArea = downTextureArea;
+        mUpTextureArea = upTextureArea;
     }
 
     bool isDown() { return mDown; }
@@ -71,7 +71,7 @@ public:
 protected:
     
     bool mDown;
-    Rectf mUpTextureRect, mDownTextureRect;
+    Area mUpTextureArea, mDownTextureArea;
     gl::Texture mTexture;
     
 };
@@ -86,17 +86,17 @@ public:
     void setup(int buttonId, 
                bool on, 
                const gl::Texture &texture,               
-               Rectf offDownTextureRect, Rectf offUpTextureRect,
-               Rectf onDownTextureRect, Rectf onUpTextureRect)
+               Area offDownTextureArea, Area offUpTextureArea,
+               Area onDownTextureArea, Area onUpTextureArea)
     {
         UIElement::setup(buttonId),
         mOn = on;
         mTexture = texture;
         mDown = false;
-        mOnDownTextureRect = onDownTextureRect;
-        mOnUpTextureRect = onUpTextureRect;
-        mOffDownTextureRect = offDownTextureRect;
-        mOffUpTextureRect = offUpTextureRect;
+        mOnDownTextureArea = onDownTextureArea;
+        mOnUpTextureArea = onUpTextureArea;
+        mOffDownTextureArea = offDownTextureArea;
+        mOffUpTextureArea = offUpTextureArea;
     }
     
     bool isDown() { return mDown; }
@@ -109,7 +109,7 @@ public:
 protected:
     
     bool mDown, mOn;
-    Rectf mOnUpTextureRect, mOnDownTextureRect, mOffUpTextureRect, mOffDownTextureRect;
+    Area mOnUpTextureArea, mOnDownTextureArea, mOffUpTextureArea, mOffDownTextureArea;
     gl::Texture mTexture;
     
 };

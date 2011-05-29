@@ -11,21 +11,18 @@
 
 void ToggleButton::draw()
 {
-    Rectf textureRect = mOn ? mOnTextureRect : mOffTextureRect;
-    
-    UIElement::drawTextureRect(textureRect);            
+    Area textureArea = mOn ? mOnTextureArea : mOffTextureArea;
+    gl::draw(mTexture, textureArea, mRect);
 }
 
 void SimpleButton::draw()
 {
-    Rectf textureRect = mDown ? mDownTextureRect : mUpTextureRect;
-    
-    UIElement::drawTextureRect(textureRect);      
+    Area textureArea = mDown ? mDownTextureArea : mUpTextureArea;
+    gl::draw(mTexture, textureArea, mRect);
 }
 
 void TwoStateButton::draw()
 {
-    Rectf textureRect = mOn ? (mDown ? mOnDownTextureRect : mOnUpTextureRect) : (mDown ? mOffDownTextureRect : mOffUpTextureRect) ;
-    
-    UIElement::drawTextureRect(textureRect);    
+    Area textureArea = mOn ? (mDown ? mOnDownTextureArea : mOnUpTextureArea) : (mDown ? mOffDownTextureArea : mOffUpTextureArea) ;    
+    gl::draw(mTexture, textureArea, mRect);
 }

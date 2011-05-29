@@ -8,7 +8,7 @@
 
 #pragma once
 #include "UIElement.h"
-#include "cinder/Rect.h"
+#include "cinder/Area.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 
@@ -22,18 +22,18 @@ public:
     
     void setup(int id, 
                const gl::Texture &texture,               
-               Rectf bgTexRect, 
-               Rectf fgTexRect, 
-               Rectf thumbDownTexRect, 
-               Rectf thumbUpTexRect)
+               Area bgTexArea, 
+               Area fgTexArea, 
+               Area thumbDownTexArea, 
+               Area thumbUpTexArea)
     {
         UIElement::setup(id);
         mTexture = texture;
-        // texture rects:
-        mBgTexRect = bgTexRect;
-        mFgTexRect = fgTexRect;
-        mThumbDownTexRect = thumbDownTexRect;
-        mThumbUpTexRect = thumbUpTexRect;
+        // texture Areas:
+        mBgTexArea = bgTexArea;
+        mFgTexArea = fgTexArea;
+        mThumbDownTexArea = thumbDownTexArea;
+        mThumbUpTexArea = thumbUpTexArea;
         // state:
         mIsDragging = false;
     }
@@ -48,9 +48,7 @@ public:
     
 protected:
     
-    void drawTextureRect(Rectf rect, Rectf textureRect);
-
-    Rectf mFgTexRect, mBgTexRect, mThumbDownTexRect, mThumbUpTexRect; // texture coords, fixed
+    Area mFgTexArea, mBgTexArea, mThumbDownTexArea, mThumbUpTexArea; // texture coords, fixed
     gl::Texture mTexture;
     
     float mValue;

@@ -33,127 +33,129 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, const Fon
     
     ////////
 
-	float uw = 1.0f/8.0f;	// button tex width
-	float v1 = 0.0f;		// button tex off start y
-    float v2 = 0.5f;		// button tex on start y, off end y
-    float v3 = 1.0f;		// button tex on end y
+	float uw = uiBigButtonsTex.getWidth() / 8.0f; // button tex width
+	float v1 = 0.0f;                              // button tex off start y
+    float v2 = uiBigButtonsTex.getHeight() * 0.5f;// button tex on start y, off end y
+    float v3 = uiBigButtonsTex.getHeight();       // button tex on end y
 
     mGalaxyButton.setup( GOTO_GALAXY,   // ID
                          uiBigButtonsTex,
-						 Rectf(uw*0.0f,v2,uw*1.0f,v3),  // on texture
-						 Rectf(uw*0.0f,v1,uw*1.0f,v2)); // off texture
+						 Area(uw*0.0f,v2,uw*1.0f,v3),  // on texture
+						 Area(uw*0.0f,v1,uw*1.0f,v2)); // off texture
 	
     mCurrentTrackButton.setup(GOTO_CURRENT_TRACK,   // ID
                               uiBigButtonsTex,
-                              Rectf(uw*1.0f,v2,uw*2.0f,v3),  // on texture
-                              Rectf(uw*1.0f,v1,uw*2.0f,v2)); // off texture
+                              Area(uw*1.0f,v2,uw*2.0f,v3),  // on texture
+                              Area(uw*1.0f,v1,uw*2.0f,v2)); // off texture
 
 	mShowSettingsButton.setup(SETTINGS, 
                               false, 
                               uiBigButtonsTex,
-                              Rectf(uw*2.0f,v2,uw*3.0f,v3),  // on texture
-                              Rectf(uw*2.0f,v1,uw*3.0f,v2)); // off texture   
+                              Area(uw*2.0f,v2,uw*3.0f,v3),  // on texture
+                              Area(uw*2.0f,v1,uw*3.0f,v2)); // off texture   
 
     mPreviousTrackButton.setup(PREV_TRACK, 
                                uiBigButtonsTex,
-                               Rectf(uw*3.0f,v2,uw*4.0f,v3),  // on texture
-                               Rectf(uw*3.0f,v1,uw*4.0f,v2)); // off texture
+                               Area(uw*3.0f,v2,uw*4.0f,v3),  // on texture
+                               Area(uw*3.0f,v1,uw*4.0f,v2)); // off texture
 
     mPlayPauseButton.setup(PLAY_PAUSE, 
                            false,               // on
                            uiBigButtonsTex,
-                           Rectf(uw*4.0f,v2,uw*5.0f,v3), // offUp   
-                           Rectf(uw*4.0f,v1,uw*5.0f,v2), // offDown
-                           Rectf(uw*5.0f,v2,uw*6.0f,v3), // onUp
-                           Rectf(uw*5.0f,v1,uw*6.0f,v2));// onDown
+                           Area(uw*4.0f,v2,uw*5.0f,v3), // offUp   
+                           Area(uw*4.0f,v1,uw*5.0f,v2), // offDown
+                           Area(uw*5.0f,v2,uw*6.0f,v3), // onUp
+                           Area(uw*5.0f,v1,uw*6.0f,v2));// onDown
 
     mNextTrackButton.setup(NEXT_TRACK, 
                            uiBigButtonsTex,
-                           Rectf(uw*6.0f,v2,uw*7.0f,v3),  // on texture
-                           Rectf(uw*6.0f,v1,uw*7.0f,v2)); // off texture
+                           Area(uw*6.0f,v2,uw*7.0f,v3),  // on texture
+                           Area(uw*6.0f,v1,uw*7.0f,v2)); // off texture
 	
     mAlphaWheelButton.setup(SHOW_WHEEL,      // ID
                             false,           // initial toggle state
                             uiBigButtonsTex,
-                            Rectf(uw*7.0f,v2,uw*8.0f,v3),  // on texture
-                            Rectf(uw*7.0f,v1,uw*8.0f,v2)); // off texture    
+                            Area(uw*7.0f,v2,uw*8.0f,v3),  // on texture
+                            Area(uw*7.0f,v1,uw*8.0f,v2)); // off texture    
 
 	
     mPreviousPlaylistButton.setup(PREV_PLAYLIST, 
                                   uiBigButtonsTex,
-                                  Rectf(uw*3.0f,v2,uw*4.0f,v3),  // on texture
-                                  Rectf(uw*3.0f,v1,uw*4.0f,v2)); // off texture
+                                  Area(uw*3.0f,v2,uw*4.0f,v3),  // on texture
+                                  Area(uw*3.0f,v1,uw*4.0f,v2)); // off texture
     
     mNextPlaylistButton.setup(NEXT_PLAYLIST,
                               uiBigButtonsTex,
-                              Rectf(uw*6.0f,v2,uw*7.0f,v3),  // on texture
-                              Rectf(uw*6.0f,v1,uw*7.0f,v2)); // off texture
+                              Area(uw*6.0f,v2,uw*7.0f,v3),  // on texture
+                              Area(uw*6.0f,v1,uw*7.0f,v2)); // off texture
 
     
      
 
     // !!! SMALL BUTTONS !!!
-    uw = 1.0/10.0f;
+    uw = uiSmallButtonsTex.getWidth() / 10.0f;
 	v1 = 0.0f; 
-    v2 = 0.5f; 
-    v3 = 1.0f;
+    v2 = uiSmallButtonsTex.getHeight() * 0.5f; 
+    v3 = uiSmallButtonsTex.getHeight();
     
     {
         mHelpButton.setup(HELP, 
                           false, 
                           uiSmallButtonsTex,
-                          Rectf(uw*0.0f,v2,uw*1.0f,v3),  // on texture
-                          Rectf(uw*0.0f,v1,uw*1.0f,v2)); // off texture
+                          Area(uw*0.0f,v2,uw*1.0f,v3),  // on texture
+                          Area(uw*0.0f,v1,uw*1.0f,v2)); // off texture
         
         mGyroButton.setup(USE_GYRO, 
                             false, 
                             uiSmallButtonsTex,
-                            Rectf(uw*1.0f,v2,uw*2.0f,v3),  // on texture
-                            Rectf(uw*1.0f,v1,uw*2.0f,v2)); // off texture
+                            Area(uw*1.0f,v2,uw*2.0f,v3),  // on texture
+                            Area(uw*1.0f,v1,uw*2.0f,v2)); // off texture
         
         mOrbitsButton.setup(DRAW_RINGS, 
                             false, 
                             uiSmallButtonsTex,
-                            Rectf(uw*2.0f,v2,uw*3.0f,v3),  // on texture
-                            Rectf(uw*2.0f,v1,uw*3.0f,v2)); // off texture
+                            Area(uw*2.0f,v2,uw*3.0f,v3),  // on texture
+                            Area(uw*2.0f,v1,uw*3.0f,v2)); // off texture
 
         mLabelsButton.setup(DRAW_TEXT, 
                           false, 
                           uiSmallButtonsTex,
-                          Rectf(uw*3.0f,v2,uw*4.0f,v3),  // on texture
-                          Rectf(uw*3.0f,v1,uw*4.0f,v2)); // off texture
+                          Area(uw*3.0f,v2,uw*4.0f,v3),  // on texture
+                          Area(uw*3.0f,v1,uw*4.0f,v2)); // off texture
 
         mDebugButton.setup(DEBUG_FEATURE, 
                           false, 
                           uiSmallButtonsTex,
-                          Rectf(uw*4.0f,v2,uw*5.0f,v3),  // on texture
-                          Rectf(uw*4.0f,v1,uw*5.0f,v2)); // off texture
+                          Area(uw*4.0f,v2,uw*5.0f,v3),  // on texture
+                          Area(uw*4.0f,v1,uw*5.0f,v2)); // off texture
 		
 		mFeatureButton.setup(TEST_FEATURE, 
 						   false, 
                            uiSmallButtonsTex,
-						   Rectf(uw*5.0f,v2,uw*6.0f,v3),  // on texture
-						   Rectf(uw*5.0f,v1,uw*6.0f,v2)); // off texture
+						   Area(uw*5.0f,v2,uw*6.0f,v3),  // on texture
+						   Area(uw*5.0f,v1,uw*6.0f,v2)); // off texture
 		
 		mShuffleButton.setup(SHUFFLE, 
 							 false, 
                              uiSmallButtonsTex,
-							 Rectf(uw*6.0f,v2,uw*7.0f,v3),  // on texture
-							 Rectf(uw*6.0f,v1,uw*7.0f,v2)); // off texture
+							 Area(uw*6.0f,v2,uw*7.0f,v3),  // on texture
+							 Area(uw*6.0f,v1,uw*7.0f,v2)); // off texture
 		
 		mRepeatButton.setup(REPEAT, 
 							false, 
                             uiSmallButtonsTex,
-							Rectf(uw*7.0f,v2,uw*8.0f,v3),  // on texture
-							Rectf(uw*7.0f,v1,uw*8.0f,v2)); // off texture
+							Area(uw*7.0f,v2,uw*8.0f,v3),  // on texture
+							Area(uw*7.0f,v1,uw*8.0f,v2)); // off texture
     }
+    
+    const float vh = uiButtonsTex.getHeight();
     
     mPlayheadSlider.setup(SLIDER,          // ID
                           uiButtonsTex,
-                          Rectf(uw * 0.0f, 0.9f, uw * 1.0f, 1.0f),  // bg texture
-                          Rectf(uw * 2.0f, 0.9f, uw * 3.0f, 1.0f),  // fg texture
-                          Rectf(uw * 4.0f, 0.7f, uw * 5.0f, 0.9f),  // thumb on texture
-                          Rectf(uw * 4.0f, 0.5f, uw * 5.0f, 0.7f)); // thumb off texture
+                          Area(uw * 0.0f, vh * 0.9f, uw * 1.0f, vh * 1.0f),  // bg texture
+                          Area(uw * 2.0f, vh * 0.9f, uw * 3.0f, vh * 1.0f),  // fg texture
+                          Area(uw * 4.0f, vh * 0.7f, uw * 5.0f, vh * 0.9f),  // thumb on texture
+                          Area(uw * 4.0f, vh * 0.5f, uw * 5.0f, vh * 0.7f)); // thumb off texture
 
     /////// no textures please, we're British...
     

@@ -33,8 +33,6 @@ public:
     
 protected:
     
-    void drawTextureRect(const Rectf &textureRect);
-    
     int mId;    
     Rectf mRect;
     
