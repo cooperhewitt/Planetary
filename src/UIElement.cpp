@@ -10,9 +10,9 @@
 #include "cinder/gl/gl.h"
 
 // this is just a utility function, no shame in copying it into YourButton::draw() if you need to
-// FIXME: there must be a clean way to do this with Cinder already?
+// FIXME: but there must be a clean way to do this with Cinder already?
 // e.g. draw(Texture, uvRect, screenRect) - no?
-void UIElement::drawTextureRect(Rectf textureRect)
+void UIElement::drawTextureRect(const Rectf &textureRect)
 {
     glEnableClientState( GL_VERTEX_ARRAY );
     GLfloat verts[8];

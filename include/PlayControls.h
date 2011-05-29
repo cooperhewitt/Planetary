@@ -38,6 +38,9 @@ public:
                     PLAY_PAUSE, NEXT_TRACK, SHUFFLE, REPEAT, SLIDER, 
 					HELP, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE, TEST_FEATURE };
 
+    PlayControls() {}
+    ~PlayControls();
+    
     void setup( AppCocoaTouch *app, 
                 Orientation orientation, 
                 const ci::Font &font, 
@@ -120,10 +123,7 @@ private:
 	CallbackMgr<bool(float)> mCallbacksPlayheadMoved;
 	
     ///////////// Shared UI resources:
-    Font mFont;
     gl::Texture mButtonsTex;
-	gl::Texture mBigButtonsTex;
-	gl::Texture mSmallButtonsTex;
 
     ///////////// UI Classes:
     

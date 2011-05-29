@@ -14,36 +14,33 @@
 #include "cinder/Text.h"
 #include "cinder/Rect.h"
 #include "cinder/Utilities.h"
+#include "UIElement.h"
 
 using namespace ci;
 using namespace std;
 
-class TimeLabel {
+class TimeLabel : public UIElement {
     
 public:
     
     TimeLabel() { mSeconds = -100000; }
     ~TimeLabel() {}
     
-    void setup(Font font, Color color) {
+    void setup(const int &id, const Font &font, const Color &color)
+    {
+        UIElement::setup(id);
         mFont = font;
         mColor = color;
     }
     
-    void update() {}
     void draw();
 
     void setSeconds(int seconds);
-
-    void setRect(Rectf rect) { mRect = rect; }
-    void setRect(const float &x1, const float &y1, const float &x2, const float &y2) { mRect.set(x1,y1,x2,y2); }
-    Rectf getRect() { return mRect; }
 
 private:
     
     void updateTexture();
     
-    Rectf mRect;
     Font mFont;
     Color mColor;
     int mSeconds;

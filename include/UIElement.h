@@ -11,29 +11,29 @@
 
 using namespace ci;
 
-// UIElement is an interface class, draw() is pure virtual
+// UIElement is an "abstract" class: draw() is pure virtual
 class UIElement {
 public:
     
     UIElement() {}
     virtual ~UIElement() {}    
     
-    void setup(int id)
+    void setup(const int &id)
     {
         mId = id;
     }
     
-    int getId() { return mId; }
+    const int& getId() const { return mId; }
     
-    void setRect(Rectf rect) { mRect = rect; }
+    void setRect(const Rectf &rect) { mRect = rect; }
     void setRect(const float &x1, const float &y1, const float &x2, const float &y2) { mRect.set(x1,y1,x2,y2); }
-    Rectf getRect() { return mRect; }
+    const Rectf& getRect() const { return mRect; }
     
     virtual void draw() = 0;
     
 protected:
     
-    void drawTextureRect(Rectf textureRect);
+    void drawTextureRect(const Rectf &textureRect);
     
     int mId;    
     Rectf mRect;

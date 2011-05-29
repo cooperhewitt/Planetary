@@ -7,6 +7,7 @@
 //
 
 #pragma once
+#include "cinder/gl/Texture.h"
 #include "UIElement.h"
 
 using namespace ci;
@@ -20,11 +21,13 @@ public:
     
     void setup(int buttonId, 
                bool on, 
+               const gl::Texture &texture,
                Rectf onTextureRect, 
                Rectf offTextureRect)
     {
         UIElement::setup(buttonId);
         mOn = on;
+        mTexture = texture;
         mOnTextureRect = onTextureRect;
         mOffTextureRect = offTextureRect; 
     }
@@ -38,7 +41,7 @@ protected:
     
     bool mOn;
     Rectf mOnTextureRect, mOffTextureRect;
-    
+    gl::Texture mTexture;
 };
 
 // simple button is either being pressed or not (e.g. next, prev)
@@ -49,10 +52,12 @@ public:
     ~SimpleButton() {}
     
     void setup(int buttonId, 
+               const gl::Texture &texture,
                Rectf downTextureRect, 
                Rectf upTextureRect)
     {
         UIElement::setup(buttonId),
+        mTexture = texture;
         mDown = false;
         mDownTextureRect = downTextureRect;
         mUpTextureRect = upTextureRect;
@@ -67,6 +72,7 @@ protected:
     
     bool mDown;
     Rectf mUpTextureRect, mDownTextureRect;
+    gl::Texture mTexture;
     
 };
 
@@ -79,11 +85,13 @@ public:
     
     void setup(int buttonId, 
                bool on, 
+               const gl::Texture &texture,               
                Rectf offDownTextureRect, Rectf offUpTextureRect,
                Rectf onDownTextureRect, Rectf onUpTextureRect)
     {
         UIElement::setup(buttonId),
         mOn = on;
+        mTexture = texture;
         mDown = false;
         mOnDownTextureRect = onDownTextureRect;
         mOnUpTextureRect = onUpTextureRect;
@@ -102,6 +110,7 @@ protected:
     
     bool mDown, mOn;
     Rectf mOnUpTextureRect, mOnDownTextureRect, mOffUpTextureRect, mOffDownTextureRect;
+    gl::Texture mTexture;
     
 };
 

@@ -10,6 +10,7 @@
 #include "UIElement.h"
 #include "cinder/Rect.h"
 #include "cinder/gl/gl.h"
+#include "cinder/gl/Texture.h"
 
 using namespace ci;
 
@@ -20,13 +21,15 @@ public:
     ~Slider() {}
     
     void setup(int id, 
+               const gl::Texture &texture,               
                Rectf bgTexRect, 
                Rectf fgTexRect, 
                Rectf thumbDownTexRect, 
                Rectf thumbUpTexRect)
     {
         UIElement::setup(id);
-        // textures:
+        mTexture = texture;
+        // texture rects:
         mBgTexRect = bgTexRect;
         mFgTexRect = fgTexRect;
         mThumbDownTexRect = thumbDownTexRect;
@@ -48,6 +51,7 @@ protected:
     void drawTextureRect(Rectf rect, Rectf textureRect);
 
     Rectf mFgTexRect, mBgTexRect, mThumbDownTexRect, mThumbUpTexRect; // texture coords, fixed
+    gl::Texture mTexture;
     
     float mValue;
     bool mIsDragging;

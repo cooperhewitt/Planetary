@@ -568,17 +568,12 @@
 		E1C6023C131C4B0E0022246C /* Ui */ = {
 			isa = PBXGroup;
 			children = (
-				E25040BD1392E73400A8D673 /* UIElement.h */,
-				E227B203138EFD9400AAAC7B /* TextLabel.h */,
-				E273044B138DAA7400A2A65B /* ScrollingLabel.h */,
-				E2730443138DA82B00A2A65B /* TimeLabel.h */,
-				E278F9101383342400738472 /* Slider.h */,
+				E25040BF1392E82200A8D673 /* Elements */,
 				E22998CA1332D6210043CDCA /* LoadingScreen.h */,
 				E2A1FF8E132599290007F4DA /* PlayControls.h */,
 				E1B0DBB313510C9D0093EB9D /* HelpLayer.h */,
 				E15C90B51300B2F100FB8389 /* UiLayer.h */,
 				E217105E132ECEFB00ADCC17 /* AlphaWheel.h */,
-				E278F90513830E5200738472 /* Buttons.h */,
 			);
 			name = Ui;
 			sourceTree = "<group>";
@@ -633,12 +628,7 @@
 		E2171053132ECE3900ADCC17 /* Ui */ = {
 			isa = PBXGroup;
 			children = (
-				E25040BA1392D0AE00A8D673 /* UIElement.cpp */,
-				E227B204138EFDC500AAAC7B /* TextLabel.cpp */,
-				E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */,
-				E2730444138DA83800A2A65B /* TimeLabel.cpp */,
-				E278F90D138333FB00738472 /* Slider.cpp */,
-				E278F90713830E7E00738472 /* Buttons.cpp */,
+				E25040C01392E83E00A8D673 /* Elements */,
 				E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */,
 				E28FDA821339B782005EDBB4 /* PlayControls.cpp */,
 				E1B0DBB113510C890093EB9D /* HelpLayer.cpp */,
@@ -646,6 +636,32 @@
 				E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */,
 			);
 			name = Ui;
+			sourceTree = "<group>";
+		};
+		E25040BF1392E82200A8D673 /* Elements */ = {
+			isa = PBXGroup;
+			children = (
+				E25040BD1392E73400A8D673 /* UIElement.h */,
+				E227B203138EFD9400AAAC7B /* TextLabel.h */,
+				E273044B138DAA7400A2A65B /* ScrollingLabel.h */,
+				E2730443138DA82B00A2A65B /* TimeLabel.h */,
+				E278F9101383342400738472 /* Slider.h */,
+				E278F90513830E5200738472 /* Buttons.h */,
+			);
+			name = Elements;
+			sourceTree = "<group>";
+		};
+		E25040C01392E83E00A8D673 /* Elements */ = {
+			isa = PBXGroup;
+			children = (
+				E25040BA1392D0AE00A8D673 /* UIElement.cpp */,
+				E227B204138EFDC500AAAC7B /* TextLabel.cpp */,
+				E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */,
+				E2730444138DA83800A2A65B /* TimeLabel.cpp */,
+				E278F90D138333FB00738472 /* Slider.cpp */,
+				E278F90713830E7E00738472 /* Buttons.cpp */,
+			);
+			name = Elements;
 			sourceTree = "<group>";
 		};
 		E2D20EBF135CEEA900A29743 /* CinderOrientation */ = {
