@@ -47,12 +47,6 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, const Fon
                               false, 
                               Rectf(uw*2.0f,v2,uw*3.0f,v3),  // on texture
                               Rectf(uw*2.0f,v1,uw*3.0f,v2)); // off texture   
-	
-	
-//    mAlphaWheelButton.setup(SHOW_WHEEL,      // ID
-//                            false,           // initial toggle state
-//                            Rectf(uw*1.0f,v2,uw*2.0f,v3),  // on texture
-//                            Rectf(uw*1.0f,v1,uw*2.0f,v2)); // off texture    
 
     mPreviousTrackButton.setup(PREV_TRACK, 
                                Rectf(uw*3.0f,v2,uw*4.0f,v3),  // on texture
@@ -68,7 +62,13 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, const Fon
     mNextTrackButton.setup(NEXT_TRACK, 
                            Rectf(uw*6.0f,v2,uw*7.0f,v3),  // on texture
                            Rectf(uw*6.0f,v1,uw*7.0f,v2)); // off texture
+	
+    mAlphaWheelButton.setup(SHOW_WHEEL,      // ID
+                            false,           // initial toggle state
+                            Rectf(uw*7.0f,v2,uw*8.0f,v3),  // on texture
+                            Rectf(uw*7.0f,v1,uw*8.0f,v2)); // off texture    
 
+	
     mPreviousPlaylistButton.setup(PREV_PLAYLIST, 
                                   Rectf(uw*3.0f,v2,uw*4.0f,v3),  // on texture
                                   Rectf(uw*3.0f,v1,uw*4.0f,v2)); // off texture
@@ -112,15 +112,20 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, const Fon
                           Rectf(uw*4.0f,v2,uw*5.0f,v3),  // on texture
                           Rectf(uw*4.0f,v1,uw*5.0f,v2)); // off texture
 		
+		mFeatureButton.setup(TEST_FEATURE, 
+						   false, 
+						   Rectf(uw*5.0f,v2,uw*6.0f,v3),  // on texture
+						   Rectf(uw*5.0f,v1,uw*6.0f,v2)); // off texture
+		
 		mShuffleButton.setup(SHUFFLE, 
 							 false, 
-							 Rectf(uw*5.0f,v2,uw*6.0f,v3),  // on texture
-							 Rectf(uw*5.0f,v1,uw*6.0f,v2)); // off texture
+							 Rectf(uw*6.0f,v2,uw*7.0f,v3),  // on texture
+							 Rectf(uw*6.0f,v1,uw*7.0f,v2)); // off texture
 		
 		mRepeatButton.setup(REPEAT, 
 							false, 
-							Rectf(uw*6.0f,v2,uw*7.0f,v3),  // on texture
-							Rectf(uw*6.0f,v1,uw*7.0f,v2)); // off texture
+							Rectf(uw*7.0f,v2,uw*8.0f,v3),  // on texture
+							Rectf(uw*7.0f,v1,uw*8.0f,v2)); // off texture
     }
     
     mPlayheadSlider.setup(SLIDER,          // ID
@@ -155,18 +160,9 @@ void PlayControls::update()
     }		
 
     // FIXME, have buttons handle this themselves
+	// This is just for simple buttons. For toggles, check KeplerApp::update()
 	mGalaxyButton.setDown( mLastTouchedType == mGalaxyButton.getId() );
 	mCurrentTrackButton.setDown( mLastTouchedType == mCurrentTrackButton.getId() );
-    mShowSettingsButton.setOn( G_SHOW_SETTINGS );
-    //        mAlphaWheelButton.setDown(mLastTouchedType == mAlphaWheelButton.getId());
-    mHelpButton.setOn( G_HELP );
-	mOrbitsButton.setOn( G_DRAW_RINGS );
-	mLabelsButton.setOn( G_DRAW_TEXT );
-	if( G_IS_IPAD2 ) mGyroButton.setOn( G_USE_GYRO );
-	mDebugButton.setOn( G_DEBUG );
-	// TOM: Sorry for the new globals. Can just query the player for these instead?
-	mShuffleButton.setOn( G_SHUFFLE );
-	mRepeatButton.setOn( G_REPEAT );
     mPreviousTrackButton.setDown( mLastTouchedType == mPreviousTrackButton.getId() );
     mPlayPauseButton.setDown( mLastTouchedType == mPlayPauseButton.getId() );
     mNextTrackButton.setDown( mLastTouchedType == mNextTrackButton.getId() );         
@@ -213,11 +209,6 @@ void PlayControls::updateUIRects()
 	x2 = x1 + bSize;
     mCurrentTrackButton.setRect( Rectf(x1,y1,x2,y2) );
 
-    // ALPHA WHEEL BUTTON
-    x1 = mInterfaceSize.x / 2 - bSize / 2;
-    x2 = x1 + bSize;
-//    mAlphaWheelButton.setRect(Rectf(x1,y1,x2,y2));
-
     // NEXT / PLAY-PAUSE / PREVIOUS TRACK BUTTON
     x1 = mInterfaceSize.x - sideBorder - bSize;
 	x2 = x1 + bSize;
@@ -235,7 +226,10 @@ void PlayControls::updateUIRects()
 	x2 = x1 + bSize;    
     mShowSettingsButton.setRect(Rectf(x1,y1,x2,y2));
 
-	
+	// ALPHA WHEEL BUTTON
+	x1 -= bSize + buttonGap;
+	x2 = x1 + bSize;
+    mAlphaWheelButton.setRect(Rectf(x1,y1,x2,y2));
 	
 // LABEL TOGGLE BUTTON
 	y1 += 68.0f;
@@ -259,18 +253,23 @@ void PlayControls::updateUIRects()
 	x2 = x1 + bSizeSmall;
     mDebugButton.setRect( Rectf(x1,y1,x2,y2) );
 	
+// FEATURE TOGGLE BUTTON
+	x1 -= bSizeSmall;
+	x2 = x1 + bSizeSmall;
+    mFeatureButton.setRect( Rectf(x1,y1,x2,y2) );
+	
 // HELP TOGGLE BUTTON
     x1 -= bSizeSmall;
 	x2 = x1 + bSizeSmall;
     mHelpButton.setRect( Rectf(x1,y1,x2,y2) );
 	
 // SHUFFLE TOGGLE BUTTON
-	x1 = mInterfaceSize.x - sideBorder - bSizeSmall;
+	x1 = mInterfaceSize.x - sideBorder - bSizeSmall - 3.0f;
 	x2 = x1 + bSizeSmall;    
     mShuffleButton.setRect( Rectf(x1,y1,x2,y2) );
 
 // REPEAT TOGGLE BUTTON
-	x1 -= bSizeSmall;
+	x1 -= bSize;
 	x2 = x1 + bSizeSmall;
     mRepeatButton.setRect( Rectf(x1,y1,x2,y2) );
 	
@@ -339,6 +338,7 @@ void PlayControls::draw(float y)
     mGalaxyButton.draw();
 	mCurrentTrackButton.draw();
     mShowSettingsButton.draw();
+	mAlphaWheelButton.draw();
 	
 // PREV PLAY NEXT	
     mPreviousTrackButton.draw();
@@ -352,6 +352,7 @@ void PlayControls::draw(float y)
 	mOrbitsButton.draw();
 	mLabelsButton.draw();
 	mDebugButton.draw();
+	mFeatureButton.draw();
 	mGyroButton.draw();
 	mShuffleButton.draw();
 	mRepeatButton.draw();
@@ -359,8 +360,6 @@ void PlayControls::draw(float y)
 // SLIDER
 	mButtonsTex.enableAndBind();
 	mPlayheadSlider.draw();
-    
-	//    mAlphaWheelButton.draw();
 
     mButtonsTex.unbind();
 
@@ -483,13 +482,14 @@ PlayControls::ButtonId PlayControls::findButtonUnderTouches(vector<TouchEvent::T
     touchRects.push_back(mCurrentTrackButton.getRect());
     touchRects.push_back(mGalaxyButton.getRect());
     touchRects.push_back(mPlayheadSlider.getRect());
-//    touchRects.push_back(mAlphaWheelButton.getRect());
+    touchRects.push_back(mAlphaWheelButton.getRect());
     touchRects.push_back(mShowSettingsButton.getRect());
     if (mShowSettings) {
         touchRects.push_back(mHelpButton.getRect());
         touchRects.push_back(mOrbitsButton.getRect());
         touchRects.push_back(mLabelsButton.getRect());
         touchRects.push_back(mDebugButton.getRect());
+        touchRects.push_back(mFeatureButton.getRect());
         touchRects.push_back(mGyroButton.getRect()); // FIXME: only if we're using Gyro
 		touchRects.push_back(mShuffleButton.getRect());
 		touchRects.push_back(mRepeatButton.getRect());
@@ -504,13 +504,14 @@ PlayControls::ButtonId PlayControls::findButtonUnderTouches(vector<TouchEvent::T
     touchTypes.push_back(mCurrentTrackButton.getId());
     touchTypes.push_back(mGalaxyButton.getId());
     touchTypes.push_back(mPlayheadSlider.getId());
-//    touchTypes.push_back(mAlphaWheelButton.getId());
+    touchTypes.push_back(mAlphaWheelButton.getId());
     touchTypes.push_back(mShowSettingsButton.getId());    
     if (mShowSettings) {
         touchTypes.push_back(mHelpButton.getId());
         touchTypes.push_back(mOrbitsButton.getId());
         touchTypes.push_back(mLabelsButton.getId());
         touchTypes.push_back(mDebugButton.getId());
+        touchTypes.push_back(mFeatureButton.getId());
         touchTypes.push_back(mGyroButton.getId()); // FIXME: only if we're using Gyro 
 		touchTypes.push_back(mShuffleButton.getId());
 		touchTypes.push_back(mRepeatButton.getId());

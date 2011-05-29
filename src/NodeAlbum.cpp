@@ -409,12 +409,11 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::scale( Vec3f( radius, radius, radius ) );
 		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot + Vec3f( 0.0f, 2.5f, 0.0f ) );
+		
 // SHADOW CLOUDS
-//				glDisable( GL_LIGHTING );
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
 		clouds[mCloudTexIndex].enableAndBind();
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
-//				glEnable( GL_LIGHTING );
 		gl::popModelView();
 			
 // LIT CLOUDS
@@ -423,7 +422,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::scale( Vec3f( radius, radius, radius ) );
 		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot );
-		//gl::enableAdditiveBlending();
+		gl::enableAdditiveBlending();
 		gl::color( ColorA( mEclipseColor, alpha * 2.0f ) );
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
