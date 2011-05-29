@@ -95,22 +95,25 @@ public:
 private:
 					  
 	AppCocoaTouch *mApp;
-
 	CallbackId cbTouchesBegan, cbTouchesMoved, cbTouchesEnded, cbOrientationChanged;
-			
-	ButtonId findButtonUnderTouches(vector<TouchEvent::Touch> touches);
-    Rectf transformRect( const Rectf &rect, const Matrix44f &matrix );
-    void updateUIRects();
+
+    // Interaction stuff...
+    UIElement* mActiveElement;
+	UIElement* findButtonUnderTouches(vector<TouchEvent::Touch> touches);
+    // TODO: can we move this to slider class?
     void dragPlayheadToPos(Vec2f pos);
     
-    ButtonId mLastTouchedType;
+    // layout happens here
+    void updateUIRects();
+    
     float mLastDrawY;
-    
     bool mShowSettings;
-    
+        
+    // Orientation bits:
     Orientation mInterfaceOrientation;
     Matrix44f   mOrientationMatrix;
     Vec2f       mInterfaceSize;
+    Rectf transformRect( const Rectf &rect, const Matrix44f &matrix ); // TODO: Cinder Matrix/Rect method?
     
 	// !!! EVENT STUFF (keep track of listeners)
 	CallbackMgr<bool(ButtonId)> mCallbacksButtonPressed;

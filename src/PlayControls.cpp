@@ -24,7 +24,7 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, const Fon
     cbTouchesEnded	= 0;
     cbTouchesMoved	= 0;		
     
-    mLastTouchedType = NO_BUTTON;    
+    mActiveElement = NULL;    
     
     mShowSettings = false;
     
@@ -161,11 +161,11 @@ void PlayControls::update()
 
     // FIXME, have buttons handle this themselves
 	// This is just for simple buttons. For toggles, check KeplerApp::update()
-	mGalaxyButton.setDown( mLastTouchedType == mGalaxyButton.getId() );
-	mCurrentTrackButton.setDown( mLastTouchedType == mCurrentTrackButton.getId() );
-    mPreviousTrackButton.setDown( mLastTouchedType == mPreviousTrackButton.getId() );
-    mPlayPauseButton.setDown( mLastTouchedType == mPlayPauseButton.getId() );
-    mNextTrackButton.setDown( mLastTouchedType == mNextTrackButton.getId() );         
+	mGalaxyButton.setDown( mActiveElement->getId() == mGalaxyButton.getId() );
+	mCurrentTrackButton.setDown( mActiveElement->getId() == mCurrentTrackButton.getId() );
+    mPreviousTrackButton.setDown( mActiveElement->getId() == mPreviousTrackButton.getId() );
+    mPlayPauseButton.setDown( mActiveElement->getId() == mPlayPauseButton.getId() );
+    mNextTrackButton.setDown( mActiveElement->getId() == mNextTrackButton.getId() );         
     
 }
 
@@ -186,92 +186,92 @@ void PlayControls::setInterfaceOrientation( const Orientation &orientation )
 
 void PlayControls::updateUIRects()
 {
-	float topBorder		= 10.0f;
-	float sideBorder	= 10.0f;
+	const float topBorder	 = 10.0f;
+	const float sideBorder	 = 10.0f;
     
-    float bSize			= 50.0f;
-    float bSizeSmall	= 40.0f;
-	float buttonGap		= 1.0f;
+    const float bSize		 = 50.0f;
+    const float bSizeSmall	 = 40.0f;
+	const float buttonGap	 = 1.0f;
 
-	float timeTexWidth	= 55.0f;
-    float sliderHeight	= 20.0f;
-    float sliderInset	= bSize * 2.0f + sideBorder + timeTexWidth;
-    float sliderWidth	= isLandscapeOrientation(mInterfaceOrientation) ? 328.0f : 201.0f;
+	const float timeTexWidth = 55.0f;
+    const float sliderHeight = 20.0f;
+    const float sliderInset  = bSize * 2.0f + sideBorder + timeTexWidth;
+    const float sliderWidth  = isLandscapeOrientation(mInterfaceOrientation) ? 328.0f : 201.0f;
     
     // FLY TO CURRENT TRACK-MOON BUTTON
 	float y1 = topBorder;
 	float y2 = y1 + bSize;
 	float x1 = sideBorder;
 	float x2 = x1 + bSize;        
-    mGalaxyButton.setRect( Rectf(x1,y1,x2,y2) );
+    mGalaxyButton.setRect( x1, y1, x2, y2 );
     
 	x1 += bSize + buttonGap;
 	x2 = x1 + bSize;
-    mCurrentTrackButton.setRect( Rectf(x1,y1,x2,y2) );
+    mCurrentTrackButton.setRect( x1, y1, x2, y2 );
 
     // NEXT / PLAY-PAUSE / PREVIOUS TRACK BUTTON
     x1 = mInterfaceSize.x - sideBorder - bSize;
 	x2 = x1 + bSize;
-    mNextTrackButton.setRect(Rectf(x1,y1,x2,y2));
+    mNextTrackButton.setRect( x1, y1, x2, y2 );
 
     x1 -= bSize + buttonGap;
 	x2 = x1 + bSize;
-    mPlayPauseButton.setRect(Rectf(x1,y1,x2,y2));
+    mPlayPauseButton.setRect( x1, y1, x2, y2 );
     
 	x1 -= bSize + buttonGap;
 	x2 = x1 + bSize;    
-    mPreviousTrackButton.setRect(Rectf(x1,y1,x2,y2));
+    mPreviousTrackButton.setRect( x1, y1, x2, y2 );
 
 	x1 -= ( bSize + buttonGap ) * 2.0f;
 	x2 = x1 + bSize;    
-    mShowSettingsButton.setRect(Rectf(x1,y1,x2,y2));
+    mShowSettingsButton.setRect( x1, y1, x2, y2 );
 
 	// ALPHA WHEEL BUTTON
 	x1 -= bSize + buttonGap;
 	x2 = x1 + bSize;
-    mAlphaWheelButton.setRect(Rectf(x1,y1,x2,y2));
+    mAlphaWheelButton.setRect( x1, y1, x2, y2 );
 	
 // LABEL TOGGLE BUTTON
 	y1 += 68.0f;
     y2 = y1 + bSizeSmall;
 	x1 += 5.0f + bSizeSmall * 2.0f;
 	x2 = x1 + bSizeSmall;
-    mLabelsButton.setRect( Rectf(x1,y1,x2,y2) );
+    mLabelsButton.setRect( x1, y1, x2, y2 );
 	
 // ORBIT RING TOGGLE BUTTON
 	x1 -= bSizeSmall;
 	x2 = x1 + bSizeSmall;
-    mOrbitsButton.setRect( Rectf(x1,y1,x2,y2) );
+    mOrbitsButton.setRect( x1, y1, x2, y2 );
 	
 // GYRO TOGGLE BUTTON
 	x1 -= bSizeSmall;
 	x2 = x1 + bSizeSmall;
-    mGyroButton.setRect( Rectf(x1,y1,x2,y2) );
+    mGyroButton.setRect( x1, y1, x2, y2 );
 	
 // DEBUG TOGGLE BUTTON
 	x1 -= bSizeSmall;
 	x2 = x1 + bSizeSmall;
-    mDebugButton.setRect( Rectf(x1,y1,x2,y2) );
+    mDebugButton.setRect( x1, y1, x2, y2 );
 	
 // FEATURE TOGGLE BUTTON
 	x1 -= bSizeSmall;
 	x2 = x1 + bSizeSmall;
-    mFeatureButton.setRect( Rectf(x1,y1,x2,y2) );
+    mFeatureButton.setRect( x1, y1, x2, y2 );
 	
 // HELP TOGGLE BUTTON
     x1 -= bSizeSmall;
 	x2 = x1 + bSizeSmall;
-    mHelpButton.setRect( Rectf(x1,y1,x2,y2) );
+    mHelpButton.setRect( x1, y1, x2, y2 );
 	
 // SHUFFLE TOGGLE BUTTON
 	x1 = mInterfaceSize.x - sideBorder - bSizeSmall - 3.0f;
 	x2 = x1 + bSizeSmall;    
-    mShuffleButton.setRect( Rectf(x1,y1,x2,y2) );
+    mShuffleButton.setRect( x1, y1, x2, y2 );
 
 // REPEAT TOGGLE BUTTON
 	x1 -= bSize;
 	x2 = x1 + bSizeSmall;
-    mRepeatButton.setRect( Rectf(x1,y1,x2,y2) );
+    mRepeatButton.setRect( x1, y1, x2, y2 );
 	
 	
 	
@@ -281,12 +281,12 @@ void PlayControls::updateUIRects()
 	x2 = x1 + bSize;
 	y1 = 73.0f;
 	y2 = y1 + bSize;
-	mPreviousPlaylistButton.setRect(Rectf( x1, y1, x2, y2 ));
+	mPreviousPlaylistButton.setRect( x1, y1, x2, y2 );
 	
 // NEXT PLAYLIST BUTTON
 	x1 = x2 + 200.0f;
 	x2 = x1 + bSize;
-	mNextPlaylistButton.setRect(Rectf( x1, y1, x2, y2 ));
+	mNextPlaylistButton.setRect( x1, y1, x2, y2 );
 	
 // PLAYLIST LABEL
 	x1 -= 200.0f;
@@ -294,24 +294,24 @@ void PlayControls::updateUIRects()
 	y1 += 15.0f;
 	// FIX ME! vvv
 	y2 = y1 + 12.0f;
-	mPlaylistLabel.setRect( Rectf( x1, y1, x2, y2 ) );
+	mPlaylistLabel.setRect( x1, y1, x2, y2 );
     
-    float bgx1			= sliderInset;
-    float bgx2			= bgx1 + sliderWidth;
-    float bgy1			= 32.0f;
-    float bgy2			= bgy1 + sliderHeight;
-    mPlayheadSlider.setRect(Rectf(bgx1,bgy1,bgx2,bgy2));
+    const float bgx1 = sliderInset;
+    const float bgx2 = bgx1 + sliderWidth;
+    const float bgy1 = 32.0f;
+    const float bgy2 = bgy1 + sliderHeight;
+    mPlayheadSlider.setRect( bgx1, bgy1, bgx2, bgy2 );
     
-    float ctx1 = bgx1 - 43.0f;
-    float ctx2 = bgx2 + 50.0f;
-    float cty1 = bgy1 - 14.0f;
-    float cty2 = cty1; // NB:- will be overridden in ScrollingLabel::draw()
-    mTrackInfoLabel.setRect(Rectf(ctx1, cty1, ctx2, cty2));
+    const float ctx1 = bgx1 - 43.0f;
+    const float ctx2 = bgx2 + 50.0f;
+    const float cty1 = bgy1 - 14.0f;
+    const float cty2 = cty1; // NB:- will be overridden in ScrollingLabel::draw()
+    mTrackInfoLabel.setRect( ctx1, cty1, ctx2, cty2 );
 
     // FIXME: bottom right coords are made up... maybe just setPos (and getWidth) for these?
     // at least use font height for calculating y2
-    mElapsedTimeLabel.setRect(Rectf(bgx1-40.0f,bgy1+2.0f,bgx1,bgy1+12.0f));
-    mRemainingTimeLabel.setRect(Rectf(bgx2+18.0f,bgy1+2.0f,bgx2+58.0f,bgy1+12.0f));
+    mElapsedTimeLabel.setRect( bgx1-40.0f, bgy1+2.0f, bgx1, bgy1+12.0f );
+    mRemainingTimeLabel.setRect( bgx2+18.0f, bgy1+2.0f, bgx2+58.0f, bgy1+12.0f );
 
 }
 
@@ -426,9 +426,9 @@ bool PlayControls::touchesBegan( TouchEvent event )
             cbTouchesMoved = mApp->registerTouchesMoved( this, &PlayControls::touchesMoved );			
         }
 
-        mLastTouchedType = findButtonUnderTouches(touches);
+        mActiveElement = findButtonUnderTouches(touches);
 		
-        if (mLastTouchedType == SLIDER) {
+        if (mActiveElement && mActiveElement->getId() == SLIDER) {
             mPlayheadSlider.setIsDragging(true);
             dragPlayheadToPos(touches.begin()->getPos());
         }
@@ -436,7 +436,7 @@ bool PlayControls::touchesBegan( TouchEvent event )
         return true;
     }
     else {
-        mLastTouchedType = NO_BUTTON;
+        mActiveElement = NULL;
     }
     
     return false;
@@ -446,7 +446,7 @@ bool PlayControls::touchesMoved( TouchEvent event )
 {
     vector<TouchEvent::Touch> touches = event.getTouches();
 
-    mLastTouchedType = findButtonUnderTouches(touches);
+    mActiveElement = findButtonUnderTouches(touches);
 
     if( mPlayheadSlider.isDragging() ){
         if( touches.size() == 1 ){
@@ -460,11 +460,11 @@ bool PlayControls::touchesMoved( TouchEvent event )
 bool PlayControls::touchesEnded( TouchEvent event )
 {
     vector<TouchEvent::Touch> touches = event.getTouches();
-    if( mLastTouchedType != NO_BUTTON && mLastTouchedType == findButtonUnderTouches(touches) ){
-        mCallbacksButtonPressed.call(mLastTouchedType);
+    if( mActiveElement && mActiveElement == findButtonUnderTouches(touches) ){
+        mCallbacksButtonPressed.call(ButtonId(mActiveElement->getId()));
     }
 
-    mLastTouchedType = NO_BUTTON;
+    mActiveElement = NULL;
     
     mPlayheadSlider.setIsDragging(false);
 
@@ -472,7 +472,7 @@ bool PlayControls::touchesEnded( TouchEvent event )
 }
 
         
-PlayControls::ButtonId PlayControls::findButtonUnderTouches(vector<TouchEvent::Touch> touches)
+UIElement* PlayControls::findButtonUnderTouches(vector<TouchEvent::Touch> touches)
 {
     Rectf transformedBounds = transformRect( Rectf(0, mLastDrawY, mInterfaceSize.x, mInterfaceSize.y), mOrientationMatrix );    
 	Rectf otherTransBounds	= transformRect( Rectf( 0, mLastDrawY - 50.0f, mInterfaceSize.x - 170.0f, mInterfaceSize.y - 20.0f ), mOrientationMatrix );
@@ -511,13 +511,13 @@ PlayControls::ButtonId PlayControls::findButtonUnderTouches(vector<TouchEvent::T
                 // offset and transform:
                 Rectf rect = transformRect( element->getRect().getOffset( Vec2f(0, mLastDrawY) ), mOrientationMatrix );            
                 if (rect.contains(pos)) {
-                    return ButtonId(element->getId());
+                    return element;
                 }
             }		
         }
     }
     
-    return NO_BUTTON;
+    return NULL;
 }
 
 // TODO: move this to an operator in Cinder's Matrix class?

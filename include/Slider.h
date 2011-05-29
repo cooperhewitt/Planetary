@@ -19,13 +19,13 @@ public:
     Slider() {}
     ~Slider() {}
     
-    void setup(int sliderId, 
+    void setup(int id, 
                Rectf bgTexRect, 
                Rectf fgTexRect, 
                Rectf thumbDownTexRect, 
                Rectf thumbUpTexRect)
     {
-        mSliderId = sliderId;
+        UIElement::setup(id);
         // textures:
         mBgTexRect = bgTexRect;
         mFgTexRect = fgTexRect;
@@ -34,11 +34,6 @@ public:
         // state:
         mIsDragging = false;
     }
-    
-    int getId() { return mSliderId; }
-    
-    Rectf getRect() { return mRect; }
-    void setRect(Rectf rect) { mRect = rect; }
 
     bool isDragging() { return mIsDragging; }
     void setIsDragging(bool isDragging) { mIsDragging = isDragging; }
@@ -51,10 +46,7 @@ public:
 protected:
     
     void drawTextureRect(Rectf rect, Rectf textureRect);
-    
-    int mSliderId;    
-    Rectf mRect; // position, settable
-    
+
     Rectf mFgTexRect, mBgTexRect, mThumbDownTexRect, mThumbUpTexRect; // texture coords, fixed
     
     float mValue;
