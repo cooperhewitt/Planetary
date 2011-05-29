@@ -57,7 +57,9 @@ public:
 	bool touchesEnded( TouchEvent event );
     void setInterfaceOrientation( const Orientation &orientation);
 
-    void setShowSettings(bool visible) { mShowSettings = visible; mShowSettingsButton.setOn(visible); };
+    // this one updates the drawable and interactive things too:
+    void setShowSettings(bool visible);
+    
     // State stuff, passed onto UI classes directly...
     // (not gettable, state lives elsewhere and UI changes are handled with callbacks)
     // (all these things should be called in App::update())
@@ -101,6 +103,8 @@ private:
 	CallbackId cbTouchesBegan, cbTouchesMoved, cbTouchesEnded, cbOrientationChanged;
 
     // Interaction stuff...
+    vector<UIElement*> drawableElements;
+    vector<UIElement*> interactiveElements;    
     UIElement* mActiveElement;
 	UIElement* findButtonUnderTouches(vector<TouchEvent::Touch> touches);
     // TODO: can we move this to slider class?
@@ -108,6 +112,8 @@ private:
     
     // layout happens here
     void updateUIRects();
+    // toggled by showsettings:
+    void updateElements();
     
     float mLastDrawY;
     bool mShowSettings;

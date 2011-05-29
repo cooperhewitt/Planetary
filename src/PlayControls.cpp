@@ -170,6 +170,9 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, const Fon
     ///////
     
     setInterfaceOrientation(orientation);
+    
+    // make drawable and interactive vectors for ::draw() and ::touchXXX
+    updateElements();
 }
 
 void PlayControls::update()
@@ -340,6 +343,70 @@ void PlayControls::updateUIRects()
 
 }
 
+void PlayControls::setShowSettings(bool visible)
+{
+    if (mShowSettings != visible) {
+        mShowSettings = visible;
+        updateElements();
+    }    
+    mShowSettingsButton.setOn(visible); 
+}
+
+void PlayControls::updateElements()
+{
+    drawableElements.clear();
+    drawableElements.push_back(&mGalaxyButton);
+	drawableElements.push_back(&mCurrentTrackButton);
+    drawableElements.push_back(&mShowSettingsButton);
+	drawableElements.push_back(&mAlphaWheelButton);
+    drawableElements.push_back(&mPreviousTrackButton);
+    drawableElements.push_back(&mPlayPauseButton);
+    drawableElements.push_back(&mNextTrackButton);
+    if (mShowSettings) {    
+        drawableElements.push_back(&mHelpButton);
+        drawableElements.push_back(&mOrbitsButton);
+        drawableElements.push_back(&mLabelsButton);
+        drawableElements.push_back(&mDebugButton);
+        drawableElements.push_back(&mFeatureButton);
+        drawableElements.push_back(&mGyroButton);
+        drawableElements.push_back(&mShuffleButton);
+        drawableElements.push_back(&mRepeatButton);
+    }
+    drawableElements.push_back(&mElapsedTimeLabel);
+    drawableElements.push_back(&mTrackInfoLabel);
+	drawableElements.push_back(&mPlayheadSlider);
+    drawableElements.push_back(&mRemainingTimeLabel);
+    if (mShowSettings) {
+        drawableElements.push_back(&mPlaylistLabel);	
+        drawableElements.push_back(&mPreviousPlaylistButton);
+        drawableElements.push_back(&mNextPlaylistButton);
+    }    
+
+    interactiveElements.clear();
+    interactiveElements.push_back(&mCurrentTrackButton);
+    interactiveElements.push_back(&mGalaxyButton);
+    interactiveElements.push_back(&mPlayheadSlider);
+    interactiveElements.push_back(&mAlphaWheelButton);
+    interactiveElements.push_back(&mShowSettingsButton);
+    if (mShowSettings) {
+        interactiveElements.push_back(&mHelpButton);
+        interactiveElements.push_back(&mOrbitsButton);
+        interactiveElements.push_back(&mLabelsButton);
+        interactiveElements.push_back(&mDebugButton);
+        interactiveElements.push_back(&mFeatureButton);
+        interactiveElements.push_back(&mGyroButton); // FIXME: only if we're using Gyro
+		interactiveElements.push_back(&mShuffleButton);
+		interactiveElements.push_back(&mRepeatButton);
+    }
+    interactiveElements.push_back(&mPreviousTrackButton);
+    interactiveElements.push_back(&mPlayPauseButton);
+    interactiveElements.push_back(&mNextTrackButton);
+    if (mShowSettings) {
+        interactiveElements.push_back(&mPreviousPlaylistButton);
+        interactiveElements.push_back(&mNextPlaylistButton);
+    }    
+}
+
 void PlayControls::draw(float y)
 {
     float t = app::getElapsedSeconds();
@@ -358,30 +425,6 @@ void PlayControls::draw(float y)
     
 	gl::enableAlphaBlending();    
 
-    // FIXME: cache this as mDrawableElements and build in setup()!
-    vector<UIElement*> drawableElements;
-    drawableElements.push_back(&mGalaxyButton);
-	drawableElements.push_back(&mCurrentTrackButton);
-    drawableElements.push_back(&mShowSettingsButton);
-	drawableElements.push_back(&mAlphaWheelButton);
-    drawableElements.push_back(&mPreviousTrackButton);
-    drawableElements.push_back(&mPlayPauseButton);
-    drawableElements.push_back(&mNextTrackButton);
-    drawableElements.push_back(&mPreviousPlaylistButton);
-    drawableElements.push_back(&mNextPlaylistButton);
-    drawableElements.push_back(&mHelpButton);
-	drawableElements.push_back(&mOrbitsButton);
-	drawableElements.push_back(&mLabelsButton);
-	drawableElements.push_back(&mDebugButton);
-	drawableElements.push_back(&mFeatureButton);
-	drawableElements.push_back(&mGyroButton);
-	drawableElements.push_back(&mShuffleButton);
-	drawableElements.push_back(&mRepeatButton);
-	drawableElements.push_back(&mPlayheadSlider);
-    drawableElements.push_back(&mElapsedTimeLabel);
-    drawableElements.push_back(&mRemainingTimeLabel);
-    drawableElements.push_back(&mTrackInfoLabel);
-	drawableElements.push_back(&mPlaylistLabel);	
     for (int i = 0; i < drawableElements.size(); i++) {
         drawableElements[i]->draw();
     }
@@ -485,29 +528,6 @@ UIElement* PlayControls::findButtonUnderTouches(vector<TouchEvent::Touch> touche
 {
     Rectf transformedBounds = transformRect( Rectf(0, mLastDrawY, mInterfaceSize.x, mInterfaceSize.y), mOrientationMatrix );    
 	Rectf otherTransBounds	= transformRect( Rectf( 0, mLastDrawY - 50.0f, mInterfaceSize.x - 170.0f, mInterfaceSize.y - 20.0f ), mOrientationMatrix );
-
-    // TODO: should we cache this and only update it if mShowSettings changes?
-    vector<UIElement*> interactiveElements;
-    interactiveElements.push_back(&mCurrentTrackButton);
-    interactiveElements.push_back(&mGalaxyButton);
-    interactiveElements.push_back(&mPlayheadSlider);
-    interactiveElements.push_back(&mAlphaWheelButton);
-    interactiveElements.push_back(&mShowSettingsButton);
-    if (mShowSettings) {
-        interactiveElements.push_back(&mHelpButton);
-        interactiveElements.push_back(&mOrbitsButton);
-        interactiveElements.push_back(&mLabelsButton);
-        interactiveElements.push_back(&mDebugButton);
-        interactiveElements.push_back(&mFeatureButton);
-        interactiveElements.push_back(&mGyroButton); // FIXME: only if we're using Gyro
-		interactiveElements.push_back(&mShuffleButton);
-		interactiveElements.push_back(&mRepeatButton);
-    }
-    interactiveElements.push_back(&mPreviousTrackButton);
-    interactiveElements.push_back(&mPlayPauseButton);
-    interactiveElements.push_back(&mNextTrackButton);
-    interactiveElements.push_back(&mPreviousPlaylistButton);
-    interactiveElements.push_back(&mNextPlaylistButton);
 
     // check for touches and return first one found
     // TODO: accept more than one touch, by ID?
