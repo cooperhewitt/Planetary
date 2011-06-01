@@ -284,12 +284,12 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, floa
 	int tIndex	= 0;
 	int cIndex	= 0;
 	float scaleOffset	= 0.5f - constrain( G_ARTIST_LEVEL - G_ZOOM, 0.0f, 1.0f ) * 0.25f; // 0.25 -> 0.5
-	float zoomOffset	= zoomAlpha * 3.5f;
+	float zoomOffset	= zoomAlpha * 1.5f;
 	
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		Vec3f pos	= (*it)->mPos;
 		ColorA col	= ColorA( (*it)->mColor, 1.0f );
-		float r		= (*it)->mRadius * scaleOffset + ( 0.5f - scaleOffset );
+		float r		= (*it)->mRadius * scaleOffset * 0.85f + ( 0.5f - scaleOffset );
 		if( !(*it)->mIsHighlighted ){
 			r		-= zoomOffset;
 		}
@@ -578,7 +578,7 @@ void World::buildOrbitRingsVertexArray()
 	}
 }
 
-void World::update( const Matrix44f &mat )
+void World::update( const Matrix44f &mat, float param1 )
 {
 	if( mIsInitialized ){
 		mAge ++;
@@ -597,7 +597,7 @@ void World::update( const Matrix44f &mat )
 		}
 		
 		for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-			(*it)->update( mat );
+			(*it)->update( mat, param1 );
 		}
 	}
 }

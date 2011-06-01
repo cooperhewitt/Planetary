@@ -19,13 +19,13 @@ class NodeTrack : public Node
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album, const ci::Surface &albumArt );
     void initVertexArray();
 	void updateAudioData( double currentPlayheadTime );
-	void update( const ci::Matrix44f &mat );
+	void update( const ci::Matrix44f &mat, float param1 );
 	void drawEclipseGlow();
 	void drawPlanet();
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );
 	void buildPlayheadProgressVertexArray();
-	void drawPlayheadProgress( float pinchAlphaPer, float camAlpha, const ci::gl::Texture &tex, const ci::gl::Texture &originTex );
+	void drawPlayheadProgress( float pinchAlphaPer, float camAlpha, float pauseAlpha, const ci::gl::Texture &tex, const ci::gl::Texture &originTex );
 	void drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
 	
 	ci::Vec3f getStartRelPos(){ return mMatrix * mStartRelPos; }

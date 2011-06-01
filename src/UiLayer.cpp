@@ -19,8 +19,8 @@ using namespace std;
 
 UiLayer::UiLayer()
 {
-	mPanelOpenHeight		= 68.0f;
-	mPanelSettingsHeight	= 125.0f;    
+	mPanelOpenHeight		= 65.0f;
+	mPanelSettingsHeight	= 150.0f;    
 }
 
 UiLayer::~UiLayer()
@@ -43,8 +43,9 @@ void UiLayer::setup( AppCocoaTouch *app, const Orientation &orientation, const b
 	mHasPanelBeenDragged	= false;
 
     // set this to something sensible, *temporary*:
-    mPanelRect = Rectf(0, getWindowHeight(), 
-                       getWindowWidth(), getWindowHeight() + mPanelSettingsHeight);
+    mPanelRect = Rectf(0, getWindowHeight(), getWindowWidth(), getWindowHeight() + mPanelSettingsHeight);
+	mPanelUpperRect = Rectf(0, getWindowHeight(), getWindowWidth(), getWindowHeight() + mPanelSettingsHeight);
+	mPanelLowerRect = Rectf(0, getWindowHeight(), getWindowWidth(), getWindowHeight() + mPanelSettingsHeight);
     
     // make sure we've got everything the right way around
     setInterfaceOrientation(orientation);
@@ -185,9 +186,13 @@ void UiLayer::update()
     // keep up y2!
     mPanelRect.y2 = mPanelRect.y1 + mPanelSettingsHeight;
 	
+	mPanelUpperRect = Rectf( 0.0f, mPanelRect.y1,							mInterfaceSize.x, mPanelRect.y1 + mPanelOpenHeight );
+	mPanelLowerRect = Rectf( 0.0f, mPanelRect.y1 + mPanelOpenHeight, mInterfaceSize.x, mPanelRect.y1 + mPanelSettingsHeight );
+	
     // adjust tab rect:
     mPanelTabRect = Rectf( mPanelRect.x2 - 200.0f, mPanelRect.y1 - 38.0f,
                            mPanelRect.x2, mPanelRect.y1 + 2.0f );
+	
 }
 
 void UiLayer::draw( const gl::Texture &uiButtonsTex )
@@ -199,8 +204,14 @@ void UiLayer::draw( const gl::Texture &uiButtonsTex )
     gl::multModelView( mOrientationMatrix );
     
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
-    Area mPanelTexArea(texWidth * 0.41f, texHeight * 0.9f, texWidth * 0.49f, texHeight * 0.99f);
-    gl::draw(uiButtonsTex, mPanelTexArea, mPanelRect);
+//    Area mPanelTexArea(texWidth * 0.0, texHeight * 0.8f, texWidth * 0.1f, texHeight * 1.0f);
+//    gl::draw(uiButtonsTex, mPanelTexArea, mPanelRect);
+
+	Area mPanelUpperTexArea(texWidth * 0.0, texHeight * 0.71f, texWidth * 0.09f, texHeight * 0.79f);
+    gl::draw(uiButtonsTex, mPanelUpperTexArea, mPanelUpperRect);
+	
+	Area mPanelLowerTexArea(texWidth * 0.0, texHeight * 0.91f, texWidth * 0.09f, texHeight * 0.99f);
+    gl::draw(uiButtonsTex, mPanelLowerTexArea, mPanelLowerRect);
 	
 	gl::color( ColorA( BRIGHT_BLUE, 0.2f ) );
 	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 ), Vec2f( mPanelRect.x2, mPanelRect.y1 ) );

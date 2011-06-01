@@ -18,7 +18,6 @@
 #include "State.h"
 #include "Data.h"
 #include "PlayControls.h"
-//#include "Breadcrumbs.h"
 #include "CinderIPod.h"
 #include "CinderIPodPlayer.h"
 #include "PinchRecognizer.h"
@@ -45,9 +44,6 @@ float G_ZOOM			= 0;
 int G_CURRENT_LEVEL		= 0;
 bool G_ACCEL			= true;
 bool G_DEBUG			= false;
-bool G_FEATURE			= false;
-bool G_SHUFFLE			= false;
-bool G_REPEAT			= false;
 bool G_SHOW_SETTINGS	= false;
 bool G_HELP             = false;
 bool G_DRAW_RINGS		= false;
@@ -198,7 +194,7 @@ class KeplerApp : public AppCocoaTouch {
 	// TEXTURES
 //    TextureLoader   mTextureLoader;
 	gl::Texture		mParamsTex;
-	gl::Texture		mStarTex, mStarGlowTex, mEclipseGlowTex;
+	gl::Texture		mStarTex, mStarGlowTex, mStarCoreTex, mEclipseGlowTex;
 	gl::Texture		mSkyDome, mGalaxyDome;
 	gl::Texture		mDottedTex;
 	gl::Texture		mPlayheadProgressTex;
@@ -260,7 +256,7 @@ void KeplerApp::setup()
     delete[] machine;
 
 	if( G_IS_IPAD2 ){
-		G_NUM_PARTICLES = 25;
+		G_NUM_PARTICLES = 30;
 		G_NUM_DUSTS = 2500;
 		motionManager = [[CMMotionManager alloc] init];
 		[motionManager startDeviceMotionUpdates];
@@ -327,7 +323,7 @@ void KeplerApp::remainingSetup()
 	mArcball.setWindowSize( getWindowSize() );
 	mArcball.setCenter( getWindowCenter() );
 	mArcball.setRadius( G_DEFAULT_ARCBALL_RADIUS );
-	mArcball.setQuat( Quatf( 1.0, 0.0f, 0.0f ) );
+	mArcball.setQuat( Quatf( -0.2, 0.0f, -0.3f ) );
 	
 	// CAMERA PERSP
 	mCamDist			= G_INIT_CAM_DIST;
@@ -395,7 +391,7 @@ void KeplerApp::remainingSetup()
     // NB:- order of UI init is important to register callbacks in correct order
     
 	// PLAY CONTROLS
-	mPlayControls.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontMediSmall, mFontMediTiny, mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex );
+	mPlayControls.setup( this, mOrientationHelper.getInterfaceOrientation(), &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
 
@@ -462,6 +458,7 @@ void KeplerApp::initTextures()
 //	float t = getElapsedSeconds();
 //	console() << "initTextures start time = " << t << endl;
     mStarTex			= loadImage( loadResource( "star.png" ) );
+	mStarCoreTex		= loadImage( loadResource( "starCore.png" ) );
 	mEclipseGlowTex		= loadImage( loadResource( "eclipseGlow.png" ) );
 	mParticleTex		= loadImage( loadResource( "particle.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.png" ) );
@@ -958,13 +955,17 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
 			
 		case PlayControls::SHUFFLE:
+			if( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff ) mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeOff );
+			else mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeSongs );
+				
             Flurry::getInstrumentation()->logEvent("Shuffle Button Selected");    
-			G_SHUFFLE = ! G_SHUFFLE;
             break;
 			
 		case PlayControls::REPEAT:
+			if( mIpodPlayer.getRepeatMode() == ipod::Player::RepeatModeDefault ) mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeNone );
+			else mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeAll );
+			
             Flurry::getInstrumentation()->logEvent("Repeat Button Selected");   
-			G_REPEAT = ! G_REPEAT;
             break;
         
         case PlayControls::HELP:
@@ -1022,10 +1023,6 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
         
 		case PlayControls::DEBUG_FEATURE:
 			G_DEBUG = !G_DEBUG;
-            break;
-		
-		case PlayControls::TEST_FEATURE:
-			G_FEATURE = !G_FEATURE;
             break;
 			
 		case PlayControls::NEXT_PLAYLIST:
@@ -1151,7 +1148,7 @@ void KeplerApp::update()
 			mWorld.mPlayingTrackNode->updateAudioData( currentTrackPlayheadTime );
 		}
 		
-        mWorld.update( mMatrix );
+        mWorld.update( mMatrix, 0.5f + mPlayControls.getParamSlider1Value() * 2.0f );
 		
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
@@ -1167,9 +1164,9 @@ void KeplerApp::update()
 		
 		Node *selectedArtistNode = mState.getSelectedArtistNode();
 		if( selectedArtistNode ){
-			mParticleController.update( mMatrix.inverted() * mCenter, selectedArtistNode->mRadius * 0.125f, invBbRight, invBbUp );
+			mParticleController.update( mMatrix.inverted() * mCenter, selectedArtistNode->mRadius * 0.15f, invBbRight, invBbUp );
 			float per = selectedArtistNode->mEclipseStrength * 0.5f + 0.25f;
-			mParticleController.buildParticleVertexArray( selectedArtistNode->mGlowColor, sin( per * M_PI ) * sin( per * 0.25f ) );
+			mParticleController.buildParticleVertexArray( selectedArtistNode->mGlowColor, ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f, mMatrix );
 			mParticleController.buildDustVertexArray( selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.05f * mFadeInArtistToAlbum );
 		}
 		
@@ -1186,11 +1183,15 @@ void KeplerApp::update()
         mPlayControls.setLabelsVisible( G_DRAW_TEXT );
         mPlayControls.setHelpVisible( G_HELP );
 
-		mPlayControls.setDebugVisible( G_DEBUG );
-		mPlayControls.setFeatureVisible( G_FEATURE );
-		mPlayControls.setShuffleVisible( G_SHUFFLE ); // TODO: get this state from ipod player
-		mPlayControls.setRepeatVisible( G_REPEAT );   // TODO: get this state from ipod player
-		mPlayControls.setGyroVisible( G_USE_GYRO );
+		mPlayControls.setDebugVisible( G_DEBUG );	
+		if( G_IS_IPAD2 ) mPlayControls.setGyroVisible( G_USE_GYRO );
+		
+		if( mIpodPlayer.getShuffleMode() == ipod::Player::ShuffleModeOff ) mPlayControls.setShuffleVisible( false );
+		else mPlayControls.setShuffleVisible( true );
+		
+		if( mIpodPlayer.getRepeatMode() == ipod::Player::RepeatModeNone ) mPlayControls.setRepeatVisible( false );
+		else mPlayControls.setRepeatVisible( true );
+		
 
         mPlayControls.setElapsedSeconds( (int)currentTrackPlayheadTime );
         mPlayControls.setRemainingSeconds( -(int)(currentTrackLength - currentTrackPlayheadTime) );
@@ -1539,6 +1540,7 @@ void KeplerApp::drawScene()
 		glEnable( GL_RESCALE_NORMAL );
 		glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT, ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
 		glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, ColorA( Color::white(), 1.0f ) );
+	
 		
 		for( int i = 0; i < sortedNodes.size(); i++ ){
 			gl::enableDepthRead();
@@ -1552,6 +1554,18 @@ void KeplerApp::drawScene()
 			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor, 1.0f ) );
 			
 			gl::enableAlphaBlending();
+			if( i==0 ){
+				artistNode->drawStarCore( mStarCoreTex );	
+				glDisable( GL_LIGHTING );
+				gl::disableDepthRead();
+				gl::enableAdditiveBlending();
+				artistNode->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
+				glEnable( GL_LIGHTING );
+				gl::enableDepthRead();
+				gl::enableAlphaBlending();
+			}
+			
+			
 			sortedNodes[i]->drawPlanet();
 			sortedNodes[i]->drawClouds( mCloudsTex );
 			
@@ -1559,6 +1573,7 @@ void KeplerApp::drawScene()
 			glDisable( GL_LIGHTING );
 			gl::disableDepthRead();
 			gl::enableAdditiveBlending();
+
 			
 			if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
 				sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
@@ -1620,8 +1635,13 @@ void KeplerApp::drawScene()
 // PLAYHEAD PROGRESS
 	if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 		gl::enableAdditiveBlending();
+		
+		float pauseAlpha = 1.0f;
+		if( mIpodPlayer.getPlayState() == ipod::Player::StatePaused ){
+			pauseAlpha = sin(getElapsedSeconds() * M_PI * 2.0f ) * 0.25f + 0.75f;
+		}
 		if( G_DRAW_RINGS )
-			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mCamRingAlpha, mPlayheadProgressTex, mTrackOriginTex );
+			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mCamRingAlpha, pauseAlpha, mPlayheadProgressTex, mTrackOriginTex );
 	}
 	
 	
@@ -1784,13 +1804,20 @@ void KeplerApp::setParamsTex()
 {
     stringstream s;
 	TextLayout layout;	
-	layout.setFont( mFontMediSmall );
-	layout.setColor( Color( 1.0f, 0.0f, 0.0f ) );
+	layout.setFont( mFont );
+	layout.setColor( BRIGHT_BLUE );
 
 	s.str("");
 	s << "FPS: " << getAverageFps();
 	layout.addLine( s.str() );
 	
+	layout.setColor( BLUE );
+	s.str("");
+	s << "PLAYHEAD TIME: " << mIpodPlayer.getPlayheadTime();
+	layout.addLine( s.str() );
+	
+	
+	layout.setColor( BLUE );
 	s.str("");
 	s << "CURRENT LEVEL: " << G_CURRENT_LEVEL;
 	layout.addLine( s.str() );
@@ -1923,7 +1950,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
     std::map<string, string> params;
-    params["State"] = player->getPlayStateString();
+    params["State"] = player->getPlayState();
     Flurry::getInstrumentation()->logEvent("Player State Changed", params);
     
     if ( mState.getSelectedNode() == NULL ) {

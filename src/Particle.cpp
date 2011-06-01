@@ -26,10 +26,10 @@ Particle::Particle( int index, Vec3f pos, Vec3f vel, const Vec3f &bbRight, const
 void Particle::setup( const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	mLifespan       = pow( Rand::randFloat( 0.5f, 1.0f ), 2.0f );
-	mLifespan		*= 250.0f;
+	mLifespan		*= 450.0f;
 	
-	mRadius		= Rand::randFloat( 1.0f, 5.0f );
-	mPos		= ( bbRight * mCosAngle + bbUp * mSinAngle ) * 0.35f;
+	mRadius		= Rand::randFloat( 0.2f, 0.3f );
+	mPos		= ( bbRight * mCosAngle + bbUp * mSinAngle );
 	mPrevPos	= mPos;
 	mVel		= mPos * ( Rand::randFloat( 0.0075f, 0.0175f ) * ( mRadius/5.0f ) );
 	mAcc		= Rand::randVec3f() * 0.01f;
@@ -41,7 +41,7 @@ void Particle::setup( const Vec3f &bbRight, const Vec3f &bbUp )
 void Particle::update( float radius, const Vec3f &bbRight, const Vec3f &bbUp )
 {
 	mAgePer		= 1.0f - (float)mAge/(float)mLifespan;
-	mPos		= ( bbRight * mCosAngle + bbUp * mSinAngle ) * ( radius + mAge * 0.00075f );
+	mPos		= ( bbRight * mCosAngle + bbUp * mSinAngle ) * ( radius + mAge * 0.00015f );
 	//mPrevPos	= mPos;
    // mPos += mVel;
     mAge ++;

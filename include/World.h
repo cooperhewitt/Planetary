@@ -43,7 +43,7 @@ class World {
 	void deselectAllNodes();
     void setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
-	void update( const ci::Matrix44f &mat );
+	void update( const ci::Matrix44f &mat, float param1 );
 	void updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 
 	void drawStarsVertexArray( const ci::Matrix44f &mat );

@@ -96,11 +96,11 @@ void NodeAlbum::setData( PlaylistRef album )
 	mTotalLength		= mAlbum->getTotalLength();
 	mReleaseYear		= (*mAlbum)[0]->getReleaseYear();
 	
-	mRadiusDest			= mParentNode->mRadiusDest * constrain( mTotalLength * 0.00002f, 0.01f, 0.04f );//Rand::randFloat( 0.01f, 0.035f );
-	mRadius				= mRadiusDest;
-	mCloudLayerRadius	= mRadiusDest * 0.015f;
+	mRadiusInit			= mParentNode->mRadiusDest * constrain( mTotalLength * 0.00002f, 0.01f, 0.04f );//Rand::randFloat( 0.01f, 0.035f );
+	mRadius				= mRadiusInit;
+	mCloudLayerRadius	= mRadius * 0.015f;
 	
-	mSphere				= Sphere( mPos, mRadius );
+	mSphere				= Sphere( mPos, mRadiusInit );
 	mAxialTilt			= Rand::randFloat( 5.0f );
     mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
 	
@@ -150,9 +150,9 @@ void NodeAlbum::setData( PlaylistRef album )
 				yi = iter.y();	
 			}
 			ColorA c = crop.getPixel( Vec2i( xi, yi ) );
-			iter.r() = pow( c.r, 1.5f ) * 255.0f;
-			iter.g() = pow( c.g, 1.5f ) * 255.0f;
-			iter.b() = pow( c.b, 1.5f ) * 255.0f;
+			iter.r() = pow( c.r, 1.25f ) * 255.0f;
+			iter.g() = pow( c.g, 1.25f ) * 255.0f;
+			iter.b() = pow( c.b, 1.25f ) * 255.0f;
 		}
 	}
 	
@@ -167,6 +167,7 @@ void NodeAlbum::setData( PlaylistRef album )
 			int i2 = phi2 * totalWidth/TWO_PI + halfWidth;
 			
 			if( i2 < 0 || i2 > totalWidth-1 ){
+				// this should never happen
 				iter2.r() = 255.0f;
 				iter2.g() = 0.0f;
 				iter2.b() = 0.0f;
@@ -193,10 +194,9 @@ void NodeAlbum::setData( PlaylistRef album )
 			ColorA surfaceColor	= planetSurface.getPixel( Vec2i( iter.x(), iter.y() ) );
 			float planetVal		= surfaceColor.r;
 			float cloudShadow	= ( 1.0f - surfaceColor.g ) * 0.5f + 0.5f;
-			//float highlight		= surfaceColor.b;
 			
-			ColorA final		= albumColor * 0.75f + planetVal * 0.25f;
-			final *= cloudShadow;
+			ColorA final		= albumColor;// + planetVal * 0.25f;
+			final *= cloudShadow * planetVal;
 			
 			iter.r() = final.r * 255.0f;// + 25.0f;
 			iter.g() = final.g * 255.0f;// + 25.0f;
@@ -209,8 +209,12 @@ void NodeAlbum::setData( PlaylistRef album )
 }
 
 
-void NodeAlbum::update( const Matrix44f &mat )
+void NodeAlbum::update( const Matrix44f &mat, float param1 )
 {
+	mRadiusDest		= mRadiusInit * param1;
+	mRadius			-= ( mRadius - mRadiusDest ) * 0.2f;
+	mSphere			= Sphere( mPos, mRadius );
+	
 	double playbackTime		= app::getElapsedSeconds();
 	double percentPlayed	= playbackTime/mOrbitPeriod;
 	mOrbitAngle				= percentPlayed * TWO_PI + mOrbitStartAngle;
@@ -283,9 +287,9 @@ void NodeAlbum::update( const Matrix44f &mat )
 // END CALCULATE ECLIPSE VARS
 /////////////////////////////
 	
-	mCloudLayerRadius	= mRadiusDest * 0.005f + mDistFromCamZAxisPer * 0.005;
+	mCloudLayerRadius	= mRadius * 0.005f + mDistFromCamZAxisPer * 0.005;
 	
-	Node::update( mat );
+	Node::update( mat, param1 );
 	
 	mTransVel = mTransPos - prevTransPos;	
 }
@@ -344,7 +348,7 @@ void NodeAlbum::drawPlanet()
 		gl::scale( Vec3f( mRadius, mRadius, mRadius ) * mDeathPer );
 		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot );
-		gl::color( ColorA( mEclipseColor + ( 1.0f - mBlockedBySunPer ), mBlockedBySunPer * mClosenessFadeAlpha ) );
+		gl::color( ColorA( mBlockedBySunPer, mBlockedBySunPer, mBlockedBySunPer, mBlockedBySunPer * mClosenessFadeAlpha ) );
 		
 		mAlbumArtTex.enableAndBind();
 		
@@ -403,19 +407,21 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::enableAlphaBlending();
 		gl::pushModelView();
 		gl::translate( mTransPos );
+
+		//glDisable( GL_LIGHTING );
+// SHADOW CLOUDS
 		gl::pushModelView();
 		float radius = mRadius * mDeathPer + mCloudLayerRadius;
 		float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 0.334f ) * mClosenessFadeAlpha;
 		gl::scale( Vec3f( radius, radius, radius ) );
 		gl::rotate( mMatrix );
-		gl::rotate( mAxialRot + Vec3f( 0.0f, 2.5f, 0.0f ) );
-		
-// SHADOW CLOUDS
+		gl::rotate( mAxialRot + Vec3f( 0.0f, 0.5f, 0.0f ) );
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
 		clouds[mCloudTexIndex].enableAndBind();
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
-			
+
+		//glEnable( GL_LIGHTING );
 // LIT CLOUDS
 		gl::pushModelView();
 		radius = mRadius * mDeathPer + mCloudLayerRadius*1.5f;
@@ -423,9 +429,11 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot );
 		gl::enableAdditiveBlending();
-		gl::color( ColorA( mEclipseColor, alpha * 2.0f ) );
+		gl::color( ColorA( mBlockedBySunPer, mBlockedBySunPer, mBlockedBySunPer, alpha * 2.0f ) );
+		
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
+		
 		gl::popModelView();
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
@@ -442,11 +450,11 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 			Vec2f dir		= mScreenPos - app::getWindowCenter();
 			float dirLength = dir.length()/500.0f;
 			float angle		= atan2( dir.y, dir.x );
-			float stretch	= dirLength * mRadius;
+			float stretch	= dirLength * mRadius * 0.5f;
 			float alpha = ( 1.0f - dirLength * 0.75f ) + mEclipseStrength;
 			alpha *= mDeathPer * mBlockedBySunPer * mClosenessFadeAlpha;
 			
-			gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, alpha ) );
+			gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, alpha + mEclipseStrength * 2.0f ) );
 			
 			Vec2f radius = Vec2f( mRadius * ( 1.0f + stretch ), mRadius ) * 2.46f;
 			//Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;

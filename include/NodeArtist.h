@@ -18,11 +18,12 @@ class NodeArtist : public Node
   public:
 	NodeArtist( int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &hiResSurfaces, const ci::Surface &loResSurfaces, const ci::Surface &noAlbumArt );
 	
-	void update( const ci::Matrix44f &mat );
+	void update( const ci::Matrix44f &mat, float param1 );
 	void drawEclipseGlow();
-	void drawPlanet();
+	void drawStarCore( const ci::gl::Texture &tex );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
+	void drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
 	
 	void select();
 	void setChildOrbitRadii();

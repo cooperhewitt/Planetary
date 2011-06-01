@@ -25,6 +25,7 @@
 #include "TextLabel.h"
 #include "TimeLabel.h"
 #include "ScrollingLabel.h"
+#include "CinderIPodPlayer.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -35,14 +36,15 @@ public:
 
 	enum ButtonId { NO_BUTTON, PREV_PLAYLIST, NEXT_PLAYLIST, SHOW_WHEEL,
                     GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, PREV_TRACK, 
-                    PLAY_PAUSE, NEXT_TRACK, SHUFFLE, REPEAT, SLIDER, 
-					HELP, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE, TEST_FEATURE };
+                    PLAY_PAUSE, NEXT_TRACK, SHUFFLE, REPEAT, SLIDER, PARAMSLIDER1, PARAMSLIDER2, 
+					HELP, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE };
 
     PlayControls() {}
     ~PlayControls();
     
     void setup( AppCocoaTouch *app, 
                 Orientation orientation, 
+			    ipod::Player *player,
                 const ci::Font &font, 
                 const ci::Font &fontSmall, 
                 const ci::gl::Texture &buttonsTex, 
@@ -70,7 +72,6 @@ public:
 
     void setHelpVisible(bool visible) {		mHelpButton.setOn(visible); };
 	void setDebugVisible(bool visible) {	mDebugButton.setOn(visible); };
-	void setFeatureVisible(bool visible) {	mFeatureButton.setOn(visible); };
 	void setGyroVisible(bool visible) {		mGyroButton.setOn(visible); };
     void setOrbitsVisible(bool visible) {	mOrbitsButton.setOn(visible); };
     void setLabelsVisible(bool visible) {	mLabelsButton.setOn(visible); };	
@@ -83,7 +84,10 @@ public:
     void setPlaylist(string playlist) { mPlaylistLabel.setText(playlist); }
     void setLastTrackChangeTime(float time) { mTrackInfoLabel.setLastTrackChangeTime(time); }
     void setPlayheadProgress(float value) { mPlayheadSlider.setValue(value); }
-
+	
+	float getParamSlider1Value(){ return mParamSlider1.getValue(); }
+	float getParamSlider2Value(){ return mParamSlider2.getValue(); }
+	
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>
 	CallbackId registerButtonPressed( T *obj, bool (T::*callback)(ButtonId) )
@@ -109,6 +113,7 @@ private:
 	UIElement* findButtonUnderTouches(vector<TouchEvent::Touch> touches);
     // TODO: can we move this to slider class?
     void dragPlayheadToPos(Vec2f pos);
+	void dragSliderToPos( Slider *slider, Vec2f pos );
     
     // layout happens here
     void updateUIRects();
@@ -187,7 +192,6 @@ private:
         ToggleButton mOrbitsButton;
         ToggleButton mLabelsButton;
         ToggleButton mDebugButton;
-        ToggleButton mFeatureButton;
         ToggleButton mGyroButton;
 		ToggleButton mShuffleButton;
 		ToggleButton mRepeatButton;
@@ -196,5 +200,9 @@ private:
     SimpleButton mPreviousTrackButton;
     TwoStateButton mPlayPauseButton;
     SimpleButton mNextTrackButton;
-        
+	
+	TextLabel mParamSlider1Label;
+    Slider mParamSlider1;
+	TextLabel mParamSlider2Label;
+    Slider mParamSlider2;        
 };

@@ -18,7 +18,7 @@ PlayControls::~PlayControls()
     if ( cbTouchesMoved ) mApp->unregisterTouchesMoved( cbTouchesMoved );
 }
 
-void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
+void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, ipod::Player *player, const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
 {
     mApp			= app;
     mButtonsTex		= uiButtonsTex; // only stored for dimming sides of scrolling current track label
@@ -59,8 +59,10 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, const Fon
                                Area(uw*3.0f,v2,uw*4.0f,v3),  // on texture
                                Area(uw*3.0f,v1,uw*4.0f,v2)); // off texture
 
+	bool isPlaying = false;
+	if( player->getPlayState() == ipod::Player::StatePlaying ) isPlaying = true;
     mPlayPauseButton.setup(PLAY_PAUSE, 
-                           false,               // on
+                           isPlaying,
                            uiBigButtonsTex,
                            Area(uw*4.0f,v2,uw*5.0f,v3), // offUp   
                            Area(uw*4.0f,v1,uw*5.0f,v2), // offDown
@@ -78,17 +80,6 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, const Fon
                             Area(uw*7.0f,v2,uw*8.0f,v3),  // on texture
                             Area(uw*7.0f,v1,uw*8.0f,v2)); // off texture    
 
-	
-    mPreviousPlaylistButton.setup(PREV_PLAYLIST, 
-                                  uiBigButtonsTex,
-                                  Area(uw*3.0f,v2,uw*4.0f,v3),  // on texture
-                                  Area(uw*3.0f,v1,uw*4.0f,v2)); // off texture
-    
-    mNextPlaylistButton.setup(NEXT_PLAYLIST,
-                              uiBigButtonsTex,
-                              Area(uw*6.0f,v2,uw*7.0f,v3),  // on texture
-                              Area(uw*6.0f,v1,uw*7.0f,v2)); // off texture
-
     
      
 
@@ -105,11 +96,13 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, const Fon
                           Area(uw*0.0f,v2,uw*1.0f,v3),  // on texture
                           Area(uw*0.0f,v1,uw*1.0f,v2)); // off texture
         
-        mGyroButton.setup(USE_GYRO, 
-                            false, 
-                            uiSmallButtonsTex,
-                            Area(uw*1.0f,v2,uw*2.0f,v3),  // on texture
-                            Area(uw*1.0f,v1,uw*2.0f,v2)); // off texture
+		if( G_IS_IPAD2 ){
+			mGyroButton.setup(USE_GYRO, 
+								false, 
+								uiSmallButtonsTex,
+								Area(uw*1.0f,v2,uw*2.0f,v3),  // on texture
+								Area(uw*1.0f,v1,uw*2.0f,v2)); // off texture
+		}
         
         mOrbitsButton.setup(DRAW_RINGS, 
                             false, 
@@ -129,33 +122,37 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, const Fon
                           Area(uw*4.0f,v2,uw*5.0f,v3),  // on texture
                           Area(uw*4.0f,v1,uw*5.0f,v2)); // off texture
 		
-		mFeatureButton.setup(TEST_FEATURE, 
-						   false, 
-                           uiSmallButtonsTex,
-						   Area(uw*5.0f,v2,uw*6.0f,v3),  // on texture
-						   Area(uw*5.0f,v1,uw*6.0f,v2)); // off texture
+		mPreviousPlaylistButton.setup(PREV_PLAYLIST, 
+									  uiSmallButtonsTex,
+									  Area(uw*6.0f,v2,uw*7.0f,v3),  // on texture
+									  Area(uw*6.0f,v1,uw*7.0f,v2)); // off texture
+		
+		mNextPlaylistButton.setup(NEXT_PLAYLIST,
+								  uiSmallButtonsTex,
+								  Area(uw*7.0f,v2,uw*8.0f,v3),  // on texture
+								  Area(uw*7.0f,v1,uw*8.0f,v2)); // off texture
 		
 		mShuffleButton.setup(SHUFFLE, 
 							 false, 
                              uiSmallButtonsTex,
-							 Area(uw*6.0f,v2,uw*7.0f,v3),  // on texture
-							 Area(uw*6.0f,v1,uw*7.0f,v2)); // off texture
+							 Area(uw*8.0f,v2,uw*9.0f,v3),  // on texture
+							 Area(uw*8.0f,v1,uw*9.0f,v2)); // off texture
 		
 		mRepeatButton.setup(REPEAT, 
 							false, 
                             uiSmallButtonsTex,
-							Area(uw*7.0f,v2,uw*8.0f,v3),  // on texture
-							Area(uw*7.0f,v1,uw*8.0f,v2)); // off texture
+							Area(uw*9.0f,v2,uw*10.0f,v3),  // on texture
+							Area(uw*9.0f,v1,uw*10.0f,v2)); // off texture
     }
     
     const float vh = uiButtonsTex.getHeight();
     
     mPlayheadSlider.setup(SLIDER,          // ID
                           uiButtonsTex,
-                          Area(uw * 0.0f, vh * 0.9f, uw * 1.0f, vh * 1.0f),  // bg texture
-                          Area(uw * 2.0f, vh * 0.9f, uw * 3.0f, vh * 1.0f),  // fg texture
-                          Area(uw * 4.0f, vh * 0.7f, uw * 5.0f, vh * 0.9f),  // thumb on texture
-                          Area(uw * 4.0f, vh * 0.5f, uw * 5.0f, vh * 0.7f)); // thumb off texture
+                          Area(uw * 0.0f, vh * 0.5f, uw * 1.0f, vh * 0.6f),  // bg texture
+                          Area(uw * 0.0f, vh * 0.6f, uw * 1.0f, vh * 0.7f),  // fg texture
+                          Area(uw * 0.0f, vh * 0.2f, uw * 1.0f, vh * 0.4f),  // thumb on texture
+                          Area(uw * 0.0f, vh * 0.0f, uw * 1.0f, vh * 0.2f)); // thumb off texture
 
     /////// no textures please, we're British...
     
@@ -168,7 +165,26 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, const Fon
     mRemainingTimeLabel.setup(NO_BUTTON, fontSmall, BRIGHT_BLUE);
         
     ///////
-    
+	// TODO: add initial value
+	mParamSlider1.setup( PARAMSLIDER1,          // ID
+						 uiButtonsTex,
+						 Area(uw * 0.0f, vh * 0.5f, uw * 1.0f, vh * 0.6f),  // bg texture
+						 Area(uw * 0.0f, vh * 0.6f, uw * 1.0f, vh * 0.7f),  // fg texture
+						 Area(uw * 0.0f, vh * 0.2f, uw * 1.0f, vh * 0.4f),  // thumb on texture
+						 Area(uw * 0.0f, vh * 0.0f, uw * 1.0f, vh * 0.2f)); // thumb off texture
+	mParamSlider1.setValue( 0.25f );
+	mParamSlider1Label.setup( NO_BUTTON, font, BRIGHT_BLUE );
+	mParamSlider1Label.setText( "Scale" );
+	
+	mParamSlider2.setup( PARAMSLIDER2,          // ID
+						 uiButtonsTex,
+						 Area(uw * 0.0f, vh * 0.5f, uw * 1.0f, vh * 0.6f),  // bg texture
+						 Area(uw * 0.0f, vh * 0.6f, uw * 1.0f, vh * 0.7f),  // fg texture
+						 Area(uw * 0.0f, vh * 0.2f, uw * 1.0f, vh * 0.4f),  // thumb on texture
+						 Area(uw * 0.0f, vh * 0.0f, uw * 1.0f, vh * 0.2f)); // thumb off texture
+	mParamSlider2Label.setup( NO_BUTTON, font, BRIGHT_BLUE );
+	mParamSlider2Label.setText( "Misc." );
+	
     setInterfaceOrientation(orientation);
     
     // make drawable and interactive vectors for ::draw() and ::touchXXX
@@ -189,11 +205,13 @@ void PlayControls::update()
 	// This is just for simple buttons. For toggles, check KeplerApp::update()
     int activeId = mActiveElement ? mActiveElement->getId() : NO_BUTTON;
     
-	mGalaxyButton.setDown( activeId == mGalaxyButton.getId() );
-	mCurrentTrackButton.setDown( activeId == mCurrentTrackButton.getId() );
-    mPreviousTrackButton.setDown( activeId == mPreviousTrackButton.getId() );
-    mPlayPauseButton.setDown( activeId == mPlayPauseButton.getId() );
-    mNextTrackButton.setDown( activeId == mNextTrackButton.getId() );         
+	mGalaxyButton.setDown(			 activeId == mGalaxyButton.getId() );
+	mCurrentTrackButton.setDown(	 activeId == mCurrentTrackButton.getId() );
+    mPreviousTrackButton.setDown(	 activeId == mPreviousTrackButton.getId() );
+    mPlayPauseButton.setDown(		 activeId == mPlayPauseButton.getId() );
+    mNextTrackButton.setDown(		 activeId == mNextTrackButton.getId() );    
+    mPreviousPlaylistButton.setDown( activeId == mPreviousPlaylistButton.getId() );
+    mNextPlaylistButton.setDown(	 activeId == mNextPlaylistButton.getId() );
     
 }
 
@@ -214,7 +232,7 @@ void PlayControls::setInterfaceOrientation( const Orientation &orientation )
 
 void PlayControls::updateUIRects()
 {
-	const float topBorder	 = 10.0f;
+	const float topBorder	 = 5.0f;
 	const float sideBorder	 = 10.0f;
     
     const float bSize		 = 50.0f;
@@ -259,10 +277,23 @@ void PlayControls::updateUIRects()
 	x2 = x1 + bSize;
     mAlphaWheelButton.setRect( x1, y1, x2, y2 );
 	
-// LABEL TOGGLE BUTTON
-	y1 += 68.0f;
+	
+	
+	y1 += 60.0f;
     y2 = y1 + bSizeSmall;
-	x1 += 5.0f + bSizeSmall * 2.0f;
+	
+// SHUFFLE TOGGLE BUTTON
+	x1 = mInterfaceSize.x - sideBorder - bSizeSmall - 3.0f;
+	x2 = x1 + bSizeSmall;    
+    mShuffleButton.setRect( x1, y1, x2, y2 );
+
+// REPEAT TOGGLE BUTTON
+	x1 -= bSizeSmall;
+	x2 = x1 + bSizeSmall;
+    mRepeatButton.setRect( x1, y1, x2, y2 );
+	
+// TEXT LABELS TOGGLE BUTTON
+	x1 -= bSizeSmall;
 	x2 = x1 + bSizeSmall;
     mLabelsButton.setRect( x1, y1, x2, y2 );
 	
@@ -272,54 +303,38 @@ void PlayControls::updateUIRects()
     mOrbitsButton.setRect( x1, y1, x2, y2 );
 	
 // GYRO TOGGLE BUTTON
-	x1 -= bSizeSmall;
-	x2 = x1 + bSizeSmall;
-    mGyroButton.setRect( x1, y1, x2, y2 );
+	if( G_IS_IPAD2 ){
+		x1 -= bSizeSmall;
+		x2 = x1 + bSizeSmall;
+		mGyroButton.setRect( x1, y1, x2, y2 );
+	}
 	
 // DEBUG TOGGLE BUTTON
 	x1 -= bSizeSmall;
 	x2 = x1 + bSizeSmall;
     mDebugButton.setRect( x1, y1, x2, y2 );
 	
-// FEATURE TOGGLE BUTTON
-	x1 -= bSizeSmall;
-	x2 = x1 + bSizeSmall;
-    mFeatureButton.setRect( x1, y1, x2, y2 );
-	
 // HELP TOGGLE BUTTON
     x1 -= bSizeSmall;
 	x2 = x1 + bSizeSmall;
     mHelpButton.setRect( x1, y1, x2, y2 );
-	
-// SHUFFLE TOGGLE BUTTON
-	x1 = mInterfaceSize.x - sideBorder - bSizeSmall - 3.0f;
-	x2 = x1 + bSizeSmall;    
-    mShuffleButton.setRect( x1, y1, x2, y2 );
-
-// REPEAT TOGGLE BUTTON
-	x1 -= bSize;
-	x2 = x1 + bSizeSmall;
-    mRepeatButton.setRect( x1, y1, x2, y2 );
-	
 	
 	
 	
 // PREVIOUS PLAYLIST BUTTON
 	x1 = 10.0f;
 	x2 = x1 + bSize;
-	y1 = 73.0f;
-	y2 = y1 + bSize;
 	mPreviousPlaylistButton.setRect( x1, y1, x2, y2 );
 	
 // NEXT PLAYLIST BUTTON
-	x1 = x2 + 200.0f;
+	x1 = x2;
 	x2 = x1 + bSize;
 	mNextPlaylistButton.setRect( x1, y1, x2, y2 );
 	
 // PLAYLIST LABEL
-	x1 -= 200.0f;
-	x2 = x1 + 200.0f;
-	y1 += 15.0f;
+	x1 = x2 + 10.0f;
+	x2 = x1 + 300.0f;
+	y1 += 12.0f;
 	// FIX ME! vvv
 	y2 = y1 + 12.0f;
 	mPlaylistLabel.setRect( x1, y1, x2, y2 );
@@ -329,10 +344,14 @@ void PlayControls::updateUIRects()
     const float bgy1 = 32.0f;
     const float bgy2 = bgy1 + sliderHeight;
     mPlayheadSlider.setRect( bgx1, bgy1, bgx2, bgy2 );
-    
+    mParamSlider1.setRect( 60.0f, bgy1 + 80.0f, mInterfaceSize.x * 0.5f - 20.0f, bgy2 + 80.0f );
+    mParamSlider2.setRect( mInterfaceSize.x * 0.5f + 60.0f, bgy1 + 80.0f, mInterfaceSize.x - 20.0f, bgy2 + 80.0f );
+	mParamSlider1Label.setRect( 20.0f, bgy1 + 80.0f, 70.0f, bgy2 + 80.0f );
+	mParamSlider2Label.setRect( mInterfaceSize.x * 0.5f + 20.0f, bgy1 + 80.0f, mInterfaceSize.x * 0.5f + 70.0f, bgy2 + 80.0f );
+	
     const float ctx1 = bgx1 - 43.0f;
-    const float ctx2 = bgx2 + 50.0f;
-    const float cty1 = bgy1 - 14.0f;
+    const float ctx2 = bgx2 + 48.0f;
+    const float cty1 = bgy1 - 16.0f;
     const float cty2 = cty1; // NB:- will be overridden in ScrollingLabel::draw()
     mTrackInfoLabel.setRect( ctx1, cty1, ctx2, cty2 );
 
@@ -362,49 +381,53 @@ void PlayControls::updateElements()
     drawableElements.push_back(&mPreviousTrackButton);
     drawableElements.push_back(&mPlayPauseButton);
     drawableElements.push_back(&mNextTrackButton);
-    if (mShowSettings) {    
+	
+    if (mShowSettings) {   
+		drawableElements.push_back(&mShuffleButton);
+		drawableElements.push_back(&mRepeatButton);
         drawableElements.push_back(&mHelpButton);
         drawableElements.push_back(&mOrbitsButton);
         drawableElements.push_back(&mLabelsButton);
         drawableElements.push_back(&mDebugButton);
-        drawableElements.push_back(&mFeatureButton);
-        drawableElements.push_back(&mGyroButton); // FIXME: only if we're using Gyro
-        drawableElements.push_back(&mShuffleButton);
-        drawableElements.push_back(&mRepeatButton);
+        if( G_IS_IPAD2 ) drawableElements.push_back(&mGyroButton); // FIXME: only if we're using Gyro
+		drawableElements.push_back(&mPlaylistLabel);	
+		drawableElements.push_back(&mPreviousPlaylistButton);
+		drawableElements.push_back(&mNextPlaylistButton);
     }
     drawableElements.push_back(&mElapsedTimeLabel);
     drawableElements.push_back(&mTrackInfoLabel);
 	drawableElements.push_back(&mPlayheadSlider);
+	drawableElements.push_back(&mParamSlider1);
+	drawableElements.push_back(&mParamSlider2);
+	drawableElements.push_back(&mParamSlider1Label);
+	drawableElements.push_back(&mParamSlider2Label);
     drawableElements.push_back(&mRemainingTimeLabel);
-    if (mShowSettings) {
-        drawableElements.push_back(&mPlaylistLabel);	
-        drawableElements.push_back(&mPreviousPlaylistButton);
-        drawableElements.push_back(&mNextPlaylistButton);
-    }    
+	
+
 
     interactiveElements.clear();
     interactiveElements.push_back(&mCurrentTrackButton);
     interactiveElements.push_back(&mGalaxyButton);
     interactiveElements.push_back(&mPlayheadSlider);
+	interactiveElements.push_back(&mParamSlider1);
+	interactiveElements.push_back(&mParamSlider2);
     interactiveElements.push_back(&mAlphaWheelButton);
     interactiveElements.push_back(&mShowSettingsButton);
+	
     if (mShowSettings) {
+		interactiveElements.push_back(&mShuffleButton);
+		interactiveElements.push_back(&mRepeatButton);
         interactiveElements.push_back(&mHelpButton);
         interactiveElements.push_back(&mOrbitsButton);
         interactiveElements.push_back(&mLabelsButton);
         interactiveElements.push_back(&mDebugButton);
-        interactiveElements.push_back(&mFeatureButton);
-        interactiveElements.push_back(&mGyroButton); // FIXME: only if we're using Gyro
-		interactiveElements.push_back(&mShuffleButton);
-		interactiveElements.push_back(&mRepeatButton);
+        if( G_IS_IPAD2 ) interactiveElements.push_back(&mGyroButton); // FIXME: only if we're using Gyro
+		interactiveElements.push_back(&mPreviousPlaylistButton);
+        interactiveElements.push_back(&mNextPlaylistButton);
     }
     interactiveElements.push_back(&mPreviousTrackButton);
     interactiveElements.push_back(&mPlayPauseButton);
-    interactiveElements.push_back(&mNextTrackButton);
-    if (mShowSettings) {
-        interactiveElements.push_back(&mPreviousPlaylistButton);
-        interactiveElements.push_back(&mNextPlaylistButton);
-    }    
+    interactiveElements.push_back(&mNextTrackButton);  
 }
 
 void PlayControls::draw(float y)
@@ -460,6 +483,22 @@ void PlayControls::dragPlayheadToPos(Vec2f pos)
     mCallbacksPlayheadMoved.call( playheadPer );                
 }
 
+void PlayControls::dragSliderToPos( Slider *slider, Vec2f pos) 
+{
+	slider->setIsDragging( true );
+	
+    // adjust for orientation and offset
+    pos = (mOrientationMatrix.inverted() * Vec3f(pos,0)).xy();
+    pos.y -= mLastDrawY;
+    
+    // FIXME: assumes slider is horizontal :)
+    Rectf rect = slider->getRect();
+    float playheadPer = (pos.x - rect.x1) / (rect.x2 - rect.x1);
+    playheadPer = constrain( playheadPer, 0.0f, 1.0f );
+    
+    slider->setValue( playheadPer );               
+}
+
 bool PlayControls::touchesBegan( TouchEvent event )
 {
     Rectf transformedBounds = transformRect( Rectf(0, mLastDrawY, mInterfaceSize.x, mInterfaceSize.y), mOrientationMatrix );    
@@ -476,11 +515,20 @@ bool PlayControls::touchesBegan( TouchEvent event )
 
         mActiveElement = findButtonUnderTouches(touches);
 		
-        if (mActiveElement && mActiveElement->getId() == SLIDER) {
-            mPlayheadSlider.setIsDragging(true);
-            dragPlayheadToPos(touches.begin()->getPos());
-        }
-             
+		if( mActiveElement ){
+			if( mActiveElement->getId() == SLIDER ){
+				dragPlayheadToPos( touches.begin()->getPos() );
+				mPlayheadSlider.setIsDragging( true );
+				
+			} else if( mActiveElement->getId() == PARAMSLIDER1 ){
+				dragSliderToPos( &mParamSlider1, touches.begin()->getPos() );
+				
+			} else if( mActiveElement->getId() == PARAMSLIDER2 ){
+				dragSliderToPos( &mParamSlider2, touches.begin()->getPos() );
+			}
+					  
+		}
+        
         return true;
     }
     else {
@@ -496,11 +544,22 @@ bool PlayControls::touchesMoved( TouchEvent event )
 
     mActiveElement = findButtonUnderTouches(touches);
 
-    if( mPlayheadSlider.isDragging() ){
-        if( touches.size() == 1 ){
-            dragPlayheadToPos(touches.begin()->getPos());
-        }
-    }
+	if( mActiveElement ){
+		if( mActiveElement->getId() == SLIDER ){
+			if( mPlayheadSlider.isDragging() )
+				dragPlayheadToPos( touches.begin()->getPos() );
+				mPlayheadSlider.setIsDragging( true );
+			
+		} else if( mActiveElement->getId() == PARAMSLIDER1 ){
+			if( mParamSlider1.isDragging() )
+				dragSliderToPos( &mParamSlider1, touches.begin()->getPos() );
+			
+		} else if( mActiveElement->getId() == PARAMSLIDER2 ){
+			if( mParamSlider2.isDragging() )
+				dragSliderToPos( &mParamSlider2, touches.begin()->getPos() );
+		}
+		
+	}
     
     return false;
 }	
@@ -514,8 +573,10 @@ bool PlayControls::touchesEnded( TouchEvent event )
 
     mActiveElement = NULL;
     
-    mPlayheadSlider.setIsDragging(false);
-
+    mPlayheadSlider.setIsDragging( false );
+	mParamSlider1.setIsDragging( false );
+	mParamSlider2.setIsDragging( false );
+	
     return false;
 }
 

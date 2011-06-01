@@ -36,10 +36,11 @@ class Node {
 								   int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
 								   int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals );
 	void			createNameTexture();
-	virtual void	update( const ci::Matrix44f &mat );
+	virtual void	update( const ci::Matrix44f &mat, float param1 );
 	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	virtual void	drawEclipseGlow();
 	virtual void	drawPlanet() {};
+	virtual void	drawStarCore( const ci::gl::Texture &tex ) {};
 	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds ) {};
 	virtual void	drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer ) {};
 	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
@@ -82,6 +83,7 @@ class Node {
 // CHARACTERISTICS
     
 // RADII
+	float				mRadiusInit;		// Radius + input from slider
 	float				mRadius;			// Radius of the Node
 	float				mInvRadius;			// 1.0f/radius
 	float				mRadiusDest;		// Destination radius

@@ -168,12 +168,12 @@ void Node::createNameTexture()
 	mNameTex				= gl::Texture( nameSurface );
 }
 
-void Node::update( const Matrix44f &mat )
+void Node::update( const Matrix44f &mat, float param1 )
 {	
 	mInvRadius		= ( 1.0f/mRadius ) * 0.5f;
 	mClosenessFadeAlpha = constrain( ( mDistFromCamZAxis - mRadius ) * mInvRadius, 0.0f, 1.0f );
 	
-	mOrbitRadius -= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
+	mOrbitRadius	-= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
 	mMatrix         = mat;
 	mTransPos       = mMatrix * mPos;
     
@@ -204,7 +204,7 @@ void Node::update( const Matrix44f &mat )
 		if( (*nodeIt)->mIsDead ){
 			clearChildNodes = true;
 		}
-		(*nodeIt)->update( mat );
+		(*nodeIt)->update( mat, param1 );
 	}
 	
 	if( clearChildNodes ){
@@ -262,7 +262,7 @@ void Node::drawOrbitRing( float pinchAlphaOffset, float camAlpha, const gl::Text
 
 void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 {	
-	if( cam.worldToEyeDepth( mTransPos ) < 0 ){
+	if( cam.worldToEyeDepth( mTransPos ) < 0 ){		
 		float alpha;
 		Color c;
 		
@@ -297,7 +297,8 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			offset0 = Vec2f( mSphereScreenRadius, mSphereScreenRadius ) * 0.75f;
 			offset0.rotate( angle );
 			pos1 = mScreenPos + offset0;
-			offset1 = Vec2f( 3.5f, 3.5f ) * ( ( G_TRACK_LEVEL + 1.0f ) - mGen );
+			
+			offset1 = Vec2f( 5.0f, 5.0f ) * ( ( G_TRACK_LEVEL + 1.0f ) - mGen );
 			offset1.rotate( angle );
 			pos2 = pos1 + offset1;
 			offset2 = Vec2f( 2.0f, -8.0f );

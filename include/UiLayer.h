@@ -56,6 +56,8 @@ class UiLayer {
     float           mPanelClosedY;          // updated in orientationChanged, interfaceHeight
 	ci::Rectf		mPanelRect;				// Rect defining the panel width and height
 	ci::Rectf		mPanelTabRect;			// Rect defining the panel tab
+	ci::Rectf		mPanelUpperRect;		// Rect defining the upper half of the panel (used only when drawing panel)
+	ci::Rectf		mPanelLowerRect;		// Rect defining the lower half of the panel (used only when drawing panel)
     
 	bool			mIsPanelTabTouched;		// Is the Panel Tab currently being touched
 	bool			mIsPanelOpen;			// Is the Panel fully open

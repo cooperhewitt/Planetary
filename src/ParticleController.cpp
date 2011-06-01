@@ -40,7 +40,7 @@ void ParticleController::update( const Vec3f &camEye, float radius, const Vec3f 
 }
 
 
-void ParticleController::buildParticleVertexArray( Color c, float eclipseStrength )
+void ParticleController::buildParticleVertexArray( Color c, float eclipseStrength, const Matrix44f &mat )
 {
 	int vIndex = 0;
 	int tIndex = 0;
@@ -71,11 +71,11 @@ void ParticleController::buildParticleVertexArray( Color c, float eclipseStrengt
 	
 	for( list<Particle>::iterator it = mParticles.begin(); it != mParticles.end(); ++it ){
 		Vec3f pos				= it->mPos;// + lookVec;
-		float radius			= it->mRadius * ( 1.0f - it->mAgePer );// * sin( it->mAgePer * M_PI );
-		float alpha				= it->mAgePer;
+		float radius			= it->mRadius * ( 1.0f - it->mAgePer );// * eclipseStrength;// * sin( it->mAgePer * M_PI );
+		float alpha				= it->mAgePer * eclipseStrength * 2.0f;
 		
-		Vec3f right				= mBbRight * radius * eclipseStrength;
-		Vec3f up				= mBbUp * radius * eclipseStrength;
+		Vec3f right				= mBbRight * radius;
+		Vec3f up				= mBbUp * radius;
 		
 		
 		Vec3f p1				= pos - right - up;
