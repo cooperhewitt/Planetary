@@ -578,7 +578,7 @@ void World::buildOrbitRingsVertexArray()
 	}
 }
 
-void World::update( const Matrix44f &mat, float param1 )
+void World::update( const Matrix44f &mat, float param1, float param2 )
 {
 	if( mIsInitialized ){
 		mAge ++;
@@ -597,7 +597,7 @@ void World::update( const Matrix44f &mat, float param1 )
 		}
 		
 		for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-			(*it)->update( mat, param1 );
+			(*it)->update( mat, param1, param2 );
 		}
 	}
 }

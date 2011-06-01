@@ -36,7 +36,7 @@ class Node {
 								   int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
 								   int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals );
 	void			createNameTexture();
-	virtual void	update( const ci::Matrix44f &mat, float param1 );
+	virtual void	update( const ci::Matrix44f &mat, float param1, float param2 );
 	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	virtual void	drawEclipseGlow();
 	virtual void	drawPlanet() {};

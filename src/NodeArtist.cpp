@@ -73,11 +73,12 @@ void NodeArtist::setData( PlaylistRef playlist )
 	mSphere			= Sphere( mPos, mRadiusInit * 0.175f );
 	
 	mAxialVel		= Rand::randFloat( 12.0f, 25.0f );
+	mAxialRot			= Vec3f( 0.0f, Rand::randFloat( 150.0f ), 0.0f );
 }
 
 
 
-void NodeArtist::update( const Matrix44f &mat, float param1 )
+void NodeArtist::update( const Matrix44f &mat, float param1, float param2 )
 {	
 //	float hue		= mHue + Rand::randFloat( 0.05f );
 //	mSat			= ( 1.0f - sin( ( hue + 0.15f ) * M_PI ) ) * 0.875f;
@@ -85,7 +86,7 @@ void NodeArtist::update( const Matrix44f &mat, float param1 )
 //	mGlowColor		= Color( CM_HSV, hue, mSat + 0.5f, 1.0f );
 	
 	
-	
+	mAxialRot.y += mAxialVel * ( param2 * 3.0f );
 	mEclipseStrength = 0.0f;
 	
 	Vec3f prevTransPos  = mTransPos;
@@ -120,7 +121,7 @@ void NodeArtist::update( const Matrix44f &mat, float param1 )
 //		}
 	}
 	
-	Node::update( mat, param1 );
+	Node::update( mat, param1, param2 );
     
 	mTransVel = mTransPos - prevTransPos;
 }
@@ -227,7 +228,8 @@ void NodeArtist::drawAtmosphere( const gl::Texture &tex, const gl::Texture &dire
 		
 		gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, alpha * ( 0.2f - mHue ) * 15.0f ) );
 		
-		Vec2f radius = Vec2f( mRadius * 0.15f, mRadius * 0.15f ) * 2.46f;
+		float radiusOffset = ( ( mSphereScreenRadius/300.0f ) ) * 0.1f;
+		Vec2f radius = Vec2f( mRadius * 0.15f, mRadius * 0.15f ) * ( 2.46f + radiusOffset );
 		//Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;
 		
 		tex.enableAndBind();

@@ -130,6 +130,8 @@ class KeplerApp : public AppCocoaTouch {
 	
 // PLAY CONTROLS
 	PlayControls	mPlayControls;
+	float			mScaleSlider;
+	float			mSpeedSlider;
 	
 // CAMERA PERSP
 	CameraPersp		mCam;
@@ -163,10 +165,11 @@ class KeplerApp : public AppCocoaTouch {
 	float			mFadeInAlbumToTrack;
 	float			mFadeOverFullZoomDuration;
 	
-	
+	float			mAlphaWheelRadius;
 	
 // FONTS
 	Font			mFont;
+	Font			mFontForAlphaWheelLetters;
 	Font			mFontBig;
 	Font			mFontMediSmall;
 	Font			mFontMediTiny;
@@ -369,6 +372,7 @@ void KeplerApp::remainingSetup()
 	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf"), 256 );
 	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
 	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 11 );
+	mFontForAlphaWheelLetters = Font( loadResource( "Aaux ProBlack.ttf" ), 24 );
 	
 	// TOUCH VARS
 	mTouchPos			= getWindowCenter();
@@ -403,10 +407,11 @@ void KeplerApp::remainingSetup()
 	mHelpLayer.initHelpTextures( mFontMediSmall );
 	
     // ALPHA WHEEL
-	mAlphaWheel.setup( this, mOrientationHelper.getInterfaceOrientation() );
+	mAlphaWheelRadius = 300.0f;
+	mAlphaWheel.setup( this, mOrientationHelper.getInterfaceOrientation(), mAlphaWheelRadius );
 	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
 	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
-	mAlphaWheel.initAlphaTextures( mFontBig );	
+	mAlphaWheel.initAlphaTextures( mFontForAlphaWheelLetters );	
 	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
@@ -1148,7 +1153,9 @@ void KeplerApp::update()
 			mWorld.mPlayingTrackNode->updateAudioData( currentTrackPlayheadTime );
 		}
 		
-        mWorld.update( mMatrix, 0.5f + mPlayControls.getParamSlider1Value() * 2.0f );
+		mScaleSlider = 0.25f + mPlayControls.getParamSlider1Value() * 2.5f;
+		mSpeedSlider = mPlayControls.getParamSlider2Value() * 0.075f;
+        mWorld.update( mMatrix, mScaleSlider, mSpeedSlider );
 		
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
@@ -1267,7 +1274,7 @@ void KeplerApp::updateCamera()
 		if( G_CURRENT_LEVEL == G_TRACK_LEVEL )			mFovDest = 70.0f;
 		else if( G_CURRENT_LEVEL == G_ALBUM_LEVEL )		mFovDest = 85.0f;
 		else if( G_CURRENT_LEVEL == G_ARTIST_LEVEL )	mFovDest = 85.0f;
-		else											mFovDest = 85.0f;
+		else											mFovDest = 95.0f;
 		
 		mFov -= ( mFov - mFovDest ) * 0.2f;
 	
@@ -1278,8 +1285,9 @@ void KeplerApp::updateCamera()
 		mIsPastPinchThresh = false;
 		
 		mFovDest = G_DEFAULT_FOV;
-		mFov -= ( mFov - mFovDest ) * 0.075f;
+		mFov -= ( mFov - mFovDest ) * 0.2f;//075f;
 	}
+
 	
 	
 	Node* selectedNode = mState.getSelectedNode();
@@ -1288,10 +1296,10 @@ void KeplerApp::updateCamera()
 		
 		if( selectedNode->mParentNode && mPinchPer > mPinchPerThresh ){
 			Vec3f dirToParent = selectedNode->mParentNode->mTransPos - selectedNode->mTransPos;
-			mCenterOffset -= ( mCenterOffset - ( dirToParent * ( mPinchPer - mPinchPerThresh ) * 2.5f ) ) * 0.1f;
+			mCenterOffset -= ( mCenterOffset - ( dirToParent * ( mPinchPer - mPinchPerThresh ) * 2.5f ) ) * 0.2f;
 			
 		} else {
-			mCenterOffset -= ( mCenterOffset - Vec3f::zero() ) * 0.05f;
+			mCenterOffset -= ( mCenterOffset - Vec3f::zero() ) * 0.2f;
 		}
 		mCenterDest		= selectedNode->mTransPos;
 		mZoomDest		= selectedNode->mGen;
@@ -1313,10 +1321,10 @@ void KeplerApp::updateCamera()
 	
 	
 	if( mPinchPer > mPinchPerThresh && ! mAlphaWheel.getShowWheel() && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
-		//mAlphaWheel.setShowWheel( true ); 
+		mAlphaWheel.setShowWheel( true ); 
 		
 	} else if( mPinchPer <= mPinchPerThresh && mAlphaWheel.getShowWheel() ){
-		//mAlphaWheel.setShowWheel( false ); 
+		mAlphaWheel.setShowWheel( false ); 
 	}
 	
 
@@ -1414,7 +1422,14 @@ void KeplerApp::drawScene()
 	Color c = Color( CM_HSV, mPinchPer * 0.2f + 0.475f, 1.0f - mPinchPer * 0.5f, 1.0f );
 	if( mIsPastPinchThresh )
 		c = Color( CM_HSV, mPinchPer * 0.3f + 0.7f, 1.0f, 1.0f );
-    gl::color( c * pow( 1.0f - zoomOff, 3.0f ) );
+	
+	if( artistNode ){
+		float distToCenter = ( getWindowCenter() - artistNode->mScreenPos ).length();
+		gl::color( lerp( ( artistNode->mGlowColor + BRIGHT_BLUE ) * 0.5f, BRIGHT_BLUE, min( distToCenter / 300.0f, 1.0f ) ) );
+	} else {
+		gl::color( BRIGHT_BLUE );
+	}
+  //  gl::color( c * pow( 1.0f - zoomOff, 3.0f ) );
     mSkyDome.enableAndBind();
     gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS, 24 );
 	
@@ -1548,10 +1563,13 @@ void KeplerApp::drawScene()
 			
 			// LIGHT FROM ARTIST
 			glEnable( GL_LIGHT0 );
+			glEnable( GL_LIGHT1 );
 			Vec3f lightPos          = artistNode->mTransPos;
 			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
 			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor, 1.0f ) );
+			glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
+			glLightfv( GL_LIGHT1, GL_DIFFUSE, ColorA( BRIGHT_BLUE, 1.0f ) );
 			
 			gl::enableAlphaBlending();
 			if( i==0 ){
@@ -1568,7 +1586,6 @@ void KeplerApp::drawScene()
 			
 			sortedNodes[i]->drawPlanet();
 			sortedNodes[i]->drawClouds( mCloudsTex );
-			
 
 			glDisable( GL_LIGHTING );
 			gl::disableDepthRead();
@@ -1773,7 +1790,7 @@ void KeplerApp::drawScene()
 	
 	// EVERYTHING ELSE
 	
-	mAlphaWheel.draw( mData.mWheelDataVerts, mData.mWheelDataTexCoords, mData.mWheelDataColors );
+	mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
 
@@ -1816,8 +1833,10 @@ void KeplerApp::setParamsTex()
 	s << "PLAYHEAD TIME: " << mIpodPlayer.getPlayheadTime();
 	layout.addLine( s.str() );
 	
+	s.str("");
+	s << "FOV: " << mFov;
+	layout.addLine( s.str() );
 	
-	layout.setColor( BLUE );
 	s.str("");
 	s << "CURRENT LEVEL: " << G_CURRENT_LEVEL;
 	layout.addLine( s.str() );

@@ -22,7 +22,7 @@ class AlphaWheel {
 public:
 	AlphaWheel();
 	~AlphaWheel();
-	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation );
+	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation, float radius );
 	void	initAlphaTextures( const ci::Font &font );
 	bool	touchesBegan( ci::app::TouchEvent event );
 	bool	touchesMoved( ci::app::TouchEvent event );
@@ -30,7 +30,7 @@ public:
     void    setInterfaceOrientation( const ci::app::Orientation &orientation );
 	void	update( float fov );
 	void	setTimePinchEnded( float timePinchEnded );
-	void	draw( GLfloat *verts, GLfloat *texCoords, GLfloat *colors );
+	void	draw( float *numAlphaPerChar );
 	void	setShowWheel( bool b );
 	bool	getShowWheel(){ return mShowWheel; }
 	float	getWheelScale(){ return mWheelScale; }
@@ -47,11 +47,8 @@ public:
 		return mCallbacksWheelToggled.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
 		
-	ci::gl::Texture	mWheelTex;
 private:
 	void	drawWheel();
-	void	drawWheelMask();
-	void	drawWheelData( GLfloat *verts, GLfloat *texCoords, GLfloat *colors );
 	void	drawAlphaChar();    
 	bool	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
     
@@ -65,11 +62,12 @@ private:
 	std::string		mAlphaString;
 	int				mAlphaIndex;
 	char			mAlphaChar, mPrevAlphaChar;
+	float			mAlphaRadius;
 	float			mWheelScale;
 	
-	ci::gl::Texture	mWheelMaskTex;
-	ci::gl::Texture mBlurRectTex;
+	ci::gl::Texture	mWheelTex;
 	std::vector<ci::gl::Texture> mAlphaTextures;
+	std::vector<ci::Rectf> mAlphaRects;
 	
 	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksAlphaCharSelected;
 	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksWheelToggled;

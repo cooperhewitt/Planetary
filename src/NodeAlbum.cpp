@@ -103,6 +103,7 @@ void NodeAlbum::setData( PlaylistRef album )
 	mSphere				= Sphere( mPos, mRadiusInit );
 	mAxialTilt			= Rand::randFloat( 5.0f );
     mAxialVel			= Rand::randFloat( 10.0f, 45.0f );
+	mAxialRot			= Vec3f( 0.0f, Rand::randFloat( 150.0f ), mAxialTilt );
 	
 // CHILD ORBIT RADIUS CONSTRAINTS
 	mOrbitRadiusMin		= mRadius * 3.0f;
@@ -150,9 +151,9 @@ void NodeAlbum::setData( PlaylistRef album )
 				yi = iter.y();	
 			}
 			ColorA c = crop.getPixel( Vec2i( xi, yi ) );
-			iter.r() = pow( c.r, 1.25f ) * 255.0f;
-			iter.g() = pow( c.g, 1.25f ) * 255.0f;
-			iter.b() = pow( c.b, 1.25f ) * 255.0f;
+			iter.r() = c.r * 255.0f;
+			iter.g() = c.g * 255.0f;
+			iter.b() = c.b * 255.0f;
 		}
 	}
 	
@@ -193,14 +194,15 @@ void NodeAlbum::setData( PlaylistRef album )
 			ColorA albumColor	= crop.getPixel( Vec2i( iter.x(), iter.y() ) );
 			ColorA surfaceColor	= planetSurface.getPixel( Vec2i( iter.x(), iter.y() ) );
 			float planetVal		= surfaceColor.r;
-			float cloudShadow	= ( 1.0f - surfaceColor.g ) * 0.5f + 0.5f;
+			float cloudShadow	= surfaceColor.g * 0.5f + 0.5f;
+			float brightness	= surfaceColor.b;
 			
 			ColorA final		= albumColor;// + planetVal * 0.25f;
-			final *= cloudShadow * planetVal;
+			final *= cloudShadow * planetVal * brightness;
 			
-			iter.r() = final.r * 255.0f;// + 25.0f;
-			iter.g() = final.g * 255.0f;// + 25.0f;
-			iter.b() = final.b * 255.0f;// + 25.0f;
+			iter.r() = constrain( final.r * 255.0f - 0.0f, 0.0f, 255.0f );// + 25.0f;
+			iter.g() = constrain( final.g * 255.0f - 0.0f, 0.0f, 255.0f );// + 25.0f;
+			iter.b() = constrain( final.b * 255.0f - 0.0f, 0.0f, 255.0f );// + 25.0f;
 		}
 	}
 	
@@ -209,7 +211,7 @@ void NodeAlbum::setData( PlaylistRef album )
 }
 
 
-void NodeAlbum::update( const Matrix44f &mat, float param1 )
+void NodeAlbum::update( const Matrix44f &mat, float param1, float param2 )
 {
 	mRadiusDest		= mRadiusInit * param1;
 	mRadius			-= ( mRadius - mRadiusDest ) * 0.2f;
@@ -217,8 +219,9 @@ void NodeAlbum::update( const Matrix44f &mat, float param1 )
 	
 	double playbackTime		= app::getElapsedSeconds();
 	double percentPlayed	= playbackTime/mOrbitPeriod;
-	mOrbitAngle				= percentPlayed * TWO_PI + mOrbitStartAngle;
-
+	mOrbitAngle	+= param2;
+	mAxialRot.y -= mAxialVel * ( param2 * 10.0f );
+		
     Vec3f prevTransPos  = mTransPos;
     // if mTransPos hasn't been set yet, use a guess:
     // FIXME: set mTransPos correctly in the constructor
@@ -268,10 +271,11 @@ void NodeAlbum::update( const Matrix44f &mat, float param1 )
 		
 		// if the album is further away from the camera than the sun,
 		// check to see if it is behind the sun.
+		float blockThresh = 0.6f;
 		if( mDistFromCamZAxis > mParentNode->mDistFromCamZAxis ){
-			if( c < R * 1.6f && c > R * 0.8f ){
-				mBlockedBySunPer = ( c - R )/(R*0.8f);
-			} else if( c < R * 0.8f ){
+			if( c < R * ( blockThresh * 2.0f ) && c >= R * blockThresh ){
+				mBlockedBySunPer = ( c - R )/(R*blockThresh);
+			} else if( c < R * blockThresh ){
 				mBlockedBySunPer = 0.0f;
 			} else {
 				mBlockedBySunPer = 1.0f;
@@ -289,7 +293,7 @@ void NodeAlbum::update( const Matrix44f &mat, float param1 )
 	
 	mCloudLayerRadius	= mRadius * 0.005f + mDistFromCamZAxisPer * 0.005;
 	
-	Node::update( mat, param1 );
+	Node::update( mat, param1, param2 );
 	
 	mTransVel = mTransPos - prevTransPos;	
 }
@@ -305,7 +309,6 @@ void NodeAlbum::drawPlanet()
 	// closer than 0.1? fade out?
 	
 	if( mDistFromCamZAxis > mRadius ){
-		mAxialRot = Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt );
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glEnableClientState( GL_NORMAL_ARRAY );
@@ -364,9 +367,7 @@ void NodeAlbum::drawPlanet()
 
 void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 {
-	if( mSphereScreenRadius > 5.0f && mDistFromCamZAxisPer > 0.0f ){
-		mAxialRot = Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel, mAxialTilt );
-		
+	if( mSphereScreenRadius > 5.0f && mDistFromCamZAxisPer > 0.0f ){		
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glEnableClientState( GL_NORMAL_ARRAY );
@@ -409,25 +410,27 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::translate( mTransPos );
 
 		//glDisable( GL_LIGHTING );
+		
 // SHADOW CLOUDS
 		gl::pushModelView();
 		float radius = mRadius * mDeathPer + mCloudLayerRadius;
 		float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 0.334f ) * mClosenessFadeAlpha;
 		gl::scale( Vec3f( radius, radius, radius ) );
 		gl::rotate( mMatrix );
-		gl::rotate( mAxialRot + Vec3f( 0.0f, 0.5f, 0.0f ) );
+		gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
 		clouds[mCloudTexIndex].enableAndBind();
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
 
 		//glEnable( GL_LIGHTING );
+		
 // LIT CLOUDS
 		gl::pushModelView();
 		radius = mRadius * mDeathPer + mCloudLayerRadius*1.5f;
 		gl::scale( Vec3f( radius, radius, radius ) );
 		gl::rotate( mMatrix );
-		gl::rotate( mAxialRot );
+		gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( mBlockedBySunPer, mBlockedBySunPer, mBlockedBySunPer, alpha * 2.0f ) );
 		
@@ -456,7 +459,8 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 			
 			gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, alpha + mEclipseStrength * 2.0f ) );
 			
-			Vec2f radius = Vec2f( mRadius * ( 1.0f + stretch ), mRadius ) * 2.46f;
+			float radiusOffset = ( ( mSphereScreenRadius/300.0f ) ) * 0.1f;
+			Vec2f radius = Vec2f( mRadius * ( 1.0f + stretch ), mRadius ) * ( 2.46f + radiusOffset );
 			//Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;
 			
 			tex.enableAndBind();
@@ -522,7 +526,7 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 			
 			gl::pushModelView();
 			gl::translate( mTransPos );
-			float c = mRadius * 7.0f;
+			float c = 0.75f * mIdealCameraDist;
 			gl::scale( Vec3f( c, c, c ) );
 			gl::rotate( mMatrix );
 			gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel * 0.2f, 0.0f ) );

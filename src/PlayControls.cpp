@@ -182,8 +182,9 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, ipod::Pla
 						 Area(uw * 0.0f, vh * 0.6f, uw * 1.0f, vh * 0.7f),  // fg texture
 						 Area(uw * 0.0f, vh * 0.2f, uw * 1.0f, vh * 0.4f),  // thumb on texture
 						 Area(uw * 0.0f, vh * 0.0f, uw * 1.0f, vh * 0.2f)); // thumb off texture
+	mParamSlider2.setValue( 0.025f );
 	mParamSlider2Label.setup( NO_BUTTON, font, BRIGHT_BLUE );
-	mParamSlider2Label.setText( "Misc." );
+	mParamSlider2Label.setText( "Speed" );
 	
     setInterfaceOrientation(orientation);
     
@@ -453,15 +454,14 @@ void PlayControls::draw(float y)
 	gl::color( Color::white() );
 	
 // TEXT LABEL GRADIENTS
-	if( mTrackInfoLabel.isScrollingText() ){
-		const float w	 = 15.0f;
-		Rectf infoRect   = mTrackInfoLabel.getRect();
-		Area aLeft		 = Area( 200.0f, 140.0f, 214.0f, 150.0f ); // references the uiButtons image
-		Rectf coverLeft  = Rectf( infoRect.x1, infoRect.y1, infoRect.x1 + w, infoRect.y2 );
-		Rectf coverRight = Rectf( infoRect.x2 + 1.0f, infoRect.y1, infoRect.x2 - ( w - 1.0f ), infoRect.y2 );    
+	const float w	 = 15.0f;
+	Rectf infoRect   = mTrackInfoLabel.getRect();
+	Area aLeft		 = Area( 200.0f, 140.0f, 214.0f, 150.0f ); // references the uiButtons image
+	Rectf coverLeft  = Rectf( infoRect.x1, infoRect.y1, infoRect.x1 + w, infoRect.y2 );
+	Rectf coverRight = Rectf( infoRect.x2 + 1.0f, infoRect.y1, infoRect.x2 - ( w - 1.0f ), infoRect.y2 );
+	if( mTrackInfoLabel.isScrollingText() )
 		gl::draw( mButtonsTex, aLeft, coverLeft );
-		gl::draw( mButtonsTex, aLeft, coverRight );
-	}
+	gl::draw( mButtonsTex, aLeft, coverRight );
 	    
     gl::popModelView();
     

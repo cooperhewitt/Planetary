@@ -108,7 +108,8 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 	
 	mAxialTilt			= Rand::randFloat( -5.0f, 20.0f );
     mAxialVel			= Rand::randFloat( 15.0f, 20.0f ) * ( mStarRating + 1 );
-
+	mAxialRot			= Vec3f( 0.0f, Rand::randFloat( 150.0f ), mAxialTilt );
+	
 	mStartRelPos		= Vec3f( cos( mOrbitStartAngle ), sin( mOrbitStartAngle ), 0.0f ) * mOrbitRadius;
 	mStartPos			= ( mParentNode->mPos + mStartRelPos ); 
 
@@ -212,7 +213,7 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 }
 
 
-void NodeTrack::update( const Matrix44f &mat, float param1 )
+void NodeTrack::update( const Matrix44f &mat, float param1, float param2 )
 {	
 	//////////////////////
 	// CREATE MOON TEXTURE
@@ -293,7 +294,7 @@ void NodeTrack::update( const Matrix44f &mat, float param1 )
 					ColorA albumColor	= crop.getPixel( v );
 					ColorA surfaceColor	= planetSurface.getPixel( v );
 					float planetVal		= surfaceColor.r;
-					float cloudShadow	= ( 1.0f - surfaceColor.g ) * 0.5f + 0.5f;
+					float cloudShadow	= surfaceColor.g * 0.5f + 0.5f;
 					
 					ColorA final		= albumColor * planetVal;
 					final *= cloudShadow;
@@ -328,7 +329,14 @@ void NodeTrack::update( const Matrix44f &mat, float param1 )
 	}
 	
 	float timeOffset	= mMyTime/mOrbitPeriod;
-	mOrbitAngle			= ( mPercentPlayed + timeOffset ) * TWO_PI;
+	if( !mIsPlaying ){
+		mOrbitAngle	+= param2;
+		mAxialRot.y -= mAxialVel * ( param2 * 15.0f );
+	} else {
+		mOrbitAngle = ( mPercentPlayed + timeOffset ) * TWO_PI;// + mOrbitStartAngle;
+	}
+//	mOrbitAngle			= ( mPercentPlayed + timeOffset ) * TWO_PI;
+	
 	
 	Vec3f prevTransPos  = mTransPos;
     // if mTransPos hasn't been set yet, use a guess:
@@ -387,7 +395,7 @@ void NodeTrack::update( const Matrix44f &mat, float param1 )
 	
 	//mClosenessFadeAlpha = constrain( ( mDistFromCamZAxis - mRadius ) * 80.0f, 0.0f, 1.0f );
 	
-	Node::update( mat, param1 );
+	Node::update( mat, param1, param2 );
 
 	mTransVel = mTransPos - prevTransPos;	
 }
@@ -458,8 +466,7 @@ void NodeTrack::drawPlanet()
 		float radius = mRadius * mDeathPer;
 		gl::scale( Vec3f( radius, radius, radius ) );
 		gl::rotate( mMatrix );
-		gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
-		gl::rotate( Vec3f( 0.0f, mCurrentTime * mAxialVel, 0.0f ) );
+		gl::rotate( mAxialRot );
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, mClosenessFadeAlpha ) );
 		
         // ROBERT: this was crashing so I put a check for texture existence first
@@ -522,8 +529,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			gl::scale( Vec3f( radius, radius, radius ) );
 			
 			gl::rotate( mMatrix );
-			gl::rotate( Vec3f( 0.0f, 0.0f, mAxialTilt ) );
-			gl::rotate( Vec3f( 0.0f, mCurrentTime * mAxialVel, 0.0f ) );
+			gl::rotate( mAxialRot );
 			float alpha = max( 1.0f - mDistFromCamZAxisPer, 0.0f );
 			gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha * mClosenessFadeAlpha ) );
 			glDrawArrays( GL_TRIANGLES, 0, numVerts );

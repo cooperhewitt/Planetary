@@ -36,6 +36,7 @@ void Data::setup()
 	mPlaylists.clear();
 	mFilteredArtists.clear();    
     mNumArtistsPerChar.clear();
+	
     if (!isIniting) {
         isIniting = true;
         std::thread artistLoaderThread( &Data::backgroundInit, this );	
@@ -98,11 +99,11 @@ void Data::backgroundInit()
 			maxCount = mNumArtistsPerChar[firstLetter];
 		}
 	}
-	for( map< char, float >::iterator it = mNumArtistsPerChar.begin(); it != mNumArtistsPerChar.end(); ++it ){
-		it->second = ( it->second/maxCount );
-	}
 	
-	buildVertexArray();
+	for( int i=0; i<27; i++ ){
+		mNormalizedArtistsPerChar[i] = mNumArtistsPerChar[alphaString[i]]/maxCount;
+	}
+
 // END ALPHAWHEEL QUICK FIX
 	
 	Flurry::getInstrumentation()->stopTimeEvent("Music Loading");
@@ -143,69 +144,6 @@ bool Data::update()
 	}
     wasIniting = isIniting;
 	return false;
-}
-
-void Data::buildVertexArray()
-{
-	string alphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
-	mWheelDataVerts		= new float[ 27*2*6 ]; // LETTERS * 2DIMENSIONS * 2TRIANGLES
-	mWheelDataTexCoords = new float[ 27*2*6 ];
-	mWheelDataColors	= new float[ 27*4*6 ];	
-	
-	
-	float baseRadius = 195.0f;
-	int index = 0;
-	int tIndex = 0;
-	int cIndex = 0;
-	for( int i=0; i<27; i++ ){
-		float numArtistsAtChar	= (float)mNumArtistsPerChar[alphaString[i]];
-		float per				= (float)i/27.0f;
-		float angle				= per * TWO_PI - M_PI_2;
-		float angle1			= angle - 0.65f;
-		float angle2			= angle + 0.65f;
-		float cosAngle			= cos( angle ) * 220.0f;
-		float sinAngle			= sin( angle ) * 220.0f;
-		float newBaseRadius		= baseRadius + ( numArtistsAtChar * 5.0f );
-		float cosAngle1			= cos( angle1 ) * newBaseRadius;
-		float sinAngle1			= sin( angle1 ) * newBaseRadius;
-		float cosAngle2			= cos( angle2 ) * newBaseRadius;
-		float sinAngle2			= sin( angle2 ) * newBaseRadius;
-		
-		mWheelDataVerts[index++] = cosAngle1;
-		mWheelDataVerts[index++] = sinAngle1;
-		mWheelDataVerts[index++] = cosAngle2;
-		mWheelDataVerts[index++] = sinAngle2;
-		mWheelDataVerts[index++] = cosAngle1 + cosAngle;
-		mWheelDataVerts[index++] = sinAngle1 + sinAngle;
-		
-		mWheelDataVerts[index++] = cosAngle2;
-		mWheelDataVerts[index++] = sinAngle2;
-		mWheelDataVerts[index++] = cosAngle1 + cosAngle;
-		mWheelDataVerts[index++] = sinAngle1 + sinAngle;
-		mWheelDataVerts[index++] = cosAngle2 + cosAngle;
-		mWheelDataVerts[index++] = sinAngle2 + sinAngle;
-		
-		mWheelDataTexCoords[tIndex++] = 0.0f;
-		mWheelDataTexCoords[tIndex++] = 0.0f;
-		mWheelDataTexCoords[tIndex++] = 1.0f;
-		mWheelDataTexCoords[tIndex++] = 0.0f;
-		mWheelDataTexCoords[tIndex++] = 0.0f;
-		mWheelDataTexCoords[tIndex++] = 1.0f;
-		
-		mWheelDataTexCoords[tIndex++] = 1.0f;
-		mWheelDataTexCoords[tIndex++] = 0.0f;
-		mWheelDataTexCoords[tIndex++] = 0.0f;
-		mWheelDataTexCoords[tIndex++] = 1.0f;
-		mWheelDataTexCoords[tIndex++] = 1.0f;
-		mWheelDataTexCoords[tIndex++] = 1.0f;
-		
-		for( int c=0; c<6; c++ ){
-			mWheelDataColors[cIndex++] = 1.0f;
-			mWheelDataColors[cIndex++] = 1.0f;
-			mWheelDataColors[cIndex++] = 1.0f;
-			mWheelDataColors[cIndex++] = numArtistsAtChar;
-		}
-	}
 }
 
 

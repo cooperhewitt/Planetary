@@ -40,6 +40,7 @@
 		E15C90B21300B2A300FB8389 /* UnitRoundedOT-Ultra.otf in Resources */ = {isa = PBXBuildFile; fileRef = E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */; };
 		E15C90B71300B2F900FB8389 /* UiLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E15C90B61300B2F900FB8389 /* UiLayer.cpp */; };
 		E162650E139429B800493983 /* starCore.png in Resources */ = {isa = PBXBuildFile; fileRef = E162650D139429B800493983 /* starCore.png */; };
+		E16265101395DC0000493983 /* Aaux ProBlack.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E162650F1395DC0000493983 /* Aaux ProBlack.ttf */; };
 		E167C8D5132EAFBE00CB496E /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E167C8D3132EAFBE00CB496E /* Particle.cpp */; };
 		E167C8D6132EAFBE00CB496E /* ParticleController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E167C8D4132EAFBE00CB496E /* ParticleController.cpp */; };
 		E1729B231377F10C00C62C97 /* skydome.png in Resources */ = {isa = PBXBuildFile; fileRef = E1729B221377F10C00C62C97 /* skydome.png */; };
@@ -140,6 +141,7 @@
 		E15C90B51300B2F100FB8389 /* UiLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UiLayer.h; path = ../include/UiLayer.h; sourceTree = SOURCE_ROOT; };
 		E15C90B61300B2F900FB8389 /* UiLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UiLayer.cpp; path = ../src/UiLayer.cpp; sourceTree = SOURCE_ROOT; };
 		E162650D139429B800493983 /* starCore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = starCore.png; path = ../starCore.png; sourceTree = "<group>"; };
+		E162650F1395DC0000493983 /* Aaux ProBlack.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Aaux ProBlack.ttf"; path = "../resources/Aaux ProBlack.ttf"; sourceTree = "<group>"; };
 		E167C8D1132EAFAB00CB496E /* Particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Particle.h; path = ../include/Particle.h; sourceTree = "<group>"; };
 		E167C8D2132EAFAB00CB496E /* ParticleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParticleController.h; path = ../include/ParticleController.h; sourceTree = "<group>"; };
 		E167C8D3132EAFBE00CB496E /* Particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Particle.cpp; path = ../src/Particle.cpp; sourceTree = "<group>"; };
@@ -467,6 +469,7 @@
 		E1555CA3131EEBD50079B05A /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				E162650F1395DC0000493983 /* Aaux ProBlack.ttf */,
 				E15C90AE1300B2A300FB8389 /* UnitRoundedOT-Medi.otf */,
 				E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */,
 			);
@@ -766,6 +769,7 @@
 				E1B7670D138F62AC00505163 /* uiBigButtons.png in Resources */,
 				E1B7670F138F72EC00505163 /* uiSmallButtons.png in Resources */,
 				E162650E139429B800493983 /* starCore.png in Resources */,
+				E16265101395DC0000493983 /* Aaux ProBlack.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

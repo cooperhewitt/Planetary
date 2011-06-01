@@ -168,7 +168,7 @@ void Node::createNameTexture()
 	mNameTex				= gl::Texture( nameSurface );
 }
 
-void Node::update( const Matrix44f &mat, float param1 )
+void Node::update( const Matrix44f &mat, float param1, float param2 )
 {	
 	mInvRadius		= ( 1.0f/mRadius ) * 0.5f;
 	mClosenessFadeAlpha = constrain( ( mDistFromCamZAxis - mRadius ) * mInvRadius, 0.0f, 1.0f );
@@ -204,7 +204,7 @@ void Node::update( const Matrix44f &mat, float param1 )
 		if( (*nodeIt)->mIsDead ){
 			clearChildNodes = true;
 		}
-		(*nodeIt)->update( mat, param1 );
+		(*nodeIt)->update( mat, param1, param2 );
 	}
 	
 	if( clearChildNodes ){

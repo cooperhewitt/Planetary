@@ -19,7 +19,7 @@ class NodeTrack : public Node
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album, const ci::Surface &albumArt );
     void initVertexArray();
 	void updateAudioData( double currentPlayheadTime );
-	void update( const ci::Matrix44f &mat, float param1 );
+	void update( const ci::Matrix44f &mat, float param1, float param2 );
 	void drawEclipseGlow();
 	void drawPlanet();
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
