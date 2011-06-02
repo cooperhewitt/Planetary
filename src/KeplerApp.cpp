@@ -203,7 +203,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mPlayheadProgressTex;
     gl::Texture     mRingsTex;
 	gl::Texture		mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex;
-    gl::Texture		mAtmosphereTex, mAtmosphereDirectionalTex;
+    gl::Texture		mAtmosphereTex, mAtmosphereDirectionalTex, mAtmosphereSunTex;
 	gl::Texture		mNoArtistsTex;
 	gl::Texture		mParticleTex;
 	gl::Texture		mGalaxyTex;
@@ -479,6 +479,7 @@ void KeplerApp::initTextures()
 	mUiSmallButtonsTex	= loadImage( loadResource( "uiSmallButtons.png" ) );
     mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
 	mAtmosphereDirectionalTex = loadImage( loadResource( "atmosphereDirectional.png" ) );
+	mAtmosphereSunTex	= loadImage( loadResource( "atmosphereSun.png" ) );
 	mGalaxyTex			= loadImage( loadResource( "galaxy.jpg" ) );
 	mDarkMatterTex		= loadImage( loadResource( "darkMatter.png" ) );
 	mOrbitRingGradientTex = loadImage( loadResource( "orbitRingGradient.png" ) );
@@ -1173,7 +1174,7 @@ void KeplerApp::update()
 		if( selectedArtistNode ){
 			mParticleController.update( mMatrix.inverted() * mCenter, selectedArtistNode->mRadius * 0.15f, invBbRight, invBbUp );
 			float per = selectedArtistNode->mEclipseStrength * 0.5f + 0.25f;
-			mParticleController.buildParticleVertexArray( selectedArtistNode->mGlowColor, ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f, mMatrix );
+			mParticleController.buildParticleVertexArray( selectedArtistNode->mColor, ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f, mMatrix );
 			mParticleController.buildDustVertexArray( selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.05f * mFadeInArtistToAlbum );
 		}
 		
@@ -1402,8 +1403,12 @@ void KeplerApp::drawNoArtists()
 
 void KeplerApp::drawScene()
 {	
-	vector<Node*> sortedNodes = mWorld.getDepthSortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
+	vector<Node*> unsortedNodes = mWorld.getUnsortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
 	Node *artistNode	= mState.getSelectedArtistNode();
+	if( artistNode ){
+		unsortedNodes.push_back( artistNode );
+	}
+	vector<Node*> sortedNodes = mWorld.sortNodes( unsortedNodes );	
 	
 	
 	// For doing galaxy-axis fades
@@ -1423,7 +1428,7 @@ void KeplerApp::drawScene()
 	if( mIsPastPinchThresh )
 		c = Color( CM_HSV, mPinchPer * 0.3f + 0.7f, 1.0f, 1.0f );
 	
-	if( artistNode ){
+	if( artistNode && artistNode->mDistFromCamZAxis > 0.0f ){
 		float distToCenter = ( getWindowCenter() - artistNode->mScreenPos ).length();
 		gl::color( lerp( ( artistNode->mGlowColor + BRIGHT_BLUE ) * 0.5f, BRIGHT_BLUE, min( distToCenter / 300.0f, 1.0f ) ) );
 	} else {
@@ -1518,33 +1523,25 @@ void KeplerApp::drawScene()
 	gl::enableAdditiveBlending();
 	
 	
-	
-	
 // STARS
 	mStarTex.enableAndBind();
 	mWorld.drawStarsVertexArray( mMatrix );
 	mStarTex.disable();
 	
 	
-//// ECLIPSEGLOWS OVERLAY
-//	mEclipseGlowTex.enableAndBind();
-//	mWorld.drawEclipseGlows();
-//	mEclipseGlowTex.disable();
-
-
-// STARGLOWS occluded
-//	mEclipseGlowTex.enableAndBind();
-//	mWorld.drawStarGlowsVertexArray( mMatrix );
-//	mEclipseGlowTex.disable();
-
-
-
 // STARGLOWS bloom (TOUCH HIGHLIGHTS)
 	mEclipseGlowTex.enableAndBind();
 	mWorld.drawTouchHighlights( mFadeInArtistToAlbum );
 	mEclipseGlowTex.disable();
 	
 	
+// STARGLOWS bloom
+	mStarGlowTex.enableAndBind();
+	mWorld.drawStarGlowsVertexArray( mMatrix );
+	mStarGlowTex.disable();
+	
+	
+
 	if( artistNode ){ // defined at top of method
 		//float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
 		mCamRingAlpha = constrain( abs( transEye.y - artistNode->mPos.y ), 0.0f, 1.0f ); // WAS 0.6f
@@ -1572,50 +1569,46 @@ void KeplerApp::drawScene()
 			glLightfv( GL_LIGHT1, GL_DIFFUSE, ColorA( BRIGHT_BLUE, 1.0f ) );
 			
 			gl::enableAlphaBlending();
-			if( i==0 ){
-				artistNode->drawStarCore( mStarCoreTex );	
-				glDisable( GL_LIGHTING );
-				gl::disableDepthRead();
-				gl::enableAdditiveBlending();
-				artistNode->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
-				glEnable( GL_LIGHTING );
-				gl::enableDepthRead();
-				gl::enableAlphaBlending();
-			}
+//			if( i==0 ){
+//				artistNode->drawStarCore( mStarCoreTex );	
+//				glDisable( GL_LIGHTING );
+//				gl::disableDepthRead();
+//				gl::enableAdditiveBlending();
+//				artistNode->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
+//				glEnable( GL_LIGHTING );
+//				gl::enableDepthRead();
+//				gl::enableAlphaBlending();
+//			}
 			
 			
-			sortedNodes[i]->drawPlanet();
+			sortedNodes[i]->drawPlanet( mStarCoreTex );
 			sortedNodes[i]->drawClouds( mCloudsTex );
 
 			glDisable( GL_LIGHTING );
 			gl::disableDepthRead();
-			gl::enableAdditiveBlending();
-
 			
+			gl::enableAlphaBlending();
+			if( sortedNodes[i]->mGen == G_ARTIST_LEVEL ){
+				sortedNodes[i]->drawAtmosphere( mAtmosphereSunTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
+			}
+			
+			gl::enableAdditiveBlending();
 			if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
 				sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
 			}
 			
-			if( sortedNodes[i]->mGen == G_TRACK_LEVEL ){//&& sortedNodes[i]->isMostPlayed() ){
+			if( sortedNodes[i]->mGen == G_TRACK_LEVEL ){
 				sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
 			}
 		}
 		glDisable( GL_CULL_FACE );
 		glDisable( GL_RESCALE_NORMAL );
+		
+		artistNode->drawExtraGlow( mStarGlowTex );
 	}
-	
+
 	
 	glDisable( GL_LIGHTING );
-	gl::enableAdditiveBlending();
-	gl::disableDepthRead();
-	
-// STARGLOWS bloom
-	mStarGlowTex.enableAndBind();
-	mWorld.drawStarGlowsVertexArray( mMatrix );
-	mStarGlowTex.disable();
-	
-	
-    
 	gl::enableDepthRead();	
 	gl::disableDepthWrite();
 	gl::enableAdditiveBlending();
@@ -1753,6 +1746,7 @@ void KeplerApp::drawScene()
     glDisable( GL_TEXTURE_2D );
 	
 	
+	
 //	if( G_DEBUG ){
 //		// HIT AREA VISUALIZER
 //		for (int i = 0; i < mWorld.mNodes.size(); i++) {
@@ -1787,6 +1781,16 @@ void KeplerApp::drawScene()
     
     gl::disableAlphaBlending();
     gl::enableAlphaBlending();
+	
+// SHADOWS
+	if( G_DEBUG ){
+		for( int i = 0; i < sortedNodes.size(); i++ ){
+			if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
+				gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+				sortedNodes[i]->findShadows();
+			}
+		}
+	}
 	
 	// EVERYTHING ELSE
 	

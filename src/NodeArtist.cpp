@@ -38,8 +38,8 @@ NodeArtist::NodeArtist( int index, const Font &font, const Font &smallFont, cons
 	mBirthPause		= Rand::randFloat( 50.0f );
 	
 	mOrbitRadiusDest	= 0.0f;
-	mOrbitRadiusMin		= mRadiusDest * 1.0f;
-	mOrbitRadiusMax		= mRadiusDest * 2.5f;
+	mOrbitRadiusMin		= mRadiusInit * 1.0f;
+	mOrbitRadiusMax		= mRadiusInit * 2.5f;
 }
 
 
@@ -60,11 +60,11 @@ void NodeArtist::setData( PlaylistRef playlist )
 	int totalCharAscii = ( c1Int - 32 ) + ( c2Int - 32 );
 	float asciiPer = ( (float)totalCharAscii/( 190.0f ) ) * 5000.0f ;
 	
-	mHue			= sin( asciiPer ) * 0.27f + 0.3f;
+	mHue			= sin( asciiPer ) * 0.4f + 0.4f; // Range of 0.0(red) to 0.8(deep purple)
 	
-	mSat			= ( 1.0f - sin( ( mHue + 0.15f ) * M_PI ) ) * 0.875f;
-	mColor			= Color( CM_HSV, mHue, mSat + 0.2f, 1.0f );
-	mGlowColor		= Color( CM_HSV, mHue, mSat + 0.5f, 1.0f );
+	mSat			= ( 1.0f - sin( ( mHue + 0.15f ) * M_PI ) ) * 0.75f;
+	mColor			= Color( CM_HSV, mHue, mSat, 1.0f );
+	mGlowColor		= Color( CM_HSV, mHue, min( mSat + 0.2f, 1.0f ), 1.0f );
 	
 	mRadiusInit		= 1.25f + ( 0.66f - mHue );
 	mRadiusDest		= mRadiusInit;
@@ -124,6 +124,7 @@ void NodeArtist::update( const Matrix44f &mat, float param1, float param2 )
 	Node::update( mat, param1, param2 );
     
 	mTransVel = mTransPos - prevTransPos;
+	mEclipseStrength = constrain( mEclipseStrength, 0.0f, 1.0f );
 }
 
 void NodeArtist::drawEclipseGlow()
@@ -145,9 +146,9 @@ void NodeArtist::drawEclipseGlow()
 	Node::drawEclipseGlow();
 }
 
-void NodeArtist::drawStarCore( const gl::Texture &tex )
+void NodeArtist::drawPlanet( const gl::Texture &tex )
 {
-	if( ( mIsSelected || mIsPlaying ) && mHue < 0.2f ){	// Only needed for red/orange stars
+	if( ( mIsSelected || mIsPlaying ) ){// && ( mHue < 0.2f || mHue > 0.7f ) ){	// Only needed for red/orange stars
 		mAxialRot = Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt );
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -188,7 +189,7 @@ void NodeArtist::drawStarCore( const gl::Texture &tex )
 		
 		gl::pushModelView();
 		gl::translate( mTransPos );
-		gl::scale( Vec3f( mRadius, mRadius, mRadius ) * mDeathPer * 0.15f );
+		gl::scale( Vec3f( mRadius, mRadius, mRadius ) * mDeathPer * 0.16f );
 		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot );
 		gl::color( ColorA( ( mColor + Color::white() ) * 0.5f, 1.0f ) );
@@ -226,15 +227,46 @@ void NodeArtist::drawAtmosphere( const gl::Texture &tex, const gl::Texture &dire
 		float alpha = ( 1.0f - dirLength * 0.75f );
 		alpha *= mDeathPer;
 		
-		gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, alpha * ( 0.2f - mHue ) * 15.0f ) );
+//		gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, alpha * ( 0.2f - mHue ) * 15.0f ) );
+		gl::color( ColorA( ( mColor + Color::white() ), alpha ) );
 		
 		float radiusOffset = ( ( mSphereScreenRadius/300.0f ) ) * 0.1f;
-		Vec2f radius = Vec2f( mRadius * 0.15f, mRadius * 0.15f ) * ( 2.46f + radiusOffset );
+		Vec2f radius = Vec2f( mRadius, mRadius ) * ( 2.46f + radiusOffset ) * 0.16f;
 		//Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;
 		
 		tex.enableAndBind();
 		Vec3f posOffset = Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.1f;
 		gl::drawBillboard( mTransPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
+		tex.disable();
+	}
+	//}
+}
+
+void NodeArtist::drawExtraGlow( const gl::Texture &tex )
+{
+	if( mIsHighlighted ){
+		Vec2f dir		= mScreenPos - app::getWindowCenter();
+		float dirLength = dir.length()/500.0f;
+		float angle		= atan2( dir.y, dir.x );
+		float stretch	= dirLength * mRadius * 0.1f;
+		float alpha = ( 1.0f - dirLength ) * sin( mEclipseStrength * M_PI_2 + M_PI_2 );
+		alpha *= mDeathPer;
+		
+		//		gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, alpha * ( 0.2f - mHue ) * 15.0f ) );
+
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 9.5f;
+		//Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;
+		
+		tex.enableAndBind();
+		Vec3f posOffset = Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.1f;
+		
+		gl::color( ColorA( mGlowColor, alpha * 0.25f ) );
+		gl::drawBillboard( mTransPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
+		
+	// SMALLER INNER GLOW
+		//gl::color( ColorA( mGlowColor, sin( mEclipseStrength * M_PI ) * 0.5f + 0.2f ) );
+		gl::color( ColorA( mGlowColor, sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.5f + 0.2f ) ) );
+		gl::drawBillboard( mTransPos - posOffset, radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.5f + 0.2f ), -toDegrees( angle ), mBbRight, mBbUp );
 		tex.disable();
 	}
 	//}

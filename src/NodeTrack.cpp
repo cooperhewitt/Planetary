@@ -326,16 +326,18 @@ void NodeTrack::update( const Matrix44f &mat, float param1, float param2 )
 	
 	if( !mIsPlaying ){
 		mMyTime			+= mCurrentTime - mPrevTime;
+		mMyTime += param2 * 50.0f;
 	}
 	
 	float timeOffset	= mMyTime/mOrbitPeriod;
 	if( !mIsPlaying ){
-		mOrbitAngle	+= param2;
+		//mOrbitAngle	+= param2;
 		mAxialRot.y -= mAxialVel * ( param2 * 15.0f );
 	} else {
-		mOrbitAngle = ( mPercentPlayed + timeOffset ) * TWO_PI;// + mOrbitStartAngle;
+		//mOrbitAngle = ( mPercentPlayed + timeOffset ) * TWO_PI;// + mOrbitStartAngle;
+		mAxialRot.y -= mAxialVel * 0.1f;
 	}
-//	mOrbitAngle			= ( mPercentPlayed + timeOffset ) * TWO_PI;
+	mOrbitAngle			= ( mPercentPlayed + timeOffset ) * TWO_PI;
 	
 	
 	Vec3f prevTransPos  = mTransPos;
@@ -408,7 +410,7 @@ void NodeTrack::drawEclipseGlow()
 	}
 }
 
-void NodeTrack::drawPlanet()
+void NodeTrack::drawPlanet( const gl::Texture &tex )
 {	
 	if( mSphereScreenRadius > 0.5f && mClosenessFadeAlpha > 0.0f )
 	{

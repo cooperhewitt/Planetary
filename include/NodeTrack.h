@@ -21,7 +21,7 @@ class NodeTrack : public Node
 	void updateAudioData( double currentPlayheadTime );
 	void update( const ci::Matrix44f &mat, float param1, float param2 );
 	void drawEclipseGlow();
-	void drawPlanet();
+	void drawPlanet( const ci::gl::Texture &tex );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );
 	void buildPlayheadProgressVertexArray();

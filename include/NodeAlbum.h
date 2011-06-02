@@ -19,11 +19,12 @@ class NodeAlbum : public Node
 	void setData( ci::ipod::PlaylistRef album );
 	void update( const ci::Matrix44f &mat, float param1, float param2 );
 	void drawEclipseGlow();
-	void drawPlanet();
+	void drawPlanet( const ci::gl::Texture &tex );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
 	void drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
 	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );
+	void findShadows();
 	void select();
 	void setChildOrbitRadii();
 	string getName();

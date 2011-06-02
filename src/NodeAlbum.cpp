@@ -106,8 +106,8 @@ void NodeAlbum::setData( PlaylistRef album )
 	mAxialRot			= Vec3f( 0.0f, Rand::randFloat( 150.0f ), mAxialTilt );
 	
 // CHILD ORBIT RADIUS CONSTRAINTS
-	mOrbitRadiusMin		= mRadius * 3.0f;
-	mOrbitRadiusMax		= mRadius * 8.5f;
+	mOrbitRadiusMin		= mRadiusInit * 3.0f;
+	mOrbitRadiusMax		= mRadiusInit * 8.5f;
 	
 
 // TEXTURE IDs
@@ -198,7 +198,7 @@ void NodeAlbum::setData( PlaylistRef album )
 			float brightness	= surfaceColor.b;
 			
 			ColorA final		= albumColor;// + planetVal * 0.25f;
-			final *= cloudShadow * planetVal * brightness;
+			final *= cloudShadow * planetVal;
 			
 			iter.r() = constrain( final.r * 255.0f - 0.0f, 0.0f, 255.0f );// + 25.0f;
 			iter.g() = constrain( final.g * 255.0f - 0.0f, 0.0f, 255.0f );// + 25.0f;
@@ -271,12 +271,12 @@ void NodeAlbum::update( const Matrix44f &mat, float param1, float param2 )
 		
 		// if the album is further away from the camera than the sun,
 		// check to see if it is behind the sun.
-		float blockThresh = 0.6f;
+		float blockThresh = 1.0f;
 		if( mDistFromCamZAxis > mParentNode->mDistFromCamZAxis ){
 			if( c < R * ( blockThresh * 2.0f ) && c >= R * blockThresh ){
-				mBlockedBySunPer = ( c - R )/(R*blockThresh);
+				mBlockedBySunPer = ( ( c - R )/(R*blockThresh) ) * 0.5f + 0.5f;
 			} else if( c < R * blockThresh ){
-				mBlockedBySunPer = 0.0f;
+				mBlockedBySunPer = 0.5f;
 			} else {
 				mBlockedBySunPer = 1.0f;
 			}
@@ -291,6 +291,8 @@ void NodeAlbum::update( const Matrix44f &mat, float param1, float param2 )
 // END CALCULATE ECLIPSE VARS
 /////////////////////////////
 	
+	
+	
 	mCloudLayerRadius	= mRadius * 0.005f + mDistFromCamZAxisPer * 0.005;
 	
 	Node::update( mat, param1, param2 );
@@ -303,7 +305,7 @@ void NodeAlbum::drawEclipseGlow()
 	Node::drawEclipseGlow();
 }
 
-void NodeAlbum::drawPlanet()
+void NodeAlbum::drawPlanet( const gl::Texture &tex )
 {	
 	// std::cout << mDistFromCamZAxis << std::endl;
 	// closer than 0.1? fade out?
@@ -351,7 +353,7 @@ void NodeAlbum::drawPlanet()
 		gl::scale( Vec3f( mRadius, mRadius, mRadius ) * mDeathPer );
 		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot );
-		gl::color( ColorA( mBlockedBySunPer, mBlockedBySunPer, mBlockedBySunPer, mBlockedBySunPer * mClosenessFadeAlpha ) );
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, mClosenessFadeAlpha * mBlockedBySunPer ) );
 		
 		mAlbumArtTex.enableAndBind();
 		
@@ -432,7 +434,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );
 		gl::enableAdditiveBlending();
-		gl::color( ColorA( mBlockedBySunPer, mBlockedBySunPer, mBlockedBySunPer, alpha * 2.0f ) );
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha * 2.0f ) );
 		
 		glDrawArrays( GL_TRIANGLES, 0, numVerts );
 		gl::popModelView();
@@ -455,7 +457,7 @@ void NodeAlbum::drawAtmosphere( const gl::Texture &tex, const gl::Texture &direc
 			float angle		= atan2( dir.y, dir.x );
 			float stretch	= dirLength * mRadius * 0.5f;
 			float alpha = ( 1.0f - dirLength * 0.75f ) + mEclipseStrength;
-			alpha *= mDeathPer * mBlockedBySunPer * mClosenessFadeAlpha;
+			alpha *= mDeathPer * mClosenessFadeAlpha * ( mBlockedBySunPer - 0.5f ) * 2.0f;
 			
 			gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, alpha + mEclipseStrength * 2.0f ) );
 			
@@ -526,7 +528,7 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 			
 			gl::pushModelView();
 			gl::translate( mTransPos );
-			float c = 0.75f * mIdealCameraDist;
+			float c = 0.5f * mIdealCameraDist;
 			gl::scale( Vec3f( c, c, c ) );
 			gl::rotate( mMatrix );
 			gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel * 0.2f, 0.0f ) );
@@ -582,12 +584,98 @@ void NodeAlbum::select()
 	Node::select();
 }
 
+
+void NodeAlbum::findShadows()
+{
+	//for now assume sun is larger onscreen than album
+	if( mParentNode->mDistFromCamZAxis > 0.0f && mDistFromCamZAxis > 0.0f ) //&& ( mIsSelected || mIsPlaying )
+	{		
+		Vec2f p0, p1, p2, p3a, p3b, p4, p5a, p5b, p6a, p6b;
+		float r0, r1, rMid, r0Inner, rDelta, rTotal, rAlternateTotal;
+		float d, dMid, dAlternate;
+		
+	// Positions
+		p0				= mParentNode->mScreenPos;
+		p1				= mScreenPos;
+	// Radii
+		r0				= mParentNode->mSphereScreenRadius;
+		r1				= mSphereScreenRadius;
+		rTotal			= r0 + r1;
+		
+		r0Inner			= abs( r0 - r1 );
+
+		
+		p4				= ( p0 + p1 ) * 0.5f;
+		
+	// Dist between main positions
+		d				= p0.distance( p1 );
+		rMid			= d * 0.5f;
+		float newRTotal		= r0Inner + rMid;
+		float newRDelta		= abs( rMid - r0Inner );
+		
+		if( rMid > newRTotal ){
+			std::cout << "not intersecting" << std::endl;
+		} else if( rMid < newRDelta ){
+			std::cout << "contained" << std::endl;
+		} else if( rMid == 0 ){
+			std::cout << "concentric" << std::endl;
+		} else {
+			float a = ( rMid * rMid - r0Inner * r0Inner + rMid * rMid ) / ( 2.0f * rMid );
+			p2 = p4 + a * ( ( p0 - p4 ) / rMid );
+			
+			float h = sqrt( rMid * rMid - a * a ) * 0.5f;
+			
+			p3a = Vec2f( p2.x + h * ( p1.y - p0.y ) / rMid, 
+						 p2.y - h * ( p1.x - p0.x ) / rMid );
+			
+			p3b = Vec2f( p2.x - h * ( p1.y - p0.y ) / rMid, 
+						 p2.y + h * ( p1.x - p0.x ) / rMid );
+			
+			Vec2f p3aDirNorm = p3a - p0;
+			p3aDirNorm.normalize();
+			
+			Vec2f p3bDirNorm = p3b - p0;
+			p3bDirNorm.normalize();
+			
+			p5a = p3a + p3aDirNorm * r1;
+			p5b = p3b + p3bDirNorm * r1;
+			p6a = p1 + p3aDirNorm * r1; 
+			p6b = p1 + p3bDirNorm * r1;
+			
+			gl::color( Color( 1.0f, 1.0f, 0.0f ) );
+//			gl::drawStrokedCircle( p3a, 2.0f );
+//			gl::drawStrokedCircle( p3b, 2.0f );
+			gl::drawStrokedCircle( p5a, 2.0f );
+			gl::drawStrokedCircle( p5b, 2.0f );
+			gl::drawStrokedCircle( p6a, 2.0f );
+			gl::drawStrokedCircle( p6b, 2.0f );
+			
+			gl::drawLine( p5a, p6a );
+			gl::drawLine( p5b, p6b );
+		}
+		
+		
+		
+//		gl::color( ColorA( Color::white(), 0.5f ) );
+//		gl::drawStrokedCircle( p0, r0, 50 );
+//		gl::drawStrokedCircle( p1, r1, 50 );
+//	
+//		gl::color( Color( 1.0f, 0.0f, 0.0f ) );
+//		gl::drawStrokedCircle( p0, r0Inner, 50 );
+//		gl::drawStrokedCircle( p4, rMid, 50 );
+//		
+//		gl::color( Color( 0.0f, 1.0f, 0.0f ) );		
+//		gl::drawLine( p0, p1 );
+	}
+}
+
+
 void NodeAlbum::setChildOrbitRadii()
 {
 	float orbitRadius = mOrbitRadiusMin;
 	float orbitOffset;
 	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
-		orbitOffset = (*it)->mRadiusDest * 2.0f;
+		orbitOffset = (*it)->mRadiusInit * 2.0f;
 		orbitRadius += orbitOffset;
 		(*it)->mOrbitRadiusDest = orbitRadius;
 		orbitRadius += orbitOffset;

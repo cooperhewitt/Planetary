@@ -43,6 +43,7 @@
 		E16265101395DC0000493983 /* Aaux ProBlack.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E162650F1395DC0000493983 /* Aaux ProBlack.ttf */; };
 		E167C8D5132EAFBE00CB496E /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E167C8D3132EAFBE00CB496E /* Particle.cpp */; };
 		E167C8D6132EAFBE00CB496E /* ParticleController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E167C8D4132EAFBE00CB496E /* ParticleController.cpp */; };
+		E16E3A471397364900C07B97 /* atmosphereSun.png in Resources */ = {isa = PBXBuildFile; fileRef = E16E3A461397364900C07B97 /* atmosphereSun.png */; };
 		E1729B231377F10C00C62C97 /* skydome.png in Resources */ = {isa = PBXBuildFile; fileRef = E1729B221377F10C00C62C97 /* skydome.png */; };
 		E1729B2B1378B7F700C62C97 /* atmosphereDirectional.png in Resources */ = {isa = PBXBuildFile; fileRef = E1729B2A1378B7F700C62C97 /* atmosphereDirectional.png */; };
 		E1729B331378DF5C00C62C97 /* planetClouds1.png in Resources */ = {isa = PBXBuildFile; fileRef = E1729B2E1378DF5C00C62C97 /* planetClouds1.png */; };
@@ -146,6 +147,7 @@
 		E167C8D2132EAFAB00CB496E /* ParticleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParticleController.h; path = ../include/ParticleController.h; sourceTree = "<group>"; };
 		E167C8D3132EAFBE00CB496E /* Particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Particle.cpp; path = ../src/Particle.cpp; sourceTree = "<group>"; };
 		E167C8D4132EAFBE00CB496E /* ParticleController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleController.cpp; path = ../src/ParticleController.cpp; sourceTree = "<group>"; };
+		E16E3A461397364900C07B97 /* atmosphereSun.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = atmosphereSun.png; path = ../resources/planets/atmosphereSun.png; sourceTree = "<group>"; };
 		E1729B221377F10C00C62C97 /* skydome.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = skydome.png; path = ../skydome.png; sourceTree = "<group>"; };
 		E1729B2A1378B7F700C62C97 /* atmosphereDirectional.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = atmosphereDirectional.png; path = ../resources/planets/atmosphereDirectional.png; sourceTree = "<group>"; };
 		E1729B2E1378DF5C00C62C97 /* planetClouds1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = planetClouds1.png; sourceTree = "<group>"; };
@@ -585,6 +587,7 @@
 		E1C942C8137E0A8D00F88EA2 /* glows */ = {
 			isa = PBXGroup;
 			children = (
+				E16E3A461397364900C07B97 /* atmosphereSun.png */,
 				E17667DD13202FB7006A4C2E /* rings.png */,
 				E1FA27E01355790500169830 /* atmosphere.png */,
 				E1729B2A1378B7F700C62C97 /* atmosphereDirectional.png */,
@@ -770,6 +773,7 @@
 				E1B7670F138F72EC00505163 /* uiSmallButtons.png in Resources */,
 				E162650E139429B800493983 /* starCore.png in Resources */,
 				E16265101395DC0000493983 /* Aaux ProBlack.ttf in Resources */,
+				E16E3A471397364900C07B97 /* atmosphereSun.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -408,13 +408,13 @@ void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, 
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
 			Vec3f pos			= (*it)->mPos;
-			float r				= (*it)->mRadius * ( (*it)->mEclipseStrength * 2.0f + 2.25f ); // HERE IS WHERE YOU CAN MAKE THE GLOW HUGER/BIGGER/AWESOMER
+			float r				= (*it)->mRadius * ( (*it)->mEclipseStrength * 2.0f + 1.5f ); // HERE IS WHERE YOU CAN MAKE THE GLOW HUGER/BIGGER/AWESOMER
 			//if( !(*it)->mIsSelected )
 			//	r				-= zoomAlpha;
 			
 			float alpha			= (*it)->mDistFromCamZAxisPer * ( 1.0f - (*it)->mEclipseStrength );
-			if( !(*it)->mIsSelected && !(*it)->mIsPlaying )
-				alpha			= 1.0f - zoomAlpha;
+			//if( !(*it)->mIsSelected && !(*it)->mIsPlaying )
+			//	alpha			= 1.0f - zoomAlpha;
 			
 			ColorA col			= ColorA( (*it)->mGlowColor, alpha );
 			
@@ -665,10 +665,10 @@ void World::drawEclipseGlows()
 	}
 }
 
-void World::drawPlanets()
+void World::drawPlanets( const gl::Texture &tex )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawPlanet();
+		(*it)->drawPlanet( tex );
 	}
 }
 
@@ -826,32 +826,41 @@ void World::buildConstellation()
 	}
 }
 
-std::vector<Node*> World::getDepthSortedNodes(int fromGen, int toGen)
-{
-    std::vector<Node*> sortedNodes;
 
+vector<Node*> World::getUnsortedNodes( int fromGen, int toGen )
+{
+    vector<Node*> unsortedNodes;
+	
     if (mNodes.size() > 0) {
         std::deque<Node*> queue;
         
         // initialize queue with all artist nodes
         queue.insert(queue.begin(), mNodes.begin(), mNodes.end());
-
+		
         while (queue.size() > 0) {
             Node* node = queue.front();
             // remove
             queue.pop_front();
             // collect this node if it's valid
             if (node->mGen >= fromGen && node->mGen <= toGen) {
-                sortedNodes.push_back(node);
+				unsortedNodes.push_back(node);
             }
             // add all node's children to the queue
             queue.insert(queue.end(), node->mChildNodes.begin(), node->mChildNodes.end());
         }
-        
-        sort(sortedNodes.begin(), sortedNodes.end(), nodeSortFunc);
     }
     
-    return sortedNodes;
+    return unsortedNodes;
+}
+
+
+vector<Node*> World::sortNodes( vector<Node*> nodes )
+{
+    if( nodes.size() > 0 ){
+        sort(nodes.begin(), nodes.end(), nodeSortFunc);
+    }
+    
+    return nodes;
 }
 
 bool nodeSortFunc(Node* a, Node* b) {

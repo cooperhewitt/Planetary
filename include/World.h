@@ -54,11 +54,12 @@ class World {
 	void drawConstellation( const ci::Matrix44f &mat );
 	void drawTouchHighlights( float zoomAlpha );
 	void buildConstellation();
-	void drawPlanets();
+	void drawPlanets( const ci::gl::Texture &tex );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	
 	void drawRings( const ci::gl::Texture &tex, float camZPos );
-    std::vector<Node*> getDepthSortedNodes(int fromGen, int toGen);
+	std::vector<Node*> getUnsortedNodes( int fromGen, int toGen );
+    std::vector<Node*> sortNodes( std::vector<Node*> unsortedNodes );
 	
 	Data *mData;
 	

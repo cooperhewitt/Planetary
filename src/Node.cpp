@@ -135,7 +135,7 @@ void Node::createNameTexture()
 	layout.append( nameLine1 );
 	if( isTwoLines ){
 		layout.setFont( mSmallFont );
-		layout.setColor( Color( 0.0f, 0.0f, 0.0f ) );
+		layout.setColor( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		layout.addLine( numberLine1 );
 		
 		//layout.setFont( mFont );
@@ -283,7 +283,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 				alpha = 0.0f;
 		}
 		
-		gl::color( ColorA( c, alpha * ( 1.0f - mEclipseStrength ) ) );
+		ColorA col = ColorA( c, alpha );
 		
 		
 		if( alpha > 0 ){
@@ -318,13 +318,25 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 				texCorner *= s;
 			}
 			
+		// DRAW DROP SHADOW
+			if( mIsPlaying ){ 
+				gl::enableAlphaBlending();
+				gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha * 0.35f ) );
+				gl::draw( mNameTex, Vec2f( 1.0f, 1.0f ) );
+				gl::enableAdditiveBlending();
+			}
+			
+			gl::color( col );
 			gl::draw( mNameTex, Vec2f::zero() );
+			
 			gl::popModelView();
 			
 			mHitArea = Rectf( pos2 + offset2, pos2 + offset2 + texCorner);
 			mHitArea.canonicalize();        
 			inflateRect( mHitArea, 5.0f );
 			
+			// TODO: this is a lot of state changes per frame. Switch to drawing
+			// all names first, then all lines.
 			glDisable( GL_TEXTURE_2D );
 			
 			gl::color( ColorA( BRIGHT_BLUE, alpha * 0.5f ) );

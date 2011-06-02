@@ -20,7 +20,8 @@ class NodeArtist : public Node
 	
 	void update( const ci::Matrix44f &mat, float param1, float param2 );
 	void drawEclipseGlow();
-	void drawStarCore( const ci::gl::Texture &tex );
+	void drawExtraGlow( const ci::gl::Texture &tex );
+	void drawPlanet( const ci::gl::Texture &tex );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
 	void drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
