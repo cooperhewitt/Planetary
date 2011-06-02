@@ -14,6 +14,7 @@
 #include "World.h"
 #include "HelpLayer.h"
 #include "UiLayer.h"
+#include "NotificationOverlay.h"
 #include "AlphaWheel.h"
 #include "State.h"
 #include "Data.h"
@@ -102,24 +103,30 @@ class KeplerApp : public AppCocoaTouch {
     Node*           getPlayingAlbumNode( ipod::TrackRef playingTrack, Node* artistNode );
     Node*           getPlayingArtistNode( ipod::TrackRef playingTrack );
 	
-	//NodeTrack*		mCurrentTrackNode;
-	
-    LoadingScreen   mLoadingScreen;
-	World			mWorld;
-	State			mState;
-	AlphaWheel		mAlphaWheel;
-	UiLayer			mUiLayer;
-	HelpLayer		mHelpLayer;
-	Data			mData;
+// UI BITS:
+    LoadingScreen       mLoadingScreen;
+	AlphaWheel          mAlphaWheel;
+	UiLayer             mUiLayer;
+	HelpLayer		    mHelpLayer;
+    NotificationOverlay mNotificationOverlay;
+    
+// 3D BITS:
+	World               mWorld;
+    
+// DATA/TRUTH BITS:
+	State               mState;
+	Data                mData;
 
 // ORIENTATION
     OrientationHelper mOrientationHelper;    
-    Orientation     mInterfaceOrientation;
-    Matrix44f       mOrientationMatrix;
-    Matrix44f       mInverseOrientationMatrix;    
-	Quatf			mGyroQuat;
+    Orientation       mInterfaceOrientation;
+    Matrix44f         mOrientationMatrix;
+    Matrix44f         mInverseOrientationMatrix;    
+    
     std::map<Orientation, std::map<Orientation, int> > mRotationSteps;
-	// Objective C
+
+	Quatf			mGyroQuat;
+	// Objective C (FIXME: move Gyro stuff to something that looks like OrientationHelper)
     CMMotionManager *motionManager;
     CMAttitude *referenceAttitude;
 
@@ -274,6 +281,7 @@ void KeplerApp::setup()
     
     mRemainingSetupCalled = false;
 
+    // TODO: surely we can store this somewhere else? in OrientationHelper perhaps.
     std::map<Orientation,int> pSteps;
     pSteps[LANDSCAPE_LEFT_ORIENTATION] = 1;
     pSteps[LANDSCAPE_RIGHT_ORIENTATION] = -1;
@@ -298,6 +306,8 @@ void KeplerApp::setup()
     // !!! this has to be set up before any other UI things so it can consume touch events
     mLoadingScreen.setup( this, mOrientationHelper.getInterfaceOrientation() );
 
+    mNotificationOverlay.setup( this, mOrientationHelper.getInterfaceOrientation() );
+    
     initLoadingTextures();
 
     Flurry::getInstrumentation()->stopTimeEvent("Setup");
@@ -784,13 +794,6 @@ bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
 bool KeplerApp::orientationChanged( OrientationEvent event )
 {
     Orientation orientation = event.getInterfaceOrientation();
-    mLoadingScreen.setInterfaceOrientation(orientation);
-    if (mDataIsLoaded) {
-        mPlayControls.setInterfaceOrientation(orientation);
-        mHelpLayer.setInterfaceOrientation(orientation);
-        mUiLayer.setInterfaceOrientation(orientation);
-        mAlphaWheel.setInterfaceOrientation(orientation);
-    }
     setInterfaceOrientation(orientation);
 
     std::map<string, string> params;
@@ -816,10 +819,21 @@ bool KeplerApp::orientationChanged( OrientationEvent event )
 void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 {
     mInterfaceOrientation = orientation;
+
     mOrientationMatrix = getOrientationMatrix44( mInterfaceOrientation, getWindowSize() );
     mInverseOrientationMatrix = mOrientationMatrix.inverted();
+    
     if( ! G_USE_GYRO )  mUp = getUpVectorForOrientation( mInterfaceOrientation );
 	else				mUp = Vec3f::yAxis();
+
+    mLoadingScreen.setInterfaceOrientation(orientation);
+    if (mDataIsLoaded) {
+        mPlayControls.setInterfaceOrientation(orientation);
+        mHelpLayer.setInterfaceOrientation(orientation);
+        mUiLayer.setInterfaceOrientation(orientation);
+        mAlphaWheel.setInterfaceOrientation(orientation);
+        mNotificationOverlay.setInterfaceOrientation(orientation);
+    }
 }
 
 bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
@@ -1210,6 +1224,8 @@ void KeplerApp::update()
             remainingSetup();
         }        
     }
+    
+    mNotificationOverlay.update();
 }
 
 
@@ -1375,6 +1391,7 @@ void KeplerApp::draw()
 	} else {
 		drawScene();
 	}
+    mNotificationOverlay.draw();
 }
 
 void KeplerApp::drawNoArtists()
