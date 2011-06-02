@@ -93,6 +93,7 @@
 		E278F90813830E7E00738472 /* Buttons.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E278F90713830E7E00738472 /* Buttons.cpp */; };
 		E278F90F138333FB00738472 /* Slider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E278F90D138333FB00738472 /* Slider.cpp */; };
 		E28FDA831339B782005EDBB4 /* PlayControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA821339B782005EDBB4 /* PlayControls.cpp */; };
+		E2DC1E0213984774000B1D11 /* NotificationOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -224,6 +225,8 @@
 		E278F9101383342400738472 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Slider.h; path = ../include/Slider.h; sourceTree = "<group>"; };
 		E28FDA821339B782005EDBB4 /* PlayControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayControls.cpp; path = ../src/PlayControls.cpp; sourceTree = "<group>"; };
 		E2A1FF8E132599290007F4DA /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../include/PlayControls.h; sourceTree = SOURCE_ROOT; };
+		E2DC1DFF1398266B000B1D11 /* NotificationOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NotificationOverlay.h; path = ../include/NotificationOverlay.h; sourceTree = "<group>"; };
+		E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NotificationOverlay.cpp; path = ../src/NotificationOverlay.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -580,6 +583,7 @@
 				E1B0DBB313510C9D0093EB9D /* HelpLayer.h */,
 				E15C90B51300B2F100FB8389 /* UiLayer.h */,
 				E217105E132ECEFB00ADCC17 /* AlphaWheel.h */,
+				E2DC1DFF1398266B000B1D11 /* NotificationOverlay.h */,
 			);
 			name = Ui;
 			sourceTree = "<group>";
@@ -641,6 +645,7 @@
 				E1B0DBB113510C890093EB9D /* HelpLayer.cpp */,
 				E15C90B61300B2F900FB8389 /* UiLayer.cpp */,
 				E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */,
+				E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */,
 			);
 			name = Ui;
 			sourceTree = "<group>";
@@ -812,6 +817,7 @@
 				E2730445138DA83800A2A65B /* TimeLabel.cpp in Sources */,
 				E273044A138DAA6400A2A65B /* ScrollingLabel.cpp in Sources */,
 				E227B205138EFDC500AAAC7B /* TextLabel.cpp in Sources */,
+				E2DC1E0213984774000B1D11 /* NotificationOverlay.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
