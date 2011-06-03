@@ -95,12 +95,17 @@ bool AlphaWheel::touchesBegan( TouchEvent event )
 {
     if (!mShowWheel) return false;
     
-	vector<TouchEvent::Touch> touches = AppCocoaTouch::get()->getActiveTouches();
+	vector<TouchEvent::Touch> touches = event.getTouches();
 
-	if (touches.size() == 1) {
-		mTouchPos = touches.begin()->getPos();
-		return selectWheelItem( mTouchPos, false );
-	}
+    for (int i = 0; i < touches.size(); i++) {
+        TouchEvent::Touch touch = touches[i];
+        if (selectWheelItem( touch.getPos(), false )) {
+            // this means we'll follow the last touch that starts on a wheel item
+            mLastTouchPos = touch.getPos();
+            mActiveTouchId = touch.getId();
+            return true;
+        }
+    }
 	
 	return false;
 }
@@ -109,12 +114,16 @@ bool AlphaWheel::touchesMoved( TouchEvent event )
 {
     if (!mShowWheel) return false;
     
-	vector<TouchEvent::Touch> touches = AppCocoaTouch::get()->getActiveTouches();
-	
-	if (touches.size() == 1) {
-		mTouchPos = touches.begin()->getPos();
-		return selectWheelItem( mTouchPos, false );
-	}	
+	vector<TouchEvent::Touch> touches = event.getTouches();
+    
+    for (int i = 0; i < touches.size(); i++) {
+        TouchEvent::Touch touch = touches[i];
+        // only follow the last valid touch we received
+        if (touch.getId() == mActiveTouchId) {
+            mLastTouchPos = touch.getPos();
+            return selectWheelItem( mLastTouchPos, false );
+        }
+    }
 	
 	return false;
 }
@@ -123,12 +132,17 @@ bool AlphaWheel::touchesEnded( TouchEvent event )
 {	
     if (!mShowWheel) return false;
     
-	vector<TouchEvent::Touch> touches = AppCocoaTouch::get()->getActiveTouches();
-	
-	if (touches.size() == 0) {
-		return selectWheelItem( mTouchPos, true );
-	}
-	
+	vector<TouchEvent::Touch> touches = event.getTouches();
+
+    for (int i = 0; i < touches.size(); i++) {
+        TouchEvent::Touch touch = touches[i];
+        // only accept the last valid touch we received
+        if (touch.getId() == mActiveTouchId) {
+            mLastTouchPos = touch.getPos();
+            return selectWheelItem( mLastTouchPos, true );
+        }
+    }
+    
 	return false;
 }
 
@@ -143,7 +157,7 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 	
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
 	if( mShowWheel && timeSincePinchEnded > 0.5f ){ 
-        Vec2f dir = (mOrientationMatrix.inverted() * Vec3f(mTouchPos,0)).xy() - mInterfaceCenter;
+        Vec2f dir = (mOrientationMatrix.inverted() * Vec3f(pos,0)).xy() - mInterfaceCenter;
 		float distToCenter = dir.length();
 		if( distToCenter > minDiam && distToCenter < maxDiam ){
 			float touchAngle	= atan2( dir.y, dir.x ) + M_PI;				// RANGE 0 -> TWO_PI

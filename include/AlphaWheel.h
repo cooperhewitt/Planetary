@@ -54,7 +54,8 @@ private:
     
 	ci::app::AppCocoaTouch *mApp;
 	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded, mCbOrientationChanged;
-	ci::Vec2f		mTouchPos;
+    uint32_t        mActiveTouchId;
+	ci::Vec2f		mLastTouchPos;    
 
 	float			mTimePinchEnded;
 
