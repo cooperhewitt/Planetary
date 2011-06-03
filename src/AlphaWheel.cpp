@@ -26,19 +26,17 @@ AlphaWheel::AlphaWheel()
 
 AlphaWheel::~AlphaWheel()
 {
-	mApp->unregisterTouchesBegan( mCbTouchesBegan );
-	mApp->unregisterTouchesMoved( mCbTouchesMoved );
-	mApp->unregisterTouchesEnded( mCbTouchesEnded );
+    if (mCbTouchesBegan != 0) {
+        mApp->unregisterTouchesBegan( mCbTouchesBegan );
+        mApp->unregisterTouchesMoved( mCbTouchesMoved );
+        mApp->unregisterTouchesEnded( mCbTouchesEnded );
+    }
 }
 
 void AlphaWheel::setup( AppCocoaTouch *app, const Orientation &orientation, float radius )
 {
 	mApp = app;
-	
-	mCbTouchesBegan = mApp->registerTouchesBegan( this, &AlphaWheel::touchesBegan );
-	mCbTouchesMoved = mApp->registerTouchesMoved( this, &AlphaWheel::touchesMoved );
-	mCbTouchesEnded = mApp->registerTouchesEnded( this, &AlphaWheel::touchesEnded );
-	
+    
 	// Textures
 	mWheelTex		= gl::Texture( loadImage( loadResource( "alphaWheelMask.png" ) ) );
 	
@@ -49,7 +47,10 @@ void AlphaWheel::setup( AppCocoaTouch *app, const Orientation &orientation, floa
 	mShowWheel		= false;
 	mWheelScale		= 1.0f;	
 	mAlphaRadius	= radius;
-	
+
+    // init these to zero, because we init mShowWheel to false
+    mCbTouchesBegan = mCbTouchesMoved = mCbTouchesEnded = 0;
+
     // just do orientation stuff in here:
     setInterfaceOrientation(orientation);
 }
@@ -241,8 +242,26 @@ void AlphaWheel::drawAlphaChar()
 	gl::enableAlphaBlending();
 }
 
-void AlphaWheel::setShowWheel( bool b ){ 
+void AlphaWheel::setShowWheel( bool b )
+{ 
     mShowWheel = b; 
+
+    if (mShowWheel) {
+        if (mCbTouchesBegan == 0) {
+            mCbTouchesBegan = mApp->registerTouchesBegan( this, &AlphaWheel::touchesBegan );
+            mCbTouchesMoved = mApp->registerTouchesMoved( this, &AlphaWheel::touchesMoved );
+            mCbTouchesEnded = mApp->registerTouchesEnded( this, &AlphaWheel::touchesEnded );
+        }
+    }
+    else {
+        if (mCbTouchesBegan != 0) {
+            mApp->unregisterTouchesBegan( mCbTouchesBegan );
+            mApp->unregisterTouchesMoved( mCbTouchesMoved );
+            mApp->unregisterTouchesEnded( mCbTouchesEnded );            
+            mCbTouchesBegan = mCbTouchesMoved = mCbTouchesEnded = 0;
+        }
+    }
+    
     mCallbacksWheelToggled.call(this);
 }
 
