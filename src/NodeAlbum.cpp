@@ -122,15 +122,22 @@ void NodeAlbum::setData( PlaylistRef album )
 	int halfWidth		= totalWidth/2;
 	int border			= 10;
 	mAlbumArtSurface	= (*mAlbum)[0]->getArtwork( Vec2i( totalWidth, totalWidth ) );
-	if( !mAlbumArtSurface )
+	bool hasAlbumArt = true;
+	if( !mAlbumArtSurface ){
+		hasAlbumArt = false;
 		mAlbumArtSurface = mNoAlbumArtSurface;
-	
+	}
 
 	int x			= (int)( mAsciiPer*halfWidth );
 	int y			= (int)( mAsciiPer*border );
 	
 	int w			= (int)( halfWidth );
 	int h			= (int)( totalWidth - border*2 );
+	
+	if( !hasAlbumArt ){
+		w = 1;
+		h = h/8;
+	}
 	
 	// grab a section of the album art
 	Area a			= Area( x, y, x+w, y+h );
@@ -195,7 +202,7 @@ void NodeAlbum::setData( PlaylistRef album )
 			ColorA surfaceColor	= planetSurface.getPixel( Vec2i( iter.x(), iter.y() ) );
 			float planetVal		= surfaceColor.r;
 			float cloudShadow	= surfaceColor.g * 0.5f + 0.5f;
-			float brightness	= surfaceColor.b;
+			//float brightness	= surfaceColor.b;
 			
 			ColorA final		= albumColor;// + planetVal * 0.25f;
 			final *= cloudShadow * planetVal;
@@ -217,9 +224,9 @@ void NodeAlbum::update( const Matrix44f &mat, float param1, float param2 )
 	mRadius			-= ( mRadius - mRadiusDest ) * 0.2f;
 	mSphere			= Sphere( mPos, mRadius );
 	
-	double playbackTime		= app::getElapsedSeconds();
-	double percentPlayed	= playbackTime/mOrbitPeriod;
-	mOrbitAngle	+= param2;
+	//double playbackTime		= app::getElapsedSeconds();
+	//double percentPlayed	= playbackTime/mOrbitPeriod;
+	mOrbitAngle	+= param2 * mAxialVel * 0.05f;
 	mAxialRot.y -= mAxialVel * ( param2 * 10.0f );
 		
     Vec3f prevTransPos  = mTransPos;
@@ -585,14 +592,14 @@ void NodeAlbum::select()
 }
 
 
-void NodeAlbum::findShadows()
+void NodeAlbum::findShadows( const gl::Texture &tex, float camAlpha )
 {
 	//for now assume sun is larger onscreen than album
 	if( mParentNode->mDistFromCamZAxis > 0.0f && mDistFromCamZAxis > 0.0f ) //&& ( mIsSelected || mIsPlaying )
 	{		
 		Vec2f p0, p1, p2, p3a, p3b, p4, p5a, p5b, p6a, p6b;
-		float r0, r1, rMid, r0Inner, rDelta, rTotal, rAlternateTotal;
-		float d, dMid, dAlternate;
+		float r0, r1, rMid, rMidSqrd, r0Inner, rTotal;
+		float d;
 		
 	// Positions
 		p0				= mParentNode->mScreenPos;
@@ -610,20 +617,21 @@ void NodeAlbum::findShadows()
 	// Dist between main positions
 		d				= p0.distance( p1 );
 		rMid			= d * 0.5f;
+		rMidSqrd		= rMid * rMid;
 		float newRTotal		= r0Inner + rMid;
 		float newRDelta		= abs( rMid - r0Inner );
 		
 		if( rMid > newRTotal ){
-			std::cout << "not intersecting" << std::endl;
+		//	std::cout << "not intersecting" << std::endl;
 		} else if( rMid < newRDelta ){
-			std::cout << "contained" << std::endl;
+		//	std::cout << "contained" << std::endl;
 		} else if( rMid == 0 ){
-			std::cout << "concentric" << std::endl;
+		//	std::cout << "concentric" << std::endl;
 		} else {
-			float a = ( rMid * rMid - r0Inner * r0Inner + rMid * rMid ) / ( 2.0f * rMid );
+			float a = ( rMidSqrd - r0Inner * r0Inner + rMidSqrd ) / ( 2.0f * rMid );
 			p2 = p4 + a * ( ( p0 - p4 ) / rMid );
 			
-			float h = sqrt( rMid * rMid - a * a ) * 0.5f;
+			float h = sqrt( rMidSqrd - a * a ) * 0.5f;
 			
 			p3a = Vec2f( p2.x + h * ( p1.y - p0.y ) / rMid, 
 						 p2.y - h * ( p1.x - p0.x ) / rMid );
@@ -642,32 +650,112 @@ void NodeAlbum::findShadows()
 			p6a = p1 + p3aDirNorm * r1; 
 			p6b = p1 + p3bDirNorm * r1;
 			
-			gl::color( Color( 1.0f, 1.0f, 0.0f ) );
-//			gl::drawStrokedCircle( p3a, 2.0f );
-//			gl::drawStrokedCircle( p3b, 2.0f );
-			gl::drawStrokedCircle( p5a, 2.0f );
-			gl::drawStrokedCircle( p5b, 2.0f );
-			gl::drawStrokedCircle( p6a, 2.0f );
-			gl::drawStrokedCircle( p6b, 2.0f );
+			Vec2f outerTanADir = p6a - p5a;
+			Vec2f outerTanBDir = p6b - p5b;
+			Vec2f innerTanADir = p6a - p5b;
+			Vec2f innerTanBDir = p6b - p5a;
 			
-			gl::drawLine( p5a, p6a );
-			gl::drawLine( p5b, p6b );
+			if( G_DEBUG ){
+				glDisable( GL_TEXTURE_2D );
+				gl::enableAlphaBlending();
+				gl::color( ColorA( mGlowColor, 0.15f ) );
+				gl::drawStrokedCircle( p3a, 2.0f );
+				gl::drawStrokedCircle( p3b, 2.0f );
+				gl::drawStrokedCircle( p5a, 2.0f );
+				gl::drawStrokedCircle( p5b, 2.0f );
+				gl::drawStrokedCircle( p6a, 2.0f );
+				gl::drawStrokedCircle( p6b, 2.0f );
+				
+				gl::drawLine( p6a + outerTanBDir, p6b + outerTanADir );
+//				gl::drawLine( p5b, p6b );
+				
+				gl::drawLine( p6a, p6a + outerTanBDir );
+				gl::drawLine( p6b, p6b + outerTanADir );
+				
+				gl::drawLine( p6a, p6a + innerTanBDir );
+				gl::drawLine( p6b, p6b + innerTanADir );
+			}
+			glEnable( GL_TEXTURE_2D );
+			buildShadowVertexArray( p6a, p6b, p6a + outerTanBDir, p6b + outerTanADir );
+			gl::enableAlphaBlending();
+			float dist = mTransPos.distance( mParentNode->mTransPos );
+			float alpha = ( 1.0f - dist*0.25f ) * camAlpha * mParentNode->mDistFromCamZAxisPer;
+			gl::color( ColorA( 1.0f, 1.0f, 1.0f, constrain( alpha, 0.0f, 1.0f ) ) );
+			glEnableClientState( GL_VERTEX_ARRAY );
+			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+			glVertexPointer( 2, GL_FLOAT, 0, mShadowVerts );
+			glTexCoordPointer( 2, GL_FLOAT, 0, mShadowTexCoords );
+			tex.enableAndBind();
+			glDrawArrays( GL_TRIANGLES, 0, 12 ); // dont forget to change the vert count in buildShadowVertexArray VVV
+			tex.unbind();
+			glDisableClientState( GL_VERTEX_ARRAY );
+			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 		}
 		
 		
+		if( G_DEBUG ){
+			glDisable( GL_TEXTURE_2D );
+			gl::enableAlphaBlending();
+			gl::color( ColorA( Color::white(), 0.25f ) );
+			gl::drawStrokedCircle( p0, r0, 50 );
+			gl::drawStrokedCircle( p1, r1, 50 );
 		
-//		gl::color( ColorA( Color::white(), 0.5f ) );
-//		gl::drawStrokedCircle( p0, r0, 50 );
-//		gl::drawStrokedCircle( p1, r1, 50 );
-//	
-//		gl::color( Color( 1.0f, 0.0f, 0.0f ) );
-//		gl::drawStrokedCircle( p0, r0Inner, 50 );
-//		gl::drawStrokedCircle( p4, rMid, 50 );
-//		
-//		gl::color( Color( 0.0f, 1.0f, 0.0f ) );		
-//		gl::drawLine( p0, p1 );
+			gl::color( ColorA( mGlowColor, 0.25f ) );
+			gl::drawStrokedCircle( p0, r0Inner, 50 );
+			gl::drawStrokedCircle( p4, rMid, 50 );
+			
+			gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.25f ) );		
+			//gl::drawLine( p0, p1 );
+		}
 	}
 }
+
+
+void NodeAlbum::buildShadowVertexArray( Vec2f p1, Vec2f p2, Vec2f p3, Vec2f p4 )
+{
+ //   if( mShadowVerts != NULL )		delete[] mShadowVerts;
+//    if( mShadowTexCoords != NULL )  delete[] mShadowTexCoords;
+    
+	int numVerts		= 12;			// dont forget to change the vert count in findShadows ^^^
+	mShadowVerts		= new float[ numVerts * 2 ]; // x, y
+	mShadowTexCoords	= new float[ numVerts * 2 ]; // u, v
+	int i = 0;
+	int t = 0;
+	
+	// midpoint between end vertices
+	Vec2f v1 = ( p1 + p2 ) * 0.5f;
+	Vec2f v2 = ( p3 + p4 ) * 0.5f;
+	
+	mShadowVerts[i++]	= p1.x;		mShadowTexCoords[t++]	= 0.0f;
+	mShadowVerts[i++]	= p1.y;		mShadowTexCoords[t++]	= 0.1f;
+	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
+	mShadowVerts[i++]	= v2.y;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= p3.x;		mShadowTexCoords[t++]	= 0.0f;
+	mShadowVerts[i++]	= p3.y;		mShadowTexCoords[t++]	= 1.0f;
+	
+	mShadowVerts[i++]	= p1.x;		mShadowTexCoords[t++]	= 0.0f;
+	mShadowVerts[i++]	= p1.y;		mShadowTexCoords[t++]	= 0.0f;
+	mShadowVerts[i++]	= v1.x;		mShadowTexCoords[t++]	= 0.5f;
+	mShadowVerts[i++]	= v1.y;		mShadowTexCoords[t++]	= 0.0f;
+	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
+	mShadowVerts[i++]	= v2.y;		mShadowTexCoords[t++]	= 1.0f;
+	
+	mShadowVerts[i++]	= v1.x;		mShadowTexCoords[t++]	= 0.5f;
+	mShadowVerts[i++]	= v1.y;		mShadowTexCoords[t++]	= 0.0f;
+	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= p2.y;		mShadowTexCoords[t++]	= 0.0f;
+	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
+	mShadowVerts[i++]	= v2.y;		mShadowTexCoords[t++]	= 1.0f;
+	
+	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= p2.y;		mShadowTexCoords[t++]	= 0.1f;
+	mShadowVerts[i++]	= p4.x;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= p4.y;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
+	mShadowVerts[i++]	= v2.y;		mShadowTexCoords[t++]	= 1.0f;
+}
+
+
 
 
 void NodeAlbum::setChildOrbitRadii()

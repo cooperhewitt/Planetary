@@ -175,8 +175,8 @@ class KeplerApp : public AppCocoaTouch {
 	float			mAlphaWheelRadius;
 	
 // FONTS
+	Font			mFontLarge;
 	Font			mFont;
-	Font			mFontForAlphaWheelLetters;
 	Font			mFontBig;
 	Font			mFontMediSmall;
 	Font			mFontMediTiny;
@@ -204,12 +204,13 @@ class KeplerApp : public AppCocoaTouch {
 	// TEXTURES
 //    TextureLoader   mTextureLoader;
 	gl::Texture		mParamsTex;
-	gl::Texture		mStarTex, mStarGlowTex, mStarCoreTex, mEclipseGlowTex;
+	gl::Texture		mStarTex, mStarGlowTex, mStarCoreTex, mEclipseGlowTex, mLensFlareTex;
+	gl::Texture		mEclipseShadowTex;
 	gl::Texture		mSkyDome, mGalaxyDome;
 	gl::Texture		mDottedTex;
 	gl::Texture		mPlayheadProgressTex;
     gl::Texture     mRingsTex;
-	gl::Texture		mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex;
+	gl::Texture		mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex, mOverlayIconsTex;
     gl::Texture		mAtmosphereTex, mAtmosphereDirectionalTex, mAtmosphereSunTex;
 	gl::Texture		mNoArtistsTex;
 	gl::Texture		mParticleTex;
@@ -305,8 +306,6 @@ void KeplerApp::setup()
     
     // !!! this has to be set up before any other UI things so it can consume touch events
     mLoadingScreen.setup( this, mOrientationHelper.getInterfaceOrientation() );
-
-    mNotificationOverlay.setup( this, mOrientationHelper.getInterfaceOrientation() );
     
     initLoadingTextures();
 
@@ -377,14 +376,19 @@ void KeplerApp::remainingSetup()
 	mFadeOverFullZoomDuration = 0.0f;
 	
 	
-	// FONTS
+// FONTS
+	mFontLarge			= Font( loadResource( "AauxPro-Black.ttf" ), 26 );
 	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
-	mFontBig			= Font( loadResource( "UnitRoundedOT-Ultra.otf"), 256 );
+	mFontBig			= Font( loadResource( "AauxPro-Black.ttf"), 24 );
 	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
 	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 11 );
-	mFontForAlphaWheelLetters = Font( loadResource( "Aaux ProBlack.ttf" ), 24 );
 	
-	// TOUCH VARS
+	
+// NOTIFICATION OVERLAY
+	mNotificationOverlay.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontLarge );
+	
+	
+// TOUCH VARS
 	mTouchPos			= getWindowCenter();
 	mTouchVel			= Vec2f(2.1f, 0.3f );
 	mIsDragging			= false;
@@ -421,7 +425,7 @@ void KeplerApp::remainingSetup()
 	mAlphaWheel.setup( this, mOrientationHelper.getInterfaceOrientation(), mAlphaWheelRadius );
 	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
 	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
-	mAlphaWheel.initAlphaTextures( mFontForAlphaWheelLetters );	
+	mAlphaWheel.initAlphaTextures( mFontBig );	
 	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
@@ -475,6 +479,8 @@ void KeplerApp::initTextures()
     mStarTex			= loadImage( loadResource( "star.png" ) );
 	mStarCoreTex		= loadImage( loadResource( "starCore.png" ) );
 	mEclipseGlowTex		= loadImage( loadResource( "eclipseGlow.png" ) );
+	mEclipseShadowTex	= loadImage( loadResource( "eclipseShadow.png" ) );
+	mLensFlareTex		= loadImage( loadResource( "lensFlare.png" ) );
 	mParticleTex		= loadImage( loadResource( "particle.png" ) );
 	mSkyDome			= loadImage( loadResource( "skydome.png" ) );
 	mGalaxyDome			= loadImage( loadResource( "skydome.jpg" ) );
@@ -487,6 +493,7 @@ void KeplerApp::initTextures()
 	mUiButtonsTex		= loadImage( loadResource( "uiButtons.png" ) );
 	mUiBigButtonsTex	= loadImage( loadResource( "uiBigButtons.png" ) );
 	mUiSmallButtonsTex	= loadImage( loadResource( "uiSmallButtons.png" ) );
+	mOverlayIconsTex	= loadImage( loadResource( "overlayIcons.png" ) );
     mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
 	mAtmosphereDirectionalTex = loadImage( loadResource( "atmosphereDirectional.png" ) );
 	mAtmosphereSunTex	= loadImage( loadResource( "atmosphereSun.png" ) );
@@ -772,7 +779,7 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 	}
 	
 	mTimePinchEnded = getElapsedSeconds();
-	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );	
+	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );
     mPinchRays.clear();
 	mIsPinching = false;
     return false;
@@ -839,6 +846,7 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 
 bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 {
+	std::cout << "Wheel Toggled" << std::endl;
 	if( mAlphaWheel.getShowWheel() ){
 		mFovDest = G_MAX_FOV;
 	} else {
@@ -963,9 +971,11 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             Flurry::getInstrumentation()->logEvent("Play/Pause Button Selected");            
             if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
                 mIpodPlayer.pause();
+				mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 128.0f, 128.0f, 256.0f ), "PAUSED" );
             }
             else {
                 mIpodPlayer.play();
+				mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 0.0f, 128.0f, 128.0f ), "PLAY" );
             }
             break;
         
@@ -975,15 +985,25 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
 			
 		case PlayControls::SHUFFLE:
-			if( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff ) mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeOff );
-			else mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeSongs );
+			if( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff ){
+				mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeOff );
+				mNotificationOverlay.show( mOverlayIconsTex, Area( 128.0f, 128.0f, 256.0f, 256.0f ), "SHUFFLE OFF" );
+			} else {
+				mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeSongs );
+				mNotificationOverlay.show( mOverlayIconsTex, Area( 128.0f, 0.0f, 256.0f, 128.0f ), "SHUFFLE ON" );
+			}
 				
             Flurry::getInstrumentation()->logEvent("Shuffle Button Selected");    
             break;
 			
 		case PlayControls::REPEAT:
-			if( mIpodPlayer.getRepeatMode() == ipod::Player::RepeatModeDefault ) mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeNone );
-			else mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeAll );
+			if( mIpodPlayer.getRepeatMode() != ipod::Player::RepeatModeAll ){
+				mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeNone );
+				mNotificationOverlay.show( mOverlayIconsTex, Area( 256.0f, 128.0f, 384.0f, 256.0f ), "REPEAT NONE" );
+			} else {
+				mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeAll );
+				mNotificationOverlay.show( mOverlayIconsTex, Area( 256.0f, 0.0f, 384.0f, 128.0f ), "REPEAT ALL" );
+			}
 			
             Flurry::getInstrumentation()->logEvent("Repeat Button Selected");   
             break;
@@ -1002,6 +1022,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				Flurry::getInstrumentation()->logEvent("Draw Rings Button Selected");            
 				G_DRAW_RINGS = !G_DRAW_RINGS;
+				if( G_DRAW_RINGS )	mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 0.0f, 640.0f, 128.0f ), "ORBIT LINES" );
+				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 128.0f, 640.0f, 256.0f ), "ORBIT LINES" );
 			}
             break;
         
@@ -1009,6 +1031,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				Flurry::getInstrumentation()->logEvent("Draw Text Button Selected");            
 				G_DRAW_TEXT = !G_DRAW_TEXT;
+				if( G_DRAW_TEXT )	mNotificationOverlay.show( mOverlayIconsTex, Area( 640.0f, 0.0f, 768.0f, 128.0f ), "TEXT LABELS" );
+				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 640.0f, 128.0f, 768.0f, 256.0f ), "TEXT LABELS" );
 			}
             break;
         
@@ -1016,6 +1040,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				Flurry::getInstrumentation()->logEvent("Use Gyro Button Selected");            
 				G_USE_GYRO = !G_USE_GYRO;
+				if( G_USE_GYRO )	mNotificationOverlay.show( mOverlayIconsTex, Area( 384.0f, 0.0f, 512.0f, 128.0f ), "GYROSCOPE" );
+				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 384.0f, 128.0f, 512.0f, 256.0f ), "GYROSCOPE" );
 			}
             break;
 			
@@ -1059,7 +1085,9 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			
 		case PlayControls::SHOW_WHEEL:
 			std::cout << "SHOW_WHEEL HAPPENED!!!! IN PLAYCONTROLS!!!!" << std::endl;
+			std::cout << "PRE WHEEL STATE = " << mAlphaWheel.getShowWheel() << std::endl;
 			mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );
+			std::cout << "POST WHEEL STATE = " << mAlphaWheel.getShowWheel() << std::endl;
             break;	
 			
         case PlayControls::NO_BUTTON:
@@ -1145,7 +1173,7 @@ void KeplerApp::update()
             Flurry::getInstrumentation()->logEvent("Startup with Track Playing");                        
             onPlayerTrackChanged( &mIpodPlayer );
         } else {
-            Flurry::getInstrumentation()->logEvent("Startup without Track Playing");                        
+            Flurry::getInstrumentation()->logEvent("Startup without Track Playing");
 			mAlphaWheel.setShowWheel( true );
 		}
 	}
@@ -1191,6 +1219,8 @@ void KeplerApp::update()
 			mParticleController.buildParticleVertexArray( selectedArtistNode->mColor, ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f, mMatrix );
 			mParticleController.buildDustVertexArray( selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.05f * mFadeInArtistToAlbum );
 		}
+		
+		mNotificationOverlay.update();
 		
         mUiLayer.setShowSettings( G_SHOW_SETTINGS );
         mUiLayer.update();
@@ -1337,12 +1367,19 @@ void KeplerApp::updateCamera()
 	G_CURRENT_LEVEL = mZoomDest;
 	
 	
-	if( mPinchPer > mPinchPerThresh && ! mAlphaWheel.getShowWheel() && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
-		mAlphaWheel.setShowWheel( true ); 
-		
-	} else if( mPinchPer <= mPinchPerThresh && mAlphaWheel.getShowWheel() ){
-		mAlphaWheel.setShowWheel( false ); 
+	if( mIsPinching && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
+		std::cout << "PINCHING" << std::endl;
+		if( mPinchPer > mPinchPerThresh && ! mAlphaWheel.getShowWheel() ){
+			mAlphaWheel.setShowWheel( true ); 
+			std::cout << "updateCamera opened alphawheel" << std::endl;
+			
+		} else if( mPinchPer <= mPinchPerThresh && mAlphaWheel.getShowWheel() ){
+			mAlphaWheel.setShowWheel( false ); 
+			std::cout << "updateCamera closed alphawheel" << std::endl;
+		}
 	}
+	
+	
 	
 
 	float distToTravel = mState.getDistBetweenNodes();
@@ -1558,6 +1595,16 @@ void KeplerApp::drawScene()
 	mStarGlowTex.disable();
 	
 	
+	// SHADOWS
+	gl::setMatricesWindow( getWindowSize() );
+	for( int i = 0; i < sortedNodes.size(); i++ ){
+		if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
+			gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+			sortedNodes[i]->findShadows( mEclipseShadowTex, sqrt( mCamRingAlpha ) );
+		}
+	}
+	gl::setMatrices( mCam );
+	
 
 	if( artistNode ){ // defined at top of method
 		//float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
@@ -1724,10 +1771,40 @@ void KeplerApp::drawScene()
 	gl::setMatricesWindow( getWindowSize() );
 	gl::enableAdditiveBlending();
 	
+
 	
 // NAMES
 	if( G_DRAW_TEXT ){
 		mWorld.drawNames( mCam, mPinchAlphaPer, getAngleForOrientation(mInterfaceOrientation) );
+	}
+	
+	
+// LENSFLARE?!?!  SURELY YOU MUST BE MAD.
+	if( artistNode && artistNode->mDistFromCamZAxis > 0.0f ){
+		int numFlares  = 7;
+		float radii[7] = { 0.8f, 1.2f, 6.5f, 2.0f, 3.0f, 2.0f, 1.0f };
+		float dists[7] = { 0.8f, 1.0f, 1.5f, 1.70f, 3.0f, 5.0f, 7.0f };
+		
+		float distFromCenter = artistNode->mScreenPos.distance( getWindowCenter() );
+		float distPer = constrain( 1.0f - distFromCenter/800.0f, 0.0f, 1.0f );
+		float alpha = distPer * 0.2f * sin( distPer * M_PI );
+		gl::color( ColorA( BRIGHT_BLUE, alpha ) );
+		gl::enableAdditiveBlending();
+		mLensFlareTex.enableAndBind();
+		
+		Vec2f flarePos = getWindowCenter() - artistNode->mScreenPos;
+		float flareDist = flarePos.length();
+		Vec2f flarePosNorm = flarePos.normalized();
+		
+		for( int i=0; i<numFlares; i++ ){
+			flarePos = getWindowCenter() + flarePosNorm * dists[i] * flareDist;
+			float flareRadius = artistNode->mSphereScreenRadius * radii[i] * distPer;
+			gl::drawSolidRect( Rectf( flarePos.x - flareRadius, flarePos.y - flareRadius, flarePos.x + flareRadius, flarePos.y + flareRadius ) );
+		}
+		
+
+		mLensFlareTex.disable();
+		
 	}
 
 	
@@ -1757,14 +1834,13 @@ void KeplerApp::drawScene()
 		
 		gl::drawSolidRect( Rectf( mTouchPos.x - radius, mTouchPos.y - radius, mTouchPos.x + radius, mTouchPos.y + radius ) );
 	}
-    
+
 	
-	
-    glDisable( GL_TEXTURE_2D );
-	
+	glDisable( GL_TEXTURE_2D );
 	
 	
 //	if( G_DEBUG ){
+//		
 //		// HIT AREA VISUALIZER
 //		for (int i = 0; i < mWorld.mNodes.size(); i++) {
 //			Node* artistNode = mWorld.mNodes[i];
@@ -1796,26 +1872,32 @@ void KeplerApp::drawScene()
 //		}
 //	}
     
-    gl::disableAlphaBlending();
+
+   
+	
+
+// SHADOWS
+	
+//	for( int i = 0; i < sortedNodes.size(); i++ ){
+//		if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
+//			gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+//			sortedNodes[i]->findShadows( mEclipseShadowTex );
+//		}
+//	}
+
+	
+	
+	gl::disableAlphaBlending();
     gl::enableAlphaBlending();
 	
-// SHADOWS
-	if( G_DEBUG ){
-		for( int i = 0; i < sortedNodes.size(); i++ ){
-			if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
-				gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-				sortedNodes[i]->findShadows();
-			}
-		}
-	}
-	
-	// EVERYTHING ELSE
-	
+// EVERYTHING ELSE	
 	mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
-
     mPlayControls.draw( mUiLayer.getPanelYPos() );
+	
+	mNotificationOverlay.draw();
+	
 	
 	if( G_DEBUG ){
 		gl::enableAdditiveBlending();

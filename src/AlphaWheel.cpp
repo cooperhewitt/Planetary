@@ -129,6 +129,9 @@ bool AlphaWheel::touchesEnded( TouchEvent event )
 
 bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 {
+	if( !mShowWheel ){
+		return false;
+	}
 	float minDiam = mAlphaRadius - 25.0f;
 	float maxDiam = mAlphaRadius + 25.0f;
 	

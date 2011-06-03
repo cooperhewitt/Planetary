@@ -120,7 +120,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 void NodeTrack::setStartAngle()
 {
 	mPercentPlayed		= 0.0f;
-	float angle			= atan2( mPos.z - mParentNode->mPos.z, mPos.x - mParentNode->mPos.x );
+	//float angle			= atan2( mPos.z - mParentNode->mPos.z, mPos.x - mParentNode->mPos.x );
 	float timeOffset	= (float)mMyTime/mOrbitPeriod;
 	mOrbitStartAngle	= timeOffset * TWO_PI;
 //	

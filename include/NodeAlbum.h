@@ -24,7 +24,8 @@ class NodeAlbum : public Node
 	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
 	void drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
 	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );
-	void findShadows();
+	void findShadows( const ci::gl::Texture &tex, float camAlpha );
+	void buildShadowVertexArray( ci::Vec2f p1, ci::Vec2f p2, ci::Vec2f p3, ci::Vec2f p4 );
 	void select();
 	void setChildOrbitRadii();
 	string getName();
@@ -47,4 +48,8 @@ class NodeAlbum : public Node
 	ci::gl::Texture mAlbumArtTex;
 	ci::ipod::PlaylistRef mAlbum;
 	float		mCloudLayerRadius;
+	
+	GLfloat		*mShadowVerts;
+	GLfloat		*mShadowTexCoords;
+	
 };

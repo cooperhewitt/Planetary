@@ -26,7 +26,7 @@ public:
     NotificationOverlay();    
     ~NotificationOverlay();
     
-    void setup( AppCocoaTouch *app, const Orientation &orientation );
+    void setup( AppCocoaTouch *app, const Orientation &orientation, const Font &font );
     void update();
     void draw();
     
@@ -36,9 +36,8 @@ public:
     void hide();
     
 private:
-    
     AppCocoaTouch *mApp;
-    
+
     Orientation mInterfaceOrientation;
     Matrix44f mOrientationMatrix;
     Vec2f mInterfaceSize;
@@ -48,5 +47,8 @@ private:
     gl::Texture mCurrentTexture;
     Area mCurrentSrcArea;
     string mCurrentMessage;
+	
+	Font mFont;
+	gl::Texture mMessageTexture;
     
 };
