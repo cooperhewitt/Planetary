@@ -1,3 +1,7 @@
+#include <sys/sysctl.h>
+#include <vector>
+#include <sstream>
+#import <CoreMotion/CoreMotion.h>
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/app/Renderer.h"
 #include "cinder/Surface.h"
@@ -25,14 +29,9 @@
 #include "ParticleController.h"
 #include "LoadingScreen.h"
 #include "NodeArtist.h"
-
+#include "PlaylistFilter.h"
+#include "LetterFilter.h"
 #include "CinderFlurry.h"
-//#include "TextureLoader.h"
-#include <sys/sysctl.h>
-#include <vector>
-#include <sstream>
-#import <CoreMotion/CoreMotion.h>
-
 
 using std::vector;
 using namespace ci;
@@ -865,7 +864,7 @@ bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 
 bool KeplerApp::onAlphaCharStateChanged( State *state )
 {
-	mData.filterArtistsByAlpha( mState.getAlphaChar() );
+	mData.setFilter( LetterFilter(mState.getAlphaChar()) );
 
     std::map<string, string> parameters;
     parameters["Letter"] = ""+mState.getAlphaChar();
@@ -882,7 +881,7 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 bool KeplerApp::onPlaylistStateChanged( State *state )
 {
 	std::cout << "playlist changed" << std::endl;
-	mData.filterArtistsByPlaylist( mState.getPlaylist() );
+	mData.setFilter( PlaylistFilter(mState.getPlaylist()) );
     
 	mPlayControls.setPlaylist( mState.getPlaylistName() );
 	
