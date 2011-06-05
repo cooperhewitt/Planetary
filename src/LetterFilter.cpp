@@ -7,14 +7,31 @@
 //
 
 #include "LetterFilter.h"
+#include <stdio.h> // for toupper(char), isalpha(char), etc.
 #include <string>
 #include <boost/algorithm/string.hpp> // for boost::to_upper(std::string)
-#include <stdio.h> // for toupper(char)
+
+LetterFilter::LetterFilter(char letter)
+{
+    mLetter = letter;
+    if (mLetter != '#' && !isupper(mLetter)) {
+        mLetter = static_cast<char> ( toupper( mLetter ) );
+    }
+}
 
 bool LetterFilter::test(ci::ipod::PlaylistRef artist) const
 {
+    return testArtistName(artist->getArtistName());
+}
+
+bool LetterFilter::test(ci::ipod::TrackRef track) const
+{
+    return testArtistName(track->getArtist());    
+}
+
+bool LetterFilter::testArtistName(const std::string &name) const
+{
     if (mLetter != '#') {
-        std::string name = artist->getArtistName();
         char firstLetter = name[0];
         if (name.length() > 5) {
             std::string the = boost::to_upper_copy(name.substr( 0, 4 ));
@@ -25,11 +42,6 @@ bool LetterFilter::test(ci::ipod::PlaylistRef artist) const
         return isalpha(firstLetter) && toupper(firstLetter) == mLetter;
     }
     else {
-        return !isalpha( artist->getArtistName()[0] );
-	}
-}
-
-bool LetterFilter::test(ci::ipod::TrackRef track) const
-{
-    return true;    
+        return !isalpha( name[0] );
+	}    
 }

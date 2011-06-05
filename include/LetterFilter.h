@@ -7,19 +7,16 @@
 //
 
 #pragma once
+
 #include "Filter.h"
 #include "CinderIPod.h"
 
 class LetterFilter : public Filter {
   public:
-    LetterFilter( char letter ) {
-        mLetter = letter;
-        if (mLetter != '#') {
-            mLetter = static_cast<char> ( tolower( mLetter ) );
-        }
-    }
+    LetterFilter( char letter );
     bool test( ci::ipod::PlaylistRef artist ) const;
     bool test( ci::ipod::TrackRef track ) const;
   private:
-    char mLetter; // always lowercase, unless '#'
+    char mLetter; // always uppercase, unless '#'
+    bool testArtistName(const std::string &name) const;
 };
