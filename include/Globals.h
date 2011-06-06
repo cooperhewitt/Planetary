@@ -42,6 +42,7 @@ static const int G_SKYDOME_RADIUS	= 1000.0f;
 
 static const int G_TOTAL_HELP_CALLOUTS = 8;
 
+static const ci::Color GREY				= ci::Color( 0.1f, 0.1f, 0.15f );
 static const ci::Color BLUE				= ci::Color( 0.1f, 0.2f, 0.5f );
 static const ci::Color BRIGHT_BLUE		= ci::Color( 0.4f, 0.8f, 1.0f );
 static const ci::Color BRIGHT_YELLOW	= ci::Color( 1.0f, 0.9f, 0.35f );

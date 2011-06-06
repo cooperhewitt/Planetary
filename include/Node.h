@@ -44,9 +44,10 @@ class Node {
 	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds ) {};
 	virtual void	drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer ) {};
 	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
+	virtual void	findShadows( float camAlpha ) {};
 	virtual void	drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );
+
 	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
-	virtual void	findShadows( const ci::gl::Texture &tex, float camAlpha ) {};
 	void			wasTapped(){ mIsTapped = true; mHighlightStrength = 1.0f; }
 	void			drawTouchHighlight( float zoomAlpha );
 	void			checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );

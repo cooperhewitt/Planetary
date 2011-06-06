@@ -592,167 +592,253 @@ void NodeAlbum::select()
 }
 
 
-void NodeAlbum::findShadows( const gl::Texture &tex, float camAlpha )
-{
-	//for now assume sun is larger onscreen than album
-	if( mParentNode->mDistFromCamZAxis > 0.0f && mDistFromCamZAxis > 0.0f ) //&& ( mIsSelected || mIsPlaying )
-	{		
-		Vec2f p0, p1, p2, p3a, p3b, p4, p5a, p5b, p6a, p6b;
-		float r0, r1, rMid, rMidSqrd, r0Inner, rTotal;
-		float d;
-		
-	// Positions
-		p0				= mParentNode->mScreenPos;
-		p1				= mScreenPos;
+void NodeAlbum::findShadows( float camAlpha )
+{	
+	Vec3f P0, P1, P2, P4;
+	Vec3f P3a, P3b;
+	Vec3f P5a, P5b, P6a, P6b;
+	Vec3f outerTanADir, outerTanBDir, innerTanADir, innerTanBDir;
+	
+	float r0, r1, r0Inner, rTotal;
+	float d, dMid, dMidSqrd;
+	
+	// Positions	
+	P0				= mParentNode->mPos;
+	P1				= mPos;
+	P4				= ( P0 + P1 )*0.5f;
+	
 	// Radii
-		r0				= mParentNode->mSphereScreenRadius;
-		r1				= mSphereScreenRadius;
-		rTotal			= r0 + r1;
+	r0				= mParentNode->mRadius * 0.175f;
+	r1				= mRadius * 1.1f;
+	rTotal			= r0 + r1;
+	r0Inner			= abs( r0 - r1 );
+	
+	d				= P0.distance( P1 );
+	dMid			= d * 0.5f;
+	dMidSqrd		= dMid * dMid;
+	
+	float newRTotal		= r0Inner + dMid;
+	float newRDelta		= abs( dMid - r0Inner );
+	
+	if( dMid > newRTotal ){
+		// std::cout << "not intersecting" << std::endl;
+	} else if( dMid < newRDelta ){
+		// std::cout << "contained" << std::endl;
+	} else if( dMid == 0 ){
+		// std::cout << "concentric" << std::endl;
+	} else {
+		float a = ( dMidSqrd - r0Inner * r0Inner + dMidSqrd ) / d;
+		P2 = P4 + a * ( ( P0 - P4 ) / dMid );
 		
-		r0Inner			= abs( r0 - r1 );
+		float h = sqrt( dMidSqrd - a * a ) * 0.5f;
+		
+		Vec3f p = ( P1 - P0 )/dMid;
+		
+		P3a = P2 + h * Vec3f( -p.z, p.y, p.x );
+		P3b = P2 - h * Vec3f( -p.z, p.y, p.x );
+		
+		
+		Vec3f P3aDirNorm = P3a - P0;
+		P3aDirNorm.normalize();
+		
+		Vec3f P3bDirNorm = P3b - P0;
+		P3bDirNorm.normalize();
+		
+		P5a = P3a + P3aDirNorm * r1;
+		P5b = P3b + P3bDirNorm * r1;
+		P6a = P1 + P3aDirNorm * r1; 
+		P6b = P1 + P3bDirNorm * r1;
+		
+		float amt = r0 * 3.0f;
+		outerTanADir = ( P6a - P5a ) * amt;
+		outerTanBDir = ( P6b - P5b ) * amt;
+		innerTanADir = ( P6a - P5b ) * amt;
+		innerTanBDir = ( P6b - P5a ) * amt;
+		
+		
+		
+		P0  = mMatrix * P0;
+		P1	= mMatrix * P1;
+		P2	= mMatrix * P2;
+		P3a	= mMatrix * P3a;
+		P3b = mMatrix * P3b;
+		P4	= mMatrix * P4;
+		P5a = mMatrix * P5a;
+		P5b = mMatrix * P5b;
+		P6a = mMatrix * P6a;
+		P6b = mMatrix * P6b;
+		Vec3f P7a = P6a + mMatrix * outerTanBDir;
+		Vec3f P7b = P6b + mMatrix * outerTanADir;
 
+		float distOfShadow = max( 1.0f - r0, 0.01f );
+		P7a = P6a + ( P7a - P6a ).normalized() * distOfShadow;
+		P7b = P6b + ( P7b - P6b ).normalized() * distOfShadow;
 		
-		p4				= ( p0 + p1 ) * 0.5f;
+		glEnable( GL_TEXTURE_2D );
+		buildShadowVertexArray( P6a, P6b, P7a, P7b );
+
+		float alpha = camAlpha * mDeathPer;
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f * alpha ) );
+
+		glVertexPointer( 3, GL_FLOAT, 0, mShadowVerts );
+		glTexCoordPointer( 2, GL_FLOAT, 0, mShadowTexCoords );
 		
-	// Dist between main positions
-		d				= p0.distance( p1 );
-		rMid			= d * 0.5f;
-		rMidSqrd		= rMid * rMid;
-		float newRTotal		= r0Inner + rMid;
-		float newRDelta		= abs( rMid - r0Inner );
+		glDrawArrays( GL_TRIANGLES, 0, 12 ); // dont forget to change the vert count in buildShadowVertexArray VVV
+	}
+
+	/*
+	if( G_DEBUG ){
+		glDisable( GL_TEXTURE_2D );
 		
-		if( rMid > newRTotal ){
-		//	std::cout << "not intersecting" << std::endl;
-		} else if( rMid < newRDelta ){
-		//	std::cout << "contained" << std::endl;
-		} else if( rMid == 0 ){
-		//	std::cout << "concentric" << std::endl;
-		} else {
-			float a = ( rMidSqrd - r0Inner * r0Inner + rMidSqrd ) / ( 2.0f * rMid );
-			p2 = p4 + a * ( ( p0 - p4 ) / rMid );
-			
-			float h = sqrt( rMidSqrd - a * a ) * 0.5f;
-			
-			p3a = Vec2f( p2.x + h * ( p1.y - p0.y ) / rMid, 
-						 p2.y - h * ( p1.x - p0.x ) / rMid );
-			
-			p3b = Vec2f( p2.x - h * ( p1.y - p0.y ) / rMid, 
-						 p2.y + h * ( p1.x - p0.x ) / rMid );
-			
-			Vec2f p3aDirNorm = p3a - p0;
-			p3aDirNorm.normalize();
-			
-			Vec2f p3bDirNorm = p3b - p0;
-			p3bDirNorm.normalize();
-			
-			p5a = p3a + p3aDirNorm * r1;
-			p5b = p3b + p3bDirNorm * r1;
-			p6a = p1 + p3aDirNorm * r1; 
-			p6b = p1 + p3bDirNorm * r1;
-			
-			Vec2f outerTanADir = p6a - p5a;
-			Vec2f outerTanBDir = p6b - p5b;
-			Vec2f innerTanADir = p6a - p5b;
-			Vec2f innerTanBDir = p6b - p5a;
-			
-			if( G_DEBUG ){
-				glDisable( GL_TEXTURE_2D );
-				gl::enableAlphaBlending();
-				gl::color( ColorA( mGlowColor, 0.15f ) );
-				gl::drawStrokedCircle( p3a, 2.0f );
-				gl::drawStrokedCircle( p3b, 2.0f );
-				gl::drawStrokedCircle( p5a, 2.0f );
-				gl::drawStrokedCircle( p5b, 2.0f );
-				gl::drawStrokedCircle( p6a, 2.0f );
-				gl::drawStrokedCircle( p6b, 2.0f );
-				
-				gl::drawLine( p6a + outerTanBDir, p6b + outerTanADir );
-//				gl::drawLine( p5b, p6b );
-				
-				gl::drawLine( p6a, p6a + outerTanBDir );
-				gl::drawLine( p6b, p6b + outerTanADir );
-				
-				gl::drawLine( p6a, p6a + innerTanBDir );
-				gl::drawLine( p6b, p6b + innerTanADir );
-			}
-			glEnable( GL_TEXTURE_2D );
-			buildShadowVertexArray( p6a, p6b, p6a + outerTanBDir, p6b + outerTanADir );
-			gl::enableAlphaBlending();
-			float dist = mTransPos.distance( mParentNode->mTransPos );
-			float alpha = ( 1.0f - dist*0.25f ) * camAlpha * mParentNode->mDistFromCamZAxisPer;
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, constrain( alpha, 0.0f, 1.0f ) ) );
-			glEnableClientState( GL_VERTEX_ARRAY );
-			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-			glVertexPointer( 2, GL_FLOAT, 0, mShadowVerts );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mShadowTexCoords );
-			tex.enableAndBind();
-			glDrawArrays( GL_TRIANGLES, 0, 12 ); // dont forget to change the vert count in buildShadowVertexArray VVV
-			tex.unbind();
-			glDisableClientState( GL_VERTEX_ARRAY );
-			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		}
+		gl::enableAlphaBlending();
+		gl::color( ColorA( mGlowColor, 0.4f ) );
+		gl::drawLine( P0, P1 );
+		
+		gl::pushModelView();
+		gl::translate( P0 );
+		gl::rotate( mMatrix );
+		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+		gl::drawStrokedCircle( Vec2f::zero(), r0, 50 );
+		gl::popModelView();
+		
+		gl::pushModelView();
+		gl::translate( P0 );
+		gl::rotate( mMatrix );
+		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+		gl::drawStrokedCircle( Vec2f::zero(), r0Inner, 50 );
+		gl::popModelView();
+		
+		gl::pushModelView();
+		gl::translate( P1 );
+		gl::rotate( mMatrix );
+		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+		gl::drawStrokedCircle( Vec2f::zero(), r1, 25 );
+		gl::popModelView();
+		
+		gl::pushModelView();
+		gl::translate( P2 );
+		gl::rotate( mMatrix );
+		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+		gl::popModelView();
 		
 		
-		if( G_DEBUG ){
-			glDisable( GL_TEXTURE_2D );
-			gl::enableAlphaBlending();
-			gl::color( ColorA( Color::white(), 0.25f ) );
-			gl::drawStrokedCircle( p0, r0, 50 );
-			gl::drawStrokedCircle( p1, r1, 50 );
 		
-			gl::color( ColorA( mGlowColor, 0.25f ) );
-			gl::drawStrokedCircle( p0, r0Inner, 50 );
-			gl::drawStrokedCircle( p4, rMid, 50 );
-			
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.25f ) );		
-			//gl::drawLine( p0, p1 );
-		}
+		gl::pushModelView();
+		gl::translate( P3a );
+		//gl::rotate( mMatrix );
+		//gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+		gl::popModelView();
+		
+		gl::pushModelView();
+		gl::translate( P3b );
+		//gl::rotate( mMatrix );
+		//gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+		gl::popModelView();
+		
+		gl::pushModelView();
+		gl::translate( P5a );
+		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+		gl::popModelView();
+		
+		gl::pushModelView();
+		gl::translate( P5b );
+		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+		gl::popModelView();
+		
+		gl::pushModelView();
+		gl::translate( P6a );
+		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+		gl::popModelView();
+		
+		gl::pushModelView();
+		gl::translate( P6b );
+		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+		gl::popModelView();
+		
+		
+		gl::drawLine( P6a, ( P6a + mMatrix * outerTanBDir ) );
+		gl::drawLine( P6b, ( P6b + mMatrix * outerTanBDir ) );
+		gl::drawLine( P6a, ( P6a + mMatrix * innerTanBDir ) );
+		gl::drawLine( P6b, ( P6b + mMatrix * innerTanBDir ) );
+		
+		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.4f ) );	
+		gl::pushModelView();
+		gl::translate( P4 );
+		gl::rotate( mMatrix );
+		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+		gl::drawStrokedCircle( Vec2f::zero(), dMid, 50 );
+		gl::popModelView();
+		
+		glEnable( GL_TEXTURE_2D );
+	}
+	*/
+	
+	for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
+		(*it)->findShadows( camAlpha );
 	}
 }
 
 
-void NodeAlbum::buildShadowVertexArray( Vec2f p1, Vec2f p2, Vec2f p3, Vec2f p4 )
+
+void NodeAlbum::buildShadowVertexArray( Vec3f p1, Vec3f p2, Vec3f p3, Vec3f p4 )
 {
  //   if( mShadowVerts != NULL )		delete[] mShadowVerts;
 //    if( mShadowTexCoords != NULL )  delete[] mShadowTexCoords;
     
 	int numVerts		= 12;			// dont forget to change the vert count in findShadows ^^^
-	mShadowVerts		= new float[ numVerts * 2 ]; // x, y
+	mShadowVerts		= new float[ numVerts * 3 ]; // x, y
 	mShadowTexCoords	= new float[ numVerts * 2 ]; // u, v
 	int i = 0;
 	int t = 0;
 	
-	// midpoint between end vertices
-	Vec2f v1 = ( p1 + p2 ) * 0.5f;
-	Vec2f v2 = ( p3 + p4 ) * 0.5f;
+	Vec3f v1 = ( p1 + p2 ) * 0.5f;	// midpoint between base vertices
+	Vec3f v2 = ( p3 + p4 ) * 0.5f;	// midpoint between end vertices
 	
-	mShadowVerts[i++]	= p1.x;		mShadowTexCoords[t++]	= 0.0f;
-	mShadowVerts[i++]	= p1.y;		mShadowTexCoords[t++]	= 0.1f;
+	mShadowVerts[i++]	= p1.x;		mShadowTexCoords[t++]	= 0.4f;
+	mShadowVerts[i++]	= p1.y;		mShadowTexCoords[t++]	= 0.2f;
+	mShadowVerts[i++]	= p1.z;
 	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
 	mShadowVerts[i++]	= v2.y;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= v2.z;
 	mShadowVerts[i++]	= p3.x;		mShadowTexCoords[t++]	= 0.0f;
 	mShadowVerts[i++]	= p3.y;		mShadowTexCoords[t++]	= 1.0f;
-	
-	mShadowVerts[i++]	= p1.x;		mShadowTexCoords[t++]	= 0.0f;
+	mShadowVerts[i++]	= p3.z;
+
+	// umbra 
+	mShadowVerts[i++]	= p1.x;		mShadowTexCoords[t++]	= 0.4f;
 	mShadowVerts[i++]	= p1.y;		mShadowTexCoords[t++]	= 0.0f;
+	mShadowVerts[i++]	= p1.z;
 	mShadowVerts[i++]	= v1.x;		mShadowTexCoords[t++]	= 0.5f;
 	mShadowVerts[i++]	= v1.y;		mShadowTexCoords[t++]	= 0.0f;
+	mShadowVerts[i++]	= v1.z;
 	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
 	mShadowVerts[i++]	= v2.y;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= v2.z;
 	
+	// umbra 
 	mShadowVerts[i++]	= v1.x;		mShadowTexCoords[t++]	= 0.5f;
 	mShadowVerts[i++]	= v1.y;		mShadowTexCoords[t++]	= 0.0f;
-	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= v1.z;
+	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 0.6f;
 	mShadowVerts[i++]	= p2.y;		mShadowTexCoords[t++]	= 0.0f;
+	mShadowVerts[i++]	= p2.z;
 	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
 	mShadowVerts[i++]	= v2.y;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= v2.z;
 	
-	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 1.0f;
-	mShadowVerts[i++]	= p2.y;		mShadowTexCoords[t++]	= 0.1f;
+	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 0.6f;
+	mShadowVerts[i++]	= p2.y;		mShadowTexCoords[t++]	= 0.2f;
+	mShadowVerts[i++]	= p2.z;
 	mShadowVerts[i++]	= p4.x;		mShadowTexCoords[t++]	= 1.0f;
 	mShadowVerts[i++]	= p4.y;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= p4.z;
 	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
 	mShadowVerts[i++]	= v2.y;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= v2.z;	
+	
 }
 
 

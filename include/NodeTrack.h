@@ -27,6 +27,8 @@ class NodeTrack : public Node
 	void buildPlayheadProgressVertexArray();
 	void drawPlayheadProgress( float pinchAlphaPer, float camAlpha, float pauseAlpha, const ci::gl::Texture &tex, const ci::gl::Texture &originTex );
 	void drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
+	void findShadows( float camAlpha );
+	void buildShadowVertexArray( ci::Vec3f p1, ci::Vec3f p2, ci::Vec3f p3, ci::Vec3f p4 );
 	
 	ci::Vec3f getStartRelPos(){ return mMatrix * mStartRelPos; }
 	ci::Vec3f getRelPos(){ return mMatrix * mRelPos; }
@@ -42,6 +44,8 @@ class NodeTrack : public Node
 	ci::ipod::PlaylistRef   mAlbum;	
 	
 private:
+	float		mShadowPer;
+	
 	float		mAsciiPer;
 	float		mEclipseStrength;
 	float		mTrackLength;
@@ -71,4 +75,7 @@ private:
 	GLfloat		*mOrbitVerts;
 	GLfloat		*mOrbitTexCoords;
 	GLfloat		*mOrbitColors;
+	
+	GLfloat		*mShadowVerts;
+	GLfloat		*mShadowTexCoords;
 };

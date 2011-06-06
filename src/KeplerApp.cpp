@@ -25,6 +25,7 @@
 #include "ParticleController.h"
 #include "LoadingScreen.h"
 #include "NodeArtist.h"
+#include "cinder/gl/TileRender.h"
 
 #include "CinderFlurry.h"
 //#include "TextureLoader.h"
@@ -159,6 +160,7 @@ class KeplerApp : public AppCocoaTouch {
 	float			mPinchPerThresh;
 	float			mPinchPerFrom, mPinchTotalFrom;	// used to decelerate values post new node selection
 	float			mPinchHighlightRadius;
+	float			mPinchRotation;
 	bool			mIsPastPinchThresh;
 	
 	float			mZoomFrom, mZoomDest;
@@ -352,6 +354,7 @@ void KeplerApp::remainingSetup()
 	mPinchTotalFrom		= mPinchTotal;
 	mIsPinching			= false;
 	mPinchHighlightRadius = 50.0f;
+	mPinchRotation		= 0.0f;
 	mIsPastPinchThresh	= false;
 	
 	mCamDistFrom		= mCamDist;
@@ -731,6 +734,7 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 	}
 	averageTouchPos /= touches.size();
 	mTouchPos = averageTouchPos;
+	
 // using pinch to control arcball is weird because of the pop
 // from one finger to two fingers. disabled until a fix is found.
 //	Vec3f worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
@@ -762,6 +766,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	//mTouchThrowVel	= ( averageTouchPos - mTouchPos );
 	//mTouchVel		= mTouchThrowVel;
 	mTouchPos		= averageTouchPos;
+	mPinchRotation	+= event.getRotationDelta();
 
     return false;
 }
@@ -860,6 +865,14 @@ bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 {
 	mState.setAlphaChar( alphaWheel->getAlphaChar() );
+	
+	stringstream s;
+	s.str("");
+	s << "FILTERING ARTISTS BY '";
+	s << alphaWheel->getAlphaChar();
+	s << "'";
+
+	mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), s.str() );
 	return false;
 }
 
@@ -1037,6 +1050,22 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
         
 		case PlayControls::USE_GYRO:
+//			{
+//				std::cout << "Starting tile render" << std::endl;
+//				gl::TileRender tr( getWindowWidth() * 3, getWindowHeight() * 3, 11, 131 );
+//				std::cout << "Tile Renderer initialized" << std::endl;
+//				tr.setMatrices( mCam );
+//				std::cout << "Matrices set" << std::endl;
+//				while( tr.nextTile() ) {
+//					std::cout << "While..." << std::endl;
+//					draw();
+//					std::cout << "Scene drawn" << std::endl;
+//				}
+//				std::cout << "done while." << std::endl;
+//				writeImage( getHomeDirectory() + "tileRenderOutput.png", tr.getSurface() );
+//				std::cout << "Image written" << std::endl;
+//			}
+			
 			if( G_SHOW_SETTINGS ){
 				Flurry::getInstrumentation()->logEvent("Use Gyro Button Selected");            
 				G_USE_GYRO = !G_USE_GYRO;
@@ -1069,6 +1098,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
         
 		case PlayControls::DEBUG_FEATURE:
 			G_DEBUG = !G_DEBUG;
+			if( G_DEBUG )	mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), "DEBUG MODE" );
+			else			mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 128.0f, 896.0f, 256.0f ), "DEBUG MODE" );
             break;
 			
 		case PlayControls::NEXT_PLAYLIST:
@@ -1084,10 +1115,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;	
 			
 		case PlayControls::SHOW_WHEEL:
-			std::cout << "SHOW_WHEEL HAPPENED!!!! IN PLAYCONTROLS!!!!" << std::endl;
-			std::cout << "PRE WHEEL STATE = " << mAlphaWheel.getShowWheel() << std::endl;
 			mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );
-			std::cout << "POST WHEEL STATE = " << mAlphaWheel.getShowWheel() << std::endl;
             break;	
 			
         case PlayControls::NO_BUTTON:
@@ -1216,8 +1244,11 @@ void KeplerApp::update()
 		if( selectedArtistNode ){
 			mParticleController.update( mMatrix.inverted() * mCenter, selectedArtistNode->mRadius * 0.15f, invBbRight, invBbUp );
 			float per = selectedArtistNode->mEclipseStrength * 0.5f + 0.25f;
-			mParticleController.buildParticleVertexArray( selectedArtistNode->mColor, ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f, mMatrix );
-			mParticleController.buildDustVertexArray( selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.05f * mFadeInArtistToAlbum );
+			mParticleController.buildParticleVertexArray( mPlayControls.getParamSlider1Value() * 5.0f, 
+														  selectedArtistNode->mColor, 
+														  ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f, 
+														  mMatrix );
+			mParticleController.buildDustVertexArray( mPlayControls.getParamSlider1Value(), selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
 		}
 		
 		mNotificationOverlay.update();
@@ -1368,7 +1399,6 @@ void KeplerApp::updateCamera()
 	
 	
 	if( mIsPinching && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
-		std::cout << "PINCHING" << std::endl;
 		if( mPinchPer > mPinchPerThresh && ! mAlphaWheel.getShowWheel() ){
 			mAlphaWheel.setShowWheel( true ); 
 			std::cout << "updateCamera opened alphawheel" << std::endl;
@@ -1408,6 +1438,9 @@ void KeplerApp::updateCamera()
 	Vec3f prevEye	= mEye;
 	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist );//- sin( mCamDistAnim ) * distToTravel * 0.25f );
 	mCamVel			= mEye - prevEye;
+	
+	//Vec3f mRotatedUp = mUp;
+    //mRotatedUp.rotateZ( -mPinchRotation );
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( mEye - mCenterOffset, mCenter, mUp );
@@ -1596,14 +1629,14 @@ void KeplerApp::drawScene()
 	
 	
 	// SHADOWS
-	gl::setMatricesWindow( getWindowSize() );
-	for( int i = 0; i < sortedNodes.size(); i++ ){
-		if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
-			gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-			sortedNodes[i]->findShadows( mEclipseShadowTex, sqrt( mCamRingAlpha ) );
-		}
-	}
-	gl::setMatrices( mCam );
+	//gl::setMatricesWindow( getWindowSize() );
+//	for( int i = 0; i < sortedNodes.size(); i++ ){
+//		if( sortedNodes[i]->mGen >= G_ALBUM_LEVEL ){
+//			gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+//			sortedNodes[i]->findShadows( mEclipseShadowTex, pow( mCamRingAlpha, 2.0f ) );
+//		}
+//	}
+	//gl::setMatrices( mCam );
 	
 
 	if( artistNode ){ // defined at top of method
@@ -1616,9 +1649,24 @@ void KeplerApp::drawScene()
 		glEnable( GL_RESCALE_NORMAL );
 		glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT, ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
 		glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, ColorA( Color::white(), 1.0f ) );
+		
 	
 		
 		for( int i = 0; i < sortedNodes.size(); i++ ){
+			if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
+				gl::enableAlphaBlending();
+				glDisable( GL_CULL_FACE );
+				glEnableClientState( GL_VERTEX_ARRAY );
+				glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+				mEclipseShadowTex.enableAndBind();
+				sortedNodes[i]->findShadows( pow( mCamRingAlpha, 1.2f ) );
+				glDisableClientState( GL_VERTEX_ARRAY );
+				glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+				glEnable( GL_CULL_FACE );
+				
+				gl::enableDepthWrite();
+			}
+			
 			gl::enableDepthRead();
 			glEnable( GL_LIGHTING );
 			
@@ -1631,7 +1679,7 @@ void KeplerApp::drawScene()
 			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor, 1.0f ) );
 			glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
 			glLightfv( GL_LIGHT1, GL_DIFFUSE, ColorA( BRIGHT_BLUE, 1.0f ) );
-			
+			gl::disableAlphaBlending();
 			gl::enableAlphaBlending();
 //			if( i==0 ){
 //				artistNode->drawStarCore( mStarCoreTex );	
@@ -1651,31 +1699,28 @@ void KeplerApp::drawScene()
 			glDisable( GL_LIGHTING );
 			gl::disableDepthRead();
 			
-			gl::enableAlphaBlending();
 			if( sortedNodes[i]->mGen == G_ARTIST_LEVEL ){
+				gl::enableAlphaBlending();
 				sortedNodes[i]->drawAtmosphere( mAtmosphereSunTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
-			}
-			
-			gl::enableAdditiveBlending();
-			if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
-				sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
-			}
-			
-			if( sortedNodes[i]->mGen == G_TRACK_LEVEL ){
+			} else {
+				gl::enableAdditiveBlending();
 				sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
 			}
+			
+			
 		}
 		glDisable( GL_CULL_FACE );
 		glDisable( GL_RESCALE_NORMAL );
 		
+		gl::enableAdditiveBlending();
 		artistNode->drawExtraGlow( mStarGlowTex );
 	}
+
 
 	
 	glDisable( GL_LIGHTING );
 	gl::enableDepthRead();	
 	gl::disableDepthWrite();
-	gl::enableAdditiveBlending();
 	
 	
 // ORBITS
@@ -1781,14 +1826,14 @@ void KeplerApp::drawScene()
 	
 // LENSFLARE?!?!  SURELY YOU MUST BE MAD.
 	if( artistNode && artistNode->mDistFromCamZAxis > 0.0f ){
-		int numFlares  = 7;
-		float radii[7] = { 0.8f, 1.2f, 6.5f, 2.0f, 3.0f, 2.0f, 1.0f };
-		float dists[7] = { 0.8f, 1.0f, 1.5f, 1.70f, 3.0f, 5.0f, 7.0f };
+		int numFlares  = 5;
+		float radii[7] = { 0.8f, 1.2f, 4.5f, 8.0f, 6.0f };
+		float dists[7] = { 0.8f, 1.0f, 1.5f, 1.70f, 2.0f };
 		
 		float distFromCenter = artistNode->mScreenPos.distance( getWindowCenter() );
 		float distPer = constrain( 1.0f - distFromCenter/800.0f, 0.0f, 1.0f );
 		float alpha = distPer * 0.2f * sin( distPer * M_PI );
-		gl::color( ColorA( BRIGHT_BLUE, alpha ) );
+		
 		gl::enableAdditiveBlending();
 		mLensFlareTex.enableAndBind();
 		
@@ -1797,6 +1842,7 @@ void KeplerApp::drawScene()
 		Vec2f flarePosNorm = flarePos.normalized();
 		
 		for( int i=0; i<numFlares; i++ ){
+			gl::color( ColorA( BRIGHT_BLUE, alpha ) );
 			flarePos = getWindowCenter() + flarePosNorm * dists[i] * flareDist;
 			float flareRadius = artistNode->mSphereScreenRadius * radii[i] * distPer;
 			gl::drawSolidRect( Rectf( flarePos.x - flareRadius, flarePos.y - flareRadius, flarePos.x + flareRadius, flarePos.y + flareRadius ) );
@@ -1805,6 +1851,28 @@ void KeplerApp::drawScene()
 
 		mLensFlareTex.disable();
 		
+		
+		glDisable( GL_TEXTURE_2D );
+		Vec2f dirToCenter = ( artistNode->mScreenPos - getWindowCenter() );
+		float distToCenter = dirToCenter.length();
+		dirToCenter *= 0.01f;
+		float left		= dirToCenter.x;
+		float right		= 1.0f - dirToCenter.x;
+		float top		= dirToCenter.y;
+		float bottom	= 1.0f - dirToCenter.y;
+		gl::color( ColorA( GREY, top ) );
+		gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( getWindowWidth(), 1.0f ) );
+		
+		gl::color( ColorA( GREY, bottom ) );
+		gl::drawLine( Vec2f( 1.0f, getWindowHeight() ), Vec2f( getWindowWidth(), getWindowHeight() ) );
+		
+		gl::color( ColorA( GREY, left ) );
+		gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( 1.0f, getWindowHeight() ) );
+
+		gl::color( ColorA( GREY, right ) );
+		gl::drawLine( Vec2f( getWindowWidth(), 1.0f ), Vec2f( getWindowWidth(), getWindowHeight() ) );
+		glEnable( GL_TEXTURE_2D );
+
 	}
 
 	

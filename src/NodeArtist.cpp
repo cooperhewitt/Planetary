@@ -127,6 +127,7 @@ void NodeArtist::update( const Matrix44f &mat, float param1, float param2 )
 	mEclipseStrength = constrain( mEclipseStrength, 0.0f, 1.0f );
 }
 
+// NOT BEING USED AT THE MOMENT
 void NodeArtist::drawEclipseGlow()
 {
 	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
@@ -246,7 +247,7 @@ void NodeArtist::drawExtraGlow( const gl::Texture &tex )
 {
 	if( mIsHighlighted ){
 		Vec2f dir		= mScreenPos - app::getWindowCenter();
-		float dirLength = dir.length()/500.0f;
+		float dirLength = dir.length()/800.0f;
 		float angle		= atan2( dir.y, dir.x );
 		float stretch	= dirLength * mRadius * 0.1f;
 		float alpha = ( 1.0f - dirLength ) * sin( mEclipseStrength * M_PI_2 + M_PI_2 );
@@ -260,12 +261,12 @@ void NodeArtist::drawExtraGlow( const gl::Texture &tex )
 		tex.enableAndBind();
 		Vec3f posOffset = Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.1f;
 		
-		gl::color( ColorA( mGlowColor, alpha * 0.25f ) );
+		gl::color( ColorA( mGlowColor, alpha * 0.65f ) );
 		gl::drawBillboard( mTransPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
 		
 	// SMALLER INNER GLOW
 		//gl::color( ColorA( mGlowColor, sin( mEclipseStrength * M_PI ) * 0.5f + 0.2f ) );
-		gl::color( ColorA( mGlowColor, sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.5f + 0.2f ) ) );
+		gl::color( ColorA( mGlowColor, sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ) ) );
 		gl::drawBillboard( mTransPos - posOffset, radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.5f + 0.2f ), -toDegrees( angle ), mBbRight, mBbUp );
 		tex.disable();
 	}

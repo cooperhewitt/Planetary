@@ -56,28 +56,32 @@ void NotificationOverlay::draw()
     
 	Vec2f center = Vec2f( mInterfaceSize.x * 0.5f, mInterfaceSize.y - 250.0f );
 	
-    Vec2f topLeft(     center.x - mCurrentSrcArea.getWidth()/2.0f,
-					   center.y - mCurrentSrcArea.getHeight() );
-    Vec2f bottomRight( center.x + mCurrentSrcArea.getWidth()/2.0f,
-					   center.y );    
-    Rectf dstRect( topLeft, bottomRight );
+    Vec2f iconTopLeft(			center.x - mCurrentSrcArea.getWidth()/2.0f, center.y - mCurrentSrcArea.getHeight()/2.0f );
+    Vec2f iconBottomRight(		center.x + mCurrentSrcArea.getWidth()/2.0f, center.y + mCurrentSrcArea.getHeight()/2.0f );
+    Rectf iconRect( iconTopLeft, iconBottomRight );
     
+	float halfWidth = mMessageTexture.getWidth() * 0.5f;
+	Vec2f messageTopLeft(		center.x - halfWidth, iconBottomRight.y - 10.0f );
+	Vec2f messageBottomRight(	center.x + halfWidth, iconBottomRight.y + mMessageTexture.getHeight() - 10.0f );
+	Rectf messageRect( messageTopLeft, messageBottomRight );
+	
+	float border = 20.0f;
+	Vec2f blackBgTopLeft(		messageTopLeft.x - border, iconTopLeft.y - 5.0f );
+	Vec2f blackBgBottomRight(	messageBottomRight.x + border, messageBottomRight.y + border );
+	Rectf blackBgRect( blackBgTopLeft, blackBgBottomRight );
 	
 	glDisable( GL_TEXTURE_2D );
 	gl::pushModelView();
     gl::multModelView( mOrientationMatrix );
 	gl::enableAlphaBlending();
 	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.25f * alpha ) );
-//	float halfWidth = 75.0f;//max( mMessageTexture.getWidth() * 0.5f, 60.0f );
-//	gl::drawSolidRect( Rectf( center.x - halfWidth - 20.0f,
-//							  topLeft.y,
-//							  center.x + halfWidth + 20.0f,
-//							  center.y + mMessageTexture.getHeight() * 0.5f + 20.0f ) );
+	//gl::drawSolidRect( blackBgRect );
+	
 	glEnable( GL_TEXTURE_2D );
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha ) );
 	gl::enableAdditiveBlending();
-	gl::draw( mMessageTexture, center - mMessageTexture.getSize() * 0.5f );
-    gl::draw( mCurrentTexture, mCurrentSrcArea, dstRect );
+	gl::draw( mMessageTexture, messageRect );
+    gl::draw( mCurrentTexture, mCurrentSrcArea, iconRect );
 	gl::popModelView(); 
 	
     // TODO: draw mCurrentMessage as well (probably want to nudge the positions up for that)
