@@ -95,6 +95,8 @@
 		E273044A138DAA6400A2A65B /* ScrollingLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */; };
 		E278F90813830E7E00738472 /* Buttons.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E278F90713830E7E00738472 /* Buttons.cpp */; };
 		E278F90F138333FB00738472 /* Slider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E278F90D138333FB00738472 /* Slider.cpp */; };
+		E28177EE139AFA8500049D69 /* PlaylistFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28177EC139AFA8500049D69 /* PlaylistFilter.cpp */; };
+		E28177F6139AFB0800049D69 /* LetterFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28177F5139AFB0800049D69 /* LetterFilter.cpp */; };
 		E28FDA831339B782005EDBB4 /* PlayControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA821339B782005EDBB4 /* PlayControls.cpp */; };
 		E2DC1E0213984774000B1D11 /* NotificationOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */; };
 /* End PBXBuildFile section */
@@ -229,6 +231,11 @@
 		E278F90713830E7E00738472 /* Buttons.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Buttons.cpp; path = ../src/Buttons.cpp; sourceTree = "<group>"; };
 		E278F90D138333FB00738472 /* Slider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Slider.cpp; path = ../src/Slider.cpp; sourceTree = "<group>"; };
 		E278F9101383342400738472 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Slider.h; path = ../include/Slider.h; sourceTree = "<group>"; };
+		E28177EC139AFA8500049D69 /* PlaylistFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlaylistFilter.cpp; path = ../src/PlaylistFilter.cpp; sourceTree = "<group>"; };
+		E28177F0139AFACA00049D69 /* PlaylistFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistFilter.h; path = ../include/PlaylistFilter.h; sourceTree = "<group>"; };
+		E28177F4139AFAFB00049D69 /* LetterFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LetterFilter.h; path = ../include/LetterFilter.h; sourceTree = "<group>"; };
+		E28177F5139AFB0800049D69 /* LetterFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LetterFilter.cpp; path = ../src/LetterFilter.cpp; sourceTree = "<group>"; };
+		E28177FA139AFB3800049D69 /* Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Filter.h; path = ../include/Filter.h; sourceTree = "<group>"; };
 		E28FDA821339B782005EDBB4 /* PlayControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayControls.cpp; path = ../src/PlayControls.cpp; sourceTree = "<group>"; };
 		E2A1FF8E132599290007F4DA /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../include/PlayControls.h; sourceTree = SOURCE_ROOT; };
 		E2DC1DFF1398266B000B1D11 /* NotificationOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NotificationOverlay.h; path = ../include/NotificationOverlay.h; sourceTree = "<group>"; };
@@ -262,6 +269,7 @@
 		00CFDFA7113848F40091E310 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				E28177EB139AFA6700049D69 /* Filters */,
 				E2171053132ECE3900ADCC17 /* Ui */,
 				E177A6CB134E7B640014AD55 /* Helpers */,
 				00CFDFDF11384CC60091E310 /* KeplerApp.cpp */,
@@ -279,6 +287,7 @@
 		00CFDFB81138492F0091E310 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				E28177EF139AFA9900049D69 /* Filters */,
 				E1C6023C131C4B0E0022246C /* Ui */,
 				E1C6017E13188B280022246C /* Helpers */,
 				E1C60003131848FB0022246C /* World.h */,
@@ -684,6 +693,25 @@
 			name = Elements;
 			sourceTree = "<group>";
 		};
+		E28177EB139AFA6700049D69 /* Filters */ = {
+			isa = PBXGroup;
+			children = (
+				E28177F5139AFB0800049D69 /* LetterFilter.cpp */,
+				E28177EC139AFA8500049D69 /* PlaylistFilter.cpp */,
+			);
+			name = Filters;
+			sourceTree = "<group>";
+		};
+		E28177EF139AFA9900049D69 /* Filters */ = {
+			isa = PBXGroup;
+			children = (
+				E28177FA139AFB3800049D69 /* Filter.h */,
+				E28177F4139AFAFB00049D69 /* LetterFilter.h */,
+				E28177F0139AFACA00049D69 /* PlaylistFilter.h */,
+			);
+			name = Filters;
+			sourceTree = "<group>";
+		};
 		E2D20EBF135CEEA900A29743 /* CinderOrientation */ = {
 			isa = PBXGroup;
 			children = (
@@ -830,6 +858,8 @@
 				E273044A138DAA6400A2A65B /* ScrollingLabel.cpp in Sources */,
 				E227B205138EFDC500AAAC7B /* TextLabel.cpp in Sources */,
 				E2DC1E0213984774000B1D11 /* NotificationOverlay.cpp in Sources */,
+				E28177EE139AFA8500049D69 /* PlaylistFilter.cpp in Sources */,
+				E28177F6139AFB0800049D69 /* LetterFilter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -455,14 +455,14 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 }
 
 
-void NodeAlbum::drawAtmosphere( const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
+void NodeAlbum::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
 	//if( mIsHighlighted || mIsSelected || mIsPlaying ){
 		if( mClosenessFadeAlpha > 0.0f ){
-			Vec2f dir		= mScreenPos - app::getWindowCenter();
+			Vec2f dir		= mScreenPos - center;
 			float dirLength = dir.length()/500.0f;
 			float angle		= atan2( dir.y, dir.x );
-			float stretch	= dirLength * mRadius * 0.5f;
+			float stretch	= dirLength * mRadius * 0.75f;
 			float alpha = ( 1.0f - dirLength * 0.75f ) + mEclipseStrength;
 			alpha *= mDeathPer * mClosenessFadeAlpha * ( mBlockedBySunPer - 0.5f ) * 2.0f;
 			
@@ -609,7 +609,7 @@ void NodeAlbum::findShadows( float camAlpha )
 	
 	// Radii
 	r0				= mParentNode->mRadius * 0.175f;
-	r1				= mRadius * 1.1f;
+	r1				= mRadius * 1.05f;
 	rTotal			= r0 + r1;
 	r0Inner			= abs( r0 - r1 );
 	
@@ -797,7 +797,7 @@ void NodeAlbum::buildShadowVertexArray( Vec3f p1, Vec3f p2, Vec3f p3, Vec3f p4 )
 	Vec3f v1 = ( p1 + p2 ) * 0.5f;	// midpoint between base vertices
 	Vec3f v2 = ( p3 + p4 ) * 0.5f;	// midpoint between end vertices
 	
-	mShadowVerts[i++]	= p1.x;		mShadowTexCoords[t++]	= 0.4f;
+	mShadowVerts[i++]	= p1.x;		mShadowTexCoords[t++]	= 0.0f;
 	mShadowVerts[i++]	= p1.y;		mShadowTexCoords[t++]	= 0.2f;
 	mShadowVerts[i++]	= p1.z;
 	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
@@ -808,31 +808,31 @@ void NodeAlbum::buildShadowVertexArray( Vec3f p1, Vec3f p2, Vec3f p3, Vec3f p4 )
 	mShadowVerts[i++]	= p3.z;
 
 	// umbra 
-	mShadowVerts[i++]	= p1.x;		mShadowTexCoords[t++]	= 0.4f;
+	mShadowVerts[i++]	= p1.x;		mShadowTexCoords[t++]	= 0.5f;
 	mShadowVerts[i++]	= p1.y;		mShadowTexCoords[t++]	= 0.0f;
 	mShadowVerts[i++]	= p1.z;
-	mShadowVerts[i++]	= v1.x;		mShadowTexCoords[t++]	= 0.5f;
+	mShadowVerts[i++]	= v1.x;		mShadowTexCoords[t++]	= 0.75f;
 	mShadowVerts[i++]	= v1.y;		mShadowTexCoords[t++]	= 0.0f;
 	mShadowVerts[i++]	= v1.z;
-	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
+	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.75f;
 	mShadowVerts[i++]	= v2.y;		mShadowTexCoords[t++]	= 1.0f;
 	mShadowVerts[i++]	= v2.z;
 	
 	// umbra 
-	mShadowVerts[i++]	= v1.x;		mShadowTexCoords[t++]	= 0.5f;
+	mShadowVerts[i++]	= v1.x;		mShadowTexCoords[t++]	= 0.75f;
 	mShadowVerts[i++]	= v1.y;		mShadowTexCoords[t++]	= 0.0f;
 	mShadowVerts[i++]	= v1.z;
-	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 0.6f;
+	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 0.5f;
 	mShadowVerts[i++]	= p2.y;		mShadowTexCoords[t++]	= 0.0f;
 	mShadowVerts[i++]	= p2.z;
-	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
+	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.75f;
 	mShadowVerts[i++]	= v2.y;		mShadowTexCoords[t++]	= 1.0f;
 	mShadowVerts[i++]	= v2.z;
 	
-	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 0.6f;
+	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 0.0f;
 	mShadowVerts[i++]	= p2.y;		mShadowTexCoords[t++]	= 0.2f;
 	mShadowVerts[i++]	= p2.z;
-	mShadowVerts[i++]	= p4.x;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= p4.x;		mShadowTexCoords[t++]	= 0.0f;
 	mShadowVerts[i++]	= p4.y;		mShadowTexCoords[t++]	= 1.0f;
 	mShadowVerts[i++]	= p4.z;
 	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;

@@ -1,3 +1,7 @@
+#include <sys/sysctl.h>
+#include <vector>
+#include <sstream>
+#import <CoreMotion/CoreMotion.h>
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/app/Renderer.h"
 #include "cinder/Surface.h"
@@ -25,15 +29,9 @@
 #include "ParticleController.h"
 #include "LoadingScreen.h"
 #include "NodeArtist.h"
-#include "cinder/gl/TileRender.h"
-
+#include "PlaylistFilter.h"
+#include "LetterFilter.h"
 #include "CinderFlurry.h"
-//#include "TextureLoader.h"
-#include <sys/sysctl.h>
-#include <vector>
-#include <sstream>
-#import <CoreMotion/CoreMotion.h>
-
 
 using std::vector;
 using namespace ci;
@@ -878,7 +876,7 @@ bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 
 bool KeplerApp::onAlphaCharStateChanged( State *state )
 {
-	mData.filterArtistsByAlpha( mState.getAlphaChar() );
+	mData.setFilter( LetterFilter(mState.getAlphaChar()) );
 
     std::map<string, string> parameters;
     parameters["Letter"] = ""+mState.getAlphaChar();
@@ -895,7 +893,7 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 bool KeplerApp::onPlaylistStateChanged( State *state )
 {
 	std::cout << "playlist changed" << std::endl;
-	mData.filterArtistsByPlaylist( mState.getPlaylist() );
+	mData.setFilter( PlaylistFilter(mState.getPlaylist()) );
     
 	mPlayControls.setPlaylist( mState.getPlaylistName() );
 	
@@ -1224,7 +1222,7 @@ void KeplerApp::update()
 			mWorld.mPlayingTrackNode->updateAudioData( currentTrackPlayheadTime );
 		}
 		
-		mScaleSlider = 0.25f + mPlayControls.getParamSlider1Value() * 2.5f;
+		mScaleSlider = 0.25f + mPlayControls.getParamSlider1Value() * 2.0f;
 		mSpeedSlider = mPlayControls.getParamSlider2Value() * 0.075f;
         mWorld.update( mMatrix, mScaleSlider, mSpeedSlider );
 		
@@ -1640,6 +1638,11 @@ void KeplerApp::drawScene()
 	
 
 	if( artistNode ){ // defined at top of method
+		Vec2f interfaceSize = getWindowSize();
+		if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
+			interfaceSize = interfaceSize.yx(); // swizzle it!
+		}
+		
 		//float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
 		mCamRingAlpha = constrain( abs( transEye.y - artistNode->mPos.y ), 0.0f, 1.0f ); // WAS 0.6f
 
@@ -1701,10 +1704,10 @@ void KeplerApp::drawScene()
 			
 			if( sortedNodes[i]->mGen == G_ARTIST_LEVEL ){
 				gl::enableAlphaBlending();
-				sortedNodes[i]->drawAtmosphere( mAtmosphereSunTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
+				sortedNodes[i]->drawAtmosphere( interfaceSize * 0.5f, mAtmosphereSunTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
 			} else {
 				gl::enableAdditiveBlending();
-				sortedNodes[i]->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
+				sortedNodes[i]->drawAtmosphere( interfaceSize * 0.5f, mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
 			}
 			
 			

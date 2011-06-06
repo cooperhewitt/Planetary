@@ -218,10 +218,10 @@ void NodeArtist::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GL
 	Node::drawRings( tex, planetRingVerts, planetRingTexCoords, camZPos );
 }
 
-void NodeArtist::drawAtmosphere( const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
+void NodeArtist::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
 	if( mIsHighlighted ){
-		Vec2f dir		= mScreenPos - app::getWindowCenter();
+		Vec2f dir		= mScreenPos - center;
 		float dirLength = dir.length()/500.0f;
 		float angle		= atan2( dir.y, dir.x );
 		float stretch	= dirLength * mRadius * 0.1f;

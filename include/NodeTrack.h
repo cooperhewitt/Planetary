@@ -26,7 +26,7 @@ class NodeTrack : public Node
 	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );
 	void buildPlayheadProgressVertexArray();
 	void drawPlayheadProgress( float pinchAlphaPer, float camAlpha, float pauseAlpha, const ci::gl::Texture &tex, const ci::gl::Texture &originTex );
-	void drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
+	void drawAtmosphere( const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
 	void findShadows( float camAlpha );
 	void buildShadowVertexArray( ci::Vec3f p1, ci::Vec3f p2, ci::Vec3f p3, ci::Vec3f p4 );
 	

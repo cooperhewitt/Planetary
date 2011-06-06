@@ -42,7 +42,7 @@ class Node {
 	virtual void	drawPlanet( const ci::gl::Texture &tex ) {};
 	virtual void	drawExtraGlow( const ci::gl::Texture &tex ) {};
 	virtual void	drawClouds( const std::vector< ci::gl::Texture> &clouds ) {};
-	virtual void	drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer ) {};
+	virtual void	drawAtmosphere( const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer ) {};
 	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
 	virtual void	findShadows( float camAlpha ) {};
 	virtual void	drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );

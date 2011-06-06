@@ -553,11 +553,11 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 	}
 }
 
-void NodeTrack::drawAtmosphere( const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
+void NodeTrack::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
 	if( mClosenessFadeAlpha > 0.0f ){
 
-		Vec2f dir		= mScreenPos - app::getWindowCenter();
+		Vec2f dir		= mScreenPos - center;
 		float dirLength = dir.length()/500.0f;
 		float angle		= atan2( dir.y, dir.x );
 		float stretch	= 1.0f + dirLength * 0.1f;
@@ -855,7 +855,7 @@ void NodeTrack::buildShadowVertexArray( Vec3f p1, Vec3f p2, Vec3f p3, Vec3f p4 )
 	Vec3f v2 = ( p3 + p4 ) * 0.5f;	// midpoint between end vertices
 	
 	mShadowVerts[i++]	= p1.x;		mShadowTexCoords[t++]	= 0.0f;
-	mShadowVerts[i++]	= p1.y;		mShadowTexCoords[t++]	= 0.1f;
+	mShadowVerts[i++]	= p1.y;		mShadowTexCoords[t++]	= 0.2f;
 	mShadowVerts[i++]	= p1.z;
 	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
 	mShadowVerts[i++]	= v2.y;		mShadowTexCoords[t++]	= 1.0f;
@@ -864,30 +864,32 @@ void NodeTrack::buildShadowVertexArray( Vec3f p1, Vec3f p2, Vec3f p3, Vec3f p4 )
 	mShadowVerts[i++]	= p3.y;		mShadowTexCoords[t++]	= 1.0f;
 	mShadowVerts[i++]	= p3.z;
 	
-	mShadowVerts[i++]	= p1.x;		mShadowTexCoords[t++]	= 0.0f;
+	// umbra 
+	mShadowVerts[i++]	= p1.x;		mShadowTexCoords[t++]	= 0.5f;
 	mShadowVerts[i++]	= p1.y;		mShadowTexCoords[t++]	= 0.0f;
 	mShadowVerts[i++]	= p1.z;
-	mShadowVerts[i++]	= v1.x;		mShadowTexCoords[t++]	= 0.5f;
+	mShadowVerts[i++]	= v1.x;		mShadowTexCoords[t++]	= 0.75f;
 	mShadowVerts[i++]	= v1.y;		mShadowTexCoords[t++]	= 0.0f;
 	mShadowVerts[i++]	= v1.z;
-	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
+	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.75f;
 	mShadowVerts[i++]	= v2.y;		mShadowTexCoords[t++]	= 1.0f;
 	mShadowVerts[i++]	= v2.z;
 	
-	mShadowVerts[i++]	= v1.x;		mShadowTexCoords[t++]	= 0.5f;
+	// umbra 
+	mShadowVerts[i++]	= v1.x;		mShadowTexCoords[t++]	= 0.75f;
 	mShadowVerts[i++]	= v1.y;		mShadowTexCoords[t++]	= 0.0f;
 	mShadowVerts[i++]	= v1.z;
-	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 0.5f;
 	mShadowVerts[i++]	= p2.y;		mShadowTexCoords[t++]	= 0.0f;
 	mShadowVerts[i++]	= p2.z;
-	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;
+	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.75f;
 	mShadowVerts[i++]	= v2.y;		mShadowTexCoords[t++]	= 1.0f;
 	mShadowVerts[i++]	= v2.z;
 	
-	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 1.0f;
-	mShadowVerts[i++]	= p2.y;		mShadowTexCoords[t++]	= 0.1f;
+	mShadowVerts[i++]	= p2.x;		mShadowTexCoords[t++]	= 0.0f;
+	mShadowVerts[i++]	= p2.y;		mShadowTexCoords[t++]	= 0.2f;
 	mShadowVerts[i++]	= p2.z;
-	mShadowVerts[i++]	= p4.x;		mShadowTexCoords[t++]	= 1.0f;
+	mShadowVerts[i++]	= p4.x;		mShadowTexCoords[t++]	= 0.0f;
 	mShadowVerts[i++]	= p4.y;		mShadowTexCoords[t++]	= 1.0f;
 	mShadowVerts[i++]	= p4.z;
 	mShadowVerts[i++]	= v2.x;		mShadowTexCoords[t++]	= 0.5f;

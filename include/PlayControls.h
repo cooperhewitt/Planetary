@@ -111,8 +111,8 @@ private:
     vector<UIElement*> interactiveElements;    
     UIElement* mActiveElement;
 	UIElement* findButtonUnderTouches(vector<TouchEvent::Touch> touches);
+
     // TODO: can we move this to slider class?
-    void dragPlayheadToPos(Vec2f pos);
 	void dragSliderToPos( Slider *slider, Vec2f pos );
     
     // layout happens here

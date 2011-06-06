@@ -468,21 +468,6 @@ void PlayControls::draw(float y)
     gl::disableAlphaBlending();    
 }
 
-void PlayControls::dragPlayheadToPos(Vec2f pos) 
-{
-    // adjust for orientation and offset
-    pos = (mOrientationMatrix.inverted() * Vec3f(pos,0)).xy();
-    pos.y -= mLastDrawY;
-    
-    // FIXME: assumes slider is horizontal :)
-    Rectf rect = mPlayheadSlider.getRect();
-    float playheadPer = (pos.x - rect.x1) / (rect.x2 - rect.x1);
-    playheadPer = constrain( playheadPer, 0.0f, 1.0f );
-    
-    mPlayheadSlider.setValue( playheadPer );
-    mCallbacksPlayheadMoved.call( playheadPer );                
-}
-
 void PlayControls::dragSliderToPos( Slider *slider, Vec2f pos) 
 {
 	slider->setIsDragging( true );
@@ -493,10 +478,10 @@ void PlayControls::dragSliderToPos( Slider *slider, Vec2f pos)
     
     // FIXME: assumes slider is horizontal :)
     Rectf rect = slider->getRect();
-    float playheadPer = (pos.x - rect.x1) / (rect.x2 - rect.x1);
-    playheadPer = constrain( playheadPer, 0.0f, 1.0f );
+    float sliderPer = (pos.x - rect.x1) / (rect.x2 - rect.x1);
+    sliderPer = constrain( sliderPer, 0.0f, 1.0f );
     
-    slider->setValue( playheadPer );               
+    slider->setValue( sliderPer );    
 }
 
 bool PlayControls::touchesBegan( TouchEvent event )
@@ -516,17 +501,16 @@ bool PlayControls::touchesBegan( TouchEvent event )
         mActiveElement = findButtonUnderTouches(touches);
 		
 		if( mActiveElement ){
-			if( mActiveElement->getId() == SLIDER ){
-				dragPlayheadToPos( touches.begin()->getPos() );
-				mPlayheadSlider.setIsDragging( true );
-				
-			} else if( mActiveElement->getId() == PARAMSLIDER1 ){
-				dragSliderToPos( &mParamSlider1, touches.begin()->getPos() );
-				
-			} else if( mActiveElement->getId() == PARAMSLIDER2 ){
-				dragSliderToPos( &mParamSlider2, touches.begin()->getPos() );
-			}
-					  
+            Slider *slider = dynamic_cast<Slider*>(mActiveElement);
+			if( slider ){
+				dragSliderToPos( slider, touches.begin()->getPos() );
+			} 
+            
+            // FIXME: this is a bit hacky
+            if (mActiveElement->getId() == SLIDER) {
+                mCallbacksPlayheadMoved.call( mPlayheadSlider.getValue() );
+            }
+            
 		}
         
         return true;
@@ -545,20 +529,15 @@ bool PlayControls::touchesMoved( TouchEvent event )
     mActiveElement = findButtonUnderTouches(touches);
 
 	if( mActiveElement ){
-		if( mActiveElement->getId() == SLIDER ){
-			if( mPlayheadSlider.isDragging() )
-				dragPlayheadToPos( touches.begin()->getPos() );
-				mPlayheadSlider.setIsDragging( true );
-			
-		} else if( mActiveElement->getId() == PARAMSLIDER1 ){
-			if( mParamSlider1.isDragging() )
-				dragSliderToPos( &mParamSlider1, touches.begin()->getPos() );
-			
-		} else if( mActiveElement->getId() == PARAMSLIDER2 ){
-			if( mParamSlider2.isDragging() )
-				dragSliderToPos( &mParamSlider2, touches.begin()->getPos() );
-		}
-		
+        Slider *slider = dynamic_cast<Slider*>(mActiveElement);
+		if( slider && slider->isDragging() ){
+            dragSliderToPos( slider, touches.begin()->getPos() );
+		}	
+
+        // FIXME: this is still a bit hacky
+        if (mActiveElement->getId() == SLIDER) {
+            mCallbacksPlayheadMoved.call( mPlayheadSlider.getValue() );
+        }
 	}
     
     return false;

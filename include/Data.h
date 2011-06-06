@@ -9,32 +9,30 @@
 
 #pragma once 
 #include <Foundation/NSAutoReleasePool.h>
-#include "cinder/gl/Texture.h"
-#include "CinderIPodPlayer.h"
+#include <map>
+#include "CinderIPod.h" // for PlaylistRef
+#include "Filter.h"
 
 class Data {
   public:
-	Data();
+	Data() {};
+    ~Data() {};
     
     void setup();
 	bool update(); // TODO: split into bool isInited() and void update() ?
 
-	void filterArtistsByAlpha( char c );
-	void filterArtistsByPlaylist( ci::ipod::PlaylistRef playlist );
+    void setFilter(const Filter &filter);
+    
 	std::vector<ci::ipod::PlaylistRef> mArtists;
 	std::vector<ci::ipod::PlaylistRef> mPlaylists;
 	std::vector<int> mFilteredArtists;
+    
 	std::map< char, float > mNumArtistsPerChar;
 	float mNormalizedArtistsPerChar[27];
 	
-	GLfloat *mWheelDataVerts;
-	GLfloat *mWheelDataTexCoords;
-	GLfloat *mWheelDataColors;
-	
   private:
-	int mCurrentPlaylist;
-	void backgroundInit();
-	void buildVertexArray();
+	
+	void backgroundInit();	
 	bool isIniting;
     bool wasIniting;
 	std::vector<ci::ipod::PlaylistRef> pendingArtists;
