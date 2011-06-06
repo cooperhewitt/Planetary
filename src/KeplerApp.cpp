@@ -865,6 +865,7 @@ bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 bool KeplerApp::onAlphaCharStateChanged( State *state )
 {
 	mData.setFilter( LetterFilter(mState.getAlphaChar()) );
+    mState.setFilterMode( State::FilterModeAlphaChar );
 
     std::map<string, string> parameters;
     parameters["Letter"] = ""+mState.getAlphaChar();
@@ -882,6 +883,7 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
 {
 	std::cout << "playlist changed" << std::endl;
 	mData.setFilter( PlaylistFilter(mState.getPlaylist()) );
+    mState.setFilterMode( State::FilterModePlaylist );
     
 	mPlayControls.setPlaylist( mState.getPlaylistName() );
 	
@@ -1046,9 +1048,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			
 		case PlayControls::GOTO_GALAXY:
             Flurry::getInstrumentation()->logEvent("Galaxy Button Selected");
-			//mWorld.deselectAllNodes();
 			mState.setSelectedNode( NULL );
-			//mState.setAlphaChar( ' ' );
             break;
 			
         case PlayControls::GOTO_CURRENT_TRACK:
@@ -1063,6 +1063,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
 
         case PlayControls::SLIDER:
+        case PlayControls::PARAMSLIDER1:
+        case PlayControls::PARAMSLIDER2:
             // TODO: Flurry log?
             break;
         

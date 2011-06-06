@@ -21,10 +21,16 @@ using namespace ci;
 
 class State {
  public:
-	State();
+    
+    enum FilterMode {
+        FilterModeUndefined,
+        FilterModePlaylist,
+        FilterModeAlphaChar
+    };    
+    
+	State() {};
     
     void setup();
-	void draw( const ci::Font &font);
 	
 	// Alpha char for filtering artist name
 	char getAlphaChar(){ return mAlphaChar; }
@@ -69,9 +75,11 @@ class State {
 		}
 		return NULL;
 	}
-	
-	std::vector<std::string> getHierarchy();
 
+    void setFilterMode(const FilterMode &filterMode) { mFilterMode = filterMode; }
+    FilterMode getFilterMode() { return mFilterMode; }
+    // TODO: callback for FilterModeChanged? should State own Filter (currently in Data)?
+    
 private:
 	CallbackMgr<bool(State*)> mCallbacksPlaylistStateChanged;
 	CallbackMgr<bool(State*)> mCallbacksAlphaCharStateChanged;	
@@ -81,6 +89,8 @@ private:
 	Node *mSelectedNode;
 	Node *mPrevSelectedNode;
 	float mDistBetweenPrevAndCurrentNode;  // used to control duration of the tween
+    
+    FilterMode mFilterMode;
 	char mAlphaChar;
 	ci::ipod::PlaylistRef mCurrentPlaylist;
 	string mCurrentPlaylistName;

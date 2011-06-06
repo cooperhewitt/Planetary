@@ -17,21 +17,13 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-State::State()
-{
-    setup();
-}
-
 void State::setup()
 {
+    mFilterMode = FilterModeUndefined;
 	mAlphaChar = ' ';
 	mSelectedNode = NULL;
 	mPrevSelectedNode = NULL;
 	mDistBetweenPrevAndCurrentNode = 1.0f;
-}
-
-void State::draw( const Font &font )
-{
 }
 
 void State::setAlphaChar( char c )
@@ -138,30 +130,4 @@ void State::setSelectedNode( Node* node )
     
 	// and then spread the good word
 	mCallbacksNodeSelected.call(mSelectedNode);
-}
-
-vector<string> State::getHierarchy()
-{
-	vector<string> hierarchy;
-	if( mSelectedNode != NULL ){
-		Node *parent = mSelectedNode;
-		while( parent != NULL ){
-			hierarchy.push_back( parent->getName() );
-			parent = parent->mParentNode;
-		}		
-	}
-
-	if(mAlphaChar != ' ') {
-		string s;
-		s += mAlphaChar;
-		hierarchy.push_back( s );
-	}
-	
-	hierarchy.push_back("Planetary");
-	
-	if (hierarchy.size() > 1) {
-		reverse( hierarchy.begin(), hierarchy.end() );
-	}
-	
-	return hierarchy;
 }

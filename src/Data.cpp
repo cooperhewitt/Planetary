@@ -41,7 +41,6 @@ void Data::backgroundInit()
 	pendingArtists = getArtists();
 	std::cout << "got " << pendingArtists.size() << " artists" << std::endl;
 	
-	
 // QUICK FIX FOR GETTING MORE DATA ONTO THE ALPHAWHEEL
 	string alphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
 	for( int i=0; i<27; i++ ){
@@ -84,14 +83,15 @@ void Data::backgroundInit()
 	
 	Flurry::getInstrumentation()->startTimeEvent("Playlists Loading");
 	pendingPlaylists = getPlaylists();
-	//std::cout << "got " << pendingPlaylists.size() << " playlists" << std::endl;
+	std::cout << "got " << pendingPlaylists.size() << " playlists" << std::endl;
+    params.clear();
     params["NumPlaylists"] = i_to_string( pendingPlaylists.size());
     Flurry::getInstrumentation()->logEvent("Playlists loaded", params);	
 		
-    [autoreleasepool release];	
-
 	Flurry::getInstrumentation()->stopTimeEvent("Music Loading");
-	    
+
+    [autoreleasepool release];	
+    
 	isIniting = false;
 }
 
