@@ -37,6 +37,9 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font, const Font &sma
 	mOrbitTexCoords			= NULL;
 	mOrbitColors			= NULL;
 	
+	mShadowVerts		= NULL;
+	mShadowTexCoords	= NULL;
+	
 	mMyTime				= Rand::randFloat( 250.0 );
 }
 
@@ -842,8 +845,8 @@ void NodeTrack::findShadows( float camAlpha )
 
 void NodeTrack::buildShadowVertexArray( Vec3f p1, Vec3f p2, Vec3f p3, Vec3f p4 )
 {
-	//   if( mShadowVerts != NULL )		delete[] mShadowVerts;
-	//    if( mShadowTexCoords != NULL )  delete[] mShadowTexCoords;
+	if( mShadowVerts != NULL )		delete[] mShadowVerts;
+	if( mShadowTexCoords != NULL )  delete[] mShadowTexCoords;
     
 	int numVerts		= 12;			// dont forget to change the vert count in findShadows ^^^
 	mShadowVerts		= new float[ numVerts * 3 ]; // x, y

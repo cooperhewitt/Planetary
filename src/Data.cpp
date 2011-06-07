@@ -87,10 +87,10 @@ void Data::backgroundInit()
 	//std::cout << "got " << pendingPlaylists.size() << " playlists" << std::endl;
     params["NumPlaylists"] = i_to_string( pendingPlaylists.size());
     Flurry::getInstrumentation()->logEvent("Playlists loaded", params);	
-		
-    [autoreleasepool release];	
 
 	Flurry::getInstrumentation()->stopTimeEvent("Music Loading");
+	
+	[autoreleasepool release];
 	    
 	isIniting = false;
 }

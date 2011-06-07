@@ -35,6 +35,9 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, const Font &sma
 //	mIdealCameraDist	= mRadius * 13.5f;
 	mEclipseStrength	= 0.0f;
 	mClosenessFadeAlpha	= 1.0f;
+	
+	mShadowVerts		= NULL;
+	mShadowTexCoords	= NULL;
 }
 
 
@@ -785,8 +788,8 @@ void NodeAlbum::findShadows( float camAlpha )
 
 void NodeAlbum::buildShadowVertexArray( Vec3f p1, Vec3f p2, Vec3f p3, Vec3f p4 )
 {
- //   if( mShadowVerts != NULL )		delete[] mShadowVerts;
-//    if( mShadowTexCoords != NULL )  delete[] mShadowTexCoords;
+    if( mShadowVerts != NULL )		delete[] mShadowVerts;
+    if( mShadowTexCoords != NULL )  delete[] mShadowTexCoords;
     
 	int numVerts		= 12;			// dont forget to change the vert count in findShadows ^^^
 	mShadowVerts		= new float[ numVerts * 3 ]; // x, y
