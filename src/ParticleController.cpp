@@ -40,7 +40,7 @@ void ParticleController::update( const Vec3f &camEye, float radius, const Vec3f 
 }
 
 
-void ParticleController::buildParticleVertexArray( Color c, float eclipseStrength, const Matrix44f &mat )
+void ParticleController::buildParticleVertexArray( float scaleOffset, Color c, float eclipseStrength, const Matrix44f &mat )
 {
 	int vIndex = 0;
 	int tIndex = 0;
@@ -71,8 +71,8 @@ void ParticleController::buildParticleVertexArray( Color c, float eclipseStrengt
 	
 	for( list<Particle>::iterator it = mParticles.begin(); it != mParticles.end(); ++it ){
 		Vec3f pos				= it->mPos;// + lookVec;
-		float radius			= it->mRadius * ( 1.0f - it->mAgePer );// * eclipseStrength;// * sin( it->mAgePer * M_PI );
-		float alpha				= it->mAgePer * eclipseStrength * 2.0f;
+		float radius			= it->mRadius * ( 1.0f - it->mAgePer ) * scaleOffset;// * eclipseStrength;// * sin( it->mAgePer * M_PI );
+		float alpha				= it->mAgePer * eclipseStrength;
 		
 		Vec3f right				= mBbRight * radius;
 		Vec3f up				= mBbUp * radius;
@@ -145,7 +145,7 @@ void ParticleController::buildParticleVertexArray( Color c, float eclipseStrengt
 	}
 }
 
-void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaPer, float dustAlpha )
+void ParticleController::buildDustVertexArray( float scaleOffset, Node *node, float pinchAlphaPer, float dustAlpha )
 {
 	mTotalDustVertices	= G_NUM_DUSTS;
 	
@@ -171,7 +171,7 @@ void ParticleController::buildDustVertexArray( Node *node, float pinchAlphaPer, 
 	
 	for( list<Dust>::iterator it = mDusts.begin(); it != mDusts.end(); ++it ){
 		//Vec3f prev				= it->mPrevPos;
-		Vec3f pos				= it->mPos;
+		Vec3f pos				= it->mPos * scaleOffset * 0.7f;
 		
 		mDustVerts[vIndex++]	= pos.x;
 		mDustVerts[vIndex++]	= pos.y;

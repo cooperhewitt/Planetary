@@ -8,8 +8,8 @@ class ParticleController {
  public:
 	ParticleController();
 	void update( const ci::Vec3f &camEye, float radius, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	void buildParticleVertexArray( ci::Color c, float eclipseStrength, const ci::Matrix44f &mat );
-	void buildDustVertexArray( Node *node, float pinchAlphaOffset, float dustAlpha );
+	void buildParticleVertexArray( float scaleOffset, ci::Color c, float eclipseStrength, const ci::Matrix44f &mat );
+	void buildDustVertexArray( float scaleOffset, Node *node, float pinchAlphaOffset, float dustAlpha );
 	void drawParticleVertexArray( Node *node, const ci::Matrix44f &mat );
 	void drawDustVertexArray( Node *node, const ci::Matrix44f &mat );
 	void addParticles( int amt );

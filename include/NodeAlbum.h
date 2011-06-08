@@ -22,10 +22,10 @@ class NodeAlbum : public Node
 	void drawPlanet( const ci::gl::Texture &tex );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
-	void drawAtmosphere( const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
+	void drawAtmosphere( const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
 	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );
-	void findShadows( const ci::gl::Texture &tex, float camAlpha );
-	void buildShadowVertexArray( ci::Vec2f p1, ci::Vec2f p2, ci::Vec2f p3, ci::Vec2f p4 );
+	void findShadows( float camAlpha );
+	void buildShadowVertexArray( ci::Vec3f p1, ci::Vec3f p2, ci::Vec3f p3, ci::Vec3f p4 );
 	void select();
 	void setChildOrbitRadii();
 	string getName();
