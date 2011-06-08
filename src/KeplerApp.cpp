@@ -89,7 +89,6 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onPlaylistStateChanged( State *state );
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
 	bool			onWheelToggled( AlphaWheel *alphaWheel );
-//	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
 	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
 	bool			onPlayControlsPlayheadMoved ( float amount );
 	bool			onSelectedNodeChanged( Node *node );
@@ -1993,7 +1992,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
             Node* artistNode = getPlayingArtistNode( playingTrack );
             if (artistNode != NULL) {
 
-                // ensure that breadcrumbs are consistent
+                // make doubly-sure we're focused on the correct letter
                 mState.setAlphaChar( artistNode->getName() );
 
                 artistNode->select();
