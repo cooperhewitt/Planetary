@@ -1441,6 +1441,7 @@ void KeplerApp::updateCamera()
     // FIXME: arcball interaction is probably broken under orientation
     // FIXME: no need to calculate mTransPos for Nodes etc.
     // FIXME: gyro should be applied here as well
+    // FIXME: sorting uses world.z but it should be dist-from-cam.z
     Quatf q = mArcball.getQuat();
     q.w *= -1.0;
 	
