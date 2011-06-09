@@ -216,7 +216,7 @@ void NodeTrack::buildPlayheadProgressVertexArray()
 }
 
 
-void NodeTrack::update( const Matrix44f &mat, float param1, float param2 )
+void NodeTrack::update( float param1, float param2 )
 {	
 	//////////////////////
 	// CREATE MOON TEXTURE
@@ -349,13 +349,15 @@ void NodeTrack::update( const Matrix44f &mat, float param1, float param2 )
 	else
 		mShadowPer		= 1.0f;
 	
-	Vec3f prevTransPos  = mTransPos;
-    // if mTransPos hasn't been set yet, use a guess:
-    // FIXME: set mTransPos correctly in the constructor
-    if (prevTransPos.length() < 0.0001) prevTransPos = mat * mPos;    
+	Vec3f prevPos = mPos;
     
 	mRelPos				= Vec3f( cos( mOrbitAngle ), 0.0f, sin( mOrbitAngle ) ) * mOrbitRadius;
 	mPos				= mParentNode->mPos + mRelPos;
+	
+	if( mIsPlaying ){
+		mStartRelPos	= Vec3f( cos( mOrbitStartAngle ), 0.0f, sin( mOrbitStartAngle ) ) * mOrbitRadius;
+		mTransStartPos	= mParentNode->mPos + mStartRelPos;
+	}
 
 	
 /////////////////////////
@@ -401,9 +403,9 @@ void NodeTrack::update( const Matrix44f &mat, float param1, float param2 )
 	
 	//mClosenessFadeAlpha = constrain( ( mDistFromCamZAxis - mRadius ) * 80.0f, 0.0f, 1.0f );
 	
-	Node::update( mat, param1, param2 );
+	Node::update( param1, param2 );
 
-	mTransVel = mTransPos - prevTransPos;	
+	mVel = mPos - prevPos;	
 }
 
 void NodeTrack::drawEclipseGlow()
@@ -468,10 +470,9 @@ void NodeTrack::drawPlanet( const gl::Texture &tex )
 //		}
 		
 		gl::pushModelView();
-		gl::translate( mTransPos );
+		gl::translate( mPos );
 		float radius = mRadius * mDeathPer;
 		gl::scale( Vec3f( radius, radius, radius ) );
-		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot );
 		float grey = mShadowPer + 0.2f;
 		gl::color( ColorA( grey, grey, grey, mClosenessFadeAlpha ) );
@@ -527,7 +528,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 		
 
 			gl::pushModelView();
-			gl::translate( mTransPos );
+			gl::translate( mPos );
 			clouds[mCloudTexIndex].enableAndBind();
 			
 		//	gl::enableAdditiveBlending();
@@ -535,7 +536,6 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			float radius = mRadius * mDeathPer + mCloudLayerRadius;
 			gl::scale( Vec3f( radius, radius, radius ) );
 			
-			gl::rotate( mMatrix );
 			gl::rotate( mAxialRot );
 			float alpha = max( 1.0f - mDistFromCamZAxisPer, 0.0f );
 			float grey = mShadowPer + 0.2f;
@@ -569,13 +569,13 @@ void NodeTrack::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, con
 		gl::color( ColorA( grey, grey, grey, alpha * mClosenessFadeAlpha ) );
 		Vec2f radius = Vec2f( mRadius * stretch, mRadius ) * 2.45f;
 		tex.enableAndBind();
-		gl::drawBillboard( mTransPos, radius, -toDegrees( angle ), mBbRight, mBbUp );
+		gl::drawBillboard( mPos, radius, -toDegrees( angle ), mBbRight, mBbUp );
 		tex.disable();
 		
 		
 		gl::color( ColorA( mShadowPer, mShadowPer, mShadowPer, alpha * mClosenessFadeAlpha * mEclipseDirBasedAlpha * mDeathPer ) );
 		directionalTex.enableAndBind();
-		gl::drawBillboard( mTransPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
+		gl::drawBillboard( mPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
 		directionalTex.disable();
 	}
 }
@@ -594,9 +594,8 @@ void NodeTrack::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 	gl::color( ColorA( BLUE, camAlpha * mDeathPer ) );		
 	
 	gl::pushModelView();
-	gl::translate( mParentNode->mTransPos );
+	gl::translate( mParentNode->mPos );
 	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
-	gl::rotate( mMatrix );
 	gl::rotate( Vec3f( 90.0f, 0.0f, toDegrees( mOrbitAngle ) ) );
 	orbitRingGradient.enableAndBind();
 	glEnableClientState( GL_VERTEX_ARRAY );
@@ -625,8 +624,7 @@ void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, float
 		
 		tex.enableAndBind();
 		gl::pushModelView();
-		gl::translate( mParentNode->mTransPos );
-		gl::rotate( mMatrix );
+		gl::translate( mParentNode->mPos );
 		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, alpha ) );
 		
 		glEnableClientState( GL_VERTEX_ARRAY );
@@ -644,7 +642,7 @@ void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, float
 		gl::enableAlphaBlending();
 
 		originTex.enableAndBind();
-		gl::drawBillboard( mParentNode->mTransPos + ( mMatrix * pos ) * mOrbitRadius, Vec2f( mRadius, mRadius ) * 2.15f, 0.0f, mMatrix * Vec3f::xAxis(), mMatrix * Vec3f::zAxis() );
+		gl::drawBillboard( mParentNode->mPos + pos * mOrbitRadius, Vec2f( mRadius, mRadius ) * 2.15f, 0.0f, Vec3f::xAxis(), Vec3f::zAxis() );
 		originTex.disable();
 		
 	//	gl::drawLine( pos * ( mOrbitRadius + mRadius * 1.2f ), pos * ( mOrbitRadius - mRadius * 1.2f ) );
@@ -715,21 +713,9 @@ void NodeTrack::findShadows( float camAlpha )
 		outerTanBDir = ( P6b - P5b ) * amt;
 		innerTanADir = ( P6a - P5b ) * amt;
 		innerTanBDir = ( P6b - P5a ) * amt;
-		
-		
-		
-		P0  = mMatrix * P0;
-		P1	= mMatrix * P1;
-		P2	= mMatrix * P2;
-		P3a	= mMatrix * P3a;
-		P3b = mMatrix * P3b;
-		P4	= mMatrix * P4;
-		P5a = mMatrix * P5a;
-		P5b = mMatrix * P5b;
-		P6a = mMatrix * P6a;
-		P6b = mMatrix * P6b;
-		Vec3f P7a = P6a + mMatrix * outerTanBDir;
-		Vec3f P7b = P6b + mMatrix * outerTanADir;
+
+		Vec3f P7a = P6a + outerTanBDir;
+		Vec3f P7b = P6b + outerTanADir;
 		
 		float distOfShadow = ( 1.75f - r0 ) * 0.05f;
 		P7a = P6a + ( P7a - P6a ).normalized() * distOfShadow;

@@ -115,7 +115,7 @@ void State::setSelectedNode( Node* node )
 		mSelectedNode = node;
 		
 		if( mPrevSelectedNode && mSelectedNode )
-			mDistBetweenPrevAndCurrentNode = mPrevSelectedNode->mTransPos.distance( mSelectedNode->mTransPos );
+			mDistBetweenPrevAndCurrentNode = mPrevSelectedNode->mPos.distance( mSelectedNode->mPos );
 		
 		
 		// select everything in the next chain that isn't in the current chain

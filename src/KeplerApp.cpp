@@ -92,7 +92,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
 	bool			onPlayControlsPlayheadMoved ( float amount );
 	bool			onSelectedNodeChanged( Node *node );
-	void			checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos );
+	void			checkForNodeTouch( const Ray &ray, const Vec2f &pos );
 	bool			onPlayerStateChanged( ipod::Player *player );
     bool			onPlayerTrackChanged( ipod::Player *player );
     bool			onPlayerLibraryChanged( ipod::Player *player );
@@ -162,7 +162,6 @@ class KeplerApp : public AppCocoaTouch {
 	
 	float			mZoomFrom, mZoomDest;
 	Arcball			mArcball;
-	Matrix44f		mMatrix;
 	Vec3f			mBbRight, mBbUp;
 	float			mCamRingAlpha; // 1.0 = camera is viewing rings side-on
 								   // 0.0 = camera is viewing rings from above or below
@@ -330,7 +329,6 @@ void KeplerApp::remainingSetup()
 	
 	
 	// ARCBALL
-	mMatrix	= Quatf();
 	mArcball.setWindowSize( getWindowSize() );
 	mArcball.setCenter( getWindowCenter() );
 	mArcball.setRadius( G_DEFAULT_ARCBALL_RADIUS );
@@ -702,7 +700,7 @@ void KeplerApp::touchesEnded( TouchEvent event )
                 float u			= mTouchPos.x / (float) getWindowWidth();
                 float v			= mTouchPos.y / (float) getWindowHeight();
                 Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
-                checkForNodeTouch( touchRay, mMatrix, mTouchPos );
+                checkForNodeTouch( touchRay, mTouchPos );
             }
         }
 	}
@@ -1126,7 +1124,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 	return false;
 }
  
-void KeplerApp::checkForNodeTouch( const Ray &ray, Matrix44f &mat, const Vec2f &pos )
+void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 {
 	vector<Node*> nodes;
 	mWorld.checkForNameTouch( nodes, pos );
@@ -1225,28 +1223,23 @@ void KeplerApp::update()
 		
 		mScaleSlider = 0.25f + mPlayControls.getParamSlider1Value() * 2.0f;
 		mSpeedSlider = mPlayControls.getParamSlider2Value() * 0.075f;
-        mWorld.update( mMatrix, mScaleSlider, mSpeedSlider );
+        mWorld.update( mScaleSlider, mSpeedSlider );
 		
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 
-		Matrix44f inverseMatrix = mMatrix.inverted();
-        Vec3f invBbRight		= inverseMatrix * mBbRight;
-        Vec3f invBbUp			= inverseMatrix * mBbUp;        
-        
         if( mDataIsLoaded ){
-            mWorld.buildStarsVertexArray( invBbRight, invBbUp, mFadeInAlphaToArtist * 0.3f );
-            mWorld.buildStarGlowsVertexArray( invBbRight, invBbUp, mFadeInAlphaToArtist );
+            mWorld.buildStarsVertexArray( mBbRight, mBbUp, mFadeInAlphaToArtist * 0.3f );
+            mWorld.buildStarGlowsVertexArray( mBbRight, mBbUp, mFadeInAlphaToArtist );
         }
 		
 		Node *selectedArtistNode = mState.getSelectedArtistNode();
 		if( selectedArtistNode ){
-			mParticleController.update( mMatrix.inverted() * mCenter, selectedArtistNode->mRadius * 0.15f, invBbRight, invBbUp );
+			mParticleController.update( mCenter, selectedArtistNode->mRadius * 0.15f, mBbRight, mBbUp );
 			float per = selectedArtistNode->mEclipseStrength * 0.5f + 0.25f;
 			mParticleController.buildParticleVertexArray( mPlayControls.getParamSlider1Value() * 5.0f, 
 														  selectedArtistNode->mColor, 
-														  ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f, 
-														  mMatrix );
+														  ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f );
 			mParticleController.buildDustVertexArray( mPlayControls.getParamSlider1Value(), selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
 		}
 		
@@ -1323,15 +1316,7 @@ void KeplerApp::updateArcball()
 		if( G_USE_GYRO )	dragPos = ( Vec3f(mTouchPos + mTouchVel,0) );
 		else				dragPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos + mTouchVel,0) );
         mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
-	}
-	
-	
-//	if( G_IS_IPAD2 ){
-//		mMatrix = mArcball.getQuat() * mGyroQuat;
-//	} else {
-//		mMatrix = mArcball.getQuat();
-//	}
-    mMatrix.setToIdentity();
+	}	
 }
 
 
@@ -1373,19 +1358,19 @@ void KeplerApp::updateCamera()
 		mCamDistDest	= selectedNode->mIdealCameraDist * cameraDistMulti;
 		
 		if( selectedNode->mParentNode && mPinchPer > mPinchPerThresh ){
-			Vec3f dirToParent = selectedNode->mParentNode->mTransPos - selectedNode->mTransPos;
+			Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
 			mCenterOffset -= ( mCenterOffset - ( dirToParent * ( mPinchPer - mPinchPerThresh ) * 2.5f ) ) * 0.2f;
 			
 		} else {
 			mCenterOffset -= ( mCenterOffset - Vec3f::zero() ) * 0.2f;
 		}
-		mCenterDest		= selectedNode->mTransPos;
+		mCenterDest		= selectedNode->mPos;
 		mZoomDest		= selectedNode->mGen;
-		mCenterFrom		+= selectedNode->mTransVel;
+		mCenterFrom		+= selectedNode->mVel;
 		
 	} else {
 		mCamDistDest	= G_INIT_CAM_DIST * cameraDistMulti;
-		mCenterDest		= mMatrix.transformPointAffine( Vec3f::zero() );
+		mCenterDest		= Vec3f::zero();
 
 		mZoomDest		= G_HOME_LEVEL;
 		if( mState.getAlphaChar() != ' ' ){
@@ -1436,15 +1421,14 @@ void KeplerApp::updateCamera()
 	
     // apply the Arcball to the camera eye/up vectors
     // (instead of to the whole scene)
-    // FIXME: mMatrix can go away
-    // FIXME: mBbRight and mBbUp should be correct now, no need to invert
-    // FIXME: arcball interaction is probably broken under orientation
-    // FIXME: no need to calculate mTransPos for Nodes etc.
-    // FIXME: gyro should be applied here as well
-    // FIXME: sorting uses world.z but it should be dist-from-cam.z
     Quatf q = mArcball.getQuat();
-    q.w *= -1.0;
-	
+    q.w *= -1.0; // reverse the angle, keep the axis
+
+    // TODO/FIXME/ROBERT: Robert test this?
+	if( G_IS_IPAD2 ){
+		q *= mGyroQuat;
+	}	
+    
 	Vec3f prevEye	= mEye;
     Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);
     mEye = mCenter - camOffset;
@@ -1509,9 +1493,14 @@ void KeplerApp::drawScene()
 	}
 	vector<Node*> sortedNodes = mWorld.sortNodes( unsortedNodes );	
 	
+    // FIXME: ROBERT - is transEye.y going to be correct here?
+    // you can remove tempMatrix, I just left it here so you 
+    // could see where mMatrix was operating previously
+    Matrix44f tempMatrix;
+    tempMatrix.setToIdentity();
 	
 	// For doing galaxy-axis fades
-	Vec3f transEye = mMatrix.inverted() * mEye;
+	Vec3f transEye = tempMatrix.inverted() * mEye;
 	float zoomOff = 1.0f - mFadeInAlphaToArtist;//constrain( ( G_ARTIST_LEVEL - G_ZOOM ), 0.0f, 1.0f );
 	float camGalaxyAlpha = constrain( abs( transEye.y ) * 0.004f, 0.0f, 1.0f );
 	float alpha, radius;
@@ -1520,7 +1509,7 @@ void KeplerApp::drawScene()
     gl::enableDepthWrite();
     gl::setMatrices( mCam );
 	gl::pushModelView();
-    gl::rotate( mMatrix );
+    gl::rotate( tempMatrix );
 	
 // SKYDOME
 	Color c = Color( CM_HSV, mPinchPer * 0.2f + 0.475f, 1.0f - mPinchPer * 0.5f, 1.0f );
@@ -1624,7 +1613,7 @@ void KeplerApp::drawScene()
 	
 // STARS
 	mStarTex.enableAndBind();
-	mWorld.drawStarsVertexArray( mMatrix );
+	mWorld.drawStarsVertexArray();
 	mStarTex.disable();
 	
 	
@@ -1636,7 +1625,7 @@ void KeplerApp::drawScene()
 	
 // STARGLOWS bloom
 	mStarGlowTex.enableAndBind();
-	mWorld.drawStarGlowsVertexArray( mMatrix );
+	mWorld.drawStarGlowsVertexArray();
 	mStarGlowTex.disable();
 	
 	
@@ -1690,7 +1679,7 @@ void KeplerApp::drawScene()
 			// LIGHT FROM ARTIST
 			glEnable( GL_LIGHT0 );
 			glEnable( GL_LIGHT1 );
-			Vec3f lightPos          = artistNode->mTransPos;
+			Vec3f lightPos          = artistNode->mPos;
 			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
 			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
 			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor, 1.0f ) );
@@ -1748,7 +1737,7 @@ void KeplerApp::drawScene()
 // PARTICLES
 	if( mState.getSelectedArtistNode() ){
 		mParticleTex.enableAndBind();
-		mParticleController.drawParticleVertexArray( mState.getSelectedArtistNode(), mMatrix );
+		mParticleController.drawParticleVertexArray( mState.getSelectedArtistNode() );
 		mParticleTex.disable();
 	}
 	
@@ -1763,7 +1752,7 @@ void KeplerApp::drawScene()
 // DUSTS
 	if( mState.getSelectedArtistNode() ){
 		gl::enableAdditiveBlending();
-		mParticleController.drawDustVertexArray( mState.getSelectedArtistNode(), mMatrix );
+		mParticleController.drawDustVertexArray( mState.getSelectedArtistNode() );
 	}
 
 	
@@ -1785,7 +1774,7 @@ void KeplerApp::drawScene()
 	if( mData.mFilteredArtists.size() > 1 && G_DRAW_RINGS ){
 		gl::enableAdditiveBlending();
 		mDottedTex.enableAndBind();
-		mWorld.drawConstellation( mMatrix );
+		mWorld.drawConstellation();
 		mDottedTex.disable();
 	}
 	
@@ -1802,7 +1791,6 @@ void KeplerApp::drawScene()
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, invAlpha ) );
 		radius = mDarkMatterBaseRadius * 0.85f;
 		gl::pushModelView();
-		gl::rotate( mMatrix );
 		mDarkMatterTex.enableAndBind();
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -1869,27 +1857,27 @@ void KeplerApp::drawScene()
 		mLensFlareTex.disable();
 		
 		
-		glDisable( GL_TEXTURE_2D );
-		Vec2f dirToCenter = ( artistNode->mScreenPos - getWindowCenter() );
-		float distToCenter = dirToCenter.length();
-		dirToCenter.normalize();
-		float left		= sin( constrain( dirToCenter.x * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
-		float right		= sin( constrain( ( 1.0f - dirToCenter.x ) * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
-		float top		= sin( constrain( dirToCenter.y * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
-		float bottom	= sin( constrain( ( 1.0f - dirToCenter.y ) * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
-		
-		gl::color( ColorA( artistNode->mGlowColor, top ) );
-		gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( getWindowWidth(), 1.0f ) );
-		
-		gl::color( ColorA( artistNode->mGlowColor, bottom ) );
-		gl::drawLine( Vec2f( 1.0f, getWindowHeight() ), Vec2f( getWindowWidth(), getWindowHeight() ) );
-		
-		gl::color( ColorA( artistNode->mGlowColor, left ) );
-		gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( 1.0f, getWindowHeight() ) );
-
-		gl::color( ColorA( artistNode->mGlowColor, right ) );
-		gl::drawLine( Vec2f( getWindowWidth(), 1.0f ), Vec2f( getWindowWidth(), getWindowHeight() ) );
-		glEnable( GL_TEXTURE_2D );
+//		glDisable( GL_TEXTURE_2D );
+//		Vec2f dirToCenter = ( artistNode->mScreenPos - getWindowCenter() );
+//		float distToCenter = dirToCenter.length();
+//		dirToCenter.normalize();
+//		float left		= sin( constrain( dirToCenter.x * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
+//		float right		= sin( constrain( ( 1.0f - dirToCenter.x ) * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
+//		float top		= sin( constrain( dirToCenter.y * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
+//		float bottom	= sin( constrain( ( 1.0f - dirToCenter.y ) * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
+//		
+//		gl::color( ColorA( artistNode->mGlowColor, top ) );
+//		gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( getWindowWidth(), 1.0f ) );
+//		
+//		gl::color( ColorA( artistNode->mGlowColor, bottom ) );
+//		gl::drawLine( Vec2f( 1.0f, getWindowHeight() ), Vec2f( getWindowWidth(), getWindowHeight() ) );
+//		
+//		gl::color( ColorA( artistNode->mGlowColor, left ) );
+//		gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( 1.0f, getWindowHeight() ) );
+//
+//		gl::color( ColorA( artistNode->mGlowColor, right ) );
+//		gl::drawLine( Vec2f( getWindowWidth(), 1.0f ), Vec2f( getWindowWidth(), getWindowHeight() ) );
+//		glEnable( GL_TEXTURE_2D );
 
 	}
 

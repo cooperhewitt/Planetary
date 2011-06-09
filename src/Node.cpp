@@ -32,8 +32,7 @@ Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, co
 	mEclipseStrength	= 0.0f;
 	mEclipseAngle		= 0.0f;
 	mEclipseDirBasedAlpha = 0.0f;
-	mTransPos			= Vec3f::zero();
-	mTransVel			= Vec3f::zero();
+	mVel                = Vec3f::zero();
 	
 	mOrbitStartAngle	= Rand::randFloat( TWO_PI );
 	mOrbitAngle			= mOrbitStartAngle;
@@ -168,16 +167,14 @@ void Node::createNameTexture()
 	mNameTex				= gl::Texture( nameSurface );
 }
 
-void Node::update( const Matrix44f &mat, float param1, float param2 )
+void Node::update( float param1, float param2 )
 {	
 	mInvRadius		= ( 1.0f/mRadius ) * 0.5f;
 	mClosenessFadeAlpha = constrain( ( mDistFromCamZAxis - mRadius ) * mInvRadius, 0.0f, 1.0f );
 	
 	mOrbitRadius	-= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
-	mMatrix         = mat;
-	mTransPos       = mMatrix * mPos;
     
-	mSphere.setCenter( mTransPos );
+	mSphere.setCenter( mPos );
 
     if( mIsPlaying || mIsSelected ){
         mZoomPer    = constrain( ( G_ZOOM - mGen ) + 2.0f, 0.0f, 1.0f );
@@ -204,7 +201,7 @@ void Node::update( const Matrix44f &mat, float param1, float param2 )
 		if( (*nodeIt)->mIsDead ){
 			clearChildNodes = true;
 		}
-		(*nodeIt)->update( mat, param1, param2 );
+		(*nodeIt)->update( param1, param2 );
 	}
 	
 	if( clearChildNodes ){
@@ -223,9 +220,9 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 
     
 	if( mIsHighlighted ){
-        mScreenPos              = cam.worldToScreen( mTransPos, app::getWindowWidth(), app::getWindowHeight() );
+        mScreenPos              = cam.worldToScreen( mPos, app::getWindowWidth(), app::getWindowHeight() );
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
-		mDistFromCamZAxis		= -cam.worldToEyeDepth( mTransPos );
+		mDistFromCamZAxis		= -cam.worldToEyeDepth( mPos );
 		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * 0.5f, 0.0f, 1.0f ); // REL: -0.35f
 		mSphereScreenRadius     = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() );
         float r					= max( mSphereScreenRadius, 15.0f );        
@@ -262,7 +259,7 @@ void Node::drawOrbitRing( float pinchAlphaOffset, float camAlpha, const gl::Text
 
 void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 {	
-	if( cam.worldToEyeDepth( mTransPos ) < 0 ){		
+	if( mDistFromCamZAxis > 0 ){		
 		float alpha;
 		Color c;
 		
@@ -366,10 +363,6 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 		 */
 	}
 	
-
-	
-	
-	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		(*nodeIt)->drawName( cam, pinchAlphaPer, angle );
 	}
@@ -382,7 +375,7 @@ void Node::drawTouchHighlight( float zoomAlpha )
 		if( mIsTapped ){
 			gl::color( ColorA( mColor, mHighlightStrength ) );
 			mHighlightStrength -= ( mHighlightStrength - 0.0f ) * 0.1f;
-			gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+			gl::drawBillboard( mPos, radius, 0.0f, mBbRight, mBbUp );
 		}
 		
 		
@@ -390,11 +383,11 @@ void Node::drawTouchHighlight( float zoomAlpha )
 			if( mGen == G_TRACK_LEVEL ){
 				float alpha = max( ( 0.7f - mDistFromCamZAxisPer ) * mDeathPer, 0.0f );
 				gl::color( ColorA( BRIGHT_BLUE, ( alpha + mEclipseStrength * mDeathPer ) * mClosenessFadeAlpha ) );
-				gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+				gl::drawBillboard( mPos, radius, 0.0f, mBbRight, mBbUp );
 			} else if( mGen == G_ALBUM_LEVEL ){
 				float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 1.0f );
 				gl::color( ColorA( BRIGHT_BLUE, ( alpha + mEclipseStrength * mDeathPer ) * mClosenessFadeAlpha ) );
-				gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+				gl::drawBillboard( mPos, radius, 0.0f, mBbRight, mBbUp );
 			}
 		}
 		
