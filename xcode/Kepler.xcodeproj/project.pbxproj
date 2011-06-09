@@ -146,15 +146,11 @@
 		E154E58113996D8C002A3488 /* lensFlare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = lensFlare.png; path = ../resources/lensFlare.png; sourceTree = "<group>"; };
 		E1555A0A131E05140079B05A /* skydome.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = skydome.jpg; path = ../resources/skydome.jpg; sourceTree = SOURCE_ROOT; };
 		E1555CA4131EEBEB0079B05A /* dotted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dotted.png; path = ../resources/dotted.png; sourceTree = SOURCE_ROOT; };
-		E1555E78131F2C4A0079B05A /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../include/Node.h; sourceTree = SOURCE_ROOT; };
 		E1555E79131F2C560079B05A /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Node.cpp; path = ../src/Node.cpp; sourceTree = SOURCE_ROOT; };
 		E15C90AE1300B2A300FB8389 /* UnitRoundedOT-Medi.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "UnitRoundedOT-Medi.otf"; path = "../resources/UnitRoundedOT-Medi.otf"; sourceTree = SOURCE_ROOT; };
 		E15C90AF1300B2A300FB8389 /* UnitRoundedOT-Ultra.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "UnitRoundedOT-Ultra.otf"; path = "../resources/UnitRoundedOT-Ultra.otf"; sourceTree = SOURCE_ROOT; };
-		E15C90B51300B2F100FB8389 /* UiLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UiLayer.h; path = ../include/UiLayer.h; sourceTree = SOURCE_ROOT; };
 		E15C90B61300B2F900FB8389 /* UiLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UiLayer.cpp; path = ../src/UiLayer.cpp; sourceTree = SOURCE_ROOT; };
 		E162650D139429B800493983 /* starCore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = starCore.png; path = ../starCore.png; sourceTree = "<group>"; };
-		E167C8D1132EAFAB00CB496E /* Particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Particle.h; path = ../include/Particle.h; sourceTree = "<group>"; };
-		E167C8D2132EAFAB00CB496E /* ParticleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParticleController.h; path = ../include/ParticleController.h; sourceTree = "<group>"; };
 		E167C8D3132EAFBE00CB496E /* Particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Particle.cpp; path = ../src/Particle.cpp; sourceTree = "<group>"; };
 		E167C8D4132EAFBE00CB496E /* ParticleController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleController.cpp; path = ../src/ParticleController.cpp; sourceTree = "<group>"; };
 		E16E3A461397364900C07B97 /* atmosphereSun.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = atmosphereSun.png; path = ../resources/planets/atmosphereSun.png; sourceTree = "<group>"; };
@@ -171,24 +167,18 @@
 		E1729B3C1378DFF700C62C97 /* moonClouds4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moonClouds4.png; sourceTree = "<group>"; };
 		E1729B3D1378DFF700C62C97 /* moonClouds5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moonClouds5.png; sourceTree = "<group>"; };
 		E17667DD13202FB7006A4C2E /* rings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rings.png; path = ../resources/planets/rings.png; sourceTree = "<group>"; };
-		E177A6CA134E657E0014AD55 /* BloomGl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BloomGl.h; path = ../include/BloomGl.h; sourceTree = "<group>"; };
 		E177A6CC134E7B850014AD55 /* BloomGl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BloomGl.cpp; path = ../src/BloomGl.cpp; sourceTree = "<group>"; };
 		E178AB50134A6B67000F017F /* alphaWheel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = alphaWheel.png; path = ../resources/ui/alphaWheel.png; sourceTree = "<group>"; };
 		E189F6751339A377009B2E23 /* playheadProgress.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playheadProgress.png; path = ../resources/playheadProgress.png; sourceTree = "<group>"; };
 		E1A330361301013100CED126 /* starGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = starGlow.png; path = ../resources/starGlow.png; sourceTree = SOURCE_ROOT; };
 		E1A330371301013100CED126 /* star.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = star.png; path = ../resources/star.png; sourceTree = SOURCE_ROOT; };
 		E1A332E11301068800CED126 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
-		E1A332EF1301072600CED126 /* Easing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Easing.h; path = ../include/Easing.h; sourceTree = SOURCE_ROOT; };
-		E1A332F01301072600CED126 /* Globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Globals.h; path = ../include/Globals.h; sourceTree = SOURCE_ROOT; };
 		E1AA09A6135508B900B44147 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		E1B0DBB113510C890093EB9D /* HelpLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HelpLayer.cpp; path = ../src/HelpLayer.cpp; sourceTree = "<group>"; };
-		E1B0DBB313510C9D0093EB9D /* HelpLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HelpLayer.h; path = ../include/HelpLayer.h; sourceTree = "<group>"; };
 		E1B0DBC1135124130093EB9D /* helpPanel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = helpPanel.png; path = ../resources/ui/helpPanel.png; sourceTree = "<group>"; };
 		E1B7670C138F62AC00505163 /* uiBigButtons.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = uiBigButtons.png; path = ../resources/ui/uiBigButtons.png; sourceTree = "<group>"; };
 		E1B7670E138F72EC00505163 /* uiSmallButtons.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = uiSmallButtons.png; path = ../resources/ui/uiSmallButtons.png; sourceTree = "<group>"; };
-		E1C60003131848FB0022246C /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = World.h; path = ../include/World.h; sourceTree = SOURCE_ROOT; };
 		E1C600041318490F0022246C /* World.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = World.cpp; path = ../src/World.cpp; sourceTree = SOURCE_ROOT; };
-		E1C6FFF11318479A0022246C /* Data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Data.h; path = ../include/Data.h; sourceTree = SOURCE_ROOT; };
 		E1C6FFF2131847A40022246C /* Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Data.cpp; path = ../src/Data.cpp; sourceTree = SOURCE_ROOT; };
 		E1C942C6137B9BD900F88EA2 /* darkMatter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = darkMatter.png; path = ../darkMatter.png; sourceTree = "<group>"; };
 		E1D98D9E137B4BC000D80467 /* galaxy.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = galaxy.jpg; path = ../galaxy.jpg; sourceTree = "<group>"; };
@@ -198,7 +188,6 @@
 		E1D99A97134BD490003FC316 /* planetary.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = planetary.png; path = ../resources/loadscreen/planetary.png; sourceTree = "<group>"; };
 		E1D99A9A134BDBFE003FC316 /* background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = background.jpg; path = ../resources/loadscreen/background.jpg; sourceTree = "<group>"; };
 		E1D99AB1134D63B0003FC316 /* uiButtons.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = uiButtons.png; path = ../resources/ui/uiButtons.png; sourceTree = "<group>"; };
-		E1E6636E1317887600E5E4B9 /* State.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../include/State.h; sourceTree = SOURCE_ROOT; };
 		E1E6636F1317887F00E5E4B9 /* State.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = State.cpp; path = ../src/State.cpp; sourceTree = SOURCE_ROOT; };
 		E1FA27E01355790500169830 /* atmosphere.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = atmosphere.png; path = ../resources/planets/atmosphere.png; sourceTree = "<group>"; };
 		E1FC74B3130B256D007FE9D6 /* DoubleTapEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DoubleTapEvent.h; sourceTree = "<group>"; };
@@ -207,42 +196,53 @@
 		E1FC74B6130B256D007FE9D6 /* PinchEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinchEvent.h; sourceTree = "<group>"; };
 		E1FC74B7130B256D007FE9D6 /* SingleTapEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTapEvent.h; sourceTree = "<group>"; };
 		E1FC74B8130B256D007FE9D6 /* TapRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapRecognizer.h; sourceTree = "<group>"; };
-		E1FC7D9E1337E48F007F333C /* Dust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Dust.h; path = ../include/Dust.h; sourceTree = "<group>"; };
 		E1FC7D9F1337E4D9007F333C /* Dust.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dust.cpp; path = ../src/Dust.cpp; sourceTree = "<group>"; };
 		E1FC7DA213381853007F333C /* eclipseGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = eclipseGlow.png; path = ../resources/eclipseGlow.png; sourceTree = "<group>"; };
-		E217105E132ECEFB00ADCC17 /* AlphaWheel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlphaWheel.h; path = ../include/AlphaWheel.h; sourceTree = SOURCE_ROOT; };
 		E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AlphaWheel.cpp; path = ../src/AlphaWheel.cpp; sourceTree = SOURCE_ROOT; };
-		E227B203138EFD9400AAAC7B /* TextLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextLabel.h; path = ../include/TextLabel.h; sourceTree = "<group>"; };
 		E227B204138EFDC500AAAC7B /* TextLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextLabel.cpp; path = ../src/TextLabel.cpp; sourceTree = "<group>"; };
 		E22998C61332AD080043CDCA /* GestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureRecognizer.h; sourceTree = "<group>"; };
-		E22998CA1332D6210043CDCA /* LoadingScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LoadingScreen.h; path = ../include/LoadingScreen.h; sourceTree = "<group>"; };
 		E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoadingScreen.cpp; path = ../src/LoadingScreen.cpp; sourceTree = "<group>"; };
-		E25040BD1392E73400A8D673 /* UIElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UIElement.h; path = ../include/UIElement.h; sourceTree = "<group>"; };
-		E25C872B131F1415000780A3 /* NodeArtist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeArtist.h; path = ../include/NodeArtist.h; sourceTree = SOURCE_ROOT; };
 		E25C872D131F1420000780A3 /* NodeArtist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeArtist.cpp; path = ../src/NodeArtist.cpp; sourceTree = SOURCE_ROOT; };
-		E25C8740131F14A5000780A3 /* NodeAlbum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeAlbum.h; path = ../include/NodeAlbum.h; sourceTree = SOURCE_ROOT; };
-		E25C8741131F14A5000780A3 /* NodeTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeTrack.h; path = ../include/NodeTrack.h; sourceTree = SOURCE_ROOT; };
 		E25C8742131F14B3000780A3 /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8743131F14B3000780A3 /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
-		E2730443138DA82B00A2A65B /* TimeLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeLabel.h; path = ../include/TimeLabel.h; sourceTree = "<group>"; };
 		E2730444138DA83800A2A65B /* TimeLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeLabel.cpp; path = ../src/TimeLabel.cpp; sourceTree = "<group>"; };
 		E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScrollingLabel.cpp; path = ../src/ScrollingLabel.cpp; sourceTree = "<group>"; };
-		E273044B138DAA7400A2A65B /* ScrollingLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScrollingLabel.h; path = ../include/ScrollingLabel.h; sourceTree = "<group>"; };
-		E278F90513830E5200738472 /* Buttons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Buttons.h; path = ../include/Buttons.h; sourceTree = "<group>"; };
 		E278F90713830E7E00738472 /* Buttons.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Buttons.cpp; path = ../src/Buttons.cpp; sourceTree = "<group>"; };
 		E278F90D138333FB00738472 /* Slider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Slider.cpp; path = ../src/Slider.cpp; sourceTree = "<group>"; };
-		E278F9101383342400738472 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Slider.h; path = ../include/Slider.h; sourceTree = "<group>"; };
 		E28177EC139AFA8500049D69 /* PlaylistFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlaylistFilter.cpp; path = ../src/PlaylistFilter.cpp; sourceTree = "<group>"; };
-		E28177F0139AFACA00049D69 /* PlaylistFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistFilter.h; path = ../include/PlaylistFilter.h; sourceTree = "<group>"; };
-		E28177F4139AFAFB00049D69 /* LetterFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LetterFilter.h; path = ../include/LetterFilter.h; sourceTree = "<group>"; };
 		E28177F5139AFB0800049D69 /* LetterFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LetterFilter.cpp; path = ../src/LetterFilter.cpp; sourceTree = "<group>"; };
-		E28177FA139AFB3800049D69 /* Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Filter.h; path = ../include/Filter.h; sourceTree = "<group>"; };
 		E28FDA821339B782005EDBB4 /* PlayControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayControls.cpp; path = ../src/PlayControls.cpp; sourceTree = "<group>"; };
-		E2A1FF8E132599290007F4DA /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../include/PlayControls.h; sourceTree = SOURCE_ROOT; };
-		E2DC1DFF1398266B000B1D11 /* NotificationOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NotificationOverlay.h; path = ../include/NotificationOverlay.h; sourceTree = "<group>"; };
 		E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NotificationOverlay.cpp; path = ../src/NotificationOverlay.cpp; sourceTree = "<group>"; };
 		E2E21CB213A14A3700A476A2 /* Galaxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Galaxy.cpp; path = ../src/Galaxy.cpp; sourceTree = "<group>"; };
-		E2E21CB513A14A7100A476A2 /* Galaxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Galaxy.h; path = ../include/Galaxy.h; sourceTree = "<group>"; };
+		E2E21CB613A177E200A476A2 /* AlphaWheel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlphaWheel.h; path = ../src/AlphaWheel.h; sourceTree = "<group>"; };
+		E2E21CB713A177E200A476A2 /* BloomGl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BloomGl.h; path = ../src/BloomGl.h; sourceTree = "<group>"; };
+		E2E21CB813A177E300A476A2 /* Buttons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Buttons.h; path = ../src/Buttons.h; sourceTree = "<group>"; };
+		E2E21CB913A177E300A476A2 /* Data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Data.h; path = ../src/Data.h; sourceTree = "<group>"; };
+		E2E21CBA13A177E400A476A2 /* Dust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Dust.h; path = ../src/Dust.h; sourceTree = "<group>"; };
+		E2E21CBB13A177E400A476A2 /* Easing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Easing.h; path = ../src/Easing.h; sourceTree = "<group>"; };
+		E2E21CBC13A177E400A476A2 /* Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Filter.h; path = ../src/Filter.h; sourceTree = "<group>"; };
+		E2E21CBD13A177E400A476A2 /* Galaxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Galaxy.h; path = ../src/Galaxy.h; sourceTree = "<group>"; };
+		E2E21CBE13A177E500A476A2 /* Globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Globals.h; path = ../src/Globals.h; sourceTree = "<group>"; };
+		E2E21CBF13A177E600A476A2 /* HelpLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HelpLayer.h; path = ../src/HelpLayer.h; sourceTree = "<group>"; };
+		E2E21CC013A177E600A476A2 /* LetterFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LetterFilter.h; path = ../src/LetterFilter.h; sourceTree = "<group>"; };
+		E2E21CC113A177E600A476A2 /* LoadingScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LoadingScreen.h; path = ../src/LoadingScreen.h; sourceTree = "<group>"; };
+		E2E21CC213A177E700A476A2 /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../src/Node.h; sourceTree = "<group>"; };
+		E2E21CC313A177E700A476A2 /* NodeAlbum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeAlbum.h; path = ../src/NodeAlbum.h; sourceTree = "<group>"; };
+		E2E21CC413A177E800A476A2 /* NodeArtist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeArtist.h; path = ../src/NodeArtist.h; sourceTree = "<group>"; };
+		E2E21CC513A177E800A476A2 /* NodeTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NodeTrack.h; path = ../src/NodeTrack.h; sourceTree = "<group>"; };
+		E2E21CC613A177E800A476A2 /* NotificationOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NotificationOverlay.h; path = ../src/NotificationOverlay.h; sourceTree = "<group>"; };
+		E2E21CC713A177E900A476A2 /* Particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Particle.h; path = ../src/Particle.h; sourceTree = "<group>"; };
+		E2E21CC813A177EA00A476A2 /* ParticleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParticleController.h; path = ../src/ParticleController.h; sourceTree = "<group>"; };
+		E2E21CC913A177EA00A476A2 /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../src/PlayControls.h; sourceTree = "<group>"; };
+		E2E21CCA13A177EB00A476A2 /* PlaylistFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistFilter.h; path = ../src/PlaylistFilter.h; sourceTree = "<group>"; };
+		E2E21CCB13A177EB00A476A2 /* ScrollingLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScrollingLabel.h; path = ../src/ScrollingLabel.h; sourceTree = "<group>"; };
+		E2E21CCC13A177EB00A476A2 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Slider.h; path = ../src/Slider.h; sourceTree = "<group>"; };
+		E2E21CCD13A177EC00A476A2 /* State.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../src/State.h; sourceTree = "<group>"; };
+		E2E21CCE13A177EC00A476A2 /* TextLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextLabel.h; path = ../src/TextLabel.h; sourceTree = "<group>"; };
+		E2E21CCF13A177ED00A476A2 /* TimeLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeLabel.h; path = ../src/TimeLabel.h; sourceTree = "<group>"; };
+		E2E21CD013A177ED00A476A2 /* UIElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UIElement.h; path = ../src/UIElement.h; sourceTree = "<group>"; };
+		E2E21CD113A177EE00A476A2 /* UiLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UiLayer.h; path = ../src/UiLayer.h; sourceTree = "<group>"; };
+		E2E21CD213A177EF00A476A2 /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = World.h; path = ../src/World.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -295,13 +295,13 @@
 				E1C6023C131C4B0E0022246C /* Ui */,
 				E1C6017E13188B280022246C /* Helpers */,
 				E1C60184131892750022246C /* Nodes */,
-				E1C60003131848FB0022246C /* World.h */,
-				E1E6636E1317887600E5E4B9 /* State.h */,
-				E1C6FFF11318479A0022246C /* Data.h */,
-				E167C8D2132EAFAB00CB496E /* ParticleController.h */,
-				E167C8D1132EAFAB00CB496E /* Particle.h */,
-				E1FC7D9E1337E48F007F333C /* Dust.h */,
-				E2E21CB513A14A7100A476A2 /* Galaxy.h */,
+				E2E21CB913A177E300A476A2 /* Data.h */,
+				E2E21CBA13A177E400A476A2 /* Dust.h */,
+				E2E21CBD13A177E400A476A2 /* Galaxy.h */,
+				E2E21CC713A177E900A476A2 /* Particle.h */,
+				E2E21CC813A177EA00A476A2 /* ParticleController.h */,
+				E2E21CCD13A177EC00A476A2 /* State.h */,
+				E2E21CD213A177EF00A476A2 /* World.h */,
 			);
 			name = Headers;
 			sourceTree = "<group>";
@@ -567,9 +567,9 @@
 		E1C6017E13188B280022246C /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				E1A332EF1301072600CED126 /* Easing.h */,
-				E1A332F01301072600CED126 /* Globals.h */,
-				E177A6CA134E657E0014AD55 /* BloomGl.h */,
+				E2E21CB713A177E200A476A2 /* BloomGl.h */,
+				E2E21CBB13A177E400A476A2 /* Easing.h */,
+				E2E21CBE13A177E500A476A2 /* Globals.h */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -588,10 +588,10 @@
 		E1C60184131892750022246C /* Nodes */ = {
 			isa = PBXGroup;
 			children = (
-				E1555E78131F2C4A0079B05A /* Node.h */,
-				E25C872B131F1415000780A3 /* NodeArtist.h */,
-				E25C8740131F14A5000780A3 /* NodeAlbum.h */,
-				E25C8741131F14A5000780A3 /* NodeTrack.h */,
+				E2E21CC213A177E700A476A2 /* Node.h */,
+				E2E21CC313A177E700A476A2 /* NodeAlbum.h */,
+				E2E21CC413A177E800A476A2 /* NodeArtist.h */,
+				E2E21CC513A177E800A476A2 /* NodeTrack.h */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -600,12 +600,12 @@
 			isa = PBXGroup;
 			children = (
 				E25040BF1392E82200A8D673 /* Elements */,
-				E22998CA1332D6210043CDCA /* LoadingScreen.h */,
-				E2A1FF8E132599290007F4DA /* PlayControls.h */,
-				E1B0DBB313510C9D0093EB9D /* HelpLayer.h */,
-				E15C90B51300B2F100FB8389 /* UiLayer.h */,
-				E217105E132ECEFB00ADCC17 /* AlphaWheel.h */,
-				E2DC1DFF1398266B000B1D11 /* NotificationOverlay.h */,
+				E2E21CB613A177E200A476A2 /* AlphaWheel.h */,
+				E2E21CBF13A177E600A476A2 /* HelpLayer.h */,
+				E2E21CC113A177E600A476A2 /* LoadingScreen.h */,
+				E2E21CC613A177E800A476A2 /* NotificationOverlay.h */,
+				E2E21CC913A177EA00A476A2 /* PlayControls.h */,
+				E2E21CD113A177EE00A476A2 /* UiLayer.h */,
 			);
 			name = Ui;
 			sourceTree = "<group>";
@@ -676,12 +676,12 @@
 		E25040BF1392E82200A8D673 /* Elements */ = {
 			isa = PBXGroup;
 			children = (
-				E25040BD1392E73400A8D673 /* UIElement.h */,
-				E227B203138EFD9400AAAC7B /* TextLabel.h */,
-				E273044B138DAA7400A2A65B /* ScrollingLabel.h */,
-				E2730443138DA82B00A2A65B /* TimeLabel.h */,
-				E278F9101383342400738472 /* Slider.h */,
-				E278F90513830E5200738472 /* Buttons.h */,
+				E2E21CB813A177E300A476A2 /* Buttons.h */,
+				E2E21CCB13A177EB00A476A2 /* ScrollingLabel.h */,
+				E2E21CCC13A177EB00A476A2 /* Slider.h */,
+				E2E21CCE13A177EC00A476A2 /* TextLabel.h */,
+				E2E21CCF13A177ED00A476A2 /* TimeLabel.h */,
+				E2E21CD013A177ED00A476A2 /* UIElement.h */,
 			);
 			name = Elements;
 			sourceTree = "<group>";
@@ -710,9 +710,9 @@
 		E28177EF139AFA9900049D69 /* Filters */ = {
 			isa = PBXGroup;
 			children = (
-				E28177FA139AFB3800049D69 /* Filter.h */,
-				E28177F4139AFAFB00049D69 /* LetterFilter.h */,
-				E28177F0139AFACA00049D69 /* PlaylistFilter.h */,
+				E2E21CBC13A177E400A476A2 /* Filter.h */,
+				E2E21CC013A177E600A476A2 /* LetterFilter.h */,
+				E2E21CCA13A177EB00A476A2 /* PlaylistFilter.h */,
 			);
 			name = Filters;
 			sourceTree = "<group>";
