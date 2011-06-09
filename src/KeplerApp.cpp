@@ -1292,11 +1292,11 @@ void KeplerApp::updateCamera()
     // (instead of to the whole scene)
     Quatf q = mArcball.getQuat();
     q.w *= -1.0; // reverse the angle, keep the axis
-
+	
     // TODO/FIXME/ROBERT: Robert test this?
 	if( G_IS_IPAD2 && G_USE_GYRO ){
 		q = mGyroQuat;
-	}
+	}	
     
 	Vec3f prevEye	= mEye;
     Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);
@@ -1609,7 +1609,7 @@ void KeplerApp::drawScene()
 		
 		for( int i=0; i<numFlares; i++ ){
 			gl::color( ColorA( BRIGHT_BLUE, alpha ) );
-			flarePos = getWindowCenter() + flarePosNorm * dists[i] * flareDist;
+			flarePos = getWindowCenter() + flarePosNorm * dists[i] * dists[i] * flareDist;
 			float flareRadius = artistNode->mSphereScreenRadius * radii[i] * distPer;
 			gl::drawSolidRect( Rectf( flarePos.x - flareRadius, flarePos.y - flareRadius, flarePos.x + flareRadius, flarePos.y + flareRadius ) );
 		}
@@ -1617,7 +1617,9 @@ void KeplerApp::drawScene()
 
 		mLensFlareTex.disable();
 		
-		
+		// Attempt to add lighting highlights to the ipad window edges.
+		// not successful so commented out for now.
+		{
 //		glDisable( GL_TEXTURE_2D );
 //		Vec2f dirToCenter = ( artistNode->mScreenPos - getWindowCenter() );
 //		float distToCenter = dirToCenter.length();
@@ -1639,6 +1641,7 @@ void KeplerApp::drawScene()
 //		gl::color( ColorA( artistNode->mGlowColor, right ) );
 //		gl::drawLine( Vec2f( getWindowWidth(), 1.0f ), Vec2f( getWindowWidth(), getWindowHeight() ) );
 //		glEnable( GL_TEXTURE_2D );
+		}
 
 	}
 
