@@ -765,19 +765,23 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
 
 	if( node != NULL ) {
         if (node->mGen == G_TRACK_LEVEL) {
-            // TODO: which track? album? artist?
             Flurry::getInstrumentation()->logEvent("Track Selected");
-            // FIXME: is this a bad OOP thing or is there a cleaner/safer C++ way to handle it?
-            NodeTrack* trackNode = (NodeTrack*)node;
-            if ( mIpodPlayer.hasPlayingTrack() ){
-				trackNode->setStartAngle();
-                ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
-                if ( trackNode->getId() != playingTrack->getItemId() ) {
-                    mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
+            // this is probably a bad OOP thing, maybe there's a virtual method on Node to do this?
+            NodeTrack* trackNode = dynamic_cast<NodeTrack*>(node);
+            if (trackNode) {
+                if ( mIpodPlayer.hasPlayingTrack() ){
+                    trackNode->setStartAngle();
+                    ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
+                    if ( trackNode->getId() != playingTrack->getItemId() ) {
+                        mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
+                    }
+                }
+                else {
+                    mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
                 }
             }
             else {
-                mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
+                // FIXME: log error?
             }
         } 
         else if (node->mGen == G_ARTIST_LEVEL) {
@@ -1887,10 +1891,10 @@ void KeplerApp::updateIsPlaying()
 Node* KeplerApp::getPlayingTrackNode( ipod::TrackRef playingTrack, Node* albumNode )
 {
     if (albumNode != NULL) {
+        uint64_t trackId = playingTrack->getItemId();
         for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-            // FIXME: what's the proper C++ way to do this cast?
-            NodeTrack *trackNode = (NodeTrack*)(albumNode->mChildNodes[k]);
-            if (trackNode->getId() == playingTrack->getItemId()) {
+            Node *trackNode = albumNode->mChildNodes[k];
+            if (trackNode->getId() == trackId) {
                 return trackNode;
             }
         }
