@@ -16,7 +16,6 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/Surface.h"
 #include "CinderIPodPlayer.h"
-#include "cinder/Matrix.h"
 #include "Data.h"
 #include "Node.h"
 #include "NodeTrack.h"
@@ -43,15 +42,15 @@ class World {
 	void deselectAllNodes();
     void setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
-	void update( const ci::Matrix44f &mat, float param1, float param2 );
+	void update( float param1, float param2 );
 	void updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 
-	void drawStarsVertexArray( const ci::Matrix44f &mat );
-	void drawStarGlowsVertexArray( const ci::Matrix44f &mat );
+	void drawStarsVertexArray();
+	void drawStarGlowsVertexArray();
 	void drawEclipseGlows();
 	void drawNames( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
 	void drawOrbitRings( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex );
-	void drawConstellation( const ci::Matrix44f &mat );
+	void drawConstellation();
 	void drawTouchHighlights( float zoomAlpha );
 	void buildConstellation();
 	void drawPlanets( const ci::gl::Texture &tex );

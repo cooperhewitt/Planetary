@@ -365,7 +365,7 @@ void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, floa
 	}
 }
 
-void World::drawStarsVertexArray( const Matrix44f &mat )
+void World::drawStarsVertexArray( )
 {
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -375,10 +375,7 @@ void World::drawStarsVertexArray( const Matrix44f &mat )
 	glTexCoordPointer( 2, GL_FLOAT, 0, mStarTexCoords );
 	glColorPointer( 4, GL_FLOAT, 0, mStarColors );
 	
-	gl::pushModelView();
-	gl::rotate( mat );
 	glDrawArrays( GL_TRIANGLES, 0, mTotalStarVertices );
-	gl::popModelView();
 	
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -578,7 +575,7 @@ void World::buildOrbitRingsVertexArray()
 	}
 }
 
-void World::update( const Matrix44f &mat, float param1, float param2 )
+void World::update( float param1, float param2 )
 {
 	if( mIsInitialized ){
 		mAge ++;
@@ -597,7 +594,7 @@ void World::update( const Matrix44f &mat, float param1, float param2 )
 		}
 		
 		for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-			(*it)->update( mat, param1, param2 );
+			(*it)->update( param1, param2 );
 		}
 	}
 }
@@ -638,7 +635,7 @@ void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const 
 }
 
 
-void World::drawStarGlowsVertexArray( const Matrix44f &mat )
+void World::drawStarGlowsVertexArray()
 {
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -648,10 +645,7 @@ void World::drawStarGlowsVertexArray( const Matrix44f &mat )
 	glTexCoordPointer( 2, GL_FLOAT, 0, mStarGlowTexCoords );
 	glColorPointer( 4, GL_FLOAT, 0, mStarGlowColors );
 	
-	gl::pushModelView();
-	gl::rotate( mat );
 	glDrawArrays( GL_TRIANGLES, 0, mTotalStarGlowVertices );
-	gl::popModelView();
 	
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -709,9 +703,11 @@ void World::drawTouchHighlights( float zoomAlpha )
 	}
 }
 
-void World::drawConstellation( const Matrix44f &mat )
+void World::drawConstellation()
 {
 	if( mTotalConstellationVertices > 2 ){
+        
+        // FIXME: pass this in as a function argument (to remove dependency on global)
 		float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.4f;
 		
 		glEnableClientState( GL_VERTEX_ARRAY );
@@ -721,11 +717,8 @@ void World::drawConstellation( const Matrix44f &mat )
 		glTexCoordPointer( 2, GL_FLOAT, 0, mConstellationTexCoords );
 		//glColorPointer( 4, GL_FLOAT, 0, mColors );
 		
-		gl::pushModelView();
-		gl::rotate( mat );
 		gl::color( ColorA( 0.12f, 0.25f, 0.85f, zoomPer ) );
 		glDrawArrays( GL_LINES, 0, mTotalConstellationVertices );
-		gl::popModelView();
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );	
@@ -864,6 +857,6 @@ vector<Node*> World::sortNodes( vector<Node*> nodes )
 }
 
 bool nodeSortFunc(Node* a, Node* b) {
-    return a->mTransPos.z > b->mTransPos.z;
+    return a->mDistFromCamZAxis > b->mDistFromCamZAxis;
 }
 

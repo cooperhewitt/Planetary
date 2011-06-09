@@ -221,7 +221,7 @@ void NodeAlbum::setData( PlaylistRef album )
 }
 
 
-void NodeAlbum::update( const Matrix44f &mat, float param1, float param2 )
+void NodeAlbum::update( float param1, float param2 )
 {
 	mRadiusDest		= mRadiusInit * param1;
 	mRadius			-= ( mRadius - mRadiusDest ) * 0.2f;
@@ -232,10 +232,7 @@ void NodeAlbum::update( const Matrix44f &mat, float param1, float param2 )
 	mOrbitAngle	+= param2 * mAxialVel * 0.05f;
 	mAxialRot.y -= mAxialVel * ( param2 * 10.0f );
 		
-    Vec3f prevTransPos  = mTransPos;
-    // if mTransPos hasn't been set yet, use a guess:
-    // FIXME: set mTransPos correctly in the constructor
-    if (prevTransPos.length() < 0.0001) prevTransPos = mat * mPos;    
+    Vec3f prevPos  = mPos;
 	
 	mRelPos		= Vec3f( cos( mOrbitAngle ), 0.0f, sin( mOrbitAngle ) ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mRelPos;
@@ -305,9 +302,9 @@ void NodeAlbum::update( const Matrix44f &mat, float param1, float param2 )
 	
 	mCloudLayerRadius	= mRadius * 0.005f + mDistFromCamZAxisPer * 0.005;
 	
-	Node::update( mat, param1, param2 );
+	Node::update( param1, param2 );
 	
-	mTransVel = mTransPos - prevTransPos;	
+	mVel = mPos - prevPos;	
 }
 
 void NodeAlbum::drawEclipseGlow()
@@ -359,9 +356,8 @@ void NodeAlbum::drawPlanet( const gl::Texture &tex )
 		}
 		
 		gl::pushModelView();
-		gl::translate( mTransPos );
+		gl::translate( mPos );
 		gl::scale( Vec3f( mRadius, mRadius, mRadius ) * mDeathPer );
-		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot );
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, mClosenessFadeAlpha * mBlockedBySunPer ) );
 		
@@ -419,7 +415,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		
 		gl::enableAlphaBlending();
 		gl::pushModelView();
-		gl::translate( mTransPos );
+		gl::translate( mPos );
 
 		//glDisable( GL_LIGHTING );
 		
@@ -428,7 +424,6 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		float radius = mRadius * mDeathPer + mCloudLayerRadius;
 		float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 0.334f ) * mClosenessFadeAlpha;
 		gl::scale( Vec3f( radius, radius, radius ) );
-		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
 		clouds[mCloudTexIndex].enableAndBind();
@@ -441,7 +436,6 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::pushModelView();
 		radius = mRadius * mDeathPer + mCloudLayerRadius*1.5f;
 		gl::scale( Vec3f( radius, radius, radius ) );
-		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha * 2.0f ) );
@@ -477,12 +471,12 @@ void NodeAlbum::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, con
 			
 			tex.enableAndBind();
 			Vec3f posOffset = Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.1f;
-			gl::drawBillboard( mTransPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
+			gl::drawBillboard( mPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
 			tex.disable();
 
 			gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha ) );
 			directionalTex.enableAndBind();
-			gl::drawBillboard( mTransPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
+			gl::drawBillboard( mPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
 			directionalTex.disable();
 		}
 	//}
@@ -507,9 +501,8 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 	}
 	
 	gl::pushModelView();
-	gl::translate( mParentNode->mTransPos );
+	gl::translate( mParentNode->mPos );
 	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
-	gl::rotate( mMatrix );
 	gl::rotate( Vec3f( 90.0f, 0.0f, toDegrees( mOrbitAngle ) ) );
 	
 	orbitRingGradient.enableAndBind();
@@ -537,10 +530,9 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 			gl::enableAdditiveBlending();
 			
 			gl::pushModelView();
-			gl::translate( mTransPos );
+			gl::translate( mPos );
 			float c = 0.5f * mIdealCameraDist;
 			gl::scale( Vec3f( c, c, c ) );
-			gl::rotate( mMatrix );
 			gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel * 0.2f, 0.0f ) );
 			
 			
@@ -658,20 +650,8 @@ void NodeAlbum::findShadows( float camAlpha )
 		innerTanADir = ( P6a - P5b ) * amt;
 		innerTanBDir = ( P6b - P5a ) * amt;
 		
-		
-		
-		P0  = mMatrix * P0;
-		P1	= mMatrix * P1;
-		P2	= mMatrix * P2;
-		P3a	= mMatrix * P3a;
-		P3b = mMatrix * P3b;
-		P4	= mMatrix * P4;
-		P5a = mMatrix * P5a;
-		P5b = mMatrix * P5b;
-		P6a = mMatrix * P6a;
-		P6b = mMatrix * P6b;
-		Vec3f P7a = P6a + mMatrix * outerTanBDir;
-		Vec3f P7b = P6b + mMatrix * outerTanADir;
+		Vec3f P7a = P6a + outerTanBDir;
+		Vec3f P7b = P6b + outerTanADir;
 
 		float distOfShadow = max( 1.0f - r0, 0.01f );
 		P7a = P6a + ( P7a - P6a ).normalized() * distOfShadow;

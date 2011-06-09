@@ -19,7 +19,7 @@ class NodeTrack : public Node
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album, const ci::Surface &albumArt );
     void initVertexArray();
 	void updateAudioData( double currentPlayheadTime );
-	void update( const ci::Matrix44f &mat, float param1, float param2 );
+	void update( float param1, float param2 );
 	void drawEclipseGlow();
 	void drawPlanet( const ci::gl::Texture &tex );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
@@ -30,8 +30,8 @@ class NodeTrack : public Node
 	void findShadows( float camAlpha );
 	void buildShadowVertexArray( ci::Vec3f p1, ci::Vec3f p2, ci::Vec3f p3, ci::Vec3f p4 );
 	
-	ci::Vec3f getStartRelPos(){ return mMatrix * mStartRelPos; }
-	ci::Vec3f getRelPos(){ return mMatrix * mRelPos; }
+	ci::Vec3f getStartRelPos(){ return mStartRelPos; }
+	ci::Vec3f getRelPos(){ return mRelPos; }
 	void setStartAngle();
 	int getTrackNumber();
 

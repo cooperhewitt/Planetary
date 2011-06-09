@@ -40,7 +40,7 @@ void ParticleController::update( const Vec3f &camEye, float radius, const Vec3f 
 }
 
 
-void ParticleController::buildParticleVertexArray( float scaleOffset, Color c, float eclipseStrength, const Matrix44f &mat )
+void ParticleController::buildParticleVertexArray( float scaleOffset, Color c, float eclipseStrength )
 {
 	int vIndex = 0;
 	int tIndex = 0;
@@ -66,8 +66,6 @@ void ParticleController::buildParticleVertexArray( float scaleOffset, Color c, f
 	float u2				= 1.0f;
 	float v1				= 0.0f;
 	float v2				= 1.0f;
-	
-	// TODO: figure out why we use inverted matrix * billboard vec
 	
 	for( list<Particle>::iterator it = mParticles.begin(); it != mParticles.end(); ++it ){
 		Vec3f pos				= it->mPos;// + lookVec;
@@ -185,7 +183,7 @@ void ParticleController::buildDustVertexArray( float scaleOffset, Node *node, fl
 }
 	
 
-void ParticleController::drawParticleVertexArray( Node *node, const Matrix44f &mat )
+void ParticleController::drawParticleVertexArray( Node *node )
 {
 	// PARTICLES
 	glEnableClientState( GL_VERTEX_ARRAY );
@@ -198,10 +196,8 @@ void ParticleController::drawParticleVertexArray( Node *node, const Matrix44f &m
 	
 	gl::pushModelView();
 	if( node ){
-		gl::translate( node->mTransPos );
+		gl::translate( node->mPos );
 	}
-	
-	gl::rotate( mat );
 	glDrawArrays( GL_TRIANGLES, 0, mTotalParticleVertices );
 	gl::popModelView();
 	
@@ -210,19 +206,18 @@ void ParticleController::drawParticleVertexArray( Node *node, const Matrix44f &m
 	glDisableClientState( GL_COLOR_ARRAY );
 }
 
-void ParticleController::drawDustVertexArray( Node *node, const Matrix44f &mat )
+void ParticleController::drawDustVertexArray( Node *node )
 {
 	// DUST
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_COLOR_ARRAY );
 	glVertexPointer( 3, GL_FLOAT, 0, mDustVerts );
 	glColorPointer( 4, GL_FLOAT, 0, mDustColors );
+
 	gl::pushModelView();
-	
-	if( node )
-		gl::translate( node->mTransPos );
-		
-	gl::rotate( mat );
+	if( node ) {
+		gl::translate( node->mPos );
+    }
 	glDrawArrays( GL_POINTS, 0, mTotalDustVertices );
 	gl::popModelView();
 	

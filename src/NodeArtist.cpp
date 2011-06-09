@@ -78,7 +78,7 @@ void NodeArtist::setData( PlaylistRef playlist )
 
 
 
-void NodeArtist::update( const Matrix44f &mat, float param1, float param2 )
+void NodeArtist::update( float param1, float param2 )
 {	
 //	float hue		= mHue + Rand::randFloat( 0.05f );
 //	mSat			= ( 1.0f - sin( ( hue + 0.15f ) * M_PI ) ) * 0.875f;
@@ -89,10 +89,7 @@ void NodeArtist::update( const Matrix44f &mat, float param1, float param2 )
 	mAxialRot.y += mAxialVel * ( param2 * 3.0f );
 	mEclipseStrength = 0.0f;
 	
-	Vec3f prevTransPos  = mTransPos;
-    // if mTransPos hasn't been set yet, use a guess:
-    // FIXME: set mTransPos correctly in the constructor
-    if( prevTransPos.lengthSquared() < 0.0000001 ) prevTransPos = mat * mPos;  
+	Vec3f prevPos  = mPos;
 	
 	if( mAge < 50.0f ){
 		mPosDest += mAcc;
@@ -121,9 +118,9 @@ void NodeArtist::update( const Matrix44f &mat, float param1, float param2 )
 //		}
 	}
 	
-	Node::update( mat, param1, param2 );
+	Node::update( param1, param2 );
     
-	mTransVel = mTransPos - prevTransPos;
+	mVel = mPos - prevPos;
 	mEclipseStrength = constrain( mEclipseStrength, 0.0f, 1.0f );
 }
 
@@ -140,7 +137,7 @@ void NodeArtist::drawEclipseGlow()
 		float alpha = G_ALPHA_LEVEL - ( G_ZOOM - 1.0f );
 		gl::color( ColorA( mGlowColor, mDistFromCamZAxisPer * ( 1.0f - mEclipseStrength ) * alpha ) );
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 10.0f;
-		gl::drawBillboard( mTransPos, radius, 0.0f, mBbRight, mBbUp );
+		gl::drawBillboard( mPos, radius, 0.0f, mBbRight, mBbUp );
 
 	}
 	
@@ -189,9 +186,8 @@ void NodeArtist::drawPlanet( const gl::Texture &tex )
 		}
 		
 		gl::pushModelView();
-		gl::translate( mTransPos );
+		gl::translate( mPos );
 		gl::scale( Vec3f( mRadius, mRadius, mRadius ) * mDeathPer * 0.16f );
-		gl::rotate( mMatrix );
 		gl::rotate( mAxialRot );
 		gl::color( ColorA( ( mColor + Color::white() ) * 0.5f, 1.0f ) );
 
@@ -237,7 +233,7 @@ void NodeArtist::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, co
 		
 		tex.enableAndBind();
 		Vec3f posOffset = Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.1f;
-		gl::drawBillboard( mTransPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
+		gl::drawBillboard( mPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
 		tex.disable();
 	}
 	//}
@@ -262,12 +258,12 @@ void NodeArtist::drawExtraGlow( const gl::Texture &tex )
 		Vec3f posOffset = Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.1f;
 		
 		gl::color( ColorA( mGlowColor, alpha * 0.65f ) );
-		gl::drawBillboard( mTransPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
+		gl::drawBillboard( mPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
 		
 	// SMALLER INNER GLOW
 		//gl::color( ColorA( mGlowColor, sin( mEclipseStrength * M_PI ) * 0.5f + 0.2f ) );
 		gl::color( ColorA( mGlowColor, sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ) ) );
-		gl::drawBillboard( mTransPos - posOffset, radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.5f + 0.2f ), -toDegrees( angle ), mBbRight, mBbUp );
+		gl::drawBillboard( mPos - posOffset, radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.5f + 0.2f ), -toDegrees( angle ), mBbRight, mBbUp );
 		tex.disable();
 	}
 	//}

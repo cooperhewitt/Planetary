@@ -36,7 +36,7 @@ class Node {
 								   int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
 								   int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals );
 	void			createNameTexture();
-	virtual void	update( const ci::Matrix44f &mat, float param1, float param2 );
+	virtual void	update( float param1, float param2 );
 	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	virtual void	drawEclipseGlow();
 	virtual void	drawPlanet( const ci::gl::Texture &tex ) {};
@@ -75,11 +75,9 @@ class Node {
 	ci::Vec3f			mPos;				// global position
 	ci::Vec3f			mPosDest;			// artist node final position
 	ci::Vec3f			mAcc;				// acceleration used for initial repulsion
-	ci::Vec3f			mTransPos;			// global position * mMatrix
 	ci::Vec2f			mScreenPos;			// screen position
 	ci::Vec3f			mRelPos;			// relative position
-	ci::Vec3f			mTransVel;			// velocity based on mTransPos for helping the camera
-	ci::Matrix44f		mMatrix;
+	ci::Vec3f			mVel;               // velocity based on mPos for helping the camera
 	ci::Vec3f			mBbRight, mBbUp;
 	
 // CHARACTERISTICS
