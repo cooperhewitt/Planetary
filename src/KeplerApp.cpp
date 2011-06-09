@@ -62,34 +62,44 @@ class KeplerApp : public AppCocoaTouch {
     void            remainingSetup();
 	void			initLoadingTextures();
 	void			initTextures();
-	void			initDarkMatterVertexArray();
+
 	virtual void	touchesBegan( TouchEvent event );
 	virtual void	touchesMoved( TouchEvent event );
 	virtual void	touchesEnded( TouchEvent event );
+
 	bool            orientationChanged( OrientationEvent event );
     void            setInterfaceOrientation( const Orientation &orientation );
-	virtual void	update();
+	
+    virtual void	update();
 	void			updateGyro();
 	void			updateArcball();
 	void			updateCamera();
+
 	virtual void	draw();
 	void			drawNoArtists();
     void            drawScene();
 	void			drawInfoPanel();
-	void			setParamsTex();
+    void			setParamsTex();
+
 	virtual void    shutdown();
+    
 	bool			onAlphaCharStateChanged( State *state );
 	bool			onPlaylistStateChanged( State *state );
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
 	bool			onWheelToggled( AlphaWheel *alphaWheel );
+
 	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
 	bool			onPlayControlsPlayheadMoved ( float amount );
-	bool			onSelectedNodeChanged( Node *node );
+	
+    bool			onSelectedNodeChanged( Node *node );
+
 	void			checkForNodeTouch( const Ray &ray, const Vec2f &pos );
-	bool			onPlayerStateChanged( ipod::Player *player );
+	
+    bool			onPlayerStateChanged( ipod::Player *player );
     bool			onPlayerTrackChanged( ipod::Player *player );
     bool			onPlayerLibraryChanged( ipod::Player *player );
     void            updateIsPlaying();
+
     Node*           getPlayingTrackNode( ipod::TrackRef playingTrack, Node* albumNode );
     Node*           getPlayingAlbumNode( ipod::TrackRef playingTrack, Node* artistNode );
     Node*           getPlayingArtistNode( ipod::TrackRef playingTrack );
@@ -114,8 +124,6 @@ class KeplerApp : public AppCocoaTouch {
     Matrix44f         mOrientationMatrix;
     Matrix44f         mInverseOrientationMatrix;    
     
-    std::map<Orientation, std::map<Orientation, int> > mRotationSteps;
-
 	Quatf			mGyroQuat;
 	// Objective C (FIXME: move Gyro stuff to something that looks like OrientationHelper)
     CMMotionManager *motionManager;
@@ -267,28 +275,6 @@ void KeplerApp::setup()
     
     mRemainingSetupCalled = false;
 
-    // TODO: surely we can store this somewhere else? in OrientationHelper perhaps.
-    std::map<Orientation,int> pSteps;
-    pSteps[LANDSCAPE_LEFT_ORIENTATION] = 1;
-    pSteps[LANDSCAPE_RIGHT_ORIENTATION] = -1;
-    pSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = 2;
-    std::map<Orientation,int> llSteps;
-    llSteps[PORTRAIT_ORIENTATION] = -1;
-    llSteps[LANDSCAPE_RIGHT_ORIENTATION] = 2;
-    llSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = 1;
-    std::map<Orientation,int> lrSteps;
-    lrSteps[PORTRAIT_ORIENTATION] = 1;
-    lrSteps[LANDSCAPE_LEFT_ORIENTATION] = 2;
-    lrSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = -1;
-    std::map<Orientation,int> upSteps;
-    upSteps[PORTRAIT_ORIENTATION] = 2;
-    upSteps[LANDSCAPE_LEFT_ORIENTATION] = -1;
-    upSteps[LANDSCAPE_RIGHT_ORIENTATION] = 1;
-    mRotationSteps[PORTRAIT_ORIENTATION] = pSteps;
-    mRotationSteps[LANDSCAPE_LEFT_ORIENTATION] = llSteps;
-    mRotationSteps[LANDSCAPE_RIGHT_ORIENTATION] = lrSteps;
-    mRotationSteps[UPSIDE_DOWN_PORTRAIT_ORIENTATION] = upSteps;
-    
     // !!! this has to be set up before any other UI things so it can consume touch events
     mLoadingScreen.setup( this, mOrientationHelper.getInterfaceOrientation() );
     
@@ -676,7 +662,7 @@ bool KeplerApp::orientationChanged( OrientationEvent event )
 		Orientation prevOrientation = event.getPrevInterfaceOrientation();
 		if (mInterfaceOrientation != prevOrientation) {
 			if( mTouchVel.length() > 2.0f && !mIsDragging ){        
-				int steps = mRotationSteps[prevOrientation][mInterfaceOrientation];
+				int steps = getRotationSteps(prevOrientation,mInterfaceOrientation);
 				mTouchVel.rotate( (float)steps * M_PI/2.0f );
 			}
 		}
