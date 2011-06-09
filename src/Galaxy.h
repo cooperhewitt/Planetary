@@ -6,6 +6,8 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#pragma once
+
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 

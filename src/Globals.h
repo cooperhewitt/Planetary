@@ -7,9 +7,9 @@
  *
  */
 
-#include "cinder/Color.h"
-
 #pragma once 
+
+#include "cinder/Color.h"
 
 static const double TWO_PI			= M_PI * 2.0;
 

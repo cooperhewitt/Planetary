@@ -101,6 +101,7 @@
 		E2DC1E0213984774000B1D11 /* NotificationOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */; };
 		E2E21CB413A14A3800A476A2 /* Galaxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CB213A14A3700A476A2 /* Galaxy.cpp */; };
 		E2E21CD413A17B9F00A476A2 /* Easing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CD313A17B9F00A476A2 /* Easing.cpp */; };
+		E2E21CD913A1821300A476A2 /* GyroHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CD713A1821300A476A2 /* GyroHelper.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -245,6 +246,9 @@
 		E2E21CD113A177EE00A476A2 /* UiLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UiLayer.h; path = ../src/UiLayer.h; sourceTree = "<group>"; };
 		E2E21CD213A177EF00A476A2 /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = World.h; path = ../src/World.h; sourceTree = "<group>"; };
 		E2E21CD313A17B9F00A476A2 /* Easing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Easing.cpp; path = ../src/Easing.cpp; sourceTree = "<group>"; };
+		E2E21CD713A1821300A476A2 /* GyroHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GyroHelper.cpp; path = ../src/GyroHelper.cpp; sourceTree = "<group>"; };
+		E2E21CD813A1821300A476A2 /* GyroHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GyroHelper.h; path = ../src/GyroHelper.h; sourceTree = "<group>"; };
+		E2E21CDA13A1870E00A476A2 /* Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Device.h; path = ../src/Device.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -552,6 +556,7 @@
 			children = (
 				E177A6CC134E7B850014AD55 /* BloomGl.cpp */,
 				E2E21CD313A17B9F00A476A2 /* Easing.cpp */,
+				E2E21CD713A1821300A476A2 /* GyroHelper.cpp */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -570,6 +575,8 @@
 		E1C6017E13188B280022246C /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				E2E21CDA13A1870E00A476A2 /* Device.h */,
+				E2E21CD813A1821300A476A2 /* GyroHelper.h */,
 				E2E21CB713A177E200A476A2 /* BloomGl.h */,
 				E2E21CBB13A177E400A476A2 /* Easing.h */,
 				E2E21CBE13A177E500A476A2 /* Globals.h */,
@@ -870,6 +877,7 @@
 				E28177F6139AFB0800049D69 /* LetterFilter.cpp in Sources */,
 				E2E21CB413A14A3800A476A2 /* Galaxy.cpp in Sources */,
 				E2E21CD413A17B9F00A476A2 /* Easing.cpp in Sources */,
+				E2E21CD913A1821300A476A2 /* GyroHelper.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

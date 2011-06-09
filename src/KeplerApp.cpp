@@ -1,7 +1,6 @@
-#include <sys/sysctl.h>
 #include <vector>
 #include <sstream>
-#import <CoreMotion/CoreMotion.h>
+
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/app/Renderer.h"
 #include "cinder/Surface.h"
@@ -12,27 +11,36 @@
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
 #include "cinder/Utilities.h"
-#include "OrientationHelper.h"
-#include "Globals.h"
-#include "Easing.h"
-#include "World.h"
-#include "HelpLayer.h"
-#include "UiLayer.h"
-#include "NotificationOverlay.h"
-#include "AlphaWheel.h"
-#include "State.h"
-#include "Data.h"
-#include "PlayControls.h"
+
 #include "CinderIPod.h"
 #include "CinderIPodPlayer.h"
-#include "PinchRecognizer.h"
-#include "ParticleController.h"
-#include "LoadingScreen.h"
-#include "NodeArtist.h"
+#include "CinderFlurry.h"
+
+#include "OrientationHelper.h"
+#include "GyroHelper.h"
+#include "Device.h"
+
+#include "Globals.h"
+
+#include "State.h"
+#include "Data.h"
 #include "PlaylistFilter.h"
 #include "LetterFilter.h"
-#include "CinderFlurry.h"
+
+#include "World.h"
+#include "NodeArtist.h"
 #include "Galaxy.h"
+
+#include "LoadingScreen.h"
+#include "UiLayer.h"
+#include "PlayControls.h"
+#include "HelpLayer.h"
+#include "NotificationOverlay.h"
+#include "AlphaWheel.h"
+#include "PinchRecognizer.h"
+#include "ParticleController.h"
+
+#include "Easing.h"
 
 using std::vector;
 using namespace ci;
@@ -71,7 +79,6 @@ class KeplerApp : public AppCocoaTouch {
     void            setInterfaceOrientation( const Orientation &orientation );
 	
     virtual void	update();
-	void			updateGyro();
 	void			updateArcball();
 	void			updateCamera();
 
@@ -81,8 +88,6 @@ class KeplerApp : public AppCocoaTouch {
 	void			drawInfoPanel();
     void			setParamsTex();
 
-	virtual void    shutdown();
-    
 	bool			onAlphaCharStateChanged( State *state );
 	bool			onPlaylistStateChanged( State *state );
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
@@ -124,11 +129,9 @@ class KeplerApp : public AppCocoaTouch {
     Matrix44f         mOrientationMatrix;
     Matrix44f         mInverseOrientationMatrix;    
     
-	Quatf			mGyroQuat;
-	// Objective C (FIXME: move Gyro stuff to something that looks like OrientationHelper)
-    CMMotionManager *motionManager;
-    CMAttitude *referenceAttitude;
-
+// GYRO
+    GyroHelper        mGyroHelper;
+    
 // AUDIO
 	ipod::Player		mIpodPlayer;
 	ipod::PlaylistRef	mCurrentAlbum;
@@ -249,24 +252,13 @@ void KeplerApp::setup()
     
     //console() << "setupStart: " << getElapsedSeconds() << std::endl;
     
-    // http://stackoverflow.com/questions/448162/determine-device-iphone-ipod-touch-with-iphone-sdk/1561920#1561920
-    // http://www.clintharris.net/2009/iphone-model-via-sysctlbyname/
-    size_t size;
-    sysctlbyname("hw.machine", NULL, &size, NULL, 0);  
-    char *machine = new char[size];
-    sysctlbyname("hw.machine", machine, &size, NULL, 0);    
-    G_IS_IPAD2 = (strcmp("iPad1,1",machine) != 0);
+    G_IS_IPAD2 = bloom::isIpad2();
     console() << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
-    delete[] machine;
 
 	if( G_IS_IPAD2 ){
 		G_NUM_PARTICLES = 30;
 		G_NUM_DUSTS = 2500;
-		motionManager = [[CMMotionManager alloc] init];
-		[motionManager startDeviceMotionUpdates];
-		
-		CMDeviceMotion *dm = motionManager.deviceMotion;
-		referenceAttitude = [dm.attitude retain];
+        mGyroHelper.setup();
 	}
 	
 	mOrientationHelper.setup();
@@ -1055,7 +1047,7 @@ void KeplerApp::update()
     if ( mRemainingSetupCalled )
 	{
 		if( G_IS_IPAD2 && G_USE_GYRO ) {
-			updateGyro();
+			mGyroHelper.update();
         }
 
         updateArcball();
@@ -1128,28 +1120,6 @@ void KeplerApp::update()
     }
     
     mNotificationOverlay.update();
-}
-
-
-void KeplerApp::updateGyro()
-{
-	CMQuaternion quat;
-	
-    CMDeviceMotion *deviceMotion = motionManager.deviceMotion;		
-    CMAttitude *attitude = deviceMotion.attitude;
-    
-    // If we have a reference attitude, multiply attitude by its inverse
-    // After this call, attitude will contain the rotation from referenceAttitude
-    // to the current orientation instead of from the fixed reference frame to the
-    // current orientation
-	/*
-    if (referenceAttitude != nil) {
-        [attitude multiplyByInverseOfAttitude:referenceAttitude];
-    }
-	*/
-
-	quat		= attitude.quaternion;
-	mGyroQuat.set( -quat.w, quat.x, -quat.y, quat.z );
 }
 
 void KeplerApp::updateArcball()
@@ -1274,7 +1244,7 @@ void KeplerApp::updateCamera()
 	
     // TODO/FIXME/ROBERT: Robert test this?
 	if( G_IS_IPAD2 && G_USE_GYRO ){
-		q = mGyroQuat;
+		q = mGyroHelper.getQuat();
 	}	
     
 	Vec3f prevEye	= mEye;
@@ -1953,13 +1923,5 @@ Node* KeplerApp::getPlayingArtistNode( ipod::TrackRef playingTrack )
     }    
     return NULL;
 }
-
-void KeplerApp::shutdown()
-{
-    [motionManager stopDeviceMotionUpdates];
-    [motionManager release];
-    [referenceAttitude release];
-}
-
 
 CINDER_APP_COCOA_TOUCH( KeplerApp, RendererGl )
