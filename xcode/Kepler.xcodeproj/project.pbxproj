@@ -99,6 +99,7 @@
 		E28177F6139AFB0800049D69 /* LetterFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28177F5139AFB0800049D69 /* LetterFilter.cpp */; };
 		E28FDA831339B782005EDBB4 /* PlayControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA821339B782005EDBB4 /* PlayControls.cpp */; };
 		E2DC1E0213984774000B1D11 /* NotificationOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */; };
+		E2E21CB413A14A3800A476A2 /* Galaxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CB213A14A3700A476A2 /* Galaxy.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -240,6 +241,8 @@
 		E2A1FF8E132599290007F4DA /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../include/PlayControls.h; sourceTree = SOURCE_ROOT; };
 		E2DC1DFF1398266B000B1D11 /* NotificationOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NotificationOverlay.h; path = ../include/NotificationOverlay.h; sourceTree = "<group>"; };
 		E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NotificationOverlay.cpp; path = ../src/NotificationOverlay.cpp; sourceTree = "<group>"; };
+		E2E21CB213A14A3700A476A2 /* Galaxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Galaxy.cpp; path = ../src/Galaxy.cpp; sourceTree = "<group>"; };
+		E2E21CB513A14A7100A476A2 /* Galaxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Galaxy.h; path = ../include/Galaxy.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -272,6 +275,7 @@
 				E28177EB139AFA6700049D69 /* Filters */,
 				E2171053132ECE3900ADCC17 /* Ui */,
 				E177A6CB134E7B640014AD55 /* Helpers */,
+				E1C601831318926C0022246C /* Nodes */,
 				00CFDFDF11384CC60091E310 /* KeplerApp.cpp */,
 				E1C600041318490F0022246C /* World.cpp */,
 				E1E6636F1317887F00E5E4B9 /* State.cpp */,
@@ -279,7 +283,7 @@
 				E167C8D4132EAFBE00CB496E /* ParticleController.cpp */,
 				E167C8D3132EAFBE00CB496E /* Particle.cpp */,
 				E1FC7D9F1337E4D9007F333C /* Dust.cpp */,
-				E1C601831318926C0022246C /* Nodes */,
+				E2E21CB213A14A3700A476A2 /* Galaxy.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -290,13 +294,14 @@
 				E28177EF139AFA9900049D69 /* Filters */,
 				E1C6023C131C4B0E0022246C /* Ui */,
 				E1C6017E13188B280022246C /* Helpers */,
+				E1C60184131892750022246C /* Nodes */,
 				E1C60003131848FB0022246C /* World.h */,
 				E1E6636E1317887600E5E4B9 /* State.h */,
 				E1C6FFF11318479A0022246C /* Data.h */,
 				E167C8D2132EAFAB00CB496E /* ParticleController.h */,
 				E167C8D1132EAFAB00CB496E /* Particle.h */,
 				E1FC7D9E1337E48F007F333C /* Dust.h */,
-				E1C60184131892750022246C /* Nodes */,
+				E2E21CB513A14A7100A476A2 /* Galaxy.h */,
 			);
 			name = Headers;
 			sourceTree = "<group>";
@@ -860,6 +865,7 @@
 				E2DC1E0213984774000B1D11 /* NotificationOverlay.cpp in Sources */,
 				E28177EE139AFA8500049D69 /* PlaylistFilter.cpp in Sources */,
 				E28177F6139AFB0800049D69 /* LetterFilter.cpp in Sources */,
+				E2E21CB413A14A3800A476A2 /* Galaxy.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

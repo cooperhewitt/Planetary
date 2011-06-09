@@ -32,6 +32,7 @@
 #include "PlaylistFilter.h"
 #include "LetterFilter.h"
 #include "CinderFlurry.h"
+#include "Galaxy.h"
 
 using std::vector;
 using namespace ci;
@@ -68,7 +69,6 @@ class KeplerApp : public AppCocoaTouch {
     void            remainingSetup();
 	void			initLoadingTextures();
 	void			initTextures();
-	void			initGalaxyVertexArray();
 	void			initDarkMatterVertexArray();
 	virtual void	touchesBegan( TouchEvent event );
 	virtual void	touchesMoved( TouchEvent event );
@@ -223,13 +223,7 @@ class KeplerApp : public AppCocoaTouch {
 	Surface			mNoAlbumArtSurface;
 	
 // GALAXY
-	GLfloat			*mGalaxyVerts;
-	GLfloat			*mGalaxyTexCoords;
-	GLfloat			*mDarkMatterVerts;
-	GLfloat			*mDarkMatterTexCoords;
-	int				mDarkMatterCylinderRes;
-	float			mLightMatterBaseRadius;
-	float			mDarkMatterBaseRadius;
+    Galaxy mGalaxy;
 	
 	float			mTime;
 	bool			mHasNoArtists;
@@ -444,11 +438,7 @@ void KeplerApp::remainingSetup()
 	
 	mHasNoArtists = false;
 	
-	mDarkMatterCylinderRes = 48;
-	initGalaxyVertexArray();
-	initDarkMatterVertexArray();
-	mLightMatterBaseRadius = G_INIT_CAM_DIST * 0.75f;
-	mDarkMatterBaseRadius = G_INIT_CAM_DIST * 0.86f;
+    mGalaxy.setup(G_INIT_CAM_DIST, mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex);
 
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
 
@@ -518,127 +508,6 @@ void KeplerApp::initTextures()
 	//console() << "initTextures duration = " << (getElapsedSeconds()-t) << endl;
     Flurry::getInstrumentation()->stopTimeEvent("Load Textures");    
 }
-
-void KeplerApp::initGalaxyVertexArray()
-{
-	std::cout << "initializing Galaxy Vertex Array" << std::endl;
-	mGalaxyVerts		= new float[18];
-	mGalaxyTexCoords	= new float[12];
-	int i	= 0;
-	int t	= 0;
-	float w	= 400.0f;
-	Vec3f corner;
-	
-	
-	corner			= Vec3f( -w, 0.0f, -w );
-	mGalaxyVerts[i++]			= corner.x;
-	mGalaxyVerts[i++]			= corner.y;
-	mGalaxyVerts[i++]			= corner.z;
-	mGalaxyTexCoords[t++]		= 0.0f;
-	mGalaxyTexCoords[t++]		= 0.0f;
-	
-	corner			= Vec3f( w, 0.0f, -w );
-	mGalaxyVerts[i++]			= corner.x;
-	mGalaxyVerts[i++]			= corner.y;
-	mGalaxyVerts[i++]			= corner.z;
-	mGalaxyTexCoords[t++]		= 1.0f;
-	mGalaxyTexCoords[t++]		= 0.0f;
-	
-	corner			= Vec3f( w, 0.0f, w );	
-	mGalaxyVerts[i++]			= corner.x;
-	mGalaxyVerts[i++]			= corner.y;
-	mGalaxyVerts[i++]			= corner.z;
-	mGalaxyTexCoords[t++]		= 1.0f;
-	mGalaxyTexCoords[t++]		= 1.0f;
-	
-	corner			= Vec3f( -w, 0.0f, -w );
-	mGalaxyVerts[i++]			= corner.x;
-	mGalaxyVerts[i++]			= corner.y;
-	mGalaxyVerts[i++]			= corner.z;
-	mGalaxyTexCoords[t++]		= 0.0f;
-	mGalaxyTexCoords[t++]		= 0.0f;
-	
-	corner			= Vec3f( w, 0.0f, w );	
-	mGalaxyVerts[i++]			= corner.x;
-	mGalaxyVerts[i++]			= corner.y;
-	mGalaxyVerts[i++]			= corner.z;
-	mGalaxyTexCoords[t++]		= 1.0f;
-	mGalaxyTexCoords[t++]		= 1.0f;
-	
-	corner			= Vec3f( -w, 0.0f, w );	
-	mGalaxyVerts[i++]			= corner.x;
-	mGalaxyVerts[i++]			= corner.y;
-	mGalaxyVerts[i++]			= corner.z;
-	mGalaxyTexCoords[t++]		= 0.0f;
-	mGalaxyTexCoords[t++]		= 1.0f;
-}
-
-
-void KeplerApp::initDarkMatterVertexArray()
-{
-	std::cout << "initializing Dark Matter Vertex Array" << std::endl;
-	mDarkMatterVerts		= new float[ mDarkMatterCylinderRes * 6 * 3 ]; // cylinderRes * two-triangles * 3d
-	mDarkMatterTexCoords	= new float[ mDarkMatterCylinderRes * 6 * 2 ]; // cylinderRes * two-triangles * 2d
-	
-	int i	= 0;
-	int t	= 0;
-	
-	for( int x=0; x<mDarkMatterCylinderRes; x++ ){
-		float per1		= (float)x/(float)mDarkMatterCylinderRes;
-		float per2		= (float)(x+1)/(float)mDarkMatterCylinderRes;
-		float angle1	= per1 * TWO_PI;
-		float angle2	= per2 * TWO_PI;
-		
-		float sa1 = sin( angle1 );
-		float ca1 = cos( angle1 );
-		float sa2 = sin( angle2 );
-		float ca2 = cos( angle2 );
-		
-		float h = 0.5f;
-		Vec3f v1 = Vec3f( ca1, -h, sa1 );
-		Vec3f v2 = Vec3f( ca2, -h, sa2 );
-		Vec3f v3 = Vec3f( ca1,  h, sa1 );
-		Vec3f v4 = Vec3f( ca2,  h, sa2 );
-		
-		mDarkMatterVerts[i++]		= v1.x;
-		mDarkMatterVerts[i++]		= v1.y;
-		mDarkMatterVerts[i++]		= v1.z;
-		mDarkMatterTexCoords[t++]	= per1;
-		mDarkMatterTexCoords[t++]	= 0.0f;
-		
-		mDarkMatterVerts[i++]		= v2.x;
-		mDarkMatterVerts[i++]		= v2.y;
-		mDarkMatterVerts[i++]		= v2.z;
-		mDarkMatterTexCoords[t++]	= per2;
-		mDarkMatterTexCoords[t++]	= 0.0f;
-		
-		mDarkMatterVerts[i++]		= v3.x;
-		mDarkMatterVerts[i++]		= v3.y;
-		mDarkMatterVerts[i++]		= v3.z;
-		mDarkMatterTexCoords[t++]	= per1;
-		mDarkMatterTexCoords[t++]	= 1.0f;
-		
-		mDarkMatterVerts[i++]		= v2.x;
-		mDarkMatterVerts[i++]		= v2.y;
-		mDarkMatterVerts[i++]		= v2.z;
-		mDarkMatterTexCoords[t++]	= per2;
-		mDarkMatterTexCoords[t++]	= 0.0f;
-		
-		mDarkMatterVerts[i++]		= v4.x;
-		mDarkMatterVerts[i++]		= v4.y;
-		mDarkMatterVerts[i++]		= v4.z;
-		mDarkMatterTexCoords[t++]	= per2;
-		mDarkMatterTexCoords[t++]	= 1.0f;
-		
-		mDarkMatterVerts[i++]		= v3.x;
-		mDarkMatterVerts[i++]		= v3.y;
-		mDarkMatterVerts[i++]		= v3.z;
-		mDarkMatterTexCoords[t++]	= per1;
-		mDarkMatterTexCoords[t++]	= 1.0f;
-	}
-}
-
-
 
 void KeplerApp::touchesBegan( TouchEvent event )
 {	
@@ -1496,15 +1365,15 @@ void KeplerApp::drawScene()
     // FIXME: ROBERT - is transEye.y going to be correct here?
     // you can remove tempMatrix, I just left it here so you 
     // could see where mMatrix was operating previously
-    Matrix44f tempMatrix;
-    tempMatrix.setToIdentity();
+    const Matrix44f tempMatrix; // identity
 	
 	// For doing galaxy-axis fades
-	Vec3f transEye = tempMatrix.inverted() * mEye;
-	float zoomOff = 1.0f - mFadeInAlphaToArtist;//constrain( ( G_ARTIST_LEVEL - G_ZOOM ), 0.0f, 1.0f );
-	float camGalaxyAlpha = constrain( abs( transEye.y ) * 0.004f, 0.0f, 1.0f );
-	float alpha, radius;
-	float invAlpha = pow( 1.0f - camGalaxyAlpha, 2.5f ) * zoomOff;
+    // TODO: move to members of Galaxy class
+    // (make an update function that takes Camera params if needed)
+	const Vec3f transEye = tempMatrix.inverted() * mEye;
+	const float zoomOff = 1.0f - mFadeInAlphaToArtist;//constrain( ( G_ARTIST_LEVEL - G_ZOOM ), 0.0f, 1.0f );
+	const float camGalaxyAlpha = constrain( abs( transEye.y ) * 0.004f, 0.0f, 1.0f );
+	const float invAlpha = pow( 1.0f - camGalaxyAlpha, 2.5f ) * zoomOff;
 	
     gl::enableDepthWrite();
     gl::setMatrices( mCam );
@@ -1526,92 +1395,19 @@ void KeplerApp::drawScene()
     mSkyDome.enableAndBind();
     gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS, 24 );
 	
-	
-	
-	gl::enableAdditiveBlending();
-	
-	
-	
-// LIGHTMATTER
-	if( invAlpha > 0.01f ){
-		gl::color( ColorA( BRIGHT_BLUE, invAlpha * 2.0f ) );
-
-		radius = mLightMatterBaseRadius * 0.9f;
-		gl::pushModelView();
-			mGalaxyDome.enableAndBind();
-			glEnableClientState( GL_VERTEX_ARRAY );
-			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-			glVertexPointer( 3, GL_FLOAT, 0, mDarkMatterVerts );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mDarkMatterTexCoords );
-			
-			gl::scale( Vec3f( radius, radius * 0.69f, radius ) );
-			gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -2.0f, 0.0f ) );
-			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
-		
-			gl::scale( Vec3f( 1.25, 1.15f, 1.25f ) );
-			gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -0.5f, 0.0f ) );
-			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
-
-			glDisableClientState( GL_VERTEX_ARRAY );
-			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-			mGalaxyDome.disable();
-		gl::popModelView();
-	}
-	
-	
-	gl::enableAdditiveBlending();
-	
-	
-	
-// GALAXY SPIRAL PLANES
-	alpha = ( 1.25f - camGalaxyAlpha ) * zoomOff;//sqrt(camGalaxyAlpha) * zoomOff;
-	if( alpha > 0.01f ){
-		mGalaxyTex.enableAndBind();
-		glEnableClientState( GL_VERTEX_ARRAY );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glVertexPointer( 3, GL_FLOAT, 0, mGalaxyVerts );
-		glTexCoordPointer( 2, GL_FLOAT, 0, mGalaxyTexCoords );
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha ) );
-		
-		gl::translate( Vec3f( 0.0f, 2.5f, 0.0f ) );
-		gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -4.0f, 0.0f ) );
-		  glDrawArrays( GL_TRIANGLES, 0, 6 );
-		
-		gl::translate( Vec3f( 0.0f, -5.0f, 0.0f ) );
-		gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -2.0f, 0.0f ) );
-		  glDrawArrays( GL_TRIANGLES, 0, 6 );
-		
-		gl::translate( Vec3f( 0.0f, 2.5f, 0.0f ) );
-		gl::scale( Vec3f( 0.5f, 0.5f, 0.5f ) );
-		gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -15.0f, 0.0f ) );
-		  glDrawArrays( GL_TRIANGLES, 0, 6 );
-		
-		glDisableClientState( GL_VERTEX_ARRAY );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		mGalaxyTex.disable();
-	}
+// GALAXY
+    
+    const float elapsedSeconds = getElapsedSeconds(); // for mGalaxy.drawXXX
+    
+	mGalaxy.drawLightMatter(invAlpha, BRIGHT_BLUE, elapsedSeconds);	
+	mGalaxy.drawSpiralPlanes(camGalaxyAlpha, zoomOff, elapsedSeconds);
 	
     gl::popModelView();
-	
-	
-	
-// CENTER OF GALAXY
-	if( invAlpha > 0.01f ){
-		mStarGlowTex.enableAndBind();
-		gl::color( ColorA( BLUE, invAlpha ) );
-		gl::drawBillboard( Vec3f::zero(), Vec2f( 300.0f, 300.0f ), getElapsedSeconds() * 10.0f, mBbRight, mBbUp );
-		gl::color( ColorA( BRIGHT_BLUE, invAlpha * 1.5f ) );
-		gl::drawBillboard( Vec3f::zero(), Vec2f( 200.0f, 200.0f ), -getElapsedSeconds() * 7.0f, mBbRight, mBbUp );
-		mStarGlowTex.disable();
-	}
-	
-	
-
-	
-	gl::enableAdditiveBlending();
-	
+    
+	mGalaxy.drawCenter(invAlpha, BLUE, elapsedSeconds, mBbRight, mBbUp);	
 	
 // STARS
+	gl::enableAdditiveBlending();
 	mStarTex.enableAndBind();
 	mWorld.drawStarsVertexArray();
 	mStarTex.disable();
@@ -1778,53 +1574,18 @@ void KeplerApp::drawScene()
 		mDottedTex.disable();
 	}
 	
-	
+// GALAXY DARK MATTER:
 	gl::enableAlphaBlending();
+    mGalaxy.drawDarkMatter(invAlpha, camGalaxyAlpha, zoomOff, elapsedSeconds);
 	
-	
-	
-// DARKMATTER //////////////////////////////////////////////////////////////////////////////////////////
-	if( invAlpha > 0.01f ){
-		glEnable( GL_CULL_FACE ); 
-		glCullFace( GL_FRONT ); 
-		alpha = pow( 1.0f - camGalaxyAlpha, 8.0f ) * zoomOff;
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, invAlpha ) );
-		radius = mDarkMatterBaseRadius * 0.85f;
-		gl::pushModelView();
-		mDarkMatterTex.enableAndBind();
-		glEnableClientState( GL_VERTEX_ARRAY );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glVertexPointer( 3, GL_FLOAT, 0, mDarkMatterVerts );
-		glTexCoordPointer( 2, GL_FLOAT, 0, mDarkMatterTexCoords );
-		
-		gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -2.0f, 0.0f ) );
-		gl::scale( Vec3f( radius, radius * 0.5f, radius ) );
-			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
-		
-		gl::rotate( Vec3f( 0.0f, getElapsedSeconds() * -0.5f, 0.0f ) );
-		gl::scale( Vec3f( 1.3f, 1.3f, 1.3f ) );
-			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
-
-		
-		glDisableClientState( GL_VERTEX_ARRAY );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		mDarkMatterTex.disable();
-		gl::popModelView();
-		glDisable( GL_CULL_FACE ); 
-	}
-	
-	
-	
+// NAMES
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
 	glEnable( GL_TEXTURE_2D );
 	gl::setMatricesWindow( getWindowSize() );
 	gl::enableAdditiveBlending();
 	
-
-	
-// NAMES
-	if( G_DRAW_TEXT ){
+    if( G_DRAW_TEXT ){
 		mWorld.drawNames( mCam, mPinchAlphaPer, getAngleForOrientation(mInterfaceOrientation) );
 	}
 	
