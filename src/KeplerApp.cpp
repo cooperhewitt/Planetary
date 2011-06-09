@@ -89,7 +89,6 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onPlaylistStateChanged( State *state );
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
 	bool			onWheelToggled( AlphaWheel *alphaWheel );
-//	bool			onBreadcrumbSelected ( BreadcrumbEvent event );
 	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
 	bool			onPlayControlsPlayheadMoved ( float amount );
 	bool			onSelectedNodeChanged( Node *node );
@@ -877,6 +876,7 @@ bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 bool KeplerApp::onAlphaCharStateChanged( State *state )
 {
 	mData.setFilter( LetterFilter(mState.getAlphaChar()) );
+    mState.setFilterMode( State::FilterModeAlphaChar );
 
     std::map<string, string> parameters;
     parameters["Letter"] = ""+mState.getAlphaChar();
@@ -894,6 +894,7 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
 {
 	std::cout << "playlist changed" << std::endl;
 	mData.setFilter( PlaylistFilter(mState.getPlaylist()) );
+    mState.setFilterMode( State::FilterModePlaylist );
     
 	mPlayControls.setPlaylist( mState.getPlaylistName() );
 	
@@ -1074,9 +1075,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			
 		case PlayControls::GOTO_GALAXY:
             Flurry::getInstrumentation()->logEvent("Galaxy Button Selected");
-			//mWorld.deselectAllNodes();
 			mState.setSelectedNode( NULL );
-			//mState.setAlphaChar( ' ' );
             break;
 			
         case PlayControls::GOTO_CURRENT_TRACK:
@@ -1091,6 +1090,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
 
         case PlayControls::SLIDER:
+        case PlayControls::PARAMSLIDER1:
+        case PlayControls::PARAMSLIDER2:
             // TODO: Flurry log?
             break;
         
@@ -1325,11 +1326,12 @@ void KeplerApp::updateArcball()
 	}
 	
 	
-	if( G_IS_IPAD2 ){
-		mMatrix = mArcball.getQuat() * mGyroQuat;
-	} else {
-		mMatrix = mArcball.getQuat();
-	}
+//	if( G_IS_IPAD2 ){
+//		mMatrix = mArcball.getQuat() * mGyroQuat;
+//	} else {
+//		mMatrix = mArcball.getQuat();
+//	}
+    mMatrix.setToIdentity();
 }
 
 
@@ -1432,16 +1434,28 @@ void KeplerApp::updateCamera()
 	mFadeInAlbumToTrack		= constrain( G_ZOOM - G_ALBUM_LEVEL, 0.0f, 1.0f );
 	mFadeOverFullZoomDuration = p/duration;
 	
+    // apply the Arcball to the camera eye/up vectors
+    // (instead of to the whole scene)
+    // FIXME: mMatrix can go away
+    // FIXME: mBbRight and mBbUp should be correct now, no need to invert
+    // FIXME: arcball interaction is probably broken under orientation
+    // FIXME: no need to calculate mTransPos for Nodes etc.
+    // FIXME: gyro should be applied here as well
+    // FIXME: sorting uses world.z but it should be dist-from-cam.z
+    Quatf q = mArcball.getQuat();
+    q.w *= -1.0;
 	
 	Vec3f prevEye	= mEye;
-	mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist );//- sin( mCamDistAnim ) * distToTravel * 0.25f );
+    Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);
+    mEye = mCenter - camOffset;
+	//mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist );//- sin( mCamDistAnim ) * distToTravel * 0.25f );
 	mCamVel			= mEye - prevEye;
 	
 	//Vec3f mRotatedUp = mUp;
     //mRotatedUp.rotateZ( -mPinchRotation );
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
-	mCam.lookAt( mEye - mCenterOffset, mCenter, mUp );
+	mCam.lookAt( (mEye - mCenterOffset), mCenter, q * mUp );
 	mCam.getBillboardVectors( &mBbRight, &mBbUp );
 	mCamNormal = mEye - mCenter;
 	mCamNormal.normalize();
@@ -2063,7 +2077,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
             Node* artistNode = getPlayingArtistNode( playingTrack );
             if (artistNode != NULL) {
 
-                // ensure that breadcrumbs are consistent
+                // make doubly-sure we're focused on the correct letter
                 mState.setAlphaChar( artistNode->getName() );
 
                 artistNode->select();
