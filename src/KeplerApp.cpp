@@ -54,13 +54,6 @@ bool G_IS_IPAD2			= false;
 int G_NUM_PARTICLES		= 25;
 int G_NUM_DUSTS			= 250;
 
-GLfloat mat_diffuse[]	= { 1.0, 1.0, 1.0, 1.0 };
-
-float easeInOutQuad( double t, float b, float c, double d );
-Vec3f easeInOutQuad( double t, Vec3f b, Vec3f c, double d );
-
-
-
 class KeplerApp : public AppCocoaTouch {
   public:
     
