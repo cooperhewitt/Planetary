@@ -1872,11 +1872,12 @@ void KeplerApp::drawScene()
 		glDisable( GL_TEXTURE_2D );
 		Vec2f dirToCenter = ( artistNode->mScreenPos - getWindowCenter() );
 		float distToCenter = dirToCenter.length();
-		dirToCenter *= 0.001f;
+		dirToCenter.normalize();
 		float left		= sin( constrain( dirToCenter.x * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
-		float right		= sin( constrain( 1.0f - dirToCenter.x * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
+		float right		= sin( constrain( ( 1.0f - dirToCenter.x ) * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
 		float top		= sin( constrain( dirToCenter.y * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
-		float bottom	= sin( constrain( 1.0f - dirToCenter.y * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
+		float bottom	= sin( constrain( ( 1.0f - dirToCenter.y ) * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
+		
 		gl::color( ColorA( artistNode->mGlowColor, top ) );
 		gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( getWindowWidth(), 1.0f ) );
 		
