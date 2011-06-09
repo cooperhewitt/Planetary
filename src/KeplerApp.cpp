@@ -1170,7 +1170,7 @@ void KeplerApp::updateGyro()
 	*/
 
 	quat		= attitude.quaternion;
-	mGyroQuat	= Quatf( quat.w, quat.x, -quat.y, quat.z );
+	mGyroQuat.set( -quat.w, quat.x, -quat.y, quat.z );
 }
 
 void KeplerApp::updateArcball()
@@ -1294,9 +1294,9 @@ void KeplerApp::updateCamera()
     q.w *= -1.0; // reverse the angle, keep the axis
 
     // TODO/FIXME/ROBERT: Robert test this?
-	if( G_IS_IPAD2 ){
-		q *= mGyroQuat;
-	}	
+	if( G_IS_IPAD2 && G_USE_GYRO ){
+		q = mGyroQuat;
+	}
     
 	Vec3f prevEye	= mEye;
     Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);
