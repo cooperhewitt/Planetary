@@ -29,9 +29,10 @@ class NodeTrack : public Node
 	void drawAtmosphere( const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
 	void findShadows( float camAlpha );
 	void buildShadowVertexArray( ci::Vec3f p1, ci::Vec3f p2, ci::Vec3f p3, ci::Vec3f p4 );
-	
+
 	ci::Vec3f getStartRelPos(){ return mStartRelPos; }
 	ci::Vec3f getRelPos(){ return mRelPos; }
+
 	void setStartAngle();
 	int getTrackNumber();
 
@@ -60,6 +61,8 @@ private:
 	double		mStartTime;
 	double		mPlaybackTime;
 	double		mPercentPlayed;
+	
+	float		mInitAngle;
 	
 	bool		mHasClouds;
 	bool		mIsMostPlayed;
