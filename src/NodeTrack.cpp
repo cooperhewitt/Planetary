@@ -109,12 +109,10 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 
 	setStartAngle();
 	
+	mInitAngle			= mOrbitStartAngle;
 	mAxialTilt			= Rand::randFloat( -5.0f, 20.0f );
     mAxialVel			= Rand::randFloat( 15.0f, 20.0f ) * ( mStarRating + 1 );
 	mAxialRot			= Vec3f( 0.0f, Rand::randFloat( 150.0f ), mAxialTilt );
-	
-	mStartRelPos		= Vec3f( cos( mOrbitStartAngle ), sin( mOrbitStartAngle ), 0.0f ) * mOrbitRadius;
-	mStartPos			= ( mParentNode->mPos + mStartRelPos ); 
 
 	// TEXTURE CREATION MOVED TO UPDATE
 }
@@ -123,14 +121,16 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 void NodeTrack::setStartAngle()
 {
 	mPercentPlayed		= 0.0f;
-	//float angle			= atan2( mPos.z - mParentNode->mPos.z, mPos.x - mParentNode->mPos.x );
+	float angle			= atan2( mPos.z - mParentNode->mPos.z, mPos.x - mParentNode->mPos.x );
 	float timeOffset	= (float)mMyTime/mOrbitPeriod;
 	mOrbitStartAngle	= timeOffset * TWO_PI;
-//	
-//	std::cout << "Start Angle set in NodeTrack: " << mOrbitStartAngle << std::endl;
-//	std::cout << "timeOffset: " << timeOffset << std::endl;
-//	std::cout << "mTime: " << mMyTime << std::endl;
-//	std::cout << "angle: " << angle << std::endl;
+	
+	std::cout << "Start Angle set in NodeTrack: " << mOrbitStartAngle << std::endl;
+	std::cout << "mPercentPlayed: " << mPercentPlayed << std::endl;
+	std::cout << "timeOffset: " << timeOffset << std::endl;
+	std::cout << "mMyTime: " << mMyTime << std::endl;
+	std::cout << "angle: " << angle << std::endl;
+	std::cout << " ================= " << std::endl;
 }
 
 
@@ -356,12 +356,7 @@ void NodeTrack::update( const Matrix44f &mat, float param1, float param2 )
     
 	mRelPos				= Vec3f( cos( mOrbitAngle ), 0.0f, sin( mOrbitAngle ) ) * mOrbitRadius;
 	mPos				= mParentNode->mPos + mRelPos;
-	
-	if( mIsPlaying ){
-		mStartRelPos	= Vec3f( cos( mOrbitStartAngle ), 0.0f, sin( mOrbitStartAngle ) ) * mOrbitRadius;
-		mTransStartPos	= mat * ( mParentNode->mPos + mStartRelPos );
-	}
-	
+
 	
 /////////////////////////
 // CALCULATE ECLIPSE VARS

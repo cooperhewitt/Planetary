@@ -30,7 +30,6 @@ class NodeTrack : public Node
 	void findShadows( float camAlpha );
 	void buildShadowVertexArray( ci::Vec3f p1, ci::Vec3f p2, ci::Vec3f p3, ci::Vec3f p4 );
 	
-	ci::Vec3f getStartRelPos(){ return mMatrix * mStartRelPos; }
 	ci::Vec3f getRelPos(){ return mMatrix * mRelPos; }
 	void setStartAngle();
 	int getTrackNumber();
@@ -53,13 +52,15 @@ private:
 	float		mNormPlayCount;
 	int			mStarRating;
 	int			mNumTracks;
-	ci::Vec3f	mStartPos, mTransStartPos, mStartRelPos;
+
 	vector<ci::Vec3f> mOrbitPath;
 	
 	float		mPrevTime, mCurrentTime, mMyTime;
 	double		mStartTime;
 	double		mPlaybackTime;
 	double		mPercentPlayed;
+	
+	float		mInitAngle;
 	
 	bool		mHasClouds;
 	bool		mIsMostPlayed;

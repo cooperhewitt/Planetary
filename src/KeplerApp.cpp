@@ -1834,7 +1834,7 @@ void KeplerApp::drawScene()
 		float dists[7] = { 0.8f, 1.0f, 1.5f, 1.70f, 2.0f };
 		
 		float distFromCenter = artistNode->mScreenPos.distance( getWindowCenter() );
-		float distPer = constrain( 1.0f - distFromCenter/800.0f, 0.0f, 1.0f );
+		float distPer = constrain( 1.0f - distFromCenter/400.0f, 0.0f, 1.0f );
 		float alpha = distPer * 0.2f * sin( distPer * M_PI );
 		
 		gl::enableAdditiveBlending();
@@ -1858,21 +1858,21 @@ void KeplerApp::drawScene()
 		glDisable( GL_TEXTURE_2D );
 		Vec2f dirToCenter = ( artistNode->mScreenPos - getWindowCenter() );
 		float distToCenter = dirToCenter.length();
-		dirToCenter *= 0.01f;
-		float left		= dirToCenter.x;
-		float right		= 1.0f - dirToCenter.x;
-		float top		= dirToCenter.y;
-		float bottom	= 1.0f - dirToCenter.y;
-		gl::color( ColorA( GREY, top ) );
+		dirToCenter *= 0.001f;
+		float left		= sin( constrain( dirToCenter.x * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
+		float right		= sin( constrain( 1.0f - dirToCenter.x * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
+		float top		= sin( constrain( dirToCenter.y * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
+		float bottom	= sin( constrain( 1.0f - dirToCenter.y * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
+		gl::color( ColorA( artistNode->mGlowColor, top ) );
 		gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( getWindowWidth(), 1.0f ) );
 		
-		gl::color( ColorA( GREY, bottom ) );
+		gl::color( ColorA( artistNode->mGlowColor, bottom ) );
 		gl::drawLine( Vec2f( 1.0f, getWindowHeight() ), Vec2f( getWindowWidth(), getWindowHeight() ) );
 		
-		gl::color( ColorA( GREY, left ) );
+		gl::color( ColorA( artistNode->mGlowColor, left ) );
 		gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( 1.0f, getWindowHeight() ) );
 
-		gl::color( ColorA( GREY, right ) );
+		gl::color( ColorA( artistNode->mGlowColor, right ) );
 		gl::drawLine( Vec2f( getWindowWidth(), 1.0f ), Vec2f( getWindowWidth(), getWindowHeight() ) );
 		glEnable( GL_TEXTURE_2D );
 
