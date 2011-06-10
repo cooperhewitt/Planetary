@@ -14,28 +14,45 @@
 class Galaxy {
 public:
     
-    void setup(float initialCamDist, ci::gl::Texture galaxyDome, ci::gl::Texture galaxyTex, ci::gl::Texture darkMatterTex, ci::gl::Texture starGlowTex);
+    void setup(float initialCamDist, 
+               ci::Color lightMatterColor,
+               ci::Color centerColor,
+               ci::gl::Texture galaxyDome, 
+               ci::gl::Texture galaxyTex, 
+               ci::gl::Texture darkMatterTex, 
+               ci::gl::Texture starGlowTex);
     
-    // TODO: move invAlpha, lightMatterColor, elapsedSeconds, camGalaxyAlpha, zoomOff to members
-    void update() {};
+    void update(const ci::Vec3f &eye, 
+                const float &fadeInAlphaToArtist, 
+                const float &elapsedSeconds,
+                const ci::Vec3f &bbRight, 
+                const ci::Vec3f &bbUp);
     
-    void drawLightMatter(float invAlpha, ci::Color color /* BRIGHT_BLUE */, float elapsedSeconds);
-    void drawSpiralPlanes(float camGalaxyAlpha, float zoomOff, float elapsedSeconds);
-    void drawCenter(float invAlpha, ci::Color color /* BLUE */, float elapsedSeconds, ci::Vec3f bbRight, ci::Vec3f bbUp);
-    void drawDarkMatter(float invAlpha, float camGalaxyAlpha, float zoomOff, float elapsedSeconds);
+    void drawLightMatter();
+    void drawSpiralPlanes();
+    void drawCenter();
+    void drawDarkMatter();
     
 private:
     
+    // set in update()
+	float mZoomOff, mCamGalaxyAlpha, mInvAlpha, mElapsedSeconds;
+    ci::Vec3f mBbRight, mBbUp;
+
+    // set in setup()
+    ci::gl::Texture mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex;
+    ci::Color mCenterColor, mLightMatterColor;
+    
+    // called in setup()
     void initGalaxyVertexArray();
     void initDarkMatterVertexArray();
 
+    // set in initXXX(), used in drawXXX()
 	GLfloat			*mGalaxyVerts;
 	GLfloat			*mGalaxyTexCoords;
 	GLfloat			*mDarkMatterVerts;
 	GLfloat			*mDarkMatterTexCoords;
 	int				mDarkMatterCylinderRes;
 	float			mLightMatterBaseRadius;
-	float			mDarkMatterBaseRadius; 
-    
-    ci::gl::Texture mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex;
+	float			mDarkMatterBaseRadius;     
 };

@@ -139,8 +139,6 @@ class KeplerApp : public AppCocoaTouch {
 	
 // PLAY CONTROLS
 	PlayControls	mPlayControls;
-	float			mScaleSlider;
-	float			mSpeedSlider;
 	
 // CAMERA PERSP
 	CameraPersp		mCam;
@@ -408,8 +406,8 @@ void KeplerApp::remainingSetup()
     mWorld.setup( &mData );
 	
 	mHasNoArtists = false;
-	
-    mGalaxy.setup(G_INIT_CAM_DIST, mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex);
+
+    mGalaxy.setup(G_INIT_CAM_DIST, BRIGHT_BLUE, BLUE, mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex);
 
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
 
@@ -803,9 +801,6 @@ bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
         ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
         double trackLength = playingTrack->getLength();
         if( getElapsedFrames() % 3 == 0 ){
-            // FIXME: make the playhead update to finger position when touched
-            // rather than making the playhead TIME update to finger position and then lagging to update the playhead position
-            // subtle but important :)
             mIpodPlayer.setPlayheadTime( trackLength * dragPer );
         }
     }
@@ -944,14 +939,18 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
 			
 		case PlayControls::NEXT_PLAYLIST:
-			mPlaylistIndex ++;
-			mPlaylistIndex = constrain( mPlaylistIndex, 0, (int)mData.mPlaylists.size() - 1 );
+			mPlaylistIndex++;
+            if (mPlaylistIndex > mData.mPlaylists.size() - 1) {
+                mPlaylistIndex = 0;
+            }
             mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
             break;
 			
 		case PlayControls::PREV_PLAYLIST:
-            mPlaylistIndex --;
-			mPlaylistIndex = constrain( mPlaylistIndex, 0, (int)mData.mPlaylists.size() - 1 );
+            mPlaylistIndex--;
+            if (mPlaylistIndex < 0) {
+                mPlaylistIndex = mData.mPlaylists.size() -1;
+            }
             mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
             break;	
 			
@@ -1065,13 +1064,15 @@ void KeplerApp::update()
 			mWorld.mPlayingTrackNode->updateAudioData( currentTrackPlayheadTime );
 		}
 		
-		mScaleSlider = 0.25f + mPlayControls.getParamSlider1Value() * 2.0f;
-		mSpeedSlider = mPlayControls.getParamSlider2Value() * 0.075f;
-        mWorld.update( mScaleSlider, mSpeedSlider );
+		const float scaleSlider = mPlayControls.getParamSlider1Value();
+		const float speedSlider = mPlayControls.getParamSlider2Value();
+        mWorld.update( 0.25f + scaleSlider * 2.0f, speedSlider * 0.075f );
 		
         updateCamera();
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 
+        mGalaxy.update( mEye, mFadeInAlphaToArtist, getElapsedSeconds(), mBbRight, mBbUp );
+        
         if( mDataIsLoaded ){
             mWorld.buildStarsVertexArray( mBbRight, mBbUp, mFadeInAlphaToArtist * 0.3f );
             mWorld.buildStarGlowsVertexArray( mBbRight, mBbUp, mFadeInAlphaToArtist );
@@ -1081,10 +1082,10 @@ void KeplerApp::update()
 		if( selectedArtistNode ){
 			mParticleController.update( mCenter, selectedArtistNode->mRadius * 0.15f, mBbRight, mBbUp );
 			float per = selectedArtistNode->mEclipseStrength * 0.5f + 0.25f;
-			mParticleController.buildParticleVertexArray( mPlayControls.getParamSlider1Value() * 5.0f, 
+			mParticleController.buildParticleVertexArray( scaleSlider * 5.0f, 
 														  selectedArtistNode->mColor, 
 														  ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f );
-			mParticleController.buildDustVertexArray( mPlayControls.getParamSlider1Value(), selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
+			mParticleController.buildDustVertexArray( scaleSlider, selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
 		}
 		
 		mNotificationOverlay.update();
@@ -1103,14 +1104,12 @@ void KeplerApp::update()
         mPlayControls.setHelpVisible( G_HELP );
 
 		mPlayControls.setDebugVisible( G_DEBUG );	
-		if( G_IS_IPAD2 ) mPlayControls.setGyroVisible( G_USE_GYRO );
+		if( G_IS_IPAD2 ) {
+            mPlayControls.setGyroVisible( G_USE_GYRO );
+        }
 		
-		if( mIpodPlayer.getShuffleMode() == ipod::Player::ShuffleModeOff ) mPlayControls.setShuffleVisible( false );
-		else mPlayControls.setShuffleVisible( true );
-		
-		if( mIpodPlayer.getRepeatMode() == ipod::Player::RepeatModeNone ) mPlayControls.setRepeatVisible( false );
-		else mPlayControls.setRepeatVisible( true );
-		
+		mPlayControls.setShuffleVisible( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff );
+		mPlayControls.setRepeatVisible( mIpodPlayer.getRepeatMode() != ipod::Player::RepeatModeNone );
 
         mPlayControls.setElapsedSeconds( (int)currentTrackPlayheadTime );
         mPlayControls.setRemainingSeconds( -(int)(currentTrackLength - currentTrackPlayheadTime) );
@@ -1314,24 +1313,10 @@ void KeplerApp::drawScene()
 		unsortedNodes.push_back( artistNode );
 	}
 	vector<Node*> sortedNodes = mWorld.sortNodes( unsortedNodes );	
-	
-    // FIXME: ROBERT - is transEye.y going to be correct here?
-    // you can remove tempMatrix, I just left it here so you 
-    // could see where mMatrix was operating previously
-    const Matrix44f tempMatrix; // identity
-	
-	// For doing galaxy-axis fades
-    // TODO: move to members of Galaxy class
-    // (make an update function that takes Camera params if needed)
-	const Vec3f transEye = tempMatrix.inverted() * mEye;
-	const float zoomOff = 1.0f - mFadeInAlphaToArtist;//constrain( ( G_ARTIST_LEVEL - G_ZOOM ), 0.0f, 1.0f );
-	const float camGalaxyAlpha = constrain( abs( transEye.y ) * 0.004f, 0.0f, 1.0f );
-	const float invAlpha = pow( 1.0f - camGalaxyAlpha, 2.5f ) * zoomOff;
-	
+		
     gl::enableDepthWrite();
     gl::setMatrices( mCam );
 	gl::pushModelView();
-    gl::rotate( tempMatrix );
 	
 // SKYDOME
 	Color c = Color( CM_HSV, mPinchPer * 0.2f + 0.475f, 1.0f - mPinchPer * 0.5f, 1.0f );
@@ -1350,14 +1335,12 @@ void KeplerApp::drawScene()
 	
 // GALAXY
     
-    const float elapsedSeconds = getElapsedSeconds(); // for mGalaxy.drawXXX
-    
-	mGalaxy.drawLightMatter(invAlpha, BRIGHT_BLUE, elapsedSeconds);	
-	mGalaxy.drawSpiralPlanes(camGalaxyAlpha, zoomOff, elapsedSeconds);
+	mGalaxy.drawLightMatter();	
+	mGalaxy.drawSpiralPlanes();
 	
     gl::popModelView();
     
-	mGalaxy.drawCenter(invAlpha, BLUE, elapsedSeconds, mBbRight, mBbUp);	
+	mGalaxy.drawCenter();	
 	
 // STARS
 	gl::enableAdditiveBlending();
@@ -1396,7 +1379,7 @@ void KeplerApp::drawScene()
 		}
 		
 		//float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
-		mCamRingAlpha = constrain( abs( transEye.y - artistNode->mPos.y ), 0.0f, 1.0f ); // WAS 0.6f
+		mCamRingAlpha = constrain( abs( mEye.y - artistNode->mPos.y ), 0.0f, 1.0f ); // WAS 0.6f
 
 		glCullFace( GL_BACK );
 		glEnable( GL_CULL_FACE );
@@ -1529,7 +1512,7 @@ void KeplerApp::drawScene()
 	
 // GALAXY DARK MATTER:
 	gl::enableAlphaBlending();
-    mGalaxy.drawDarkMatter(invAlpha, camGalaxyAlpha, zoomOff, elapsedSeconds);
+    mGalaxy.drawDarkMatter();
 	
 // NAMES
 	gl::disableDepthRead();
