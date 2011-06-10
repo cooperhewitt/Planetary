@@ -526,19 +526,16 @@ bool PlayControls::touchesMoved( TouchEvent event )
 {
     vector<TouchEvent::Touch> touches = event.getTouches();
 
+    // update elements for highlighting
     mActiveElement = findButtonUnderTouches(touches);
 
-	if( mActiveElement ){
-        Slider *slider = dynamic_cast<Slider*>(mActiveElement);
-		if( slider && slider->isDragging() ){
-            dragSliderToPos( slider, touches.begin()->getPos() );
-		}	
-
-        // FIXME: this is still a bit hacky
-        if (mActiveElement->getId() == SLIDER) {
-            mCallbacksPlayheadMoved.call( mPlayheadSlider.getValue() );
-        }
-	}
+    // update playhead slider
+    if( mPlayheadSlider.isDragging() && touches.size() > 0 ){
+        dragSliderToPos( &mPlayheadSlider, touches.begin()->getPos() );
+        mCallbacksPlayheadMoved.call( mPlayheadSlider.getValue() );
+    }    
+    
+    // TODO: update all sliders this way, if they're active
     
     return false;
 }	
