@@ -1,5 +1,4 @@
 #include <vector>
-#include <sstream>
 
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/app/Renderer.h"
@@ -36,17 +35,16 @@
 #include "PlayControls.h"
 #include "HelpLayer.h"
 #include "NotificationOverlay.h"
+#include "Stats.h"
 #include "AlphaWheel.h"
 #include "PinchRecognizer.h"
 #include "ParticleController.h"
 
 #include "Easing.h"
 
-using std::vector;
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-using std::stringstream;
 using namespace pollen::flurry;
 
 float G_ZOOM			= 0;
@@ -85,8 +83,6 @@ class KeplerApp : public AppCocoaTouch {
 	virtual void	draw();
 	void			drawNoArtists();
     void            drawScene();
-	void			drawInfoPanel();
-    void			setParamsTex();
 
 	bool			onAlphaCharStateChanged( State *state );
 	bool			onPlaylistStateChanged( State *state );
@@ -200,10 +196,12 @@ class KeplerApp : public AppCocoaTouch {
 	
 // PARTICLES
     ParticleController mParticleController;
-	
+
+// STATS
+    Stats mStats;
+    
 	// TEXTURES
 //    TextureLoader   mTextureLoader;
-	gl::Texture		mParamsTex;
 	gl::Texture		mStarTex, mStarGlowTex, mStarCoreTex, mEclipseGlowTex, mLensFlareTex;
 	gl::Texture		mEclipseShadowTex;
 	gl::Texture		mSkyDome, mGalaxyDome;
@@ -343,7 +341,9 @@ void KeplerApp::remainingSetup()
 	mFontBig			= Font( loadResource( "AauxPro-Black.ttf"), 24 );
 	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
 	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 11 );
-	
+
+// STATS
+    mStats.setup( mFont, BRIGHT_BLUE, BLUE );
 	
 // NOTIFICATION OVERLAY
 	mNotificationOverlay.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontLarge );
@@ -446,7 +446,6 @@ void KeplerApp::initTextures()
 	mRingsTex           = loadImage( loadResource( "rings.png" ) );
     mPlayheadProgressTex = loadImage( loadResource( "playheadProgress.png" ) );
 	mPlayheadProgressTex.setWrap( GL_REPEAT, GL_REPEAT );
-	mParamsTex			= gl::Texture( 768, 75 );    
 	mUiButtonsTex		= loadImage( loadResource( "uiButtons.png" ) );
 	mUiBigButtonsTex	= loadImage( loadResource( "uiBigButtons.png" ) );
 	mUiSmallButtonsTex	= loadImage( loadResource( "uiSmallButtons.png" ) );
@@ -1114,6 +1113,11 @@ void KeplerApp::update()
         mPlayControls.setElapsedSeconds( (int)currentTrackPlayheadTime );
         mPlayControls.setRemainingSeconds( -(int)(currentTrackLength - currentTrackPlayheadTime) );
         mPlayControls.setPlayheadProgress( currentTrackPlayheadTime / currentTrackLength );
+                
+        if( G_DEBUG && getElapsedFrames() % 30 == 0 ){
+            mStats.update(getAverageFps(), currentTrackPlayheadTime, mFov, G_CURRENT_LEVEL, G_ZOOM);
+        }
+        
     }
     else {
         // make sure we've drawn the loading screen first
@@ -1672,57 +1676,11 @@ void KeplerApp::drawScene()
 	
 	mNotificationOverlay.draw();
 	
-	
 	if( G_DEBUG ){
 		gl::enableAdditiveBlending();
-		drawInfoPanel();
+        //gl::setMatricesWindow( getWindowSize() );
+        mStats.draw( mOrientationMatrix );
 	}
-}
-
-
-void KeplerApp::drawInfoPanel()
-{
-	gl::setMatricesWindow( getWindowSize() );
-    gl::pushModelView();
-    gl::multModelView( mOrientationMatrix );
-	if( getElapsedFrames() % 30 == 0 ){
-		setParamsTex();
-	}
-	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-	gl::draw( mParamsTex, Vec2f( 23.0f, 25.0f ) );
-    gl::popModelView();
-}
-
-
-void KeplerApp::setParamsTex()
-{
-    stringstream s;
-	TextLayout layout;	
-	layout.setFont( mFont );
-	layout.setColor( BRIGHT_BLUE );
-
-	s.str("");
-	s << "FPS: " << getAverageFps();
-	layout.addLine( s.str() );
-	
-	layout.setColor( BLUE );
-	s.str("");
-	s << "PLAYHEAD TIME: " << mIpodPlayer.getPlayheadTime();
-	layout.addLine( s.str() );
-	
-	s.str("");
-	s << "FOV: " << mFov;
-	layout.addLine( s.str() );
-	
-	s.str("");
-	s << "CURRENT LEVEL: " << G_CURRENT_LEVEL;
-	layout.addLine( s.str() );
-	
-	s.str("");
-	s << "ZOOM LEVEL: " << G_ZOOM;
-	layout.addLine( s.str() );
-	
-	mParamsTex = gl::Texture( layout.render( true, false ) );
 }
 
 bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
