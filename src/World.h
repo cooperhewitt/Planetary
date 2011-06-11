@@ -25,25 +25,23 @@ class World {
   public:
 	World();
 	void setup( Data *data );
-    void initVertexArrays();
-    void buildSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals );    
-	void buildPlanetRingsVertexArray();
-	void buildOrbitRingsVertexArray();
-	void buildStarsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, float zoomAlpha );
-	void buildStarGlowsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, float zoomAlpha );
-	
+
 	void initNodes( ci::ipod::Player *player, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &hiResSurfaces, const ci::Surface &loResSurfaces, const ci::Surface &noAlbumArt );
-	void initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals,
-							 int totalMdVertices, float *sphereMdVerts, float *sphereMdTexCoords, float *sphereMdNormals,
-							 int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
-							 int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals );
+    
 	void filterNodes();
 	void repulseNodes();
 	void deselectAllNodes();
+    
     void setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
+    Node* getPlayingTrackNode( ci::ipod::TrackRef playingTrack, Node* albumNode );
+    Node* getPlayingAlbumNode( ci::ipod::TrackRef playingTrack, Node* artistNode );
+    Node* getPlayingArtistNode( ci::ipod::TrackRef playingTrack );
+    
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
 	void update( float param1, float param2 );
 	void updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	void buildStarsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, float zoomAlpha );
+	void buildStarGlowsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, float zoomAlpha );
 
 	void drawStarsVertexArray();
 	void drawStarGlowsVertexArray();
@@ -72,7 +70,22 @@ class World {
 	
 	bool mIsRepulsing;
 	bool mIsInitialized;
-	
+
+private:
+
+    void initVertexArrays();
+    void buildSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals );    
+	void buildPlanetRingsVertexArray();
+	void buildOrbitRingsVertexArray();
+    	
+	void initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals,
+                            int totalMdVertices, float *sphereMdVerts, float *sphereMdTexCoords, float *sphereMdNormals,
+                            int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
+                            int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals );
+    
+        
+    ///////////////
+    
 	std::vector<ci::Vec3f> mConstellation;
 	std::vector<float> mConstellationDistances;
 	int mTotalConstellationVertices;

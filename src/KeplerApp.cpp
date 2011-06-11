@@ -100,10 +100,6 @@ class KeplerApp : public AppCocoaTouch {
     bool			onPlayerTrackChanged( ipod::Player *player );
     bool			onPlayerLibraryChanged( ipod::Player *player );
     void            updateIsPlaying();
-
-    Node*           getPlayingTrackNode( ipod::TrackRef playingTrack, Node* albumNode );
-    Node*           getPlayingAlbumNode( ipod::TrackRef playingTrack, Node* artistNode );
-    Node*           getPlayingArtistNode( ipod::TrackRef playingTrack );
 	
 // UI BITS:
     LoadingScreen       mLoadingScreen;
@@ -336,6 +332,9 @@ void KeplerApp::remainingSetup()
 	
 	
 // FONTS
+    // NB:- to would-be optimizers:
+    //      loadResource is fairly fast (~7ms for 5 fonts)
+    //      Font(...) is a bit slower, ~250ms for these fonts (measured a few times)
 	mFontLarge			= Font( loadResource( "AauxPro-Black.ttf" ), 26 );
 	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
 	mFontBig			= Font( loadResource( "AauxPro-Black.ttf"), 24 );
@@ -416,16 +415,7 @@ void KeplerApp::remainingSetup()
 
 void KeplerApp::initLoadingTextures()
 {
-    //float t = getElapsedSeconds();
-    //console() << "initLoadingTextures, begin: " << t << std::endl;
-    // only add textures here if they are *required* for LoadingScreen
-    // otherwise add them to initTextures
-	
 	mStarGlowTex	= loadImage( loadResource( "starGlow.png" ) );
-	
-//    mTextureLoader.requestTexture( "star.png",     mStarTex );
-//    mTextureLoader.requestTexture( "starGlow.png", mStarGlowTex );
-    //console() << "initLoadingTextures, duration: " << getElapsedSeconds() - t << std::endl;
 }
 
 void KeplerApp::initTextures()
@@ -1068,14 +1058,15 @@ void KeplerApp::update()
         mWorld.update( 0.25f + scaleSlider * 2.0f, speedSlider * 0.075f );
 		
         updateCamera();
+        
         mWorld.updateGraphics( mCam, mBbRight, mBbUp );
 
-        mGalaxy.update( mEye, mFadeInAlphaToArtist, getElapsedSeconds(), mBbRight, mBbUp );
-        
         if( mDataIsLoaded ){
             mWorld.buildStarsVertexArray( mBbRight, mBbUp, mFadeInAlphaToArtist * 0.3f );
             mWorld.buildStarGlowsVertexArray( mBbRight, mBbUp, mFadeInAlphaToArtist );
         }
+
+        mGalaxy.update( mEye, mFadeInAlphaToArtist, getElapsedSeconds(), mBbRight, mBbUp );
 		
 		Node *selectedArtistNode = mState.getSelectedArtistNode();
 		if( selectedArtistNode ){
@@ -1701,15 +1692,8 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	
-    // TODO: does Flurry care about this?
-    
     mPlayControls.setLastTrackChangeTime( getElapsedSeconds() );
     
-//	console() << "==================================================================" << std::endl;
-//	console() << "onPlayerTrackChanged!" << std::endl;
-
-    Flurry::getInstrumentation()->logEvent("Player Track Changed");
-
 	if (mIpodPlayer.hasPlayingTrack()) {
         
 		ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
@@ -1721,7 +1705,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         Node *selectedNode = mState.getSelectedNode();
         if (!(selectedNode != NULL && selectedNode->getId() == playingTrack->getItemId())) {
         
-            Node* artistNode = getPlayingArtistNode( playingTrack );
+            Node* artistNode = mWorld.getPlayingArtistNode( playingTrack );
             if (artistNode != NULL) {
 
                 // make doubly-sure we're focused on the correct letter
@@ -1729,7 +1713,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
                 artistNode->select();
 
-                Node* albumNode = getPlayingAlbumNode( playingTrack, artistNode );
+                Node* albumNode = mWorld.getPlayingAlbumNode( playingTrack, artistNode );
                 if (albumNode != NULL) {
 
                     albumNode->select();
@@ -1739,7 +1723,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                         // TODO: let's not do this if the current playing album and artist don't match
                         //       the transition is too jarring/annoying
                         //       better to use this opportunity to update info about the currently playing track
-                        Node* trackNode = getPlayingTrackNode( playingTrack, albumNode );
+                        Node* trackNode = mWorld.getPlayingTrackNode( playingTrack, albumNode );
 						NodeTrack* tn = (NodeTrack*)trackNode;
                         if (trackNode != NULL) {
 							
@@ -1793,25 +1777,24 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
 	}
 
-    // TODO: profile with Flurry start/stopTimedEvent?
+    Flurry::getInstrumentation()->logEvent("Player Track Changed");
     
-//    console() << "onPlayerTrackChanged done in " << (getElapsedSeconds() - mElapsedSecondsSinceTrackChange) << " seconds" << std::endl;
-//	console() << "==================================================================" << std::endl;
-
     return false;
 }
 
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
+    if ( mState.getSelectedNode() == NULL ) {
+        onPlayerTrackChanged( player );
+    }
+    
+    mPlayControls.setPlaying(player->getPlayState() == ipod::Player::StatePlaying);
+    updateIsPlaying();
+    
     std::map<string, string> params;
     params["State"] = player->getPlayState();
     Flurry::getInstrumentation()->logEvent("Player State Changed", params);
     
-    if ( mState.getSelectedNode() == NULL ) {
-        onPlayerTrackChanged( player );
-    }
-    mPlayControls.setPlaying(player->getPlayState() == ipod::Player::StatePlaying);
-    updateIsPlaying();    
     return false;
 }
 
@@ -1826,47 +1809,6 @@ void KeplerApp::updateIsPlaying()
         // this should be OK to do since the above will happen if something is queued and paused
         mWorld.setIsPlaying( 0, 0, 0 );
     }
-}
-
-
-Node* KeplerApp::getPlayingTrackNode( ipod::TrackRef playingTrack, Node* albumNode )
-{
-    if (albumNode != NULL) {
-        uint64_t trackId = playingTrack->getItemId();
-        for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-            Node *trackNode = albumNode->mChildNodes[k];
-            if (trackNode->getId() == trackId) {
-                return trackNode;
-            }
-        }
-    }
-    return NULL;
-}
-
-Node* KeplerApp::getPlayingAlbumNode( ipod::TrackRef playingTrack, Node* artistNode )
-{
-    if (artistNode != NULL) {
-        uint64_t albumId = playingTrack->getAlbumId();
-        for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-            Node* albumNode = artistNode->mChildNodes[j];
-            if (albumNode->getId() == albumId) {
-                return albumNode;
-            }
-        }
-    }
-    return NULL;
-}
-
-Node* KeplerApp::getPlayingArtistNode( ipod::TrackRef playingTrack )
-{
-    uint64_t artistId = playingTrack->getArtistId();    
-    for (int i = 0; i < mWorld.mNodes.size(); i++) {
-        Node* artistNode = mWorld.mNodes[i];
-        if (artistNode->getId() == artistId) {
-            return artistNode;
-        }
-    }    
-    return NULL;
 }
 
 CINDER_APP_COCOA_TOUCH( KeplerApp, RendererGl )

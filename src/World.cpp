@@ -255,6 +255,46 @@ void World::setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId 
     }
 }
 
+Node* World::getPlayingTrackNode( ci::ipod::TrackRef playingTrack, Node* albumNode )
+{
+    if (albumNode != NULL) {
+        uint64_t trackId = playingTrack->getItemId();
+        for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+            Node *trackNode = albumNode->mChildNodes[k];
+            if (trackNode->getId() == trackId) {
+                return trackNode;
+            }
+        }
+    }
+    return NULL;
+}
+
+Node* World::getPlayingAlbumNode( ci::ipod::TrackRef playingTrack, Node* artistNode )
+{
+    if (artistNode != NULL) {
+        uint64_t albumId = playingTrack->getAlbumId();
+        for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+            Node* albumNode = artistNode->mChildNodes[j];
+            if (albumNode->getId() == albumId) {
+                return albumNode;
+            }
+        }
+    }
+    return NULL;
+}
+
+Node* World::getPlayingArtistNode( ci::ipod::TrackRef playingTrack )
+{
+    uint64_t artistId = playingTrack->getArtistId();    
+    for (int i = 0; i < mNodes.size(); i++) {
+        Node* artistNode = mNodes[i];
+        if (artistNode->getId() == artistId) {
+            return artistNode;
+        }
+    }    
+    return NULL;
+}
+
 void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
