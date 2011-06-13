@@ -52,7 +52,7 @@ void World::setup( Data *data )
             mTySphere.setup(10);
 		} else {
             mHiSphere.setup(32);
-            mMdSphere.setup(26); // FIXME: 16?
+            mMdSphere.setup(16);
             mLoSphere.setup(12);
             mTySphere.setup(8);
 		}
