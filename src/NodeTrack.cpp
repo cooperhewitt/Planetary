@@ -420,61 +420,12 @@ void NodeTrack::drawPlanet( const gl::Texture &tex )
 {	
 	if( mSphereScreenRadius > 0.5f && mClosenessFadeAlpha > 0.0f )
 	{
-		
-		glEnableClientState( GL_VERTEX_ARRAY );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glEnableClientState( GL_NORMAL_ARRAY );
-		int numVerts;
-		if( mSphereScreenRadius > 70.0f ){
-			glVertexPointer( 3, GL_FLOAT, 0, mSphereHiVertsRes );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereHiTexCoordsRes );
-			glNormalPointer( GL_FLOAT, 0, mSphereHiNormalsRes );
-			numVerts = mTotalHiVertsRes;
-		} else if( mSphereScreenRadius > 30.0f  ){
-			glVertexPointer( 3, GL_FLOAT, 0, mSphereMdVertsRes );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereMdTexCoordsRes );
-			glNormalPointer( GL_FLOAT, 0, mSphereMdNormalsRes );
-			numVerts = mTotalMdVertsRes;
-		} else if( mSphereScreenRadius > 15.0f  ){
-			glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
-			glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
-			numVerts = mTotalLoVertsRes;
-		} else {
-			glVertexPointer( 3, GL_FLOAT, 0, mSphereTyVertsRes );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTyTexCoordsRes );
-			glNormalPointer( GL_FLOAT, 0, mSphereTyNormalsRes );
-			numVerts = mTotalTyVertsRes;
-		}
-		
-//		if( mDistFromCamZAxisPer < 0.1f ){
-//			glVertexPointer( 3, GL_FLOAT, 0, mSphereHiVertsRes );
-//			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereHiTexCoordsRes );
-//			glNormalPointer( GL_FLOAT, 0, mSphereHiNormalsRes );
-//			numVerts = mTotalHiVertsRes;
-//		} else if( mDistFromCamZAxisPer < 0.25f ){
-//			glVertexPointer( 3, GL_FLOAT, 0, mSphereMdVertsRes );
-//			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereMdTexCoordsRes );
-//			glNormalPointer( GL_FLOAT, 0, mSphereMdNormalsRes );
-//			numVerts = mTotalMdVertsRes;
-//		} else if( mDistFromCamZAxisPer < 0.5f ){
-//			glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
-//			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
-//			glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
-//			numVerts = mTotalLoVertsRes;
-//		} else {
-//			glVertexPointer( 3, GL_FLOAT, 0, mSphereTyVertsRes );
-//			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTyTexCoordsRes );
-//			glNormalPointer( GL_FLOAT, 0, mSphereTyNormalsRes );
-//			numVerts = mTotalTyVertsRes;
-//		}
-		
 		gl::pushModelView();
 		gl::translate( mPos );
-		float radius = mRadius * mDeathPer;
+		const float radius = mRadius * mDeathPer;
 		gl::scale( Vec3f( radius, radius, radius ) );
 		gl::rotate( mAxialRot );
-		float grey = mShadowPer + 0.2f;
+		const float grey = mShadowPer + 0.2f;
 		gl::color( ColorA( grey, grey, grey, mClosenessFadeAlpha ) );
 		
         // ROBERT: this was crashing so I put a check for texture existence first
@@ -486,12 +437,17 @@ void NodeTrack::drawPlanet( const gl::Texture &tex )
             mAlbumArtTex.enableAndBind();
         }
         
-		glDrawArrays( GL_TRIANGLES, 0, numVerts );
+        if( mSphereScreenRadius > 70.0f ){
+            mHiSphere->draw();
+		} else if( mSphereScreenRadius > 30.0f  ){
+            mMdSphere->draw();
+		} else if( mSphereScreenRadius > 15.0f  ){
+            mLoSphere->draw();
+		} else {
+            mTySphere->draw();
+		}
+        
 		gl::popModelView();
-		
-		glDisableClientState( GL_VERTEX_ARRAY );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		glDisableClientState( GL_NORMAL_ARRAY );
 	}
 	
 }
@@ -500,53 +456,35 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 {
 	if( mSphereScreenRadius > 2.0f && mDistFromCamZAxisPer > 0.0f ){
 		if( mIsMostPlayed ){
-			glEnableClientState( GL_VERTEX_ARRAY );
-			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-			glEnableClientState( GL_NORMAL_ARRAY );
-			int numVerts;
-			if( mSphereScreenRadius > 70.0f ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereHiVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereHiTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereHiNormalsRes );
-				numVerts = mTotalHiVertsRes;
-			} else if( mSphereScreenRadius > 30.0f  ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereMdVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereMdTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereMdNormalsRes );
-				numVerts = mTotalMdVertsRes;
-			} else if( mSphereScreenRadius > 15.0f  ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
-				numVerts = mTotalLoVertsRes;
-			} else {
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereTyVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTyTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereTyNormalsRes );
-				numVerts = mTotalTyVertsRes;
-			}
-		
 
 			gl::pushModelView();
 			gl::translate( mPos );
 			clouds[mCloudTexIndex].enableAndBind();
 			
 		//	gl::enableAdditiveBlending();
-			gl::pushModelView();
-			float radius = mRadius * mDeathPer + mCloudLayerRadius;
+
+            // !!! ROBERT/FIXME: there used to be an extra pushModelView() here
+            // if things look weird with the clouds, it's probably Tom's fault for removing it
+            
+			const float radius = mRadius * mDeathPer + mCloudLayerRadius;
 			gl::scale( Vec3f( radius, radius, radius ) );
 			
 			gl::rotate( mAxialRot );
-			float alpha = max( 1.0f - mDistFromCamZAxisPer, 0.0f );
-			float grey = mShadowPer + 0.2f;
+			const float alpha = max( 1.0f - mDistFromCamZAxisPer, 0.0f );
+			const float grey = mShadowPer + 0.2f;
 			gl::color( ColorA( grey, grey, grey, alpha * mClosenessFadeAlpha ) );
-			glDrawArrays( GL_TRIANGLES, 0, numVerts );
-			gl::popModelView();
-			gl::popModelView();
-			
-			glDisableClientState( GL_VERTEX_ARRAY );
-			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-			glDisableClientState( GL_NORMAL_ARRAY );
+
+            if( mSphereScreenRadius > 70.0f ){
+                mHiSphere->draw();
+            } else if( mSphereScreenRadius > 30.0f  ){
+                mMdSphere->draw();
+            } else if( mSphereScreenRadius > 15.0f  ){
+                mLoSphere->draw();
+            } else {
+                mTySphere->draw();
+            }
+            
+            gl::popModelView();
 		}
 	}
 }

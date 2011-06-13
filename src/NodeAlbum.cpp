@@ -318,43 +318,7 @@ void NodeAlbum::drawPlanet( const gl::Texture &tex )
 	// closer than 0.1? fade out?
 	
 	if( mDistFromCamZAxis > mRadius ){
-		glEnableClientState( GL_VERTEX_ARRAY );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glEnableClientState( GL_NORMAL_ARRAY );
-		int numVerts;
-		
-		// when the planet goes offscreen, the screenradius becomes huge. 
-		// so if the screen radius is greater than 600, assume it is offscreen and just render a lo-res version
-		// consider frustum culling?
-		if( mSphereScreenRadius < 600.0f ){
-			if( mSphereScreenRadius > 75.0f ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereHiVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereHiTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereHiNormalsRes );
-				numVerts = mTotalHiVertsRes;
-			} else if( mSphereScreenRadius > 35.0f ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereMdVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereMdTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereMdNormalsRes );
-				numVerts = mTotalMdVertsRes;
-			} else if( mSphereScreenRadius > 10.0f ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
-				numVerts = mTotalLoVertsRes;
-			} else {
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereTyVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTyTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereTyNormalsRes );
-				numVerts = mTotalTyVertsRes;
-			}
-		} else {
-			glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
-			glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
-			numVerts = mTotalLoVertsRes;
-		}
-		
+        
 		gl::pushModelView();
 		gl::translate( mPos );
 		gl::scale( Vec3f( mRadius, mRadius, mRadius ) * mDeathPer );
@@ -363,12 +327,25 @@ void NodeAlbum::drawPlanet( const gl::Texture &tex )
 		
 		mAlbumArtTex.enableAndBind();
 		
-		glDrawArrays( GL_TRIANGLES, 0, numVerts );
+		// when the planet goes offscreen, the screenradius becomes huge. 
+		// so if the screen radius is greater than 600, assume it is offscreen and just render a lo-res version
+		// consider frustum culling?
+		if( mSphereScreenRadius < 600.0f ){
+			if( mSphereScreenRadius > 75.0f ){
+                mHiSphere->draw();
+			} else if( mSphereScreenRadius > 35.0f ){
+                mMdSphere->draw();
+			} else if( mSphereScreenRadius > 10.0f ){
+                mLoSphere->draw();
+			} else {
+                mTySphere->draw();
+			}
+		} else {
+            mLoSphere->draw();
+		}
+        
 		gl::popModelView();
 		
-		glDisableClientState( GL_VERTEX_ARRAY );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		glDisableClientState( GL_NORMAL_ARRAY );
 	}
 }
 
@@ -376,40 +353,25 @@ void NodeAlbum::drawPlanet( const gl::Texture &tex )
 void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 {
 	if( mSphereScreenRadius > 5.0f && mDistFromCamZAxisPer > 0.0f ){		
-		glEnableClientState( GL_VERTEX_ARRAY );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glEnableClientState( GL_NORMAL_ARRAY );
-		int numVerts;
+        
+        // FIXME: by drawing this sphere twice, below, we bind and unbind the same vertex array - could be optimized? (maybe lodSphere->bind(), lodSphere->drawArrays(), lodSphere->unbind()?)
+        BloomSphere *lodSphere = NULL;
+        
 		// when the planet goes offscreen, the screenradius becomes huge. 
 		// so if the screen radius is greater than 500, assume it is offscreen and just render a lo-res version
 		// consider frustum culling?
 		if( mSphereScreenRadius < 500.0f ){
 			if( mSphereScreenRadius > 75.0f ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereHiVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereHiTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereHiNormalsRes );
-				numVerts = mTotalHiVertsRes;
+                lodSphere = mHiSphere;
 			} else if( mSphereScreenRadius > 35.0f ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereMdVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereMdTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereMdNormalsRes );
-				numVerts = mTotalMdVertsRes;
+                lodSphere = mMdSphere;
 			} else if( mSphereScreenRadius > 10.0f ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
-				numVerts = mTotalLoVertsRes;
+                lodSphere = mLoSphere;
 			} else {
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereTyVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTyTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereTyNormalsRes );
-				numVerts = mTotalTyVertsRes;
+                lodSphere = mTySphere;
 			}
 		} else {
-			glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
-			glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
-			numVerts = mTotalLoVertsRes;
+            lodSphere = mLoSphere;
 		}
 		
 		
@@ -427,7 +389,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
 		clouds[mCloudTexIndex].enableAndBind();
-		glDrawArrays( GL_TRIANGLES, 0, numVerts );
+        lodSphere->draw();
 		gl::popModelView();
 
 		//glEnable( GL_LIGHTING );
@@ -439,15 +401,11 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha * 2.0f ) );
-		
-		glDrawArrays( GL_TRIANGLES, 0, numVerts );
+		lodSphere->draw();
 		gl::popModelView();
 		
 		gl::popModelView();
 		
-		glDisableClientState( GL_VERTEX_ARRAY );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		glDisableClientState( GL_NORMAL_ARRAY );
 	}
 }
 
@@ -568,10 +526,7 @@ void NodeAlbum::select()
 			}
 			
 			for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
-				(*it)->setSphereData( mTotalHiVertsRes, mSphereHiVertsRes, mSphereHiTexCoordsRes, mSphereHiNormalsRes,
-									  mTotalMdVertsRes, mSphereMdVertsRes, mSphereMdTexCoordsRes, mSphereMdNormalsRes,
-									  mTotalLoVertsRes, mSphereLoVertsRes, mSphereLoTexCoordsRes, mSphereLoNormalsRes,
-									  mTotalTyVertsRes, mSphereTyVertsRes, mSphereTyTexCoordsRes, mSphereTyNormalsRes );
+				(*it)->setSphereData( mHiSphere, mMdSphere, mLoSphere, mTySphere );
 			}
 			
 			setChildOrbitRadii();

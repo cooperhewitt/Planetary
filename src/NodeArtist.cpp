@@ -147,43 +147,8 @@ void NodeArtist::drawEclipseGlow()
 void NodeArtist::drawPlanet( const gl::Texture &tex )
 {
 	if( ( mIsSelected || mIsPlaying ) ){// && ( mHue < 0.2f || mHue > 0.7f ) ){	// Only needed for red/orange stars
+        // FIXME: move rotation calculation to something called from main app's update()
 		mAxialRot = Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt );
-		glEnableClientState( GL_VERTEX_ARRAY );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glEnableClientState( GL_NORMAL_ARRAY );
-		int numVerts;
-		
-		// when the planet goes offscreen, the screenradius becomes huge. 
-		// so if the screen radius is greater than 600, assume it is offscreen and just render a lo-res version
-		// consider frustum culling?
-		if( mSphereScreenRadius < 600.0f ){
-			if( mSphereScreenRadius > 75.0f ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereHiVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereHiTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereHiNormalsRes );
-				numVerts = mTotalHiVertsRes;
-			} else if( mSphereScreenRadius > 35.0f ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereMdVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereMdTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereMdNormalsRes );
-				numVerts = mTotalMdVertsRes;
-			} else if( mSphereScreenRadius > 10.0f ){
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
-				numVerts = mTotalLoVertsRes;
-			} else {
-				glVertexPointer( 3, GL_FLOAT, 0, mSphereTyVertsRes );
-				glTexCoordPointer( 2, GL_FLOAT, 0, mSphereTyTexCoordsRes );
-				glNormalPointer( GL_FLOAT, 0, mSphereTyNormalsRes );
-				numVerts = mTotalTyVertsRes;
-			}
-		} else {
-			glVertexPointer( 3, GL_FLOAT, 0, mSphereLoVertsRes );
-			glTexCoordPointer( 2, GL_FLOAT, 0, mSphereLoTexCoordsRes );
-			glNormalPointer( GL_FLOAT, 0, mSphereLoNormalsRes );
-			numVerts = mTotalLoVertsRes;
-		}
 		
 		gl::pushModelView();
 		gl::translate( mPos );
@@ -191,16 +156,25 @@ void NodeArtist::drawPlanet( const gl::Texture &tex )
 		gl::rotate( mAxialRot );
 		gl::color( ColorA( ( mColor + Color::white() ) * 0.5f, 1.0f ) );
 
-		tex.enableAndBind();
-		
+		tex.enableAndBind();		
 		glDisable( GL_LIGHTING );
-		glDrawArrays( GL_TRIANGLES, 0, numVerts );
-		glEnable( GL_LIGHTING );
-		gl::popModelView();
-		
-		glDisableClientState( GL_VERTEX_ARRAY );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		glDisableClientState( GL_NORMAL_ARRAY );
+        
+		if( mSphereScreenRadius < 600.0f ){
+			if( mSphereScreenRadius > 75.0f ){
+                mHiSphere->draw();
+			} else if( mSphereScreenRadius > 35.0f ){
+                mMdSphere->draw();
+			} else if( mSphereScreenRadius > 10.0f ){
+                mLoSphere->draw();
+			} else {
+                mTySphere->draw();
+			}
+		} else {
+            mLoSphere->draw();
+		}
+        
+		glEnable( GL_LIGHTING );        
+		gl::popModelView();		
 	}
 }
 
@@ -292,10 +266,7 @@ void NodeArtist::select()
 			}
 			
 			for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
-				(*it)->setSphereData( mTotalHiVertsRes, mSphereHiVertsRes, mSphereHiTexCoordsRes, mSphereHiNormalsRes,
-									 mTotalMdVertsRes, mSphereMdVertsRes, mSphereMdTexCoordsRes, mSphereMdNormalsRes,
-									 mTotalLoVertsRes, mSphereLoVertsRes, mSphereLoTexCoordsRes, mSphereLoNormalsRes,
-									 mTotalTyVertsRes, mSphereTyVertsRes, mSphereTyTexCoordsRes, mSphereTyNormalsRes );
+				(*it)->setSphereData( mHiSphere, mMdSphere, mLoSphere, mTySphere );
 			}
 			
 			setChildOrbitRadii();

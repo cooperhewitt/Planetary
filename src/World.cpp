@@ -16,7 +16,7 @@
 #include "cinder/Text.h"
 #include "cinder/Rand.h"
 #include "Globals.h"
-#include "BloomGl.h"
+#include "BloomSphere.h"
 
 using std::stringstream;
 using namespace ci;
@@ -44,123 +44,22 @@ void World::setup( Data *data )
 	if( !mIsInitialized ){
 		// VERTEX ARRAY SPHERE
 		if( G_IS_IPAD2 ){
-			buildSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
-			buildSphereVertexArray( 20, &mNumSphereMdResVerts, mSphereMdResVerts, mSphereMdResTexCoords, mSphereMdResNormals );
-			buildSphereVertexArray( 16, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
-			buildSphereVertexArray( 10, &mNumSphereTyResVerts, mSphereTyResVerts, mSphereTyResTexCoords, mSphereTyResNormals );
+            mHiSphere.setup(32);
+            mMdSphere.setup(20);
+            mLoSphere.setup(16);
+            mTySphere.setup(10);
 		} else {
-			buildSphereVertexArray( 32, &mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals );
-			buildSphereVertexArray( 26, &mNumSphereMdResVerts, mSphereMdResVerts, mSphereMdResTexCoords, mSphereMdResNormals );
-			buildSphereVertexArray( 12, &mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals );
-			buildSphereVertexArray( 8,  &mNumSphereTyResVerts, mSphereTyResVerts, mSphereTyResTexCoords, mSphereTyResNormals );
+            mHiSphere.setup(32);
+            mMdSphere.setup(26); // FIXME: 16?
+            mLoSphere.setup(12);
+            mTySphere.setup(8);
 		}
 	}
-	
 	
 	mAge			= 0;
 	mEndRepulseAge	= 50;//200
 	mIsRepulsing	= true;
 	mIsInitialized	= false;
-}
-
-
-void World::buildSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals )
-{	
-    if (sphereVerts != NULL) delete[] sphereVerts;
-    if (sphereNormals != NULL) delete[] sphereNormals;
-    if (sphereTexCoords != NULL) delete[] sphereTexCoords;
-    
-	*numVerts			= segments * (segments/2) * 2 * 3;
-	sphereVerts			= new float[ *numVerts * 3 ];
-	sphereNormals		= new float[ *numVerts * 3 ];
-	sphereTexCoords		= new float[ *numVerts * 2 ];
-	vector<Vec2f> texCoords;
-	vector<Triangle> triangles;
-	
-	for( int j = 0; j < segments / 2; j++ ) {
-		float theta1 = j * TWO_PI / segments - ( M_PI_2 );
-		float cosTheta1 = cos( theta1 );
-		float sinTheta1 = sin( theta1 );
-		
-		float theta2 = (j + 1) * TWO_PI / segments - ( M_PI_2 );
-		float cosTheta2 = cos( theta2 );
-		float sinTheta2 = sin( theta2 );
-		
-		Vec3f oldv1, oldv2, newv1, newv2;
-		Vec2f oldt1, oldt2, newt1, newt2;
-		
-		for( int i = 0; i <= segments; i++ ) {
-			oldv1			= newv1;
-			oldv2			= newv2;
-			
-			oldt1			= newt1;
-			oldt2			= newt2;
-			
-			float theta3	= i * TWO_PI / segments;
-			float cosTheta3 = cos( theta3 );
-			float sinTheta3 = sin( theta3 );
-			
-			float invI		= i / (float)segments;
-			float u			= 0.999f - invI;
-			float v1		= 0.999f - 2 * j / (float)segments;
-			float v2		= 0.999f - 2 * (j+1) / (float)segments;
-			
-			newt1			= Vec2f( u, v1 );
-			newt2			= Vec2f( u, v2 );
-			
-			newv1			= Vec3f( cosTheta1 * cosTheta3, sinTheta1, cosTheta1 * sinTheta3 );			
-			newv2			= Vec3f( cosTheta2 * cosTheta3, sinTheta2, cosTheta2 * sinTheta3 );
-			
-			if( i > 0 ){
-				triangles.push_back( Triangle( oldv1, oldv2, newv1 ) );
-				triangles.push_back( Triangle( oldv2, newv2, newv1 ) );
-				
-				texCoords.push_back( oldt1 );
-				texCoords.push_back( oldt2 );
-				texCoords.push_back( newt1 );
-				
-				texCoords.push_back( oldt2 );
-				texCoords.push_back( newt2 );
-				texCoords.push_back( newt1 );
-			}
-		}
-	}
-	
-	
-	int index = 0;
-	int nIndex = 0;
-	for( int i=0; i<triangles.size(); i++ ){
-		Triangle t = triangles[i];
-		sphereVerts[index++]		= t.p1.x;
-		sphereVerts[index++]		= t.p1.y;
-		sphereVerts[index++]		= t.p1.z;
-		
-		sphereVerts[index++]		= t.p2.x;
-		sphereVerts[index++]		= t.p2.y;
-		sphereVerts[index++]		= t.p2.z;
-		
-		sphereVerts[index++]		= t.p3.x;
-		sphereVerts[index++]		= t.p3.y;
-		sphereVerts[index++]		= t.p3.z;
-		
-		sphereNormals[nIndex++]	= t.p1.x;
-		sphereNormals[nIndex++]	= t.p1.y;
-		sphereNormals[nIndex++]	= t.p1.z;
-		
-		sphereNormals[nIndex++]	= t.p2.x;
-		sphereNormals[nIndex++]	= t.p2.y;
-		sphereNormals[nIndex++]	= t.p2.z;
-		
-		sphereNormals[nIndex++]	= t.p3.x;
-		sphereNormals[nIndex++]	= t.p3.y;
-		sphereNormals[nIndex++]	= t.p3.z;
-	}
-	
-	int tIndex = 0;
-	for( int i=0; i<texCoords.size(); i++ ){
-		sphereTexCoords[tIndex++]	= texCoords[i].x;
-		sphereTexCoords[tIndex++]	= texCoords[i].y;
-	}
 }
 
 void World::initNodes( Player *player, const Font &font, const Font &smallFont, const Surface &highResSurfaces, const Surface &lowResSurfaces, const Surface &noAlbumArt )
@@ -192,23 +91,9 @@ void World::initVertexArrays()
 {
 	buildOrbitRingsVertexArray();
 	buildPlanetRingsVertexArray();
-    initNodeSphereData( mNumSphereHiResVerts, mSphereHiResVerts, mSphereHiResTexCoords, mSphereHiResNormals,
-					    mNumSphereMdResVerts, mSphereMdResVerts, mSphereMdResTexCoords, mSphereMdResNormals,
-					    mNumSphereLoResVerts, mSphereLoResVerts, mSphereLoResTexCoords, mSphereLoResNormals,
-					    mNumSphereTyResVerts, mSphereTyResVerts, mSphereTyResTexCoords, mSphereTyResNormals ); 
-}
-
-void World::initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals,
-							    int totalMdVertices, float *sphereMdVerts, float *sphereMdTexCoords, float *sphereMdNormals,
-							    int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
-							    int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals )
-{
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->setSphereData( totalHiVertices, sphereHiVerts, sphereHiTexCoords, sphereHiNormals,
-							  totalMdVertices, sphereMdVerts, sphereMdTexCoords, sphereMdNormals,
-							  totalLoVertices, sphereLoVerts, sphereLoTexCoords, sphereLoNormals,
-							  totalTyVertices, sphereTyVerts, sphereTyTexCoords, sphereTyNormals );
-	}
+		(*it)->setSphereData( &mHiSphere, &mMdSphere, &mLoSphere, &mTySphere );
+	}    
 }
 
 void World::filterNodes()

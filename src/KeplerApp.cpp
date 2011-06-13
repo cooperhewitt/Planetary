@@ -136,10 +136,8 @@ class KeplerApp : public AppCocoaTouch {
 	CameraPersp		mCam;
 	float			mFov, mFovDest;
 	Vec3f			mEye, mCenter, mUp;
-	Vec3f			mCamVel;
 	Vec3f			mCenterDest, mCenterFrom;
 	Vec3f			mCenterOffset;		// if pinch threshold is exceeded, look towards parent?
-	Vec3f			mCamNormal;
 	float			mCamDist, mCamDistDest, mCamDistFrom;
 	float			mCamDistAnim;
 	float			mPinchPerInit;
@@ -162,7 +160,6 @@ class KeplerApp : public AppCocoaTouch {
 	float			mFadeInAlphaToArtist;
 	float			mFadeInArtistToAlbum;
 	float			mFadeInAlbumToTrack;
-	float			mFadeOverFullZoomDuration;
 	
 	float			mAlphaWheelRadius;
 	
@@ -313,7 +310,6 @@ void KeplerApp::remainingSetup()
 	mCamDistAnim		= 0.0f;
 	mEye				= Vec3f( 0.0f, 0.0f, mCamDist );
 	mCenter				= Vec3f::zero();
-	mCamNormal			= Vec3f::zero();
 	mCenterDest			= mCenter;
 	mCenterFrom			= mCenter;
 	mCenterOffset		= mCenter;
@@ -328,7 +324,6 @@ void KeplerApp::remainingSetup()
 	mFadeInAlphaToArtist = 0.0f;
 	mFadeInArtistToAlbum = 0.0f;
 	mFadeInAlbumToTrack = 0.0f;
-	mFadeOverFullZoomDuration = 0.0f;
 	
 	
 // FONTS
@@ -786,12 +781,10 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
 
 bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
 {
-	if ( mIpodPlayer.hasPlayingTrack() ) {
-        ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
-        double trackLength = playingTrack->getLength();
-        if( getElapsedFrames() % 3 == 0 ){
-            mIpodPlayer.setPlayheadTime( trackLength * dragPer );
-        }
+    // every third frame, because setPlayheadTime is slow
+	if ( mIpodPlayer.hasPlayingTrack() && getElapsedFrames() % 3 == 0 ) {
+        double trackLength = mIpodPlayer.getPlayingTrack()->getLength();
+        mIpodPlayer.setPlayheadTime( trackLength * dragPer );
     }
     return false;
 }
@@ -1233,7 +1226,6 @@ void KeplerApp::updateCamera()
 	mFadeInAlphaToArtist	= constrain( G_ZOOM - G_ALPHA_LEVEL, 0.0f, 1.0f );
 	mFadeInArtistToAlbum	= constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f );
 	mFadeInAlbumToTrack		= constrain( G_ZOOM - G_ALBUM_LEVEL, 0.0f, 1.0f );
-	mFadeOverFullZoomDuration = p/duration;
 	
     // apply the Arcball to the camera eye/up vectors
     // (instead of to the whole scene)
@@ -1245,20 +1237,12 @@ void KeplerApp::updateCamera()
 		q = mGyroHelper.getQuat();
 	}	
     
-	Vec3f prevEye	= mEye;
     Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);
     mEye = mCenter - camOffset;
-	//mEye			= Vec3f( mCenter.x, mCenter.y, mCenter.z - mCamDist );//- sin( mCamDistAnim ) * distToTravel * 0.25f );
-	mCamVel			= mEye - prevEye;
-	
-	//Vec3f mRotatedUp = mUp;
-    //mRotatedUp.rotateZ( -mPinchRotation );
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( (mEye - mCenterOffset), mCenter, q * mUp );
 	mCam.getBillboardVectors( &mBbRight, &mBbUp );
-	mCamNormal = mEye - mCenter;
-	mCamNormal.normalize();
 }
 
 void KeplerApp::draw()
@@ -1303,7 +1287,7 @@ void KeplerApp::drawNoArtists()
 void KeplerApp::drawScene()
 {	
 	vector<Node*> unsortedNodes = mWorld.getUnsortedNodes( G_ALBUM_LEVEL, G_TRACK_LEVEL );
-	Node *artistNode	= mState.getSelectedArtistNode();
+	Node *artistNode = mState.getSelectedArtistNode();
 	if( artistNode ){
 		unsortedNodes.push_back( artistNode );
 	}
@@ -1311,30 +1295,26 @@ void KeplerApp::drawScene()
 		
     gl::enableDepthWrite();
     gl::setMatrices( mCam );
-	gl::pushModelView();
-	
+    
 // SKYDOME
-	Color c = Color( CM_HSV, mPinchPer * 0.2f + 0.475f, 1.0f - mPinchPer * 0.5f, 1.0f );
-	if( mIsPastPinchThresh )
-		c = Color( CM_HSV, mPinchPer * 0.3f + 0.7f, 1.0f, 1.0f );
-	
-	if( artistNode && artistNode->mDistFromCamZAxis > 0.0f ){
-		float distToCenter = ( getWindowCenter() - artistNode->mScreenPos ).length();
-		gl::color( lerp( ( artistNode->mGlowColor + BRIGHT_BLUE ) * 0.5f, BRIGHT_BLUE, min( distToCenter / 300.0f, 1.0f ) ) );
-	} else {
-		gl::color( BRIGHT_BLUE );
-	}
+    Color c = Color( CM_HSV, mPinchPer * 0.2f + 0.475f, 1.0f - mPinchPer * 0.5f, 1.0f );
+    if( mIsPastPinchThresh )
+        c = Color( CM_HSV, mPinchPer * 0.3f + 0.7f, 1.0f, 1.0f );
+    
+    if( artistNode && artistNode->mDistFromCamZAxis > 0.0f ){
+        float distToCenter = ( getWindowCenter() - artistNode->mScreenPos ).length();
+        gl::color( lerp( ( artistNode->mGlowColor + BRIGHT_BLUE ) * 0.5f, BRIGHT_BLUE, min( distToCenter / 300.0f, 1.0f ) ) );
+    } else {
+        gl::color( BRIGHT_BLUE );
+    }
   //  gl::color( c * pow( 1.0f - zoomOff, 3.0f ) );
     mSkyDome.enableAndBind();
     gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS, 24 );
-	
+    
 // GALAXY
     
-	mGalaxy.drawLightMatter();	
-	mGalaxy.drawSpiralPlanes();
-	
-    gl::popModelView();
-    
+    mGalaxy.drawLightMatter();	
+    mGalaxy.drawSpiralPlanes();    
 	mGalaxy.drawCenter();	
 	
 // STARS
@@ -1343,20 +1323,17 @@ void KeplerApp::drawScene()
 	mWorld.drawStarsVertexArray();
 	mStarTex.disable();
 	
-	
 // STARGLOWS bloom (TOUCH HIGHLIGHTS)
 	mEclipseGlowTex.enableAndBind();
 	mWorld.drawTouchHighlights( mFadeInArtistToAlbum );
 	mEclipseGlowTex.disable();
-	
 	
 // STARGLOWS bloom
 	mStarGlowTex.enableAndBind();
 	mWorld.drawStarGlowsVertexArray();
 	mStarGlowTex.disable();
 	
-	
-	// SHADOWS
+// SHADOWS
 	//gl::setMatricesWindow( getWindowSize() );
 //	for( int i = 0; i < sortedNodes.size(); i++ ){
 //		if( sortedNodes[i]->mGen >= G_ALBUM_LEVEL ){
@@ -1365,7 +1342,7 @@ void KeplerApp::drawScene()
 //		}
 //	}
 	//gl::setMatrices( mCam );
-	
+
 
 	if( artistNode ){ // defined at top of method
 		Vec2f interfaceSize = getWindowSize();

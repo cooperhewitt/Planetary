@@ -17,6 +17,9 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/Sphere.h"
 #include "cinder/Camera.h"
+#include "BloomSphere.h"
+
+using bloom::BloomSphere;
 
 class Node {
   public:
@@ -31,10 +34,7 @@ class Node {
 	}	
 	
 	// METHODS
-	void			setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals,
-								   int totalMdVertices, float *sphereMdVerts, float *sphereMdTexCoords, float *sphereMdNormals,
-								   int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
-								   int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals );
+	void			setSphereData( BloomSphere *hiSphere, BloomSphere *mdSphere, BloomSphere *loSphere, BloomSphere *tySphere );
 	void			createNameTexture();
 	virtual void	update( float param1, float param2 );
 	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
@@ -158,21 +158,9 @@ class Node {
 	bool				mIsDying;
 	bool				mIsDead;
 	
-// SPHERE DATA
-	int					mTotalHiVertsRes;
-	int					mTotalMdVertsRes;
-	int					mTotalLoVertsRes;
-	int					mTotalTyVertsRes;
-	float				*mSphereHiVertsRes;
-	float				*mSphereHiTexCoordsRes;
-	float				*mSphereHiNormalsRes;
-	float				*mSphereMdVertsRes;
-	float				*mSphereMdTexCoordsRes;
-	float				*mSphereMdNormalsRes;
-	float				*mSphereLoVertsRes;
-	float				*mSphereLoTexCoordsRes;
-	float				*mSphereLoNormalsRes;
-	float				*mSphereTyVertsRes;
-	float				*mSphereTyTexCoordsRes;
-	float				*mSphereTyNormalsRes;
+// SPHERE DATA (owned by World)
+    BloomSphere *mHiSphere;
+    BloomSphere *mMdSphere;
+    BloomSphere *mLoSphere; 
+    BloomSphere *mTySphere;
 };

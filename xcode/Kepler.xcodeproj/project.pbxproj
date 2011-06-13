@@ -86,6 +86,7 @@
 		E1FC7DA11337E4D9007F333C /* Dust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1FC7D9F1337E4D9007F333C /* Dust.cpp */; };
 		E1FC7DA313381853007F333C /* eclipseGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC7DA213381853007F333C /* eclipseGlow.png */; };
 		E2171061132ECF7300ADCC17 /* AlphaWheel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */; };
+		E219CEE713A5A615006C7F26 /* BloomSphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E219CEE513A5A615006C7F26 /* BloomSphere.cpp */; };
 		E227B205138EFDC500AAAC7B /* TextLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E227B204138EFDC500AAAC7B /* TextLabel.cpp */; };
 		E22998CC1332D62E0043CDCA /* LoadingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */; };
 		E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C872D131F1420000780A3 /* NodeArtist.cpp */; };
@@ -202,6 +203,8 @@
 		E1FC7D9F1337E4D9007F333C /* Dust.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dust.cpp; path = ../src/Dust.cpp; sourceTree = "<group>"; };
 		E1FC7DA213381853007F333C /* eclipseGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = eclipseGlow.png; path = ../resources/eclipseGlow.png; sourceTree = "<group>"; };
 		E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AlphaWheel.cpp; path = ../src/AlphaWheel.cpp; sourceTree = SOURCE_ROOT; };
+		E219CEE513A5A615006C7F26 /* BloomSphere.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BloomSphere.cpp; path = ../src/BloomSphere.cpp; sourceTree = "<group>"; };
+		E219CEE613A5A615006C7F26 /* BloomSphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BloomSphere.h; path = ../src/BloomSphere.h; sourceTree = "<group>"; };
 		E227B204138EFDC500AAAC7B /* TextLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextLabel.cpp; path = ../src/TextLabel.cpp; sourceTree = "<group>"; };
 		E22998C61332AD080043CDCA /* GestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureRecognizer.h; sourceTree = "<group>"; };
 		E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoadingScreen.cpp; path = ../src/LoadingScreen.cpp; sourceTree = "<group>"; };
@@ -562,6 +565,7 @@
 				E177A6CC134E7B850014AD55 /* BloomGl.cpp */,
 				E2E21CD313A17B9F00A476A2 /* Easing.cpp */,
 				E2E21CD713A1821300A476A2 /* GyroHelper.cpp */,
+				E219CEE513A5A615006C7F26 /* BloomSphere.cpp */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -580,6 +584,7 @@
 		E1C6017E13188B280022246C /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				E219CEE613A5A615006C7F26 /* BloomSphere.h */,
 				E2E21CDA13A1870E00A476A2 /* Device.h */,
 				E2E21CD813A1821300A476A2 /* GyroHelper.h */,
 				E2E21CB713A177E200A476A2 /* BloomGl.h */,
@@ -884,6 +889,7 @@
 				E2E21CD413A17B9F00A476A2 /* Easing.cpp in Sources */,
 				E2E21CD913A1821300A476A2 /* GyroHelper.cpp in Sources */,
 				E2E21CDD13A2D71300A476A2 /* Stats.cpp in Sources */,
+				E219CEE713A5A615006C7F26 /* BloomSphere.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

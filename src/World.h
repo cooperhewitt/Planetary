@@ -74,16 +74,9 @@ class World {
 private:
 
     void initVertexArrays();
-    void buildSphereVertexArray( int segments, int *numVerts, float* &sphereVerts, float* &sphereTexCoords, float* &sphereNormals );    
 	void buildPlanetRingsVertexArray();
 	void buildOrbitRingsVertexArray();
-    	
-	void initNodeSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals,
-                            int totalMdVertices, float *sphereMdVerts, float *sphereMdTexCoords, float *sphereMdNormals,
-                            int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
-                            int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals );
-    
-        
+
     ///////////////
     
 	std::vector<ci::Vec3f> mConstellation;
@@ -113,25 +106,8 @@ private:
 	GLfloat *mPlanetRingVerts;
 	GLfloat *mPlanetRingTexCoords;
 
-    // VERTEX ARRAYS
-	int mNumSphereTyResVerts;
-	float *mSphereTyResVerts; 
-	float *mSphereTyResNormals;
-	float *mSphereTyResTexCoords;
-	int mNumSphereLoResVerts;
-	float *mSphereLoResVerts; 
-	float *mSphereLoResNormals;
-	float *mSphereLoResTexCoords;
-	int mNumSphereMdResVerts;
-	float *mSphereMdResVerts; 
-	float *mSphereMdResNormals;
-	float *mSphereMdResTexCoords;
-	int mNumSphereHiResVerts;
-	float *mSphereHiResVerts; 
-	float *mSphereHiResNormals;
-	float *mSphereHiResTexCoords;
-	
-
+    // SPHERE VERTEX ARRAYS
+    BloomSphere mTySphere, mLoSphere, mMdSphere, mHiSphere;
 
 };
 

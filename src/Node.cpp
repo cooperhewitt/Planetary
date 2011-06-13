@@ -71,27 +71,12 @@ void Node::setIsDying( bool isDying )
 	}
 }
 
-void Node::setSphereData( int totalHiVertices, float *sphereHiVerts, float *sphereHiTexCoords, float *sphereHiNormals,
-						  int totalMdVertices, float *sphereMdVerts, float *sphereMdTexCoords, float *sphereMdNormals,
-						  int totalLoVertices, float *sphereLoVerts, float *sphereLoTexCoords, float *sphereLoNormals,
-						  int totalTyVertices, float *sphereTyVerts, float *sphereTyTexCoords, float *sphereTyNormals )
+void Node::setSphereData( BloomSphere *hiSphere, BloomSphere *mdSphere, BloomSphere *loSphere, BloomSphere *tySphere )
 {
-	mTotalHiVertsRes		= totalHiVertices;
-	mTotalMdVertsRes		= totalMdVertices;
-	mTotalLoVertsRes		= totalLoVertices;
-	mTotalTyVertsRes		= totalTyVertices;
-	mSphereHiVertsRes		= sphereHiVerts;
-	mSphereHiTexCoordsRes	= sphereHiTexCoords;
-	mSphereHiNormalsRes		= sphereHiNormals;
-	mSphereMdVertsRes		= sphereMdVerts;
-	mSphereMdTexCoordsRes	= sphereMdTexCoords;
-	mSphereMdNormalsRes		= sphereMdNormals;
-	mSphereLoVertsRes		= sphereLoVerts;
-	mSphereLoTexCoordsRes	= sphereLoTexCoords;
-	mSphereLoNormalsRes		= sphereLoNormals;
-	mSphereTyVertsRes		= sphereTyVerts;
-	mSphereTyTexCoordsRes	= sphereTyTexCoords;
-	mSphereTyNormalsRes		= sphereTyNormals;
+    mHiSphere = hiSphere;
+    mMdSphere = mdSphere;
+    mLoSphere = loSphere;
+    mTySphere = tySphere;
 }
 
 void Node::createNameTexture()
