@@ -41,6 +41,8 @@ void World::setup( Data *data )
 {
     mData = data;
 
+    // FIXME: this check for mIsInitialized looks wrong (it's set to false below)
+    // ... when is it set to true? ... in anycase, these should only be set once :)
 	if( !mIsInitialized ){
 		// VERTEX ARRAY SPHERE
 		if( G_IS_IPAD2 ){

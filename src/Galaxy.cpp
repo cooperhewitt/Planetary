@@ -47,7 +47,7 @@ void Galaxy::drawLightMatter()
 	if( mInvAlpha > 0.01f ){
 		gl::color( ColorA( mLightMatterColor, mInvAlpha * 2.0f ) );
         
-		float radius = mLightMatterBaseRadius * 0.9f;
+		const float radius = mLightMatterBaseRadius * 0.9f;
 		gl::pushModelView();
         mGalaxyDome.enableAndBind();
         glEnableClientState( GL_VERTEX_ARRAY );
@@ -73,8 +73,11 @@ void Galaxy::drawLightMatter()
 void Galaxy::drawSpiralPlanes()
 {	
     // GALAXY SPIRAL PLANES
-	float alpha = ( 1.25f - mCamGalaxyAlpha ) * mZoomOff;//sqrt(camGalaxyAlpha) * zoomOff;
+	const float alpha = ( 1.25f - mCamGalaxyAlpha ) * mZoomOff;//sqrt(camGalaxyAlpha) * zoomOff;
 	if( alpha > 0.01f ){
+        
+        gl::pushModelView();
+        
 		mGalaxyTex.enableAndBind();
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -98,6 +101,8 @@ void Galaxy::drawSpiralPlanes()
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 		mGalaxyTex.disable();
+        
+        gl::popModelView();
 	}
 }
 
