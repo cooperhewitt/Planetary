@@ -128,7 +128,7 @@ void World::setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId 
                 // FIXME: what's the proper C++ way to do this cast?
                 Node *trackNode = albumNode->mChildNodes[k];
                 trackNode->mIsPlaying = trackNode->getId() == trackId;
-				if( trackNode->mIsPlaying && !trackNode->mIsDying ){
+				if( trackNode->mIsPlaying && !trackNode->isDying() ){
 					mPlayingTrackNode = (NodeTrack*)trackNode;
 				}
             }            
@@ -185,14 +185,16 @@ void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 	}
 }
 
+void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp )
+{
+	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		(*it)->updateGraphics( cam, bbRight, bbUp );
+	}
+}
+
 void World::buildStarsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, float zoomAlpha )
 {
     mStars.setup(mNodes, bbRight, bbUp, zoomAlpha);
-}
-
-void World::drawStarsVertexArray()
-{
-    mStars.draw();
 }
 
 void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, float zoomAlpha )
@@ -258,35 +260,7 @@ void World::buildPlanetRingsVertexArray()
 
 void World::buildOrbitRingsVertexArray()
 {
-	if( mRingVertsLowRes	!= NULL ) delete[] mRingVertsLowRes;
-	if( mRingTexLowRes		!= NULL ) delete[] mRingTexLowRes;
-	if( mRingVertsHighRes	!= NULL ) delete[] mRingVertsHighRes;
-	if( mRingTexHighRes		!= NULL ) delete[] mRingTexHighRes;
-	
-	mRingVertsLowRes	= new float[ G_RING_LOW_RES*2 ];	// X,Y
-	mRingTexLowRes		= new float[ G_RING_LOW_RES*2 ];	// U,V
-	mRingVertsHighRes	= new float[ G_RING_HIGH_RES*2 ];	// X,Y
-	mRingTexHighRes		= new float[ G_RING_HIGH_RES*2 ];	// U,V
-	
-	Color c				= BRIGHT_BLUE;
-	
-	for( int i=0; i<G_RING_LOW_RES; i++ ){
-		float per				 = (float)i/(float)(G_RING_LOW_RES-1);
-		float angle				 = per * TWO_PI;
-		mRingVertsLowRes[i*2+0]	 = cos( angle );
-		mRingVertsLowRes[i*2+1]	 = sin( angle );
-		mRingTexLowRes[i*2+0] = per;
-		mRingTexLowRes[i*2+1] = 0.5f;
-	}
-	
-	for( int i=0; i<G_RING_HIGH_RES; i++ ){
-		float per				 = (float)i/(float)(G_RING_HIGH_RES-1);
-		float angle				 = per * TWO_PI;
-		mRingVertsHighRes[i*2+0] = cos( angle );
-		mRingVertsHighRes[i*2+1] = sin( angle );
-		mRingTexHighRes[i*2+0] = per;
-		mRingTexHighRes[i*2+1] = 0.5f;
-	}
+    mOrbitRing.setup();
 }
 
 void World::update( float param1, float param2 )
@@ -339,15 +313,10 @@ void World::repulseNodes()
 	}
 }
 
-
-
-void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp )
+void World::drawStarsVertexArray()
 {
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->updateGraphics( cam, bbRight, bbUp );
-	}
+    mStars.draw();
 }
-
 
 void World::drawStarGlowsVertexArray()
 {
@@ -394,7 +363,7 @@ void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset, float ang
 void World::drawOrbitRings( float pinchAlphaOffset, float camAlpha, const gl::Texture &orbitRingGradient )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRingGradient, mRingVertsLowRes, mRingTexLowRes, mRingVertsHighRes, mRingTexHighRes );
+		(*it)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRingGradient, mOrbitRing );
 	}
 }
 

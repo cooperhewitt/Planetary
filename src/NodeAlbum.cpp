@@ -441,7 +441,7 @@ void NodeAlbum::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, con
 }
 
 
-void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Texture &orbitRingGradient, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes )
+void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Texture &orbitRingGradient, const OrbitRing &orbitRing )
 {		
 	float newPinchAlphaPer = pinchAlphaPer;
 	if( G_ZOOM < G_ALBUM_LEVEL - 0.5f ){
@@ -449,8 +449,6 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 	} else {
 		newPinchAlphaPer = 1.0f;
 	}
-	
-	
 	
 	if( mIsPlaying ){
 		gl::color( ColorA( BRIGHT_BLUE, 0.5f * camAlpha * mDeathPer ) );
@@ -464,19 +462,11 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 	gl::rotate( Vec3f( 90.0f, 0.0f, toDegrees( mOrbitAngle ) ) );
 	
 	orbitRingGradient.enableAndBind();
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	glVertexPointer( 2, GL_FLOAT, 0, ringVertsHighRes );
-	glTexCoordPointer( 2, GL_FLOAT, 0, ringTexHighRes );
-	glDrawArrays( GL_LINE_STRIP, 0, G_RING_HIGH_RES );
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+    orbitRing.drawHighRes();
 	orbitRingGradient.disable();
 	gl::popModelView();
 	
-	
-	
-	Node::drawOrbitRing( pinchAlphaPer, camAlpha, orbitRingGradient, ringVertsLowRes, ringTexLowRes, ringVertsHighRes, ringTexHighRes );
+	Node::drawOrbitRing( pinchAlphaPer, camAlpha, orbitRingGradient, orbitRing );
 }
 
 

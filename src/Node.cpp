@@ -233,14 +233,12 @@ void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat 
 	}
 }
 
-void Node::drawOrbitRing( float pinchAlphaOffset, float camAlpha, const gl::Texture &orbitRingGradient, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes )
+void Node::drawOrbitRing( float pinchAlphaOffset, float camAlpha, const gl::Texture &orbitRingGradient, const OrbitRing &orbitRing )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRingGradient, ringVertsLowRes, ringTexLowRes, ringVertsHighRes, ringTexHighRes );
+		(*nodeIt)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRingGradient, orbitRing );
 	}
 }
-
-
 
 void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 {	
@@ -413,14 +411,9 @@ void Node::select()
 void Node::deselect()
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->mIsDying = true;
+		(*nodeIt)->setIsDying( true );
 	}
 	mIsSelected = false;
-	
-//	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-//		delete (*nodeIt);
-//	}
-//	mChildNodes.clear();
 }
 
 

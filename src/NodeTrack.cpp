@@ -14,6 +14,7 @@
 #include "cinder/gl/gl.h"
 #include "Globals.h"
 #include "cinder/ip/Resize.h"
+#include "OrbitRing.h"
 
 using namespace ci;
 using namespace ci::ipod;
@@ -520,7 +521,7 @@ void NodeTrack::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, con
 
 
 
-void NodeTrack::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Texture &orbitRingGradient, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes )
+void NodeTrack::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Texture &orbitRingGradient, const OrbitRing &orbitRing )
 {	
 	float newPinchAlphaPer = pinchAlphaPer;
 	if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
@@ -536,13 +537,7 @@ void NodeTrack::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
 	gl::rotate( Vec3f( 90.0f, 0.0f, toDegrees( mOrbitAngle ) ) );
 	orbitRingGradient.enableAndBind();
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	glVertexPointer( 2, GL_FLOAT, 0, ringVertsLowRes );
-	glTexCoordPointer( 2, GL_FLOAT, 0, ringTexLowRes );
-	glDrawArrays( GL_LINE_STRIP, 0, G_RING_LOW_RES );
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+    orbitRing.drawLowRes();
 	orbitRingGradient.disable();
 	gl::popModelView();
 }

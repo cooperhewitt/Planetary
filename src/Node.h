@@ -18,6 +18,7 @@
 #include "cinder/Sphere.h"
 #include "cinder/Camera.h"
 #include "BloomSphere.h"
+#include "OrbitRing.h"
 
 using bloom::BloomSphere;
 
@@ -25,11 +26,12 @@ class Node {
   public:
 
 	Node( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &hiResSurfaces, const ci::Surface &loResSurfaces, const ci::Surface &noAlbumArt );
-	virtual ~Node(){ 
+    
+	virtual ~Node()
+    { 
 		for( std::vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 			delete (*nodeIt);
 		}
-			
 		mChildNodes.clear();
 	}	
 	
@@ -45,13 +47,15 @@ class Node {
 	virtual void	drawAtmosphere( const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer ) {};
 	virtual void	drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
 	virtual void	findShadows( float camAlpha ) {};
-	virtual void	drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );
+	virtual void	drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, const OrbitRing &orbitRing );
 
 	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
 	void			wasTapped(){ mIsTapped = true; mHighlightStrength = 1.0f; }
 	void			drawTouchHighlight( float zoomAlpha );
 	void			checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
+
 	void			setIsDying( bool isDying );
+    bool            isDying() { return mIsDying; }
 	
 	virtual bool	isMostPlayed(){ return false; }
 	virtual float	getReleaseYear(){ return 0.0f; };
@@ -155,6 +159,9 @@ class Node {
 	bool				mIsSelected;		// Node has been chosen
 	bool				mIsHighlighted;		// Node is able to be chosen
     bool                mIsPlaying;         // Node represents something about the currently playing track (album/artist)
+    
+protected:
+    
 	bool				mIsDying;
 	bool				mIsDead;
 	

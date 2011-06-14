@@ -23,7 +23,7 @@ class NodeTrack : public Node
 	void drawEclipseGlow();
 	void drawPlanet( const ci::gl::Texture &tex );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
-	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, GLfloat *ringVertsLowRes, GLfloat *ringTexLowRes, GLfloat *ringVertsHighRes, GLfloat *ringTexHighRes );
+	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, const OrbitRing &orbitRing );
 	void buildPlayheadProgressVertexArray();
 	void drawPlayheadProgress( float pinchAlphaPer, float camAlpha, float pauseAlpha, const ci::gl::Texture &tex, const ci::gl::Texture &originTex );
 	void drawAtmosphere( const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
