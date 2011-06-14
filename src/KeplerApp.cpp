@@ -1614,7 +1614,6 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
     Flurry::getInstrumentation()->logEvent("Player Library Changed");
     return false;
 }
-
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	
     mPlayControls.setLastTrackChangeTime( getElapsedSeconds() );
@@ -1622,86 +1621,31 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 	if (mIpodPlayer.hasPlayingTrack()) {
         
 		ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
-
-        mPlayControls.setCurrentTrack(" " + playingTrack->getArtist() 
+        
+        string artistName = playingTrack->getArtist();
+        
+        mPlayControls.setCurrentTrack( " " + artistName 
                                       + " • " + playingTrack->getAlbumTitle() 
-                                      + " • " + playingTrack->getTitle() + " ");
+                                      + " • " + playingTrack->getTitle() + " " );
+
+        // make doubly-sure we're focused on the correct letter
+        // FIXME: only if the filter mode is alpha
+        mState.setAlphaChar( artistName );
         
-        Node *selectedNode = mState.getSelectedNode();
-        if (!(selectedNode != NULL && selectedNode->getId() == playingTrack->getItemId())) {
+        uint64_t artistId = playingTrack->getArtistId();
+        uint64_t albumId = playingTrack->getAlbumId();
+        uint64_t trackId = playingTrack->getItemId();
         
-            Node* artistNode = mWorld.getPlayingArtistNode( playingTrack );
-            if (artistNode != NULL) {
-
-                // make doubly-sure we're focused on the correct letter
-                mState.setAlphaChar( artistNode->getName() );
-
-                artistNode->select();
-
-                Node* albumNode = mWorld.getPlayingAlbumNode( playingTrack, artistNode );
-                if (albumNode != NULL) {
-
-                    albumNode->select();
-
-                    // TODO: only select the track automatically if we're already at track level
-//                    if ( selectedNode && selectedNode->mGen == G_TRACK_LEVEL ) {
-                        // TODO: let's not do this if the current playing album and artist don't match
-                        //       the transition is too jarring/annoying
-                        //       better to use this opportunity to update info about the currently playing track
-                        Node* trackNode = mWorld.getPlayingTrackNode( playingTrack, albumNode );
-						NodeTrack* tn = (NodeTrack*)trackNode;
-                        if (trackNode != NULL) {
-							
-							tn->setStartAngle();
-                            if (!trackNode->mIsSelected) {
-                                //console() << "    selecting track node" << std::endl;
-                                // this one gets selected in World
-                                mState.setSelectedNode(trackNode);
-                            }
-//                            else {
-//                                console() << "    track node already selected" << std::endl;                            
-//                            }
-                        }
-                        else {
-                            // TODO: log this in Flurry, with track details and current state details
-                            console() << "  track changed to a track we don't have a track node for - ideally this should never happen" << std::endl;
-                        }
-                    
-//                    }
-//                    else {
-//                        console() << "    not selecting track node because it's too whooshy" << std::endl;                                                    
-//                        // make sure updateIsPlaying is correct though...
-//                        updateIsPlaying();
-//                    }
-                    
-                }
-                else {
-                    // TODO: log this in Flurry, with track details and current state details
-                    console() << "  track changed to a track we don't have an album node for - ideally this should never happen" << std::endl;
-                }                
-            }
-            else {
-                // TODO: log this in Flurry, with track details and current state details
-                console() << "  track changed to a track we don't have an artist node for - ideally this should never happen" << std::endl;
-            }
-        }
-//        else {
-//			// For when you have tapped "fly to current track" 
-//			onSelectedNodeChanged( selectedNode );
-//            console() << "    track changed but we've already selected the node for that track" << std::endl;
-//        }
-        
+        mWorld.selectHierarchy( artistId, albumId, trackId );        
+        mState.setSelectedNode( mWorld.getTrackNodeById( artistId, albumId, trackId ) );
 	}
 	else {
-//		console() << "    trackchanged but nothing's playing" << endl;
-
         mPlayControls.setCurrentTrack("");
-		// TOM: I put this next line in. Is this how to go to album level view when last track ends?
+		// go to album level view when the last track ends:
 		mState.setSelectedNode( mState.getSelectedAlbumNode() );
         // FIXME: disable play button and zoom-to-current-track button
-
 	}
-
+    
     Flurry::getInstrumentation()->logEvent("Player Track Changed");
     
     return false;
@@ -1728,11 +1672,11 @@ void KeplerApp::updateIsPlaying()
     // update mIsPlaying state for all nodes...
     if ( mIpodPlayer.hasPlayingTrack() ){
         ipod::TrackRef track = mIpodPlayer.getPlayingTrack();
-        mWorld.setIsPlaying( track->getArtistId(), track->getAlbumId(), track->getItemId() );
+        mWorld.updateIsPlaying( track->getArtistId(), track->getAlbumId(), track->getItemId() );
     }
     else {
         // this should be OK to do since the above will happen if something is queued and paused
-        mWorld.setIsPlaying( 0, 0, 0 );
+        mWorld.updateIsPlaying( 0, 0, 0 );
     }
 }
 

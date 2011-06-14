@@ -99,7 +99,7 @@ void World::deselectAllNodes()
 	}
 }
 
-void World::setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId )
+void World::updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId )
 {
 	mPlayingTrackNode = NULL;
 	
@@ -111,7 +111,6 @@ void World::setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId 
             Node* albumNode = artistNode->mChildNodes[j];
             albumNode->mIsPlaying = albumNode->getId() == albumId;
             for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-                // FIXME: what's the proper C++ way to do this cast?
                 Node *trackNode = albumNode->mChildNodes[k];
                 trackNode->mIsPlaying = trackNode->getId() == trackId;
 				if( trackNode->mIsPlaying && !trackNode->isDying() ){
@@ -122,41 +121,58 @@ void World::setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId 
     }
 }
 
-Node* World::getPlayingTrackNode( ci::ipod::TrackRef playingTrack, Node* albumNode )
+void World::selectHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId )
 {
-    if (albumNode != NULL) {
-        uint64_t trackId = playingTrack->getItemId();
-        for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-            Node *trackNode = albumNode->mChildNodes[k];
-            if (trackNode->getId() == trackId) {
-                return trackNode;
-            }
-        }
-    }
-    return NULL;
-}
-
-Node* World::getPlayingAlbumNode( ci::ipod::TrackRef playingTrack, Node* artistNode )
-{
-    if (artistNode != NULL) {
-        uint64_t albumId = playingTrack->getAlbumId();
-        for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-            Node* albumNode = artistNode->mChildNodes[j];
-            if (albumNode->getId() == albumId) {
-                return albumNode;
-            }
-        }
-    }
-    return NULL;
-}
-
-Node* World::getPlayingArtistNode( ci::ipod::TrackRef playingTrack )
-{
-    uint64_t artistId = playingTrack->getArtistId();    
+    // TODO: proper iterators I suppose?    
     for (int i = 0; i < mNodes.size(); i++) {
         Node* artistNode = mNodes[i];
         if (artistNode->getId() == artistId) {
-            return artistNode;
+            artistNode->select();
+            for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+                Node* albumNode = artistNode->mChildNodes[j];
+                if (albumNode->getId() == albumId) {
+                    albumNode->select();
+                    for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+                        Node *trackNode = albumNode->mChildNodes[k];
+                        if (trackNode->getId() == trackId) {
+                            trackNode->select();
+                        }
+                        else {
+                            trackNode->deselect();
+                        }
+                    }                                
+                }
+                else {
+                    albumNode->deselect();
+                }
+            }            
+        }
+        else {
+            artistNode->deselect();
+        }
+    }
+}
+
+NodeTrack* World::getTrackNodeById( uint64_t artistId, uint64_t albumId, uint64_t trackId )
+{
+    // NB:- artist and album must be selected, otherwise track node won't exist
+    // TODO: proper iterators I suppose?        
+    for (int i = 0; i < mNodes.size(); i++) {
+        Node* artistNode = mNodes[i];
+        if (artistNode->getId() == artistId) {
+            for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+                Node* albumNode = artistNode->mChildNodes[j];
+                if (albumNode->getId() == albumId) {
+                    for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+                        Node *trackNode = albumNode->mChildNodes[k];
+                        if (trackNode->getId() == trackId) {
+                            return (NodeTrack*)trackNode;
+                        }
+                    }            
+                    break;
+                }
+            }
+            break;
         }
     }    
     return NULL;
@@ -164,11 +180,11 @@ Node* World::getPlayingArtistNode( ci::ipod::TrackRef playingTrack )
 
 void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		if( (*it)->mIsHighlighted ){
-			(*it)->checkForNameTouch( nodes, pos );
-		}
-	}
+    for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); it++) {
+        if( (*it)->mIsHighlighted ) {
+            (*it)->checkForNameTouch( nodes, pos );
+        }
+    }
 }
 
 void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp, const float &zoomAlpha )

@@ -27,7 +27,7 @@ void Data::setup()
 	mFilteredArtists.clear();    
     mNumArtistsPerChar.clear();
 	
-    if (!mState != LoadStateLoading) {
+    if (mState != LoadStateLoading) {
         mState = LoadStateLoading;
         std::thread artistLoaderThread( &Data::backgroundInit, this );	
     }

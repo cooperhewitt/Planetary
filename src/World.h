@@ -15,7 +15,6 @@
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Surface.h"
-#include "CinderIPodPlayer.h"
 #include "Data.h"
 #include "Node.h"
 #include "NodeTrack.h"
@@ -26,8 +25,8 @@
 #include "Constellation.h"
 
 class World {
-  // TODO: clean up public/private here, perhaps spin sphere stuff off into utility lib?
-  public:
+
+public:
 	
     World() {};
     ~World() {};
@@ -43,10 +42,9 @@ class World {
 	void filterNodes();
 	void deselectAllNodes();
     
-    void setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
-    Node* getPlayingTrackNode( ci::ipod::TrackRef playingTrack, Node* albumNode );
-    Node* getPlayingAlbumNode( ci::ipod::TrackRef playingTrack, Node* artistNode );
-    Node* getPlayingArtistNode( ci::ipod::TrackRef playingTrack );
+    void updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
+    void selectHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId );
+    NodeTrack* getTrackNodeById( uint64_t artistId, uint64_t albumId, uint64_t trackId );
     
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
     
