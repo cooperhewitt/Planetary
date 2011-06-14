@@ -739,7 +739,6 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
 
 	if( node != NULL ) {
         if (node->mGen == G_TRACK_LEVEL) {
-            Flurry::getInstrumentation()->logEvent("Track Selected");
             // this is probably a bad OOP thing, maybe there's a virtual method on Node to do this?
             NodeTrack* trackNode = dynamic_cast<NodeTrack*>(node);
             if (trackNode) {
@@ -757,6 +756,7 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
             else {
                 // FIXME: log error?
             }
+            Flurry::getInstrumentation()->logEvent("Track Selected");            
         } 
         else if (node->mGen == G_ARTIST_LEVEL) {
             Flurry::getInstrumentation()->logEvent("Artist Selected");
@@ -991,7 +991,6 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
                 //console() << "setting node selection" << std::endl;
                 mState.setSelectedNode( nodeWithHighestGen );
 			}
-
 		}
         else {
             // TODO: shouldn't be possible... confirm!
@@ -1148,8 +1147,7 @@ void KeplerApp::updateCamera()
 		mFovDest = G_DEFAULT_FOV;
 		mFov -= ( mFov - mFovDest ) * 0.2f;//075f;
 	}
-
-	
+    
 	
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){
@@ -1628,7 +1626,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         mPlayControls.setCurrentTrack(" " + playingTrack->getArtist() 
                                       + " • " + playingTrack->getAlbumTitle() 
                                       + " • " + playingTrack->getTitle() + " ");
-                
+        
         Node *selectedNode = mState.getSelectedNode();
         if (!(selectedNode != NULL && selectedNode->getId() == playingTrack->getItemId())) {
         
