@@ -19,6 +19,8 @@
 #include "Data.h"
 #include "Node.h"
 #include "NodeTrack.h"
+#include "Stars.h"
+#include "StarGlows.h"
 
 class World {
   // TODO: clean up public/private here, perhaps spin sphere stuff off into utility lib?
@@ -91,21 +93,13 @@ private:
 	GLfloat *mRingVertsHighRes;
 	GLfloat *mRingTexHighRes;
 	
-	int mTotalStarVertices;
-    int mPrevTotalStarVertices; // so we only recreate frames
-	GLfloat *mStarVerts;
-	GLfloat *mStarTexCoords;
-	GLfloat *mStarColors;
-	
-	int mTotalStarGlowVertices;
-    int mPrevTotalStarGlowVertices; // so we only recreate frames
-	GLfloat *mStarGlowVerts;
-	GLfloat *mStarGlowTexCoords;
-	GLfloat *mStarGlowColors;
-	
 	GLfloat *mPlanetRingVerts;
 	GLfloat *mPlanetRingTexCoords;
 
+    // STARS VERTEX ARRAYS
+    Stars mStars;
+    StarGlows mStarGlows;
+    
     // SPHERE VERTEX ARRAYS
     BloomSphere mTySphere, mLoSphere, mMdSphere, mHiSphere;
 

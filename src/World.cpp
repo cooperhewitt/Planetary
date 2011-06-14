@@ -26,15 +26,9 @@ using namespace std;
 
 World::World()
 {
-    mPrevTotalStarVertices	= -1;
-    mStarVerts				= NULL;
-    mStarTexCoords			= NULL;
-	mStarColors				= NULL;
-	
 	mPrevTotalConstellationVertices = -1;
 	mConstellationVerts			= NULL;
 	mConstellationTexCoords		= NULL;
-    
 }
 
 void World::setup( Data *data )
@@ -191,226 +185,19 @@ void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 	}
 }
 
-void World::buildStarsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, float zoomAlpha )
+void World::buildStarsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, float zoomAlpha )
 {
-	mTotalStarVertices	= mData->mArtists.size() * 6;	// 6 = 2 triangles per quad
-
-    if (mTotalStarVertices != mPrevTotalStarVertices) {
-        if (mStarVerts != NULL)		delete[] mStarVerts; 
-		if (mStarTexCoords != NULL) delete[] mStarTexCoords; 
-		if (mStarColors != NULL)	delete[] mStarColors;
-		
-        mStarVerts			= new float[mTotalStarVertices*3];
-        mStarTexCoords		= new float[mTotalStarVertices*2];
-        mStarColors			= new float[mTotalStarVertices*4];
-		
-        mPrevTotalStarVertices = mTotalStarVertices;
-    }
-	
-	int vIndex	= 0;
-	int tIndex	= 0;
-	int cIndex	= 0;
-	float scaleOffset	= 0.5f - constrain( G_ARTIST_LEVEL - G_ZOOM, 0.0f, 1.0f ) * 0.25f; // 0.25 -> 0.5
-	float zoomOffset	= zoomAlpha * 1.5f;
-	
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		Vec3f pos	= (*it)->mPos;
-		ColorA col	= ColorA( (*it)->mColor, 1.0f );
-		float r		= (*it)->mRadius * scaleOffset * 0.85f + ( 0.5f - scaleOffset );
-		if( !(*it)->mIsHighlighted ){
-			r		-= zoomOffset;
-		}
-
-		
-		Vec3f right	= bbRight * r;
-		Vec3f up	= bbUp * r;
-		
-		Vec3f p1	= pos - right - up;
-		Vec3f p2	= pos + right - up;
-		Vec3f p3	= pos - right + up;
-		Vec3f p4	= pos + right + up;
-		
-		mStarVerts[vIndex++]		= p1.x;
-		mStarVerts[vIndex++]		= p1.y;
-		mStarVerts[vIndex++]		= p1.z;
-		mStarTexCoords[tIndex++]	= 0.0f;
-		mStarTexCoords[tIndex++]	= 0.0f;
-		mStarColors[cIndex++]		= col.r;
-		mStarColors[cIndex++]		= col.g;
-		mStarColors[cIndex++]		= col.b;
-		mStarColors[cIndex++]		= col.a;
-		
-		mStarVerts[vIndex++]		= p2.x;
-		mStarVerts[vIndex++]		= p2.y;
-		mStarVerts[vIndex++]		= p2.z;
-		mStarTexCoords[tIndex++]	= 1.0f;
-		mStarTexCoords[tIndex++]	= 0.0f;
-		mStarColors[cIndex++]		= col.r;
-		mStarColors[cIndex++]		= col.g;
-		mStarColors[cIndex++]		= col.b;
-		mStarColors[cIndex++]		= col.a;
-		
-		mStarVerts[vIndex++]		= p3.x;
-		mStarVerts[vIndex++]		= p3.y;
-		mStarVerts[vIndex++]		= p3.z;
-		mStarTexCoords[tIndex++]	= 0.0f;
-		mStarTexCoords[tIndex++]	= 1.0f;
-		mStarColors[cIndex++]		= col.r;
-		mStarColors[cIndex++]		= col.g;
-		mStarColors[cIndex++]		= col.b;
-		mStarColors[cIndex++]		= col.a;
-		
-		mStarVerts[vIndex++]		= p2.x;
-		mStarVerts[vIndex++]		= p2.y;
-		mStarVerts[vIndex++]		= p2.z;
-		mStarTexCoords[tIndex++]	= 1.0f;
-		mStarTexCoords[tIndex++]	= 0.0f;
-		mStarColors[cIndex++]		= col.r;
-		mStarColors[cIndex++]		= col.g;
-		mStarColors[cIndex++]		= col.b;
-		mStarColors[cIndex++]		= col.a;
-		
-		mStarVerts[vIndex++]		= p3.x;
-		mStarVerts[vIndex++]		= p3.y;
-		mStarVerts[vIndex++]		= p3.z;
-		mStarTexCoords[tIndex++]	= 0.0f;
-		mStarTexCoords[tIndex++]	= 1.0f;
-		mStarColors[cIndex++]		= col.r;
-		mStarColors[cIndex++]		= col.g;
-		mStarColors[cIndex++]		= col.b;
-		mStarColors[cIndex++]		= col.a;
-		
-		mStarVerts[vIndex++]		= p4.x;
-		mStarVerts[vIndex++]		= p4.y;
-		mStarVerts[vIndex++]		= p4.z;
-		mStarTexCoords[tIndex++]	= 1.0f;
-		mStarTexCoords[tIndex++]	= 1.0f;
-		mStarColors[cIndex++]		= col.r;
-		mStarColors[cIndex++]		= col.g;
-		mStarColors[cIndex++]		= col.b;
-		mStarColors[cIndex++]		= col.a;
-	}
+    mStars.setup(mNodes, bbRight, bbUp, zoomAlpha);
 }
 
-void World::drawStarsVertexArray( )
+void World::drawStarsVertexArray()
 {
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	glEnableClientState( GL_COLOR_ARRAY );
-	
-	glVertexPointer( 3, GL_FLOAT, 0, mStarVerts );
-	glTexCoordPointer( 2, GL_FLOAT, 0, mStarTexCoords );
-	glColorPointer( 4, GL_FLOAT, 0, mStarColors );
-	
-	glDrawArrays( GL_TRIANGLES, 0, mTotalStarVertices );
-	
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	glDisableClientState( GL_COLOR_ARRAY );
+    mStars.draw();
 }
 
 void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, float zoomAlpha )
 {
-	mTotalStarGlowVertices	= mData->mFilteredArtists.size() * 6;	// 6 = 2 triangles per quad
-	
-    if (mTotalStarGlowVertices != mPrevTotalStarGlowVertices) {
-        if (mStarGlowVerts != NULL)		delete[] mStarGlowVerts; 
-		if (mStarGlowTexCoords != NULL) delete[] mStarGlowTexCoords; 
-		if (mStarGlowColors != NULL)	delete[] mStarGlowColors;
-		
-        mStarGlowVerts			= new float[mTotalStarGlowVertices*3];
-        mStarGlowTexCoords		= new float[mTotalStarGlowVertices*2];
-        mStarGlowColors			= new float[mTotalStarGlowVertices*4];
-		
-        mPrevTotalStarGlowVertices = mTotalStarGlowVertices;
-    }
-	
-	int vIndex = 0;
-	int tIndex = 0;
-	int cIndex = 0;
-	
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		if( (*it)->mIsHighlighted ){
-			Vec3f pos			= (*it)->mPos;
-			float r				= (*it)->mRadius * ( (*it)->mEclipseStrength * 2.0f + 1.5f ); // HERE IS WHERE YOU CAN MAKE THE GLOW HUGER/BIGGER/AWESOMER
-			//if( !(*it)->mIsSelected )
-			//	r				-= zoomAlpha;
-			
-			float alpha			= (*it)->mDistFromCamZAxisPer * ( 1.0f - (*it)->mEclipseStrength );
-			//if( !(*it)->mIsSelected && !(*it)->mIsPlaying )
-			//	alpha			= 1.0f - zoomAlpha;
-			
-			ColorA col			= ColorA( (*it)->mGlowColor, alpha );
-			
-			Vec3f right			= bbRight * r;
-			Vec3f up			= bbUp * r;
-			
-			Vec3f p1			= pos - right - up;
-			Vec3f p2			= pos + right - up;
-			Vec3f p3			= pos - right + up;
-			Vec3f p4			= pos + right + up;
-			
-			mStarGlowVerts[vIndex++]		= p1.x;
-			mStarGlowVerts[vIndex++]		= p1.y;
-			mStarGlowVerts[vIndex++]		= p1.z;
-			mStarGlowTexCoords[tIndex++]	= 0.0f;
-			mStarGlowTexCoords[tIndex++]	= 0.0f;
-			mStarGlowColors[cIndex++]		= col.r;
-			mStarGlowColors[cIndex++]		= col.g;
-			mStarGlowColors[cIndex++]		= col.b;
-			mStarGlowColors[cIndex++]		= col.a;
-			
-			mStarGlowVerts[vIndex++]		= p2.x;
-			mStarGlowVerts[vIndex++]		= p2.y;
-			mStarGlowVerts[vIndex++]		= p2.z;
-			mStarGlowTexCoords[tIndex++]	= 1.0f;
-			mStarGlowTexCoords[tIndex++]	= 0.0f;
-			mStarGlowColors[cIndex++]		= col.r;
-			mStarGlowColors[cIndex++]		= col.g;
-			mStarGlowColors[cIndex++]		= col.b;
-			mStarGlowColors[cIndex++]		= col.a;
-			
-			mStarGlowVerts[vIndex++]		= p3.x;
-			mStarGlowVerts[vIndex++]		= p3.y;
-			mStarGlowVerts[vIndex++]		= p3.z;
-			mStarGlowTexCoords[tIndex++]	= 0.0f;
-			mStarGlowTexCoords[tIndex++]	= 1.0f;
-			mStarGlowColors[cIndex++]		= col.r;
-			mStarGlowColors[cIndex++]		= col.g;
-			mStarGlowColors[cIndex++]		= col.b;
-			mStarGlowColors[cIndex++]		= col.a;
-			
-			mStarGlowVerts[vIndex++]		= p2.x;
-			mStarGlowVerts[vIndex++]		= p2.y;
-			mStarGlowVerts[vIndex++]		= p2.z;
-			mStarGlowTexCoords[tIndex++]	= 1.0f;
-			mStarGlowTexCoords[tIndex++]	= 0.0f;
-			mStarGlowColors[cIndex++]		= col.r;
-			mStarGlowColors[cIndex++]		= col.g;
-			mStarGlowColors[cIndex++]		= col.b;
-			mStarGlowColors[cIndex++]		= col.a;
-			
-			mStarGlowVerts[vIndex++]		= p3.x;
-			mStarGlowVerts[vIndex++]		= p3.y;
-			mStarGlowVerts[vIndex++]		= p3.z;
-			mStarGlowTexCoords[tIndex++]	= 0.0f;
-			mStarGlowTexCoords[tIndex++]	= 1.0f;
-			mStarGlowColors[cIndex++]		= col.r;
-			mStarGlowColors[cIndex++]		= col.g;
-			mStarGlowColors[cIndex++]		= col.b;
-			mStarGlowColors[cIndex++]		= col.a;
-			
-			mStarGlowVerts[vIndex++]		= p4.x;
-			mStarGlowVerts[vIndex++]		= p4.y;
-			mStarGlowVerts[vIndex++]		= p4.z;
-			mStarGlowTexCoords[tIndex++]	= 1.0f;
-			mStarGlowTexCoords[tIndex++]	= 1.0f;
-			mStarGlowColors[cIndex++]		= col.r;
-			mStarGlowColors[cIndex++]		= col.g;
-			mStarGlowColors[cIndex++]		= col.b;
-			mStarGlowColors[cIndex++]		= col.a;
-		}
-	}
+    mStarGlows.setup(mNodes, mData->mFilteredArtists.size(), bbRight, bbUp, zoomAlpha);
 }
 
 void World::buildPlanetRingsVertexArray()
@@ -564,19 +351,7 @@ void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const 
 
 void World::drawStarGlowsVertexArray()
 {
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	glEnableClientState( GL_COLOR_ARRAY );
-	
-	glVertexPointer( 3, GL_FLOAT, 0, mStarGlowVerts );
-	glTexCoordPointer( 2, GL_FLOAT, 0, mStarGlowTexCoords );
-	glColorPointer( 4, GL_FLOAT, 0, mStarGlowColors );
-	
-	glDrawArrays( GL_TRIANGLES, 0, mTotalStarGlowVertices );
-	
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	glDisableClientState( GL_COLOR_ARRAY );
+    mStarGlows.draw();
 }
 
 void World::drawEclipseGlows()

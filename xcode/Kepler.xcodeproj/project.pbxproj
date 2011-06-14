@@ -87,6 +87,8 @@
 		E1FC7DA313381853007F333C /* eclipseGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC7DA213381853007F333C /* eclipseGlow.png */; };
 		E2171061132ECF7300ADCC17 /* AlphaWheel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */; };
 		E219CEE713A5A615006C7F26 /* BloomSphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E219CEE513A5A615006C7F26 /* BloomSphere.cpp */; };
+		E219CEF213A6F354006C7F26 /* StarGlows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E219CEF013A6F354006C7F26 /* StarGlows.cpp */; };
+		E219CEF513A6F645006C7F26 /* Stars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E219CEF313A6F645006C7F26 /* Stars.cpp */; };
 		E227B205138EFDC500AAAC7B /* TextLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E227B204138EFDC500AAAC7B /* TextLabel.cpp */; };
 		E22998CC1332D62E0043CDCA /* LoadingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */; };
 		E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C872D131F1420000780A3 /* NodeArtist.cpp */; };
@@ -205,6 +207,10 @@
 		E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AlphaWheel.cpp; path = ../src/AlphaWheel.cpp; sourceTree = SOURCE_ROOT; };
 		E219CEE513A5A615006C7F26 /* BloomSphere.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BloomSphere.cpp; path = ../src/BloomSphere.cpp; sourceTree = "<group>"; };
 		E219CEE613A5A615006C7F26 /* BloomSphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BloomSphere.h; path = ../src/BloomSphere.h; sourceTree = "<group>"; };
+		E219CEF013A6F354006C7F26 /* StarGlows.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StarGlows.cpp; path = ../src/StarGlows.cpp; sourceTree = "<group>"; };
+		E219CEF113A6F354006C7F26 /* StarGlows.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StarGlows.h; path = ../src/StarGlows.h; sourceTree = "<group>"; };
+		E219CEF313A6F645006C7F26 /* Stars.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Stars.cpp; path = ../src/Stars.cpp; sourceTree = "<group>"; };
+		E219CEF413A6F645006C7F26 /* Stars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Stars.h; path = ../src/Stars.h; sourceTree = "<group>"; };
 		E227B204138EFDC500AAAC7B /* TextLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextLabel.cpp; path = ../src/TextLabel.cpp; sourceTree = "<group>"; };
 		E22998C61332AD080043CDCA /* GestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureRecognizer.h; sourceTree = "<group>"; };
 		E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoadingScreen.cpp; path = ../src/LoadingScreen.cpp; sourceTree = "<group>"; };
@@ -287,16 +293,10 @@
 				E28177EB139AFA6700049D69 /* Filters */,
 				E2171053132ECE3900ADCC17 /* Ui */,
 				E177A6CB134E7B640014AD55 /* Helpers */,
-				E1C601831318926C0022246C /* Nodes */,
+				E219CEEE13A6EDFF006C7F26 /* World */,
 				00CFDFDF11384CC60091E310 /* KeplerApp.cpp */,
-				E1C600041318490F0022246C /* World.cpp */,
 				E1E6636F1317887F00E5E4B9 /* State.cpp */,
 				E1C6FFF2131847A40022246C /* Data.cpp */,
-				E167C8D4132EAFBE00CB496E /* ParticleController.cpp */,
-				E167C8D3132EAFBE00CB496E /* Particle.cpp */,
-				E1FC7D9F1337E4D9007F333C /* Dust.cpp */,
-				E2E21CB213A14A3700A476A2 /* Galaxy.cpp */,
-				E2E21CDB13A2D70C00A476A2 /* Stats.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -307,15 +307,9 @@
 				E28177EF139AFA9900049D69 /* Filters */,
 				E1C6023C131C4B0E0022246C /* Ui */,
 				E1C6017E13188B280022246C /* Helpers */,
-				E1C60184131892750022246C /* Nodes */,
+				E219CEEF13A6EE4D006C7F26 /* World */,
 				E2E21CB913A177E300A476A2 /* Data.h */,
-				E2E21CBA13A177E400A476A2 /* Dust.h */,
-				E2E21CBD13A177E400A476A2 /* Galaxy.h */,
-				E2E21CC713A177E900A476A2 /* Particle.h */,
-				E2E21CC813A177EA00A476A2 /* ParticleController.h */,
 				E2E21CCD13A177EC00A476A2 /* State.h */,
-				E2E21CD213A177EF00A476A2 /* World.h */,
-				E2E21CDC13A2D70E00A476A2 /* Stats.h */,
 			);
 			name = Headers;
 			sourceTree = "<group>";
@@ -626,6 +620,7 @@
 				E2E21CC613A177E800A476A2 /* NotificationOverlay.h */,
 				E2E21CC913A177EA00A476A2 /* PlayControls.h */,
 				E2E21CD113A177EE00A476A2 /* UiLayer.h */,
+				E2E21CDC13A2D70E00A476A2 /* Stats.h */,
 			);
 			name = Ui;
 			sourceTree = "<group>";
@@ -683,6 +678,7 @@
 			isa = PBXGroup;
 			children = (
 				E25040C01392E83E00A8D673 /* Elements */,
+				E2E21CDB13A2D70C00A476A2 /* Stats.cpp */,
 				E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */,
 				E28FDA821339B782005EDBB4 /* PlayControls.cpp */,
 				E1B0DBB113510C890093EB9D /* HelpLayer.cpp */,
@@ -691,6 +687,36 @@
 				E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */,
 			);
 			name = Ui;
+			sourceTree = "<group>";
+		};
+		E219CEEE13A6EDFF006C7F26 /* World */ = {
+			isa = PBXGroup;
+			children = (
+				E1C601831318926C0022246C /* Nodes */,
+				E1C600041318490F0022246C /* World.cpp */,
+				E167C8D4132EAFBE00CB496E /* ParticleController.cpp */,
+				E167C8D3132EAFBE00CB496E /* Particle.cpp */,
+				E1FC7D9F1337E4D9007F333C /* Dust.cpp */,
+				E2E21CB213A14A3700A476A2 /* Galaxy.cpp */,
+				E219CEF313A6F645006C7F26 /* Stars.cpp */,
+				E219CEF013A6F354006C7F26 /* StarGlows.cpp */,
+			);
+			name = World;
+			sourceTree = "<group>";
+		};
+		E219CEEF13A6EE4D006C7F26 /* World */ = {
+			isa = PBXGroup;
+			children = (
+				E1C60184131892750022246C /* Nodes */,
+				E2E21CBA13A177E400A476A2 /* Dust.h */,
+				E2E21CBD13A177E400A476A2 /* Galaxy.h */,
+				E2E21CC713A177E900A476A2 /* Particle.h */,
+				E2E21CC813A177EA00A476A2 /* ParticleController.h */,
+				E2E21CD213A177EF00A476A2 /* World.h */,
+				E219CEF413A6F645006C7F26 /* Stars.h */,
+				E219CEF113A6F354006C7F26 /* StarGlows.h */,
+			);
+			name = World;
 			sourceTree = "<group>";
 		};
 		E25040BF1392E82200A8D673 /* Elements */ = {
@@ -890,6 +916,8 @@
 				E2E21CD913A1821300A476A2 /* GyroHelper.cpp in Sources */,
 				E2E21CDD13A2D71300A476A2 /* Stats.cpp in Sources */,
 				E219CEE713A5A615006C7F26 /* BloomSphere.cpp in Sources */,
+				E219CEF213A6F354006C7F26 /* StarGlows.cpp in Sources */,
+				E219CEF513A6F645006C7F26 /* Stars.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
