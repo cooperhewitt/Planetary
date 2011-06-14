@@ -299,6 +299,37 @@ void World::drawConstellation()
     mConstellation.draw();
 }
 
+void World::drawHitAreas()
+{    
+    // HIT AREA VISUALIZER
+    for (int i = 0; i < mNodes.size(); i++) {
+        Node* artistNode = mNodes[i];
+        if (artistNode->mIsHighlighted) {
+            gl::color(ColorA(0.0f,0.0f,1.0f,0.25f));
+            if( artistNode->mDistFromCamZAxisPer > 0.0f ){
+                if( G_DRAW_TEXT && artistNode->mIsHighlighted ) gl::drawSolidRect(artistNode->mHitArea);
+                gl::drawSolidRect(artistNode->mSphereHitArea);       
+            }
+            for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+                Node* albumNode = artistNode->mChildNodes[j];
+                if (albumNode->mIsHighlighted) {
+                    gl::color(ColorA(0.0f,1.0f,0.0f,0.25f));
+                    if( G_DRAW_TEXT ) gl::drawSolidRect(albumNode->mHitArea);
+                    gl::drawSolidRect(albumNode->mSphereHitArea);
+                    
+                    for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+                        Node *trackNode = albumNode->mChildNodes[k];
+                        if (trackNode->mIsHighlighted) {
+                            gl::color(ColorA(1.0f,0.0f,0.0f,0.25f));
+                            if( G_DRAW_TEXT ) gl::drawSolidRect(trackNode->mHitArea);
+                            gl::drawSolidRect(trackNode->mSphereHitArea);
+                        }
+                    }            
+                }
+            }
+        }
+    }
+}
 
 vector<Node*> World::getUnsortedNodes( int fromGen, int toGen )
 {

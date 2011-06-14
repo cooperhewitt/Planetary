@@ -49,6 +49,7 @@ class World {
     Node* getPlayingArtistNode( ci::ipod::TrackRef playingTrack );
     
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
+    
 	void update( float param1, float param2 );
 	void updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, const float &zoomAlpha );
 
@@ -62,17 +63,17 @@ class World {
 	void drawPlanets( const ci::gl::Texture &tex );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex, float camZPos );
+    void drawHitAreas();
     
 	std::vector<Node*> getUnsortedNodes( int fromGen, int toGen );
     std::vector<Node*> sortNodes( std::vector<Node*> unsortedNodes );
 	
-	Data *mData;
-	
-	std::vector<Node*> mNodes;
-	
 	NodeTrack *mPlayingTrackNode;
 	
 private:
+
+    std::vector<Node*> mNodes;
+	Data *mData;	
 
     ///////////////
 

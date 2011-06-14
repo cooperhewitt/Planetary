@@ -29,7 +29,7 @@ class Data {
     
 	std::map< char, float > mNumArtistsPerChar;
 	float mNormalizedArtistsPerChar[27];
-	
+    
   private:
 	
 	void backgroundInit();	
