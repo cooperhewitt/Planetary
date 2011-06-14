@@ -226,10 +226,10 @@ void Node::drawEclipseGlow()
 	}
 }
 
-void Node::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos )
+void Node::drawRings( const gl::Texture &tex, const PlanetRing &planetRing, float camZPos )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawRings( tex, planetRingVerts, planetRingTexCoords, camZPos );
+		(*nodeIt)->drawRings( tex, planetRing, camZPos );
 	}
 }
 

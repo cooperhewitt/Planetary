@@ -178,16 +178,6 @@ void NodeArtist::drawPlanet( const gl::Texture &tex )
 	}
 }
 
-void NodeArtist::drawClouds( const vector<gl::Texture> &clouds )
-{
-	Node::drawClouds( clouds );
-}
-
-void NodeArtist::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos )
-{
-	Node::drawRings( tex, planetRingVerts, planetRingTexCoords, camZPos );
-}
-
 void NodeArtist::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
 	if( mIsHighlighted ){

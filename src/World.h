@@ -22,6 +22,7 @@
 #include "Stars.h"
 #include "StarGlows.h"
 #include "OrbitRing.h"
+#include "PlanetRing.h"
 
 class World {
   // TODO: clean up public/private here, perhaps spin sphere stuff off into utility lib?
@@ -89,15 +90,13 @@ private:
 	GLfloat *mConstellationVerts;
 	GLfloat *mConstellationTexCoords;
 		
-	GLfloat *mPlanetRingVerts;
-	GLfloat *mPlanetRingTexCoords;
-
     // VERTEX ARRAYS
     Stars mStars;
     StarGlows mStarGlows;
     OrbitRing mOrbitRing;
+    PlanetRing mPlanetRing;
     
-    // SPHERE VERTEX ARRAYS
+    // SPHERE LOD VERTEX ARRAYS
     BloomSphere mTySphere, mLoSphere, mMdSphere, mHiSphere;
 
 };

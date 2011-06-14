@@ -471,7 +471,7 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 
 
 
-void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camAlpha )
+void NodeAlbum::drawRings( const gl::Texture &tex, const PlanetRing &planetRing, float camAlpha )
 {
 	if( mHasRings && G_ZOOM > G_ARTIST_LEVEL ){
 		if( mIsSelected || mIsPlaying ){
@@ -479,24 +479,18 @@ void NodeAlbum::drawRings( const gl::Texture &tex, GLfloat *planetRingVerts, GLf
 			
 			gl::pushModelView();
 			gl::translate( mPos );
-			float c = 0.5f * mIdealCameraDist;
+			
+            float c = 0.5f * mIdealCameraDist;
 			gl::scale( Vec3f( c, c, c ) );
 			gl::rotate( Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel * 0.2f, 0.0f ) );
 			
-			
 			float zoomPer = constrain( 1.0f - ( mGen - G_ZOOM ), 0.0f, 1.0f );
 			gl::color( ColorA( mColor, camAlpha * zoomPer ) );
-			tex.enableAndBind();
-			glEnableClientState( GL_VERTEX_ARRAY );
-			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-			glVertexPointer( 3, GL_FLOAT, 0, planetRingVerts );
-			glTexCoordPointer( 2, GL_FLOAT, 0, planetRingTexCoords );
 			
-			glDrawArrays( GL_TRIANGLES, 0, 6 );
-			
-			glDisableClientState( GL_VERTEX_ARRAY );
-			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+            tex.enableAndBind();
+            planetRing.draw();
 			tex.disable();
+            
 			gl::popModelView();
 		}
 	}

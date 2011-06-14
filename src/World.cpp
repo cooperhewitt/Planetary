@@ -204,57 +204,7 @@ void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, 
 
 void World::buildPlanetRingsVertexArray()
 {
-    if (mPlanetRingVerts != NULL) delete[] mPlanetRingVerts;
-    if (mPlanetRingTexCoords != NULL) delete[] mPlanetRingTexCoords;
-    
-	mPlanetRingVerts		= new float[18];
-	mPlanetRingTexCoords	= new float[12];
-	int i = 0;
-	int t = 0;
-	Vec3f corner;
-	float w	= 1.0f;
-	
-	corner			= Vec3f( -w, 0.0f, -w );
-	mPlanetRingVerts[i++]			= corner.x;
-	mPlanetRingVerts[i++]			= corner.y;
-	mPlanetRingVerts[i++]			= corner.z;
-	mPlanetRingTexCoords[t++]		= 0.0f;
-	mPlanetRingTexCoords[t++]		= 0.0f;
-	
-	corner			= Vec3f( w, 0.0f, -w );
-	mPlanetRingVerts[i++]			= corner.x;
-	mPlanetRingVerts[i++]			= corner.y;
-	mPlanetRingVerts[i++]			= corner.z;
-	mPlanetRingTexCoords[t++]		= 1.0f;
-	mPlanetRingTexCoords[t++]		= 0.0f;
-	
-	corner			= Vec3f( w, 0.0f, w );	
-	mPlanetRingVerts[i++]			= corner.x;
-	mPlanetRingVerts[i++]			= corner.y;
-	mPlanetRingVerts[i++]			= corner.z;
-	mPlanetRingTexCoords[t++]		= 1.0f;
-	mPlanetRingTexCoords[t++]		= 1.0f;
-	
-	corner			= Vec3f( -w, 0.0f, -w );
-	mPlanetRingVerts[i++]			= corner.x;
-	mPlanetRingVerts[i++]			= corner.y;
-	mPlanetRingVerts[i++]			= corner.z;
-	mPlanetRingTexCoords[t++]		= 0.0f;
-	mPlanetRingTexCoords[t++]		= 0.0f;
-	
-	corner			= Vec3f( w, 0.0f, w );	
-	mPlanetRingVerts[i++]			= corner.x;
-	mPlanetRingVerts[i++]			= corner.y;
-	mPlanetRingVerts[i++]			= corner.z;
-	mPlanetRingTexCoords[t++]		= 1.0f;
-	mPlanetRingTexCoords[t++]		= 1.0f;
-	
-	corner			= Vec3f( -w, 0.0f, w );	
-	mPlanetRingVerts[i++]			= corner.x;
-	mPlanetRingVerts[i++]			= corner.y;
-	mPlanetRingVerts[i++]			= corner.z;
-	mPlanetRingTexCoords[t++]		= 0.0f;
-	mPlanetRingTexCoords[t++]		= 1.0f;
+    mPlanetRing.setup();
 }
 
 
@@ -347,7 +297,7 @@ void World::drawClouds( const vector<gl::Texture> &clouds )
 void World::drawRings( const gl::Texture &tex, float camZPos )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawRings( tex, mPlanetRingVerts, mPlanetRingTexCoords, camZPos );
+		(*it)->drawRings( tex, mPlanetRing, camZPos );
 	}
 }
 

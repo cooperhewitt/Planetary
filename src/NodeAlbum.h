@@ -22,7 +22,7 @@ class NodeAlbum : public Node
 	void drawEclipseGlow();
 	void drawPlanet( const ci::gl::Texture &tex );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
-	void drawRings( const ci::gl::Texture &tex, GLfloat *planetRingVerts, GLfloat *planetRingTexCoords, float camZPos );
+	void drawRings( const ci::gl::Texture &tex, const PlanetRing &planetRing, float camZPos );
 	void drawAtmosphere( const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
 	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, const OrbitRing &orbitRing );
 	void findShadows( float camAlpha );
