@@ -27,8 +27,8 @@ void Data::setup()
 	mFilteredArtists.clear();    
     mNumArtistsPerChar.clear();
 	
-    if (!isIniting) {
-        isIniting = true;
+    if (!mState != INITING) {
+        mState = INITING;
         std::thread artistLoaderThread( &Data::backgroundInit, this );	
     }
 }
@@ -92,14 +92,15 @@ void Data::backgroundInit()
 
     [autoreleasepool release];	
     
-	isIniting = false;
+    mState = PENDING;
 }
 
 
 bool Data::update()
 {
-	if (!isIniting && wasIniting) {
-		// TODO: time this, is it OK in one frame?
+	if (mState == PENDING) {
+        float t = app::getElapsedSeconds();
+
 		// TODO: switch state to enum. potential cause of freeze-on-load-screen bug
 		mArtists.insert( mArtists.end(), pendingArtists.begin(), pendingArtists.end() );
 		pendingArtists.clear();
@@ -107,10 +108,12 @@ bool Data::update()
 		mPlaylists.insert( mPlaylists.end(), pendingPlaylists.begin(), pendingPlaylists.end() );
 		pendingPlaylists.clear();
 		
-        wasIniting = isIniting;
+        cout << app::getElapsedSeconds()-t << " seconds to copy pending artists and playlists" << endl;
+        
+        mState = INITED;
+        
 		return true;
 	}
-    wasIniting = isIniting;
 	return false;
 }
 

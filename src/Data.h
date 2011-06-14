@@ -15,11 +15,14 @@
 
 class Data {
   public:
-	Data() {};
+    
+    enum LoadState { DEFAULT, INITING, PENDING, INITED };
+    
+	Data() { mState = DEFAULT; };
     ~Data() {};
     
     void setup();
-	bool update(); // TODO: split into bool isInited() and void update() ?
+	bool update();
 
     void setFilter(const Filter &filter);
     
@@ -30,11 +33,13 @@ class Data {
 	std::map< char, float > mNumArtistsPerChar;
 	float mNormalizedArtistsPerChar[27];
     
+    LoadState getState() { return mState; }
+    
   private:
-	
+	    
 	void backgroundInit();	
-	bool isIniting;
-    bool wasIniting;
+    
+    LoadState mState;
 	std::vector<ci::ipod::PlaylistRef> pendingArtists;
 	std::vector<ci::ipod::PlaylistRef> pendingPlaylists;	
 	
