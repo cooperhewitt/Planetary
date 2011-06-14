@@ -217,8 +217,6 @@ class KeplerApp : public AppCocoaTouch {
     Galaxy mGalaxy;
 	
 	float			mTime;
-	bool			mHasNoArtists;
-	bool			mDataIsLoaded;
     bool            mRemainingSetupCalled; // setup() is short and fast, remainingSetup() is slow
 };
 
@@ -270,15 +268,14 @@ void KeplerApp::remainingSetup()
 
     mRemainingSetupCalled = true;
 
-    mDataIsLoaded	= false;
 	mLoadingScreen.setEnabled( true );
+    
 	G_DRAW_RINGS	= true;
 	G_DRAW_TEXT		= true;
 	//Rand::randomize();
 
     // TEXTURES
     initTextures();
-	
 	
 	// ARCBALL
 	mArcball.setWindowSize( getWindowSize() );
@@ -395,8 +392,7 @@ void KeplerApp::remainingSetup()
     // WORLD
     mWorld.setup( &mData );
 	
-	mHasNoArtists = false;
-
+    // GALAXY (TODO: Move to World?)
     mGalaxy.setup(G_INIT_CAM_DIST, BRIGHT_BLUE, BLUE, mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex);
 
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
@@ -653,7 +649,7 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 	else				mUp = Vec3f::yAxis();
 
     mLoadingScreen.setInterfaceOrientation(orientation);
-    if (mDataIsLoaded) {
+    if (mData.getState() == Data::LoadStateComplete) {
         mPlayControls.setInterfaceOrientation(orientation);
         mHelpLayer.setInterfaceOrientation(orientation);
         mUiLayer.setInterfaceOrientation(orientation);
@@ -1008,9 +1004,9 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 
 void KeplerApp::update()
 {
-	if( mData.update() ){
+    if (mData.getState() == Data::LoadStatePending) {
+        mData.update(); // processes pending nodes
 		mWorld.initNodes( mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
-		mDataIsLoaded = true;
 		mLoadingScreen.setEnabled( false );
 		mUiLayer.setIsPanelOpen( true );
         onSelectedNodeChanged( NULL );
@@ -1240,12 +1236,9 @@ void KeplerApp::updateCamera()
 void KeplerApp::draw()
 {
 	gl::clear( Color( 0, 0, 0 ), true );
-	if( !mDataIsLoaded ){
+	if( mData.getState() != Data::LoadStateComplete ){
 		mLoadingScreen.draw( mStarGlowTex );
 	} else if( mData.mArtists.size() == 0 ){
-		if( !mHasNoArtists ) mNoArtistsTex = gl::Texture( loadImage( loadResource( "noArtists.png" ) ) );
-		
-		mHasNoArtists = true;
 		drawNoArtists();
 	} else {
 		drawScene();
@@ -1255,6 +1248,10 @@ void KeplerApp::draw()
 
 void KeplerApp::drawNoArtists()
 {
+    if( !mNoArtistsTex ) {
+        mNoArtistsTex = gl::Texture( loadImage( loadResource( "noArtists.png" ) ) );
+    }
+    
 	gl::setMatricesWindow( getWindowSize() );    
 	
     gl::pushModelView();
@@ -1611,17 +1608,12 @@ void KeplerApp::drawScene()
 
 bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 {	
-//	console() << "/////////////////////" << std::endl;
-//	console() << "onPlayerLibraryChanged!" << std::endl;
-
-    Flurry::getInstrumentation()->logEvent("Player Library Changed");
-
-    mDataIsLoaded = false;
+    // RESET:
 	mLoadingScreen.setEnabled( true );
     mState.setup();    
     mData.setup();
 	mWorld.setup( &mData );
-    
+    Flurry::getInstrumentation()->logEvent("Player Library Changed");
     return false;
 }
 

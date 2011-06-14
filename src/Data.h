@@ -16,13 +16,13 @@
 class Data {
   public:
     
-    enum LoadState { DEFAULT, INITING, PENDING, INITED };
+    enum LoadState { LoadStateDefault, LoadStateLoading, LoadStatePending, LoadStateComplete };
     
-	Data() { mState = DEFAULT; };
+	Data() { mState = LoadStateDefault; };
     ~Data() {};
     
     void setup();
-	bool update();
+	void update();
 
     void setFilter(const Filter &filter);
     
@@ -40,7 +40,7 @@ class Data {
 	void backgroundInit();	
     
     LoadState mState;
-	std::vector<ci::ipod::PlaylistRef> pendingArtists;
-	std::vector<ci::ipod::PlaylistRef> pendingPlaylists;	
+	std::vector<ci::ipod::PlaylistRef> mPendingArtists;
+	std::vector<ci::ipod::PlaylistRef> mPendingPlaylists;	
 	
 };

@@ -27,8 +27,8 @@ void Data::setup()
 	mFilteredArtists.clear();    
     mNumArtistsPerChar.clear();
 	
-    if (!mState != INITING) {
-        mState = INITING;
+    if (!mState != LoadStateLoading) {
+        mState = LoadStateLoading;
         std::thread artistLoaderThread( &Data::backgroundInit, this );	
     }
 }
@@ -38,8 +38,8 @@ void Data::backgroundInit()
 	NSAutoreleasePool *autoreleasepool = [[NSAutoreleasePool alloc] init];
 	
 	Flurry::getInstrumentation()->startTimeEvent("Music Loading");
-	pendingArtists = getArtists();
-	std::cout << "got " << pendingArtists.size() << " artists" << std::endl;
+	mPendingArtists = getArtists();
+	std::cout << "got " << mPendingArtists.size() << " artists" << std::endl;
 	
 // QUICK FIX FOR GETTING MORE DATA ONTO THE ALPHAWHEEL
 	string alphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
@@ -47,7 +47,7 @@ void Data::backgroundInit()
 		mNumArtistsPerChar[alphaString[i]] = 0;
 	}
 	float maxCount = 0.0001f;
-	for( vector<ci::ipod::PlaylistRef>::iterator it = pendingArtists.begin(); it != pendingArtists.end(); ++it ){
+	for( vector<ci::ipod::PlaylistRef>::iterator it = mPendingArtists.begin(); it != mPendingArtists.end(); ++it ){
 		string name		= (*it)->getArtistName();
 		string the		= name.substr( 0, 4 );
 		char firstLetter;
@@ -78,43 +78,36 @@ void Data::backgroundInit()
 // END ALPHAWHEEL QUICK FIX
 	
     std::map<string, string> params;
-    params["NumArtists"] = i_to_string(pendingArtists.size());
+    params["NumArtists"] = i_to_string(mPendingArtists.size());
     Flurry::getInstrumentation()->logEvent("Artists loaded", params);
 	
 	Flurry::getInstrumentation()->startTimeEvent("Playlists Loading");
-	pendingPlaylists = getPlaylists();
-	std::cout << "got " << pendingPlaylists.size() << " playlists" << std::endl;
+	mPendingPlaylists = getPlaylists();
+	std::cout << "got " << mPendingPlaylists.size() << " playlists" << std::endl;
     params.clear();
-    params["NumPlaylists"] = i_to_string( pendingPlaylists.size());
+    params["NumPlaylists"] = i_to_string( mPendingPlaylists.size());
     Flurry::getInstrumentation()->logEvent("Playlists loaded", params);	
 		
 	Flurry::getInstrumentation()->stopTimeEvent("Music Loading");
 
     [autoreleasepool release];	
     
-    mState = PENDING;
+    mState = LoadStatePending;
 }
 
 
-bool Data::update()
+void Data::update()
 {
-	if (mState == PENDING) {
-        float t = app::getElapsedSeconds();
+	if (mState == LoadStatePending) {
 
-		// TODO: switch state to enum. potential cause of freeze-on-load-screen bug
-		mArtists.insert( mArtists.end(), pendingArtists.begin(), pendingArtists.end() );
-		pendingArtists.clear();
+		mArtists.insert( mArtists.end(), mPendingArtists.begin(), mPendingArtists.end() );
+		mPendingArtists.clear();
 		
-		mPlaylists.insert( mPlaylists.end(), pendingPlaylists.begin(), pendingPlaylists.end() );
-		pendingPlaylists.clear();
-		
-        cout << app::getElapsedSeconds()-t << " seconds to copy pending artists and playlists" << endl;
-        
-        mState = INITED;
-        
-		return true;
+		mPlaylists.insert( mPlaylists.end(), mPendingPlaylists.begin(), mPendingPlaylists.end() );
+		mPendingPlaylists.clear();
+		        
+        mState = LoadStateComplete;
 	}
-	return false;
 }
 
 void Data::setFilter(const Filter &filter)
