@@ -17,6 +17,19 @@ class Constellation
 {
 
 public:
+    
+    Constellation()
+    {
+        mPrevTotalConstellationVertices = -1;
+        mConstellationVerts			= NULL;
+        mConstellationTexCoords		= NULL;        
+    }
+    ~Constellation()
+    {
+		if (mConstellationVerts != NULL) delete[] mConstellationVerts; 
+		if (mConstellationTexCoords != NULL) delete[] mConstellationTexCoords;         
+    }
+    
     void setup(const std::vector<Node*> &nodes, const std::vector<int> &filteredArtists);
     void draw() const;
     

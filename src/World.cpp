@@ -24,13 +24,6 @@ using namespace ci::app;
 using namespace ci::ipod;
 using namespace std;
 
-World::World()
-{
-	mPrevTotalConstellationVertices = -1;
-	mConstellationVerts			= NULL;
-	mConstellationTexCoords		= NULL;
-}
-
 void World::setup( Data *data )
 {
     mData = data;
@@ -58,7 +51,7 @@ void World::setup( Data *data )
 	mIsInitialized	= false;
 }
 
-void World::initNodes( Player *player, const Font &font, const Font &smallFont, const Surface &highResSurfaces, const Surface &lowResSurfaces, const Surface &noAlbumArt )
+void World::initNodes( const Font &font, const Font &smallFont, const Surface &highResSurfaces, const Surface &lowResSurfaces, const Surface &noAlbumArt )
 {
 	float t = App::get()->getElapsedSeconds();
 
@@ -73,23 +66,16 @@ void World::initNodes( Player *player, const Font &font, const Font &smallFont, 
 		PlaylistRef artist	= *it;
 		NodeArtist *newNode = new NodeArtist( i++, font, smallFont, highResSurfaces, lowResSurfaces, noAlbumArt );
 		newNode->setData(artist);
+        newNode->setSphereData( &mHiSphere, &mMdSphere, &mLoSphere, &mTySphere );
 		mNodes.push_back( newNode );
 	}
+
+    mOrbitRing.setup();
+    mPlanetRing.setup();
 	
 	cout << (App::get()->getElapsedSeconds() - t) << " seconds to World::initNodes" << endl;
-
-    initVertexArrays();
-	
+    
 	mIsInitialized = true;
-}
-
-void World::initVertexArrays()
-{
-	buildOrbitRingsVertexArray();
-	buildPlanetRingsVertexArray();
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->setSphereData( &mHiSphere, &mMdSphere, &mLoSphere, &mTySphere );
-	}    
 }
 
 void World::filterNodes()
@@ -101,7 +87,7 @@ void World::filterNodes()
 	}
 	
 	if( mData->mFilteredArtists.size() > 1 ){
-		buildConstellation();
+		mConstellation.setup( mNodes, mData->mFilteredArtists );
 	}
 }
 
@@ -185,32 +171,16 @@ void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 	}
 }
 
-void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp )
+void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp, const float &zoomAlpha )
 {
 	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->updateGraphics( cam, bbRight, bbUp );
 	}
-}
-
-void World::buildStarsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, float zoomAlpha )
-{
-    mStars.setup(mNodes, bbRight, bbUp, zoomAlpha);
-}
-
-void World::buildStarGlowsVertexArray( const Vec3f &bbRight, const Vec3f &bbUp, float zoomAlpha )
-{
-    mStarGlows.setup(mNodes, mData->mFilteredArtists.size(), bbRight, bbUp, zoomAlpha);
-}
-
-void World::buildPlanetRingsVertexArray()
-{
-    mPlanetRing.setup();
-}
-
-
-void World::buildOrbitRingsVertexArray()
-{
-    mOrbitRing.setup();
+    
+    if (mIsInitialized) {
+        mStars.setup(mNodes, bbRight, bbUp, zoomAlpha * 0.3f);
+        mStarGlows.setup(mNodes, mData->mFilteredArtists.size(), bbRight, bbUp, zoomAlpha);
+    }
 }
 
 void World::update( float param1, float param2 )
@@ -224,7 +194,7 @@ void World::update( float param1, float param2 )
 		}
 		
 		if( mAge == mEndRepulseAge + 100 ){
-			buildConstellation();
+			mConstellation.setup( mNodes, mData->mFilteredArtists );
 		}
 		
 		if( mIsRepulsing ){
@@ -327,12 +297,6 @@ void World::drawTouchHighlights( float zoomAlpha )
 void World::drawConstellation()
 {
     mConstellation.draw();
-}
-
-
-void World::buildConstellation()
-{
-    mConstellation.setup( mNodes, mData->mFilteredArtists );
 }
 
 

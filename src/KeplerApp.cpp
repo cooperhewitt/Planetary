@@ -154,7 +154,6 @@ class KeplerApp : public AppCocoaTouch {
 	
 	float			mZoomFrom, mZoomDest;
 	Arcball			mArcball;
-	Vec3f			mBbRight, mBbUp;
 	float			mCamRingAlpha; // 1.0 = camera is viewing rings side-on
 								   // 0.0 = camera is viewing rings from above or below
 	float			mFadeInAlphaToArtist;
@@ -194,7 +193,6 @@ class KeplerApp : public AppCocoaTouch {
     Stats mStats;
     
 	// TEXTURES
-//    TextureLoader   mTextureLoader;
 	gl::Texture		mStarTex, mStarGlowTex, mStarCoreTex, mEclipseGlowTex, mLensFlareTex;
 	gl::Texture		mEclipseShadowTex;
 	gl::Texture		mSkyDome, mGalaxyDome;
@@ -319,8 +317,6 @@ void KeplerApp::remainingSetup()
 	mFov				= G_DEFAULT_FOV;
 	mFovDest			= G_DEFAULT_FOV;
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.0001f, 1200.0f );
-	mBbRight			= Vec3f::xAxis();
-	mBbUp				= Vec3f::yAxis();
 	mFadeInAlphaToArtist = 0.0f;
 	mFadeInArtistToAlbum = 0.0f;
 	mFadeInAlbumToTrack = 0.0f;
@@ -1013,7 +1009,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 void KeplerApp::update()
 {
 	if( mData.update() ){
-		mWorld.initNodes( &mIpodPlayer, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
+		mWorld.initNodes( mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
 		mDataIsLoaded = true;
 		mLoadingScreen.setEnabled( false );
 		mUiLayer.setIsPanelOpen( true );
@@ -1027,7 +1023,6 @@ void KeplerApp::update()
 			mAlphaWheel.setShowWheel( true );
 		}
 	}
-    //mTextureLoader.update();
     
     if ( mRemainingSetupCalled )
 	{
@@ -1038,9 +1033,9 @@ void KeplerApp::update()
         updateArcball();
 
         // for mPlayControls and mWorld.mPlayingTrackNode
-		double currentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
+		const double currentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
         // TODO: cache this when playing track changes
-		double currentTrackLength = mIpodPlayer.getPlayingTrack()->getLength();
+		const double currentTrackLength = mIpodPlayer.getPlayingTrack()->getLength();
 
 		if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 			mWorld.mPlayingTrackNode->updateAudioData( currentTrackPlayheadTime );
@@ -1052,18 +1047,16 @@ void KeplerApp::update()
 		
         updateCamera();
         
-        mWorld.updateGraphics( mCam, mBbRight, mBbUp );
+        Vec3f bbRight, bbUp;
+        mCam.getBillboardVectors( &bbRight, &bbUp );        
+        
+        mWorld.updateGraphics( mCam, bbRight, bbUp, mFadeInAlphaToArtist );
 
-        if( mDataIsLoaded ){
-            mWorld.buildStarsVertexArray( mBbRight, mBbUp, mFadeInAlphaToArtist * 0.3f );
-            mWorld.buildStarGlowsVertexArray( mBbRight, mBbUp, mFadeInAlphaToArtist );
-        }
-
-        mGalaxy.update( mEye, mFadeInAlphaToArtist, getElapsedSeconds(), mBbRight, mBbUp );
+        mGalaxy.update( mEye, mFadeInAlphaToArtist, getElapsedSeconds(), bbRight, bbUp );
 		
 		Node *selectedArtistNode = mState.getSelectedArtistNode();
 		if( selectedArtistNode ){
-			mParticleController.update( mCenter, selectedArtistNode->mRadius * 0.15f, mBbRight, mBbUp );
+			mParticleController.update( mCenter, selectedArtistNode->mRadius * 0.15f, bbRight, bbUp );
 			float per = selectedArtistNode->mEclipseStrength * 0.5f + 0.25f;
 			mParticleController.buildParticleVertexArray( scaleSlider * 5.0f, 
 														  selectedArtistNode->mColor, 
@@ -1242,7 +1235,6 @@ void KeplerApp::updateCamera()
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( (mEye - mCenterOffset), mCenter, q * mUp );
-	mCam.getBillboardVectors( &mBbRight, &mBbUp );
 }
 
 void KeplerApp::draw()

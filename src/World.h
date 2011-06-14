@@ -28,13 +28,19 @@
 class World {
   // TODO: clean up public/private here, perhaps spin sphere stuff off into utility lib?
   public:
-	World();
+	
+    World() {};
+    ~World() {};
+    
 	void setup( Data *data );
 
-	void initNodes( ci::ipod::Player *player, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &hiResSurfaces, const ci::Surface &loResSurfaces, const ci::Surface &noAlbumArt );
+	void initNodes( const ci::Font &font, 
+                    const ci::Font &smallFont, 
+                    const ci::Surface &hiResSurfaces, 
+                    const ci::Surface &loResSurfaces, 
+                    const ci::Surface &noAlbumArt );
     
 	void filterNodes();
-	void repulseNodes();
 	void deselectAllNodes();
     
     void setIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
@@ -44,9 +50,7 @@ class World {
     
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
 	void update( float param1, float param2 );
-	void updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	void buildStarsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, float zoomAlpha );
-	void buildStarGlowsVertexArray( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, float zoomAlpha );
+	void updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, const float &zoomAlpha );
 
 	void drawStarsVertexArray();
 	void drawStarGlowsVertexArray();
@@ -55,32 +59,31 @@ class World {
 	void drawOrbitRings( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex );
 	void drawConstellation();
 	void drawTouchHighlights( float zoomAlpha );
-	void buildConstellation();
 	void drawPlanets( const ci::gl::Texture &tex );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
-	
 	void drawRings( const ci::gl::Texture &tex, float camZPos );
+    
 	std::vector<Node*> getUnsortedNodes( int fromGen, int toGen );
     std::vector<Node*> sortNodes( std::vector<Node*> unsortedNodes );
 	
 	Data *mData;
 	
-	int mAge;
-	int mEndRepulseAge;
-	
 	std::vector<Node*> mNodes;
-	std::vector<ci::gl::Texture> mNameTextures;
 	
 	NodeTrack *mPlayingTrackNode;
 	
-	bool mIsRepulsing;
-	bool mIsInitialized;
-
 private:
 
-    void initVertexArrays();
-	void buildPlanetRingsVertexArray();
-	void buildOrbitRingsVertexArray();
+    ///////////////
+
+    int mAge;
+	int mEndRepulseAge;
+    bool mIsRepulsing;
+	bool mIsInitialized;
+
+    ///////////////
+
+	void repulseNodes();    
 
     ///////////////
     
