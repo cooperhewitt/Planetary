@@ -23,6 +23,7 @@
 #include "StarGlows.h"
 #include "OrbitRing.h"
 #include "PlanetRing.h"
+#include "Constellation.h"
 
 class World {
   // TODO: clean up public/private here, perhaps spin sphere stuff off into utility lib?
@@ -83,18 +84,12 @@ private:
 
     ///////////////
     
-	std::vector<ci::Vec3f> mConstellation;
-	std::vector<float> mConstellationDistances;
-	int mTotalConstellationVertices;
-	int mPrevTotalConstellationVertices;
-	GLfloat *mConstellationVerts;
-	GLfloat *mConstellationTexCoords;
-		
     // VERTEX ARRAYS
     Stars mStars;
     StarGlows mStarGlows;
     OrbitRing mOrbitRing;
     PlanetRing mPlanetRing;
+    Constellation mConstellation;
     
     // SPHERE LOD VERTEX ARRAYS
     BloomSphere mTySphere, mLoSphere, mMdSphere, mHiSphere;

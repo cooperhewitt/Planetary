@@ -91,6 +91,7 @@
 		E219CEF513A6F645006C7F26 /* Stars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E219CEF313A6F645006C7F26 /* Stars.cpp */; };
 		E219CEF813A6F79D006C7F26 /* OrbitRing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E219CEF613A6F79D006C7F26 /* OrbitRing.cpp */; };
 		E219CEFB13A7D7CE006C7F26 /* PlanetRing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E219CEF913A7D7CC006C7F26 /* PlanetRing.cpp */; };
+		E219CEFE13A7DAFD006C7F26 /* Constellation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E219CEFC13A7DAFA006C7F26 /* Constellation.cpp */; };
 		E227B205138EFDC500AAAC7B /* TextLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E227B204138EFDC500AAAC7B /* TextLabel.cpp */; };
 		E22998CC1332D62E0043CDCA /* LoadingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */; };
 		E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C872D131F1420000780A3 /* NodeArtist.cpp */; };
@@ -217,6 +218,8 @@
 		E219CEF713A6F79D006C7F26 /* OrbitRing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OrbitRing.h; path = ../src/OrbitRing.h; sourceTree = "<group>"; };
 		E219CEF913A7D7CC006C7F26 /* PlanetRing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlanetRing.cpp; path = ../src/PlanetRing.cpp; sourceTree = "<group>"; };
 		E219CEFA13A7D7CD006C7F26 /* PlanetRing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlanetRing.h; path = ../src/PlanetRing.h; sourceTree = "<group>"; };
+		E219CEFC13A7DAFA006C7F26 /* Constellation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Constellation.cpp; path = ../src/Constellation.cpp; sourceTree = "<group>"; };
+		E219CEFD13A7DAFC006C7F26 /* Constellation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Constellation.h; path = ../src/Constellation.h; sourceTree = "<group>"; };
 		E227B204138EFDC500AAAC7B /* TextLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextLabel.cpp; path = ../src/TextLabel.cpp; sourceTree = "<group>"; };
 		E22998C61332AD080043CDCA /* GestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureRecognizer.h; sourceTree = "<group>"; };
 		E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoadingScreen.cpp; path = ../src/LoadingScreen.cpp; sourceTree = "<group>"; };
@@ -708,6 +711,7 @@
 				E219CEF013A6F354006C7F26 /* StarGlows.cpp */,
 				E219CEF613A6F79D006C7F26 /* OrbitRing.cpp */,
 				E219CEF913A7D7CC006C7F26 /* PlanetRing.cpp */,
+				E219CEFC13A7DAFA006C7F26 /* Constellation.cpp */,
 			);
 			name = World;
 			sourceTree = "<group>";
@@ -725,6 +729,7 @@
 				E219CEF113A6F354006C7F26 /* StarGlows.h */,
 				E219CEF713A6F79D006C7F26 /* OrbitRing.h */,
 				E219CEFA13A7D7CD006C7F26 /* PlanetRing.h */,
+				E219CEFD13A7DAFC006C7F26 /* Constellation.h */,
 			);
 			name = World;
 			sourceTree = "<group>";
@@ -930,6 +935,7 @@
 				E219CEF513A6F645006C7F26 /* Stars.cpp in Sources */,
 				E219CEF813A6F79D006C7F26 /* OrbitRing.cpp in Sources */,
 				E219CEFB13A7D7CE006C7F26 /* PlanetRing.cpp in Sources */,
+				E219CEFE13A7DAFD006C7F26 /* Constellation.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
