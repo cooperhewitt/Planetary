@@ -202,7 +202,6 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 {
 	mBbRight = bbRight;
 	mBbUp    = bbUp;
-
     
 	if( mIsHighlighted ){
         mScreenPos              = cam.worldToScreen( mPos, app::getWindowWidth(), app::getWindowHeight() );

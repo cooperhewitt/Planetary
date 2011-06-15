@@ -268,7 +268,6 @@ void NodeArtist::select()
 			params["NumTracks"] = toString(trackcount);
 			Flurry::getInstrumentation()->stopTimeEvent("Albums loaded", params);
 			
-			
 		} else {
 			for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
 				(*it)->setIsDying( false );
