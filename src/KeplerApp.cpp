@@ -84,6 +84,10 @@ class KeplerApp : public AppCocoaTouch {
 	void			drawNoArtists();
     void            drawScene();
 
+    // convenience methods for Flurry
+    void            logEvent(const string &event);
+    void            logEvent(const string &event, const map<string,string> &params);
+    
 	bool			onAlphaCharStateChanged( State *state );
 	bool			onPlaylistStateChanged( State *state );
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
@@ -520,7 +524,7 @@ void KeplerApp::touchesEnded( TouchEvent event )
 	}
 	if (getActiveTouches().size() != 1) {
         if (mIsDragging) {
-            Flurry::getInstrumentation()->logEvent("Camera Moved");
+            logEvent("Camera Moved");
         }
 		mIsDragging = false;
         mIsTouching = false;
@@ -582,7 +586,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
-    Flurry::getInstrumentation()->logEvent("Pinch Ended");
+    logEvent("Pinch Ended");
 
 	if( mPinchPer > mPinchPerThresh ){
 		Node *selected = mState.getSelectedNode();
@@ -620,7 +624,7 @@ bool KeplerApp::orientationChanged( OrientationEvent event )
 
     std::map<string, string> params;
     params["Device Orientation"] = getOrientationString(event.getDeviceOrientation());
-    Flurry::getInstrumentation()->logEvent("Orientation Changed", params);    
+    logEvent("Orientation Changed", params);    
     
 	if( ! G_USE_GYRO ){
 		// Look over there!
@@ -693,7 +697,7 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
     std::map<string, string> parameters;
     parameters["Letter"] = ""+mState.getAlphaChar();
     parameters["Count"] = ""+mData.mFilteredArtists.size();
-    Flurry::getInstrumentation()->logEvent("Letter Selected" , parameters);
+    logEvent("Letter Selected" , parameters);
 
 	mWorld.filterNodes();
     
@@ -713,7 +717,7 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
     // FIXME: enable this 
 //    std::map<string, string> parameters;
 //    parameters["Playlist"] = ""+mState.getPlaylist();
-//    Flurry::getInstrumentation()->logEvent("Playlist Selected" , parameters);
+//    logEvent("Playlist Selected" , parameters);
 	
 	mWorld.filterNodes();
     mState.setSelectedNode( NULL );
@@ -756,13 +760,13 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
             else {
                 // FIXME: log error?
             }
-            Flurry::getInstrumentation()->logEvent("Track Selected");            
+            logEvent("Track Selected");            
         } 
         else if (node->mGen == G_ARTIST_LEVEL) {
-            Flurry::getInstrumentation()->logEvent("Artist Selected");
+            logEvent("Artist Selected");
         } 
         else if (node->mGen == G_ALBUM_LEVEL) {
-            Flurry::getInstrumentation()->logEvent("Album Selected");
+            logEvent("Album Selected");
         }
 	}
 
@@ -786,12 +790,12 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
     switch( button ) {
         
         case PlayControls::PREV_TRACK:
-            Flurry::getInstrumentation()->logEvent("Previous Track Button Selected");            
+            logEvent("Previous Track Button Selected");            
             mIpodPlayer.skipPrev();
             break;
         
         case PlayControls::PLAY_PAUSE:
-            Flurry::getInstrumentation()->logEvent("Play/Pause Button Selected");            
+            logEvent("Play/Pause Button Selected");            
             if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
                 mIpodPlayer.pause();
 				mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 128.0f, 128.0f, 256.0f ), "PAUSED" );
@@ -803,7 +807,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
         
         case PlayControls::NEXT_TRACK:
-            Flurry::getInstrumentation()->logEvent("Next Track Button Selected");            
+            logEvent("Next Track Button Selected");            
             mIpodPlayer.skipNext();	
             break;
 			
@@ -816,7 +820,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 				mNotificationOverlay.show( mOverlayIconsTex, Area( 128.0f, 0.0f, 256.0f, 128.0f ), "SHUFFLE ON" );
 			}
 				
-            Flurry::getInstrumentation()->logEvent("Shuffle Button Selected");    
+            logEvent("Shuffle Button Selected");    
             break;
 			
 		case PlayControls::REPEAT:
@@ -828,13 +832,13 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 				mNotificationOverlay.show( mOverlayIconsTex, Area( 256.0f, 0.0f, 384.0f, 128.0f ), "REPEAT ALL" );
 			}
 			
-            Flurry::getInstrumentation()->logEvent("Repeat Button Selected");   
+            logEvent("Repeat Button Selected");   
             break;
         
         case PlayControls::HELP:
 			std::cout << "HELP!!!! IN PLAYCONTROLS!!!!" << std::endl;
 			if( G_SHOW_SETTINGS ){
-				Flurry::getInstrumentation()->logEvent("Help Button Selected");            
+				logEvent("Help Button Selected");            
 				G_HELP = !G_HELP;
 				if( G_HELP && !mAlphaWheel.getShowWheel() )
 					mAlphaWheel.setShowWheel( true );
@@ -843,7 +847,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
         
         case PlayControls::DRAW_RINGS:
 			if( G_SHOW_SETTINGS ){
-				Flurry::getInstrumentation()->logEvent("Draw Rings Button Selected");            
+				logEvent("Draw Rings Button Selected");            
 				G_DRAW_RINGS = !G_DRAW_RINGS;
 				if( G_DRAW_RINGS )	mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 0.0f, 640.0f, 128.0f ), "ORBIT LINES" );
 				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 128.0f, 640.0f, 256.0f ), "ORBIT LINES" );
@@ -852,7 +856,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
         
         case PlayControls::DRAW_TEXT:
 			if( G_SHOW_SETTINGS ){
-				Flurry::getInstrumentation()->logEvent("Draw Text Button Selected");            
+				logEvent("Draw Text Button Selected");            
 				G_DRAW_TEXT = !G_DRAW_TEXT;
 				if( G_DRAW_TEXT )	mNotificationOverlay.show( mOverlayIconsTex, Area( 640.0f, 0.0f, 768.0f, 128.0f ), "TEXT LABELS" );
 				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 640.0f, 128.0f, 768.0f, 256.0f ), "TEXT LABELS" );
@@ -877,7 +881,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 //			}
 			
 			if( G_SHOW_SETTINGS ){
-				Flurry::getInstrumentation()->logEvent("Use Gyro Button Selected");            
+				logEvent("Use Gyro Button Selected");            
 				G_USE_GYRO = !G_USE_GYRO;
 				if( G_USE_GYRO )	mNotificationOverlay.show( mOverlayIconsTex, Area( 384.0f, 0.0f, 512.0f, 128.0f ), "GYROSCOPE" );
 				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 384.0f, 128.0f, 512.0f, 256.0f ), "GYROSCOPE" );
@@ -885,18 +889,18 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
 			
 		case PlayControls::GOTO_GALAXY:
-            Flurry::getInstrumentation()->logEvent("Galaxy Button Selected");
+            logEvent("Galaxy Button Selected");
 			mState.setSelectedNode( NULL );
             break;
 			
         case PlayControls::GOTO_CURRENT_TRACK:
-            Flurry::getInstrumentation()->logEvent("Current Track Button Selected");            
+            logEvent("Current Track Button Selected");            
             // pretend the track just got changed again, this will select it:
             onPlayerTrackChanged( &mIpodPlayer );
             break;
 			
 		case PlayControls::SETTINGS:
-            Flurry::getInstrumentation()->logEvent("Settings Button Selected");            
+            logEvent("Settings Button Selected");            
             G_SHOW_SETTINGS = !G_SHOW_SETTINGS;
             break;
 
@@ -963,7 +967,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 			if( highestGen == G_ARTIST_LEVEL ){
 				if( ! mState.getSelectedArtistNode() ) {
                     console() << "setting artist node selection" << std::endl;                                        
-                    Flurry::getInstrumentation()->logEvent("Artist Node Touched");                    
+                    logEvent("Artist Node Touched");                    
 					mState.setSelectedNode( nodeWithHighestGen );
                 }
 //                else {
@@ -971,7 +975,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 //                }
 			} 
             else if ( highestGen == G_TRACK_LEVEL ){
-                Flurry::getInstrumentation()->logEvent("Track Node Touched");
+                logEvent("Track Node Touched");
 				if( nodeWithHighestGen != mState.getSelectedNode() ) {                    
                     mState.setSelectedNode( nodeWithHighestGen );
                 }
@@ -987,7 +991,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
                 
             }
             else {
-                Flurry::getInstrumentation()->logEvent("Album Node Touched");
+                logEvent("Album Node Touched");
                 //console() << "setting node selection" << std::endl;
                 mState.setSelectedNode( nodeWithHighestGen );
 			}
@@ -1011,10 +1015,10 @@ void KeplerApp::update()
         onSelectedNodeChanged( NULL );
         // and then make sure we know about the current track if there is one
         if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ) {
-            Flurry::getInstrumentation()->logEvent("Startup with Track Playing");                        
+            logEvent("Startup with Track Playing");                        
             onPlayerTrackChanged( &mIpodPlayer );
         } else {
-            Flurry::getInstrumentation()->logEvent("Startup without Track Playing");
+            logEvent("Startup without Track Playing");
 			mAlphaWheel.setShowWheel( true );
 		}
 	}
@@ -1611,7 +1615,7 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
     mState.setup();    
     mData.setup();
 	mWorld.setup( &mData );
-    Flurry::getInstrumentation()->logEvent("Player Library Changed");
+    logEvent("Player Library Changed");
     return false;
 }
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
@@ -1646,7 +1650,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         // FIXME: disable play button and zoom-to-current-track button
 	}
     
-    Flurry::getInstrumentation()->logEvent("Player Track Changed");
+    logEvent("Player Track Changed");
     
     return false;
 }
@@ -1662,7 +1666,7 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
     
     std::map<string, string> params;
     params["State"] = player->getPlayState();
-    Flurry::getInstrumentation()->logEvent("Player State Changed", params);
+    logEvent("Player State Changed", params);
     
     return false;
 }
@@ -1678,6 +1682,15 @@ void KeplerApp::updateIsPlaying()
         // this should be OK to do since the above will happen if something is queued and paused
         mWorld.updateIsPlaying( 0, 0, 0 );
     }
+}
+
+void KeplerApp::logEvent(const string &event)
+{
+    Flurry::getInstrumentation()->logEvent(event);
+}
+void KeplerApp::logEvent(const string &event, const map<string,string> &params)
+{
+    Flurry::getInstrumentation()->logEvent(event, params);
 }
 
 CINDER_APP_COCOA_TOUCH( KeplerApp, RendererGl )
