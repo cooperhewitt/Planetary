@@ -45,7 +45,6 @@ class State {
 	// Playlist filtering
 	ci::ipod::PlaylistRef getPlaylist(){ return mCurrentPlaylist; }
 	void setPlaylist( ci::ipod::PlaylistRef playlist );
-	string getPlaylistName(){ return mCurrentPlaylistName; }
 	template<typename T>
 	CallbackId registerPlaylistStateChanged( T *obj, bool ( T::*callback )( State* ) ){
 		return mCallbacksPlaylistStateChanged.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
@@ -86,13 +85,11 @@ private:
 	CallbackMgr<bool(Node*)> mCallbacksNodeSelected;
 	CallbackMgr<bool(NodeTrack*)> mCallbacksNodePlaying;
 
-	Node *mSelectedNode;
-	Node *mPrevSelectedNode;
+	Node *mSelectedNode;	
 	float mDistBetweenPrevAndCurrentNode;  // used to control duration of the tween
     
     FilterMode mFilterMode;
 	char mAlphaChar;
 	ci::ipod::PlaylistRef mCurrentPlaylist;
-	string mCurrentPlaylistName;
 };
 

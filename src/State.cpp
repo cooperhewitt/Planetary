@@ -54,7 +54,6 @@ void State::setAlphaChar( const string &name )
 void State::setPlaylist( ci::ipod::PlaylistRef playlist )
 {
 	mCurrentPlaylist = playlist;
-	mCurrentPlaylistName = playlist->getPlaylistName();
 	mCallbacksPlaylistStateChanged.call( this );
 }
 
@@ -109,20 +108,14 @@ void State::setSelectedNode( Node* node )
 			}
 		}
 		
-		// ensure that the new selection is selected
-		// node->select();
-		mPrevSelectedNode = mSelectedNode;
+		Node* prevSelectedNode = mSelectedNode;
 		mSelectedNode = node;
 		
-		if( mPrevSelectedNode && mSelectedNode )
-			mDistBetweenPrevAndCurrentNode = mPrevSelectedNode->mPos.distance( mSelectedNode->mPos );
-		
-		
-		// select everything in the next chain that isn't in the current chain
-		// SANITY CHECK: I changed this for loop
-		// from
-		// for (int i = currentChain.size(); i < nextChain.size(); i++) {
-		// to
+		if( prevSelectedNode && mSelectedNode ) {
+			mDistBetweenPrevAndCurrentNode = prevSelectedNode->mPos.distance( mSelectedNode->mPos );
+        }
+				
+		// ensure everything in the next chain is selected
         for (int i = 0; i < nextChain.size(); i++) {
             nextChain[i]->select();
         }
