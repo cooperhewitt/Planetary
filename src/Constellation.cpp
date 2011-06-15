@@ -8,28 +8,27 @@
 
 #include "Constellation.h"
 #include "cinder/gl/gl.h"
-#include "Node.h"
 #include "Globals.h"
 
 using std::vector;
 using namespace ci;
 
-void Constellation::setup(const vector<Node*> &nodes, const vector<int> &filteredArtists)
+void Constellation::setup(const vector<NodeArtist*> &filteredNodes)
 {
 	mConstellation.clear();
 	//mConstellationColors.clear();
 	
 	// CREATE DATA FOR CONSTELLATION
 	vector<float> distances;	// used for tex coords of the dotted line
-	for( vector<int>::const_iterator it1 = filteredArtists.begin(); it1 != filteredArtists.end(); ++it1 ){
+	for( vector<NodeArtist*>::const_iterator it1 = filteredNodes.begin(); it1 != filteredNodes.end(); ++it1 ){
 
-		Node *child1 = nodes[*it1];
+		NodeArtist *child1 = *it1;
 		float shortestDist = 5000.0f;
-		Node *nearestChild;
+		NodeArtist *nearestChild;
 		
-		vector<int>::const_iterator it2 = it1;
-		for( ++it2; it2 != filteredArtists.end(); ++it2 ) {
-			Node *child2 = nodes[*it2];
+		vector<NodeArtist*>::const_iterator it2 = it1;
+		for( ++it2; it2 != filteredNodes.end(); ++it2 ) {
+			NodeArtist *child2 = *it2;
 			
 			Vec3f dirBetweenChildren = child1->mPosDest - child2->mPosDest;
 			float distBetweenChildren = dirBetweenChildren.length();

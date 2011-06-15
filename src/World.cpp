@@ -17,6 +17,7 @@
 #include "cinder/Rand.h"
 #include "Globals.h"
 #include "BloomSphere.h"
+#include "Filter.h"
 
 using std::stringstream;
 using namespace ci;
@@ -24,10 +25,8 @@ using namespace ci::app;
 using namespace ci::ipod;
 using namespace std;
 
-void World::setup( Data *data )
+void World::setup()
 {
-    mData = data;
-
     // FIXME: this check for mIsInitialized looks wrong (it's set to false below)
     // ... when is it set to true? ... in anycase, these should only be set once :)
 	if( !mIsInitialized ){
@@ -51,21 +50,20 @@ void World::setup( Data *data )
 	mIsInitialized	= false;
 }
 
-void World::initNodes( const Font &font, const Font &smallFont, const Surface &highResSurfaces, const Surface &lowResSurfaces, const Surface &noAlbumArt )
+void World::initNodes( const vector<PlaylistRef> &artists, const Font &font, const Font &smallFont, const Surface &highResSurfaces, const Surface &lowResSurfaces, const Surface &noAlbumArt )
 {
 	float t = App::get()->getElapsedSeconds();
 
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-        Node *node = *it;
+	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+        NodeArtist* node = *it;
         delete node;
     }
 	mNodes.clear();
     
 	int i=0;
-	for(vector<PlaylistRef>::iterator it = mData->mArtists.begin(); it != mData->mArtists.end(); ++it){
-		PlaylistRef artist	= *it;
+	for(vector<PlaylistRef>::const_iterator it = artists.begin(); it != artists.end(); ++it){
 		NodeArtist *newNode = new NodeArtist( i++, font, smallFont, highResSurfaces, lowResSurfaces, noAlbumArt );
-		newNode->setData(artist);
+		newNode->setData(*it);
         newNode->setSphereData( &mHiSphere, &mMdSphere, &mLoSphere, &mTySphere );
 		mNodes.push_back( newNode );
 	}
@@ -78,24 +76,24 @@ void World::initNodes( const Font &font, const Font &smallFont, const Surface &h
 	mIsInitialized = true;
 }
 
-void World::filterNodes()
+void World::setFilter(const Filter &filter)
 {
-	deselectAllNodes();
-	
-	for(vector<int>::iterator it = mData->mFilteredArtists.begin(); it != mData->mFilteredArtists.end(); ++it){
-		mNodes[*it]->mIsHighlighted = true;
-	}
-	
-	if( mData->mFilteredArtists.size() > 1 ){
-		mConstellation.setup( mNodes, mData->mFilteredArtists );
-	}
-}
-
-void World::deselectAllNodes()
-{
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+    // deselect all nodes first
+	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->mIsHighlighted = false;
-		(*it)->mIsSelected = false;
+		(*it)->mIsSelected = false; // FIXME: should really be deselect, but how to guarantee useful nodes aren't deleted?
+	}
+	
+    mFilteredNodes.clear();
+	for(vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it){
+        if ( filter.test( (*it)->getPlaylist() ) ) {
+            (*it)->mIsHighlighted = true;
+            mFilteredNodes.push_back(*it);
+        }
+	}
+	
+	if( mFilteredNodes.size() > 1 ){
+		mConstellation.setup( mFilteredNodes );
 	}
 }
 
@@ -105,7 +103,7 @@ void World::updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t track
 	
     // TODO: proper iterators I suppose?
     for (int i = 0; i < mNodes.size(); i++) {
-        Node* artistNode = mNodes[i];
+        NodeArtist* artistNode = mNodes[i];
         artistNode->mIsPlaying = artistNode->getId() == artistId;
         for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
             Node* albumNode = artistNode->mChildNodes[j];
@@ -125,7 +123,7 @@ void World::selectHierarchy( uint64_t artistId, uint64_t albumId, uint64_t track
 {
     // TODO: proper iterators I suppose?    
     for (int i = 0; i < mNodes.size(); i++) {
-        Node* artistNode = mNodes[i];
+        NodeArtist* artistNode = mNodes[i];
         if (artistNode->getId() == artistId) {
             artistNode->select();
             for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
@@ -158,7 +156,7 @@ NodeTrack* World::getTrackNodeById( uint64_t artistId, uint64_t albumId, uint64_
     // NB:- artist and album must be selected, otherwise track node won't exist
     // TODO: proper iterators I suppose?        
     for (int i = 0; i < mNodes.size(); i++) {
-        Node* artistNode = mNodes[i];
+        NodeArtist* artistNode = mNodes[i];
         if (artistNode->getId() == artistId) {
             for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
                 Node* albumNode = artistNode->mChildNodes[j];
@@ -180,7 +178,7 @@ NodeTrack* World::getTrackNodeById( uint64_t artistId, uint64_t albumId, uint64_
 
 void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-    for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); it++) {
+    for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); it++) {
         if( (*it)->mIsHighlighted ) {
             (*it)->checkForNameTouch( nodes, pos );
         }
@@ -189,13 +187,13 @@ void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 
 void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp, const float &zoomAlpha )
 {
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->updateGraphics( cam, bbRight, bbUp );
 	}
     
     if (mIsInitialized) {
         mStars.setup(mNodes, bbRight, bbUp, zoomAlpha * 0.3f);
-        mStarGlows.setup(mNodes, mData->mFilteredArtists.size(), bbRight, bbUp, zoomAlpha);
+        mStarGlows.setup(mFilteredNodes, bbRight, bbUp, zoomAlpha);
     }
 }
 
@@ -210,14 +208,14 @@ void World::update( float param1, float param2 )
 		}
 		
 		if( mAge == mEndRepulseAge + 100 ){
-			mConstellation.setup( mNodes, mData->mFilteredArtists );
+			mConstellation.setup( mFilteredNodes );
 		}
 		
 		if( mIsRepulsing ){
 			repulseNodes();
 		}
 		
-		for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+		for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 			(*it)->update( param1, param2 );
 		}
 	}
@@ -225,9 +223,9 @@ void World::update( float param1, float param2 )
 
 void World::repulseNodes()
 {
-	for( vector<Node*>::iterator p1 = mNodes.begin(); p1 != mNodes.end(); ++p1 ){
+	for( vector<NodeArtist*>::iterator p1 = mNodes.begin(); p1 != mNodes.end(); ++p1 ){
 		
-		vector<Node*>::iterator p2 = p1;
+		vector<NodeArtist*>::iterator p2 = p1;
 		for( ++p2; p2 != mNodes.end(); ++p2 ) {
 			Vec3f dir = (*p1)->mPosDest - (*p2)->mPosDest;
 			
@@ -261,35 +259,35 @@ void World::drawStarGlowsVertexArray()
 
 void World::drawEclipseGlows()
 {
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->drawEclipseGlow();
 	}
 }
 
 void World::drawPlanets( const gl::Texture &tex )
 {
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->drawPlanet( tex );
 	}
 }
 
 void World::drawClouds( const vector<gl::Texture> &clouds )
 {
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->drawClouds( clouds );
 	}
 }
 
 void World::drawRings( const gl::Texture &tex, float camZPos )
 {
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->drawRings( tex, mPlanetRing, camZPos );
 	}
 }
 
 void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset, float angle )
 {
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
 			(*it)->drawName( cam, pinchAlphaOffset, angle );
 		}
@@ -298,14 +296,14 @@ void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset, float ang
 
 void World::drawOrbitRings( float pinchAlphaOffset, float camAlpha, const gl::Texture &orbitRingGradient )
 {
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRingGradient, mOrbitRing );
 	}
 }
 
 void World::drawTouchHighlights( float zoomAlpha )
 {
-	for( vector<Node*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
+	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->drawTouchHighlight( zoomAlpha );
 	}
 }
@@ -319,7 +317,7 @@ void World::drawHitAreas()
 {    
     // HIT AREA VISUALIZER
     for (int i = 0; i < mNodes.size(); i++) {
-        Node* artistNode = mNodes[i];
+        NodeArtist* artistNode = mNodes[i];
         if (artistNode->mIsHighlighted) {
             gl::color(ColorA(0.0f,0.0f,1.0f,0.25f));
             if( artistNode->mDistFromCamZAxisPer > 0.0f ){

@@ -23,8 +23,6 @@ class Data {
     
     void setup();
 	void update();
-
-    void setFilter(const Filter &filter);
     
 	std::vector<ci::ipod::PlaylistRef> mArtists;
 	std::vector<ci::ipod::PlaylistRef> mPlaylists;

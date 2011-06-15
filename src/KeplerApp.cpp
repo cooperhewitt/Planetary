@@ -394,7 +394,7 @@ void KeplerApp::remainingSetup()
     mData.setup(); // NB:- is asynchronous, see update() for what happens when it's done
 
     // WORLD
-    mWorld.setup( &mData );
+    mWorld.setup();
 	
     // GALAXY (TODO: Move to World?)
     mGalaxy.setup(G_INIT_CAM_DIST, BRIGHT_BLUE, BLUE, mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex);
@@ -691,36 +691,36 @@ bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 
 bool KeplerApp::onAlphaCharStateChanged( State *state )
 {
-	mData.setFilter( LetterFilter(mState.getAlphaChar()) );
-    mState.setFilterMode( State::FilterModeAlphaChar );
+    if (mState.getAlphaChar() != ' ') {
+        mWorld.setFilter( LetterFilter(mState.getAlphaChar()) );
+        mState.setFilterMode( State::FilterModeAlphaChar );
 
-    std::map<string, string> parameters;
-    parameters["Letter"] = ""+mState.getAlphaChar();
-    parameters["Count"] = ""+mData.mFilteredArtists.size();
-    logEvent("Letter Selected" , parameters);
+        mState.setSelectedNode( NULL );
+        mPlayControls.setPlaylist( "" ); // FIXME: should be setPlaylistActive(true/false)
 
-	mWorld.filterNodes();
-    
-    mState.setSelectedNode( NULL );
-    
+        std::map<string, string> params;
+        params["Letter"] = toString( mState.getAlphaChar() );
+        params["Count"] = toString( mData.mFilteredArtists.size() );
+        logEvent("Letter Selected" , params);
+    }    
 	return false;
 }
 
 bool KeplerApp::onPlaylistStateChanged( State *state )
 {
 	std::cout << "playlist changed" << std::endl;
-	mData.setFilter( PlaylistFilter(mState.getPlaylist()) );
+
+    mState.setAlphaChar( ' ' );
+    mWorld.setFilter( PlaylistFilter(mState.getPlaylist()) );
     mState.setFilterMode( State::FilterModePlaylist );
+    mState.setSelectedNode( NULL );
     
 	mPlayControls.setPlaylist( mState.getPlaylistName() );
 	
     // FIXME: enable this 
 //    std::map<string, string> parameters;
 //    parameters["Playlist"] = ""+mState.getPlaylist();
-//    logEvent("Playlist Selected" , parameters);
-	
-	mWorld.filterNodes();
-    mState.setSelectedNode( NULL );
+//    logEvent("Playlist Selected" , parameters);	
     
 	return false;
 }
@@ -1009,7 +1009,7 @@ void KeplerApp::update()
 {
     if (mData.getState() == Data::LoadStatePending) {
         mData.update(); // processes pending nodes
-		mWorld.initNodes( mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
+		mWorld.initNodes( mData.mArtists, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
 		mLoadingScreen.setEnabled( false );
 		mUiLayer.setIsPanelOpen( true );
         onSelectedNodeChanged( NULL );
@@ -1614,7 +1614,7 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 	mLoadingScreen.setEnabled( true );
     mState.setup();    
     mData.setup();
-	mWorld.setup( &mData );
+	mWorld.setup();
     logEvent("Player Library Changed");
     return false;
 }

@@ -10,8 +10,7 @@
 
 #include <vector>
 #include "cinder/Vector.h"
-
-class Node;
+#include "NodeArtist.h"
 
 class Constellation
 {
@@ -30,7 +29,7 @@ public:
 		if (mConstellationTexCoords != NULL) delete[] mConstellationTexCoords;         
     }
     
-    void setup(const std::vector<Node*> &nodes, const std::vector<int> &filteredArtists);
+    void setup(const vector<NodeArtist*> &filteredNodes);
     void draw() const;
     
 private:

@@ -10,7 +10,8 @@
 
 #include <vector>
 #include "cinder/Vector.h"
-#include "Node.h"
+
+class NodeArtist;
 
 class Stars {
 public:
@@ -30,7 +31,7 @@ public:
 		if (mColors != NULL)	delete[] mColors;        
     }
     
-    void setup( const std::vector<Node*> &nodes,
+    void setup( const std::vector<NodeArtist*> &nodes,
                 const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, 
                 const float &zoomAlpha );
     void draw();

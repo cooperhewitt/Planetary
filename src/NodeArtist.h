@@ -30,7 +30,7 @@ class NodeArtist : public Node
     uint64_t getId();
 	void setData( ci::ipod::PlaylistRef playlist );
 	int getNumAlbums(){ return mNumAlbums; }
-	
+    ci::ipod::PlaylistRef getPlaylist() { return mPlaylist; }
 	
   private:
 	void setColors();

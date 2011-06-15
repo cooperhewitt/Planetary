@@ -25,7 +25,6 @@ void Data::setup()
 {
 	mArtists.clear();
 	mPlaylists.clear();
-	mFilteredArtists.clear();    
     mNumArtistsPerChar.clear();
 	
     if (mState != LoadStateLoading) {
@@ -109,14 +108,4 @@ void Data::update()
 		        
         mState = LoadStateComplete;
 	}
-}
-
-void Data::setFilter(const Filter &filter)
-{
-	mFilteredArtists.clear();
-	for( int i = 0; i < mArtists.size(); i++ ){
-        if ( filter.test( mArtists[i] ) ){
-            mFilteredArtists.push_back( i );
-        }
-    }    
 }

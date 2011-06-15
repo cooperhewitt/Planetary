@@ -9,15 +9,20 @@
 
 #pragma once
 
+#include "CinderIPod.h"
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/Vector.h"
 #include "cinder/Font.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Surface.h"
-#include "Data.h"
+
 #include "Node.h"
+#include "NodeArtist.h"
 #include "NodeTrack.h"
+
+#include "Filter.h"
+
 #include "Stars.h"
 #include "StarGlows.h"
 #include "OrbitRing.h"
@@ -31,16 +36,16 @@ public:
     World() {};
     ~World() {};
     
-	void setup( Data *data );
+	void setup();
 
-	void initNodes( const ci::Font &font, 
+	void initNodes( const vector<ci::ipod::PlaylistRef> &artists, 
+                    const ci::Font &font, 
                     const ci::Font &smallFont, 
                     const ci::Surface &hiResSurfaces, 
                     const ci::Surface &loResSurfaces, 
                     const ci::Surface &noAlbumArt );
     
-	void filterNodes();
-	void deselectAllNodes();
+	void setFilter(const Filter &filter);
     
     void updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
     void selectHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId );
@@ -70,8 +75,8 @@ public:
 	
 private:
 
-    std::vector<Node*> mNodes;
-	Data *mData;	
+    std::vector<NodeArtist*> mNodes;
+    std::vector<NodeArtist*> mFilteredNodes;
 
     ///////////////
 

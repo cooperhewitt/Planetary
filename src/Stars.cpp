@@ -9,11 +9,12 @@
 #include "Stars.h"
 #include "cinder/gl/gl.h"
 #include "Globals.h" // mumble
+#include "NodeArtist.h"
 
 using namespace ci;
 using namespace std;
 
-void Stars::setup( const vector<Node*> &nodes,
+void Stars::setup( const vector<NodeArtist*> &nodes,
                    const Vec3f &bbRight, const Vec3f &bbUp, 
                    const float &zoomAlpha )
 {
@@ -37,7 +38,7 @@ void Stars::setup( const vector<Node*> &nodes,
 	const float scaleOffset	= 0.5f - constrain( G_ARTIST_LEVEL - G_ZOOM, 0.0f, 1.0f ) * 0.25f; // 0.25 -> 0.5
 	const float zoomOffset	= zoomAlpha * 1.5f;
 	
-	for( vector<Node*>::const_iterator it = nodes.begin(); it != nodes.end(); ++it ){
+	for( vector<NodeArtist*>::const_iterator it = nodes.begin(); it != nodes.end(); ++it ){
 		
         Vec3f pos = (*it)->mPos;
 		ColorA col = ColorA( (*it)->mColor, 1.0f );
