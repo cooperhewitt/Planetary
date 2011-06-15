@@ -13,6 +13,7 @@
 #include "cinder/Rand.h"
 #include "cinder/Thread.h"
 #include "cinder/Text.h"
+#include "cinder/Utilities.h"
 #include "CinderFlurry.h"
 
 using namespace ci;
@@ -39,7 +40,7 @@ void Data::backgroundInit()
 	
 	Flurry::getInstrumentation()->startTimeEvent("Music Loading");
 	mPendingArtists = getArtists();
-	std::cout << "got " << mPendingArtists.size() << " artists" << std::endl;
+	cout << "got " << mPendingArtists.size() << " artists" << endl;
 	
 // QUICK FIX FOR GETTING MORE DATA ONTO THE ALPHAWHEEL
 	string alphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
@@ -77,15 +78,15 @@ void Data::backgroundInit()
 
 // END ALPHAWHEEL QUICK FIX
 	
-    std::map<string, string> params;
-    params["NumArtists"] = i_to_string(mPendingArtists.size());
+    map<string, string> params;
+    params["NumArtists"] = toString(mPendingArtists.size());
     Flurry::getInstrumentation()->logEvent("Artists loaded", params);
 	
 	Flurry::getInstrumentation()->startTimeEvent("Playlists Loading");
 	mPendingPlaylists = getPlaylists();
-	std::cout << "got " << mPendingPlaylists.size() << " playlists" << std::endl;
+	cout << "got " << mPendingPlaylists.size() << " playlists" << endl;
     params.clear();
-    params["NumPlaylists"] = i_to_string( mPendingPlaylists.size());
+    params["NumPlaylists"] = toString( mPendingPlaylists.size());
     Flurry::getInstrumentation()->logEvent("Playlists loaded", params);	
 		
 	Flurry::getInstrumentation()->stopTimeEvent("Music Loading");
