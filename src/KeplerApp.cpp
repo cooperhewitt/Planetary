@@ -420,54 +420,64 @@ void KeplerApp::remainingSetup()
 
 void KeplerApp::initLoadingTextures()
 {
-	mStarGlowTex	= loadImage( loadResource( "starGlow.png" ) );
+    gl::Texture::Format fmt;
+    fmt.enableMipmapping( true );
+    fmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );    
+	mStarGlowTex = gl::Texture( loadImage( loadResource( "starGlow.png" ) ), fmt);
 }
 
 void KeplerApp::initTextures()
 {
-    Flurry::getInstrumentation()->startTimeEvent("Load Textures");    
-//	float t = getElapsedSeconds();
-//	console() << "initTextures start time = " << t << endl;
-    mStarTex			= loadImage( loadResource( "star.png" ) );
-	mStarCoreTex		= loadImage( loadResource( "starCore.png" ) );
-	mEclipseGlowTex		= loadImage( loadResource( "eclipseGlow.png" ) );
-	mEclipseShadowTex	= loadImage( loadResource( "eclipseShadow.png" ) );
-	mLensFlareTex		= loadImage( loadResource( "lensFlare.png" ) );
-	mParticleTex		= loadImage( loadResource( "particle.png" ) );
-	mSkyDome			= loadImage( loadResource( "skydome.png" ) );
-	mGalaxyDome			= loadImage( loadResource( "skydome.jpg" ) );
-	mDottedTex			= loadImage( loadResource( "dotted.png" ) );
-	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
-	mRingsTex           = loadImage( loadResource( "rings.png" ) );
-    mPlayheadProgressTex = loadImage( loadResource( "playheadProgress.png" ) );
-	mPlayheadProgressTex.setWrap( GL_REPEAT, GL_REPEAT );
-	mUiButtonsTex		= loadImage( loadResource( "uiButtons.png" ) );
-	mUiBigButtonsTex	= loadImage( loadResource( "uiBigButtons.png" ) );
-	mUiSmallButtonsTex	= loadImage( loadResource( "uiSmallButtons.png" ) );
-	mOverlayIconsTex	= loadImage( loadResource( "overlayIcons.png" ) );
-    mAtmosphereTex		= loadImage( loadResource( "atmosphere.png" ) );
-	mAtmosphereDirectionalTex = loadImage( loadResource( "atmosphereDirectional.png" ) );
-	mAtmosphereSunTex	= loadImage( loadResource( "atmosphereSun.png" ) );
-	mGalaxyTex			= loadImage( loadResource( "galaxy.jpg" ) );
-	mDarkMatterTex		= loadImage( loadResource( "darkMatter.png" ) );
-	mOrbitRingGradientTex = loadImage( loadResource( "orbitRingGradient.png" ) );
-	mTrackOriginTex		= loadImage( loadResource( "origin.png" ) );
+    //	float t = getElapsedSeconds();
+    //	console() << "initTextures start time = " << t << endl;
     
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds1.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds2.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds3.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds4.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds5.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds1.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds2.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds3.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds4.png" ) ) ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds5.png" ) ) ) );
+    Flurry::getInstrumentation()->startTimeEvent("Load Textures");    
+    
+    gl::Texture::Format fmt;
+    fmt.enableMipmapping( true );
+    fmt.setMagFilter( GL_LINEAR );
+    fmt.setMinFilter( GL_LINEAR_MIPMAP_NEAREST );    
+
+    mStarTex                  = gl::Texture( loadImage( loadResource( "star.png" ) ), fmt );
+	mStarCoreTex              = gl::Texture( loadImage( loadResource( "starCore.png" ) ), fmt );
+	mEclipseGlowTex           = gl::Texture( loadImage( loadResource( "eclipseGlow.png" ) ), fmt );
+	mEclipseShadowTex         = gl::Texture( loadImage( loadResource( "eclipseShadow.png" ) ), fmt );
+	mLensFlareTex             = gl::Texture( loadImage( loadResource( "lensFlare.png" ) ), fmt );
+	mParticleTex              = gl::Texture( loadImage( loadResource( "particle.png" ) ), fmt );
+	mSkyDome                  = gl::Texture( loadImage( loadResource( "skydome.png" ) ), fmt );
+	mGalaxyDome               = gl::Texture( loadImage( loadResource( "skydome.jpg" ) ), fmt );
+	mDottedTex                = gl::Texture( loadImage( loadResource( "dotted.png" ) ), fmt );
+	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
+	mRingsTex                 = gl::Texture( loadImage( loadResource( "rings.png" ) ) /*, fmt */ );
+    mPlayheadProgressTex      = gl::Texture( loadImage( loadResource( "playheadProgress.png" ) ), fmt );
+	mPlayheadProgressTex.setWrap( GL_REPEAT, GL_REPEAT );
+	mUiButtonsTex             = gl::Texture( loadImage( loadResource( "uiButtons.png" ) )/*, fmt*/ );
+	mUiBigButtonsTex          = gl::Texture( loadImage( loadResource( "uiBigButtons.png" ) )/*, fmt*/ );
+	mUiSmallButtonsTex        = gl::Texture( loadImage( loadResource( "uiSmallButtons.png" ) )/*, fmt*/ );
+	mOverlayIconsTex          = gl::Texture( loadImage( loadResource( "overlayIcons.png" ) )/*, fmt*/ );
+    mAtmosphereTex            = gl::Texture( loadImage( loadResource( "atmosphere.png" ) ), fmt );
+	mAtmosphereDirectionalTex = gl::Texture( loadImage( loadResource( "atmosphereDirectional.png" ) ), fmt );
+	mAtmosphereSunTex         = gl::Texture( loadImage( loadResource( "atmosphereSun.png" ) ), fmt );
+	mGalaxyTex                = gl::Texture( loadImage( loadResource( "galaxy.jpg" ) ), fmt );
+	mDarkMatterTex            = gl::Texture( loadImage( loadResource( "darkMatter.png" ) )/*, fmt*/ );
+	mOrbitRingGradientTex     = gl::Texture( loadImage( loadResource( "orbitRingGradient.png" ) ), fmt );
+	mTrackOriginTex           = gl::Texture( loadImage( loadResource( "origin.png" ) ), fmt );
+
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds1.png" ) ), fmt ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds2.png" ) ), fmt ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds3.png" ) ), fmt ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds4.png" ) ), fmt ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds5.png" ) ), fmt ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds1.png" ) ), fmt ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds2.png" ) ), fmt ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds3.png" ) ), fmt ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds4.png" ) ), fmt ) );
+	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds5.png" ) ), fmt ) );
 	
 	mHighResSurfaces	= Surface( loadImage( loadResource( "surfacesHighRes.png" ) ) );
 	mLowResSurfaces		= Surface( loadImage( loadResource( "surfacesLowRes.png" ) ) );
-	
     mNoAlbumArtSurface = Surface( loadImage( loadResource( "noAlbumArt.png" ) ) );
+    
 	//console() << "initTextures duration = " << (getElapsedSeconds()-t) << endl;
     Flurry::getInstrumentation()->stopTimeEvent("Load Textures");    
 }
@@ -1445,9 +1455,9 @@ void KeplerApp::drawScene()
 	}
 	
 // PARTICLES
-	if( mState.getSelectedArtistNode() ){
+	if( artistNode ){
 		mParticleTex.enableAndBind();
-		mParticleController.drawParticleVertexArray( mState.getSelectedArtistNode() );
+		mParticleController.drawParticleVertexArray( artistNode );
 		mParticleTex.disable();
 	}
 	
@@ -1461,9 +1471,9 @@ void KeplerApp::drawScene()
 	
 	
 // DUSTS
-	if( mState.getSelectedArtistNode() ){
+	if( artistNode ){
 		gl::enableAdditiveBlending();
-		mParticleController.drawDustVertexArray( mState.getSelectedArtistNode() );
+		mParticleController.drawDustVertexArray( artistNode );
 	}
 
 	

@@ -215,8 +215,12 @@ void NodeAlbum::setData( PlaylistRef album )
 			iter.b() = constrain( final.b * 255.0f - 0.0f, 0.0f, 255.0f );// + 25.0f;
 		}
 	}
+
+    gl::Texture::Format fmt;
+    fmt.enableMipmapping( true );
+    fmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );
 	
-	mAlbumArtTex		= gl::Texture( planetSurface );
+	mAlbumArtTex		= gl::Texture( planetSurface, fmt );
 	mHasAlbumArt		= true;
 }
 

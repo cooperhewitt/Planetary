@@ -310,8 +310,12 @@ void NodeTrack::update( float param1, float param2 )
 					iter.b() = final.b * 255.0f;// + 25.0f;
 				}
 			}
+
+            gl::Texture::Format fmt;
+            fmt.enableMipmapping( true );
+            fmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );
 			
-			mAlbumArtTex		= gl::Texture( planetSurface );
+			mAlbumArtTex		= gl::Texture( planetSurface, fmt );
 			mHasAlbumArt		= true;
 			
 			mHasCreatedAlbumArt = true;
@@ -431,17 +435,17 @@ void NodeTrack::drawPlanet( const gl::Texture &tex )
             mAlbumArtTex.enableAndBind();
         }
 
-        if (G_DEBUG) {
-            Vec2f center = app::getWindowCenter();
-            Vec2f dir		= mScreenPos - center;
-            float dirLength = dir.length()/500.0f;
-            float angle		= dirLength > 0.999f ? atan2( dir.y, dir.x ) : 0.0f;
-            float stretch	= 1.0f + dirLength * 0.1f;
-            gl::color( Color::white() );
-            Vec2f size = Vec2f( mRadius * stretch, mRadius ) * 2.45f;
-            gl::drawBillboard( mPos, size, -toDegrees( angle ), mBbRight, mBbUp );        
-        }
-        else {
+//        if (G_DEBUG) {
+//            Vec2f center = app::getWindowCenter();
+//            Vec2f dir		= mScreenPos - center;
+//            float dirLength = dir.length()/500.0f;
+//            float angle		= dirLength > 0.999f ? atan2( dir.y, dir.x ) : 0.0f;
+//            float stretch	= 1.0f + dirLength * 0.1f;
+//            gl::color( Color::white() );
+//            Vec2f size = Vec2f( mRadius * stretch, mRadius ) * 2.45f;
+//            gl::drawBillboard( mPos, size, -toDegrees( angle ), mBbRight, mBbUp );        
+//        }
+//        else {
             gl::pushModelView();
             gl::translate( mPos );
             const float radius = mRadius * mDeathPer;
@@ -458,7 +462,7 @@ void NodeTrack::drawPlanet( const gl::Texture &tex )
             } else {
                 mTySphere->draw();
             }
-        }
+//        }
         
         if (mHasCreatedAlbumArt) {
             mAlbumArtTex.disable();

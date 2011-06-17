@@ -10,6 +10,12 @@
 
 namespace bloom {
 
+    struct VertexData {
+        ci::Vec4f vertex;
+        // no normal, normal == vertex
+        ci::Vec4f texture;
+    };    
+    
     class BloomSphere
     {
     public:
@@ -17,8 +23,6 @@ namespace bloom {
         ~BloomSphere() {
             if (mInited) {
                 delete[] mVerts;
-                delete[] mNormals;
-                delete[] mTexCoords;
             }
         }
         
@@ -29,9 +33,7 @@ namespace bloom {
         
         bool mInited;
         int mNumVerts;
-        float *mVerts; 
-        float *mNormals;
-        float *mTexCoords;
+        VertexData *mVerts; 
         
     };
     
