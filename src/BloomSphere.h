@@ -24,7 +24,8 @@ namespace bloom {
         BloomSphere(): mInited(false) {}
         ~BloomSphere() {
             if (mInited) {
-                delete[] mVerts;
+                glDeleteBuffers(1, &mVBO);
+                delete[] mVerts; // FIXME: can we make mVerts local to setup() now?
             }
         }
         

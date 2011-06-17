@@ -93,6 +93,7 @@ namespace bloom {
         }
 
         // do VBO (there are more complex ways, let's try this first)
+        // (other things to try include VAOs, with glGenVertexArraysOES?)
         glGenBuffers(1, &mVBO);
         glBindBuffer(GL_ARRAY_BUFFER, mVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * mNumVerts, mVerts, GL_STATIC_DRAW);
