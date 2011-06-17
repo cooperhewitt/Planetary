@@ -438,7 +438,7 @@ void PlayControls::draw(float y)
     // FIXME: make an mActive bool so we can skip interaction if the panel is hiding
     //mActive = (mInterfaceSize.y - y ) > 60.0f;
     
-    gl::pushModelView();
+    glPushMatrix();
     gl::multModelView( mOrientationMatrix );
     gl::translate( Vec2f(0, y) );
     
@@ -463,7 +463,7 @@ void PlayControls::draw(float y)
 		gl::draw( mButtonsTex, aLeft, coverLeft );
 	gl::draw( mButtonsTex, aLeft, coverRight );
 	    
-    gl::popModelView();
+    glPopMatrix();
     
     gl::disableAlphaBlending();    
 }

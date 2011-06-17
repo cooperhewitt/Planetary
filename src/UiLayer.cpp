@@ -200,7 +200,7 @@ void UiLayer::draw( const gl::Texture &uiButtonsTex )
     const float texWidth = uiButtonsTex.getWidth();
     const float texHeight = uiButtonsTex.getHeight();
     
-    gl::pushModelView();
+    glPushMatrix();
     gl::multModelView( mOrientationMatrix );
     
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
@@ -224,7 +224,7 @@ void UiLayer::draw( const gl::Texture &uiButtonsTex )
     Area mTabTexArea(texWidth * 0.5f, texHeight * 0.5f, texWidth * 1.0f, texHeight * 0.7f);
     gl::draw(uiButtonsTex, mTabTexArea, mPanelTabRect);
 	
-    gl::popModelView();    
+    glPopMatrix();    
 }
 
 // TODO: move this to an operator in Cinder's Matrix class?

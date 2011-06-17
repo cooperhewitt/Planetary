@@ -323,7 +323,7 @@ void NodeAlbum::drawPlanet( const gl::Texture &tex )
 	
 	if( mDistFromCamZAxis > mRadius ){
         
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( mPos );
 		gl::scale( Vec3f( mRadius, mRadius, mRadius ) * mDeathPer );
 		gl::rotate( mAxialRot );
@@ -350,7 +350,7 @@ void NodeAlbum::drawPlanet( const gl::Texture &tex )
         
         mAlbumArtTex.disable();
         
-		gl::popModelView();
+		glPopMatrix();
 		
 	}
 }
@@ -382,13 +382,13 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		
 		
 		gl::enableAlphaBlending();
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( mPos );
 
 		//glDisable( GL_LIGHTING );
 		
 // SHADOW CLOUDS
-		gl::pushModelView();
+		glPushMatrix();
 		float radius = mRadius * mDeathPer + mCloudLayerRadius;
 		float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 0.334f ) * mClosenessFadeAlpha;
 		gl::scale( Vec3f( radius, radius, radius ) );
@@ -396,23 +396,23 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
 		clouds[mCloudTexIndex].enableAndBind();
         lodSphere->draw();
-		gl::popModelView();
+		glPopMatrix();
 
 		//glEnable( GL_LIGHTING );
 		
 // LIT CLOUDS
-		gl::pushModelView();
+		glPushMatrix();
 		radius = mRadius * mDeathPer + mCloudLayerRadius*1.5f;
 		gl::scale( Vec3f( radius, radius, radius ) );
 		gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha * 2.0f ) );
 		lodSphere->draw();
-		gl::popModelView();
+		glPopMatrix();
 
         clouds[mCloudTexIndex].disable();
 
-		gl::popModelView();
+		glPopMatrix();
 		
 	}
 }
@@ -464,7 +464,7 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 		gl::color( ColorA( BLUE, 0.5f * camAlpha * mDeathPer ) );
 	}
 	
-	gl::pushModelView();
+	glPushMatrix();
 	gl::translate( mParentNode->mPos );
 	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
 	gl::rotate( Vec3f( 90.0f, 0.0f, toDegrees( mOrbitAngle ) ) );
@@ -472,7 +472,7 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 	orbitRingGradient.enableAndBind();
     orbitRing.drawHighRes();
 	orbitRingGradient.disable();
-	gl::popModelView();
+	glPopMatrix();
 	
 	Node::drawOrbitRing( pinchAlphaPer, camAlpha, orbitRingGradient, orbitRing );
 }
@@ -485,7 +485,7 @@ void NodeAlbum::drawRings( const gl::Texture &tex, const PlanetRing &planetRing,
 		if( mIsSelected || mIsPlaying ){
 			gl::enableAdditiveBlending();
 			
-			gl::pushModelView();
+			glPushMatrix();
 			gl::translate( mPos );
 			
             float c = 0.5f * mIdealCameraDist;
@@ -499,7 +499,7 @@ void NodeAlbum::drawRings( const gl::Texture &tex, const PlanetRing &planetRing,
             planetRing.draw();
 			tex.disable();
             
-			gl::popModelView();
+			glPopMatrix();
 		}
 	}
 }
@@ -624,69 +624,69 @@ void NodeAlbum::findShadows( float camAlpha )
 		gl::color( ColorA( mGlowColor, 0.4f ) );
 		gl::drawLine( P0, P1 );
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P0 );
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), r0, 50 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P0 );
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), r0Inner, 50 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P1 );
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), r1, 25 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P2 );
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
 		
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P3a );
 		//gl::rotate( mMatrix );
 		//gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P3b );
 		//gl::rotate( mMatrix );
 		//gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P5a );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P5b );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P6a );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P6b );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
 		
 		gl::drawLine( P6a, ( P6a + mMatrix * outerTanBDir ) );
@@ -695,12 +695,12 @@ void NodeAlbum::findShadows( float camAlpha )
 		gl::drawLine( P6b, ( P6b + mMatrix * innerTanBDir ) );
 		
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.4f ) );	
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P4 );
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), dMid, 50 );
-		gl::popModelView();
+		glPopMatrix();
 		
 		glEnable( GL_TEXTURE_2D );
 	}

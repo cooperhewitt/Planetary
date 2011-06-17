@@ -59,10 +59,10 @@ void Stats::update(const float &fps,
 void Stats::draw(const Matrix44f &orientationMatrix)
 {
     if (mParamsTex) {
-        gl::pushModelView();
+        glPushMatrix();
         gl::multModelView( orientationMatrix );
         gl::color( Color( 1.0f, 1.0f, 1.0f ) );
         gl::draw( mParamsTex, Vec2f( 23.0f, 25.0f ) );
-        gl::popModelView();    
+        glPopMatrix();    
     }
 }

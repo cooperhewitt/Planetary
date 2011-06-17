@@ -151,7 +151,7 @@ void NodeArtist::drawPlanet( const gl::Texture &tex )
         // FIXME: move rotation calculation to something called from main app's update()
 		mAxialRot = Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt );
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( mPos );
 		gl::scale( Vec3f( mRadius, mRadius, mRadius ) * mDeathPer * 0.16f );
 		gl::rotate( mAxialRot );
@@ -175,7 +175,7 @@ void NodeArtist::drawPlanet( const gl::Texture &tex )
 		}
         
 		glEnable( GL_LIGHTING );        
-		gl::popModelView();		
+		glPopMatrix();		
 	}
 }
 

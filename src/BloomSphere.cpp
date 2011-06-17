@@ -104,28 +104,25 @@ namespace bloom {
 
     void BloomSphere::draw()
     {
-		glEnableClientState( GL_VERTEX_ARRAY );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glEnableClientState( GL_NORMAL_ARRAY );
-        glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-        glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), 0 );
-        glNormalPointer( GL_FLOAT, sizeof(VertexData), 0 );
-        glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), (void*)sizeof(Vec4f) );        
-		glDrawArrays( GL_TRIANGLES, 0, mNumVerts );        
-        glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
-		glDisableClientState( GL_VERTEX_ARRAY );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		glDisableClientState( GL_NORMAL_ARRAY );        
-//		glEnableClientState( GL_VERTEX_ARRAY );
-//		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-//		glEnableClientState( GL_NORMAL_ARRAY );
+        // here's the old vertex array way...
 //      glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), &mVerts[0].vertex );
 //      glNormalPointer( GL_FLOAT, sizeof(VertexData), &mVerts[0].vertex );
-//      glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );
-//		glDrawArrays( GL_TRIANGLES, 0, mNumVerts );
-//		glDisableClientState( GL_VERTEX_ARRAY );
-//		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-//		glDisableClientState( GL_NORMAL_ARRAY );        
+//      glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );        
+        
+        // here's the new vertex buffer way, which needs setting up after mVerts is built in setup
+        glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+        glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), 0 ); // last arg becomes an offset instead of an address
+        glNormalPointer( GL_FLOAT, sizeof(VertexData), 0 );
+        glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), (void*)sizeof(Vec4f) );        
+        glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
+
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glEnableClientState( GL_NORMAL_ARRAY );        
+		glDrawArrays( GL_TRIANGLES, 0, mNumVerts );        
+		glDisableClientState( GL_VERTEX_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		glDisableClientState( GL_NORMAL_ARRAY );
     }
     
 }

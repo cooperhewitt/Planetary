@@ -54,7 +54,7 @@ void LoadingScreen::draw( gl::Texture mStarGlowTex )
 	
     gl::setMatricesWindow( app::getWindowSize() );    
 
-    gl::pushModelView();
+    glPushMatrix();
     gl::multModelView( mOrientationMatrix );
     Vec2f center = mInterfaceSize * 0.5f;
     gl::color( Color::white() );
@@ -157,5 +157,5 @@ void LoadingScreen::draw( gl::Texture mStarGlowTex )
 	gl::drawSolidRect( Rectf( v1, v2 ) );
 	*/
 	mPlanetTex.disable();
-    gl::popModelView();
+    glPopMatrix();
 }

@@ -285,7 +285,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 
 			Vec2f texCorner = mNameTex.getSize();
 			
-			gl::pushModelView();
+			glPushMatrix();
 			gl::translate( pos2 + offset2 );
 			if (angle != 0) {
 				gl::rotate( angle * 180.0f/M_PI );
@@ -308,7 +308,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			gl::color( col );
 			gl::draw( mNameTex, Vec2f::zero() );
 			
-			gl::popModelView();
+			glPopMatrix();
 			
 			mHitArea = Rectf( pos2 + offset2, pos2 + offset2 + texCorner);
 			mHitArea.canonicalize();        

@@ -194,12 +194,12 @@ void ParticleController::drawParticleVertexArray( Node *node )
 	glTexCoordPointer( 2, GL_FLOAT, 0, mParticleTexCoords );
 	glColorPointer( 4, GL_FLOAT, 0, mParticleColors );	
 	
-	gl::pushModelView();
+	glPushMatrix();
 	if( node ){
 		gl::translate( node->mPos );
 	}
 	glDrawArrays( GL_TRIANGLES, 0, mTotalParticleVertices );
-	gl::popModelView();
+	glPopMatrix();
 	
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -214,12 +214,12 @@ void ParticleController::drawDustVertexArray( Node *node )
 	glVertexPointer( 3, GL_FLOAT, 0, mDustVerts );
 	glColorPointer( 4, GL_FLOAT, 0, mDustColors );
 
-	gl::pushModelView();
+	glPushMatrix();
 	if( node ) {
 		gl::translate( node->mPos );
     }
 	glDrawArrays( GL_POINTS, 0, mTotalDustVertices );
-	gl::popModelView();
+	glPopMatrix();
 	
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_COLOR_ARRAY );

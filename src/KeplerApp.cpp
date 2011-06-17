@@ -1283,7 +1283,7 @@ void KeplerApp::drawNoArtists()
     
 	gl::setMatricesWindow( getWindowSize() );    
 	
-    gl::pushModelView();
+    glPushMatrix();
     gl::multModelView( mOrientationMatrix );
 	Vec2f interfaceSize = getWindowSize();
 	if( isLandscapeOrientation( mInterfaceOrientation ) ){

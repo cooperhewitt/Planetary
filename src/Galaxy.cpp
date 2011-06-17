@@ -48,7 +48,7 @@ void Galaxy::drawLightMatter()
 		gl::color( ColorA( mLightMatterColor, mInvAlpha * 2.0f ) );
         
 		const float radius = mLightMatterBaseRadius * 0.9f;
-		gl::pushModelView();
+		glPushMatrix();
         mGalaxyDome.enableAndBind();
         glEnableClientState( GL_VERTEX_ARRAY );
         glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -66,7 +66,7 @@ void Galaxy::drawLightMatter()
         glDisableClientState( GL_VERTEX_ARRAY );
         glDisableClientState( GL_TEXTURE_COORD_ARRAY );
         mGalaxyDome.disable();
-		gl::popModelView();
+		glPopMatrix();
 	}
 }
 
@@ -76,7 +76,7 @@ void Galaxy::drawSpiralPlanes()
 	const float alpha = ( 1.25f - mCamGalaxyAlpha ) * mZoomOff;//sqrt(camGalaxyAlpha) * zoomOff;
 	if( alpha > 0.01f ){
         
-        gl::pushModelView();
+        glPushMatrix();
         
 		mGalaxyTex.enableAndBind();
 		glEnableClientState( GL_VERTEX_ARRAY );
@@ -102,7 +102,7 @@ void Galaxy::drawSpiralPlanes()
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 		mGalaxyTex.disable();
         
-        gl::popModelView();
+        glPopMatrix();
 	}
 }
 
@@ -128,7 +128,7 @@ void Galaxy::drawDarkMatter()
 		//float alpha = pow( 1.0f - camGalaxyAlpha, 8.0f ) * zoomOff;
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, mInvAlpha ) );
 		float radius = mDarkMatterBaseRadius * 0.85f;
-		gl::pushModelView();
+		glPushMatrix();
 		mDarkMatterTex.enableAndBind();
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -147,7 +147,7 @@ void Galaxy::drawDarkMatter()
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 		mDarkMatterTex.disable();
-		gl::popModelView();
+		glPopMatrix();
 		glDisable( GL_CULL_FACE ); 
 	}
 }

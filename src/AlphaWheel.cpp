@@ -197,7 +197,7 @@ void AlphaWheel::update( float fov )
 void AlphaWheel::draw( float *numberAlphaPerChar )
 {	
 	if( mWheelScale < 0.95f ){
-		gl::pushModelView();
+		glPushMatrix();
 		gl::multModelView( mOrientationMatrix );
 		gl::translate( mInterfaceCenter );
 		gl::scale( Vec3f( mWheelScale + 1.0f, mWheelScale + 1.0f, 1.0f ) );	
@@ -216,7 +216,7 @@ void AlphaWheel::draw( float *numberAlphaPerChar )
 			gl::drawSolidRect( mAlphaRects[i] );
 		}
 		
-		gl::popModelView();
+		glPopMatrix();
 	}
 }
 

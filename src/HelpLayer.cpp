@@ -210,7 +210,7 @@ void HelpLayer::draw( const gl::Texture &tex, float y )
 		float alpha = mHelpPer * dragAlphaPer;
 		ColorA base( 1.0f, 1.0f, 1.0f, alpha );
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::multModelView( mOrientationMtx );
 		
 		gl::color( base );
@@ -278,11 +278,11 @@ void HelpLayer::draw( const gl::Texture &tex, float y )
 					float yMid	= mInterfaceSize.y * 0.5f;
 					float w		= 100.0f;
 					Rectf arcRect( -w, -15.0f, w, 15.0f );
-					gl::pushModelView();
+					glPushMatrix();
 					gl::translate( Vec2f( 239.0f, yMid - 6.0f ) );
 					gl::rotate( 90.0f );
 					drawButton( arcRect, 0.5f, 0.75f, 1.0f, 0.9f );
-					gl::popModelView();
+					glPopMatrix();
 					tex.disable();
 				} else {
 					tex.enableAndBind();
@@ -295,6 +295,6 @@ void HelpLayer::draw( const gl::Texture &tex, float y )
 				gl::enableAlphaBlending();
 			}
 		}
-		gl::popModelView(); 
+		glPopMatrix(); 
 	}
 }

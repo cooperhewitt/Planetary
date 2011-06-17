@@ -446,7 +446,7 @@ void NodeTrack::drawPlanet( const gl::Texture &tex )
 //            gl::drawBillboard( mPos, size, -toDegrees( angle ), mBbRight, mBbUp );        
 //        }
 //        else {
-            gl::pushModelView();
+            glPushMatrix();
             gl::translate( mPos );
             const float radius = mRadius * mDeathPer;
             gl::scale( Vec3f( radius, radius, radius ) );
@@ -468,7 +468,7 @@ void NodeTrack::drawPlanet( const gl::Texture &tex )
             mAlbumArtTex.disable();
         }
 
-		gl::popModelView();
+		glPopMatrix();
 	}
 	
 }
@@ -478,7 +478,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 	if( mSphereScreenRadius > 2.0f && mDistFromCamZAxisPer > 0.0f ){
 		if( mIsMostPlayed ){
 
-			gl::pushModelView();
+			glPushMatrix();
 			gl::translate( mPos );
 			clouds[mCloudTexIndex].enableAndBind();
 			
@@ -507,7 +507,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 
             clouds[mCloudTexIndex].disable();
             
-            gl::popModelView();
+            glPopMatrix();
 		}
 	}
 }
@@ -553,14 +553,14 @@ void NodeTrack::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 	
 	gl::color( ColorA( BLUE, camAlpha * mDeathPer ) );		
 	
-	gl::pushModelView();
+	glPushMatrix();
 	gl::translate( mParentNode->mPos );
 	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
 	gl::rotate( Vec3f( 90.0f, 0.0f, toDegrees( mOrbitAngle ) ) );
 	orbitRingGradient.enableAndBind();
     orbitRing.drawLowRes();
 	orbitRingGradient.disable();
-	gl::popModelView();
+	glPopMatrix();
 }
 
 void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, float pauseAlpha, const gl::Texture &tex, const gl::Texture &originTex )
@@ -577,7 +577,7 @@ void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, float
 		float alpha = pow( camAlpha, 0.25f ) * newPinchAlphaPer * pauseAlpha;
 		
 		tex.enableAndBind();
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( mParentNode->mPos );
 		gl::color( ColorA( mParentNode->mParentNode->mGlowColor, alpha ) );
 		
@@ -589,7 +589,7 @@ void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, float
 		tex.disable();
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		gl::popModelView();
+		glPopMatrix();
 		
 		Vec3f pos = Vec3f( cos( mOrbitStartAngle ), 0.0f, sin( mOrbitStartAngle ) );
 
@@ -695,69 +695,69 @@ void NodeTrack::findShadows( float camAlpha )
 		gl::color( ColorA( mGlowColor, 0.4f ) );
 		gl::drawLine( P0, P1 );
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P0 );
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), r0, 50 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P0 );
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), r0Inner, 50 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P1 );
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), r1, 25 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P2 );
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
 		
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P3a );
 		//gl::rotate( mMatrix );
 		//gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P3b );
 		//gl::rotate( mMatrix );
 		//gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.001f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P5a );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.001f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P5b );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.001f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P6a );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.001f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P6b );
 		gl::drawStrokedCircle( Vec2f::zero(), 0.001f, 16 );
-		gl::popModelView();
+		glPopMatrix();
 		
 		
 		gl::drawLine( P6a, ( P6a + mMatrix * outerTanBDir ) );
@@ -766,12 +766,12 @@ void NodeTrack::findShadows( float camAlpha )
 		gl::drawLine( P6b, ( P6b + mMatrix * innerTanBDir ) );
 		
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.4f ) );	
-		gl::pushModelView();
+		glPushMatrix();
 		gl::translate( P4 );
 		gl::rotate( mMatrix );
 		gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
 		gl::drawStrokedCircle( Vec2f::zero(), dMid, 50 );
-		gl::popModelView();
+		glPopMatrix();
 		
 		glEnable( GL_TEXTURE_2D );
 	}
