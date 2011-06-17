@@ -7,7 +7,6 @@
 //
 
 #include <vector>
-#include "cinder/gl/gl.h"
 #include "cinder/CinderMath.h"
 #include "cinder/Vector.h"
 #include "BloomSphere.h"
@@ -92,7 +91,13 @@ namespace bloom {
                 }
             }
         }
-                
+
+        // do VBO (there are more complex ways, let's try this first)
+        glGenBuffers(1, &mVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * mNumVerts, mVerts, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
+
         mInited = true;
     }
 
@@ -101,13 +106,25 @@ namespace bloom {
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glEnableClientState( GL_NORMAL_ARRAY );
-        glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), &mVerts[0].vertex );
-        glNormalPointer( GL_FLOAT, sizeof(VertexData), &mVerts[0].vertex );
-        glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );
-		glDrawArrays( GL_TRIANGLES, 0, mNumVerts );
+        glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+        glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), 0 );
+        glNormalPointer( GL_FLOAT, sizeof(VertexData), 0 );
+        glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), (void*)sizeof(Vec4f) );        
+		glDrawArrays( GL_TRIANGLES, 0, mNumVerts );        
+        glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 		glDisableClientState( GL_NORMAL_ARRAY );        
+//		glEnableClientState( GL_VERTEX_ARRAY );
+//		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+//		glEnableClientState( GL_NORMAL_ARRAY );
+//      glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), &mVerts[0].vertex );
+//      glNormalPointer( GL_FLOAT, sizeof(VertexData), &mVerts[0].vertex );
+//      glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );
+//		glDrawArrays( GL_TRIANGLES, 0, mNumVerts );
+//		glDisableClientState( GL_VERTEX_ARRAY );
+//		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+//		glDisableClientState( GL_NORMAL_ARRAY );        
     }
     
 }

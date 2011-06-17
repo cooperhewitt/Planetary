@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "cinder/gl/gl.h"
+
 namespace bloom {
 
     struct VertexData {
@@ -32,6 +34,7 @@ namespace bloom {
     private:
         
         bool mInited;
+        GLuint mVBO;
         int mNumVerts;
         VertexData *mVerts; 
         
