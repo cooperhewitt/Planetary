@@ -22,7 +22,6 @@ void State::setup()
     mFilterMode = FilterModeUndefined;
 	mAlphaChar = ' ';
 	mSelectedNode = NULL;
-	mPrevSelectedNode = NULL;
 	mDistBetweenPrevAndCurrentNode = 1.0f;
 }
 

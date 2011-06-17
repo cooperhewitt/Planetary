@@ -132,6 +132,7 @@ class KeplerApp : public AppCocoaTouch {
 	ipod::Player		mIpodPlayer;
 	ipod::PlaylistRef	mCurrentAlbum;
 	int					mPlaylistIndex; // FIXME: move this into State
+    double              mCurrentTrackLength; // cached by onPlayerTrackChanged
 	
 // PLAY CONTROLS
 	PlayControls	mPlayControls;
@@ -399,6 +400,19 @@ void KeplerApp::remainingSetup()
     // GALAXY (TODO: Move to World?)
     mGalaxy.setup(G_INIT_CAM_DIST, BRIGHT_BLUE, BLUE, mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex);
 
+    // Make sure initial PlayControl settings are correct:
+    mPlayControls.setAlphaWheelVisible( mAlphaWheel.getShowWheel() );
+    mPlayControls.setShowSettings( G_SHOW_SETTINGS );
+    mPlayControls.setOrbitsVisible( G_DRAW_RINGS );
+    mPlayControls.setLabelsVisible( G_DRAW_TEXT );
+    mPlayControls.setHelpVisible( G_HELP );
+    mPlayControls.setDebugVisible( G_DEBUG );	    
+    mPlayControls.setShuffleVisible( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff );
+    mPlayControls.setRepeatVisible( mIpodPlayer.getRepeatMode() != ipod::Player::RepeatModeNone );    
+    if( G_IS_IPAD2 ) {
+        mPlayControls.setGyroVisible( G_USE_GYRO );
+    }    
+    
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
 
     //console() << "setupEnd: " << getElapsedSeconds() << std::endl;
@@ -665,12 +679,17 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 {
 	std::cout << "Wheel Toggled" << std::endl;
-	if( mAlphaWheel.getShowWheel() ){
+    
+    const bool showWheel = mAlphaWheel.getShowWheel();
+    
+	if( showWheel ){
 		mFovDest = G_MAX_FOV;
 	} else {
 		G_HELP = false;
 		mFovDest = G_DEFAULT_FOV;
 	}
+    
+    mPlayControls.setAlphaWheelVisible( showWheel );
     
 	return false;
 }
@@ -715,7 +734,7 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
     mState.setFilterMode( State::FilterModePlaylist );
     mState.setSelectedNode( NULL );
     
-	mPlayControls.setPlaylist( mState.getPlaylistName() );
+	mPlayControls.setPlaylist( mState.getPlaylist()->getPlaylistName() );
 	
     // FIXME: enable this 
 //    std::map<string, string> parameters;
@@ -779,8 +798,7 @@ bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
 {
     // every third frame, because setPlayheadTime is slow
 	if ( mIpodPlayer.hasPlayingTrack() && getElapsedFrames() % 3 == 0 ) {
-        double trackLength = mIpodPlayer.getPlayingTrack()->getLength();
-        mIpodPlayer.setPlayheadTime( trackLength * dragPer );
+        mIpodPlayer.setPlayheadTime( mCurrentTrackLength * dragPer );
     }
     return false;
 }
@@ -819,7 +837,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 				mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeSongs );
 				mNotificationOverlay.show( mOverlayIconsTex, Area( 128.0f, 0.0f, 256.0f, 128.0f ), "SHUFFLE ON" );
 			}
-				
+            mPlayControls.setShuffleVisible( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff );
             logEvent("Shuffle Button Selected");    
             break;
 			
@@ -831,7 +849,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 				mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeAll );
 				mNotificationOverlay.show( mOverlayIconsTex, Area( 256.0f, 0.0f, 384.0f, 128.0f ), "REPEAT ALL" );
 			}
-			
+			mPlayControls.setRepeatVisible( mIpodPlayer.getRepeatMode() != ipod::Player::RepeatModeNone );    
             logEvent("Repeat Button Selected");   
             break;
         
@@ -843,6 +861,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 				if( G_HELP && !mAlphaWheel.getShowWheel() )
 					mAlphaWheel.setShowWheel( true );
 			}
+            mPlayControls.setHelpVisible( G_HELP );
             break;
         
         case PlayControls::DRAW_RINGS:
@@ -852,6 +871,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 				if( G_DRAW_RINGS )	mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 0.0f, 640.0f, 128.0f ), "ORBIT LINES" );
 				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 128.0f, 640.0f, 256.0f ), "ORBIT LINES" );
 			}
+            mPlayControls.setOrbitsVisible( G_DRAW_RINGS );            
             break;
         
         case PlayControls::DRAW_TEXT:
@@ -861,6 +881,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 				if( G_DRAW_TEXT )	mNotificationOverlay.show( mOverlayIconsTex, Area( 640.0f, 0.0f, 768.0f, 128.0f ), "TEXT LABELS" );
 				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 640.0f, 128.0f, 768.0f, 256.0f ), "TEXT LABELS" );
 			}
+            mPlayControls.setLabelsVisible( G_DRAW_TEXT );
             break;
         
 		case PlayControls::USE_GYRO:
@@ -886,6 +907,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 				if( G_USE_GYRO )	mNotificationOverlay.show( mOverlayIconsTex, Area( 384.0f, 0.0f, 512.0f, 128.0f ), "GYROSCOPE" );
 				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 384.0f, 128.0f, 512.0f, 256.0f ), "GYROSCOPE" );
 			}
+            mPlayControls.setGyroVisible( G_USE_GYRO );
             break;
 			
 		case PlayControls::GOTO_GALAXY:
@@ -902,6 +924,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 		case PlayControls::SETTINGS:
             logEvent("Settings Button Selected");            
             G_SHOW_SETTINGS = !G_SHOW_SETTINGS;
+            mPlayControls.setShowSettings( G_SHOW_SETTINGS );            
             break;
 
         case PlayControls::SLIDER:
@@ -914,6 +937,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			G_DEBUG = !G_DEBUG;
 			if( G_DEBUG )	mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), "DEBUG MODE" );
 			else			mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 128.0f, 896.0f, 256.0f ), "DEBUG MODE" );
+            mPlayControls.setDebugVisible( G_DEBUG );
             break;
 			
 		case PlayControls::NEXT_PLAYLIST:
@@ -1033,8 +1057,6 @@ void KeplerApp::update()
 
         // for mPlayControls and mWorld.mPlayingTrackNode
 		const double currentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
-        // TODO: cache this when playing track changes
-		const double currentTrackLength = mIpodPlayer.getPlayingTrack()->getLength();
 
 		if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 			mWorld.mPlayingTrackNode->updateAudioData( currentTrackPlayheadTime );
@@ -1072,25 +1094,15 @@ void KeplerApp::update()
 		mAlphaWheel.update( mFov );
         
         mPlayControls.update();
-        mPlayControls.setAlphaWheelVisible( mAlphaWheel.getShowWheel() );
-        mPlayControls.setShowSettings( G_SHOW_SETTINGS );
-        mPlayControls.setOrbitsVisible( G_DRAW_RINGS );
-        mPlayControls.setLabelsVisible( G_DRAW_TEXT );
-        mPlayControls.setHelpVisible( G_HELP );
 
-		mPlayControls.setDebugVisible( G_DEBUG );	
-		if( G_IS_IPAD2 ) {
-            mPlayControls.setGyroVisible( G_USE_GYRO );
+        const int elapsedFrames = getElapsedFrames();
+        if (elapsedFrames % 10 == 0) {
+            mPlayControls.setElapsedSeconds( (int)currentTrackPlayheadTime );
+            mPlayControls.setRemainingSeconds( -(int)(mCurrentTrackLength - currentTrackPlayheadTime) );
+            mPlayControls.setPlayheadProgress( currentTrackPlayheadTime / mCurrentTrackLength );
         }
-		
-		mPlayControls.setShuffleVisible( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff );
-		mPlayControls.setRepeatVisible( mIpodPlayer.getRepeatMode() != ipod::Player::RepeatModeNone );
-
-        mPlayControls.setElapsedSeconds( (int)currentTrackPlayheadTime );
-        mPlayControls.setRemainingSeconds( -(int)(currentTrackLength - currentTrackPlayheadTime) );
-        mPlayControls.setPlayheadProgress( currentTrackPlayheadTime / currentTrackLength );
                 
-        if( G_DEBUG && getElapsedFrames() % 30 == 0 ){
+        if( G_DEBUG && elapsedFrames % 30 == 0 ){
             mStats.update(getAverageFps(), currentTrackPlayheadTime, mFov, G_CURRENT_LEVEL, G_ZOOM);
         }
         
@@ -1171,11 +1183,16 @@ void KeplerApp::updateCamera()
 	} else {
 		mCamDistDest	= G_INIT_CAM_DIST * cameraDistMulti;
 		mCenterDest		= Vec3f::zero();
-
-		mZoomDest		= G_HOME_LEVEL;
-		if( mState.getAlphaChar() != ' ' ){
-			mZoomDest	= G_ALPHA_LEVEL;
+        
+		if( mState.getFilterMode() == State::FilterModeUndefined ){
+            mZoomDest = G_HOME_LEVEL;
+        } else {
+			mZoomDest = G_ALPHA_LEVEL;
 		}
+        //		mZoomDest		= G_HOME_LEVEL;
+        //		if( mState.getAlphaChar() != ' ' ){
+        //			mZoomDest	= G_ALPHA_LEVEL;
+        //		}        
 		
 		mCenterOffset -= ( mCenterOffset - Vec3f::zero() ) * 0.05f;
 	}
@@ -1344,16 +1361,15 @@ void KeplerApp::drawScene()
 		//float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
 		mCamRingAlpha = constrain( abs( mEye.y - artistNode->mPos.y ), 0.0f, 1.0f ); // WAS 0.6f
 
-		glCullFace( GL_BACK );
 		glEnable( GL_CULL_FACE );
+		glCullFace( GL_BACK );
 		glEnable( GL_COLOR_MATERIAL );
 		glEnable( GL_RESCALE_NORMAL );
 		glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT, ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
 		glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, ColorA( Color::white(), 1.0f ) );
 		
-	
-		
 		for( int i = 0; i < sortedNodes.size(); i++ ){
+            
 			if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
 				gl::enableAlphaBlending();
 				glDisable( GL_CULL_FACE );
@@ -1392,7 +1408,6 @@ void KeplerApp::drawScene()
 //				gl::enableDepthRead();
 //				gl::enableAlphaBlending();
 //			}
-			
 			
 			sortedNodes[i]->drawPlanet( mStarCoreTex );
 			sortedNodes[i]->drawClouds( mCloudsTex );
@@ -1440,6 +1455,7 @@ void KeplerApp::drawScene()
 // RINGS
 	if( artistNode ){
 		//alpha = pow( mCamRingAlpha, 2.0f );
+        // TODO: consider only doing this on planets in our sorted loop, above
 		mWorld.drawRings( mRingsTex, mCamRingAlpha * 0.5f );
 	}
 	
@@ -1625,6 +1641,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 	if (mIpodPlayer.hasPlayingTrack()) {
         
 		ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
+
+        mCurrentTrackLength = mIpodPlayer.getPlayingTrack()->getLength();
         
         string artistName = playingTrack->getArtist();
         
@@ -1644,6 +1662,9 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         mState.setSelectedNode( mWorld.getTrackNodeById( artistId, albumId, trackId ) );
 	}
 	else {
+        
+        mCurrentTrackLength = 0;
+        
         mPlayControls.setCurrentTrack("");
 		// go to album level view when the last track ends:
 		mState.setSelectedNode( mState.getSelectedAlbumNode() );

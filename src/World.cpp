@@ -30,7 +30,7 @@ void World::setup()
     // FIXME: this check for mIsInitialized looks wrong (it's set to false below)
     // ... when is it set to true? ... in anycase, these should only be set once :)
 	if( !mIsInitialized ){
-		// VERTEX ARRAY SPHERE
+		// VERTEX ARRAY SPHERE      
 		if( G_IS_IPAD2 ){
             mHiSphere.setup(32);
             mMdSphere.setup(20);
@@ -261,20 +261,6 @@ void World::drawEclipseGlows()
 {
 	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->drawEclipseGlow();
-	}
-}
-
-void World::drawPlanets( const gl::Texture &tex )
-{
-	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawPlanet( tex );
-	}
-}
-
-void World::drawClouds( const vector<gl::Texture> &clouds )
-{
-	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawClouds( clouds );
 	}
 }
 

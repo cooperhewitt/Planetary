@@ -222,9 +222,11 @@ void NodeTrack::update( float param1, float param2 )
 	//////////////////////
 	// CREATE MOON TEXTURE
 	if( !mHasCreatedAlbumArt && mAge>mIndex * 2 ){
-		int totalWidth		= 128; // dont forget to change the actual textures too
+        int albumArtWidth   = mAlbumArtSurface.getWidth();
+		int totalWidth		= albumArtWidth/2; // TODO: rename these?
 		int halfWidth		= totalWidth/2;
 		if( mAlbumArtSurface ){
+            
 			// using 'totalwidth' here because the album art surface that is
 			// being provided by albumNode is 256x256 so the bit that I pull
 			// should be from a 256x256 texture, despite what our eventual
@@ -234,14 +236,14 @@ void NodeTrack::update( float param1, float param2 )
 			
 			int w			= (int)( mNormPlayCount*totalWidth*2 );
 			int h			= (int)( mNormPlayCount*totalWidth );
-			
+            
 			// grab a section of the album art
 			Area a			= Area( x, y, x+w, y+h );
 			//std::cout << a << std::endl;
 			Surface crop	= Surface( totalWidth, totalWidth, false );
 			Surface crop2	= Surface( totalWidth, totalWidth, false );
 			ci::ip::resize( mAlbumArtSurface, a, &crop, Area( 0, 0, halfWidth, totalWidth ), FilterCubic() );
-			
+
 			// iterate through it to make it a mirror image
 			Surface::Iter iter = crop2.getIter();
 			while( iter.line() ) {
@@ -261,7 +263,7 @@ void NodeTrack::update( float param1, float param2 )
 				}
 			}
 			
-		
+            
 			// fix the polar pinching
 			Surface::Iter iter2 = crop.getIter();
 			while( iter2.line() ) {
@@ -285,10 +287,10 @@ void NodeTrack::update( float param1, float param2 )
 				}
 			}
 			
-			
 			// add the planet texture
 			// and add the shadow from the cloud layer
-			Area planetArea			= Area( 0, totalWidth * mPlanetTexIndex, totalWidth, totalWidth * ( mPlanetTexIndex + 1 ) );
+            int lowResWidth = mLowResSurfaces.getWidth();
+			Area planetArea			= Area( 0, lowResWidth * mPlanetTexIndex, lowResWidth, lowResWidth * ( mPlanetTexIndex + 1 ) );
 			Surface planetSurface	= mLowResSurfaces.clone( planetArea );
 			
 			iter = planetSurface.getIter();
@@ -315,10 +317,9 @@ void NodeTrack::update( float param1, float param2 )
 			mHasCreatedAlbumArt = true;
 		}
 		
-		
 	}
 	// END CREATE MOON TEXTURE	
-	//////////////////////////	
+	//////////////////////////
 	
 	
 	mRadiusDest		= mRadiusInit * param1;
@@ -421,33 +422,48 @@ void NodeTrack::drawPlanet( const gl::Texture &tex )
 {	
 	if( mSphereScreenRadius > 0.5f && mClosenessFadeAlpha > 0.0f )
 	{
-		gl::pushModelView();
-		gl::translate( mPos );
-		const float radius = mRadius * mDeathPer;
-		gl::scale( Vec3f( radius, radius, radius ) );
-		gl::rotate( mAxialRot );
-		const float grey = mShadowPer + 0.2f;
-		gl::color( ColorA( grey, grey, grey, mClosenessFadeAlpha ) );
-		
         // ROBERT: this was crashing so I put a check for texture existence first
 		// TOM: Hmmm, not sure why. Ive uncommented because if its crashing,
 		//		I want to fix the source. I just checked with albums that dont have
 		//		album art and the noAlbumArt texture appears as desired. Let me know
 		//		if this still crashes you.
-        if (mAlbumArtTex) {
+        if (mHasCreatedAlbumArt) {
             mAlbumArtTex.enableAndBind();
         }
+
+        if (G_DEBUG) {
+            Vec2f center = app::getWindowCenter();
+            Vec2f dir		= mScreenPos - center;
+            float dirLength = dir.length()/500.0f;
+            float angle		= dirLength > 0.999f ? atan2( dir.y, dir.x ) : 0.0f;
+            float stretch	= 1.0f + dirLength * 0.1f;
+            gl::color( Color::white() );
+            Vec2f size = Vec2f( mRadius * stretch, mRadius ) * 2.45f;
+            gl::drawBillboard( mPos, size, -toDegrees( angle ), mBbRight, mBbUp );        
+        }
+        else {
+            gl::pushModelView();
+            gl::translate( mPos );
+            const float radius = mRadius * mDeathPer;
+            gl::scale( Vec3f( radius, radius, radius ) );
+            gl::rotate( mAxialRot );
+            const float grey = mShadowPer + 0.2f;
+            gl::color( ColorA( grey, grey, grey, mClosenessFadeAlpha ) );        
+            if( mSphereScreenRadius > 70.0f ){
+                mHiSphere->draw();
+            } else if( mSphereScreenRadius > 30.0f  ){
+                mMdSphere->draw();
+            } else if( mSphereScreenRadius > 15.0f  ){
+                mLoSphere->draw();
+            } else {
+                mTySphere->draw();
+            }
+        }
         
-        if( mSphereScreenRadius > 70.0f ){
-            mHiSphere->draw();
-		} else if( mSphereScreenRadius > 30.0f  ){
-            mMdSphere->draw();
-		} else if( mSphereScreenRadius > 15.0f  ){
-            mLoSphere->draw();
-		} else {
-            mTySphere->draw();
-		}
-        
+        if (mHasCreatedAlbumArt) {
+            mAlbumArtTex.disable();
+        }
+
 		gl::popModelView();
 	}
 	
@@ -484,6 +500,8 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
             } else {
                 mTySphere->draw();
             }
+
+            clouds[mCloudTexIndex].disable();
             
             gl::popModelView();
 		}
@@ -510,7 +528,6 @@ void NodeTrack::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, con
 		tex.enableAndBind();
 		gl::drawBillboard( mPos, radius, -toDegrees( angle ), mBbRight, mBbUp );
 		tex.disable();
-		
 		
 		gl::color( ColorA( mShadowPer, mShadowPer, mShadowPer, alpha * mClosenessFadeAlpha * mEclipseDirBasedAlpha * mDeathPer ) );
 		directionalTex.enableAndBind();

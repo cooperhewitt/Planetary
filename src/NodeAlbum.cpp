@@ -344,6 +344,8 @@ void NodeAlbum::drawPlanet( const gl::Texture &tex )
             mLoSphere->draw();
 		}
         
+        mAlbumArtTex.disable();
+        
 		gl::popModelView();
 		
 	}
@@ -403,7 +405,9 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha * 2.0f ) );
 		lodSphere->draw();
 		gl::popModelView();
-		
+
+        clouds[mCloudTexIndex].disable();
+
 		gl::popModelView();
 		
 	}

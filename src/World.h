@@ -63,8 +63,6 @@ public:
 	void drawOrbitRings( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex );
 	void drawConstellation();
 	void drawTouchHighlights( float zoomAlpha );
-	void drawPlanets( const ci::gl::Texture &tex );
-	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex, float camZPos );
     void drawHitAreas();
     

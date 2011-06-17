@@ -37,11 +37,11 @@ namespace bloom {
         const float TWO_PI = 2.0f * M_PI;
         
         for( int j = 0; j < segments / 2; j++ ) {
-            float theta1 = j * TWO_PI / segments - ( M_PI_2 );
+            float theta1 = (float)j * TWO_PI / (float)segments - ( M_PI_2 );
             float cosTheta1 = cos( theta1 );
             float sinTheta1 = sin( theta1 );
             
-            float theta2 = (j + 1) * TWO_PI / segments - ( M_PI_2 );
+            float theta2 = (float)(j + 1) * TWO_PI / (float)segments - ( M_PI_2 );
             float cosTheta2 = cos( theta2 );
             float sinTheta2 = sin( theta2 );
             
@@ -55,14 +55,15 @@ namespace bloom {
                 oldt1			= newt1;
                 oldt2			= newt2;
                 
-                float theta3	= i * TWO_PI / segments;
+                float invSegs   = 1.0f / (float)segments;
+                float theta3	= (float)i * TWO_PI * invSegs;
                 float cosTheta3 = cos( theta3 );
                 float sinTheta3 = sin( theta3 );
                 
-                float invI		= i / (float)segments;
+                float invI		= (float)i * invSegs;
                 float u			= 0.999f - invI;
-                float v1		= 0.999f - 2 * j / (float)segments;
-                float v2		= 0.999f - 2 * (j+1) / (float)segments;
+                float v1		= 0.999f - 2.0f * (float)j * invSegs;
+                float v2		= 0.999f - 2.0f * (float)(j+1) * invSegs;
                 
                 newt1			= Vec2f( u, v1 );
                 newt2			= Vec2f( u, v2 );
