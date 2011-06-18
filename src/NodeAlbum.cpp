@@ -121,7 +121,7 @@ void NodeAlbum::setData( PlaylistRef album )
 // CREATE PLANET TEXTURE
 	int totalWidth		= 128;
 	if( G_IS_IPAD2 ) totalWidth = 256;
-	
+    
 	int halfWidth		= totalWidth/2;
 	int border			= 10;
 	mAlbumArtSurface	= (*mAlbum)[0]->getArtwork( Vec2i( totalWidth, totalWidth ) );

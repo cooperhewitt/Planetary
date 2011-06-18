@@ -85,9 +85,12 @@ public:
     void setLastTrackChangeTime(float time) { mTrackInfoLabel.setLastTrackChangeTime(time); }
     void setPlayheadProgress(float value) { mPlayheadSlider.setValue(value); }
 	
+    float getPlayheadValue() { return mPlayheadSlider.getValue(); }
 	float getParamSlider1Value(){ return mParamSlider1.getValue(); }
 	float getParamSlider2Value(){ return mParamSlider2.getValue(); }
-	
+
+    bool playheadIsDragging() { return mPlayheadSlider.isDragging(); }
+
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>
 	CallbackId registerButtonPressed( T *obj, bool (T::*callback)(ButtonId) )

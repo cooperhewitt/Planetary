@@ -807,7 +807,7 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
 bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
 {
     // every third frame, because setPlayheadTime is slow
-	if ( mIpodPlayer.hasPlayingTrack() && getElapsedFrames() % 3 == 0 ) {
+	if ( mIpodPlayer.hasPlayingTrack() ) {
         mIpodPlayer.setPlayheadTime( mCurrentTrackLength * dragPer );
     }
     return false;
@@ -1066,7 +1066,15 @@ void KeplerApp::update()
         updateArcball();
 
         // for mPlayControls and mWorld.mPlayingTrackNode
-		const double currentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
+		double currentTrackPlayheadTime = 0.0;
+        
+        // fake playhead time if we're dragging (so it looks really snappy)
+        if (mPlayControls.playheadIsDragging()) {
+            currentTrackPlayheadTime = mCurrentTrackLength * mPlayControls.getPlayheadValue();
+        }
+        else {
+            currentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
+        }
 
 		if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
 			mWorld.mPlayingTrackNode->updateAudioData( currentTrackPlayheadTime );
@@ -1106,9 +1114,11 @@ void KeplerApp::update()
         mPlayControls.update();
 
         const int elapsedFrames = getElapsedFrames();
-        if (elapsedFrames % 10 == 0) {
+        if (elapsedFrames % 30 == 0) {
             mPlayControls.setElapsedSeconds( (int)currentTrackPlayheadTime );
             mPlayControls.setRemainingSeconds( -(int)(mCurrentTrackLength - currentTrackPlayheadTime) );
+        }
+        if (!mPlayControls.playheadIsDragging()) {
             mPlayControls.setPlayheadProgress( currentTrackPlayheadTime / mCurrentTrackLength );
         }
                 
@@ -1652,7 +1662,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         
 		ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
 
-        mCurrentTrackLength = mIpodPlayer.getPlayingTrack()->getLength();
+        mCurrentTrackLength = playingTrack->getLength();
         
         string artistName = playingTrack->getArtist();
         

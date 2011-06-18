@@ -534,8 +534,14 @@ bool PlayControls::touchesMoved( TouchEvent event )
         dragSliderToPos( &mPlayheadSlider, touches.begin()->getPos() );
         mCallbacksPlayheadMoved.call( mPlayheadSlider.getValue() );
     }    
-    
-    // TODO: update all sliders this way, if they're active
+
+    // TODO: make sliders handle this somehow when drawing (IMGUI!)
+    if( mParamSlider1.isDragging() && touches.size() > 0 ){
+        dragSliderToPos( &mParamSlider1, touches.begin()->getPos() );
+    }    
+    if( mParamSlider2.isDragging() && touches.size() > 0 ){
+        dragSliderToPos( &mParamSlider2, touches.begin()->getPos() );
+    }
     
     return false;
 }	
