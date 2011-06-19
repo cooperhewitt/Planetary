@@ -40,7 +40,7 @@ class Node {
 	void			setSphereData( BloomSphere *hiSphere, BloomSphere *mdSphere, BloomSphere *loSphere, BloomSphere *tySphere );
 	void			createNameTexture();
 	virtual void	update( float param1, float param2 );
-	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, const float &w, const float &h );
 	virtual void	drawEclipseGlow();
 	virtual void	drawPlanet( const ci::gl::Texture &tex ) {};
 	virtual void	drawExtraGlow( const ci::gl::Texture &tex ) {};

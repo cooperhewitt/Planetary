@@ -12,15 +12,16 @@
 
 namespace bloom {
 
-    struct VertexData {
-        ci::Vec4f vertex;
-        // no normal, normal == vertex
-        ci::Vec4f texture;
-    };    
-    
     class BloomSphere
     {
     public:
+        
+        struct VertexData {
+            ci::Vec4f vertex;
+            // no normal, normal == vertex
+            ci::Vec4f texture;
+        };            
+        
         BloomSphere(): mInited(false) {}
         ~BloomSphere() {
             if (mInited) {

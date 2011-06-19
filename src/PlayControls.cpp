@@ -445,7 +445,7 @@ void PlayControls::draw(float y)
 	float dragAlphaPer = pow( ( mInterfaceSize.y - y ) / 65.0f, 2.0f );    	
     gl::color( ColorA( 1.0f, 1.0f, 1.0f, dragAlphaPer ) );
     
-	gl::enableAlphaBlending();    
+	//gl::enableAlphaBlending();    
 
     for (int i = 0; i < drawableElements.size(); i++) {
         drawableElements[i]->draw();
@@ -465,7 +465,7 @@ void PlayControls::draw(float y)
 	    
     glPopMatrix();
     
-    gl::disableAlphaBlending();    
+    //gl::disableAlphaBlending();    
 }
 
 void PlayControls::dragSliderToPos( Slider *slider, Vec2f pos) 

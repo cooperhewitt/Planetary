@@ -198,23 +198,23 @@ void Node::update( float param1, float param2 )
 	}
 }
 
-void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp )
+void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp, const float &w, const float &h )
 {
 	mBbRight = bbRight;
 	mBbUp    = bbUp;
     
 	if( mIsHighlighted ){
-        mScreenPos              = cam.worldToScreen( mPos, app::getWindowWidth(), app::getWindowHeight() );
+        mScreenPos              = cam.worldToScreen( mPos, w, h );
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
 		mDistFromCamZAxis		= -cam.worldToEyeDepth( mPos );
 		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * 0.5f, 0.0f, 1.0f ); // REL: -0.35f
-		mSphereScreenRadius     = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() );
+		mSphereScreenRadius     = cam.getScreenRadius( mSphere, w, h );
         float r					= max( mSphereScreenRadius, 15.0f );        
         mSphereHitArea			= Rectf( mScreenPos.x - r, mScreenPos.y - r, mScreenPos.x + r, mScreenPos.y + r );        
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->updateGraphics( cam, mBbRight, mBbUp );
+		(*nodeIt)->updateGraphics( cam, mBbRight, mBbUp, w, h );
 	}
 }
 

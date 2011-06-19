@@ -8,24 +8,28 @@
 
 #pragma once
 
+#include "cinder/gl/gl.h"
+#include "cinder/Vector.h"
+
 class OrbitRing {
 
 public:
     
+    struct VertexData {
+        ci::Vec2f vertex;
+        ci::Vec2f texture;
+    };    
+    
     OrbitRing()
     {
         mVertsLowRes  = NULL;
-        mTexLowRes	  = NULL;
         mVertsHighRes = NULL;
-        mTexHighRes	  = NULL;
     }
     
     ~OrbitRing()
     {
         if( mVertsLowRes  != NULL ) delete[] mVertsLowRes;
-        if( mTexLowRes	  != NULL ) delete[] mTexLowRes;
         if( mVertsHighRes != NULL ) delete[] mVertsHighRes;
-        if( mTexHighRes	  != NULL ) delete[] mTexHighRes;        
     }
     
     void setup();
@@ -34,9 +38,9 @@ public:
 
 private:
     
-	float *mVertsLowRes;
-	float *mTexLowRes;
-	float *mVertsHighRes;
-	float *mTexHighRes;
+    GLuint mLowResVBO;
+	VertexData *mVertsLowRes;
+    GLuint mHighResVBO;
+	VertexData *mVertsHighRes;
     
 };

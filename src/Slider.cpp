@@ -25,8 +25,8 @@ void Slider::draw()
     Area thumbTexArea = mIsDragging ? mThumbDownTexArea : mThumbUpTexArea;
 
     gl::draw(mTexture, mBgTexArea, mRect);    
-	gl::enableAdditiveBlending();    
+	//gl::enableAdditiveBlending();    
     gl::draw(mTexture, mFgTexArea, fgRect);
-	gl::enableAlphaBlending();    
+	//gl::enableAlphaBlending();    
     gl::draw(mTexture, thumbTexArea, thumbRect);
 }

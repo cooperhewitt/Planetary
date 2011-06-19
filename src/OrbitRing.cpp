@@ -16,53 +16,60 @@ using namespace ci;
 void OrbitRing::setup()
 {
 	if( mVertsLowRes	!= NULL ) delete[] mVertsLowRes;
-	if( mTexLowRes		!= NULL ) delete[] mTexLowRes;
 	if( mVertsHighRes	!= NULL ) delete[] mVertsHighRes;
-	if( mTexHighRes		!= NULL ) delete[] mTexHighRes;
 	
-	mVertsLowRes	= new float[ G_RING_LOW_RES*2 ];	// X,Y
-	mTexLowRes		= new float[ G_RING_LOW_RES*2 ];	// U,V
-	mVertsHighRes	= new float[ G_RING_HIGH_RES*2 ];	// X,Y
-	mTexHighRes		= new float[ G_RING_HIGH_RES*2 ];	// U,V
-	
-	Color c				= BRIGHT_BLUE;
+	mVertsLowRes  = new VertexData[ G_RING_LOW_RES ];	 // X,Y,U,V
+	mVertsHighRes = new VertexData[ G_RING_HIGH_RES ]; // X,Y,U,V
 	
 	for( int i=0; i<G_RING_LOW_RES; i++ ){
-		float per				 = (float)i/(float)(G_RING_LOW_RES-1);
-		float angle				 = per * TWO_PI;
-		mVertsLowRes[i*2+0]	 = cos( angle );
-		mVertsLowRes[i*2+1]	 = sin( angle );
-		mTexLowRes[i*2+0] = per;
-		mTexLowRes[i*2+1] = 0.5f;
+		float per	= (float)i/(float)(G_RING_LOW_RES-1);
+		float angle	= per * TWO_PI;
+		mVertsLowRes[i].vertex  = Vec2f( cos( angle ), sin( angle ) );
+		mVertsLowRes[i].texture = Vec2f( per, 0.5f );
 	}
+
+    glGenBuffers(1, &mLowResVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, mLowResVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * G_RING_LOW_RES, mVertsLowRes, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
 	
 	for( int i=0; i<G_RING_HIGH_RES; i++ ){
-		float per				 = (float)i/(float)(G_RING_HIGH_RES-1);
-		float angle				 = per * TWO_PI;
-		mVertsHighRes[i*2+0] = cos( angle );
-		mVertsHighRes[i*2+1] = sin( angle );
-		mTexHighRes[i*2+0] = per;
-		mTexHighRes[i*2+1] = 0.5f;
+		float per	= (float)i/(float)(G_RING_HIGH_RES-1);
+		float angle	= per * TWO_PI;
+		mVertsHighRes[i].vertex  = Vec2f( cos( angle ), sin( angle ) );
+		mVertsHighRes[i].texture = Vec2f( per, 0.5f );
 	}    
+    
+    glGenBuffers(1, &mHighResVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, mHighResVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * G_RING_HIGH_RES, mVertsHighRes, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
+    
 }
 
 void OrbitRing::drawLowRes() const
 {
+    glBindBuffer(GL_ARRAY_BUFFER, mLowResVBO);
+    glVertexPointer( 2, GL_FLOAT, sizeof(VertexData), 0 ); // last arg becomes an offset instead of an address
+    glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), (void*)sizeof(Vec2f) );        
+    glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
+
 	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	glVertexPointer( 2, GL_FLOAT, 0, mVertsLowRes );
-	glTexCoordPointer( 2, GL_FLOAT, 0, mTexLowRes );
-	glDrawArrays( GL_LINE_STRIP, 0, G_RING_LOW_RES );
-	glDisableClientState( GL_VERTEX_ARRAY );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );    
+    glDrawArrays( GL_LINE_STRIP, 0, G_RING_LOW_RES );
+    glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );    
 }
 
 void OrbitRing::drawHighRes() const
 {
+    glBindBuffer(GL_ARRAY_BUFFER, mHighResVBO);
+    glVertexPointer( 2, GL_FLOAT, sizeof(VertexData), 0 ); // last arg becomes an offset instead of an address
+    glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), (void*)sizeof(Vec2f) );        
+    glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound. 
+
 	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	glVertexPointer( 2, GL_FLOAT, 0, mVertsHighRes );
-	glTexCoordPointer( 2, GL_FLOAT, 0, mTexHighRes );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );    
 	glDrawArrays( GL_LINE_STRIP, 0, G_RING_HIGH_RES );
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );    

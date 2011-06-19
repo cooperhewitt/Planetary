@@ -50,10 +50,14 @@ void Galaxy::drawLightMatter()
 		const float radius = mLightMatterBaseRadius * 0.9f;
 		glPushMatrix();
         mGalaxyDome.enableAndBind();
+
+        glBindBuffer(GL_ARRAY_BUFFER, mDarkMatterVBO);
+        glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), 0 ); // last arg becomes an offset instead of an address
+        glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), (void*)sizeof(Vec3f) ); // NB:- change if type of VertexData.vertex changes
+        glBindBuffer(GL_ARRAY_BUFFER, 0); // Leave no VBO bound.                
+
         glEnableClientState( GL_VERTEX_ARRAY );
         glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-        glVertexPointer( 3, GL_FLOAT, 0, mDarkMatterVerts );
-        glTexCoordPointer( 2, GL_FLOAT, 0, mDarkMatterTexCoords );
         
         gl::scale( Vec3f( radius, radius * 0.69f, radius ) );
         gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -2.0f, 0.0f ) );
@@ -75,15 +79,18 @@ void Galaxy::drawSpiralPlanes()
     // GALAXY SPIRAL PLANES
 	const float alpha = ( 1.25f - mCamGalaxyAlpha ) * mZoomOff;//sqrt(camGalaxyAlpha) * zoomOff;
 	if( alpha > 0.01f ){
+
+        gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha ) );
+
+        glBindBuffer(GL_ARRAY_BUFFER, mGalaxyVBO);
+        glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), 0 ); // last arg becomes an offset instead of an address
+        glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), (void*)sizeof(Vec3f) ); // NB:- change if type of VertexData.vertex changes
+        glBindBuffer(GL_ARRAY_BUFFER, 0); // Leave no VBO bound.                
         
         glPushMatrix();
-        
 		mGalaxyTex.enableAndBind();
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glVertexPointer( 3, GL_FLOAT, 0, mGalaxyVerts );
-		glTexCoordPointer( 2, GL_FLOAT, 0, mGalaxyTexCoords );
-		gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha ) );
 		
 		gl::translate( Vec3f( 0.0f, 2.5f, 0.0f ) );
 		gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -4.0f, 0.0f ) );
@@ -100,8 +107,7 @@ void Galaxy::drawSpiralPlanes()
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		mGalaxyTex.disable();
-        
+		mGalaxyTex.disable();        
         glPopMatrix();
 	}
 }
@@ -125,16 +131,22 @@ void Galaxy::drawDarkMatter()
 	if( mInvAlpha > 0.01f ){
 		glEnable( GL_CULL_FACE ); 
 		glCullFace( GL_FRONT ); 
-		//float alpha = pow( 1.0f - camGalaxyAlpha, 8.0f ) * zoomOff;
+		
+        //float alpha = pow( 1.0f - camGalaxyAlpha, 8.0f ) * zoomOff;
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, mInvAlpha ) );
-		float radius = mDarkMatterBaseRadius * 0.85f;
+		const float radius = mDarkMatterBaseRadius * 0.85f;
+        
 		glPushMatrix();
 		mDarkMatterTex.enableAndBind();
+        
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glVertexPointer( 3, GL_FLOAT, 0, mDarkMatterVerts );
-		glTexCoordPointer( 2, GL_FLOAT, 0, mDarkMatterTexCoords );
-		
+
+        glBindBuffer(GL_ARRAY_BUFFER, mDarkMatterVBO);
+        glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), 0 ); // last arg becomes an offset instead of an address
+        glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), (void*)sizeof(Vec3f) ); // NB:- change if type of VertexData.vertex changes
+        glBindBuffer(GL_ARRAY_BUFFER, 0); // Leave no VBO bound.                
+        
 		gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -2.0f, 0.0f ) );
 		gl::scale( Vec3f( radius, radius * 0.5f, radius ) );
         glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
@@ -143,7 +155,6 @@ void Galaxy::drawDarkMatter()
 		gl::scale( Vec3f( 1.3f, 1.3f, 1.3f ) );
         glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
         
-		
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 		mDarkMatterTex.disable();
@@ -155,70 +166,56 @@ void Galaxy::drawDarkMatter()
 void Galaxy::initGalaxyVertexArray()
 {
 	std::cout << "initializing Galaxy Vertex Array" << std::endl;
-	mGalaxyVerts		= new float[18];
-	mGalaxyTexCoords	= new float[12];
-	int i	= 0;
-	int t	= 0;
-	float w	= 400.0f;
-	Vec3f corner;
+    
+	mGalaxyVerts = new VertexData[6];
+
+	const float w = 400.0f;
+
+    int vert = 0;
+
+	mGalaxyVerts[vert].vertex  = Vec3f( -w, 0.0f, -w );
+    mGalaxyVerts[vert].texture = Vec2f::zero();
+    vert++;
 	
-	
-	corner			= Vec3f( -w, 0.0f, -w );
-	mGalaxyVerts[i++]			= corner.x;
-	mGalaxyVerts[i++]			= corner.y;
-	mGalaxyVerts[i++]			= corner.z;
-	mGalaxyTexCoords[t++]		= 0.0f;
-	mGalaxyTexCoords[t++]		= 0.0f;
-	
-	corner			= Vec3f( w, 0.0f, -w );
-	mGalaxyVerts[i++]			= corner.x;
-	mGalaxyVerts[i++]			= corner.y;
-	mGalaxyVerts[i++]			= corner.z;
-	mGalaxyTexCoords[t++]		= 1.0f;
-	mGalaxyTexCoords[t++]		= 0.0f;
-	
-	corner			= Vec3f( w, 0.0f, w );	
-	mGalaxyVerts[i++]			= corner.x;
-	mGalaxyVerts[i++]			= corner.y;
-	mGalaxyVerts[i++]			= corner.z;
-	mGalaxyTexCoords[t++]		= 1.0f;
-	mGalaxyTexCoords[t++]		= 1.0f;
-	
-	corner			= Vec3f( -w, 0.0f, -w );
-	mGalaxyVerts[i++]			= corner.x;
-	mGalaxyVerts[i++]			= corner.y;
-	mGalaxyVerts[i++]			= corner.z;
-	mGalaxyTexCoords[t++]		= 0.0f;
-	mGalaxyTexCoords[t++]		= 0.0f;
-	
-	corner			= Vec3f( w, 0.0f, w );	
-	mGalaxyVerts[i++]			= corner.x;
-	mGalaxyVerts[i++]			= corner.y;
-	mGalaxyVerts[i++]			= corner.z;
-	mGalaxyTexCoords[t++]		= 1.0f;
-	mGalaxyTexCoords[t++]		= 1.0f;
-	
-	corner			= Vec3f( -w, 0.0f, w );	
-	mGalaxyVerts[i++]			= corner.x;
-	mGalaxyVerts[i++]			= corner.y;
-	mGalaxyVerts[i++]			= corner.z;
-	mGalaxyTexCoords[t++]		= 0.0f;
-	mGalaxyTexCoords[t++]		= 1.0f;
+	mGalaxyVerts[vert].vertex  = Vec3f( w, 0.0f, -w );
+    mGalaxyVerts[vert].texture = Vec2f(1.0f, 0.0f);
+    vert++;
+
+    mGalaxyVerts[vert].vertex  = Vec3f( w, 0.0f, w );
+    mGalaxyVerts[vert].texture = Vec2f(1.0f, 1.0f);
+    vert++;
+
+    mGalaxyVerts[vert].vertex  = Vec3f( -w, 0.0f, -w );
+    mGalaxyVerts[vert].texture = Vec2f(0.0f, 0.0f);
+    vert++;
+
+    mGalaxyVerts[vert].vertex  = Vec3f( w, 0.0f, w );
+    mGalaxyVerts[vert].texture = Vec2f(1.0f, 1.0f);
+    vert++;
+
+    mGalaxyVerts[vert].vertex  = Vec3f( -w, 0.0f, w );
+    mGalaxyVerts[vert].texture = Vec2f(0.0f, 1.0f);
+    vert++;
+    
+    glGenBuffers(1, &mGalaxyVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, mGalaxyVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * vert, mGalaxyVerts, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // Leave no VBO bound.        
+    
 }
 
 
 void Galaxy::initDarkMatterVertexArray()
 {
 	std::cout << "initializing Dark Matter Vertex Array" << std::endl;
-	mDarkMatterVerts		= new float[ mDarkMatterCylinderRes * 6 * 3 ]; // cylinderRes * two-triangles * 3d
-	mDarkMatterTexCoords	= new float[ mDarkMatterCylinderRes * 6 * 2 ]; // cylinderRes * two-triangles * 2d
+	mDarkMatterVerts = new VertexData[ mDarkMatterCylinderRes * 6 ]; // cylinderRes * two-triangles
 	
     const float TWO_PI = 2.0f * M_PI;
     
-	int i	= 0;
-	int t	= 0;
+	int vert = 0;
 	
 	for( int x=0; x<mDarkMatterCylinderRes; x++ ){
+        
 		float per1		= (float)x/(float)mDarkMatterCylinderRes;
 		float per2		= (float)(x+1)/(float)mDarkMatterCylinderRes;
 		float angle1	= per1 * TWO_PI;
@@ -235,40 +232,34 @@ void Galaxy::initDarkMatterVertexArray()
 		Vec3f v3 = Vec3f( ca1,  h, sa1 );
 		Vec3f v4 = Vec3f( ca2,  h, sa2 );
 		
-		mDarkMatterVerts[i++]		= v1.x;
-		mDarkMatterVerts[i++]		= v1.y;
-		mDarkMatterVerts[i++]		= v1.z;
-		mDarkMatterTexCoords[t++]	= per1;
-		mDarkMatterTexCoords[t++]	= 0.0f;
-		
-		mDarkMatterVerts[i++]		= v2.x;
-		mDarkMatterVerts[i++]		= v2.y;
-		mDarkMatterVerts[i++]		= v2.z;
-		mDarkMatterTexCoords[t++]	= per2;
-		mDarkMatterTexCoords[t++]	= 0.0f;
-		
-		mDarkMatterVerts[i++]		= v3.x;
-		mDarkMatterVerts[i++]		= v3.y;
-		mDarkMatterVerts[i++]		= v3.z;
-		mDarkMatterTexCoords[t++]	= per1;
-		mDarkMatterTexCoords[t++]	= 1.0f;
-		
-		mDarkMatterVerts[i++]		= v2.x;
-		mDarkMatterVerts[i++]		= v2.y;
-		mDarkMatterVerts[i++]		= v2.z;
-		mDarkMatterTexCoords[t++]	= per2;
-		mDarkMatterTexCoords[t++]	= 0.0f;
-		
-		mDarkMatterVerts[i++]		= v4.x;
-		mDarkMatterVerts[i++]		= v4.y;
-		mDarkMatterVerts[i++]		= v4.z;
-		mDarkMatterTexCoords[t++]	= per2;
-		mDarkMatterTexCoords[t++]	= 1.0f;
-		
-		mDarkMatterVerts[i++]		= v3.x;
-		mDarkMatterVerts[i++]		= v3.y;
-		mDarkMatterVerts[i++]		= v3.z;
-		mDarkMatterTexCoords[t++]	= per1;
-		mDarkMatterTexCoords[t++]	= 1.0f;
+		mDarkMatterVerts[vert].vertex = v1;
+		mDarkMatterVerts[vert].texture = Vec2f(per1,0.0f);
+		vert++;
+
+        mDarkMatterVerts[vert].vertex = v2;
+		mDarkMatterVerts[vert].texture = Vec2f(per2,0.0f);
+		vert++;
+
+        mDarkMatterVerts[vert].vertex = v3;
+		mDarkMatterVerts[vert].texture = Vec2f(per1,1.0f);
+		vert++;
+
+        mDarkMatterVerts[vert].vertex = v2;
+		mDarkMatterVerts[vert].texture = Vec2f(per2,0.0f);
+		vert++;
+
+        mDarkMatterVerts[vert].vertex = v4;
+		mDarkMatterVerts[vert].texture = Vec2f(per2,1.0f);
+		vert++;
+
+        mDarkMatterVerts[vert].vertex = v3;
+		mDarkMatterVerts[vert].texture = Vec2f(per1,1.0f);
+		vert++;
 	}
+    
+    glGenBuffers(1, &mDarkMatterVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, mDarkMatterVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * vert, mDarkMatterVerts, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // Leave no VBO bound.        
+    
 }
