@@ -1467,6 +1467,7 @@ void KeplerApp::drawScene()
 	}
 	
 // FOR dust, playhead progress, constellations, etc.
+    gl::enableAlphaBlending();    
     gl::enableAdditiveBlending();    
 	
 // DUSTS
@@ -1489,7 +1490,6 @@ void KeplerApp::drawScene()
 	}
 	
 // GALAXY DARK MATTER:
-	gl::enableAlphaBlending();
     mGalaxy.drawDarkMatter();
 	
 // NAMES
@@ -1497,6 +1497,9 @@ void KeplerApp::drawScene()
 	gl::disableDepthWrite();
 	glEnable( GL_TEXTURE_2D );
 	gl::setMatricesWindow( getWindowSize() );
+
+    gl::enableAlphaBlending();    
+    gl::enableAdditiveBlending();            
 	
     if( G_DRAW_TEXT ){
 		mWorld.drawNames( mCam, mPinchAlphaPer, getAngleForOrientation(mInterfaceOrientation) );
@@ -1512,7 +1515,9 @@ void KeplerApp::drawScene()
 		float distFromCenter = artistNode->mScreenPos.distance( getWindowCenter() );
 		float distPer = constrain( 1.0f - distFromCenter/400.0f, 0.0f, 1.0f );
 		float alpha = distPer * 0.2f * sin( distPer * M_PI );
-		
+
+        gl::enableAlphaBlending();    
+        gl::enableAdditiveBlending();		
 		mLensFlareTex.enableAndBind();
 		
 		Vec2f flarePos = getWindowCenter() - artistNode->mScreenPos;
@@ -1526,35 +1531,7 @@ void KeplerApp::drawScene()
 			gl::drawSolidRect( Rectf( flarePos.x - flareRadius, flarePos.y - flareRadius, flarePos.x + flareRadius, flarePos.y + flareRadius ) );
 		}
 		
-
 		mLensFlareTex.disable();
-		
-		// Attempt to add lighting highlights to the ipad window edges.
-		// not successful so commented out for now.
-		{
-//		glDisable( GL_TEXTURE_2D );
-//		Vec2f dirToCenter = ( artistNode->mScreenPos - getWindowCenter() );
-//		float distToCenter = dirToCenter.length();
-//		dirToCenter.normalize();
-//		float left		= sin( constrain( dirToCenter.x * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
-//		float right		= sin( constrain( ( 1.0f - dirToCenter.x ) * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
-//		float top		= sin( constrain( dirToCenter.y * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
-//		float bottom	= sin( constrain( ( 1.0f - dirToCenter.y ) * (float)M_PI, 0.0f, (float)M_PI ) ) * 0.5f;
-//		
-//		gl::color( ColorA( artistNode->mGlowColor, top ) );
-//		gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( getWindowWidth(), 1.0f ) );
-//		
-//		gl::color( ColorA( artistNode->mGlowColor, bottom ) );
-//		gl::drawLine( Vec2f( 1.0f, getWindowHeight() ), Vec2f( getWindowWidth(), getWindowHeight() ) );
-//		
-//		gl::color( ColorA( artistNode->mGlowColor, left ) );
-//		gl::drawLine( Vec2f( 1.0f, 1.0f ), Vec2f( 1.0f, getWindowHeight() ) );
-//
-//		gl::color( ColorA( artistNode->mGlowColor, right ) );
-//		gl::drawLine( Vec2f( getWindowWidth(), 1.0f ), Vec2f( getWindowWidth(), getWindowHeight() ) );
-//		glEnable( GL_TEXTURE_2D );
-		}
-
 	}
 
 	
