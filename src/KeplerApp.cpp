@@ -729,7 +729,7 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 
         std::map<string, string> params;
         params["Letter"] = toString( mState.getAlphaChar() );
-        params["Count"] = toString( mData.mFilteredArtists.size() );
+        params["Count"] = toString( mWorld.getNumFilteredNodes() );
         logEvent("Letter Selected" , params);
     }    
 	return false;
@@ -746,10 +746,10 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
     
 	mPlayControls.setPlaylist( mState.getPlaylist()->getPlaylistName() );
 	
-    // FIXME: enable this 
-//    std::map<string, string> parameters;
-//    parameters["Playlist"] = ""+mState.getPlaylist();
-//    logEvent("Playlist Selected" , parameters);	
+    std::map<string, string> parameters;
+    parameters["Playlist"] = mState.getPlaylist()->getPlaylistName();
+    parameters["Count"] = toString( mWorld.getNumFilteredNodes() );    
+    logEvent("Playlist Selected" , parameters);	
     
 	return false;
 }
@@ -1466,31 +1466,23 @@ void KeplerApp::drawScene()
 		mWorld.drawRings( mRingsTex, mCamRingAlpha * 0.5f );
 	}
 	
+// FOR dust, playhead progress, constellations, etc.
+    gl::enableAdditiveBlending();    
 	
 // DUSTS
 	if( artistNode ){
-		gl::enableAdditiveBlending();
 		mParticleController.drawDustVertexArray( artistNode );
 	}
-
-	
 	
 // PLAYHEAD PROGRESS
-	if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
-		gl::enableAdditiveBlending();
-		
-		float pauseAlpha = 1.0f;
-		if( mIpodPlayer.getPlayState() == ipod::Player::StatePaused ){
-			pauseAlpha = sin(getElapsedSeconds() * M_PI * 2.0f ) * 0.25f + 0.75f;
-		}
-		if( G_DRAW_RINGS )
-			mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mCamRingAlpha, pauseAlpha, mPlayheadProgressTex, mTrackOriginTex );
+	if( G_DRAW_RINGS && mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
+        const bool paused = mIpodPlayer.getPlayState() == ipod::Player::StatePaused;
+        const float pauseAlpha = paused ? sin(getElapsedSeconds() * M_PI * 2.0f ) * 0.25f + 0.75f : 1.0f;
+        mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mCamRingAlpha, pauseAlpha, mPlayheadProgressTex, mTrackOriginTex );
 	}
 	
-	
 // CONSTELLATION
-	if( mData.mFilteredArtists.size() > 1 && G_DRAW_RINGS ){
-		gl::enableAdditiveBlending();
+	if( mWorld.getNumFilteredNodes() > 1 && G_DRAW_RINGS ){
 		mDottedTex.enableAndBind();
 		mWorld.drawConstellation();
 		mDottedTex.disable();
@@ -1505,7 +1497,6 @@ void KeplerApp::drawScene()
 	gl::disableDepthWrite();
 	glEnable( GL_TEXTURE_2D );
 	gl::setMatricesWindow( getWindowSize() );
-	gl::enableAdditiveBlending();
 	
     if( G_DRAW_TEXT ){
 		mWorld.drawNames( mCam, mPinchAlphaPer, getAngleForOrientation(mInterfaceOrientation) );
@@ -1522,7 +1513,6 @@ void KeplerApp::drawScene()
 		float distPer = constrain( 1.0f - distFromCenter/400.0f, 0.0f, 1.0f );
 		float alpha = distPer * 0.2f * sin( distPer * M_PI );
 		
-		gl::enableAdditiveBlending();
 		mLensFlareTex.enableAndBind();
 		
 		Vec2f flarePos = getWindowCenter() - artistNode->mScreenPos;
@@ -1611,9 +1601,7 @@ void KeplerApp::drawScene()
 //		}
 //	}
 
-	
-	
-	gl::disableAlphaBlending();
+	gl::disableAlphaBlending(); // stops additive blending too (I think? says Tom)
     gl::enableAlphaBlending();
 	
 // EVERYTHING ELSE	

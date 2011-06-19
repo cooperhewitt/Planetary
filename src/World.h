@@ -46,6 +46,7 @@ public:
                     const ci::Surface &noAlbumArt );
     
 	void setFilter(const Filter &filter);
+    int  getNumFilteredNodes() const { return mFilteredNodes.size(); }
     
     void updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
     void selectHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId );
