@@ -48,7 +48,7 @@ class Node {
 	virtual void	drawAtmosphere( const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer ) {};
 	virtual void	drawRings( const ci::gl::Texture &tex, const PlanetRing &planetRing, float camZPos );
 	virtual void	findShadows( float camAlpha ) {};
-	virtual void	drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, const OrbitRing &orbitRing );
+	virtual void	drawOrbitRing( float pinchAlphaOffset, float camAlpha, const OrbitRing &orbitRing );
 
 	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
 	void			wasTapped(){ mIsTapped = true; mHighlightStrength = 1.0f; }

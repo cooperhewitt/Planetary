@@ -284,10 +284,11 @@ void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset, float ang
 	}
 }
 
-void World::drawOrbitRings( float pinchAlphaOffset, float camAlpha, const gl::Texture &orbitRingGradient )
+// assumes texture is already bound
+void World::drawOrbitRings( float pinchAlphaOffset, float camAlpha )
 {
 	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRingGradient, mOrbitRing );
+		(*it)->drawOrbitRing( pinchAlphaOffset, camAlpha, mOrbitRing );
 	}
 }
 

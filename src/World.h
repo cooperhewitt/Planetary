@@ -60,7 +60,7 @@ public:
 	void drawStarGlowsVertexArray();
 	void drawEclipseGlows();
 	void drawNames( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
-	void drawOrbitRings( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex );
+	void drawOrbitRings( float pinchAlphaOffset, float camAlpha );
 	void drawConstellation();
 	void drawTouchHighlights( float zoomAlpha );
 	void drawRings( const ci::gl::Texture &tex, float camZPos );

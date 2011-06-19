@@ -1337,7 +1337,9 @@ void KeplerApp::drawScene()
     }
   //  gl::color( c * pow( 1.0f - zoomOff, 3.0f ) );
     mSkyDome.enableAndBind();
+    // FIXME: use a gl::scaled BloomSphere for this?
     gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS, 24 );
+    mSkyDome.disable();
     
 // GALAXY
     
@@ -1387,49 +1389,32 @@ void KeplerApp::drawScene()
 		glEnable( GL_RESCALE_NORMAL );
 		glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT, ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
 		glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, ColorA( Color::white(), 1.0f ) );
-		
+
+        // LIGHT FROM ARTIST
+        glEnable( GL_LIGHT0 );
+        glEnable( GL_LIGHT1 );
+        Vec3f lightPos          = artistNode->mPos;
+        GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
+        glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
+        glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor, 1.0f ) );
+        glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
+        glLightfv( GL_LIGHT1, GL_DIFFUSE, ColorA( BRIGHT_BLUE, 1.0f ) );
+        
 		for( int i = 0; i < sortedNodes.size(); i++ ){
             
 			if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
 				gl::enableAlphaBlending();
 				glDisable( GL_CULL_FACE );
-				glEnableClientState( GL_VERTEX_ARRAY );
-				glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 				mEclipseShadowTex.enableAndBind();
 				sortedNodes[i]->findShadows( pow( mCamRingAlpha, 1.2f ) );
-				glDisableClientState( GL_VERTEX_ARRAY );
-				glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-				glEnable( GL_CULL_FACE );
-				
-				gl::enableDepthWrite();
+				glEnable( GL_CULL_FACE );				
 			}
 			
 			gl::enableDepthRead();
 			glEnable( GL_LIGHTING );
-			
-			// LIGHT FROM ARTIST
-			glEnable( GL_LIGHT0 );
-			glEnable( GL_LIGHT1 );
-			Vec3f lightPos          = artistNode->mPos;
-			GLfloat artistLight[]	= { lightPos.x, lightPos.y, lightPos.z, 1.0f };
-			glLightfv( GL_LIGHT0, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor, 1.0f ) );
-			glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
-			glLightfv( GL_LIGHT1, GL_DIFFUSE, ColorA( BRIGHT_BLUE, 1.0f ) );
-			gl::disableAlphaBlending();
 			gl::enableAlphaBlending();
-//			if( i==0 ){
-//				artistNode->drawStarCore( mStarCoreTex );	
-//				glDisable( GL_LIGHTING );
-//				gl::disableDepthRead();
-//				gl::enableAdditiveBlending();
-//				artistNode->drawAtmosphere( mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
-//				glEnable( GL_LIGHTING );
-//				gl::enableDepthRead();
-//				gl::enableAlphaBlending();
-//			}
-			
-			sortedNodes[i]->drawPlanet( mStarCoreTex );
+            			
+			sortedNodes[i]->drawPlanet( mStarCoreTex ); // FIXME: do artistNode->drawStarCore to be clearer (drawPlanet doesn't need a tex, and should do nothing in NodeArtist)
 			sortedNodes[i]->drawClouds( mCloudsTex );
 
 			glDisable( GL_LIGHTING );
@@ -1443,8 +1428,8 @@ void KeplerApp::drawScene()
 				sortedNodes[i]->drawAtmosphere( interfaceSize * 0.5f, mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
 			}
 			
-			
 		}
+        
 		glDisable( GL_CULL_FACE );
 		glDisable( GL_RESCALE_NORMAL );
 		
@@ -1461,7 +1446,9 @@ void KeplerApp::drawScene()
 	
 // ORBITS
 	if( G_DRAW_RINGS ){
-        mWorld.drawOrbitRings( mPinchAlphaPer, sqrt( mCamRingAlpha ), mOrbitRingGradientTex );
+        mOrbitRingGradientTex.enableAndBind();
+        mWorld.drawOrbitRings( mPinchAlphaPer, sqrt( mCamRingAlpha ) );
+        mOrbitRingGradientTex.disable();
 	}
 	
 // PARTICLES

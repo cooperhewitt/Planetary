@@ -232,10 +232,10 @@ void Node::drawRings( const gl::Texture &tex, const PlanetRing &planetRing, floa
 	}
 }
 
-void Node::drawOrbitRing( float pinchAlphaOffset, float camAlpha, const gl::Texture &orbitRingGradient, const OrbitRing &orbitRing )
+void Node::drawOrbitRing( float pinchAlphaOffset, float camAlpha, const OrbitRing &orbitRing )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRingGradient, orbitRing );
+		(*nodeIt)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRing );
 	}
 }
 

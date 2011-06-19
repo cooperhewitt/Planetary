@@ -449,7 +449,7 @@ void NodeAlbum::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, con
 }
 
 
-void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Texture &orbitRingGradient, const OrbitRing &orbitRing )
+void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const OrbitRing &orbitRing )
 {		
 	float newPinchAlphaPer = pinchAlphaPer;
 	if( G_ZOOM < G_ALBUM_LEVEL - 0.5f ){
@@ -467,14 +467,11 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 	glPushMatrix();
 	gl::translate( mParentNode->mPos );
 	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
-	gl::rotate( Vec3f( 90.0f, 0.0f, toDegrees( mOrbitAngle ) ) );
-	
-	orbitRingGradient.enableAndBind();
+	gl::rotate( Vec3f( 90.0f, 0.0f, toDegrees( mOrbitAngle ) ) );	
     orbitRing.drawHighRes();
-	orbitRingGradient.disable();
 	glPopMatrix();
 	
-	Node::drawOrbitRing( pinchAlphaPer, camAlpha, orbitRingGradient, orbitRing );
+	Node::drawOrbitRing( pinchAlphaPer, camAlpha, orbitRing );
 }
 
 
@@ -612,8 +609,12 @@ void NodeAlbum::findShadows( float camAlpha )
 
 		glVertexPointer( 3, GL_FLOAT, 0, mShadowVerts );
 		glTexCoordPointer( 2, GL_FLOAT, 0, mShadowTexCoords );
-		
+
+        glEnableClientState( GL_VERTEX_ARRAY );
+        glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glDrawArrays( GL_TRIANGLES, 0, 12 ); // dont forget to change the vert count in buildShadowVertexArray VVV
+        glDisableClientState( GL_VERTEX_ARRAY );
+        glDisableClientState( GL_TEXTURE_COORD_ARRAY );        
 	}
 
 	/*
