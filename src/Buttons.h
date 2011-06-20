@@ -113,4 +113,3 @@ protected:
     gl::Texture mTexture;
     
 };
-

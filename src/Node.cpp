@@ -11,7 +11,6 @@
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Text.h"
-#include "BloomGl.h"
 #include "Globals.h"
 #include "Node.h"
 #include <boost/lexical_cast.hpp>
@@ -312,10 +311,15 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			
 			mHitArea = Rectf( pos2 + offset2, pos2 + offset2 + texCorner);
 			mHitArea.canonicalize();        
-			inflateRect( mHitArea, 5.0f );
+            const float inflate = 5.0f;
+            // TODO: add .inflate to ci::Rectf
+            mHitArea.x1 -= inflate;
+            mHitArea.x2 += inflate;
+            mHitArea.y1 -= inflate;
+            mHitArea.y2 += inflate;
 			
 			// TODO: this is a lot of state changes per frame. Switch to drawing
-			// all names first, then all lines.
+			// all names first, then all lines?
 			glDisable( GL_TEXTURE_2D );
 			
 			gl::color( ColorA( BRIGHT_BLUE, alpha * 0.5f ) );

@@ -7,62 +7,64 @@
 //
 
 #include "BloomGl.h"
-#include "cinder/gl/gl.h"
 
-void drawButton( const ci::Rectf &rect, float u1, float v1, float u2, float v2 )
-{
-	glEnableClientState( GL_VERTEX_ARRAY );
-	GLfloat verts[8];
-	glVertexPointer( 2, GL_FLOAT, 0, verts );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	GLfloat texCoords[8];
-	glTexCoordPointer( 2, GL_FLOAT, 0, texCoords );
-	int vi = 0;
-	int ti = 0;
-	verts[vi++] = rect.getX2(); texCoords[ti++] = u2;
-	verts[vi++] = rect.getY1(); texCoords[ti++] = v1;
-	verts[vi++] = rect.getX1(); texCoords[ti++] = u1;
-	verts[vi++] = rect.getY1(); texCoords[ti++] = v1;
-	verts[vi++] = rect.getX2(); texCoords[ti++] = u2;
-	verts[vi++] = rect.getY2(); texCoords[ti++] = v2;
-	verts[vi++] = rect.getX1(); texCoords[ti++] = u1;
-	verts[vi++] = rect.getY2(); texCoords[ti++] = v2;
-	
-	glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
-	
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );	
-}
+namespace bloom { namespace gl {
 
-void drawButton( const ci::Rectf &rect, const ci::Rectf &texRect )
-{
-	glEnableClientState( GL_VERTEX_ARRAY );
-	GLfloat verts[8];
-	glVertexPointer( 2, GL_FLOAT, 0, verts );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	GLfloat texCoords[8];
-	glTexCoordPointer( 2, GL_FLOAT, 0, texCoords );
-	int vi = 0;
-	int ti = 0;
-	verts[vi++] = rect.getX2(); texCoords[ti++] = texRect.x2;
-	verts[vi++] = rect.getY1(); texCoords[ti++] = texRect.y1;
-	verts[vi++] = rect.getX1(); texCoords[ti++] = texRect.x1;
-	verts[vi++] = rect.getY1(); texCoords[ti++] = texRect.y1;
-	verts[vi++] = rect.getX2(); texCoords[ti++] = texRect.x2;
-	verts[vi++] = rect.getY2(); texCoords[ti++] = texRect.y2;
-	verts[vi++] = rect.getX1(); texCoords[ti++] = texRect.x1;
-	verts[vi++] = rect.getY2(); texCoords[ti++] = texRect.y2;
-	
-	glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
-	
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );	
-}
+    //BatchMap batchMap;
+    
+    void beginBatch()
+    {
+        batchMap.clear();
+    }
+    
+    void batchRect( const ci::gl::Texture &texture, const ci::Rectf &srcRect, const ci::Rectf &dstRect )
+    {
+        GLuint texId = texture.getId();
+        Batch *batch = &batchMap[texId];
+        int verts = batch->vertices.size();
+        if (verts == 0) {
+            batch->texture = texture;
+        }
+        batch->vertices.resize(verts + 6);
+        batch->vertices[verts].vertex  = ci::Vec2f(dstRect.x1, dstRect.y1);
+        batch->vertices[verts].texture = ci::Vec2f(srcRect.x1, srcRect.y1);
+        verts++;
+        batch->vertices[verts].vertex  = ci::Vec2f(dstRect.x2, dstRect.y1);
+        batch->vertices[verts].texture = ci::Vec2f(srcRect.x2, srcRect.y1); 
+        verts++;
+        batch->vertices[verts].vertex  = ci::Vec2f(dstRect.x2, dstRect.y2);
+        batch->vertices[verts].texture = ci::Vec2f(srcRect.x2, srcRect.y2); 
+        verts++;
+        batch->vertices[verts].vertex  = ci::Vec2f(dstRect.x1, dstRect.y1);
+        batch->vertices[verts].texture = ci::Vec2f(srcRect.x1, srcRect.y1); 
+        verts++;
+        batch->vertices[verts].vertex  = ci::Vec2f(dstRect.x1, dstRect.y2);
+        batch->vertices[verts].texture = ci::Vec2f(srcRect.x1, srcRect.y2); 
+        verts++;
+        batch->vertices[verts].vertex  = ci::Vec2f(dstRect.x2, dstRect.y2);
+        batch->vertices[verts].texture = ci::Vec2f(srcRect.x2, srcRect.y2); 
+        //verts++;        
+    }
+    
+    void batchRect( const ci::gl::Texture &texture, const ci::Area &srcArea, const ci::Rectf &dstRect )
+    {
+        batchRect( texture, texture.getAreaTexCoords( srcArea ), dstRect );
+    }
+    
+    void endBatch()
+    {
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        for (BatchMap::iterator it = batchMap.begin(); it != batchMap.end(); ++it) {
+            Batch *batch = &it->second;
+            batch->texture.enableAndBind();
+            glVertexPointer(2, GL_FLOAT, sizeof(VertexData), &batch->vertices[0].vertex);
+            glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData), &batch->vertices[0].texture);
+            glDrawArrays(GL_TRIANGLES, 0, batch->vertices.size());
+            batch->texture.disable();
+        }
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
 
-void inflateRect( ci::Rectf &rect, float amount )
-{
-    rect.x1 -= amount;
-    rect.x2 += amount;
-    rect.y1 -= amount;
-    rect.y2 += amount;
-}
+} }

@@ -447,9 +447,11 @@ void PlayControls::draw(float y)
     
 	//gl::enableAlphaBlending();    
 
+    bloom::gl::beginBatch();
     for (int i = 0; i < drawableElements.size(); i++) {
         drawableElements[i]->draw();
     }
+    bloom::gl::endBatch();
 	
 	gl::color( Color::white() );
 	

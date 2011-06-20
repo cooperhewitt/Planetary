@@ -10,7 +10,6 @@
 
 #include "HelpLayer.h"
 #include "CinderFlurry.h"
-#include "BloomGl.h"
 #include "Globals.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Utilities.h"
@@ -217,11 +216,11 @@ void HelpLayer::draw( const gl::Texture &tex, float y )
 		gl::enableAdditiveBlending();
 		gl::draw( mHelpPanelTex, mPanelRect );
 		gl::enableAlphaBlending();
-
-		tex.enableAndBind();
-		drawButton( mMailButton, 0.75f, 0.0f, 1.0f, 0.25f );
-		drawButton( mPlanetaryButton, 0.75f, 0.25f, 1.0f, 0.5f );
-		tex.disable();
+        
+        float texw = tex.getWidth();
+        float texh = tex.getHeight();
+        gl::draw( tex, Area(0.75f * texw, 0.25f * texh, 1.0f * texw, 0.5f * texh), mMailButton );
+        gl::draw( tex, Area(0.75f * texw, 0.25f * texh, 1.0f * texw, 0.5f * texh), mPlanetaryButton );
 		
 		int count = 0;
 		for( vector<gl::Texture>::iterator it = mHelpTextures.begin(); it != mHelpTextures.end(); ++it ){
@@ -274,23 +273,23 @@ void HelpLayer::draw( const gl::Texture &tex, float y )
 				
 				gl::enableAdditiveBlending();
 				if( isLandscapeOrientation( mInterfaceOrientation ) ){
-					tex.enableAndBind();
 					float yMid	= mInterfaceSize.y * 0.5f;
 					float w		= 100.0f;
 					Rectf arcRect( -w, -15.0f, w, 15.0f );
 					glPushMatrix();
 					gl::translate( Vec2f( 239.0f, yMid - 6.0f ) );
 					gl::rotate( 90.0f );
-					drawButton( arcRect, 0.5f, 0.75f, 1.0f, 0.9f );
+                    float tw = tex.getWidth();
+                    float th = tex.getHeight();
+                    gl::draw( tex, Area(0.5f*tw, 0.75f*th, 1.0f*tw, 0.9f*th), arcRect );
 					glPopMatrix();
-					tex.disable();
 				} else {
-					tex.enableAndBind();
 					float xMid	= mInterfaceSize.x * 0.5f;
 					float w		= 100.0f;
 					Rectf arcRect( xMid - w, mInterfaceSize.y - 255.0f, xMid + w, mInterfaceSize.y - 225.0f );
-					drawButton( arcRect, 0.5f, 0.75f, 1.0f, 0.9f );
-					tex.disable();
+                    float tw = tex.getWidth();
+                    float th = tex.getHeight();
+                    gl::draw( tex, Area(0.5f*tw, 0.75f*th, 1.0f*tw, 0.9f*th), arcRect );                    
 				}
 				gl::enableAlphaBlending();
 			}
