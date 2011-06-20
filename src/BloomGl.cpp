@@ -10,7 +10,7 @@
 
 namespace bloom { namespace gl {
 
-    //BatchMap batchMap;
+    BatchMap batchMap;
     
     void beginBatch()
     {
