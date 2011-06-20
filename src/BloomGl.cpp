@@ -36,7 +36,7 @@ namespace bloom { namespace gl {
 
 
 
-	void drawBillboard( const Vec3f &pos, const Vec2f &scale, float rotationDegrees, const Vec3f &bbRight, const Vec3f &bbUp )
+	void drawBillboard( const Vec3f &pos, const Vec2f &scale, float rotInRadians, const Vec3f &bbRight, const Vec3f &bbUp )
 	{
 		glEnableClientState( GL_VERTEX_ARRAY );
 		Vec3f verts[4];
@@ -45,8 +45,8 @@ namespace bloom { namespace gl {
 		GLfloat texCoords[8] = { 0, 0, 0, 1, 1, 0, 1, 1 };
 		glTexCoordPointer( 2, GL_FLOAT, 0, texCoords );
 		
-		float sinA = math<float>::sin( toRadians( rotationDegrees ) );
-		float cosA = math<float>::cos( toRadians( rotationDegrees ) );
+		float sinA = math<float>::sin( rotInRadians );
+		float cosA = math<float>::cos( rotInRadians );
 		
 		float scaleXCosA = 0.5f * scale.x * cosA;
 		float scaleXSinA = 0.5f * scale.x * sinA;
@@ -66,73 +66,59 @@ namespace bloom { namespace gl {
 
 
 
-	void drawSphericalBillboard( const Vec3f &camEye, const Vec3f &objPos, const Vec2f &scale, float rotationDegrees )
+	void drawSphericalBillboard( const Vec3f &camEye, const Vec3f &objPos, const Vec2f &scale, float rotInRadians )
 	{	
-		Vec3f objToCamProj;
-		Vec3f lookAt;
-		Vec3f objToCam;
+		Vec3f lookAt = Vec3f::zAxis();
 		Vec3f upAux;
-		
 		float angleCosine;
 		
-		objToCamProj.x = camEye.x - objPos.x ;
-		objToCamProj.y = 0;
-		objToCamProj.z = camEye.z - objPos.z ;
+		Vec3f objToCam = ( camEye - objPos ).normalized();
+		Vec3f objToCamProj = Vec3f( objToCam.x, 0.0f, objToCam.z );
 		objToCamProj.normalize();
 		
-		lookAt = Vec3f::zAxis();
 		upAux = lookAt.cross( objToCamProj );
-		
+
+// Cylindrical billboarding
 		angleCosine = constrain( lookAt.dot( objToCamProj ), -1.0f, 1.0f );
+		glRotatef( toDegrees( acos(angleCosine) ), upAux.x, upAux.y, upAux.z );	
 		
-		glRotatef( acos(angleCosine)*180.0f/M_PI, upAux.x, upAux.y, upAux.z );	
-		
-		objToCam = ( camEye - objPos ).normalized();
-		
+// Spherical billboarding
 		angleCosine = constrain( objToCamProj.dot( objToCam ), -1.0f, 1.0f );
+		if( objToCam.y < 0 )	glRotatef( toDegrees( acos(angleCosine) ), 1.0f, 0.0f, 0.0f );	
+		else					glRotatef( toDegrees( acos(angleCosine) ),-1.0f, 0.0f, 0.0f );
 		
-		if (objToCam[1] < 0)
-			glRotatef( acos(angleCosine)*180.0f/M_PI, 1.0f, 0.0f, 0.0f );	
-		else
-			glRotatef( acos(angleCosine)*180.0f/M_PI,-1.0f, 0.0f, 0.0f );
-	
 		
-		//glRotatef( rotationDegrees, 0.0f, 0.0f, 1.0f );
-		
+		Vec3f verts[4];
+		GLfloat texCoords[8] = { 0, 0, 0, 1, 1, 0, 1, 1 };
 		
 		glEnableClientState( GL_VERTEX_ARRAY );
-		Vec3f verts[4];
-		glVertexPointer( 3, GL_FLOAT, 0, &verts[0].x );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		GLfloat texCoords[8] = { 0, 0, 0, 1, 1, 0, 1, 1 };
+		glVertexPointer( 3, GL_FLOAT, 0, &verts[0].x );
 		glTexCoordPointer( 2, GL_FLOAT, 0, texCoords );
 		
-		float sinA = math<float>::sin( toRadians( rotationDegrees ) );
-		float cosA = math<float>::cos( toRadians( rotationDegrees ) );
+		float sinA = math<float>::sin( rotInRadians );
+		float cosA = math<float>::cos( rotInRadians );
 		
 		float scaleXCosA = 0.5f * scale.x * cosA;
 		float scaleXSinA = 0.5f * scale.x * sinA;
 		float scaleYSinA = 0.5f * scale.y * sinA;
 		float scaleYCosA = 0.5f * scale.y * cosA;
 		
-		Vec3f right = Vec3f( 1.0f, 0.0f, 0.0f );
-		Vec3f up = Vec3f( 0.0f, 1.0f, 0.0f );
-		verts[0] = right * ( -scaleXCosA - scaleYSinA ) + up * ( -scaleXSinA + scaleYCosA );
-		verts[1] = right * ( -scaleXCosA + scaleYSinA ) + up * ( -scaleXSinA - scaleYCosA );
-		verts[2] = right * (  scaleXCosA - scaleYSinA ) + up * (  scaleXSinA + scaleYCosA );
-		verts[3] = right * (  scaleXCosA + scaleYSinA ) + up * (  scaleXSinA - scaleYCosA );
-		
-		
-		
-//		verts[0] = Vec3f( -0.5f * scale.x,  0.5f * scale.y, 0.0f );
-//		verts[1] = Vec3f( -0.5f * scale.x, -0.5f * scale.y, 0.0f );
-//		verts[2] = Vec3f(  0.5f * scale.x,  0.5f * scale.y, 0.0f );
-//		verts[3] = Vec3f(  0.5f * scale.x, -0.5f * scale.y, 0.0f );
-		
+		verts[0] = Vec3f( ( -scaleXCosA - scaleYSinA ), ( -scaleXSinA + scaleYCosA ), 0.0f );
+		verts[1] = Vec3f( ( -scaleXCosA + scaleYSinA ), ( -scaleXSinA - scaleYCosA ), 0.0f );
+		verts[2] = Vec3f( (  scaleXCosA - scaleYSinA ), (  scaleXSinA + scaleYCosA ), 0.0f );
+		verts[3] = Vec3f( (  scaleXCosA + scaleYSinA ), (  scaleXSinA - scaleYCosA ), 0.0f );
+
 		glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );	
+		
+		
+//		glDisable( GL_TEXTURE_2D );
+//		ci::gl::color( Color( 1.0f, 1.0f, 1.0f ) );
+//		ci::gl::drawLine( Vec3f::zero(), objToCam );
+//		glEnable( GL_TEXTURE_2D );
 	}
 
 
