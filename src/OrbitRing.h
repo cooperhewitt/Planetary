@@ -30,6 +30,7 @@ public:
     {
         if( mVertsLowRes  != NULL ) delete[] mVertsLowRes;
         if( mVertsHighRes != NULL ) delete[] mVertsHighRes;
+        // FIXME delete VBO
     }
     
     void setup();

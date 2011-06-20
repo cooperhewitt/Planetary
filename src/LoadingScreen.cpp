@@ -55,7 +55,7 @@ void LoadingScreen::draw( gl::Texture mStarGlowTex )
     gl::setMatricesWindow( app::getWindowSize() );    
 
     glPushMatrix();
-    gl::multModelView( mOrientationMatrix );
+    gl::glMultMatrixf( mOrientationMatrix );
     Vec2f center = mInterfaceSize * 0.5f;
     gl::color( Color::white() );
 	

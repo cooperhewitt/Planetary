@@ -60,7 +60,7 @@ void Stats::draw(const Matrix44f &orientationMatrix)
 {
     if (mParamsTex) {
         glPushMatrix();
-        gl::multModelView( orientationMatrix );
+        gl::glMultMatrixf( orientationMatrix );
         gl::color( Color( 1.0f, 1.0f, 1.0f ) );
         gl::draw( mParamsTex, Vec2f( 23.0f, 25.0f ) );
         glPopMatrix();    

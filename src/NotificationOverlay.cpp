@@ -72,7 +72,7 @@ void NotificationOverlay::draw()
 	
 	glDisable( GL_TEXTURE_2D );
 	glPushMatrix();
-    gl::multModelView( mOrientationMatrix );
+    gl::glMultMatrixf( mOrientationMatrix );
 	gl::enableAlphaBlending();
 	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.25f * alpha ) );
 	//gl::drawSolidRect( blackBgRect );

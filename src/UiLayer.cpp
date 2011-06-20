@@ -201,7 +201,7 @@ void UiLayer::draw( const gl::Texture &uiButtonsTex )
     const float texHeight = uiButtonsTex.getHeight();
     
     glPushMatrix();
-    gl::multModelView( mOrientationMatrix );
+    gl::glMultMatrixf( mOrientationMatrix );
     
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 //    Area mPanelTexArea(texWidth * 0.0, texHeight * 0.8f, texWidth * 0.1f, texHeight * 1.0f);

@@ -439,7 +439,7 @@ void PlayControls::draw(float y)
     //mActive = (mInterfaceSize.y - y ) > 60.0f;
     
     glPushMatrix();
-    gl::multModelView( mOrientationMatrix );
+    gl::glMultMatrixf( mOrientationMatrix );
     gl::translate( Vec2f(0, y) );
     
 	float dragAlphaPer = pow( ( mInterfaceSize.y - y ) / 65.0f, 2.0f );    	

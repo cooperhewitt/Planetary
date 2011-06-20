@@ -25,8 +25,8 @@ public:
     
     const int& getId() const { return mId; }
     
-    void setRect(const Rectf &rect) { mRect = rect; }
-    void setRect(const float &x1, const float &y1, const float &x2, const float &y2) { mRect.set(x1,y1,x2,y2); }
+    virtual void setRect(const Rectf &rect) { mRect = rect; }
+    virtual void setRect(const float &x1, const float &y1, const float &x2, const float &y2) { mRect.set(x1,y1,x2,y2); }
     const Rectf& getRect() const { return mRect; }
     
     virtual void draw() = 0;
