@@ -211,7 +211,7 @@ void HelpLayer::draw( const gl::Texture &tex, float y )
 		ColorA base( 1.0f, 1.0f, 1.0f, alpha );
 		
 		glPushMatrix();
-		gl::multModelView( mOrientationMtx );
+		glMultMatrixf( mOrientationMtx );
 		
 		gl::color( base );
 		gl::enableAdditiveBlending();

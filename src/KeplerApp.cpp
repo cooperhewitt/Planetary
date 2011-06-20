@@ -133,6 +133,7 @@ class KeplerApp : public AppCocoaTouch {
 	ipod::PlaylistRef	mCurrentAlbum;
 	int					mPlaylistIndex; // FIXME: move this into State
     double              mCurrentTrackLength; // cached by onPlayerTrackChanged
+    ipod::Player::State mCurrentPlayState;
 	
 // PLAY CONTROLS
 	PlayControls	mPlayControls;
@@ -386,6 +387,8 @@ void KeplerApp::remainingSetup()
 	mState.registerPlaylistStateChanged( this, &KeplerApp::onPlaylistStateChanged );
 	
 	// PLAYER
+    mCurrentPlayState = mIpodPlayer.getPlayState();
+    // FIXME: init mCurrentTrackLength here?
 	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
     mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
     mIpodPlayer.registerLibraryChanged( this, &KeplerApp::onPlayerLibraryChanged );
@@ -435,8 +438,9 @@ void KeplerApp::initTextures()
     
     gl::Texture::Format fmt;
     fmt.enableMipmapping( true );
-    fmt.setMagFilter( GL_LINEAR );
+    fmt.setMagFilter( GL_LINEAR ); // TODO: try GL_NEAREST for some of the mega textures
     fmt.setMinFilter( GL_LINEAR_MIPMAP_NEAREST );    
+    //fmt.setInternalFormat( GL_UNSIGNED_SHORT_4_4_4_4 ); //RGBA4444
 
     mStarTex                  = gl::Texture( loadImage( loadResource( "star.png" ) ), fmt );
 	mStarCoreTex              = gl::Texture( loadImage( loadResource( "starCore.png" ) ), fmt );
@@ -445,6 +449,7 @@ void KeplerApp::initTextures()
 	mLensFlareTex             = gl::Texture( loadImage( loadResource( "lensFlare.png" ) ), fmt );
 	mParticleTex              = gl::Texture( loadImage( loadResource( "particle.png" ) ), fmt );
 	mSkyDome                  = gl::Texture( loadImage( loadResource( "skydome.png" ) ), fmt );
+    // FIXME: can we just reuse mSkyDome?
 	mGalaxyDome               = gl::Texture( loadImage( loadResource( "skydome.jpg" ) ), fmt );
 	mDottedTex                = gl::Texture( loadImage( loadResource( "dotted.png" ) ), fmt );
 	mDottedTex.setWrap( GL_REPEAT, GL_REPEAT );
@@ -824,7 +829,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
         
         case PlayControls::PLAY_PAUSE:
             logEvent("Play/Pause Button Selected");            
-            if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
+            if (mCurrentPlayState == ipod::Player::StatePlaying) {
                 mIpodPlayer.pause();
 				mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 128.0f, 128.0f, 256.0f ), "PAUSED" );
             }
@@ -1015,10 +1020,10 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
                 }
                 else {
                     // if this is already the selected node, just toggle the play state
-                    if (mIpodPlayer.getPlayState() == ipod::Player::StatePlaying) {
+                    if (mCurrentPlayState == ipod::Player::StatePlaying) {
                         mIpodPlayer.pause();
                     }
-                    else if (mIpodPlayer.getPlayState() == ipod::Player::StatePaused) {
+                    else if (mCurrentPlayState == ipod::Player::StatePaused) {
                         mIpodPlayer.play();
                     }                    
                 }
@@ -1048,7 +1053,7 @@ void KeplerApp::update()
 		mUiLayer.setIsPanelOpen( true );
         onSelectedNodeChanged( NULL );
         // and then make sure we know about the current track if there is one
-        if ( mIpodPlayer.getPlayState() == ipod::Player::StatePlaying ) {
+        if ( mCurrentPlayState == ipod::Player::StatePlaying ) {
             logEvent("Startup with Track Playing");                        
             onPlayerTrackChanged( &mIpodPlayer );
         } else {
@@ -1294,7 +1299,7 @@ void KeplerApp::drawNoArtists()
 	gl::setMatricesWindow( getWindowSize() );    
 	
     glPushMatrix();
-    gl::multModelView( mOrientationMatrix );
+    glMultMatrixf( mOrientationMatrix );
 	Vec2f interfaceSize = getWindowSize();
 	if( isLandscapeOrientation( mInterfaceOrientation ) ){
 		interfaceSize = interfaceSize.yx();
@@ -1407,12 +1412,16 @@ void KeplerApp::drawScene()
 				glDisable( GL_CULL_FACE );
 				mEclipseShadowTex.enableAndBind();
 				sortedNodes[i]->findShadows( pow( mCamRingAlpha, 1.2f ) );
-				glEnable( GL_CULL_FACE );				
+				glEnable( GL_CULL_FACE );
+				
+				// gl::enableDepthWrite();
 			}
 			
 			gl::enableDepthRead();
 			glEnable( GL_LIGHTING );
-			gl::enableAlphaBlending();
+
+			gl::disableAlphaBlending(); // dings additive blending            
+			gl::enableAlphaBlending();  // restores alpha blending
             			
 			sortedNodes[i]->drawPlanet( mStarCoreTex ); // FIXME: do artistNode->drawStarCore to be clearer (drawPlanet doesn't need a tex, and should do nothing in NodeArtist)
 			sortedNodes[i]->drawClouds( mCloudsTex );
@@ -1477,7 +1486,7 @@ void KeplerApp::drawScene()
 	
 // PLAYHEAD PROGRESS
 	if( G_DRAW_RINGS && mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
-        const bool paused = mIpodPlayer.getPlayState() == ipod::Player::StatePaused;
+        const bool paused = mCurrentPlayState == ipod::Player::StatePaused;
         const float pauseAlpha = paused ? sin(getElapsedSeconds() * M_PI * 2.0f ) * 0.25f + 0.75f : 1.0f;
         mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mCamRingAlpha, pauseAlpha, mPlayheadProgressTex, mTrackOriginTex );
 	}
@@ -1495,11 +1504,10 @@ void KeplerApp::drawScene()
 // NAMES
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
-	glEnable( GL_TEXTURE_2D );
 	gl::setMatricesWindow( getWindowSize() );
-
     gl::enableAlphaBlending();    
     gl::enableAdditiveBlending();            
+    gl::disableAlphaTest();
 	
     if( G_DRAW_TEXT ){
 		mWorld.drawNames( mCam, mPinchAlphaPer, getAngleForOrientation(mInterfaceOrientation) );
@@ -1537,17 +1545,10 @@ void KeplerApp::drawScene()
 	
 // PINCH FINGER POSITIONS
 	if( mIsPinching ){
-		float radius = mPinchHighlightRadius;
-		float alpha = 1.0f;
 
-		if( mPinchPer > mPinchPerThresh ){
-			mStarGlowTex.enableAndBind();
-			alpha = 0.2f;
-			//c = BRIGHT_BLUE;
-		} else {
-			mStarGlowTex.enableAndBind();
-		}
-					  
+		float radius = mPinchHighlightRadius;
+		float alpha = mPinchPer > mPinchPerThresh ? 0.2f : 1.0f;
+        mStarGlowTex.enableAndBind();					  
 		gl::color( ColorA( c, max( mPinchPer - mPinchPerInit, 0.0f ) * alpha ) );
 		
 		for( vector<Vec2f>::iterator it = mPinchPositions.begin(); it != mPinchPositions.end(); ++it ){
@@ -1562,35 +1563,23 @@ void KeplerApp::drawScene()
 		gl::drawSolidRect( Rectf( mTouchPos.x - radius, mTouchPos.y - radius, mTouchPos.x + radius, mTouchPos.y + radius ) );
 	}
 
-	
-	glDisable( GL_TEXTURE_2D );
-	
 //    if (G_DEBUG) {
 //        mWorld.drawHitAreas();
 //    }
-    
-// SHADOWS
-	
-//	for( int i = 0; i < sortedNodes.size(); i++ ){
-//		if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
-//			gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-//			sortedNodes[i]->findShadows( mEclipseShadowTex );
-//		}
-//	}
 
-	gl::disableAlphaBlending(); // stops additive blending too (I think? says Tom)
-    gl::enableAlphaBlending();
+	gl::disableAlphaBlending(); // stops additive blending
+    gl::enableAlphaBlending();  // reinstates normal alpha blending
 	
 // EVERYTHING ELSE	
 	mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
     mPlayControls.draw( mUiLayer.getPanelYPos() );
-	
+
+    gl::enableAdditiveBlending();    
 	mNotificationOverlay.draw();
 	
 	if( G_DEBUG ){
-		gl::enableAdditiveBlending();
         //gl::setMatricesWindow( getWindowSize() );
         mStats.draw( mOrientationMatrix );
 	}
@@ -1650,11 +1639,13 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
+    mCurrentPlayState = mIpodPlayer.getPlayState();
+
     if ( mState.getSelectedNode() == NULL ) {
         onPlayerTrackChanged( player );
     }
-    
-    mPlayControls.setPlaying(player->getPlayState() == ipod::Player::StatePlaying);
+        
+    mPlayControls.setPlaying(mCurrentPlayState);
     updateIsPlaying();
     
     std::map<string, string> params;
