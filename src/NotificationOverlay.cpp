@@ -72,11 +72,9 @@ void NotificationOverlay::draw()
 	
 	glPushMatrix();
     glMultMatrixf( mOrientationMatrix );
-
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha ) );
 	gl::draw( mMessageTexture, messageRect );
     gl::draw( mCurrentTexture, mCurrentSrcArea, iconRect );
-    
 	glPopMatrix(); 
 }
 

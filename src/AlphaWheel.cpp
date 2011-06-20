@@ -199,6 +199,7 @@ void AlphaWheel::draw( float *numberAlphaPerChar )
 	if( mWheelScale < 0.95f ){
 		glPushMatrix();
 		glMultMatrixf( mOrientationMatrix );
+
 		gl::translate( mInterfaceCenter );
 		gl::scale( Vec3f( mWheelScale + 1.0f, mWheelScale + 1.0f, 1.0f ) );	
 		drawWheel();
