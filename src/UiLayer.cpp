@@ -209,7 +209,7 @@ void UiLayer::draw( const gl::Texture &uiButtonsTex )
     bloom::gl::endBatch();
 
     gl::color( ColorA( BRIGHT_BLUE, 0.2f ) );
-	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 ), Vec2f( mPanelTabRect.x1, mPanelRect.y1 ) );
+	gl::drawLine( Vec2f( mPanelRect.x1, round(mPanelRect.y1) ), Vec2f( mPanelTabRect.x1+23, round(mPanelRect.y1) ) );
 	
 	gl::color( ColorA( BRIGHT_BLUE, 0.1f ) );
 	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 + mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelRect.y1 + mPanelOpenHeight + 1.0f ) );

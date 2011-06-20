@@ -464,9 +464,11 @@ void PlayControls::draw(float y)
 	Area aLeft		 = Area( 200.0f, 140.0f, 214.0f, 150.0f ); // references the uiButtons image
 	Rectf coverLeft  = Rectf( infoRect.x1, infoRect.y1, infoRect.x1 + w, infoRect.y2 );
 	Rectf coverRight = Rectf( infoRect.x2 + 1.0f, infoRect.y1, infoRect.x2 - ( w - 1.0f ), infoRect.y2 );
+    bloom::gl::beginBatch();
 	if( mTrackInfoLabel.isScrollingText() )
-		gl::draw( mButtonsTex, aLeft, coverLeft );
-    gl::draw( mButtonsTex, aLeft, coverRight );
+		bloom::gl::batchRect( mButtonsTex, aLeft, coverLeft );
+    bloom::gl::batchRect( mButtonsTex, aLeft, coverRight );
+    bloom::gl::endBatch(); // FIXME: could be the same batch, why not working?
 
     glPopMatrix();
     
