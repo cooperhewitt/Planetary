@@ -51,10 +51,11 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 	mAlbum			= album;
 // TRACK INFORMATION
 	mTrack			= track;
-	mTrackLength	= (*mAlbum)[mIndex]->getLength();
-	mPlayCount		= (*mAlbum)[mIndex]->getPlayCount() + 1.0f;
-	mStarRating		= (*mAlbum)[mIndex]->getStarRating();
-	
+	mTrackLength	= track->getLength();
+	mPlayCount		= track->getPlayCount() + 1.0f; // TODO: fix in calculations that use playcount so that mPlayCount can remain accurate
+	mStarRating		= track->getStarRating();
+    mId             = track->getItemId();
+    
 	string name		= getName();
 	char c1			= ' ';
 	if( name.length() >= 3 ){
@@ -127,12 +128,14 @@ void NodeTrack::setStartAngle()
 	float timeOffset	= (float)mMyTime/mOrbitPeriod;
 	mOrbitStartAngle	= timeOffset * TWO_PI;
 	
-	std::cout << "Start Angle set in NodeTrack: " << mOrbitStartAngle << std::endl;
-	std::cout << "mPercentPlayed: " << mPercentPlayed << std::endl;
-	std::cout << "timeOffset: " << timeOffset << std::endl;
-	std::cout << "mMyTime: " << mMyTime << std::endl;
-	std::cout << "angle: " << angle << std::endl;
-	std::cout << " ================= " << std::endl;
+    if (G_DEBUG) {
+        std::cout << "Start Angle set in NodeTrack: " << mOrbitStartAngle << std::endl;
+        std::cout << "mPercentPlayed: " << mPercentPlayed << std::endl;
+        std::cout << "timeOffset: " << timeOffset << std::endl;
+        std::cout << "mMyTime: " << mMyTime << std::endl;
+        std::cout << "angle: " << angle << std::endl;
+        std::cout << " ================= " << std::endl;
+    }
 }
 
 
@@ -854,5 +857,5 @@ string NodeTrack::getName()
 
 uint64_t NodeTrack::getId()
 {
-    return mTrack->getItemId();
+    return mId;
 }

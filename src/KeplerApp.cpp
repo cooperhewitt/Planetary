@@ -103,7 +103,6 @@ class KeplerApp : public AppCocoaTouch {
     bool			onPlayerStateChanged( ipod::Player *player );
     bool			onPlayerTrackChanged( ipod::Player *player );
     bool			onPlayerLibraryChanged( ipod::Player *player );
-    void            updateIsPlaying();
 	
 // UI BITS:
     LoadingScreen       mLoadingScreen;
@@ -782,7 +781,6 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
             NodeTrack* trackNode = dynamic_cast<NodeTrack*>(node);
             if (trackNode) {
                 if ( mIpodPlayer.hasPlayingTrack() ){
-                    trackNode->setStartAngle();
                     ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
                     if ( trackNode->getId() != playingTrack->getItemId() ) {
                         mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
@@ -804,8 +802,6 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
             logEvent("Album Selected");
         }
 	}
-
-    updateIsPlaying();
 
 	return false;
 }
@@ -1580,6 +1576,7 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
     logEvent("Player Library Changed");
     return false;
 }
+
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	
     mPlayControls.setLastTrackChangeTime( getElapsedSeconds() );
@@ -1604,8 +1601,17 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         uint64_t albumId = playingTrack->getAlbumId();
         uint64_t trackId = playingTrack->getItemId();
         
-        mWorld.selectHierarchy( artistId, albumId, trackId );        
-        mState.setSelectedNode( mWorld.getTrackNodeById( artistId, albumId, trackId ) );
+        // first be sure to create nodes for artist, album and track:
+        mWorld.selectHierarchy( artistId, albumId, trackId );
+
+        // and finally tell other things that care about the current selection
+        Node* currentSelection = mState.getSelectedNode();
+        if (currentSelection == NULL || currentSelection->getId() != trackId) {
+            mState.setSelectedNode( mWorld.getTrackNodeById( artistId, albumId, trackId ) );
+        }
+
+        // then sync the mIsPlaying state for all nodes...
+        mWorld.updateIsPlaying( artistId, albumId, trackId );
 	}
 	else {
         
@@ -1615,8 +1621,11 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 		// go to album level view when the last track ends:
 		mState.setSelectedNode( mState.getSelectedAlbumNode() );
         // FIXME: disable play button and zoom-to-current-track button
+        
+        // this should be OK to do since the above will happen if something is queued and paused
+        mWorld.updateIsPlaying( 0, 0, 0 );        
 	}
-    
+        
     logEvent("Player Track Changed");
     
     return false;
@@ -1631,17 +1640,7 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
     }
         
     mPlayControls.setPlaying(mCurrentPlayState);
-    updateIsPlaying();
-    
-    std::map<string, string> params;
-    params["State"] = player->getPlayState();
-    logEvent("Player State Changed", params);
-    
-    return false;
-}
 
-void KeplerApp::updateIsPlaying()
-{
     // update mIsPlaying state for all nodes...
     if ( mIpodPlayer.hasPlayingTrack() ){
         ipod::TrackRef track = mIpodPlayer.getPlayingTrack();
@@ -1650,7 +1649,13 @@ void KeplerApp::updateIsPlaying()
     else {
         // this should be OK to do since the above will happen if something is queued and paused
         mWorld.updateIsPlaying( 0, 0, 0 );
-    }
+    }    
+    
+    std::map<string, string> params;
+    params["State"] = player->getPlayState();
+    logEvent("Player State Changed", params);
+    
+    return false;
 }
 
 void KeplerApp::logEvent(const string &event)

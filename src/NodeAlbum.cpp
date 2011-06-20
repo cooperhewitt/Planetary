@@ -57,9 +57,9 @@ void NodeAlbum::setData( PlaylistRef album )
 		if( numPlays > mHighestPlayCount )
 			mHighestPlayCount = numPlays;
 	}
-	
-	
-	
+
+    mId = mAlbum->getAlbumId();
+
 // ORBIT RADIUS	
 	// FIXME: bad c++?
 	float numAlbums		= ((NodeArtist*)mParentNode)->getNumAlbums() + 2.0f;
@@ -804,5 +804,5 @@ string NodeAlbum::getName()
 
 uint64_t NodeAlbum::getId()
 {
-    return mAlbum->getAlbumId();
+    return mId;
 }

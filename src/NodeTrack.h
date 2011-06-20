@@ -74,12 +74,16 @@ private:
 	
 	float		mCloudLayerRadius;
 	
+    // TODO: VBO or object:
 	int			mTotalOrbitVertices;
     int			mPrevTotalOrbitVertices;
 	GLfloat		*mOrbitVerts;
 	GLfloat		*mOrbitTexCoords;
 	GLfloat		*mOrbitColors;
 	
+    // TODO: VBO or object
 	GLfloat		*mShadowVerts;
 	GLfloat		*mShadowTexCoords;
+    
+    uint64_t    mId;
 };

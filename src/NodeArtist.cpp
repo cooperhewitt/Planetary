@@ -49,6 +49,8 @@ void NodeArtist::setData( PlaylistRef playlist )
 {
 	mPlaylist = playlist;
 	
+    mId = mPlaylist->getArtistId();
+    
 	string name		= getName();
 	char c1			= ' ';
 	char c2			= ' ';
@@ -308,5 +310,5 @@ string NodeArtist::getName()
 
 uint64_t NodeArtist::getId()
 {
-    return mPlaylist->getArtistId();
+    return mId;
 }

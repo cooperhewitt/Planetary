@@ -49,7 +49,9 @@ class NodeAlbum : public Node
 	ci::gl::Texture mAlbumArtTex;
 	ci::ipod::PlaylistRef mAlbum;
 	float		mCloudLayerRadius;
-	
+	uint64_t    mId;
+    
+    // TODO: VBO? separate object
 	GLfloat		*mShadowVerts;
 	GLfloat		*mShadowTexCoords;
 	
