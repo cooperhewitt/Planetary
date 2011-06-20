@@ -16,22 +16,9 @@
 
 namespace bloom { namespace gl {
 
-	void drawBillboardKepler( const ci::Vec3f &pos, const ci::Vec2f &scale, float rotationDegrees, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	void drawSphericalBillboardKepler( const ci::Vec3f &camEye, const ci::Vec3f &objPos, const ci::Vec2f &scale, float rotationDegrees );
-	
-	class Triangle {
-	public:
-		Triangle() {}
-		Triangle( ci::Vec3f pos1, ci::Vec3f pos2, ci::Vec3f pos3 )
-		: p1( pos1 ), p2( pos2 ), p3( pos3 )
-		{
-			
-		}
-		
-		ci::Vec3f p1;
-		ci::Vec3f p2;
-		ci::Vec3f p3;
-	};
+	void drawBillboard( const ci::Vec3f &pos, const ci::Vec2f &scale, float rotationDegrees, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	void drawSphericalBillboard( const ci::Vec3f &camEye, const ci::Vec3f &objPos, const ci::Vec2f &scale, float rotationDegrees );
+
 	
     // hat tip http://craiggiles.wordpress.com/2009/08/03/opengl-es-batch-rendering-on-the-iphone/
 

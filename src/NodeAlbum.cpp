@@ -430,18 +430,21 @@ void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 		
 		gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, 1.0f + mEclipseStrength * 2.0f ) );
 		tex.enableAndBind();
-		drawSphericalBillboardKepler( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -toDegrees( angle ) );
+		bloom::gl::drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -toDegrees( angle ) );
 //		gl::drawBillboard( mPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
 		tex.disable();
 		glPopMatrix();
 		
 		
+		glPushMatrix();
+		gl::translate( mPos );
+		
 		gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha ) );
 		directionalTex.enableAndBind();
 //		drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -toDegrees( angle ) );
-		drawBillboardKepler( mPos, Vec2f( mRadius, mRadius ) * 2.46f, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
+		bloom::gl::drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -toDegrees( mEclipseAngle ) );
 		directionalTex.disable();
-		
+		glPopMatrix();
 		
 	}
 }

@@ -1273,7 +1273,7 @@ void KeplerApp::updateCamera()
     mEye = mCenter - camOffset;
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
-	mCam.lookAt( (mEye - mCenterOffset), mCenter, q * mUp );
+	mCam.lookAt( mEye - mCenterOffset, mCenter, q * mUp );
 }
 
 void KeplerApp::draw()
@@ -1418,10 +1418,10 @@ void KeplerApp::drawScene()
 			
 			if( sortedNodes[i]->mGen == G_ARTIST_LEVEL ){
 				gl::enableAlphaBlending();
-				sortedNodes[i]->drawAtmosphere( mEye + mCenterOffset, interfaceSize * 0.5f, mAtmosphereSunTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
+				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereSunTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
 			} else {
 				gl::enableAdditiveBlending();
-				sortedNodes[i]->drawAtmosphere( mEye + mCenterOffset, interfaceSize * 0.5f, mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
+				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
 			}
 			
 		}
