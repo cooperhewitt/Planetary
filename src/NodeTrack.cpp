@@ -531,12 +531,12 @@ void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 		gl::color( ColorA( grey, grey, grey, alpha * mClosenessFadeAlpha ) );
 		Vec2f radius = Vec2f( mRadius * stretch, mRadius ) * 2.45f;
 		tex.enableAndBind();
-		bloom::gl::drawBillboard( mPos, radius, -toDegrees( angle ), mBbRight, mBbUp );
+		bloom::gl::drawBillboard( mPos, radius, -angle, mBbRight, mBbUp );
 		tex.disable();
 		
 		gl::color( ColorA( mShadowPer, mShadowPer, mShadowPer, alpha * mClosenessFadeAlpha * mEclipseDirBasedAlpha * mDeathPer ) );
 		directionalTex.enableAndBind();
-		bloom::gl::drawBillboard( mPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
+		bloom::gl::drawBillboard( mPos, radius, -mEclipseAngle, mBbRight, mBbUp );
 		directionalTex.disable();
 	}
 }

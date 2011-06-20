@@ -420,7 +420,6 @@ void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 	if( mClosenessFadeAlpha > 0.0f ){
 		Vec2f dir		= mScreenPos - center;
 		float dirLength = dir.length()/500.0f;
-		float angle		= atan2( dir.y, dir.x );
 		float alpha = ( 1.0f - dirLength * 0.75f ) + mEclipseStrength;
 		alpha *= mDeathPer * mClosenessFadeAlpha * ( mBlockedBySunPer - 0.5f ) * 2.0f;
 
@@ -430,8 +429,7 @@ void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 		
 		gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, 1.0f + mEclipseStrength * 2.0f ) );
 		tex.enableAndBind();
-		bloom::gl::drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -toDegrees( angle ) );
-//		gl::drawBillboard( mPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
+		bloom::gl::drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, 0.0f );
 		tex.disable();
 		glPopMatrix();
 		
@@ -441,8 +439,9 @@ void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 		
 		gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha ) );
 		directionalTex.enableAndBind();
-//		drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -toDegrees( angle ) );
-		bloom::gl::drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -toDegrees( mEclipseAngle ) );
+		bloom::gl::drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -mEclipseAngle );
+		
+//		if( mIsPlaying ) std::cout << -toDegrees( mEclipseAngle ) << std::endl;
 		directionalTex.disable();
 		glPopMatrix();
 		

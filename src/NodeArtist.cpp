@@ -200,7 +200,7 @@ void NodeArtist::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const
 		
 		tex.enableAndBind();
 		Vec3f posOffset = Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.1f;
-		bloom::gl::drawBillboard( mPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
+		bloom::gl::drawBillboard( mPos - posOffset, radius, -angle, mBbRight, mBbUp );
 		tex.disable();
 	}
 	//}
