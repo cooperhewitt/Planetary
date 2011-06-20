@@ -424,18 +424,10 @@ void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 		alpha *= mDeathPer * mClosenessFadeAlpha * ( mBlockedBySunPer - 0.5f ) * 2.0f;
 
 		
-		glPushMatrix();
-		gl::translate( mPos );
-		
 		gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, 1.0f + mEclipseStrength * 2.0f ) );
 		tex.enableAndBind();
 		bloom::gl::drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, 0.0f );
 		tex.disable();
-		glPopMatrix();
-		
-		
-		glPushMatrix();
-		gl::translate( mPos );
 		
 		gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha ) );
 		directionalTex.enableAndBind();
@@ -443,7 +435,6 @@ void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 		
 //		if( mIsPlaying ) std::cout << -toDegrees( mEclipseAngle ) << std::endl;
 		directionalTex.disable();
-		glPopMatrix();
 		
 	}
 }
