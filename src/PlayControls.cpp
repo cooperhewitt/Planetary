@@ -375,6 +375,13 @@ void PlayControls::setShowSettings(bool visible)
 void PlayControls::updateElements()
 {
     drawableElements.clear();
+
+    // bit of hack, these are first for batch reasons
+    // (we want the little fadey bits to be drawn on top)
+    drawableElements.push_back(&mElapsedTimeLabel);
+    drawableElements.push_back(&mTrackInfoLabel);
+    drawableElements.push_back(&mRemainingTimeLabel);    
+    
     drawableElements.push_back(&mGalaxyButton);
 	drawableElements.push_back(&mCurrentTrackButton);
     drawableElements.push_back(&mShowSettingsButton);
@@ -395,14 +402,12 @@ void PlayControls::updateElements()
 		drawableElements.push_back(&mPreviousPlaylistButton);
 		drawableElements.push_back(&mNextPlaylistButton);
     }
-    drawableElements.push_back(&mElapsedTimeLabel);
-    drawableElements.push_back(&mTrackInfoLabel);
+    
 	drawableElements.push_back(&mPlayheadSlider);
 	drawableElements.push_back(&mParamSlider1);
 	drawableElements.push_back(&mParamSlider2);
 	drawableElements.push_back(&mParamSlider1Label);
 	drawableElements.push_back(&mParamSlider2Label);
-    drawableElements.push_back(&mRemainingTimeLabel);
 	
 
 
@@ -442,7 +447,7 @@ void PlayControls::draw(float y)
     glMultMatrixf( mOrientationMatrix );
     gl::translate( Vec2f(0, y) );
     
-	float dragAlphaPer = pow( ( mInterfaceSize.y - y ) / 65.0f, 2.0f );    	
+	const float dragAlphaPer = pow( ( mInterfaceSize.y - y ) / 65.0f, 2.0f );    	
     gl::color( ColorA( 1.0f, 1.0f, 1.0f, dragAlphaPer ) );
     
 	//gl::enableAlphaBlending();    
@@ -453,8 +458,6 @@ void PlayControls::draw(float y)
     }
     bloom::gl::endBatch();
 	
-	gl::color( Color::white() );
-	
 // TEXT LABEL GRADIENTS
 	const float w	 = 15.0f;
 	Rectf infoRect   = mTrackInfoLabel.getRect();
@@ -463,8 +466,8 @@ void PlayControls::draw(float y)
 	Rectf coverRight = Rectf( infoRect.x2 + 1.0f, infoRect.y1, infoRect.x2 - ( w - 1.0f ), infoRect.y2 );
 	if( mTrackInfoLabel.isScrollingText() )
 		gl::draw( mButtonsTex, aLeft, coverLeft );
-	gl::draw( mButtonsTex, aLeft, coverRight );
-	    
+    gl::draw( mButtonsTex, aLeft, coverRight );
+
     glPopMatrix();
     
     //gl::disableAlphaBlending();    

@@ -50,6 +50,11 @@ namespace bloom { namespace gl {
     {
         batchRect( texture, texture.getAreaTexCoords( srcArea ), dstRect );
     }
+
+    void batchRect( const ci::gl::Texture &texture, const ci::Vec2f &pos )
+    {
+        batchRect( texture, texture.getCleanBounds(), ci::Rectf(pos.x, pos.y, pos.x + texture.getWidth(), pos.y + texture.getHeight()) );        
+    }
     
     void endBatch()
     {

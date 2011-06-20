@@ -33,6 +33,7 @@ namespace bloom { namespace gl {
     extern BatchMap batchMap;
     
     void beginBatch();
+    void batchRect( const ci::gl::Texture &tex, const ci::Vec2f &pos );            
     void batchRect( const ci::gl::Texture &tex, const ci::Rectf &srcRect, const ci::Rectf &dstRect );
     void batchRect( const ci::gl::Texture &tex, const ci::Area &srcArea, const ci::Rectf &dstRect );
     void endBatch();
