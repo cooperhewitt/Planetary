@@ -133,6 +133,7 @@ class KeplerApp : public AppCocoaTouch {
 	ipod::PlaylistRef	mCurrentAlbum;
 	int					mPlaylistIndex; // FIXME: move this into State
     double              mCurrentTrackLength; // cached by onPlayerTrackChanged
+    double              mCurrentTrackPlayheadTime;
     ipod::Player::State mCurrentPlayState;
 	
 // PLAY CONTROLS
@@ -1070,19 +1071,18 @@ void KeplerApp::update()
 
         updateArcball();
 
-        // for mPlayControls and mWorld.mPlayingTrackNode
-		double currentTrackPlayheadTime = 0.0;
+        const int elapsedFrames = getElapsedFrames();
         
         // fake playhead time if we're dragging (so it looks really snappy)
         if (mPlayControls.playheadIsDragging()) {
-            currentTrackPlayheadTime = mCurrentTrackLength * mPlayControls.getPlayheadValue();
+            mCurrentTrackPlayheadTime = mCurrentTrackLength * mPlayControls.getPlayheadValue();
         }
-        else {
-            currentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
+        else if (elapsedFrames % 30) {
+            mCurrentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
         }
 
 		if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
-			mWorld.mPlayingTrackNode->updateAudioData( currentTrackPlayheadTime );
+			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
 		}
 		
 		const float scaleSlider = mPlayControls.getParamSlider1Value();
@@ -1118,17 +1118,16 @@ void KeplerApp::update()
         
         mPlayControls.update();
 
-        const int elapsedFrames = getElapsedFrames();
         if (elapsedFrames % 30 == 0) {
-            mPlayControls.setElapsedSeconds( (int)currentTrackPlayheadTime );
-            mPlayControls.setRemainingSeconds( -(int)(mCurrentTrackLength - currentTrackPlayheadTime) );
+            mPlayControls.setElapsedSeconds( (int)mCurrentTrackPlayheadTime );
+            mPlayControls.setRemainingSeconds( -(int)(mCurrentTrackLength - mCurrentTrackPlayheadTime) );
         }
         if (!mPlayControls.playheadIsDragging()) {
-            mPlayControls.setPlayheadProgress( currentTrackPlayheadTime / mCurrentTrackLength );
+            mPlayControls.setPlayheadProgress( mCurrentTrackPlayheadTime / mCurrentTrackLength );
         }
                 
         if( G_DEBUG && elapsedFrames % 30 == 0 ){
-            mStats.update(getAverageFps(), currentTrackPlayheadTime, mFov, G_CURRENT_LEVEL, G_ZOOM);
+            mStats.update(getAverageFps(), mCurrentTrackPlayheadTime, mFov, G_CURRENT_LEVEL, G_ZOOM);
         }
         
     }
@@ -1395,7 +1394,7 @@ void KeplerApp::drawScene()
         
 		for( int i = 0; i < sortedNodes.size(); i++ ){
             
-			if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
+			if( (G_IS_IPAD2 || G_DEBUG) && sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
 				gl::enableAlphaBlending();
 				glDisable( GL_CULL_FACE );
 				mEclipseShadowTex.enableAndBind();
@@ -1454,7 +1453,6 @@ void KeplerApp::drawScene()
 		mParticleTex.disable();
 	}
 	
-	
 // RINGS
 	if( artistNode ){
 		//alpha = pow( mCamRingAlpha, 2.0f );
@@ -1467,7 +1465,7 @@ void KeplerApp::drawScene()
     gl::enableAdditiveBlending();    
 	
 // DUSTS
-	if( artistNode ){
+	if( artistNode && (G_IS_IPAD2 || G_DEBUG) ){
 		mParticleController.drawDustVertexArray( artistNode );
 	}
 	
@@ -1486,7 +1484,9 @@ void KeplerApp::drawScene()
 	}
 	
 // GALAXY DARK MATTER:
-    mGalaxy.drawDarkMatter();
+    if (G_IS_IPAD2 || G_DEBUG) {
+        mGalaxy.drawDarkMatter();
+    }
 	
 // NAMES
 	gl::disableDepthRead();
@@ -1498,10 +1498,9 @@ void KeplerApp::drawScene()
     if( G_DRAW_TEXT ){
 		mWorld.drawNames( mCam, mPinchAlphaPer, getAngleForOrientation(mInterfaceOrientation) );
 	}
-	
-	
+		
 // LENSFLARE?!?!  SURELY YOU MUST BE MAD.
-	if( artistNode && artistNode->mDistFromCamZAxis > 0.0f ){
+	if( (G_IS_IPAD2 || G_DEBUG) && artistNode && artistNode->mDistFromCamZAxis > 0.0f ){
 		int numFlares  = 5;
 		float radii[7] = { 0.8f, 1.2f, 4.5f, 8.0f, 6.0f };
 		float dists[7] = { 0.8f, 1.0f, 1.5f, 1.70f, 2.0f };

@@ -382,36 +382,32 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		
 		
 		gl::enableAlphaBlending();
+        
 		glPushMatrix();
 		gl::translate( mPos );
-
-		//glDisable( GL_LIGHTING );
 		
-// SHADOW CLOUDS
-		glPushMatrix();
-		float radius = mRadius * mDeathPer + mCloudLayerRadius;
-		float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 0.334f ) * mClosenessFadeAlpha;
-		gl::scale( Vec3f( radius, radius, radius ) );
-		gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );
-		gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
 		clouds[mCloudTexIndex].enableAndBind();
-        lodSphere->draw();
-		glPopMatrix();
-
-		//glEnable( GL_LIGHTING );
-		
-// LIT CLOUDS
-		glPushMatrix();
-		radius = mRadius * mDeathPer + mCloudLayerRadius*1.5f;
-		gl::scale( Vec3f( radius, radius, radius ) );
-		gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );
+        
+        const float radius = mRadius * mDeathPer + mCloudLayerRadius;
+        const float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 0.334f ) * mClosenessFadeAlpha;        
+        
+        // SHADOW CLOUDS
+        gl::scale( Vec3f( radius, radius, radius ) );
+        gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );        
+        if (G_IS_IPAD2 || G_DEBUG) {
+            gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
+            lodSphere->draw();
+        }
+        
+        // LIT CLOUDS
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha * 2.0f ) );
+		const float radius2 = (mRadius * mDeathPer + mCloudLayerRadius*1.5f) / radius;
+		gl::scale( Vec3f( radius2, radius2, radius2 ) );
 		lodSphere->draw();
-		glPopMatrix();
-
+        
         clouds[mCloudTexIndex].disable();
-
+        
 		glPopMatrix();
 		
 	}

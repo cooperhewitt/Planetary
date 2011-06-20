@@ -32,7 +32,7 @@ namespace bloom {
         
         void setup( int segments );
         void draw();
-    
+
     private:
         
         bool mInited;
