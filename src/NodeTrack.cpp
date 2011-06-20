@@ -15,6 +15,7 @@
 #include "Globals.h"
 #include "cinder/ip/Resize.h"
 #include "OrbitRing.h"
+#include "BloomGl.h"
 
 using namespace ci;
 using namespace ci::ipod;
@@ -512,7 +513,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 	}
 }
 
-void NodeTrack::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
+void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
 	if( mClosenessFadeAlpha > 0.0f ){
 
@@ -530,12 +531,12 @@ void NodeTrack::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, con
 		gl::color( ColorA( grey, grey, grey, alpha * mClosenessFadeAlpha ) );
 		Vec2f radius = Vec2f( mRadius * stretch, mRadius ) * 2.45f;
 		tex.enableAndBind();
-		gl::drawBillboard( mPos, radius, -toDegrees( angle ), mBbRight, mBbUp );
+		drawBillboardKepler( mPos, radius, -toDegrees( angle ), mBbRight, mBbUp );
 		tex.disable();
 		
 		gl::color( ColorA( mShadowPer, mShadowPer, mShadowPer, alpha * mClosenessFadeAlpha * mEclipseDirBasedAlpha * mDeathPer ) );
 		directionalTex.enableAndBind();
-		gl::drawBillboard( mPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
+		drawBillboardKepler( mPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
 		directionalTex.disable();
 	}
 }

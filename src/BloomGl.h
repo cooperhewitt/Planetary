@@ -14,6 +14,9 @@ void drawButton( const ci::Rectf &rect, float u1, float v1, float u2, float v2 )
 void drawButton( const ci::Rectf &rect, const ci::Rectf&texRect );
 void inflateRect( ci::Rectf &rect, float amount );
 
+void drawBillboardKepler( const ci::Vec3f &pos, const ci::Vec2f &scale, float rotationDegrees, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+void drawSphericalBillboardKepler( const ci::Vec3f &camEye, const ci::Vec3f &objPos, const ci::Vec2f &scale, float rotationDegrees );
+
 class Triangle {
 public:
 	Triangle() {}

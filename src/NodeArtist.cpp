@@ -18,6 +18,7 @@
 #include "NodeAlbum.h"
 #include "NodeTrack.h"
 #include "Globals.h"
+#include "BloomGl.h"
 
 using namespace pollen::flurry;
 using namespace ci;
@@ -179,7 +180,7 @@ void NodeArtist::drawPlanet( const gl::Texture &tex )
 	}
 }
 
-void NodeArtist::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
+void NodeArtist::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
 	if( mIsHighlighted ){
 		Vec2f dir		= mScreenPos - center;
@@ -198,7 +199,7 @@ void NodeArtist::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, co
 		
 		tex.enableAndBind();
 		Vec3f posOffset = Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.1f;
-		gl::drawBillboard( mPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
+		drawBillboardKepler( mPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
 		tex.disable();
 	}
 	//}

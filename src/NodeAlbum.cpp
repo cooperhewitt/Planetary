@@ -16,6 +16,7 @@
 #include "cinder/PolyLine.h"
 #include "Globals.h"
 #include "cinder/ip/Resize.h"
+#include "BloomGl.h"
 
 using namespace ci;
 using namespace ci::ipod;
@@ -418,34 +419,35 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 }
 
 
-void NodeAlbum::drawAtmosphere( const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
+void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
-	//if( mIsHighlighted || mIsSelected || mIsPlaying ){
-		if( mClosenessFadeAlpha > 0.0f ){
-			Vec2f dir		= mScreenPos - center;
-			float dirLength = dir.length()/500.0f;
-			float angle		= atan2( dir.y, dir.x );
-			float stretch	= dirLength * mRadius * 0.75f;
-			float alpha = ( 1.0f - dirLength * 0.75f ) + mEclipseStrength;
-			alpha *= mDeathPer * mClosenessFadeAlpha * ( mBlockedBySunPer - 0.5f ) * 2.0f;
-			
-			gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, alpha + mEclipseStrength * 2.0f ) );
-			
-			float radiusOffset = ( ( mSphereScreenRadius/300.0f ) ) * 0.1f;
-			Vec2f radius = Vec2f( mRadius * ( 1.0f + stretch ), mRadius ) * ( 2.46f + radiusOffset );
-			//Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;
-			
-			tex.enableAndBind();
-			Vec3f posOffset = Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.1f;
-			gl::drawBillboard( mPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
-			tex.disable();
+	if( mClosenessFadeAlpha > 0.0f ){
+		Vec2f dir		= mScreenPos - center;
+		float dirLength = dir.length()/500.0f;
+		float angle		= atan2( dir.y, dir.x );
+		float alpha = ( 1.0f - dirLength * 0.75f ) + mEclipseStrength;
+		alpha *= mDeathPer * mClosenessFadeAlpha * ( mBlockedBySunPer - 0.5f ) * 2.0f;
 
-			gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha ) );
-			directionalTex.enableAndBind();
-			gl::drawBillboard( mPos, radius, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
-			directionalTex.disable();
-		}
-	//}
+		
+		glPushMatrix();
+		gl::translate( mPos );
+		
+		gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, 1.0f + mEclipseStrength * 2.0f ) );
+		tex.enableAndBind();
+		drawSphericalBillboardKepler( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -toDegrees( angle ) );
+//		gl::drawBillboard( mPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
+		tex.disable();
+		glPopMatrix();
+		
+		
+		gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha ) );
+		directionalTex.enableAndBind();
+//		drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -toDegrees( angle ) );
+		drawBillboardKepler( mPos, Vec2f( mRadius, mRadius ) * 2.46f, -toDegrees( mEclipseAngle ), mBbRight, mBbUp );
+		directionalTex.disable();
+		
+		
+	}
 }
 
 
