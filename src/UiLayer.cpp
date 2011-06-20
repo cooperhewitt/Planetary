@@ -11,6 +11,7 @@
 #include "UiLayer.h"
 #include "CinderFlurry.h"
 #include "Globals.h"
+#include "BloomGl.h"
 
 using namespace pollen::flurry;
 using namespace ci;
@@ -197,33 +198,22 @@ void UiLayer::update()
 
 void UiLayer::draw( const gl::Texture &uiButtonsTex )
 {	
-    const float texWidth = uiButtonsTex.getWidth();
-    const float texHeight = uiButtonsTex.getHeight();
-    
     glPushMatrix();
-    gl::multModelView( mOrientationMatrix );
-    
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
-//    Area mPanelTexArea(texWidth * 0.0, texHeight * 0.8f, texWidth * 0.1f, texHeight * 1.0f);
-//    gl::draw(uiButtonsTex, mPanelTexArea, mPanelRect);
+    glMultMatrixf( mOrientationMatrix );
 
-	Area mPanelUpperTexArea(texWidth * 0.0, texHeight * 0.71f, texWidth * 0.09f, texHeight * 0.79f);
-    gl::draw(uiButtonsTex, mPanelUpperTexArea, mPanelUpperRect);
-	
-	Area mPanelLowerTexArea(texWidth * 0.0, texHeight * 0.91f, texWidth * 0.09f, texHeight * 0.99f);
-    gl::draw(uiButtonsTex, mPanelLowerTexArea, mPanelLowerRect);
-	
-	gl::color( ColorA( BRIGHT_BLUE, 0.2f ) );
-	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 ), Vec2f( mPanelRect.x2, mPanelRect.y1 ) );
+    bloom::gl::beginBatch();
+    bloom::gl::batchRect(uiButtonsTex, Rectf(0.0, 0.71f, 0.09f, 0.79f), mPanelUpperRect);
+    bloom::gl::batchRect(uiButtonsTex, Rectf(0.0, 0.91f, 0.09f, 0.99f), mPanelLowerRect);
+    bloom::gl::batchRect(uiButtonsTex, Rectf(0.5f, 0.5f, 1.0f, 0.7f), mPanelTabRect);
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );    
+    bloom::gl::endBatch();
+
+    gl::color( ColorA( BRIGHT_BLUE, 0.2f ) );
+	gl::drawLine( Vec2f( mPanelRect.x1, round(mPanelRect.y1) ), Vec2f( mPanelTabRect.x1+23, round(mPanelRect.y1) ) );
 	
 	gl::color( ColorA( BRIGHT_BLUE, 0.1f ) );
 	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 + mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelRect.y1 + mPanelOpenHeight + 1.0f ) );
-
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
-	
-    Area mTabTexArea(texWidth * 0.5f, texHeight * 0.5f, texWidth * 1.0f, texHeight * 0.7f);
-    gl::draw(uiButtonsTex, mTabTexArea, mPanelTabRect);
-	
+    
     glPopMatrix();    
 }
 

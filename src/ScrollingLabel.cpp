@@ -8,6 +8,7 @@
 
 #include "cinder/app/AppCocoaTouch.h"
 #include "ScrollingLabel.h"
+#include "BloomGl.h"
 
 void ScrollingLabel::setText(string text)
 { 
@@ -39,35 +40,34 @@ void ScrollingLabel::draw()
         
         // force texture height:
         mRect.y2 = mRect.y1 + mTexture.getHeight();
-        
-        mTexture.enableAndBind();
-        
+                
         float ctSpaceWidth = mRect.x2 - mRect.x1;
         float ctTexWidth = mTexture.getWidth();
         
         if( ctTexWidth < ctSpaceWidth ){ 
 			mIsScrolling = false;
             // if the texture width is less than the rect to fit it in...
-            gl::draw(mTexture, mRect.getUpperLeft());            
+            bloom::gl::batchRect(mTexture, mRect.getUpperLeft());            
         }
         else {
             // if the texture is too wide, animate the u coords...        
+            float elapsedSeconds = ci::app::getElapsedSeconds();
             float x1;
-            if( ci::app::getElapsedSeconds() - mLastTrackChangeTime > 5.0f ) { 
+            if( elapsedSeconds - mLastTrackChangeTime > 5.0f ) { 
                 // but wait 5 seconds first
 				mIsScrolling = true;
-                x1 = fmodf( ( app::getElapsedSeconds() - ( mLastTrackChangeTime + 5.0f ) ) * 20.0f, ctTexWidth + 10.0f ) - ctTexWidth-10.0f;
+                x1 = fmodf( ( elapsedSeconds - ( mLastTrackChangeTime + 5.0f ) ) * 20.0f, ctTexWidth + 10.0f ) - ctTexWidth-10.0f;
             } else {
                 x1 = -ctTexWidth-10.0f;
             }
             
             Area a1( x1, 0.0f, 
                      x1 + ctSpaceWidth, mTexture.getHeight() );
-            gl::draw( mTexture, a1, mRect );
+            bloom::gl::batchRect( mTexture, a1, mRect );
             
             Area a2( x1 + ctTexWidth + 10.0f, 0.0f, 
                      x1 + ctTexWidth + 10.0f + ctSpaceWidth, mTexture.getHeight() );
-            gl::draw( mTexture, a2, mRect );			
+            bloom::gl::batchRect( mTexture, a2, mRect );			
         }    
     
     }

@@ -187,8 +187,12 @@ void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 
 void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp, const float &zoomAlpha )
 {
+    
+    const float w = app::getWindowWidth();
+    const float h = app::getWindowHeight();
+    
 	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->updateGraphics( cam, bbRight, bbUp );
+		(*it)->updateGraphics( cam, bbRight, bbUp, w, h );
 	}
     
     if (mIsInitialized) {
@@ -280,10 +284,11 @@ void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset, float ang
 	}
 }
 
-void World::drawOrbitRings( float pinchAlphaOffset, float camAlpha, const gl::Texture &orbitRingGradient )
+// assumes texture is already bound
+void World::drawOrbitRings( float pinchAlphaOffset, float camAlpha )
 {
 	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRingGradient, mOrbitRing );
+		(*it)->drawOrbitRing( pinchAlphaOffset, camAlpha, mOrbitRing );
 	}
 }
 

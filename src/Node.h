@@ -40,7 +40,7 @@ class Node {
 	void			setSphereData( BloomSphere *hiSphere, BloomSphere *mdSphere, BloomSphere *loSphere, BloomSphere *tySphere );
 	void			createNameTexture();
 	virtual void	update( float param1, float param2 );
-	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
+	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, const float &w, const float &h );
 	virtual void	drawEclipseGlow();
 	virtual void	drawPlanet( const ci::gl::Texture &tex ) {};
 	virtual void	drawExtraGlow( const ci::gl::Texture &tex ) {};
@@ -49,7 +49,7 @@ class Node {
 	virtual void	drawAtmosphere( const ci::Vec3f &camEye, const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer ) {};
 	virtual void	drawRings( const ci::gl::Texture &tex, const PlanetRing &planetRing, float camZPos );
 	virtual void	findShadows( float camAlpha ) {};
-	virtual void	drawOrbitRing( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex, const OrbitRing &orbitRing );
+	virtual void	drawOrbitRing( float pinchAlphaOffset, float camAlpha, const OrbitRing &orbitRing );
 
 	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
 	void			wasTapped(){ mIsTapped = true; mHighlightStrength = 1.0f; }

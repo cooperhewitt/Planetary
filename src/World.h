@@ -46,6 +46,7 @@ public:
                     const ci::Surface &noAlbumArt );
     
 	void setFilter(const Filter &filter);
+    int  getNumFilteredNodes() const { return mFilteredNodes.size(); }
     
     void updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
     void selectHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId );
@@ -60,7 +61,7 @@ public:
 	void drawStarGlowsVertexArray();
 	void drawEclipseGlows();
 	void drawNames( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
-	void drawOrbitRings( float pinchAlphaOffset, float camAlpha, const ci::gl::Texture &tex );
+	void drawOrbitRings( float pinchAlphaOffset, float camAlpha );
 	void drawConstellation();
 	void drawTouchHighlights( float zoomAlpha );
 	void drawRings( const ci::gl::Texture &tex, float camZPos );

@@ -159,7 +159,7 @@ void NodeArtist::drawPlanet( const gl::Texture &tex )
 		gl::color( ColorA( ( mColor + Color::white() ) * 0.5f, 1.0f ) );
 
 		tex.enableAndBind();		
-		glDisable( GL_LIGHTING );
+        glDisable(GL_LIGHTING);
         
 		if( mSphereScreenRadius < 600.0f ){
 			if( mSphereScreenRadius > 75.0f ){
@@ -175,7 +175,8 @@ void NodeArtist::drawPlanet( const gl::Texture &tex )
             mLoSphere->draw();
 		}
         
-		glEnable( GL_LIGHTING );        
+        //tex.disable();
+        glEnable(GL_LIGHTING);        
 		glPopMatrix();		
 	}
 }
@@ -240,25 +241,23 @@ void NodeArtist::select()
 {
 	if( !mIsSelected )
 	{
-		// TODO: switch this to use artist ID
-        Flurry::getInstrumentation()->startTimeEvent("Albums loaded");
-		vector<ipod::PlaylistRef> albumsBySelectedArtist = getAlbumsWithArtist( mPlaylist->getArtistName() );
-		mNumAlbums = albumsBySelectedArtist.size();
-		
 		if( mChildNodes.size() == 0 ){
+
+            Flurry::getInstrumentation()->startTimeEvent("Albums loaded");
+            
+            vector<ipod::PlaylistRef> albums = getAlbumsWithArtistId( getId() );
+            mNumAlbums = albums.size();
+            
 			int i=0;
 			int trackcount = 0;
-			for(vector<PlaylistRef>::iterator it = albumsBySelectedArtist.begin(); it != albumsBySelectedArtist.end(); ++it){
+			for(vector<PlaylistRef>::iterator it = albums.begin(); it != albums.end(); ++it){
 				PlaylistRef album	= *it;
 				NodeAlbum *newNode = new NodeAlbum( this, i, mFont, mSmallFont, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
+                newNode->setSphereData( mHiSphere, mMdSphere, mLoSphere, mTySphere );
 				mChildNodes.push_back( newNode );
 				trackcount += album->m_tracks.size();
 				newNode->setData( album );
 				i++;
-			}
-			
-			for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
-				(*it)->setSphereData( mHiSphere, mMdSphere, mLoSphere, mTySphere );
 			}
 			
 			setChildOrbitRadii();
@@ -285,7 +284,6 @@ bool yearSortFunc( Node* a, Node* b ){
 
 void NodeArtist::setChildOrbitRadii()
 {
-	vector<Node*> sortedNodes;
 	if( mChildNodes.size() > 0 ){
 		sort( mChildNodes.begin(), mChildNodes.end(), yearSortFunc );
 

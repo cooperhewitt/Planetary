@@ -13,6 +13,7 @@
 #include "cinder/Text.h"
 #include "cinder/ImageIo.h"
 #include "Globals.h"
+#include "BloomGl.h"
 #include <sstream>
 
 using std::stringstream;
@@ -198,9 +199,11 @@ void AlphaWheel::draw( float *numberAlphaPerChar )
 {	
 	if( mWheelScale < 0.95f ){
 		glPushMatrix();
-		gl::multModelView( mOrientationMatrix );
+		glMultMatrixf( mOrientationMatrix );
+
 		gl::translate( mInterfaceCenter );
 		gl::scale( Vec3f( mWheelScale + 1.0f, mWheelScale + 1.0f, 1.0f ) );	
+        
 		drawWheel();
 		
 		gl::color( Color::white() );
@@ -213,6 +216,7 @@ void AlphaWheel::draw( float *numberAlphaPerChar )
 				gl::color( Color( 0.5f, 0, 0 ) );
 			}
 			mAlphaTextures[i].enableAndBind();
+            // TODO: batch these rects (adapt bloom::gl::batchRect for color tints?)
 			gl::drawSolidRect( mAlphaRects[i] );
 		}
 		
@@ -232,6 +236,7 @@ void AlphaWheel::drawWheel()
     gl::drawSolidRect( Rectf( -wMask, -hMask, wMask, hMask ) );
     mWheelTex.disable();    
 	
+    // TODO: batch this geometry, adapt bloom::gl::batchRect() for solid fills    
     if ( isLandscapeOrientation(mInterfaceOrientation) ) {
         Vec2f interfaceSize = getWindowSize().yx(); // SWIZ!
         gl::color( Color::black() );

@@ -13,6 +13,17 @@
 
 class Galaxy {
 public:
+
+    struct VertexData {
+        ci::Vec3f vertex;
+        ci::Vec2f texture;
+    };    
+    
+    ~Galaxy() {
+        delete[] mGalaxyVerts;
+        delete[] mDarkMatterVerts;
+        // FIXME: clear VBOs
+    }
     
     void setup(float initialCamDist, 
                ci::Color lightMatterColor,
@@ -48,10 +59,11 @@ private:
     void initDarkMatterVertexArray();
 
     // set in initXXX(), used in drawXXX()
-	GLfloat			*mGalaxyVerts;
-	GLfloat			*mGalaxyTexCoords;
-	GLfloat			*mDarkMatterVerts;
-	GLfloat			*mDarkMatterTexCoords;
+    GLuint      mGalaxyVBO;
+	VertexData *mGalaxyVerts;
+    GLuint      mDarkMatterVBO;
+	VertexData *mDarkMatterVerts;
+
 	int				mDarkMatterCylinderRes;
 	float			mLightMatterBaseRadius;
 	float			mDarkMatterBaseRadius;     

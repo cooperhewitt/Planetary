@@ -543,7 +543,7 @@ void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 
 
 
-void NodeTrack::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Texture &orbitRingGradient, const OrbitRing &orbitRing )
+void NodeTrack::drawOrbitRing( float pinchAlphaPer, float camAlpha, const OrbitRing &orbitRing )
 {	
 	float newPinchAlphaPer = pinchAlphaPer;
 	if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
@@ -558,9 +558,7 @@ void NodeTrack::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 	gl::translate( mParentNode->mPos );
 	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
 	gl::rotate( Vec3f( 90.0f, 0.0f, toDegrees( mOrbitAngle ) ) );
-	orbitRingGradient.enableAndBind();
     orbitRing.drawLowRes();
-	orbitRingGradient.disable();
 	glPopMatrix();
 }
 
@@ -684,7 +682,12 @@ void NodeTrack::findShadows( float camAlpha )
 		
 		glVertexPointer( 3, GL_FLOAT, 0, mShadowVerts );
 		glTexCoordPointer( 2, GL_FLOAT, 0, mShadowTexCoords );
+        
+        glEnableClientState( GL_VERTEX_ARRAY );
+        glEnableClientState( GL_TEXTURE_COORD_ARRAY );        
 		glDrawArrays( GL_TRIANGLES, 0, 12 ); // dont forget to change the vert count in buildShadowVertexArray VVV
+        glDisableClientState( GL_VERTEX_ARRAY );
+        glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 		
 	}
 	

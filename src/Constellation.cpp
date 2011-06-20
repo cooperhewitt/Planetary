@@ -40,33 +40,8 @@ void Constellation::setup(const vector<NodeArtist*> &filteredNodes)
 		
 		distances.push_back( shortestDist );
 		mConstellation.push_back( child1->mPosDest );
-		mConstellation.push_back( nearestChild->mPosDest );
-		
-		//mConstellationColors.push_back( ColorA( child1->mGlowColor, 0.15f ) );
-		//mConstellationColors.push_back( ColorA( nearestChild->mGlowColor, 0.15f ) );
+		mConstellation.push_back( nearestChild->mPosDest );		
 	}
-	
-	/*
-     // CONSTELLATION IN ALPHABETICAL ORDER
-     Node *child1;
-     Node *child2;
-     int index = 0;
-     vector<float> distances;	// used for tex coords of the dotted line
-     for( vector<int>::iterator it = mData->mFilteredArtists.begin(); it != mData->mFilteredArtists.end(); ++it ){
-     if( index > 0 ){
-     child2 = mNodes[*it];
-     
-     Vec3f dirBetweenChildren = child1->mPosDest - child2->mPosDest;
-     float distBetweenChildren = dirBetweenChildren.length();
-     
-     distances.push_back( distBetweenChildren );
-     mConstellation.push_back( child1->mPosDest );
-     mConstellation.push_back( child2->mPosDest );
-     }
-     child1 = mNodes[*it];
-     index ++;
-     }
-     */
     
 	mTotalConstellationVertices	= mConstellation.size();
 	if (mTotalConstellationVertices != mPrevTotalConstellationVertices) {
@@ -103,20 +78,18 @@ void Constellation::draw() const
     if( mTotalConstellationVertices > 2 ){
         
         // FIXME: pass this in as a function argument (to remove dependency on global)
-        float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.4f;
+        const float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.4f;
+        gl::color( ColorA( 0.12f, 0.25f, 0.85f, zoomPer ) );
         
         glEnableClientState( GL_VERTEX_ARRAY );
         glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-        //glEnableClientState( GL_COLOR_ARRAY );
+
+        // FIXME: move to an interleaved VBO for this
         glVertexPointer( 3, GL_FLOAT, 0, mConstellationVerts );
         glTexCoordPointer( 2, GL_FLOAT, 0, mConstellationTexCoords );
-        //glColorPointer( 4, GL_FLOAT, 0, mColors );
-        
-        gl::color( ColorA( 0.12f, 0.25f, 0.85f, zoomPer ) );
         glDrawArrays( GL_LINES, 0, mTotalConstellationVertices );
         
         glDisableClientState( GL_VERTEX_ARRAY );
         glDisableClientState( GL_TEXTURE_COORD_ARRAY );	
-        //glDisableClientState( GL_COLOR_ARRAY );
     }
 }

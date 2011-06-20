@@ -122,7 +122,7 @@ void NodeAlbum::setData( PlaylistRef album )
 // CREATE PLANET TEXTURE
 	int totalWidth		= 128;
 	if( G_IS_IPAD2 ) totalWidth = 256;
-	
+    
 	int halfWidth		= totalWidth/2;
 	int border			= 10;
 	mAlbumArtSurface	= (*mAlbum)[0]->getArtwork( Vec2i( totalWidth, totalWidth ) );
@@ -383,36 +383,32 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		
 		
 		gl::enableAlphaBlending();
+        
 		glPushMatrix();
 		gl::translate( mPos );
-
-		//glDisable( GL_LIGHTING );
 		
-// SHADOW CLOUDS
-		glPushMatrix();
-		float radius = mRadius * mDeathPer + mCloudLayerRadius;
-		float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 0.334f ) * mClosenessFadeAlpha;
-		gl::scale( Vec3f( radius, radius, radius ) );
-		gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );
-		gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
 		clouds[mCloudTexIndex].enableAndBind();
-        lodSphere->draw();
-		glPopMatrix();
-
-		//glEnable( GL_LIGHTING );
-		
-// LIT CLOUDS
-		glPushMatrix();
-		radius = mRadius * mDeathPer + mCloudLayerRadius*1.5f;
-		gl::scale( Vec3f( radius, radius, radius ) );
-		gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );
+        
+        const float radius = mRadius * mDeathPer + mCloudLayerRadius;
+        const float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 0.334f ) * mClosenessFadeAlpha;        
+        
+        // SHADOW CLOUDS
+        gl::scale( Vec3f( radius, radius, radius ) );
+        gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );        
+        if (G_IS_IPAD2 || G_DEBUG) {
+            gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
+            lodSphere->draw();
+        }
+        
+        // LIT CLOUDS
 		gl::enableAdditiveBlending();
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha * 2.0f ) );
+		const float radius2 = (mRadius * mDeathPer + mCloudLayerRadius*1.5f) / radius;
+		gl::scale( Vec3f( radius2, radius2, radius2 ) );
 		lodSphere->draw();
-		glPopMatrix();
-
+        
         clouds[mCloudTexIndex].disable();
-
+        
 		glPopMatrix();
 		
 	}
@@ -451,7 +447,7 @@ void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 }
 
 
-void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Texture &orbitRingGradient, const OrbitRing &orbitRing )
+void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const OrbitRing &orbitRing )
 {		
 	float newPinchAlphaPer = pinchAlphaPer;
 	if( G_ZOOM < G_ALBUM_LEVEL - 0.5f ){
@@ -469,14 +465,11 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const gl::Te
 	glPushMatrix();
 	gl::translate( mParentNode->mPos );
 	gl::scale( Vec3f( mOrbitRadius, mOrbitRadius, mOrbitRadius ) );
-	gl::rotate( Vec3f( 90.0f, 0.0f, toDegrees( mOrbitAngle ) ) );
-	
-	orbitRingGradient.enableAndBind();
+	gl::rotate( Vec3f( 90.0f, 0.0f, toDegrees( mOrbitAngle ) ) );	
     orbitRing.drawHighRes();
-	orbitRingGradient.disable();
 	glPopMatrix();
 	
-	Node::drawOrbitRing( pinchAlphaPer, camAlpha, orbitRingGradient, orbitRing );
+	Node::drawOrbitRing( pinchAlphaPer, camAlpha, orbitRing );
 }
 
 
@@ -614,8 +607,12 @@ void NodeAlbum::findShadows( float camAlpha )
 
 		glVertexPointer( 3, GL_FLOAT, 0, mShadowVerts );
 		glTexCoordPointer( 2, GL_FLOAT, 0, mShadowTexCoords );
-		
+
+        glEnableClientState( GL_VERTEX_ARRAY );
+        glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glDrawArrays( GL_TRIANGLES, 0, 12 ); // dont forget to change the vert count in buildShadowVertexArray VVV
+        glDisableClientState( GL_VERTEX_ARRAY );
+        glDisableClientState( GL_TEXTURE_COORD_ARRAY );        
 	}
 
 	/*

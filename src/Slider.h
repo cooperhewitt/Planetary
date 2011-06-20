@@ -25,33 +25,23 @@ public:
                Area bgTexArea, 
                Area fgTexArea, 
                Area thumbDownTexArea, 
-               Area thumbUpTexArea)
-    {
-        UIElement::setup(id);
-        mTexture = texture;
-        // texture Areas:
-        mBgTexArea = bgTexArea;
-        mFgTexArea = fgTexArea;
-        mThumbDownTexArea = thumbDownTexArea;
-        mThumbUpTexArea = thumbUpTexArea;
-        // state:
-        mIsDragging = false;
-    }
+               Area thumbUpTexArea);
 
-    bool isDragging() { return mIsDragging; }
-    void setIsDragging(bool isDragging) { mIsDragging = isDragging; }
+    bool isDragging();
+    void setIsDragging(bool isDragging);
 
-    float getValue() { return mValue; }
-    void setValue(float value) { mValue = value; }
-    
+    float getValue();
+    void setValue(float value);
+
     void draw();
     
 protected:
-    
+
     Area mFgTexArea, mBgTexArea, mThumbDownTexArea, mThumbUpTexArea; // texture coords, fixed
     gl::Texture mTexture;
     
     float mValue;
     bool mIsDragging;
     
+    void updateVerts();    
 };

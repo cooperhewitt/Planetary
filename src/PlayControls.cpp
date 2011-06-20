@@ -375,6 +375,13 @@ void PlayControls::setShowSettings(bool visible)
 void PlayControls::updateElements()
 {
     drawableElements.clear();
+
+    // bit of hack, these are first for batch reasons
+    // (we want the little fadey bits to be drawn on top)
+    drawableElements.push_back(&mElapsedTimeLabel);
+    drawableElements.push_back(&mTrackInfoLabel);
+    drawableElements.push_back(&mRemainingTimeLabel);    
+    
     drawableElements.push_back(&mGalaxyButton);
 	drawableElements.push_back(&mCurrentTrackButton);
     drawableElements.push_back(&mShowSettingsButton);
@@ -395,14 +402,12 @@ void PlayControls::updateElements()
 		drawableElements.push_back(&mPreviousPlaylistButton);
 		drawableElements.push_back(&mNextPlaylistButton);
     }
-    drawableElements.push_back(&mElapsedTimeLabel);
-    drawableElements.push_back(&mTrackInfoLabel);
+    
 	drawableElements.push_back(&mPlayheadSlider);
 	drawableElements.push_back(&mParamSlider1);
 	drawableElements.push_back(&mParamSlider2);
 	drawableElements.push_back(&mParamSlider1Label);
 	drawableElements.push_back(&mParamSlider2Label);
-    drawableElements.push_back(&mRemainingTimeLabel);
 	
 
 
@@ -439,19 +444,19 @@ void PlayControls::draw(float y)
     //mActive = (mInterfaceSize.y - y ) > 60.0f;
     
     glPushMatrix();
-    gl::multModelView( mOrientationMatrix );
+    glMultMatrixf( mOrientationMatrix );
     gl::translate( Vec2f(0, y) );
     
-	float dragAlphaPer = pow( ( mInterfaceSize.y - y ) / 65.0f, 2.0f );    	
+	const float dragAlphaPer = pow( ( mInterfaceSize.y - y ) / 65.0f, 2.0f );    	
     gl::color( ColorA( 1.0f, 1.0f, 1.0f, dragAlphaPer ) );
     
-	gl::enableAlphaBlending();    
+	//gl::enableAlphaBlending();    
 
+    bloom::gl::beginBatch();
     for (int i = 0; i < drawableElements.size(); i++) {
         drawableElements[i]->draw();
     }
-	
-	gl::color( Color::white() );
+    bloom::gl::endBatch();
 	
 // TEXT LABEL GRADIENTS
 	const float w	 = 15.0f;
@@ -459,13 +464,15 @@ void PlayControls::draw(float y)
 	Area aLeft		 = Area( 200.0f, 140.0f, 214.0f, 150.0f ); // references the uiButtons image
 	Rectf coverLeft  = Rectf( infoRect.x1, infoRect.y1, infoRect.x1 + w, infoRect.y2 );
 	Rectf coverRight = Rectf( infoRect.x2 + 1.0f, infoRect.y1, infoRect.x2 - ( w - 1.0f ), infoRect.y2 );
+    bloom::gl::beginBatch();
 	if( mTrackInfoLabel.isScrollingText() )
-		gl::draw( mButtonsTex, aLeft, coverLeft );
-	gl::draw( mButtonsTex, aLeft, coverRight );
-	    
+		bloom::gl::batchRect( mButtonsTex, aLeft, coverLeft );
+    bloom::gl::batchRect( mButtonsTex, aLeft, coverRight );
+    bloom::gl::endBatch(); // FIXME: could be the same batch, why not working?
+
     glPopMatrix();
     
-    gl::disableAlphaBlending();    
+    //gl::disableAlphaBlending();    
 }
 
 void PlayControls::dragSliderToPos( Slider *slider, Vec2f pos) 
@@ -534,8 +541,14 @@ bool PlayControls::touchesMoved( TouchEvent event )
         dragSliderToPos( &mPlayheadSlider, touches.begin()->getPos() );
         mCallbacksPlayheadMoved.call( mPlayheadSlider.getValue() );
     }    
-    
-    // TODO: update all sliders this way, if they're active
+
+    // TODO: make sliders handle this somehow when drawing (IMGUI!)
+    if( mParamSlider1.isDragging() && touches.size() > 0 ){
+        dragSliderToPos( &mParamSlider1, touches.begin()->getPos() );
+    }    
+    if( mParamSlider2.isDragging() && touches.size() > 0 ){
+        dragSliderToPos( &mParamSlider2, touches.begin()->getPos() );
+    }
     
     return false;
 }	

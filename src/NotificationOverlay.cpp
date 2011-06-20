@@ -70,21 +70,12 @@ void NotificationOverlay::draw()
 	Vec2f blackBgBottomRight(	messageBottomRight.x + border, messageBottomRight.y + border );
 	Rectf blackBgRect( blackBgTopLeft, blackBgBottomRight );
 	
-	glDisable( GL_TEXTURE_2D );
 	glPushMatrix();
-    gl::multModelView( mOrientationMatrix );
-	gl::enableAlphaBlending();
-	gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.25f * alpha ) );
-	//gl::drawSolidRect( blackBgRect );
-	
-	glEnable( GL_TEXTURE_2D );
+    glMultMatrixf( mOrientationMatrix );
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha ) );
-	gl::enableAdditiveBlending();
 	gl::draw( mMessageTexture, messageRect );
     gl::draw( mCurrentTexture, mCurrentSrcArea, iconRect );
 	glPopMatrix(); 
-	
-    // TODO: draw mCurrentMessage as well (probably want to nudge the positions up for that)
 }
 
 void NotificationOverlay::setInterfaceOrientation( const Orientation &orientation )

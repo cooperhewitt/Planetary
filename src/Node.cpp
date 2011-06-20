@@ -11,7 +11,6 @@
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Text.h"
-#include "BloomGl.h"
 #include "Globals.h"
 #include "Node.h"
 #include <boost/lexical_cast.hpp>
@@ -198,23 +197,23 @@ void Node::update( float param1, float param2 )
 	}
 }
 
-void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp )
+void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp, const float &w, const float &h )
 {
 	mBbRight = bbRight;
 	mBbUp    = bbUp;
     
 	if( mIsHighlighted ){
-        mScreenPos              = cam.worldToScreen( mPos, app::getWindowWidth(), app::getWindowHeight() );
+        mScreenPos              = cam.worldToScreen( mPos, w, h );
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
 		mDistFromCamZAxis		= -cam.worldToEyeDepth( mPos );
 		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * 0.5f, 0.0f, 1.0f ); // REL: -0.35f
-		mSphereScreenRadius     = cam.getScreenRadius( mSphere, app::getWindowWidth(), app::getWindowHeight() );
+		mSphereScreenRadius     = cam.getScreenRadius( mSphere, w, h );
         float r					= max( mSphereScreenRadius, 15.0f );        
         mSphereHitArea			= Rectf( mScreenPos.x - r, mScreenPos.y - r, mScreenPos.x + r, mScreenPos.y + r );        
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->updateGraphics( cam, mBbRight, mBbUp );
+		(*nodeIt)->updateGraphics( cam, mBbRight, mBbUp, w, h );
 	}
 }
 
@@ -232,10 +231,10 @@ void Node::drawRings( const gl::Texture &tex, const PlanetRing &planetRing, floa
 	}
 }
 
-void Node::drawOrbitRing( float pinchAlphaOffset, float camAlpha, const gl::Texture &orbitRingGradient, const OrbitRing &orbitRing )
+void Node::drawOrbitRing( float pinchAlphaOffset, float camAlpha, const OrbitRing &orbitRing )
 {
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRingGradient, orbitRing );
+		(*nodeIt)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRing );
 	}
 }
 
@@ -312,10 +311,15 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			
 			mHitArea = Rectf( pos2 + offset2, pos2 + offset2 + texCorner);
 			mHitArea.canonicalize();        
-			inflateRect( mHitArea, 5.0f );
+            const float inflate = 5.0f;
+            // TODO: add .inflate to ci::Rectf
+            mHitArea.x1 -= inflate;
+            mHitArea.x2 += inflate;
+            mHitArea.y1 -= inflate;
+            mHitArea.y2 += inflate;
 			
 			// TODO: this is a lot of state changes per frame. Switch to drawing
-			// all names first, then all lines.
+			// all names first, then all lines?
 			glDisable( GL_TEXTURE_2D );
 			
 			gl::color( ColorA( BRIGHT_BLUE, alpha * 0.5f ) );
