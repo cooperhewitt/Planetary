@@ -1347,7 +1347,6 @@ void KeplerApp::drawScene()
     mSkyDome.disable();
     
 // GALAXY
-    
     mGalaxy.drawLightMatter();	
     mGalaxy.drawSpiralPlanes();    
 	mGalaxy.drawCenter();	
@@ -1367,17 +1366,6 @@ void KeplerApp::drawScene()
 	mStarGlowTex.enableAndBind();
 	mWorld.drawStarGlowsVertexArray();
 	mStarGlowTex.disable();
-	
-// SHADOWS
-	//gl::setMatricesWindow( getWindowSize() );
-//	for( int i = 0; i < sortedNodes.size(); i++ ){
-//		if( sortedNodes[i]->mGen >= G_ALBUM_LEVEL ){
-//			gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-//			sortedNodes[i]->findShadows( mEclipseShadowTex, pow( mCamRingAlpha, 2.0f ) );
-//		}
-//	}
-	//gl::setMatrices( mCam );
-
 
 	if( artistNode ){ // defined at top of method
 		Vec2f interfaceSize = getWindowSize();
@@ -1414,7 +1402,7 @@ void KeplerApp::drawScene()
 				sortedNodes[i]->findShadows( pow( mCamRingAlpha, 1.2f ) );
 				glEnable( GL_CULL_FACE );
 				
-				// gl::enableDepthWrite();
+				//gl::enableDepthWrite();
 			}
 			
 			gl::enableDepthRead();
@@ -1423,7 +1411,7 @@ void KeplerApp::drawScene()
 			gl::disableAlphaBlending(); // dings additive blending            
 			gl::enableAlphaBlending();  // restores alpha blending
             			
-			sortedNodes[i]->drawPlanet( mStarCoreTex ); // FIXME: do artistNode->drawStarCore to be clearer (drawPlanet doesn't need a tex, and should do nothing in NodeArtist)
+			sortedNodes[i]->drawPlanet( mStarCoreTex ); // star core tex for artistars, planets do their own thing
 			sortedNodes[i]->drawClouds( mCloudsTex );
 
 			glDisable( GL_LIGHTING );
@@ -1446,9 +1434,8 @@ void KeplerApp::drawScene()
 		artistNode->drawExtraGlow( mStarGlowTex );
 	}
 
-
-	
 	glDisable( GL_LIGHTING );
+    
 	gl::enableDepthRead();	
 	gl::disableDepthWrite();
 	
@@ -1506,8 +1493,7 @@ void KeplerApp::drawScene()
 	gl::disableDepthWrite();
 	gl::setMatricesWindow( getWindowSize() );
     gl::enableAlphaBlending();    
-    gl::enableAdditiveBlending();            
-    gl::disableAlphaTest();
+    gl::enableAdditiveBlending();
 	
     if( G_DRAW_TEXT ){
 		mWorld.drawNames( mCam, mPinchAlphaPer, getAngleForOrientation(mInterfaceOrientation) );
