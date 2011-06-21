@@ -51,10 +51,11 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 	mAlbum			= album;
 // TRACK INFORMATION
 	mTrack			= track;
-	mTrackLength	= (*mAlbum)[mIndex]->getLength();
-	mPlayCount		= (*mAlbum)[mIndex]->getPlayCount() + 1.0f;
-	mStarRating		= (*mAlbum)[mIndex]->getStarRating();
-	
+	mTrackLength	= track->getLength();
+	mPlayCount		= track->getPlayCount() + 1.0f; // TODO: fix in calculations that use playcount so that mPlayCount can remain accurate
+	mStarRating		= track->getStarRating();
+    mId             = track->getItemId();
+    
 	string name		= getName();
 	char c1			= ' ';
 	if( name.length() >= 3 ){
@@ -123,16 +124,18 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 void NodeTrack::setStartAngle()
 {
 	mPercentPlayed		= 0.0f;
-//	float angle			= atan2( mPos.z - mParentNode->mPos.z, mPos.x - mParentNode->mPos.x );
 	float timeOffset	= (float)mMyTime/mOrbitPeriod;
 	mOrbitStartAngle	= timeOffset * TWO_PI;
 	
-//	std::cout << "Start Angle set in NodeTrack: " << mOrbitStartAngle << std::endl;
-//	std::cout << "mPercentPlayed: " << mPercentPlayed << std::endl;
-//	std::cout << "timeOffset: " << timeOffset << std::endl;
-//	std::cout << "mMyTime: " << mMyTime << std::endl;
-//	std::cout << "angle: " << angle << std::endl;
-//	std::cout << " ================= " << std::endl;
+    if (G_DEBUG) {
+        float angle	= atan2( mPos.z - mParentNode->mPos.z, mPos.x - mParentNode->mPos.x );
+        std::cout << "Start Angle set in NodeTrack: " << mOrbitStartAngle << std::endl;
+        std::cout << "mPercentPlayed: " << mPercentPlayed << std::endl;
+        std::cout << "timeOffset: " << timeOffset << std::endl;
+        std::cout << "mMyTime: " << mMyTime << std::endl;
+        std::cout << "angle: " << angle << std::endl;
+        std::cout << " ================= " << std::endl;
+    }
 }
 
 
@@ -241,11 +244,11 @@ void NodeTrack::update( float param1, float param2 )
             
 			// grab a section of the album art
 			Area a			= Area( x, y, x+w, y+h );
-//			std::cout << "area = " << a << std::endl;
+            //			std::cout << "area = " << a << std::endl;
 			Surface crop	= Surface( totalWidth, totalWidth, false );
 			Surface crop2	= Surface( totalWidth, totalWidth, false );
 			ci::ip::resize( mAlbumArtSurface, a, &crop, Area( 0, 0, halfWidth, totalWidth ), FilterCubic() );
-
+            
 			// iterate through it to make it a mirror image
 			Surface::Iter iter = crop2.getIter();
 			while( iter.line() ) {
@@ -266,7 +269,7 @@ void NodeTrack::update( float param1, float param2 )
 			}
 			
 			
-
+            
 			// fix the polar pinching
 			Surface::Iter iter2 = crop.getIter();
 			while( iter2.line() ) {
@@ -314,7 +317,7 @@ void NodeTrack::update( float param1, float param2 )
 					iter.b() = final.b * 255.0f;// + 25.0f;
 				}
 			}
-
+            
             gl::Texture::Format fmt;
             fmt.enableMipmapping( true );
             fmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );
@@ -354,7 +357,7 @@ void NodeTrack::update( float param1, float param2 )
 	mOrbitAngle			= ( mPercentPlayed + timeOffset ) * TWO_PI;
 	
 	float orbitDelta	= mOrbitAngle - mParentNode->mOrbitAngle;
-
+    
 	if( cos( orbitDelta ) > 0 )
 		mShadowPer		= max( pow( abs( sin( orbitDelta ) ), 0.5f ) * ( 1.0f + mParentNode->mRadius * 12.0f ) - mParentNode->mRadius * 12.0f, 0.0f );
 	else
@@ -369,10 +372,10 @@ void NodeTrack::update( float param1, float param2 )
 		mStartRelPos	= Vec3f( cos( mOrbitStartAngle ), 0.0f, sin( mOrbitStartAngle ) ) * mOrbitRadius;
 		mTransStartPos	= mParentNode->mPos + mStartRelPos;
 	}
-
+    
 	
-/////////////////////////
-// CALCULATE ECLIPSE VARS
+    /////////////////////////
+    // CALCULATE ECLIPSE VARS
 	if( mParentNode->mParentNode->mDistFromCamZAxisPer > 0.001f && mDistFromCamZAxisPer > 0.001f )
 	{
 		Vec2f p		= mScreenPos;
@@ -405,17 +408,17 @@ void NodeTrack::update( float param1, float param2 )
 			//if( mEclipseStrength > mParentNode->mEclipseStrength )
 			//	mParentNode->mParentNode->mEclipseStrength = mEclipseStrength;
 		}
-			
+        
 		mEclipseAngle = atan2( P.y - p.y, P.x - p.x );
 	}
 	mEclipseColor = ( mColor + Color::white() ) * 0.5f * ( 1.0f - mEclipseStrength * 0.5f );
-// END CALCULATE ECLIPSE VARS
-/////////////////////////////
+    // END CALCULATE ECLIPSE VARS
+    /////////////////////////////
 	
 	//mClosenessFadeAlpha = constrain( ( mDistFromCamZAxis - mRadius ) * 80.0f, 0.0f, 1.0f );
 	
 	Node::update( param1, param2 );
-
+    
 	mVel = mPos - prevPos;	
 }
 
@@ -521,7 +524,7 @@ void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 	if( mClosenessFadeAlpha > 0.0f ){
 
 		Vec2f dir		= mScreenPos - center;
-		float dirLength = dir.length()/500.0f;
+//		float dirLength = dir.length()/500.0f;
 		float alpha = mNormPlayCount * 0.5f * mDeathPer;
 		
 //		float alpha = 0.3f * ( 1.0f - dirLength );
@@ -532,7 +535,7 @@ void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 		radius *= ( 2.45f + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) );
 		
 		
-		float grey = mShadowPer + 0.2f;
+//		float grey = mShadowPer + 0.2f;
 		gl::color( ColorA( BRIGHT_BLUE, alpha * mClosenessFadeAlpha ) );
 		tex.enableAndBind();
 		bloom::gl::drawSphericalBillboard( camEye, mPos, radius, 0.0f );
@@ -858,5 +861,5 @@ string NodeTrack::getName()
 
 uint64_t NodeTrack::getId()
 {
-    return mTrack->getItemId();
+    return mId;
 }

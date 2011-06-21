@@ -101,6 +101,8 @@ void World::updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t track
 {
 	mPlayingTrackNode = NULL;
 	
+    if (G_DEBUG) std::cout << "update is playing" << std::endl;
+    
     // TODO: proper iterators I suppose?
     for (int i = 0; i < mNodes.size(); i++) {
         NodeArtist* artistNode = mNodes[i];
@@ -110,9 +112,13 @@ void World::updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t track
             albumNode->mIsPlaying = albumNode->getId() == albumId;
             for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
                 Node *trackNode = albumNode->mChildNodes[k];
+                bool wasPlaying = trackNode->mIsPlaying;
                 trackNode->mIsPlaying = trackNode->getId() == trackId;
 				if( trackNode->mIsPlaying && !trackNode->isDying() ){
 					mPlayingTrackNode = (NodeTrack*)trackNode;
+                    if (!wasPlaying) {
+                        ((NodeTrack*)trackNode)->setStartAngle();
+                    }
 				}
             }            
         }

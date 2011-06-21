@@ -37,6 +37,7 @@ class NodeArtist : public Node
 	void setColors();
 	ci::ipod::PlaylistRef mPlaylist;
 	int mNumAlbums;
+    uint64_t mId;
 };
 
 bool yearSortFunc(Node* a, Node* b);
