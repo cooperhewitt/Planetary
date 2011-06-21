@@ -535,7 +535,7 @@ void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 		float grey = mShadowPer + 0.2f;
 		gl::color( ColorA( BRIGHT_BLUE, alpha * mClosenessFadeAlpha ) );
 		tex.enableAndBind();
-		bloom::gl::drawBillboard( mPos, radius, 0.0f, mBbRight, mBbUp );
+		bloom::gl::drawSphericalBillboard( camEye, mPos, radius, 0.0f );
 		tex.disable();
 		
 		gl::color( ColorA( mShadowPer, mShadowPer, mShadowPer, alpha * mClosenessFadeAlpha * mEclipseDirBasedAlpha * mDeathPer ) );

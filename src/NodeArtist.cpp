@@ -218,11 +218,11 @@ void NodeArtist::drawExtraGlow( const gl::Texture &tex )
 		
 		tex.enableAndBind();
 		
-//		gl::color( ColorA( mGlowColor, alpha * 0.75f ) );
-//		bloom::gl::drawBillboard( mPos, radius * 1.25f, 0.0f, mBbRight, mBbUp );
+		gl::color( ColorA( mGlowColor, alpha * 0.1f ) );
+		bloom::gl::drawBillboard( mPos, radius * 1.25f, 0.0f, mBbRight, mBbUp );
 		
 	// SMALLER INNER GLOW
-		gl::color( ColorA( Color::white(), sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ) ) );
+		gl::color( ColorA( Color::white(), sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 0.4f + 0.2f ) ) );
 		bloom::gl::drawBillboard( mPos, radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ), 0.0f, mBbRight, mBbUp );
 		tex.disable();
 	}
