@@ -1593,7 +1593,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
         uint64_t trackId = newTrack->getItemId();
         
-        if (mPlayingTrack && trackId == mPlayingTrack->getItemId()) {
+        if (mPlayingTrack && trackId == mPlayingTrack->getItemId() && mWorld.mPlayingTrackNode && mWorld.mPlayingTrackNode->getId() == trackId) {
             //std::cout << "skipping needless onPlayerTrackChange" << std::endl;
             return false;
         }
