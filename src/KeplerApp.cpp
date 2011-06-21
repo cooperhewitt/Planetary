@@ -42,6 +42,9 @@
 
 #include "Easing.h"
 
+#import <OpenGLES/ES1/gl.h>
+#import <OpenGLES/ES1/glext.h>
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -430,6 +433,23 @@ void KeplerApp::initLoadingTextures()
 	mStarGlowTex = gl::Texture( loadImage( loadResource( "starGlow.png" ) ), fmt);
 }
 
+typedef struct _PVRTexHeader
+{
+    uint32_t headerLength;
+    uint32_t height;
+    uint32_t width;
+    uint32_t numMipmaps;
+    uint32_t flags;
+    uint32_t dataLength;
+    uint32_t bpp;
+    uint32_t bitmaskRed;
+    uint32_t bitmaskGreen;
+    uint32_t bitmaskBlue;
+    uint32_t bitmaskAlpha;
+    uint32_t pvrTag;
+    uint32_t numSurfs;
+} PVRTexHeader;
+
 void KeplerApp::initTextures()
 {
     //	float t = getElapsedSeconds();
@@ -442,6 +462,13 @@ void KeplerApp::initTextures()
     fmt.setMagFilter( GL_LINEAR ); // TODO: try GL_NEAREST for some of the mega textures
     fmt.setMinFilter( GL_LINEAR_MIPMAP_NEAREST );    
     //fmt.setInternalFormat( GL_UNSIGNED_SHORT_4_4_4_4 ); //RGBA4444
+    
+    gl::Texture::Format compressedFormat;
+    compressedFormat.setInternalFormat(GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG);
+    compressedFormat.enableMipmapping(false);
+    compressedFormat.setMagFilter( GL_LINEAR ); // TODO: try GL_NEAREST for some of the mega textures
+    compressedFormat.setMinFilter( GL_LINEAR ); 
+
 
     mStarTex                  = gl::Texture( loadImage( loadResource( "star.png" ) ), fmt );
 	mStarCoreTex              = gl::Texture( loadImage( loadResource( "starCore.png" ) ), fmt );
@@ -464,7 +491,11 @@ void KeplerApp::initTextures()
     mAtmosphereTex            = gl::Texture( loadImage( loadResource( "atmosphere.png" ) ), fmt );
 	mAtmosphereDirectionalTex = gl::Texture( loadImage( loadResource( "atmosphereDirectional.png" ) ), fmt );
 	mAtmosphereSunTex         = gl::Texture( loadImage( loadResource( "atmosphereSun.png" ) ), fmt );
-	mGalaxyTex                = gl::Texture( loadImage( loadResource( "galaxy.jpg" ) ), fmt );
+//	mGalaxyTex                = gl::Texture( loadImage( loadResource( "galaxy.jpg" ) ), fmt );
+    DataSourceRef galaxyDS = loadResource("galaxy.pvr");
+    const uint8_t *data = static_cast<uint8_t*>(galaxyDS->getBuffer().getData());
+    mGalaxyTex                = gl::Texture::withCompressedData(data, 2048, 2048, galaxyDS->getBuffer().getDataSize(), compressedFormat);
+    
 	mDarkMatterTex            = gl::Texture( loadImage( loadResource( "darkMatter.png" ) )/*, fmt*/ );
 	mOrbitRingGradientTex     = gl::Texture( loadImage( loadResource( "orbitRingGradient.png" ) ), fmt );
 	mTrackOriginTex           = gl::Texture( loadImage( loadResource( "origin.png" ) ), fmt );
