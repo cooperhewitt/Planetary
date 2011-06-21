@@ -222,6 +222,9 @@ void HelpLayer::draw( const gl::Texture &tex, float y )
         gl::draw( tex, Area(0.75f * texw, 0.25f * texh, 1.0f * texw, 0.5f * texh), mMailButton );
         gl::draw( tex, Area(0.75f * texw, 0.25f * texh, 1.0f * texw, 0.5f * texh), mPlanetaryButton );
 		
+		
+		
+		/*
 		int count = 0;
 		for( vector<gl::Texture>::iterator it = mHelpTextures.begin(); it != mHelpTextures.end(); ++it ){
 			Vec2f offset( -3.0f, -15.0f );
@@ -294,6 +297,8 @@ void HelpLayer::draw( const gl::Texture &tex, float y )
 				gl::enableAlphaBlending();
 			}
 		}
+		 
+		 */
 		glPopMatrix(); 
 	}
 }

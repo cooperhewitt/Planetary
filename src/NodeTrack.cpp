@@ -105,7 +105,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 	mRadius				= 0.0f;
 	mSphere				= Sphere( mPos, mRadiusDest );
 	mIdealCameraDist	= 0.15f;//math<float>::max( mRadiusDest * 5.0f, 0.5f );
-	mCloudLayerRadius	= mRadiusDest * 0.05f;
+	mCloudLayerRadius	= mRadiusDest * 0.025f;
 	
 	mOrbitPeriod		= mTrackLength;
 
@@ -113,7 +113,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 	
 	mInitAngle			= mOrbitStartAngle;
 	mAxialTilt			= Rand::randFloat( -5.0f, 20.0f );
-    mAxialVel			= Rand::randFloat( 15.0f, 20.0f ) * ( mStarRating + 1 );
+    mAxialVel			= Rand::randFloat( 15.0f, 20.0f );
 	mAxialRot			= Vec3f( 0.0f, Rand::randFloat( 150.0f ), mAxialTilt );
 
 	// TEXTURE CREATION MOVED TO UPDATE
@@ -123,16 +123,16 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 void NodeTrack::setStartAngle()
 {
 	mPercentPlayed		= 0.0f;
-	float angle			= atan2( mPos.z - mParentNode->mPos.z, mPos.x - mParentNode->mPos.x );
+//	float angle			= atan2( mPos.z - mParentNode->mPos.z, mPos.x - mParentNode->mPos.x );
 	float timeOffset	= (float)mMyTime/mOrbitPeriod;
 	mOrbitStartAngle	= timeOffset * TWO_PI;
 	
-	std::cout << "Start Angle set in NodeTrack: " << mOrbitStartAngle << std::endl;
-	std::cout << "mPercentPlayed: " << mPercentPlayed << std::endl;
-	std::cout << "timeOffset: " << timeOffset << std::endl;
-	std::cout << "mMyTime: " << mMyTime << std::endl;
-	std::cout << "angle: " << angle << std::endl;
-	std::cout << " ================= " << std::endl;
+//	std::cout << "Start Angle set in NodeTrack: " << mOrbitStartAngle << std::endl;
+//	std::cout << "mPercentPlayed: " << mPercentPlayed << std::endl;
+//	std::cout << "timeOffset: " << timeOffset << std::endl;
+//	std::cout << "mMyTime: " << mMyTime << std::endl;
+//	std::cout << "angle: " << angle << std::endl;
+//	std::cout << " ================= " << std::endl;
 }
 
 
@@ -224,6 +224,7 @@ void NodeTrack::update( float param1, float param2 )
 	// CREATE MOON TEXTURE
 	if( !mHasCreatedAlbumArt && mAge>mIndex * 2 ){
         int albumArtWidth   = mAlbumArtSurface.getWidth();
+		if( albumArtWidth > 256 ) albumArtWidth = 256; // FIXME: This is here because the album art is coming back at 320x320 for a 256x256 image request
 		int totalWidth		= albumArtWidth/2; // TODO: rename these?
 		int halfWidth		= totalWidth/2;
 		if( mAlbumArtSurface ){
@@ -240,7 +241,7 @@ void NodeTrack::update( float param1, float param2 )
             
 			// grab a section of the album art
 			Area a			= Area( x, y, x+w, y+h );
-			//std::cout << a << std::endl;
+//			std::cout << "area = " << a << std::endl;
 			Surface crop	= Surface( totalWidth, totalWidth, false );
 			Surface crop2	= Surface( totalWidth, totalWidth, false );
 			ci::ip::resize( mAlbumArtSurface, a, &crop, Area( 0, 0, halfWidth, totalWidth ), FilterCubic() );
@@ -264,7 +265,8 @@ void NodeTrack::update( float param1, float param2 )
 				}
 			}
 			
-            
+			
+
 			// fix the polar pinching
 			Surface::Iter iter2 = crop.getIter();
 			while( iter2.line() ) {
@@ -287,6 +289,7 @@ void NodeTrack::update( float param1, float param2 )
 					}
 				}
 			}
+			
 			
 			// add the planet texture
 			// and add the shadow from the cloud layer
@@ -315,6 +318,7 @@ void NodeTrack::update( float param1, float param2 )
             gl::Texture::Format fmt;
             fmt.enableMipmapping( true );
             fmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );
+			
 			
 			mAlbumArtTex		= gl::Texture( planetSurface, fmt );
 			mHasAlbumArt		= true;
@@ -482,8 +486,6 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			glPushMatrix();
 			gl::translate( mPos );
 			clouds[mCloudTexIndex].enableAndBind();
-			
-		//	gl::enableAdditiveBlending();
 
             // !!! ROBERT/FIXME: there used to be an extra pushModelView() here
             // if things look weird with the clouds, it's probably Tom's fault for removing it
@@ -496,6 +498,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			const float grey = mShadowPer + 0.2f;
 			gl::color( ColorA( grey, grey, grey, alpha * mClosenessFadeAlpha ) );
 
+			gl::enableAdditiveBlending();
             if( mSphereScreenRadius > 70.0f ){
                 mHiSphere->draw();
             } else if( mSphereScreenRadius > 30.0f  ){
@@ -519,19 +522,20 @@ void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 
 		Vec2f dir		= mScreenPos - center;
 		float dirLength = dir.length()/500.0f;
-		float angle		= atan2( dir.y, dir.x );
-		float stretch	= 1.0f + dirLength * 0.1f;
 		float alpha = mNormPlayCount * 0.5f * mDeathPer;
 		
 //		float alpha = 0.3f * ( 1.0f - dirLength );
 //		if( G_ZOOM <= G_ALBUM_LEVEL )
 //			alpha = pinchAlphaPer;
 
+		Vec2f radius( mRadius, mRadius );
+		radius *= ( 2.45f + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) );
+		
+		
 		float grey = mShadowPer + 0.2f;
-		gl::color( ColorA( grey, grey, grey, alpha * mClosenessFadeAlpha ) );
-		Vec2f radius = Vec2f( mRadius * stretch, mRadius ) * 2.45f;
+		gl::color( ColorA( BRIGHT_BLUE, alpha * mClosenessFadeAlpha ) );
 		tex.enableAndBind();
-		bloom::gl::drawBillboard( mPos, radius, -angle, mBbRight, mBbUp );
+		bloom::gl::drawBillboard( mPos, radius, 0.0f, mBbRight, mBbUp );
 		tex.disable();
 		
 		gl::color( ColorA( mShadowPer, mShadowPer, mShadowPer, alpha * mClosenessFadeAlpha * mEclipseDirBasedAlpha * mDeathPer ) );

@@ -27,8 +27,8 @@ ci::gl::Texture galaxyDome, ci::gl::Texture galaxyTex, ci::gl::Texture darkMatte
 	mDarkMatterCylinderRes = 48;    
     initGalaxyVertexArray();
     initDarkMatterVertexArray();    
-   	mLightMatterBaseRadius = initialCamDist * 0.75f;
-	mDarkMatterBaseRadius = initialCamDist * 0.86f; 
+   	mLightMatterBaseRadius = initialCamDist * 0.675f;
+	mDarkMatterBaseRadius = initialCamDist * 0.75f; 
 
     mLightMatterColor = lightMatterColor;
     mCenterColor = centerColor;
