@@ -68,6 +68,9 @@ namespace bloom { namespace gl {
 
 	void drawSphericalBillboard( const Vec3f &camEye, const Vec3f &objPos, const Vec2f &scale, float rotInRadians )
 	{	
+		glPushMatrix();
+		glTranslatef( objPos.x, objPos.y, objPos.z );
+		
 		Vec3f lookAt = Vec3f::zAxis();
 		Vec3f upAux;
 		float angleCosine;
@@ -119,6 +122,8 @@ namespace bloom { namespace gl {
 //		ci::gl::color( Color( 1.0f, 1.0f, 1.0f ) );
 //		ci::gl::drawLine( Vec3f::zero(), objToCam );
 //		glEnable( GL_TEXTURE_2D );
+		
+		glPopMatrix();
 	}
 
 
