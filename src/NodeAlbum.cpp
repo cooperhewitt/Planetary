@@ -126,6 +126,7 @@ void NodeAlbum::setData( PlaylistRef album )
 	int halfWidth		= totalWidth/2;
 	int border			= 10;
 	mAlbumArtSurface	= (*mAlbum)[0]->getArtwork( Vec2i( totalWidth, totalWidth ) );
+	
 	bool hasAlbumArt = true;
 	if( !mAlbumArtSurface ){
 		hasAlbumArt = false;
@@ -144,10 +145,9 @@ void NodeAlbum::setData( PlaylistRef album )
 	}
 	
 	// grab a section of the album art
-	Area a			= Area( x, y, x+w, y+h );
 	Surface crop	= Surface( totalWidth, totalWidth, false );
 	Surface crop2	= Surface( totalWidth, totalWidth, false );
-	ci::ip::resize( mAlbumArtSurface, a, &crop, Area( 0, 0, halfWidth, totalWidth ), FilterCubic() );
+	ci::ip::resize( mAlbumArtSurface, Area( x, y, x+w, y+h ), &crop, Area( 0, 0, halfWidth, totalWidth ), FilterCubic() );
 	
 	// make it a mirror image
 	Surface::Iter iter = crop2.getIter();
@@ -167,30 +167,30 @@ void NodeAlbum::setData( PlaylistRef album )
 			iter.b() = c.b * 255.0f;
 		}
 	}
-	
-	// fix the polar pinching
-	Surface::Iter iter2 = crop.getIter();
-	while( iter2.line() ) {
-		float cosTheta = cos( M_PI * ( iter2.y() - (float)( totalWidth - 1 )/2.0f ) / (float)( totalWidth - 1 ) );
-		
-		while( iter2.pixel() ) {
-			float phi	= TWO_PI * ( iter2.x() - halfWidth ) / (double)totalWidth;
-			float phi2	= phi * cosTheta;
-			int i2 = phi2 * totalWidth/TWO_PI + halfWidth;
-			
-			if( i2 < 0 || i2 > totalWidth-1 ){
-				// this should never happen
-				iter2.r() = 255.0f;
-				iter2.g() = 0.0f;
-				iter2.b() = 0.0f;
-			} else {
-				ColorA c = crop2.getPixel( Vec2i( i2, iter2.y() ) );
-				iter2.r() = c.r * 255.0f;
-				iter2.g() = c.g * 255.0f;
-				iter2.b() = c.b * 255.0f;
-			}
-		}
-	}
+//	
+//	// fix the polar pinching
+//	Surface::Iter iter2 = crop.getIter();
+//	while( iter2.line() ) {
+//		float cosTheta = cos( M_PI * ( iter2.y() - (float)( totalWidth - 1 )/2.0f ) / (float)( totalWidth - 1 ) );
+//		
+//		while( iter2.pixel() ) {
+//			float phi	= TWO_PI * ( iter2.x() - halfWidth ) / (double)totalWidth;
+//			float phi2	= phi * cosTheta;
+//			int i2 = phi2 * totalWidth/TWO_PI + halfWidth;
+//			
+//			if( i2 < 0 || i2 > totalWidth-1 ){
+//				// this should never happen
+//				iter2.r() = 255.0f;
+//				iter2.g() = 0.0f;
+//				iter2.b() = 0.0f;
+//			} else {
+//				ColorA c = crop2.getPixel( Vec2i( i2, iter2.y() ) );
+//				iter2.r() = c.r * 255.0f;
+//				iter2.g() = c.g * 255.0f;
+//				iter2.b() = c.b * 255.0f;
+//			}
+//		}
+//	}
 	
 	// add the planet texture
 	// and add the shadow from the cloud layer
@@ -202,7 +202,7 @@ void NodeAlbum::setData( PlaylistRef album )
 	iter = planetSurface.getIter();
 	while( iter.line() ) {
 		while( iter.pixel() ) {
-			ColorA albumColor	= crop.getPixel( Vec2i( iter.x(), iter.y() ) );
+			ColorA albumColor	= crop2.getPixel( Vec2i( iter.x(), iter.y() ) );
 			ColorA surfaceColor	= planetSurface.getPixel( Vec2i( iter.x(), iter.y() ) );
 			float planetVal		= surfaceColor.r;
 			float cloudShadow	= surfaceColor.g * 0.5f + 0.5f;
@@ -382,7 +382,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		}
 		
 		
-		gl::enableAlphaBlending();
+		
         
 		glPushMatrix();
 		gl::translate( mPos );
@@ -393,6 +393,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
         const float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 0.334f ) * mClosenessFadeAlpha;        
         
         // SHADOW CLOUDS
+		gl::enableAlphaBlending();
         gl::scale( Vec3f( radius, radius, radius ) );
         gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) );        
         if (G_IS_IPAD2 || G_DEBUG) {
@@ -417,22 +418,23 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 
 void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
-	if( mClosenessFadeAlpha > 0.0f ){
+	if( mClosenessFadeAlpha > 0.0f ){		
 		Vec2f dir		= mScreenPos - center;
 		float dirLength = dir.length()/500.0f;
 		float alpha = ( 1.0f - dirLength * 0.75f ) + mEclipseStrength;
 		alpha *= mDeathPer * mClosenessFadeAlpha * ( mBlockedBySunPer - 0.5f ) * 2.0f;
-
+		Vec2f radius( mRadius, mRadius );
+		radius *= ( 2.46f + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) );
 		
-		gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, 1.0f + mEclipseStrength * 2.0f ) );
+		gl::color( ColorA( BRIGHT_BLUE, 1.0f + mEclipseStrength * 2.0f ) );
 		tex.enableAndBind();
-		bloom::gl::drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, 0.0f );
+		bloom::gl::drawSphericalBillboard( camEye, mPos, radius, 0.0f );
 		tex.disable();
 		
 		gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha ) );
 		directionalTex.enableAndBind();
-		bloom::gl::drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -mEclipseAngle );
-		
+		//bloom::gl::drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -mEclipseAngle );
+		bloom::gl::drawBillboard( mPos, radius, -mEclipseAngle, mBbRight, mBbUp );
 //		if( mIsPlaying ) std::cout << -toDegrees( mEclipseAngle ) << std::endl;
 		directionalTex.disable();
 		

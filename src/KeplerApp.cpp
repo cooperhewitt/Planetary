@@ -1419,8 +1419,8 @@ void KeplerApp::drawScene()
 			gl::disableDepthRead();
 			
 			if( sortedNodes[i]->mGen == G_ARTIST_LEVEL ){
-				gl::enableAlphaBlending();
-				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereSunTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
+				//gl::enableAlphaBlending();
+				//sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereSunTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
 			} else {
 				gl::enableAdditiveBlending();
 				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
@@ -1487,14 +1487,14 @@ void KeplerApp::drawScene()
 	
 // GALAXY DARK MATTER:
     if (G_IS_IPAD2 || G_DEBUG) {
+		gl::enableAlphaBlending();    
         mGalaxy.drawDarkMatter();
     }
 	
 // NAMES
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
-	gl::setMatricesWindow( getWindowSize() );
-    gl::enableAlphaBlending();    
+	gl::setMatricesWindow( getWindowSize() ); 
     gl::enableAdditiveBlending();
 	
     if( G_DRAW_TEXT ){

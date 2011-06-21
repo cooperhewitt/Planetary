@@ -64,7 +64,7 @@ void NodeArtist::setData( PlaylistRef playlist )
 	int totalCharAscii = ( c1Int - 32 ) + ( c2Int - 32 );
 	float asciiPer = ( (float)totalCharAscii/( 190.0f ) ) * 5000.0f ;
 	
-	mHue			= sin( asciiPer ) * 0.4f + 0.4f; // Range of 0.0(red) to 0.8(deep purple)
+	mHue			= sin( asciiPer ) * 0.35f + 0.35f; // Range of 0.0(red) to 0.8(deep purple)
 	
 	mSat			= ( 1.0f - sin( ( mHue + 0.15f ) * M_PI ) ) * 0.75f;
 	mColor			= Color( CM_HSV, mHue, mSat, 1.0f );
@@ -213,26 +213,19 @@ void NodeArtist::drawExtraGlow( const gl::Texture &tex )
 	if( mIsHighlighted ){
 		Vec2f dir		= mScreenPos - app::getWindowCenter();
 		float dirLength = dir.length()/800.0f;
-		float angle		= atan2( dir.y, dir.x );
-		float stretch	= dirLength * mRadius * 0.1f;
 		float alpha = ( 1.0f - dirLength ) * sin( mEclipseStrength * M_PI_2 + M_PI_2 );
 		alpha *= mDeathPer;
-		
-		//		gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, alpha * ( 0.2f - mHue ) * 15.0f ) );
 
-		Vec2f radius = Vec2f( mRadius, mRadius ) * 9.5f;
-		//Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;
+		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
 		
 		tex.enableAndBind();
-		Vec3f posOffset = Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.1f;
 		
-		gl::color( ColorA( mGlowColor, alpha * 0.65f ) );
-		gl::drawBillboard( mPos - posOffset, radius, -toDegrees( angle ), mBbRight, mBbUp );
+		gl::color( ColorA( mGlowColor, alpha * 0.1f ) );
+		bloom::gl::drawBillboard( mPos, radius * 1.25f, 0.0f, mBbRight, mBbUp );
 		
 	// SMALLER INNER GLOW
-		//gl::color( ColorA( mGlowColor, sin( mEclipseStrength * M_PI ) * 0.5f + 0.2f ) );
-		gl::color( ColorA( mGlowColor, sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ) ) );
-		gl::drawBillboard( mPos - posOffset, radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.5f + 0.2f ), -toDegrees( angle ), mBbRight, mBbUp );
+		gl::color( ColorA( Color::white(), sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 0.4f + 0.2f ) ) );
+		bloom::gl::drawBillboard( mPos, radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ), 0.0f, mBbRight, mBbUp );
 		tex.disable();
 	}
 	//}
