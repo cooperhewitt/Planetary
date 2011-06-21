@@ -129,7 +129,7 @@ class KeplerApp : public AppCocoaTouch {
     
 // AUDIO
 	ipod::Player		mIpodPlayer;
-	ipod::PlaylistRef	mCurrentAlbum;
+    ipod::TrackRef      mPlayingTrack;
 	int					mPlaylistIndex; // FIXME: move this into State
     double              mCurrentTrackLength; // cached by onPlayerTrackChanged
     double              mCurrentTrackPlayheadTime;
@@ -651,14 +651,11 @@ bool KeplerApp::orientationChanged( OrientationEvent event )
     Orientation orientation = event.getInterfaceOrientation();
     setInterfaceOrientation(orientation);
 
-    std::map<string, string> params;
-    params["Device Orientation"] = getOrientationString(event.getDeviceOrientation());
-    logEvent("Orientation Changed", params);    
+    Orientation prevOrientation = event.getPrevInterfaceOrientation();
     
 	if( ! G_USE_GYRO ){
 		// Look over there!
 		// heinous trickery follows...
-		Orientation prevOrientation = event.getPrevInterfaceOrientation();
 		if (mInterfaceOrientation != prevOrientation) {
 			if( mTouchVel.length() > 2.0f && !mIsDragging ){        
 				int steps = getRotationSteps(prevOrientation,mInterfaceOrientation);
@@ -667,7 +664,13 @@ bool KeplerApp::orientationChanged( OrientationEvent event )
 		}
 		// ... end heinous trickery
 	}
-    
+
+    if (prevOrientation != orientation) {
+        std::map<string, string> params;
+        params["Device Orientation"] = getOrientationString(event.getDeviceOrientation());
+        logEvent("Orientation Changed", params);    
+    }
+
     return false;
 }
 
@@ -700,7 +703,8 @@ bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 	if( showWheel ){
 		mFovDest = G_MAX_FOV;
 	} else {
-		G_HELP = false;
+		G_HELP = false; 
+        
 		mFovDest = G_DEFAULT_FOV;
 	}
     
@@ -781,8 +785,7 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
             NodeTrack* trackNode = dynamic_cast<NodeTrack*>(node);
             if (trackNode) {
                 if ( mIpodPlayer.hasPlayingTrack() ){
-                    ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
-                    if ( trackNode->getId() != playingTrack->getItemId() ) {
+                    if ( trackNode->getId() != mPlayingTrack->getItemId() ) {
                         mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
                     }
                 }
@@ -802,6 +805,9 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
             logEvent("Album Selected");
         }
 	}
+    else {
+        logEvent("Selection Cleared");        
+    }
 
 	return false;
 }
@@ -1583,23 +1589,31 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
     
 	if (mIpodPlayer.hasPlayingTrack()) {
         
-		ipod::TrackRef playingTrack = mIpodPlayer.getPlayingTrack();
+        ipod::TrackRef newTrack = mIpodPlayer.getPlayingTrack();
 
-        mCurrentTrackLength = playingTrack->getLength();
+        uint64_t trackId = newTrack->getItemId();
         
-        string artistName = playingTrack->getArtist();
+        if (mPlayingTrack && trackId == mPlayingTrack->getItemId()) {
+            //std::cout << "skipping needless onPlayerTrackChange" << std::endl;
+            return false;
+        }
+
+        mPlayingTrack = newTrack;
+
+        mCurrentTrackLength = mPlayingTrack->getLength();
+        
+        string artistName = mPlayingTrack->getArtist();
         
         mPlayControls.setCurrentTrack( " " + artistName 
-                                      + " • " + playingTrack->getAlbumTitle() 
-                                      + " • " + playingTrack->getTitle() + " " );
+                                      + " • " + mPlayingTrack->getAlbumTitle() 
+                                      + " • " + mPlayingTrack->getTitle() + " " );
 
         // make doubly-sure we're focused on the correct letter
         // FIXME: only if the filter mode is alpha
         mState.setAlphaChar( artistName );
         
-        uint64_t artistId = playingTrack->getArtistId();
-        uint64_t albumId = playingTrack->getAlbumId();
-        uint64_t trackId = playingTrack->getItemId();
+        uint64_t artistId = mPlayingTrack->getArtistId();
+        uint64_t albumId = mPlayingTrack->getAlbumId();
         
         // first be sure to create nodes for artist, album and track:
         mWorld.selectHierarchy( artistId, albumId, trackId );
@@ -1614,6 +1628,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         mWorld.updateIsPlaying( artistId, albumId, trackId );
 	}
 	else {
+        
+        mPlayingTrack.reset();
         
         mCurrentTrackLength = 0;
         
@@ -1635,24 +1651,24 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
     mCurrentPlayState = mIpodPlayer.getPlayState();
 
+    mPlayControls.setPlaying(mCurrentPlayState == ipod::Player::StatePlaying);
+    
     if ( mState.getSelectedNode() == NULL ) {
         onPlayerTrackChanged( player );
     }
-        
-    mPlayControls.setPlaying(mCurrentPlayState);
-
-    // update mIsPlaying state for all nodes...
-    if ( mIpodPlayer.hasPlayingTrack() ){
-        ipod::TrackRef track = mIpodPlayer.getPlayingTrack();
-        mWorld.updateIsPlaying( track->getArtistId(), track->getAlbumId(), track->getItemId() );
-    }
     else {
-        // this should be OK to do since the above will happen if something is queued and paused
-        mWorld.updateIsPlaying( 0, 0, 0 );
-    }    
+        // update mIsPlaying state for all nodes...
+        if ( mIpodPlayer.hasPlayingTrack() ){
+            mWorld.updateIsPlaying( mPlayingTrack->getArtistId(), mPlayingTrack->getAlbumId(), mPlayingTrack->getItemId() );
+        }
+        else {
+            // this should be OK to do since the above will happen if something is queued and paused
+            mWorld.updateIsPlaying( 0, 0, 0 );
+        }
+    }
     
     std::map<string, string> params;
-    params["State"] = player->getPlayState();
+    params["State"] = mIpodPlayer.getPlayStateString();
     logEvent("Player State Changed", params);
     
     return false;
@@ -1660,10 +1676,12 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 
 void KeplerApp::logEvent(const string &event)
 {
+    if (G_DEBUG) std::cout << "logging: " << event << std::endl;
     Flurry::getInstrumentation()->logEvent(event);
 }
 void KeplerApp::logEvent(const string &event, const map<string,string> &params)
 {
+    if (G_DEBUG) std::cout << "logging: " << event << " with params..." << std::endl;
     Flurry::getInstrumentation()->logEvent(event, params);
 }
 
