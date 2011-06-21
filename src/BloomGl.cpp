@@ -125,6 +125,32 @@ namespace bloom { namespace gl {
 		glPopMatrix();
 	}
 
+    void drawSphericalRotatedBillboard( const ci::Vec3f &pos, const ci::Vec3f &lookAt, const ci::Vec3f &turnAt, const ci::Vec2f &scale )
+    {
+        glPushMatrix();
+        ci::gl::translate( pos );
+
+        ci::Vec2f verts[4];
+		GLfloat texCoords[8] = { 0, 0, 0, 1, 1, 0, 1, 1 };
+		
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glVertexPointer( 2, GL_FLOAT, 0, &verts[0].x );
+		glTexCoordPointer( 2, GL_FLOAT, 0, texCoords );
+				
+		verts[0] = ci::Vec2f(-0.5f,-0.5f) * scale;
+		verts[1] = ci::Vec2f(0.5f,-0.5f)  * scale;
+		verts[2] = ci::Vec2f(0.5f,0.5f)   * scale;
+		verts[3] = ci::Vec2f(-0.5f,0.5f)  * scale;
+        
+		glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
+		
+		glDisableClientState( GL_VERTEX_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );	        
+        
+        glPopMatrix();
+    }
+    
     /////////////////////////////////////////////////////////
 
     BatchMap batchMap;

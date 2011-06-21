@@ -23,9 +23,13 @@ void LoadingScreen::setup( AppCocoaTouch *app, const Orientation &orientation )
     app->registerTouchesMoved(this, &LoadingScreen::onTouchEvent);
     app->registerTouchesEnded(this, &LoadingScreen::onTouchEvent);            
     setInterfaceOrientation( orientation );
-	mPlanetaryTex	= gl::Texture( loadImage( loadResource( "planetary.png" ) ) );
-	mPlanetTex		= gl::Texture( loadImage( loadResource( "planet.png" ) ) );
-	mBackgroundTex	= gl::Texture( loadImage( loadResource( "background.jpg" ) ) );
+    gl::Texture::Format fmt;
+    fmt.enableMipmapping( true );
+    fmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );        
+    fmt.setMagFilter( GL_LINEAR );        
+	mPlanetaryTex	= gl::Texture( loadImage( loadResource( "planetary.png" ) )/*, fmt*/ );
+	mPlanetTex		= gl::Texture( loadImage( loadResource( "planet.png" ) ), fmt );
+	mBackgroundTex	= gl::Texture( loadImage( loadResource( "background.jpg" ) )/*, fmt*/ );
 }
 
 void LoadingScreen::setEnabled( bool enabled )

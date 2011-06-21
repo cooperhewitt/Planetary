@@ -169,7 +169,7 @@ void Galaxy::initGalaxyVertexArray()
     
 	mGalaxyVerts = new VertexData[6];
 
-	const float w = 400.0f;
+	const float w = 200.0f;
 
     int vert = 0;
 

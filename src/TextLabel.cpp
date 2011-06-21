@@ -7,6 +7,7 @@
 //
 
 #include "TextLabel.h"
+#include "BloomGl.h"
 
 void TextLabel::setText(string text)
 { 
@@ -28,6 +29,7 @@ void TextLabel::updateTexture()
 void TextLabel::draw()
 {
     if (mTexture) {
-        gl::draw(mTexture, mRect.getUpperLeft());
+        // use this even though the texture is unique because it minimizes state changes
+        bloom::gl::batchRect(mTexture, mRect.getUpperLeft());
     }
 }

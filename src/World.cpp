@@ -283,6 +283,9 @@ void World::drawRings( const gl::Texture &tex, float camZPos )
 
 void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset, float angle )
 {
+    // FIXME: consider splitting Node::drawName into drawNameShadow and drawName and using
+    // a single bloom::gl::begin/endBatch to reduce the number of state switches
+    // needs to extend bloom::gl batching to support storing the current color as well as texture
 	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		if( (*it)->mIsHighlighted ){
 			(*it)->drawName( cam, pinchAlphaOffset, angle );

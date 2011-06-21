@@ -7,6 +7,7 @@
 //
 
 #include "TimeLabel.h"
+#include "BloomGl.h"
 
 void TimeLabel::setSeconds(int seconds)
 { 
@@ -51,9 +52,11 @@ void TimeLabel::draw()
 {
     // to keep the digit left-aligned in the box, squeeze the minus sign in before it
     if (mHyphenTexture) {
-        gl::draw(mHyphenTexture, mRect.getUpperLeft() - Vec2f(mHyphenTexture.getWidth()-1.0f,0));
+        // use batchRect to minimize state changes
+        bloom::gl::batchRect(mHyphenTexture, mRect.getUpperLeft() - Vec2f(mHyphenTexture.getWidth()-1.0f,0));
     }    
     if (mTexture) {
-        gl::draw(mTexture, mRect.getUpperLeft());
+        // use batchRect to minimize state changes
+        bloom::gl::batchRect(mTexture, mRect.getUpperLeft());
     }
 }
