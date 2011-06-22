@@ -29,6 +29,7 @@
 #include "World.h"
 #include "NodeArtist.h"
 #include "Galaxy.h"
+#include "BloomSphere.h"
 
 #include "LoadingScreen.h"
 #include "UiLayer.h"
@@ -46,6 +47,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 using namespace pollen::flurry;
+using namespace bloom;
 
 float G_ZOOM			= 0;
 int G_CURRENT_LEVEL		= 0;
@@ -219,6 +221,9 @@ class KeplerApp : public AppCocoaTouch {
 	Surface			mLowResSurfaces;
 	Surface			mNoAlbumArtSurface;
 	
+// SKYDOME
+    BloomSphere mSkySphere;
+    
 // GALAXY
     Galaxy mGalaxy;
 	
@@ -400,6 +405,9 @@ void KeplerApp::remainingSetup()
     // WORLD
     mWorld.setup();
 	
+    // SKY
+    mSkySphere.setup(24);
+    
     // GALAXY (TODO: Move to World?)
     mGalaxy.setup(G_INIT_CAM_DIST, BRIGHT_BLUE, BLUE, mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex);
 
@@ -1346,8 +1354,10 @@ void KeplerApp::drawScene()
     }
   //  gl::color( c * pow( 1.0f - zoomOff, 3.0f ) );
     mSkyDome.enableAndBind();
-    // FIXME: use a gl::scaled BloomSphere for this?
-    gl::drawSphere( Vec3f::zero(), G_SKYDOME_RADIUS, 24 );
+    glPushMatrix();
+    gl::scale( Vec3f(G_SKYDOME_RADIUS,G_SKYDOME_RADIUS,G_SKYDOME_RADIUS) );
+    mSkySphere.draw();
+    glPopMatrix();
     mSkyDome.disable();
     
 // GALAXY
