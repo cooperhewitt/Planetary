@@ -61,6 +61,7 @@ bool G_HELP             = false;
 bool G_DRAW_RINGS		= false;
 bool G_DRAW_TEXT		= false;
 bool G_USE_GYRO			= false;
+bool G_USE_COMPRESSED   = false;
 bool G_IS_IPAD2			= false;
 int G_NUM_PARTICLES		= 25;
 int G_NUM_DUSTS			= 250;
@@ -480,8 +481,16 @@ void KeplerApp::initTextures()
 	mEclipseShadowTex         = gl::Texture( loadImage( loadResource( "eclipseShadow.png" ) ), mipFmt );
 	mLensFlareTex             = gl::Texture( loadImage( loadResource( "lensFlare.png" ) ), mipFmt );
 	mParticleTex              = gl::Texture( loadImage( loadResource( "particle.png" ) ), mipFmt );
-	mSkyDome                  = gl::Texture( loadImage( loadResource( "skydome.png" ) ), mipFmt );
-	mGalaxyDome               = gl::Texture( loadImage( loadResource( "skydome.jpg" ) ), mipFmt );
+
+    if (G_USE_COMPRESSED) {
+        mSkyDome              = loadCompressedTexture( "skydome.pvr", Vec2i(1024,1024) );
+        mGalaxyDome           = loadCompressedTexture( "lightMatter.pvr", Vec2i(1024,1024) );
+    }
+    else {
+        mSkyDome              = gl::Texture( loadImage( loadResource( "skydome.png" ) ), mipFmt );
+        mGalaxyDome           = gl::Texture( loadImage( loadResource( "lightMatter.jpg" ) ), mipFmt );
+    }
+    
 	mDottedTex                = gl::Texture( loadImage( loadResource( "dotted.png" ) ), repeatMipFmt );    
 	mRingsTex                 = gl::Texture( loadImage( loadResource( "rings.png" ) ) /*, fmt */ );
     mPlayheadProgressTex      = gl::Texture( loadImage( loadResource( "playheadProgress.png" ) ), repeatMipFmt );
@@ -492,10 +501,16 @@ void KeplerApp::initTextures()
     mAtmosphereTex            = gl::Texture( loadImage( loadResource( "atmosphere.png" ) ), mipFmt );
 	mAtmosphereDirectionalTex = gl::Texture( loadImage( loadResource( "atmosphereDirectional.png" ) ), mipFmt );
 	mAtmosphereSunTex         = gl::Texture( loadImage( loadResource( "atmosphereSun.png" ) ), mipFmt );
-	//mGalaxyTex                = gl::Texture( loadImage( loadResource( "galaxy.jpg" ) ), mipFmt );
-    mGalaxyTex                = loadCompressedTexture("galaxy.pvr", Vec2i(1024, 1024));
+
+    if (G_USE_COMPRESSED) {
+        mGalaxyTex                = loadCompressedTexture("galaxyCropped.pvr", Vec2i(1024, 1024));
+        mDarkMatterTex            = loadCompressedTexture("darkMatter.pvr", Vec2i(1024, 1024));
+    }
+    else {
+        mGalaxyTex                = gl::Texture( loadImage( loadResource( "galaxyCropped.jpg" ) ), mipFmt );
+        mDarkMatterTex            = gl::Texture( loadImage( loadResource( "darkMatter.png" ) )/*, fmt*/ );
+    }
     
-	mDarkMatterTex            = gl::Texture( loadImage( loadResource( "darkMatter.png" ) )/*, fmt*/ );
 	mOrbitRingGradientTex     = gl::Texture( loadImage( loadResource( "orbitRingGradient.png" ) ), mipFmt );
 	mTrackOriginTex           = gl::Texture( loadImage( loadResource( "origin.png" ) ), mipFmt );
 
