@@ -1353,12 +1353,15 @@ void KeplerApp::drawScene()
         gl::color( BRIGHT_BLUE );
     }
   //  gl::color( c * pow( 1.0f - zoomOff, 3.0f ) );
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
     mSkyDome.enableAndBind();
     glPushMatrix();
     gl::scale( Vec3f(G_SKYDOME_RADIUS,G_SKYDOME_RADIUS,G_SKYDOME_RADIUS) );
     mSkySphere.draw();
     glPopMatrix();
     mSkyDome.disable();
+    glDisable(GL_CULL_FACE);
     
 // GALAXY
     mGalaxy.drawLightMatter();	
