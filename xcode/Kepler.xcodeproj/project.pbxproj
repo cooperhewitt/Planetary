@@ -94,6 +94,9 @@
 		E219CEFE13A7DAFD006C7F26 /* Constellation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E219CEFC13A7DAFA006C7F26 /* Constellation.cpp */; };
 		E227B205138EFDC500AAAC7B /* TextLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E227B204138EFDC500AAAC7B /* TextLabel.cpp */; };
 		E22998CC1332D62E0043CDCA /* LoadingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */; };
+		E23C29E613B19F490038F3F4 /* galaxy.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E23C29E313B19F480038F3F4 /* galaxy.pvr */; };
+		E23C29E713B19F490038F3F4 /* galaxyFull.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E23C29E413B19F490038F3F4 /* galaxyFull.jpg */; };
+		E23C29E813B19F490038F3F4 /* galaxyFull.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E23C29E513B19F490038F3F4 /* galaxyFull.pvr */; };
 		E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C872D131F1420000780A3 /* NodeArtist.cpp */; };
 		E25C8744131F14B3000780A3 /* NodeAlbum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8742131F14B3000780A3 /* NodeAlbum.cpp */; };
 		E25C8745131F14B3000780A3 /* NodeTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8743131F14B3000780A3 /* NodeTrack.cpp */; };
@@ -223,6 +226,9 @@
 		E227B204138EFDC500AAAC7B /* TextLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextLabel.cpp; path = ../src/TextLabel.cpp; sourceTree = "<group>"; };
 		E22998C61332AD080043CDCA /* GestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureRecognizer.h; sourceTree = "<group>"; };
 		E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoadingScreen.cpp; path = ../src/LoadingScreen.cpp; sourceTree = "<group>"; };
+		E23C29E313B19F480038F3F4 /* galaxy.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = galaxy.pvr; path = ../galaxy.pvr; sourceTree = "<group>"; };
+		E23C29E413B19F490038F3F4 /* galaxyFull.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = galaxyFull.jpg; path = ../galaxyFull.jpg; sourceTree = "<group>"; };
+		E23C29E513B19F490038F3F4 /* galaxyFull.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = galaxyFull.pvr; path = ../galaxyFull.pvr; sourceTree = "<group>"; };
 		E25C872D131F1420000780A3 /* NodeArtist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeArtist.cpp; path = ../src/NodeArtist.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8742131F14B3000780A3 /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8743131F14B3000780A3 /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
@@ -551,10 +557,13 @@
 		E17667CE13202F4D006A4C2E /* misc */ = {
 			isa = PBXGroup;
 			children = (
+				E1D98D9E137B4BC000D80467 /* galaxy.jpg */,
+				E23C29E313B19F480038F3F4 /* galaxy.pvr */,
+				E23C29E413B19F490038F3F4 /* galaxyFull.jpg */,
+				E23C29E513B19F490038F3F4 /* galaxyFull.pvr */,
 				E10F84DE139856860062F73C /* eclipseShadow.png */,
 				E133FF84138C2FEA00A87B27 /* noAlbumArt.png */,
 				E1C942C6137B9BD900F88EA2 /* darkMatter.png */,
-				E1D98D9E137B4BC000D80467 /* galaxy.jpg */,
 				E1555A0A131E05140079B05A /* skydome.jpg */,
 				E1729B221377F10C00C62C97 /* skydome.png */,
 			);
@@ -885,6 +894,9 @@
 				E10F84E1139893320062F73C /* AauxPro-Black.ttf in Resources */,
 				E10F84E3139899740062F73C /* overlayIcons.png in Resources */,
 				E154E58213996D8C002A3488 /* lensFlare.png in Resources */,
+				E23C29E613B19F490038F3F4 /* galaxy.pvr in Resources */,
+				E23C29E713B19F490038F3F4 /* galaxyFull.jpg in Resources */,
+				E23C29E813B19F490038F3F4 /* galaxyFull.pvr in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

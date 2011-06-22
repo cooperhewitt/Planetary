@@ -43,6 +43,9 @@
 
 #include "Easing.h"
 
+#import <OpenGLES/ES1/gl.h>
+#import <OpenGLES/ES1/glext.h>
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -70,6 +73,7 @@ class KeplerApp : public AppCocoaTouch {
     void            remainingSetup();
 	void			initLoadingTextures();
 	void			initTextures();
+    gl::Texture     loadCompressedTexture(const std::string &dataPath, const Vec2i &imageSize);
 
 	virtual void	touchesBegan( TouchEvent event );
 	virtual void	touchesMoved( TouchEvent event );
@@ -438,6 +442,23 @@ void KeplerApp::initLoadingTextures()
 	mStarGlowTex = gl::Texture( loadImage( loadResource( "starGlow.png" ) ), fmt);
 }
 
+gl::Texture KeplerApp::loadCompressedTexture(const std::string &dataPath, const Vec2i &imageSize)
+{
+    // NB:- compressed textures *must* be square
+    //      also, file sizes are actually larger than jpg 
+    //      ... but it stays compressed on the GPU for more awesome
+    gl::Texture::Format compressedFormat;
+    compressedFormat.setInternalFormat(GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG);
+    compressedFormat.enableMipmapping(false); // TODO: talk to Ryan about mipmapped compressed textures
+    compressedFormat.setMagFilter( GL_LINEAR );
+    compressedFormat.setMinFilter( GL_LINEAR );
+    
+    DataSourceRef dataSource = loadResource(dataPath);
+    const size_t dataSize = dataSource->getBuffer().getDataSize();
+    const uint8_t *data = static_cast<uint8_t*>(dataSource->getBuffer().getData());
+    return gl::Texture::withCompressedData(data, imageSize.x, imageSize.y, dataSize, compressedFormat);    
+}
+
 void KeplerApp::initTextures()
 {
     Flurry::getInstrumentation()->startTimeEvent("Load Textures");    
@@ -461,7 +482,7 @@ void KeplerApp::initTextures()
 	mParticleTex              = gl::Texture( loadImage( loadResource( "particle.png" ) ), mipFmt );
 	mSkyDome                  = gl::Texture( loadImage( loadResource( "skydome.png" ) ), mipFmt );
 	mGalaxyDome               = gl::Texture( loadImage( loadResource( "skydome.jpg" ) ), mipFmt );
-	mDottedTex                = gl::Texture( loadImage( loadResource( "dotted.png" ) ), repeatMipFmt );
+	mDottedTex                = gl::Texture( loadImage( loadResource( "dotted.png" ) ), repeatMipFmt );    
 	mRingsTex                 = gl::Texture( loadImage( loadResource( "rings.png" ) ) /*, fmt */ );
     mPlayheadProgressTex      = gl::Texture( loadImage( loadResource( "playheadProgress.png" ) ), repeatMipFmt );
 	mUiButtonsTex             = gl::Texture( loadImage( loadResource( "uiButtons.png" ) )/*, fmt*/ );
@@ -471,7 +492,9 @@ void KeplerApp::initTextures()
     mAtmosphereTex            = gl::Texture( loadImage( loadResource( "atmosphere.png" ) ), mipFmt );
 	mAtmosphereDirectionalTex = gl::Texture( loadImage( loadResource( "atmosphereDirectional.png" ) ), mipFmt );
 	mAtmosphereSunTex         = gl::Texture( loadImage( loadResource( "atmosphereSun.png" ) ), mipFmt );
-	mGalaxyTex                = gl::Texture( loadImage( loadResource( "galaxy.jpg" ) ), mipFmt );
+	//mGalaxyTex                = gl::Texture( loadImage( loadResource( "galaxy.jpg" ) ), mipFmt );
+    mGalaxyTex                = loadCompressedTexture("galaxy.pvr", Vec2i(1024, 1024));
+    
 	mDarkMatterTex            = gl::Texture( loadImage( loadResource( "darkMatter.png" ) )/*, fmt*/ );
 	mOrbitRingGradientTex     = gl::Texture( loadImage( loadResource( "orbitRingGradient.png" ) ), mipFmt );
 	mTrackOriginTex           = gl::Texture( loadImage( loadResource( "origin.png" ) ), mipFmt );
