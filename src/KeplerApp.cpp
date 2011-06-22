@@ -749,7 +749,7 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
 
     mState.setAlphaChar( ' ' );
     mWorld.setFilter( PlaylistFilter(mState.getPlaylist()) );
-    mState.setFilterMode( State::FilterModePlaylist );
+    mState.setFilterMode( State::FilterModePlaylist ); // TODO: make this part of Filter?
     mState.setSelectedNode( NULL );
     
 	mPlayControls.setPlaylist( mState.getPlaylist()->getPlaylistName() );

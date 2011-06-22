@@ -291,7 +291,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 				texCorner.rotate( angle );
 			}
 			if( mIsPlaying ){
-				float s = mZoomPer * 0.25f + 1.0f;
+				float s = (mZoomPer * 0.25f) + 1.0f;
 				gl::scale( Vec3f( s, s, 1.0f ) );
 				texCorner *= s;
 			}
