@@ -61,7 +61,7 @@ bool G_HELP             = false;
 bool G_DRAW_RINGS		= false;
 bool G_DRAW_TEXT		= false;
 bool G_USE_GYRO			= false;
-bool G_USE_COMPRESSED   = false;
+bool G_USE_COMPRESSED   = false; // set to true to load compressed images (experimental)
 bool G_IS_IPAD2			= false;
 int G_NUM_PARTICLES		= 25;
 int G_NUM_DUSTS			= 250;
@@ -487,8 +487,8 @@ void KeplerApp::initTextures()
         mGalaxyDome           = loadCompressedTexture( "lightMatter.pvr", Vec2i(1024,1024) );
     }
     else {
-        mSkyDome              = gl::Texture( loadImage( loadResource( "skydome.png" ) ), mipFmt );
-        mGalaxyDome           = gl::Texture( loadImage( loadResource( "lightMatter.jpg" ) ), mipFmt );
+        mSkyDome              = gl::Texture( loadImage( loadResource( "skydomeFull.png" ) ), mipFmt );
+        mGalaxyDome           = gl::Texture( loadImage( loadResource( "lightMatterFull.jpg" ) ), mipFmt );
     }
     
 	mDottedTex                = gl::Texture( loadImage( loadResource( "dotted.png" ) ), repeatMipFmt );    
@@ -508,7 +508,7 @@ void KeplerApp::initTextures()
     }
     else {
         mGalaxyTex                = gl::Texture( loadImage( loadResource( "galaxyCropped.jpg" ) ), mipFmt );
-        mDarkMatterTex            = gl::Texture( loadImage( loadResource( "darkMatter.png" ) )/*, fmt*/ );
+        mDarkMatterTex            = gl::Texture( loadImage( loadResource( "darkMatterFull.png" ) )/*, fmt*/ );
     }
     
 	mOrbitRingGradientTex     = gl::Texture( loadImage( loadResource( "orbitRingGradient.png" ) ), mipFmt );
@@ -1713,7 +1713,12 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
     else {
         // update mIsPlaying state for all nodes...
         if ( mIpodPlayer.hasPlayingTrack() ){
-            mWorld.updateIsPlaying( mPlayingTrack->getArtistId(), mPlayingTrack->getAlbumId(), mPlayingTrack->getItemId() );
+            if (!mPlayingTrack) {
+                onPlayerTrackChanged( player );                
+            }
+            else {
+                mWorld.updateIsPlaying( mPlayingTrack->getArtistId(), mPlayingTrack->getAlbumId(), mPlayingTrack->getItemId() );
+            }
         }
         else {
             // this should be OK to do since the above will happen if something is queued and paused

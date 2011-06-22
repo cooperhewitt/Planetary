@@ -58,6 +58,7 @@ extern bool G_ACCEL;
 extern bool G_DRAW_RINGS;
 extern bool G_DRAW_TEXT;
 extern bool G_USE_GYRO;
+extern bool G_USE_COMPRESSED;
 
 extern bool G_IS_IPAD2;
 extern int G_NUM_PARTICLES;
