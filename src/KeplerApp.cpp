@@ -140,6 +140,7 @@ class KeplerApp : public AppCocoaTouch {
 	int					mPlaylistIndex; // FIXME: move this into State
     double              mCurrentTrackLength; // cached by onPlayerTrackChanged
     double              mCurrentTrackPlayheadTime;
+    double              mPlayheadUpdateSeconds;
     ipod::Player::State mCurrentPlayState;
 	
 // PLAY CONTROLS
@@ -398,7 +399,6 @@ void KeplerApp::remainingSetup()
 	
 	// PLAYER
     mCurrentPlayState = mIpodPlayer.getPlayState();
-    // FIXME: init mCurrentTrackLength here?
 	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
     mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
     mIpodPlayer.registerLibraryChanged( this, &KeplerApp::onPlayerLibraryChanged );
@@ -1121,21 +1121,22 @@ void KeplerApp::update()
         const int elapsedFrames = getElapsedFrames();
         const float elapsedSeconds = getElapsedSeconds();
         
-        // local static variable is only initalized once and then remembered from frame to frame
-        static float playheadUpdateSeconds = -1;
-        
         // fake playhead time if we're dragging (so it looks really snappy)
         if (mPlayControls.playheadIsDragging()) {
             mCurrentTrackPlayheadTime = mCurrentTrackLength * mPlayControls.getPlayheadValue();
-            playheadUpdateSeconds = -1;
+            mPlayheadUpdateSeconds = elapsedSeconds;
         }
-        else if (elapsedSeconds - playheadUpdateSeconds > 1) {
+        else if (elapsedSeconds - mPlayheadUpdateSeconds > 1) {
+            // mPlayheadUpdateSeconds is set to -1 if the track changes, so this part should always be hit
             mCurrentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
-            playheadUpdateSeconds = elapsedSeconds;
+            mPlayheadUpdateSeconds = elapsedSeconds;
         }
 
 		if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
-            float correction = playheadUpdateSeconds == -1 ? 0.0f : elapsedSeconds - playheadUpdateSeconds;
+            const bool isPaused = (mCurrentPlayState == ipod::Player::StatePaused);
+            const bool isDragging = mPlayControls.playheadIsDragging();
+            const bool skipCorrection = (isPaused || isDragging);
+            float correction = skipCorrection ? 0.0f : (elapsedSeconds - mPlayheadUpdateSeconds);
 			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime + correction );
 		}
 		
@@ -1161,9 +1162,7 @@ void KeplerApp::update()
 														  ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f );
 			mParticleController.buildDustVertexArray( scaleSlider, selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
 		}
-		
-		mNotificationOverlay.update();
-		
+				
         mUiLayer.setShowSettings( G_SHOW_SETTINGS );
         mUiLayer.update();
         
@@ -1172,10 +1171,11 @@ void KeplerApp::update()
         
         mPlayControls.update();
 
-        if (elapsedFrames % 30 == 0) {
+        if (mPlayheadUpdateSeconds == elapsedSeconds) {
             mPlayControls.setElapsedSeconds( (int)mCurrentTrackPlayheadTime );
             mPlayControls.setRemainingSeconds( -(int)(mCurrentTrackLength - mCurrentTrackPlayheadTime) );
         }
+        
         if (!mPlayControls.playheadIsDragging()) {
             mPlayControls.setPlayheadProgress( mCurrentTrackPlayheadTime / mCurrentTrackLength );
         }
@@ -1662,6 +1662,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         mPlayingTrack = newTrack;
 
         mCurrentTrackLength = mPlayingTrack->getLength();
+        mPlayheadUpdateSeconds = -1;
         
         string artistName = mPlayingTrack->getArtist();
         
@@ -1693,6 +1694,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         mPlayingTrack.reset();
         
         mCurrentTrackLength = 0;
+        mPlayheadUpdateSeconds = -1;
         
         mPlayControls.setCurrentTrack("");
 		// go to album level view when the last track ends:
@@ -1713,6 +1715,9 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
     mCurrentPlayState = mIpodPlayer.getPlayState();
 
     mPlayControls.setPlaying(mCurrentPlayState == ipod::Player::StatePlaying);
+    
+    // be sure the track moon and elapsed time things get an update
+    mPlayheadUpdateSeconds = -1;    
     
     if ( mState.getSelectedNode() == NULL ) {
         onPlayerTrackChanged( player );
