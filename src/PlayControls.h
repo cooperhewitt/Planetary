@@ -81,7 +81,7 @@ public:
     void setElapsedSeconds(int elapsedTime) { mElapsedTimeLabel.setSeconds(elapsedTime); }
     void setRemainingSeconds(int remainingTime) { mRemainingTimeLabel.setSeconds(remainingTime); }
     void setCurrentTrack(string currentTrack) { mTrackInfoLabel.setText(currentTrack); }
-    void setPlaylist(string playlist) { mPlaylistLabel.setText(playlist); }
+    void setPlaylist(string playlist) { mPlaylistLabel.setText(playlist); mPlaylistLabel.setLastTrackChangeTime(app::getElapsedSeconds()); }
     void setLastTrackChangeTime(float time) { mTrackInfoLabel.setLastTrackChangeTime(time); }
     void setPlayheadProgress(float value) { mPlayheadSlider.setValue(value); }
 	
@@ -186,7 +186,7 @@ private:
 
     // playlist controls
     SimpleButton mPreviousPlaylistButton;
-    TextLabel mPlaylistLabel;
+    ScrollingLabel mPlaylistLabel;
     SimpleButton mNextPlaylistButton;
         
     // settings...
