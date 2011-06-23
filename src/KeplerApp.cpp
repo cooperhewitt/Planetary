@@ -787,12 +787,23 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
 {
 	std::cout << "playlist changed" << std::endl;
 
+    ipod::PlaylistRef playlist = mState.getPlaylist();
+    string playlistName = playlist->getPlaylistName();
+    
     mState.setAlphaChar( ' ' );
-    mWorld.setFilter( PlaylistFilter(mState.getPlaylist()) );
+    mWorld.setFilter( PlaylistFilter(playlist) );
     mState.setFilterMode( State::FilterModePlaylist ); // TODO: make this part of Filter?
     mState.setSelectedNode( NULL );
+        
+	mPlayControls.setPlaylist( playlistName );
+
+    if (playlistName.size() > 20) {
+        playlistName = playlistName.substr(0, 17) + "...";
+    }
     
-	mPlayControls.setPlaylist( mState.getPlaylist()->getPlaylistName() );
+    stringstream s;
+    s << "SHOWING ARTISTS FROM" << "\n" << "'" << playlistName << "'";
+    mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), s.str() );            
 	
     std::map<string, string> parameters;
     parameters["Playlist"] = mState.getPlaylist()->getPlaylistName();

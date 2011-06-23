@@ -7,10 +7,12 @@
 //
 
 #include "NotificationOverlay.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <sstream>
 #include "cinder/Font.h"
 #include "cinder/Text.h"
 #include "Globals.h"
-#include <sstream>
 
 using std::stringstream;
 
@@ -99,12 +101,12 @@ void NotificationOverlay::show(const gl::Texture &texture, const Area &srcArea, 
 	TextLayout layout;	
 	layout.setFont( mFont );
 	layout.setColor( ColorA( BRIGHT_BLUE, 0.5f ) );
-	stringstream s;
-	s.str("");
-	s << message;
-	layout.addCenteredLine( s.str() );
+    vector<string> results;
+    boost::split(results, message, boost::is_any_of("\n"));     
+    for (int i = 0; i < results.size(); i++) {
+        layout.addCenteredLine( results[i] );
+    }
 	mMessageTexture = gl::Texture( layout.render( true, true ) );
-	
 	
     mActive = true;
     mLastShowTime = mApp->getElapsedSeconds();
