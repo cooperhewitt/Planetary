@@ -157,6 +157,11 @@ namespace bloom { namespace gl {
             
         glMultMatrixf(m);
         
+        ///////////////// and now we just get to draw a square
+        // ... might be worth pre-multiplying the verts to avoid the push/mult/pop entirely?
+        // ... or setting these up as a VBO since they're always the same
+        // ... or batching everything that shares a texture into one billboard array
+        
         ci::Vec2f verts[4];
 		GLfloat texCoords[8] = { 0, 0, 0, 1, 1, 0, 1, 1 };
 		
