@@ -222,14 +222,18 @@ void World::update( float param1, float param2 )
 		if( mIsRepulsing ){
 			repulseNodes();
 		}
+
+        // reset mPlayingTrackNode before Node::update() has a chance to delete it
+        // in future: this is why we should be using shared pointers :(
+        const Node *ptn = mPlayingTrackNode; // temp for shorter next line
+        const bool playingTrackNodeWillDieNextUpdate = ptn && (ptn->mDeathCount == ptn->mDeathThresh);
+        if (playingTrackNodeWillDieNextUpdate) {
+            mPlayingTrackNode = NULL;
+        }
 		
 		for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 			(*it)->update( param1, param2 );
-		}
-        
-        if (mPlayingTrackNode && mPlayingTrackNode->isDead()) {
-            mPlayingTrackNode = NULL;
-        }
+		}        
 	}
 }
 
