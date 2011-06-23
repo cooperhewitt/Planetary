@@ -830,7 +830,7 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
             NodeTrack* trackNode = dynamic_cast<NodeTrack*>(node);
             if (trackNode) {
                 if ( mIpodPlayer.hasPlayingTrack() ){
-                    if ( trackNode->getId() != mPlayingTrack->getItemId() ) {
+                    if ( !mPlayingTrack || trackNode->getId() != mPlayingTrack->getItemId() ) {
                         mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
                     }
                 }
@@ -1119,17 +1119,24 @@ void KeplerApp::update()
         updateArcball();
 
         const int elapsedFrames = getElapsedFrames();
+        const float elapsedSeconds = getElapsedSeconds();
+        
+        // local static variable is only initalized once and then remembered from frame to frame
+        static float playheadUpdateSeconds = -1;
         
         // fake playhead time if we're dragging (so it looks really snappy)
         if (mPlayControls.playheadIsDragging()) {
             mCurrentTrackPlayheadTime = mCurrentTrackLength * mPlayControls.getPlayheadValue();
+            playheadUpdateSeconds = -1;
         }
-        else if (elapsedFrames % 30) {
+        else if (elapsedSeconds - playheadUpdateSeconds > 1) {
             mCurrentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
+            playheadUpdateSeconds = elapsedSeconds;
         }
 
 		if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
-			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime );
+            float correction = playheadUpdateSeconds == -1 ? 0.0f : elapsedSeconds - playheadUpdateSeconds;
+			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime + correction );
 		}
 		
 		const float scaleSlider = mPlayControls.getParamSlider1Value();
@@ -1143,7 +1150,7 @@ void KeplerApp::update()
         
         mWorld.updateGraphics( mCam, bbRight, bbUp, mFadeInAlphaToArtist );
 
-        mGalaxy.update( mEye, mFadeInAlphaToArtist, getElapsedSeconds(), bbRight, bbUp );
+        mGalaxy.update( mEye, mFadeInAlphaToArtist, elapsedSeconds, bbRight, bbUp );
 		
 		Node *selectedArtistNode = mState.getSelectedArtistNode();
 		if( selectedArtistNode ){
