@@ -1140,7 +1140,7 @@ void KeplerApp::update()
             mPlayheadUpdateSeconds = elapsedSeconds;
         }
 
-		if( mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
+		if( mPlayingTrack && mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
             const bool isPaused = (mCurrentPlayState == ipod::Player::StatePaused);
             const bool isDragging = mPlayControls.playheadIsDragging();
             const bool skipCorrection = (isPaused || isDragging);
@@ -1684,12 +1684,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                                       + " • " + mPlayingTrack->getTitle() + " " );
 
         // make doubly-sure we're focused on the correct letter
-		if( mState.getFilterMode() == State::FilterModeAlphaChar ){
-            mState.setAlphaChar( artistName );
-        }
-        else {
-            // FIXME: playlist related update goes here?
-        }
+        mState.setAlphaChar( artistName );
+        // FIXME: which playlist related update goes here?
         
         uint64_t artistId = mPlayingTrack->getArtistId();
         uint64_t albumId = mPlayingTrack->getAlbumId();
