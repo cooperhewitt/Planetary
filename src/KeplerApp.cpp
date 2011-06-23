@@ -1075,7 +1075,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
                     if (mCurrentPlayState == ipod::Player::StatePlaying) {
                         mIpodPlayer.pause();
                     }
-                    else if (mCurrentPlayState == ipod::Player::StatePaused) {
+                    else { // if pause or stopped
                         mIpodPlayer.play();
                     }                    
                 }
@@ -1137,8 +1137,9 @@ void KeplerApp::update()
 
 		if( mPlayingTrack && mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
             const bool isPaused = (mCurrentPlayState == ipod::Player::StatePaused);
+            const bool isStopped = (mCurrentPlayState == ipod::Player::StateStopped);
             const bool isDragging = mPlayControls.playheadIsDragging();
-            const bool skipCorrection = (isPaused || isDragging);
+            const bool skipCorrection = (isPaused || isStopped || isDragging);
             float correction = skipCorrection ? 0.0f : (elapsedSeconds - mPlayheadUpdateSeconds);
 			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime + correction );
 		}
