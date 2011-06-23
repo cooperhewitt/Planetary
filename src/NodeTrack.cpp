@@ -543,8 +543,8 @@ void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 		
 		gl::color( ColorA( mShadowPer, mShadowPer, mShadowPer, alpha * mClosenessFadeAlpha * mEclipseDirBasedAlpha * mDeathPer ) );
 		directionalTex.enableAndBind();
-		bloom::gl::drawBillboard( mPos, radius, -mEclipseAngle, mBbRight, mBbUp );
-		//bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, mParentNode->mParentNode->mPos, radius );        
+		//bloom::gl::drawBillboard( mPos, radius, -mEclipseAngle, mBbRight, mBbUp );
+		bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, mParentNode->mParentNode->mPos, radius );        
 		directionalTex.disable();
 	}
 }

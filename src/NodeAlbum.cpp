@@ -434,7 +434,8 @@ void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 		gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha ) );
 		directionalTex.enableAndBind();
 		//bloom::gl::drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -mEclipseAngle );
-		bloom::gl::drawBillboard( mPos, radius, -mEclipseAngle, mBbRight, mBbUp );
+		//bloom::gl::drawBillboard( mPos, radius, -mEclipseAngle, mBbRight, mBbUp );
+		bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, mParentNode->mPos, radius );        
 //		if( mIsPlaying ) std::cout << -toDegrees( mEclipseAngle ) << std::endl;
 		directionalTex.disable();
 		

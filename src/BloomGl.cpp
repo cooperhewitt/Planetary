@@ -7,6 +7,7 @@
 //
 
 #include "BloomGl.h"
+#include "cinder/Quaternion.h"
 
 using namespace ci;
 
@@ -128,8 +129,34 @@ namespace bloom { namespace gl {
     void drawSphericalRotatedBillboard( const ci::Vec3f &pos, const ci::Vec3f &lookAt, const ci::Vec3f &turnAt, const ci::Vec2f &scale )
     {
         glPushMatrix();
-        ci::gl::translate( pos );
 
+        // hacked together from three.js's Matrix4.lookAt...
+        
+		Vec3f z = ( pos - lookAt ).normalized();
+        
+		if ( z.length() == 0 ) {
+			z.z = 1;
+		}
+        
+        Vec3f up = turnAt - pos;
+        
+		Vec3f x = up.cross(z).normalized();
+        
+		if ( x.length() == 0 ) {
+			z.x += 0.0001;
+			x = up.cross(z).normalized();
+		}
+        
+        Vec3f y = z.cross(x).normalized();
+    
+        float m[16];
+        m[ 0] = x.x; m[ 4] = y.x; m[ 8] = z.x; m[12] = pos.x;
+        m[ 1] = x.y; m[ 5] = y.y; m[ 9] = z.y; m[13] = pos.y;
+        m[ 2] = x.z; m[ 6] = y.z; m[10] = z.z; m[14] = pos.z;
+        m[ 3] = 0;   m[ 7] = 0;   m[11] = 0;   m[15] = 1;
+            
+        glMultMatrixf(m);
+        
         ci::Vec2f verts[4];
 		GLfloat texCoords[8] = { 0, 0, 0, 1, 1, 0, 1, 1 };
 		
@@ -139,9 +166,9 @@ namespace bloom { namespace gl {
 		glTexCoordPointer( 2, GL_FLOAT, 0, texCoords );
 				
 		verts[0] = ci::Vec2f(-0.5f,-0.5f) * scale;
-		verts[1] = ci::Vec2f(0.5f,-0.5f)  * scale;
-		verts[2] = ci::Vec2f(0.5f,0.5f)   * scale;
-		verts[3] = ci::Vec2f(-0.5f,0.5f)  * scale;
+		verts[1] = ci::Vec2f(-0.5f, 0.5f) * scale;
+		verts[2] = ci::Vec2f( 0.5f,-0.5f) * scale;
+		verts[3] = ci::Vec2f( 0.5f, 0.5f) * scale;
         
 		glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
 		
