@@ -233,7 +233,7 @@ class KeplerApp : public AppCocoaTouch {
 // GALAXY
     Galaxy mGalaxy;
 	
-	float			mTime;
+	float			mSelectionTime;
     bool            mRemainingSetupCalled; // setup() is short and fast, remainingSetup() is slow
 };
 
@@ -352,13 +352,12 @@ void KeplerApp::remainingSetup()
 // NOTIFICATION OVERLAY
 	mNotificationOverlay.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontLarge );
 	
-	
 // TOUCH VARS
 	mTouchPos			= getWindowCenter();
 	mTouchVel			= Vec2f(2.1f, 0.3f );
 	mIsDragging			= false;
     mIsTouching         = false;
-	mTime				= getElapsedSeconds();
+	mSelectionTime		= getElapsedSeconds();
 	mTimePinchEnded		= 0.0f;
 	mPinchRecognizer.init(this);
     mPinchRecognizer.registerBegan( this, &KeplerApp::onPinchBegan );
@@ -726,8 +725,8 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
     mOrientationMatrix = getOrientationMatrix44( mInterfaceOrientation, getWindowSize() );
     mInverseOrientationMatrix = mOrientationMatrix.inverted();
     
-    if( ! G_USE_GYRO )  mUp = getUpVectorForOrientation( mInterfaceOrientation );
-	else				mUp = Vec3f::yAxis();
+    if( ! G_USE_GYRO ) mUp = getUpVectorForOrientation( mInterfaceOrientation );
+	else			   mUp = Vec3f::yAxis();
 
     mLoadingScreen.setInterfaceOrientation(orientation);
     if (mData.getState() == Data::LoadStateComplete) {
@@ -749,7 +748,6 @@ bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 		mFovDest = G_MAX_FOV;
 	} else {
 		G_HELP = false; 
-        
 		mFovDest = G_DEFAULT_FOV;
 	}
     
@@ -760,15 +758,7 @@ bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 
 bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 {
-	mState.setAlphaChar( alphaWheel->getAlphaChar() );
-	
-	stringstream s;
-	s.str("");
-	s << "FILTERING ARTISTS BY '";
-	s << alphaWheel->getAlphaChar();
-	s << "'";
-
-	mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), s.str() );
+	mState.setAlphaChar( alphaWheel->getAlphaChar() );	
 	return false;
 }
 
@@ -781,11 +771,15 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
         mState.setSelectedNode( NULL );
         mPlayControls.setPlaylist( "" ); // FIXME: should be setPlaylistActive(true/false)
 
+        stringstream s;
+        s << "FILTERING ARTISTS BY '" << mState.getAlphaChar() << "'";
+        mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), s.str() );        
+        
         std::map<string, string> params;
         params["Letter"] = toString( mState.getAlphaChar() );
         params["Count"] = toString( mWorld.getNumFilteredNodes() );
         logEvent("Letter Selected" , params);
-    }    
+    }
 	return false;
 }
 
@@ -810,7 +804,7 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
 
 bool KeplerApp::onSelectedNodeChanged( Node *node )
 {
-	mTime			= getElapsedSeconds();
+	mSelectionTime	= getElapsedSeconds();
 	mCenterFrom		= mCenter;
 	mCamDistFrom	= mCamDist;	
 	mPinchPerFrom	= mPinchPer;
@@ -1048,7 +1042,6 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 				nodeWithHighestGen = *it;
 			}
 		}
-		
 		
 		if( nodeWithHighestGen ){
 			if( highestGen == G_ARTIST_LEVEL ){
@@ -1297,7 +1290,7 @@ void KeplerApp::updateCamera()
 	if( distToTravel < 1.0f )		duration = 2.0;
 	else if( distToTravel < 5.0f )	duration = 2.75f;
 //	double duration = 2.0f;
-	double p		= constrain( getElapsedSeconds()-mTime, 0.0, duration );
+	double p		= constrain( getElapsedSeconds()-mSelectionTime, 0.0, duration );
 	
 	mCenter			= easeInOutCubic( p, mCenterFrom, (mCenterDest + mCenterOffset) - mCenterFrom, duration );
 //	mCenter			= easeInOutCubic( p, mCenterFrom, mCenterDest - mCenterFrom, duration );
@@ -1654,14 +1647,19 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
         uint64_t trackId = newTrack->getItemId();
         
-        if (mPlayingTrack && trackId == mPlayingTrack->getItemId() && mWorld.mPlayingTrackNode && mWorld.mPlayingTrackNode->getId() == trackId) {
-            //std::cout << "skipping needless onPlayerTrackChange" << std::endl;
+        const bool trackIsCorrect = (mPlayingTrack && trackId == mPlayingTrack->getItemId());
+        const bool nodeIsCorrect = (mWorld.mPlayingTrackNode && trackId == mWorld.mPlayingTrackNode->getId());
+        
+        if (trackIsCorrect && nodeIsCorrect) {
+            // skip needless onPlayerTrackChange
             return false;
         }
 
+        // remember the new track
         mPlayingTrack = newTrack;
-
         mCurrentTrackLength = mPlayingTrack->getLength();
+        
+        // reset the mPlayingTrackNode orbit and playhead displays (see update())
         mPlayheadUpdateSeconds = -1;
         
         string artistName = mPlayingTrack->getArtist();
@@ -1671,8 +1669,12 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                                       + " • " + mPlayingTrack->getTitle() + " " );
 
         // make doubly-sure we're focused on the correct letter
-        // FIXME: only if the filter mode is alpha
-        mState.setAlphaChar( artistName );
+		if( mState.getFilterMode() == State::FilterModeAlphaChar ){
+            mState.setAlphaChar( artistName );
+        }
+        else {
+            // FIXME: playlist related update goes here?
+        }
         
         uint64_t artistId = mPlayingTrack->getArtistId();
         uint64_t albumId = mPlayingTrack->getAlbumId();
@@ -1686,20 +1688,25 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
             mState.setSelectedNode( mWorld.getTrackNodeById( artistId, albumId, trackId ) );
         }
 
-        // then sync the mIsPlaying state for all nodes...
+        // then sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
         mWorld.updateIsPlaying( artistId, albumId, trackId );
 	}
 	else {
         
+        // can't assign shared pointers to NULL, so this is it:
         mPlayingTrack.reset();
-        
-        mCurrentTrackLength = 0;
+        mCurrentTrackLength = 0; // reset cached track stuff
+
+        // calibrate time labels and orbit positions in update()
         mPlayheadUpdateSeconds = -1;
         
+        // tidy up
         mPlayControls.setCurrentTrack("");
-		// go to album level view when the last track ends:
+        
+		// go to album level view (or NULL) when the last track ends:
 		mState.setSelectedNode( mState.getSelectedAlbumNode() );
-        // FIXME: disable play button and zoom-to-current-track button
+        
+        // FIXME: should we disable play button and zoom-to-current-track button?
         
         // this should be OK to do since the above will happen if something is queued and paused
         mWorld.updateIsPlaying( 0, 0, 0 );        
@@ -1712,32 +1719,20 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
+    // this should be the only call to getPlayState()
+    // TODO: modify CinderIPod library to pass the new play state directly
     mCurrentPlayState = mIpodPlayer.getPlayState();
 
+    // update UI:
     mPlayControls.setPlaying(mCurrentPlayState == ipod::Player::StatePlaying);
     
-    // be sure the track moon and elapsed time things get an update
+    // be sure the track moon and elapsed time things get an update:
     mPlayheadUpdateSeconds = -1;    
+
+    // make sure mCurrentTrack and mWorld.mPlayingTrackNode are taken care of:
+    onPlayerTrackChanged( player );
     
-    if ( mState.getSelectedNode() == NULL ) {
-        onPlayerTrackChanged( player );
-    }
-    else {
-        // update mIsPlaying state for all nodes...
-        if ( mIpodPlayer.hasPlayingTrack() ){
-            if (!mPlayingTrack) {
-                onPlayerTrackChanged( player );                
-            }
-            else {
-                mWorld.updateIsPlaying( mPlayingTrack->getArtistId(), mPlayingTrack->getAlbumId(), mPlayingTrack->getItemId() );
-            }
-        }
-        else {
-            // this should be OK to do since the above will happen if something is queued and paused
-            mWorld.updateIsPlaying( 0, 0, 0 );
-        }
-    }
-    
+    // do stats:
     std::map<string, string> params;
     params["State"] = mIpodPlayer.getPlayStateString();
     logEvent("Player State Changed", params);

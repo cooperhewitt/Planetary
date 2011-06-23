@@ -101,8 +101,6 @@ void World::updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t track
 {
 	mPlayingTrackNode = NULL;
 	
-    if (G_DEBUG) std::cout << "update is playing" << std::endl;
-    
     // TODO: proper iterators I suppose?
     for (int i = 0; i < mNodes.size(); i++) {
         NodeArtist* artistNode = mNodes[i];
