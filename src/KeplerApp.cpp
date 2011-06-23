@@ -509,6 +509,8 @@ void KeplerApp::initTextures()
         mGalaxyTex                = gl::Texture( loadImage( loadResource( "galaxyCropped.jpg" ) ), mipFmt );
         mDarkMatterTex            = gl::Texture( loadImage( loadResource( "darkMatterFull.png" ) )/*, fmt*/ );
     }
+    // FIXME: do this at creation time to avoid rejiggering
+    mDarkMatterTex.setWrap(GL_REPEAT, GL_CLAMP_TO_EDGE);
     
 	mOrbitRingGradientTex     = gl::Texture( loadImage( loadResource( "orbitRingGradient.png" ) ), mipFmt );
 	mTrackOriginTex           = gl::Texture( loadImage( loadResource( "origin.png" ) ), mipFmt );
@@ -797,12 +799,16 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
         
 	mPlayControls.setPlaylist( playlistName );
 
+    string br = " "; // break with spaces
     if (playlistName.size() > 20) {
-        playlistName = playlistName.substr(0, 17) + "...";
+        br = "\n"; // break with newline instead
+        if (playlistName.size() > 40) {
+            playlistName = playlistName.substr(0, 35) + "..."; // ellipsis for long long playlist names
+        }
     }
     
     stringstream s;
-    s << "SHOWING ARTISTS FROM" << "\n" << "'" << playlistName << "'";
+    s << "SHOWING ARTISTS FROM" << br << "'" << playlistName << "'";
     mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), s.str() );            
 	
     std::map<string, string> parameters;

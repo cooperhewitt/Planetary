@@ -236,27 +236,27 @@ void Galaxy::initDarkMatterVertexArray()
         const float texRepeat = G_USE_COMPRESSED ? 2.0f : 1.0f;
         
 		mDarkMatterVerts[vert].vertex = v1;
-		mDarkMatterVerts[vert].texture = Vec2f(fmod(per1 * texRepeat,1.0f), 0.0f);
+		mDarkMatterVerts[vert].texture = Vec2f(per1 * texRepeat, 0.0f);
 		vert++;
 
         mDarkMatterVerts[vert].vertex = v2;
-		mDarkMatterVerts[vert].texture = Vec2f(fmod(per2 * texRepeat,1.0f), 0.0f);
+		mDarkMatterVerts[vert].texture = Vec2f(per2 * texRepeat, 0.0f);
 		vert++;
 
         mDarkMatterVerts[vert].vertex = v3;
-		mDarkMatterVerts[vert].texture = Vec2f(fmod(per1 * texRepeat,1.0f), 1.0f);
+		mDarkMatterVerts[vert].texture = Vec2f(per1 * texRepeat, 1.0f);
 		vert++;
 
         mDarkMatterVerts[vert].vertex = v2;
-		mDarkMatterVerts[vert].texture = Vec2f(fmod(per2 * texRepeat,1.0f), 0.0f);
+		mDarkMatterVerts[vert].texture = Vec2f(per2 * texRepeat, 0.0f);
 		vert++;
 
         mDarkMatterVerts[vert].vertex = v4;
-		mDarkMatterVerts[vert].texture = Vec2f(fmod(per2 * texRepeat,1.0f), 1.0f);
+		mDarkMatterVerts[vert].texture = Vec2f(per2 * texRepeat, 1.0f);
 		vert++;
 
         mDarkMatterVerts[vert].vertex = v3;
-		mDarkMatterVerts[vert].texture = Vec2f(fmod(per1 * texRepeat,1.0f), 1.0f);
+		mDarkMatterVerts[vert].texture = Vec2f(per1 * texRepeat, 1.0f);
 		vert++;
 	}
     
