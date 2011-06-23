@@ -226,6 +226,10 @@ void World::update( float param1, float param2 )
 		for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 			(*it)->update( param1, param2 );
 		}
+        
+        if (mPlayingTrackNode && mPlayingTrackNode->isDead()) {
+            mPlayingTrackNode = NULL;
+        }
 	}
 }
 

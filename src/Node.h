@@ -58,6 +58,7 @@ class Node {
 
 	void			setIsDying( bool isDying );
     bool            isDying() { return mIsDying; }
+    bool            isDead() { return mIsDead; }
 	
 	virtual bool	isMostPlayed(){ return false; }
 	virtual float	getReleaseYear(){ return 0.0f; };
