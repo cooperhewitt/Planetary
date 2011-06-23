@@ -56,22 +56,16 @@ void NotificationOverlay::draw()
         alpha = 1.0f - (elapsedSince - mFadeDelay) / mFadeDuration;
     }
     
-	Vec2f center = Vec2f( mInterfaceSize.x * 0.5f, mInterfaceSize.y - 250.0f );
-	
-    Vec2f iconTopLeft(			center.x - mCurrentSrcArea.getWidth()/2.0f, center.y - mCurrentSrcArea.getHeight()/2.0f );
-    Vec2f iconBottomRight(		center.x + mCurrentSrcArea.getWidth()/2.0f, center.y + mCurrentSrcArea.getHeight()/2.0f );
-    Rectf iconRect( iconTopLeft, iconBottomRight );
+	Vec2f pos = Vec2f( mInterfaceSize.x * 0.5f, mInterfaceSize.y - 250.0f - mMessageTexture.getHeight() );
+	Vec2f iconSize = mCurrentSrcArea.getSize();
+    
+    Rectf iconRect( pos - iconSize/2.0f, pos + iconSize/2.0f );
     
 	float halfWidth = mMessageTexture.getWidth() * 0.5f;
-	Vec2f messageTopLeft(		center.x - halfWidth, iconBottomRight.y - 10.0f );
-	Vec2f messageBottomRight(	center.x + halfWidth, iconBottomRight.y + mMessageTexture.getHeight() - 10.0f );
+	Vec2f messageTopLeft(	  pos.x - halfWidth, iconRect.y2 - 10.0f );
+	Vec2f messageBottomRight( pos.x + halfWidth, iconRect.y2 + mMessageTexture.getHeight() - 10.0f );
 	Rectf messageRect( messageTopLeft, messageBottomRight );
-	
-	float border = 20.0f;
-	Vec2f blackBgTopLeft(		messageTopLeft.x - border, iconTopLeft.y - 5.0f );
-	Vec2f blackBgBottomRight(	messageBottomRight.x + border, messageBottomRight.y + border );
-	Rectf blackBgRect( blackBgTopLeft, blackBgBottomRight );
-	
+		
 	glPushMatrix();
     glMultMatrixf( mOrientationMatrix );
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha ) );
