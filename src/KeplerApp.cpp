@@ -1057,24 +1057,20 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 				nodeWithHighestGen = *it;
 			}
 		}
+
+        const bool thisIsTheSelectedNode = (mState.getSelectedNode() == nodeWithHighestGen);
+ 
+        if (!thisIsTheSelectedNode) {
+            mState.setSelectedNode( nodeWithHighestGen );
+        }
 		
-		if( nodeWithHighestGen ){
+		if( nodeWithHighestGen ){            
 			if( highestGen == G_ARTIST_LEVEL ){
-				if( ! mState.getSelectedArtistNode() ) {
-                    console() << "setting artist node selection" << std::endl;                                        
-                    logEvent("Artist Node Touched");                    
-					mState.setSelectedNode( nodeWithHighestGen );
-                }
-//                else {
-//                    console() << "ignoring artist node selection" << std::endl;                                        
-//                }
+                logEvent("Artist Node Touched");                    
 			} 
             else if ( highestGen == G_TRACK_LEVEL ){
                 logEvent("Track Node Touched");
-				if( nodeWithHighestGen != mState.getSelectedNode() ) {                    
-                    mState.setSelectedNode( nodeWithHighestGen );
-                }
-                else {
+                if (thisIsTheSelectedNode) {
                     // if this is already the selected node, just toggle the play state
                     if (mCurrentPlayState == ipod::Player::StatePlaying) {
                         mIpodPlayer.pause();
@@ -1083,7 +1079,6 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
                         mIpodPlayer.play();
                     }                    
                 }
-                
             }
             else {
                 logEvent("Album Node Touched");
