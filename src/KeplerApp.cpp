@@ -509,9 +509,7 @@ void KeplerApp::initTextures()
         mGalaxyTex                = gl::Texture( loadImage( loadResource( "galaxyCropped.jpg" ) ), mipFmt );
         mDarkMatterTex            = gl::Texture( loadImage( loadResource( "darkMatterFull.png" ) )/*, fmt*/ );
     }
-    // FIXME: do this at creation time to avoid rejiggering
-    mDarkMatterTex.setWrap(GL_REPEAT, GL_CLAMP_TO_EDGE);
-    
+
 	mOrbitRingGradientTex     = gl::Texture( loadImage( loadResource( "orbitRingGradient.png" ) ), mipFmt );
 	mTrackOriginTex           = gl::Texture( loadImage( loadResource( "origin.png" ) ), mipFmt );
 
