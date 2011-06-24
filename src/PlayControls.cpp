@@ -486,8 +486,12 @@ void PlayControls::draw(float y)
 
     // FIXME: need label gradients for playlist label as well - perhaps move into scrolling label class?
 
-//    gl::color( Color( 1.0f, 0.0f, 0.0f ) );    
-//    gl::drawStrokedRect(mPlaylistLabel.getRect());    
+    if (G_DEBUG) {
+        gl::color( ColorA( 1.0f, 0.0f, 0.0f, 0.2f ) );    
+        for (int i = 0; i < drawableElements.size(); i++) {
+            gl::drawStrokedRect(interactiveElements[i]->getRect());
+        }        
+    }
     
     glPopMatrix();
     
