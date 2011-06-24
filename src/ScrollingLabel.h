@@ -39,6 +39,8 @@ public:
 
 	bool isScrollingText() { return mIsScrolling; }
 
+    void setColor(Color color) { mColor = color; updateTexture(); }
+    
 private:
     
     void updateTexture();

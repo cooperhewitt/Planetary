@@ -37,6 +37,8 @@ public:
     
 private:
 
+    // FIXME: use a "DYNAMIC" VBO, or a VAO, or at least interleave these verts
+    // consider using GL_POINT_SPRITE too (if we can figure out distance attenuation)
 	int mTotalVertices;
     int mPrevTotalVertices; // so we only recreate frames
 	float *mVerts;

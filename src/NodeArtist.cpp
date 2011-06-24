@@ -177,7 +177,7 @@ void NodeArtist::drawPlanet( const gl::Texture &tex )
             mLoSphere->draw();
 		}
         
-        //tex.disable();
+        tex.disable();
         glEnable(GL_LIGHTING);        
 		glPopMatrix();		
 	}

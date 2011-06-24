@@ -102,6 +102,7 @@ class KeplerApp : public AppCocoaTouch {
 
 	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
 	bool			onPlayControlsPlayheadMoved ( float amount );
+    void            updatePlaylistControls();
 	
     bool			onSelectedNodeChanged( Node *node );
 
@@ -138,6 +139,7 @@ class KeplerApp : public AppCocoaTouch {
 	ipod::Player		mIpodPlayer;
     ipod::TrackRef      mPlayingTrack;
 	int					mPlaylistIndex; // FIXME: move this into State
+    int                 mPlaylistDisplayOffset;
     double              mCurrentTrackLength; // cached by onPlayerTrackChanged
     double              mCurrentTrackPlayheadTime;
     double              mPlayheadUpdateSeconds;
@@ -402,6 +404,7 @@ void KeplerApp::remainingSetup()
     mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
     mIpodPlayer.registerLibraryChanged( this, &KeplerApp::onPlayerLibraryChanged );
 	mPlaylistIndex = 0;
+    mPlaylistDisplayOffset = 0;
 	
     // DATA
     mData.setup(); // NB:- is asynchronous, see update() for what happens when it's done
@@ -785,10 +788,10 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 
 bool KeplerApp::onPlaylistStateChanged( State *state )
 {
-	std::cout << "playlist changed" << std::endl;
-
     ipod::PlaylistRef playlist = mState.getPlaylist();
     string playlistName = playlist->getPlaylistName();
+
+	std::cout << "playlist changed to " << playlistName << std::endl;
     
     mState.setAlphaChar( ' ' );
     mWorld.setFilter( PlaylistFilter(playlist) );
@@ -797,6 +800,8 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
         
 	mPlayControls.setPlaylist( playlistName );
 
+    /////// notifications...
+    
     string br = " "; // break with spaces
     if (playlistName.size() > 20) {
         br = "\n"; // break with newline instead
@@ -804,11 +809,12 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
             playlistName = playlistName.substr(0, 35) + "..."; // ellipsis for long long playlist names
         }
     }
-    
     stringstream s;
     s << "SHOWING ARTISTS FROM" << br << "'" << playlistName << "'";
     mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), s.str() );            
 	
+    /////// stats...
+    
     std::map<string, string> parameters;
     parameters["Playlist"] = mState.getPlaylist()->getPlaylistName();
     parameters["Count"] = toString( mWorld.getNumFilteredNodes() );    
@@ -1013,19 +1019,25 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
 			
 		case PlayControls::NEXT_PLAYLIST:
-			mPlaylistIndex++;
-            if (mPlaylistIndex > mData.mPlaylists.size() - 1) {
-                mPlaylistIndex = 0;
-            }
-            mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
+            // don't select a playlist, just change the one that's displayed on mPlayControls
+            mPlaylistDisplayOffset++;
+            updatePlaylistControls();
             break;
-			
-		case PlayControls::PREV_PLAYLIST:
-            mPlaylistIndex--;
-            if (mPlaylistIndex < 0) {
-                mPlaylistIndex = mData.mPlaylists.size() -1;
-            }
+
+        case PlayControls::SELECT_PLAYLIST:
+            // select a playlist and reset the offset
+            mPlaylistIndex = mPlaylistIndex + mPlaylistDisplayOffset;
+            mPlaylistDisplayOffset = 0;
+            while (mPlaylistIndex < 0) mPlaylistIndex += mData.mPlaylists.size();
+            if (mPlaylistIndex >= mData.mPlaylists.size()) mPlaylistIndex %= mData.mPlaylists.size(); 
+            mPlayControls.setPlaylistSelected(true);
             mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
+            break;	
+
+		case PlayControls::PREV_PLAYLIST:
+            // don't select a playlist, just change the one that's displayed on mPlayControls
+            mPlaylistDisplayOffset--;
+            updatePlaylistControls();
             break;	
 			
 		case PlayControls::SHOW_WHEEL:
@@ -1039,6 +1051,20 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 	} // switch
 
 	return false;
+}
+
+void KeplerApp::updatePlaylistControls()
+{
+    int showPlaylist =  mPlaylistIndex + mPlaylistDisplayOffset;
+    while (showPlaylist < 0) {
+        showPlaylist += mData.mPlaylists.size();
+    }
+    if (showPlaylist >= mData.mPlaylists.size()) {
+        showPlaylist %= mData.mPlaylists.size(); 
+    }
+    mPlayControls.setPlaylist( mData.mPlaylists[showPlaylist]->getPlaylistName() );
+    const bool playlistMode = (mState.getFilterMode() == State::FilterModePlaylist);
+    mPlayControls.setPlaylistSelected( playlistMode && (mPlaylistDisplayOffset == 0) );
 }
  
 void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )

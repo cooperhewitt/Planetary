@@ -156,7 +156,7 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, ipod::Pla
 
     /////// no textures please, we're British...
     
-    mPlaylistLabel.setup(NO_BUTTON, font, Color::white());    
+    mPlaylistLabel.setup(SELECT_PLAYLIST, font, BRIGHT_BLUE);    
     
     mTrackInfoLabel.setup(NO_BUTTON, font, BRIGHT_BLUE);
     
@@ -191,6 +191,18 @@ void PlayControls::setup( AppCocoaTouch *app, Orientation orientation, ipod::Pla
     // make drawable and interactive vectors for ::draw() and ::touchXXX
     updateElements();
 }
+
+void PlayControls::setPlaylistSelected(const bool &selected) 
+{ 
+    mPlaylistLabel.setColor(selected ? Color::white() : BRIGHT_BLUE);
+}
+
+void PlayControls::setPlaylist(const string &playlist)
+{ 
+    mPlaylistLabel.setText(playlist); 
+    mPlaylistLabel.setLastTrackChangeTime(app::getElapsedSeconds()); // FIXME: rename to setScrollBeginTime or something?
+}    
+
 
 void PlayControls::update()
 {
@@ -336,8 +348,9 @@ void PlayControls::updateUIRects()
 	x1 = x2 + 10.0f;
 	x2 = x1 + 300.0f;
 	y1 += 12.0f;
-	// FIX ME! vvv
-	y2 = y1 + 12.0f;
+	// this 18.0f offset is a hack to make hit-testing work
+    // rect is used for layout and for hit-testing, but ScrollingLabel.draw compensates for this
+	y2 = y1 + 18.0f;
 	mPlaylistLabel.setRect( x1, y1, x2, y2 );
     
     const float bgx1 = sliderInset;
@@ -429,6 +442,7 @@ void PlayControls::updateElements()
         interactiveElements.push_back(&mDebugButton);
         if( G_IS_IPAD2 ) interactiveElements.push_back(&mGyroButton); // FIXME: only if we're using Gyro
 		interactiveElements.push_back(&mPreviousPlaylistButton);
+		interactiveElements.push_back(&mPlaylistLabel);	        
         interactiveElements.push_back(&mNextPlaylistButton);
     }
     interactiveElements.push_back(&mPreviousTrackButton);
@@ -470,6 +484,11 @@ void PlayControls::draw(float y)
     bloom::gl::batchRect( mButtonsTex, aLeft, coverRight );
     bloom::gl::endBatch(); // FIXME: could be the same batch, why not working?
 
+    // FIXME: need label gradients for playlist label as well - perhaps move into scrolling label class?
+
+//    gl::color( Color( 1.0f, 0.0f, 0.0f ) );    
+//    gl::drawStrokedRect(mPlaylistLabel.getRect());    
+    
     glPopMatrix();
     
     //gl::disableAlphaBlending();    

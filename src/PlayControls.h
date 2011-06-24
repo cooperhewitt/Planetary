@@ -34,10 +34,13 @@ using namespace std;
 class PlayControls {
 public:
 
-	enum ButtonId { NO_BUTTON, PREV_PLAYLIST, NEXT_PLAYLIST, SHOW_WHEEL,
-                    GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, PREV_TRACK, 
-                    PLAY_PAUSE, NEXT_TRACK, SHUFFLE, REPEAT, SLIDER, PARAMSLIDER1, PARAMSLIDER2, 
-					HELP, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE };
+	enum ButtonId { NO_BUTTON, 
+                    PREV_PLAYLIST, SELECT_PLAYLIST, NEXT_PLAYLIST, 
+                    SHOW_WHEEL, GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, 
+                    PREV_TRACK, PLAY_PAUSE, NEXT_TRACK, 
+                    SHUFFLE, REPEAT, 
+                    HELP, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE,
+                    SLIDER, PARAMSLIDER1, PARAMSLIDER2 };
 
     PlayControls() {}
     ~PlayControls();
@@ -81,10 +84,12 @@ public:
     void setElapsedSeconds(int elapsedTime) { mElapsedTimeLabel.setSeconds(elapsedTime); }
     void setRemainingSeconds(int remainingTime) { mRemainingTimeLabel.setSeconds(remainingTime); }
     void setCurrentTrack(string currentTrack) { mTrackInfoLabel.setText(currentTrack); }
-    void setPlaylist(string playlist) { mPlaylistLabel.setText(playlist); mPlaylistLabel.setLastTrackChangeTime(app::getElapsedSeconds()); }
     void setLastTrackChangeTime(float time) { mTrackInfoLabel.setLastTrackChangeTime(time); }
     void setPlayheadProgress(float value) { mPlayheadSlider.setValue(value); }
-	
+    
+    void setPlaylist(const string &playlist);
+	void setPlaylistSelected(const bool &selected);
+    
     float getPlayheadValue() { return mPlayheadSlider.getValue(); }
 	float getParamSlider1Value(){ return mParamSlider1.getValue(); }
 	float getParamSlider2Value(){ return mParamSlider2.getValue(); }

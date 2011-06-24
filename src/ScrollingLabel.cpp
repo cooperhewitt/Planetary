@@ -38,7 +38,9 @@ void ScrollingLabel::draw()
 {    
     if (mTexture) {
         
-        // force texture height:
+        float restoreY2 = mRect.y2;
+        
+        // force texture height to be correct:
         mRect.y2 = mRect.y1 + mTexture.getHeight();
                 
         float ctSpaceWidth = mRect.x2 - mRect.x1;
@@ -70,5 +72,6 @@ void ScrollingLabel::draw()
             bloom::gl::batchRect( mTexture, a2, mRect );			
         }    
     
+        mRect.y2 = restoreY2; // this is a hack because mRect is also used for hit testing
     }
 }
