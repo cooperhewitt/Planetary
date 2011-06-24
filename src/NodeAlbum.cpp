@@ -335,7 +335,7 @@ void NodeAlbum::drawPlanet( const gl::Texture &tex )
 		// when the planet goes offscreen, the screenradius becomes huge. 
 		// so if the screen radius is greater than 600, assume it is offscreen and just render a lo-res version
 		// consider frustum culling?
-		if( mSphereScreenRadius < 600.0f ){
+		if( mSphereScreenRadius < 500.0f ){
 			if( mSphereScreenRadius > 75.0f ){
                 mHiSphere->draw();
 			} else if( mSphereScreenRadius > 35.0f ){
@@ -419,12 +419,10 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
 	if( mClosenessFadeAlpha > 0.0f ){		
-		Vec2f dir		= mScreenPos - center;
-		float dirLength = dir.length()/500.0f;
-		float alpha = ( 1.0f - dirLength * 0.75f ) + mEclipseStrength;
+		float alpha = ( 1.0f - mScreenDistToCenterPer * 0.75f ) + mEclipseStrength;
 		alpha *= mDeathPer * mClosenessFadeAlpha * ( mBlockedBySunPer - 0.5f ) * 2.0f;
 		Vec2f radius( mRadius, mRadius );
-		radius *= ( 2.46f + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) );
+		radius *= ( 2.42f + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) );
 		
 		gl::color( ColorA( BRIGHT_BLUE, 1.0f + mEclipseStrength * 2.0f ) );
 		tex.enableAndBind();

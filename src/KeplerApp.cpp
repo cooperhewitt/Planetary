@@ -134,7 +134,8 @@ class KeplerApp : public AppCocoaTouch {
     Matrix44f         mInverseOrientationMatrix;    
     
 // GYRO
-    GyroHelper        mGyroHelper;
+    GyroHelper			mGyroHelper;
+	Quatf				mPrevGyro;
     
 // AUDIO
 	ipod::Player		mIpodPlayer;
@@ -1175,7 +1176,10 @@ void KeplerApp::update()
         Vec3f bbRight, bbUp;
         mCam.getBillboardVectors( &bbRight, &bbUp );        
         
-        mWorld.updateGraphics( mCam, bbRight, bbUp, mFadeInAlphaToArtist );
+		
+		// FIXME: Tom, is this right? does getWindowSize return the proper size without needing to swizzle the xy for landscape mode?
+		Vec2f interfaceSize = getWindowSize();
+        mWorld.updateGraphics( mCam, interfaceSize * 0.5f, bbRight, bbUp, mFadeInAlphaToArtist );
 
         mGalaxy.update( mEye, mFadeInAlphaToArtist, elapsedSeconds, bbRight, bbUp );
 		
@@ -1339,15 +1343,33 @@ void KeplerApp::updateCamera()
 	mFadeInArtistToAlbum	= constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f );
 	mFadeInAlbumToTrack		= constrain( G_ZOOM - G_ALBUM_LEVEL, 0.0f, 1.0f );
 	
+	
+	
+	
+	if( G_IS_IPAD2 && G_USE_GYRO ){
+		Quatf currentGyro	= mGyroHelper.getQuat();
+		Quatf gyroStep		= mPrevGyro.inverse() * currentGyro;
+		mPrevGyro			= currentGyro;
+		
+		mArcball.setQuat( mArcball.getQuat() * gyroStep );
+	}
+	
+	
+	
     // apply the Arcball to the camera eye/up vectors
     // (instead of to the whole scene)
     Quatf q = mArcball.getQuat();
     q.w *= -1.0; // reverse the angle, keep the axis
 	
-    // TODO/FIXME/ROBERT: Robert test this?
-	if( G_IS_IPAD2 && G_USE_GYRO ){
-		q = mGyroHelper.getQuat();
-	}	
+//	// TODO/FIXME/ROBERT: Robert test this?
+//	if( G_IS_IPAD2 && G_USE_GYRO ){
+//		q = mGyroHelper.getQuat();
+//	}
+	
+
+
+	
+	
     
     Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);
     mEye = mCenter - camOffset;
@@ -1505,13 +1527,8 @@ void KeplerApp::drawScene()
 			glDisable( GL_LIGHTING );
 			gl::disableDepthRead();
 			
-			if( sortedNodes[i]->mGen == G_ARTIST_LEVEL ){
-				//gl::enableAlphaBlending();
-				//sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereSunTex, mAtmosphereDirectionalTex, mPinchAlphaPer );	
-			} else {
-				gl::enableAdditiveBlending();
-				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
-			}
+			gl::enableAdditiveBlending();
+			sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
 			
 		}
         
@@ -1590,14 +1607,13 @@ void KeplerApp::drawScene()
 	}
 		
 // LENSFLARE?!?!  SURELY YOU MUST BE MAD.
-	if( (G_IS_IPAD2 || G_DEBUG) && artistNode && artistNode->mDistFromCamZAxis > 0.0f ){
-		int numFlares  = 5;
-		float radii[7] = { 0.8f, 1.2f, 4.5f, 8.0f, 6.0f };
-		float dists[7] = { 0.8f, 1.0f, 1.5f, 1.70f, 2.0f };
+	if( (G_IS_IPAD2 || G_DEBUG) && artistNode && artistNode->mDistFromCamZAxis > 0.0f && artistNode->mEclipseStrength < 0.75f ){
+		int numFlares  = 3;
+		float radii[5] = { 4.5f, 18.0f, 12.0f };
+		float dists[5] = { 1.25f, 2.50f, 6.0f };
 		
-		float distFromCenter = artistNode->mScreenPos.distance( getWindowCenter() );
-		float distPer = constrain( 1.0f - distFromCenter/400.0f, 0.0f, 1.0f );
-		float alpha = distPer * 0.2f * sin( distPer * M_PI );
+		float distPer = constrain( 0.7f - artistNode->mScreenDistToCenterPer, 0.0f, 1.0f );
+		float alpha = distPer * 0.2f * mFadeInArtistToAlbum * sin( distPer * M_PI );
 
         gl::enableAlphaBlending();    
         gl::enableAdditiveBlending();		
@@ -1607,9 +1623,9 @@ void KeplerApp::drawScene()
 		float flareDist = flarePos.length();
 		Vec2f flarePosNorm = flarePos.normalized();
 		
+		gl::color( ColorA( BRIGHT_BLUE, alpha ) );
 		for( int i=0; i<numFlares; i++ ){
-			gl::color( ColorA( BRIGHT_BLUE, alpha ) );
-			flarePos = getWindowCenter() + flarePosNorm * dists[i] * dists[i] * flareDist;
+			flarePos = getWindowCenter() + flarePosNorm * dists[i] * flareDist;
 			float flareRadius = artistNode->mSphereScreenRadius * radii[i] * distPer;
 			gl::drawSolidRect( Rectf( flarePos.x - flareRadius, flarePos.y - flareRadius, flarePos.x + flareRadius, flarePos.y + flareRadius ) );
 		}

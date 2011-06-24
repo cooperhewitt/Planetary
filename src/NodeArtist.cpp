@@ -185,24 +185,17 @@ void NodeArtist::drawPlanet( const gl::Texture &tex )
 
 void NodeArtist::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
-	if( mIsHighlighted ){
-		Vec2f dir		= mScreenPos - center;
-		float dirLength = dir.length()/500.0f;
-		float angle		= atan2( dir.y, dir.x );
-		float stretch	= dirLength * mRadius * 0.1f;
-		float alpha = ( 1.0f - dirLength * 0.75f );
-		alpha *= mDeathPer;
-		
-//		gl::color( ColorA( ( mGlowColor + BRIGHT_BLUE ) * 0.5f, alpha * ( 0.2f - mHue ) * 15.0f ) );
+	if( mIsHighlighted && G_DEBUG ){
+		float alpha = ( 1.0f - mScreenDistToCenterPer * 0.75f );
+		alpha *= mDeathPer * 0.5f;
+
 		gl::color( ColorA( ( mColor + Color::white() ), alpha ) );
 		
 		float radiusOffset = ( ( mSphereScreenRadius/300.0f ) ) * 0.1f;
 		Vec2f radius = Vec2f( mRadius, mRadius ) * ( 2.46f + radiusOffset ) * 0.16f;
-		//Vec2f radius = Vec2f( mRadius, mRadius ) * 2.46f;
 		
 		tex.enableAndBind();
-		Vec3f posOffset = Vec3f( cos(angle), sin(angle), 0.0f ) * stretch * 0.1f;
-		bloom::gl::drawBillboard( mPos - posOffset, radius, -angle, mBbRight, mBbUp );
+		bloom::gl::drawSphericalBillboard( camEye, mPos, radius, 0.0f );
 		tex.disable();
 	}
 	//}
@@ -211,9 +204,8 @@ void NodeArtist::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const
 void NodeArtist::drawExtraGlow( const gl::Texture &tex )
 {
 	if( mIsHighlighted ){
-		Vec2f dir		= mScreenPos - app::getWindowCenter();
-		float dirLength = dir.length()/800.0f;
-		float alpha = ( 1.0f - dirLength ) * sin( mEclipseStrength * M_PI_2 + M_PI_2 );
+		float alpha = ( 1.0f - mScreenDistToCenterPer ) * sin( mEclipseStrength * M_PI_2 + M_PI_2 );
+
 		alpha *= mDeathPer;
 
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;

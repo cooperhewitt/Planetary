@@ -42,7 +42,9 @@ Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, co
 	mDistFromCamZAxis	= 1000.0f;
 	mDistFromCamZAxisPer = 1.0f;
 	mPlanetTexIndex		= 0;
-		
+	mScreenDirToCenter	= Vec2f::zero();
+	mScreenDistToCenterPer = 0.0f;
+	
 	mHitArea			= Rectf( 0.0f, 0.0f, 10.0f, 10.0f ); //just for init.
 	mHighlightStrength	= 0.0f;
 	
@@ -197,13 +199,15 @@ void Node::update( float param1, float param2 )
 	}
 }
 
-void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp, const float &w, const float &h )
+void Node::updateGraphics( const CameraPersp &cam, const Vec2f &center, const Vec3f &bbRight, const Vec3f &bbUp, const float &w, const float &h )
 {
 	mBbRight = bbRight;
 	mBbUp    = bbUp;
     
 	if( mIsHighlighted ){
         mScreenPos              = cam.worldToScreen( mPos, w, h );
+		mScreenDirToCenter		= mScreenPos - center;
+		mScreenDistToCenterPer	= mScreenDirToCenter.length()/500.0f;
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
 		mDistFromCamZAxis		= -cam.worldToEyeDepth( mPos );
 		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * 0.5f, 0.0f, 1.0f ); // REL: -0.35f
@@ -213,7 +217,7 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const V
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->updateGraphics( cam, mBbRight, mBbUp, w, h );
+		(*nodeIt)->updateGraphics( cam, center, mBbRight, mBbUp, w, h );
 	}
 }
 

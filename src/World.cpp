@@ -189,14 +189,14 @@ void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
     }
 }
 
-void World::updateGraphics( const CameraPersp &cam, const Vec3f &bbRight, const Vec3f &bbUp, const float &zoomAlpha )
+void World::updateGraphics( const CameraPersp &cam, const Vec2f &center, const Vec3f &bbRight, const Vec3f &bbUp, const float &zoomAlpha )
 {
     
     const float w = app::getWindowWidth();
     const float h = app::getWindowHeight();
     
 	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->updateGraphics( cam, bbRight, bbUp, w, h );
+		(*it)->updateGraphics( cam, center, bbRight, bbUp, w, h );
 	}
     
     if (mIsInitialized) {
