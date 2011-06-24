@@ -461,7 +461,7 @@ void NodeTrack::drawPlanet( const gl::Texture &tex )
             gl::rotate( mAxialRot );
             const float grey = mShadowPer + 0.2f;
             gl::color( ColorA( grey, grey, grey, mClosenessFadeAlpha ) );        
-            if( mSphereScreenRadius > 70.0f ){
+            if( mSphereScreenRadius > 60.0f ){
                 mHiSphere->draw();
             } else if( mSphereScreenRadius > 30.0f  ){
                 mMdSphere->draw();
@@ -502,7 +502,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			gl::color( ColorA( grey, grey, grey, alpha * mClosenessFadeAlpha ) );
 
 			gl::enableAdditiveBlending();
-            if( mSphereScreenRadius > 70.0f ){
+            if( mSphereScreenRadius > 60.0f ){
                 mHiSphere->draw();
             } else if( mSphereScreenRadius > 30.0f  ){
                 mMdSphere->draw();
@@ -523,25 +523,25 @@ void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 {
 	if( mClosenessFadeAlpha > 0.0f ){
 
-		Vec2f dir		= mScreenPos - center;
+//		Vec2f dir		= mScreenPos - center;
 //		float dirLength = dir.length()/500.0f;
-		float alpha = mNormPlayCount * 0.5f * mDeathPer;
+		float alpha = mNormPlayCount * mDeathPer * mClosenessFadeAlpha;
 		
 //		float alpha = 0.3f * ( 1.0f - dirLength );
 //		if( G_ZOOM <= G_ALBUM_LEVEL )
 //			alpha = pinchAlphaPer;
 
 		Vec2f radius( mRadius, mRadius );
-		radius *= ( 2.45f + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) );
+		radius *= ( 2.40f + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) );
 		
 		
 //		float grey = mShadowPer + 0.2f;
-		gl::color( ColorA( BRIGHT_BLUE, alpha * mClosenessFadeAlpha ) );
+		gl::color( ColorA( BRIGHT_BLUE, alpha ) );
 		tex.enableAndBind();
 		bloom::gl::drawSphericalBillboard( camEye, mPos, radius, 0.0f );
 		tex.disable();
 		
-		gl::color( ColorA( mShadowPer, mShadowPer, mShadowPer, alpha * mClosenessFadeAlpha * mEclipseDirBasedAlpha * mDeathPer ) );
+		gl::color( ColorA( mShadowPer, mShadowPer, mShadowPer, alpha * mEclipseDirBasedAlpha * mDeathPer ) );
 		directionalTex.enableAndBind();
 		//bloom::gl::drawBillboard( mPos, radius, -mEclipseAngle, mBbRight, mBbUp );
 		bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, mParentNode->mParentNode->mPos, radius );        

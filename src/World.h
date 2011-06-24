@@ -55,7 +55,7 @@ public:
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
     
 	void update( float param1, float param2 );
-	void updateGraphics( const ci::CameraPersp &cam, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, const float &zoomAlpha );
+	void updateGraphics( const ci::CameraPersp &cam, const ci::Vec2f &center, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, const float &zoomAlpha );
 
 	void drawStarsVertexArray();
 	void drawStarGlowsVertexArray();
