@@ -101,6 +101,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onWheelToggled( AlphaWheel *alphaWheel );
 
 	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
+    void            togglePlayPaused();
 	bool			onPlayControlsPlayheadMoved ( float amount );
     void            updatePlaylistControls();
 	
@@ -772,7 +773,7 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
         mState.setFilterMode( State::FilterModeAlphaChar );
 
         mState.setSelectedNode( NULL );
-        mPlayControls.setPlaylist( "" ); // FIXME: should be setPlaylistActive(true/false)
+        updatePlaylistControls();
 
         stringstream s;
         s << "FILTERING ARTISTS BY '" << mState.getAlphaChar() << "'";
@@ -797,8 +798,8 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
     mWorld.setFilter( PlaylistFilter(playlist) );
     mState.setFilterMode( State::FilterModePlaylist ); // TODO: make this part of Filter?
     mState.setSelectedNode( NULL );
-        
-	mPlayControls.setPlaylist( playlistName );
+
+    updatePlaylistControls();
 
     /////// notifications...
     
@@ -841,20 +842,12 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
 
 	if( node != NULL ) {
         if (node->mGen == G_TRACK_LEVEL) {
-            // this is probably a bad OOP thing, maybe there's a virtual method on Node to do this?
             NodeTrack* trackNode = dynamic_cast<NodeTrack*>(node);
             if (trackNode) {
-                if ( mIpodPlayer.hasPlayingTrack() ){
-                    if ( !mPlayingTrack || trackNode->getId() != mPlayingTrack->getItemId() ) {
-                        mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
-                    }
+                const bool isPlayingTrack = mPlayingTrack && trackNode->getId() == mPlayingTrack->getItemId();
+                if ( !isPlayingTrack ){
+                    mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
                 }
-                else {
-                    mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );			
-                }
-            }
-            else {
-                // FIXME: log error?
             }
             logEvent("Track Selected");            
         } 
@@ -892,14 +885,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
         
         case PlayControls::PLAY_PAUSE:
             logEvent("Play/Pause Button Selected");            
-            if (mCurrentPlayState == ipod::Player::StatePlaying) {
-                mIpodPlayer.pause();
-				mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 128.0f, 128.0f, 256.0f ), "PAUSED" );
-            }
-            else {
-                mIpodPlayer.play();
-				mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 0.0f, 128.0f, 128.0f ), "PLAY" );
-            }
+            togglePlayPaused();
             break;
         
         case PlayControls::NEXT_TRACK:
@@ -1028,9 +1014,12 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             // select a playlist and reset the offset
             mPlaylistIndex = mPlaylistIndex + mPlaylistDisplayOffset;
             mPlaylistDisplayOffset = 0;
-            while (mPlaylistIndex < 0) mPlaylistIndex += mData.mPlaylists.size();
-            if (mPlaylistIndex >= mData.mPlaylists.size()) mPlaylistIndex %= mData.mPlaylists.size(); 
-            mPlayControls.setPlaylistSelected(true);
+            while (mPlaylistIndex < 0) {
+                mPlaylistIndex += mData.mPlaylists.size();
+            }
+            if (mPlaylistIndex >= mData.mPlaylists.size()) {
+                mPlaylistIndex %= mData.mPlaylists.size(); 
+            }
             mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
             break;	
 
@@ -1053,6 +1042,19 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 	return false;
 }
 
+void KeplerApp::togglePlayPaused()
+{
+    const bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
+    if ( isPlaying ) {
+        mIpodPlayer.pause();
+        mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 128.0f, 128.0f, 256.0f ), "PAUSED" );
+    }
+    else {
+        mIpodPlayer.play();
+        mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 0.0f, 128.0f, 128.0f ), "PLAY" );
+    }    
+}
+
 void KeplerApp::updatePlaylistControls()
 {
     int showPlaylist =  mPlaylistIndex + mPlaylistDisplayOffset;
@@ -1072,7 +1074,8 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 	vector<Node*> nodes;
 	mWorld.checkForNameTouch( nodes, pos );
 
-	if( nodes.size() > 0 ){
+	if ( nodes.size() > 0 ) {
+        
 		Node *nodeWithHighestGen = *nodes.begin();
 		int highestGen = nodeWithHighestGen->mGen;
 		
@@ -1083,42 +1086,35 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 				nodeWithHighestGen = *it;
 			}
 		}
-
-        const bool thisIsTheSelectedNode = (mState.getSelectedNode() == nodeWithHighestGen);
- 
-        if (!thisIsTheSelectedNode) {
-            mState.setSelectedNode( nodeWithHighestGen );
-        }
-		
-		if( nodeWithHighestGen ){            
-			if( highestGen == G_ARTIST_LEVEL ){
-                logEvent("Artist Node Touched");                    
-			} 
-            else if ( highestGen == G_TRACK_LEVEL ){
-                logEvent("Track Node Touched");
-                if (thisIsTheSelectedNode) {
+        
+        //////// perform the selection if needed
+        // (toggle play state if not)
+        
+        const bool isSelectedNode = (mState.getSelectedNode() == nodeWithHighestGen);        
+        if ( isSelectedNode ) {
+            if ( highestGen == G_TRACK_LEVEL ) {
+                const bool isPlayingNode = (mPlayingTrack && mPlayingTrack->getItemId() == nodeWithHighestGen->getId());                
+                if ( isPlayingNode ) {
                     // if this is already the selected node, just toggle the play state
-                    if (mCurrentPlayState == ipod::Player::StatePlaying) {
-                        mIpodPlayer.pause();
-                    }
-                    else { // if pause or stopped
-                        mIpodPlayer.play();
-                    }                    
+                    togglePlayPaused();
+                    logEvent( "Playing Track Node Touched" );
                 }
-            }
-            else {
-                logEvent("Album Node Touched");
-                //console() << "setting node selection" << std::endl;
-                mState.setSelectedNode( nodeWithHighestGen );
-			}
-		}
+            }            
+        }
         else {
-            // TODO: shouldn't be possible... confirm!
-        }        
+            // if the tapped node isn't the current selection, it should be:
+            mState.setSelectedNode( nodeWithHighestGen );
+            // (other selection logic happens in onSelectedNodeChanged)            
+        }
+        
+        ////// logging for interaction tracking...
+        
+        switch ( highestGen ) {
+            case G_ARTIST_LEVEL: logEvent( "Artist Node Touched" ); break;
+            case G_ALBUM_LEVEL:  logEvent( "Album Node Touched" );  break;
+            case G_TRACK_LEVEL:  logEvent( "Track Node Touched" );  break;
+        } 
 	}
-//    else {
-//        console() << "no nodes hit by touches" << std::endl;
-//    }
 }
 
 void KeplerApp::update()
@@ -1564,8 +1560,9 @@ void KeplerApp::drawScene()
 	
 // PLAYHEAD PROGRESS
 	if( G_DRAW_RINGS && mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
-        const bool paused = mCurrentPlayState == ipod::Player::StatePaused;
-        const float pauseAlpha = paused ? sin(getElapsedSeconds() * M_PI * 2.0f ) * 0.25f + 0.75f : 1.0f;
+        const bool isPaused = (mCurrentPlayState == ipod::Player::StatePaused);
+        const bool isStopped = (mCurrentPlayState == ipod::Player::StateStopped);
+        const float pauseAlpha = (isPaused || isStopped) ? sin(getElapsedSeconds() * M_PI * 2.0f ) * 0.25f + 0.75f : 1.0f;
         mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mCamRingAlpha, pauseAlpha, mPlayheadProgressTex, mTrackOriginTex );
 	}
 	
@@ -1683,11 +1680,14 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         ipod::TrackRef newTrack = mIpodPlayer.getPlayingTrack();
 
         uint64_t trackId = newTrack->getItemId();
+
+        Node* currentSelection = mState.getSelectedNode();
         
         const bool trackIsCorrect = (mPlayingTrack && trackId == mPlayingTrack->getItemId());
         const bool nodeIsCorrect = (mWorld.mPlayingTrackNode && trackId == mWorld.mPlayingTrackNode->getId());
+        const bool selectionIsCorrect = (currentSelection && currentSelection->getId() == trackId);
         
-        if (trackIsCorrect && nodeIsCorrect) {
+        if (trackIsCorrect && nodeIsCorrect && selectionIsCorrect) {
             // skip needless onPlayerTrackChange
             return false;
         }
@@ -1716,8 +1716,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         mWorld.selectHierarchy( artistId, albumId, trackId );
 
         // and finally tell other things that care about the current selection
-        Node* currentSelection = mState.getSelectedNode();
-        if (currentSelection == NULL || currentSelection->getId() != trackId) {
+        if (!selectionIsCorrect) {
             mState.setSelectedNode( mWorld.getTrackNodeById( artistId, albumId, trackId ) );
         }
 
