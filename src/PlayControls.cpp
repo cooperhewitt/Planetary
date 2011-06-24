@@ -488,7 +488,7 @@ void PlayControls::draw(float y)
 
     if (G_DEBUG) {
         gl::color( ColorA( 1.0f, 0.0f, 0.0f, 0.2f ) );    
-        for (int i = 0; i < drawableElements.size(); i++) {
+        for (int i = 0; i < interactiveElements.size(); i++) {
             gl::drawStrokedRect(interactiveElements[i]->getRect());
         }        
     }
