@@ -58,14 +58,19 @@ void Stars::setup( const vector<NodeArtist*> &nodes, const float &zoomAlpha )
         
 		uint col = (uint)(c.r*255.0f) << 24 | (uint)(c.g*255.0f) << 16 | (uint)(c.b*255.0f) << 8 | 0xff;
 
-		float r = (*it)->mRadius * scaleOffset * 0.85f + ( 0.5f - scaleOffset );
-        if( !(*it)->mIsHighlighted ){
-			r -= zoomOffset;
+//		float r = (*it)->mRadius * scaleOffset * 0.85f + ( 0.5f - scaleOffset );
+		float radius = (*it)->mRadius * 3.5f;
+		
+//		if( (*it)->mIsSelected ){
+//			radius *= 65.0f;
+//		} else 
+		if( (*it)->mIsHighlighted ){
+			radius *= 2.0f;
 		}
         
 		mVerts[vIndex].vertex = pos;
         mVerts[vIndex].color = col;
-        mVerts[vIndex].size = 8.0f * r;
+        mVerts[vIndex].size = radius;
         vIndex++;
 	}
     

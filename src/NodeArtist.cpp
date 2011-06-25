@@ -150,7 +150,7 @@ void NodeArtist::drawEclipseGlow()
 
 void NodeArtist::drawPlanet( const gl::Texture &tex )
 {
-	if( ( mIsSelected || mIsPlaying ) ){// && ( mHue < 0.2f || mHue > 0.7f ) ){	// Only needed for red/orange stars
+	if( mIsSelected || mIsPlaying ){
         // FIXME: move rotation calculation to something called from main app's update()
 		mAxialRot = Vec3f( 0.0f, app::getElapsedSeconds() * mAxialVel * 0.75f, mAxialTilt );
 		
@@ -185,7 +185,7 @@ void NodeArtist::drawPlanet( const gl::Texture &tex )
 
 void NodeArtist::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
-	if( mIsHighlighted && G_DEBUG ){
+	if( mIsHighlighted ){
 		float alpha = ( 1.0f - mScreenDistToCenterPer * 0.75f );
 		alpha *= mDeathPer * 0.5f;
 
@@ -201,7 +201,7 @@ void NodeArtist::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const
 	//}
 }
 
-void NodeArtist::drawExtraGlow( const gl::Texture &tex )
+void NodeArtist::drawExtraGlow( const gl::Texture &texGlow, const gl::Texture &texCore )
 {
 	if( mIsHighlighted ){
 		float alpha = ( 1.0f - mScreenDistToCenterPer ) * sin( mEclipseStrength * M_PI_2 + M_PI_2 );
@@ -210,15 +210,17 @@ void NodeArtist::drawExtraGlow( const gl::Texture &tex )
 
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
 		
-		tex.enableAndBind();
 		
+		texCore.enableAndBind();
 		gl::color( ColorA( mGlowColor, alpha * 0.1f ) );
 		bloom::gl::drawBillboard( mPos, radius * 1.25f, 0.0f, mBbRight, mBbUp );
+		texCore.enableAndBind();
 		
 	// SMALLER INNER GLOW
+		texGlow.enableAndBind();
 		gl::color( ColorA( Color::white(), sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 0.4f + 0.2f ) ) );
 		bloom::gl::drawBillboard( mPos, radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ), 0.0f, mBbRight, mBbUp );
-		tex.disable();
+		texGlow.disable();
 	}
 	//}
 }
@@ -277,7 +279,7 @@ void NodeArtist::setChildOrbitRadii()
 		float orbitOffset = 1.25f;
 		for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){
 			NodeAlbum* albumNode = (NodeAlbum*)(*it);
-			float amt = math<float>::max( albumNode->mNumTracks * 0.025f, 0.05f );
+			float amt = math<float>::max( albumNode->mNumTracks * 0.05f, 0.2f );
 			orbitOffset += amt;
 			(*it)->mOrbitRadiusDest = orbitOffset;
 			orbitOffset += amt;

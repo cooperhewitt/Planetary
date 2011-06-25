@@ -1543,7 +1543,7 @@ void KeplerApp::drawScene()
 		glDisable( GL_RESCALE_NORMAL );
 		
 		gl::enableAdditiveBlending();
-		artistNode->drawExtraGlow( mStarGlowTex );
+		artistNode->drawExtraGlow( mStarGlowTex, mStarTex );
 	}
 
 	glDisable( GL_LIGHTING );

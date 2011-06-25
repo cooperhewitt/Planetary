@@ -98,9 +98,10 @@ void NodeAlbum::setData( PlaylistRef album )
 	mHasRings			= false;
 	if( mNumTracks > 2 ) mHasRings = true;
 	mTotalLength		= mAlbum->getTotalLength();
+	std::cout<<mTotalLength<<std::endl;
 	mReleaseYear		= (*mAlbum)[0]->getReleaseYear();
 	
-	mRadiusInit			= mParentNode->mRadiusDest * constrain( mTotalLength * 0.00002f, 0.01f, 0.04f );//Rand::randFloat( 0.01f, 0.035f );
+	mRadiusInit			= mParentNode->mRadiusDest * constrain( mTotalLength * 0.00004f, 0.01f, 0.06f );//Rand::randFloat( 0.01f, 0.035f );
 	mRadius				= mRadiusInit;
 	mCloudLayerRadius	= mRadius * 0.015f;
 	
@@ -251,12 +252,12 @@ void NodeAlbum::update( float param1, float param2 )
 		float rsqrd = r * r;
 		
 		Vec2f P		= mParentNode->mScreenPos;
-		float R		= mParentNode->mSphereScreenRadius;
+		float R		= mParentNode->mSphereScreenRadius * 0.85f;
 		float Rsqrd	= R * R;
 		float A		= M_PI * Rsqrd;
 		
 		float c		= p.distance( P );
-		mEclipseDirBasedAlpha = 1.0f - constrain( c, 0.0f, 2750.0f )/2750.0f;
+		mEclipseDirBasedAlpha = 1.0f - constrain( c, 0.0f, 1500.0f )/1500.0f;
 		if( mEclipseDirBasedAlpha > 0.9f )
 			mEclipseDirBasedAlpha = 0.9f - ( mEclipseDirBasedAlpha - 0.9f ) * 9.0f;
 		
@@ -422,7 +423,7 @@ void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 		float alpha = ( 1.0f - mScreenDistToCenterPer * 0.75f ) + mEclipseStrength;
 		alpha *= mDeathPer * mClosenessFadeAlpha * ( mBlockedBySunPer - 0.5f ) * 2.0f;
 		Vec2f radius( mRadius, mRadius );
-		radius *= ( 2.42f + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) );
+		radius *= ( 2.42f + max( ( mSphereScreenRadius - 160.0f ) * 0.001f, 0.0f ) );
 		
 		gl::color( ColorA( BRIGHT_BLUE, 1.0f + mEclipseStrength * 2.0f ) );
 		tex.enableAndBind();

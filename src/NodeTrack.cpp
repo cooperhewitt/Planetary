@@ -383,7 +383,7 @@ void NodeTrack::update( float param1, float param2 )
 		float rsqrd = r * r;
 		
 		Vec2f P		= mParentNode->mParentNode->mScreenPos;
-		float R		= mParentNode->mParentNode->mSphereScreenRadius;
+		float R		= mParentNode->mParentNode->mSphereScreenRadius * 0.85f;
 		float Rsqrd	= R * R;
 		float A		= M_PI * Rsqrd;
 		
@@ -532,7 +532,7 @@ void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 //			alpha = pinchAlphaPer;
 
 		Vec2f radius( mRadius, mRadius );
-		radius *= ( 2.40f + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) );
+		radius *= ( 2.435f + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) );
 		
 		
 //		float grey = mShadowPer + 0.2f;
