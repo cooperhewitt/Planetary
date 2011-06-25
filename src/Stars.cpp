@@ -44,8 +44,8 @@ void Stars::setup( const vector<NodeArtist*> &nodes, const ci::Vec3f &bbRight, c
     }
 	
 	int vIndex	= 0;
-//	const float scaleOffset	= 0.5f - constrain( G_ARTIST_LEVEL - G_ZOOM, 0.0f, 1.0f ) * 0.25f; // 0.25 -> 0.5
-//	const float zoomOffset	= zoomAlpha * 1.5f;
+	const float scaleOffset	= 0.5f - constrain( G_ARTIST_LEVEL - G_ZOOM, 0.0f, 1.0f ) * 0.25f; // 0.25 -> 0.5
+	const float zoomOffset	= zoomAlpha * 1.5f;
 	
 	for( vector<NodeArtist*>::const_iterator it = nodes.begin(); it != nodes.end(); ++it ){
 		
@@ -54,16 +54,12 @@ void Stars::setup( const vector<NodeArtist*> &nodes, const ci::Vec3f &bbRight, c
         
 		uint col = (uint)(c.r*255.0f) << 24 | (uint)(c.g*255.0f) << 16 | (uint)(c.b*255.0f) << 8 | 0xff;
 
-//		float r = (*it)->mRadius * scaleOffset * 0.85f + ( 0.5f - scaleOffset );
-		float radius = (*it)->mRadius * 3.5f;
-		
-//		if( (*it)->mIsSelected ){
-//			radius *= 65.0f;
-//		} else 
-		if( (*it)->mIsHighlighted ){
-			radius *= 2.0f;
-		}
+		float radius = (*it)->mRadius * scaleOffset * 0.85f + ( 0.5f - scaleOffset );
         
+        if( !(*it)->mIsHighlighted ){
+			radius -= zoomOffset;
+		}
+                
         Vec3f right			= bbRight * radius;
         Vec3f up			= bbUp * radius;
         
