@@ -10,6 +10,18 @@
 
 using namespace ci;
 
+Shadow::Shadow()
+{
+	mShadowVerts		= NULL;
+	mShadowTexCoords	= NULL;    
+}
+
+Shadow::~Shadow()
+{
+    if( mShadowVerts != NULL )		delete[] mShadowVerts;
+    if( mShadowTexCoords != NULL )  delete[] mShadowTexCoords;
+}
+
 void Shadow::setup( Vec3f p1, Vec3f p2, Vec3f p3, Vec3f p4 )
 {
     if( mShadowVerts != NULL )		delete[] mShadowVerts;

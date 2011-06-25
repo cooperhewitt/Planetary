@@ -13,6 +13,9 @@ class Shadow
 {
 public:
     
+    Shadow();
+    ~Shadow();
+    
     void setup( ci::Vec3f p1, ci::Vec3f p2, ci::Vec3f p3, ci::Vec3f p4 );
     void draw();
 

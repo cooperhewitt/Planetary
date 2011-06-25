@@ -35,10 +35,7 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, const Font &sma
 // NOW SET IN setChildOrbitRadii()
 //	mIdealCameraDist	= mRadius * 13.5f;
 	mEclipseStrength	= 0.0f;
-	mClosenessFadeAlpha	= 1.0f;
-	
-	mShadowVerts		= NULL;
-	mShadowTexCoords	= NULL;
+	mClosenessFadeAlpha	= 1.0f;	
 }
 
 

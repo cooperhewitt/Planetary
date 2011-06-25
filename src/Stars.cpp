@@ -44,8 +44,8 @@ void Stars::setup( const vector<NodeArtist*> &nodes, const ci::Vec3f &bbRight, c
     }
 	
 	int vIndex	= 0;
-	const float scaleOffset	= 0.5f - constrain( G_ARTIST_LEVEL - G_ZOOM, 0.0f, 1.0f ) * 0.25f; // 0.25 -> 0.5
-	const float zoomOffset	= zoomAlpha * 1.5f;
+//	const float scaleOffset	= 0.5f - constrain( G_ARTIST_LEVEL - G_ZOOM, 0.0f, 1.0f ) * 0.25f; // 0.25 -> 0.5
+//	const float zoomOffset	= zoomAlpha * 1.5f;
 	
 	for( vector<NodeArtist*>::const_iterator it = nodes.begin(); it != nodes.end(); ++it ){
 		
