@@ -16,19 +16,21 @@ class NodeArtist;
 class Stars {
 public:
     
+    struct VertexData {
+        ci::Vec3f vertex;
+        ci::Vec2f texture;
+        ci::Vec4f color;
+    };        
+    
     Stars()
     {
         mVerts = NULL;
-		mTexCoords = NULL;
-		mColors = NULL;
         mPrevTotalVertices = -1;
     }
     
     ~Stars()
     {
-        if (mVerts != NULL)		delete[] mVerts; 
-		if (mTexCoords != NULL) delete[] mTexCoords; 
-		if (mColors != NULL)	delete[] mColors;        
+        if (mVerts != NULL)		delete[] mVerts;
     }
     
     void setup( const std::vector<NodeArtist*> &nodes,
@@ -40,8 +42,6 @@ private:
 
     int mTotalVertices;
     int mPrevTotalVertices; // so we only recreate frames
-	float *mVerts;
-	float *mTexCoords;
-	float *mColors;
+	VertexData *mVerts;
     
 };
