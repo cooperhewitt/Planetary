@@ -92,6 +92,7 @@
 		E219CEFE13A7DAFD006C7F26 /* Constellation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E219CEFC13A7DAFA006C7F26 /* Constellation.cpp */; };
 		E227B205138EFDC500AAAC7B /* TextLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E227B204138EFDC500AAAC7B /* TextLabel.cpp */; };
 		E22998CC1332D62E0043CDCA /* LoadingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */; };
+		E22D983B13B6A2B700F9DB06 /* Shadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E22D983913B6A2B600F9DB06 /* Shadow.cpp */; };
 		E23C29E713B19F490038F3F4 /* galaxyFull.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E23C29E413B19F490038F3F4 /* galaxyFull.jpg */; };
 		E23C29E813B19F490038F3F4 /* galaxyFull.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E23C29E513B19F490038F3F4 /* galaxyFull.pvr */; };
 		E23C29F013B1A4A50038F3F4 /* lightMatter.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E23C29ED13B1A4A50038F3F4 /* lightMatter.jpg */; };
@@ -230,6 +231,8 @@
 		E227B204138EFDC500AAAC7B /* TextLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextLabel.cpp; path = ../src/TextLabel.cpp; sourceTree = "<group>"; };
 		E22998C61332AD080043CDCA /* GestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureRecognizer.h; sourceTree = "<group>"; };
 		E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoadingScreen.cpp; path = ../src/LoadingScreen.cpp; sourceTree = "<group>"; };
+		E22D983913B6A2B600F9DB06 /* Shadow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Shadow.cpp; path = ../src/Shadow.cpp; sourceTree = "<group>"; };
+		E22D983A13B6A2B600F9DB06 /* Shadow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Shadow.h; path = ../src/Shadow.h; sourceTree = "<group>"; };
 		E23C29E413B19F490038F3F4 /* galaxyFull.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = galaxyFull.jpg; path = ../galaxyFull.jpg; sourceTree = "<group>"; };
 		E23C29E513B19F490038F3F4 /* galaxyFull.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = galaxyFull.pvr; path = ../galaxyFull.pvr; sourceTree = "<group>"; };
 		E23C29ED13B1A4A50038F3F4 /* lightMatter.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = lightMatter.jpg; path = ../lightMatter.jpg; sourceTree = "<group>"; };
@@ -739,6 +742,7 @@
 				E219CEF613A6F79D006C7F26 /* OrbitRing.cpp */,
 				E219CEF913A7D7CC006C7F26 /* PlanetRing.cpp */,
 				E219CEFC13A7DAFA006C7F26 /* Constellation.cpp */,
+				E22D983913B6A2B600F9DB06 /* Shadow.cpp */,
 			);
 			name = World;
 			sourceTree = "<group>";
@@ -757,6 +761,7 @@
 				E219CEF713A6F79D006C7F26 /* OrbitRing.h */,
 				E219CEFA13A7D7CD006C7F26 /* PlanetRing.h */,
 				E219CEFD13A7DAFC006C7F26 /* Constellation.h */,
+				E22D983A13B6A2B600F9DB06 /* Shadow.h */,
 			);
 			name = World;
 			sourceTree = "<group>";
@@ -972,6 +977,7 @@
 				E219CEF813A6F79D006C7F26 /* OrbitRing.cpp in Sources */,
 				E219CEFB13A7D7CE006C7F26 /* PlanetRing.cpp in Sources */,
 				E219CEFE13A7DAFD006C7F26 /* Constellation.cpp in Sources */,
+				E22D983B13B6A2B700F9DB06 /* Shadow.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

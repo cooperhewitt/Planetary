@@ -12,6 +12,7 @@
 #include "cinder/Vector.h"
 #include "Node.h"
 #include "OrbitRing.h"
+#include "Shadow.h"
 
 class NodeAlbum : public Node
 {
@@ -26,7 +27,6 @@ class NodeAlbum : public Node
 	void drawAtmosphere( const ci::Vec3f &camEye, const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
 	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const OrbitRing &orbitRing );
 	void findShadows( float camAlpha );
-	void buildShadowVertexArray( ci::Vec3f p1, ci::Vec3f p2, ci::Vec3f p3, ci::Vec3f p4 );
 	void select();
 	void setChildOrbitRadii();
 	string getName();
@@ -50,9 +50,5 @@ class NodeAlbum : public Node
 	ci::ipod::PlaylistRef mAlbum;
 	float		mCloudLayerRadius;
 	uint64_t    mId;
-    
-    // TODO: VBO? separate object
-	GLfloat		*mShadowVerts;
-	GLfloat		*mShadowTexCoords;
-	
+    Shadow      mShadow;	
 };
