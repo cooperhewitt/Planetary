@@ -18,8 +18,9 @@ public:
     
     struct VertexData {
         ci::Vec3f vertex;
-        ci::Vec4f color;
+        uint color;
         float size;
+        float padding[3]; // to make a multiple of 32 bytes
     };        
     
     Stars();

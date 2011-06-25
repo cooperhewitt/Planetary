@@ -55,7 +55,8 @@ void Stars::setup( const vector<NodeArtist*> &nodes, const float &zoomAlpha )
 		
         Vec3f pos = (*it)->mPos;
         Color c = (*it)->mColor;
-		Vec4f col = Vec4f( c.r, c.g, c.b, 1.0f );
+        
+		uint col = (uint)(c.r*255.0f) << 24 | (uint)(c.g*255.0f) << 16 | (uint)(c.b*255.0f) << 8 | 0xff;
 
 		float r = (*it)->mRadius * scaleOffset * 0.85f + ( 0.5f - scaleOffset );
         if( !(*it)->mIsHighlighted ){
@@ -64,7 +65,7 @@ void Stars::setup( const vector<NodeArtist*> &nodes, const float &zoomAlpha )
         
 		mVerts[vIndex].vertex = pos;
         mVerts[vIndex].color = col;
-        mVerts[vIndex].size = 7.0f * r;
+        mVerts[vIndex].size = 8.0f * r;
         vIndex++;
 	}
     
@@ -85,10 +86,8 @@ void Stars::draw( )
     glEnableClientState( GL_POINT_SIZE_ARRAY_OES );
 	
 	glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), 0 );
-//	glColorPointer( 4, GL_FLOAT, sizeof(VertexData), (GLvoid*)offsetof(VertexData,color) );
-//    glPointSizePointerOES( GL_FLOAT, sizeof(VertexData), (GLvoid*)offsetof(VertexData,size) );
-	glColorPointer( 4, GL_FLOAT, sizeof(VertexData), (GLvoid*)sizeof(Vec3f) );
-    glPointSizePointerOES( GL_FLOAT, sizeof(VertexData), (GLvoid*)(sizeof(Vec3f) + sizeof(Vec4f)) );
+	glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof(VertexData), (GLvoid*)sizeof(Vec3f) );
+    glPointSizePointerOES( GL_FLOAT, sizeof(VertexData), (GLvoid*)(sizeof(Vec3f) + sizeof(uint)) );
 	
 	glDrawArrays( GL_POINTS, 0, mTotalVertices );
 
