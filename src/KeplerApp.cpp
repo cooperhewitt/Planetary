@@ -10,6 +10,7 @@
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
 #include "cinder/Utilities.h"
+#include "cinder/Perlin.h"
 
 #include "CinderIPod.h"
 #include "CinderIPodPlayer.h"
@@ -120,6 +121,9 @@ class KeplerApp : public AppCocoaTouch {
 	HelpLayer		    mHelpLayer;
     NotificationOverlay mNotificationOverlay;
     
+// PERLIN BITS:
+	Perlin				mPerlin;
+	
 // 3D BITS:
 	World               mWorld;
     
@@ -203,6 +207,9 @@ class KeplerApp : public AppCocoaTouch {
 	float			mTimePinchEnded;
 	float			mPinchAlphaPer;
 	bool			mIsPinching;
+	float			mTimeSinceLastInteraction;
+	bool			mCamAutoMove;
+	
 	
 // PARTICLES
     ParticleController mParticleController;
@@ -369,6 +376,8 @@ void KeplerApp::remainingSetup()
     mPinchRecognizer.registerEnded( this, &KeplerApp::onPinchEnded );
     mPinchRecognizer.setKeepTouchCallback( this, &KeplerApp::keepTouchForPinching );
 	mPinchAlphaPer		= 1.0f;
+	mTimeSinceLastInteraction = 0.0f;
+	mCamAutoMove		= false;
     
     // PARTICLES
     mParticleController.addParticles( G_NUM_PARTICLES );
@@ -407,6 +416,9 @@ void KeplerApp::remainingSetup()
     mIpodPlayer.registerLibraryChanged( this, &KeplerApp::onPlayerLibraryChanged );
 	mPlaylistIndex = 0;
     mPlaylistDisplayOffset = 0;
+	
+	// PERLIN
+	mPerlin = Perlin( 4 );
 	
     // DATA
     mData.setup(); // NB:- is asynchronous, see update() for what happens when it's done
@@ -539,6 +551,7 @@ void KeplerApp::initTextures()
 void KeplerApp::touchesBegan( TouchEvent event )
 {	
     if (!mRemainingSetupCalled) return;
+	mTimeSinceLastInteraction = getElapsedSeconds();
 	mIsDragging = false;
 	const vector<TouchEvent::Touch> touches = getActiveTouches();
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
@@ -559,7 +572,7 @@ void KeplerApp::touchesBegan( TouchEvent event )
 void KeplerApp::touchesMoved( TouchEvent event )
 {
     if (!mRemainingSetupCalled) return;
-
+	mTimeSinceLastInteraction = getElapsedSeconds();
     if ( mIsTouching ) {
         float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
         const vector<TouchEvent::Touch> touches = getActiveTouches();
@@ -581,7 +594,8 @@ void KeplerApp::touchesMoved( TouchEvent event )
 
 void KeplerApp::touchesEnded( TouchEvent event )
 {
-    if (!mRemainingSetupCalled) return;    
+    if (!mRemainingSetupCalled) return;
+	mTimeSinceLastInteraction = getElapsedSeconds();
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
 	const vector<TouchEvent::Touch> touches = event.getTouches();
 	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){        
@@ -611,6 +625,7 @@ void KeplerApp::touchesEnded( TouchEvent event )
 
 bool KeplerApp::onPinchBegan( PinchEvent event )
 {
+	mTimeSinceLastInteraction = getElapsedSeconds();
 	mIsPinching = true;
     mPinchRays = event.getTouchRays( mCam );
 	mPinchPositions.clear();
@@ -636,6 +651,7 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 
 bool KeplerApp::onPinchMoved( PinchEvent event )
 {	
+	mTimeSinceLastInteraction = getElapsedSeconds();
     mPinchRays = event.getTouchRays( mCam );
 	mPinchPositions.clear();
 	
@@ -664,6 +680,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
+	mTimeSinceLastInteraction = getElapsedSeconds();
     logEvent("Pinch Ended");
 
 	if( mPinchPer > mPinchPerThresh ){
@@ -1148,6 +1165,15 @@ void KeplerApp::update()
 		if( G_IS_IPAD2 && G_USE_GYRO ) {
 			mGyroHelper.update();
         }
+		
+		// IF NO INTERACTION FOR 20 seconds, START SCREENSAVER MODE.
+		// NEEDS SMOOTHER TRANSITION BETWEEN MODES.
+		float interactionThreshold = 20.0f;
+		if( getElapsedSeconds() - mTimeSinceLastInteraction > interactionThreshold ){
+			mCamAutoMove = true;
+		} else {
+			mCamAutoMove = false;
+		}
 
         updateArcball();
 
@@ -1284,12 +1310,23 @@ void KeplerApp::updateCamera()
 	if( selectedNode ){
 		mCamDistDest	= selectedNode->mIdealCameraDist * cameraDistMulti;
 		
-		if( selectedNode->mParentNode && mPinchPer > mPinchPerThresh ){
-			Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
-			mCenterOffset -= ( mCenterOffset - ( dirToParent * ( mPinchPer - mPinchPerThresh ) * 2.5f ) ) * 0.2f;
-			
+		if( mCamAutoMove ){
+			if( selectedNode->mParentNode ){
+				Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
+				float perlin = mPerlin.fBm( app::getElapsedSeconds() * 0.01f );
+				float amt = perlin + 0.3f + sin( app::getElapsedSeconds() * 0.1f ) * 0.45f;
+				Vec3f lookToPos = dirToParent * amt;
+				mCenterOffset -= ( mCenterOffset - lookToPos ) * 0.1f;
+				mCamDistDest  *= ( perlin + 1.0f ) * G_ZOOM;
+			}
 		} else {
-			mCenterOffset -= ( mCenterOffset - Vec3f::zero() ) * 0.2f;
+			if( selectedNode->mParentNode && mPinchPer > mPinchPerThresh ){
+				Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
+				mCenterOffset -= ( mCenterOffset - ( dirToParent * ( mPinchPer - mPinchPerThresh ) * 2.5f ) ) * 0.2f;
+				
+			} else {
+				mCenterOffset -= ( mCenterOffset - Vec3f::zero() ) * 0.2f;
+			}
 		}
 		mCenterDest		= selectedNode->mPos;
 		mZoomDest		= selectedNode->mGen;
