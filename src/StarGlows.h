@@ -16,19 +16,15 @@ class NodeArtist;
 class StarGlows {
 public:
     
-    StarGlows()
-    {
-        mVerts = NULL;
-		mTexCoords = NULL;
-		mColors = NULL;
-    }
+    struct VertexData {
+        ci::Vec3f vertex;
+        ci::Vec2f texture;
+        uint      color;
+        float padding[2]; // fit to 32 byte boundaries
+    };
     
-    ~StarGlows()
-    {
-        if (mVerts != NULL)		delete[] mVerts; 
-		if (mTexCoords != NULL) delete[] mTexCoords; 
-		if (mColors != NULL)	delete[] mColors;        
-    }
+    StarGlows();    
+    ~StarGlows();
     
     void setup( const std::vector<NodeArtist*> &filteredNodes,
                 const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, 
@@ -37,12 +33,10 @@ public:
     
 private:
 
-    // FIXME: use a "DYNAMIC" VBO, or a VAO, or at least interleave these verts
-    // consider using GL_POINT_SPRITE too (if we can figure out distance attenuation)
+    // FIXME: use a "DYNAMIC" VBO, or a VAO
+    // don't use POINT_SPRITE because we need to draw BIG
 	int mTotalVertices;
     int mPrevTotalVertices; // so we only recreate frames
-	float *mVerts;
-	float *mTexCoords;
-	float *mColors;
+	VertexData *mVerts;
 	
 };

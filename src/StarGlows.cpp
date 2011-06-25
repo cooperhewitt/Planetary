@@ -12,25 +12,33 @@
 using namespace ci;
 using namespace std;
 
+StarGlows::StarGlows()
+{
+    mVerts = NULL;
+    mPrevTotalVertices = -1;
+}
+
+StarGlows::~StarGlows()
+{
+    if (mVerts != NULL)	{
+        delete[] mVerts; 
+        mVerts = NULL;
+    }
+}
+
 void StarGlows::setup( const vector<NodeArtist*> &filteredNodes, const Vec3f &bbRight, const Vec3f &bbUp, const float &zoomAlpha )
 {
 	mTotalVertices	= filteredNodes.size() * 6;	// 6 = 2 triangles per quad
 	
     if (mTotalVertices != mPrevTotalVertices) {
-        if (mVerts != NULL)		delete[] mVerts; 
-		if (mTexCoords != NULL) delete[] mTexCoords; 
-		if (mColors != NULL)	delete[] mColors;
-		
-        mVerts			= new float[mTotalVertices*3];
-        mTexCoords		= new float[mTotalVertices*2];
-        mColors			= new float[mTotalVertices*4];
-		
+        if (mVerts != NULL) {
+            delete[] mVerts; 
+        }
+        mVerts = new VertexData[mTotalVertices];
         mPrevTotalVertices = mTotalVertices;
     }
 	
 	int vIndex = 0;
-	int tIndex = 0;
-	int cIndex = 0;
 	
 	for( vector<NodeArtist*>::const_iterator it = filteredNodes.begin(); it != filteredNodes.end(); ++it ){
 
@@ -43,7 +51,8 @@ void StarGlows::setup( const vector<NodeArtist*> &filteredNodes, const Vec3f &bb
         //if( !(*it)->mIsSelected && !(*it)->mIsPlaying )
         //	alpha			= 1.0f - zoomAlpha;
         
-        ColorA col			= ColorA( (*it)->mGlowColor, alpha );
+        ColorA c			= ColorA( (*it)->mGlowColor, alpha );
+        uint col            = (uint)(255.0f*c.r) << 24 | (uint)(255.0f*c.g) << 16 | (uint)(255.0f*c.b) << 8 | (uint)(255.0f*c.a);
         
         Vec3f right			= bbRight * r;
         Vec3f up			= bbUp * r;
@@ -53,65 +62,35 @@ void StarGlows::setup( const vector<NodeArtist*> &filteredNodes, const Vec3f &bb
         Vec3f p3			= pos - right + up;
         Vec3f p4			= pos + right + up;
         
-        mVerts[vIndex++]		= p1.x;
-        mVerts[vIndex++]		= p1.y;
-        mVerts[vIndex++]		= p1.z;
-        mTexCoords[tIndex++]	= 0.0f;
-        mTexCoords[tIndex++]	= 0.0f;
-        mColors[cIndex++]		= col.r;
-        mColors[cIndex++]		= col.g;
-        mColors[cIndex++]		= col.b;
-        mColors[cIndex++]		= col.a;
+        mVerts[vIndex].vertex  = p1;
+        mVerts[vIndex].texture = Vec2f(0.0f,0.0f);
+        mVerts[vIndex].color   = col;
+        vIndex++;
+
+        mVerts[vIndex].vertex  = p2;
+        mVerts[vIndex].texture = Vec2f(1.0f,0.0f);
+        mVerts[vIndex].color   = col;
+        vIndex++;
+
+        mVerts[vIndex].vertex  = p3;
+        mVerts[vIndex].texture = Vec2f(0.0f,1.0f);
+        mVerts[vIndex].color   = col;
+        vIndex++;
         
-        mVerts[vIndex++]		= p2.x;
-        mVerts[vIndex++]		= p2.y;
-        mVerts[vIndex++]		= p2.z;
-        mTexCoords[tIndex++]	= 1.0f;
-        mTexCoords[tIndex++]	= 0.0f;
-        mColors[cIndex++]		= col.r;
-        mColors[cIndex++]		= col.g;
-        mColors[cIndex++]		= col.b;
-        mColors[cIndex++]		= col.a;
+        mVerts[vIndex].vertex  = p2;
+        mVerts[vIndex].texture = Vec2f(1.0f,0.0f);
+        mVerts[vIndex].color   = col;
+        vIndex++;
         
-        mVerts[vIndex++]		= p3.x;
-        mVerts[vIndex++]		= p3.y;
-        mVerts[vIndex++]		= p3.z;
-        mTexCoords[tIndex++]	= 0.0f;
-        mTexCoords[tIndex++]	= 1.0f;
-        mColors[cIndex++]		= col.r;
-        mColors[cIndex++]		= col.g;
-        mColors[cIndex++]		= col.b;
-        mColors[cIndex++]		= col.a;
-        
-        mVerts[vIndex++]		= p2.x;
-        mVerts[vIndex++]		= p2.y;
-        mVerts[vIndex++]		= p2.z;
-        mTexCoords[tIndex++]	= 1.0f;
-        mTexCoords[tIndex++]	= 0.0f;
-        mColors[cIndex++]		= col.r;
-        mColors[cIndex++]		= col.g;
-        mColors[cIndex++]		= col.b;
-        mColors[cIndex++]		= col.a;
-        
-        mVerts[vIndex++]		= p3.x;
-        mVerts[vIndex++]		= p3.y;
-        mVerts[vIndex++]		= p3.z;
-        mTexCoords[tIndex++]	= 0.0f;
-        mTexCoords[tIndex++]	= 1.0f;
-        mColors[cIndex++]		= col.r;
-        mColors[cIndex++]		= col.g;
-        mColors[cIndex++]		= col.b;
-        mColors[cIndex++]		= col.a;
-        
-        mVerts[vIndex++]		= p4.x;
-        mVerts[vIndex++]		= p4.y;
-        mVerts[vIndex++]		= p4.z;
-        mTexCoords[tIndex++]	= 1.0f;
-        mTexCoords[tIndex++]	= 1.0f;
-        mColors[cIndex++]		= col.r;
-        mColors[cIndex++]		= col.g;
-        mColors[cIndex++]		= col.b;
-        mColors[cIndex++]		= col.a;
+        mVerts[vIndex].vertex  = p3;
+        mVerts[vIndex].texture = Vec2f(0.0f,1.0f);
+        mVerts[vIndex].color   = col;
+        vIndex++;
+
+        mVerts[vIndex].vertex  = p4;
+        mVerts[vIndex].texture = Vec2f(1.0f,1.0f);
+        mVerts[vIndex].color   = col;
+        vIndex++;        
 	}
 }
 
@@ -121,9 +100,9 @@ void StarGlows::draw()
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	glEnableClientState( GL_COLOR_ARRAY );
 	
-	glVertexPointer( 3, GL_FLOAT, 0, mVerts );
-	glTexCoordPointer( 2, GL_FLOAT, 0, mTexCoords );
-	glColorPointer( 4, GL_FLOAT, 0, mColors );
+	glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), mVerts );
+	glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );
+	glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof(VertexData), &mVerts[0].color );
 	
 	glDrawArrays( GL_TRIANGLES, 0, mTotalVertices );
 	
