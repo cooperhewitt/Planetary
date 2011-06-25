@@ -14,15 +14,15 @@
 using namespace ci;
 using namespace std;
 
-void Stars::setup( const vector<NodeArtist*> &nodes,
-                   const Vec3f &bbRight, const Vec3f &bbUp, 
-                   const float &zoomAlpha )
+void Stars::setup( const vector<NodeArtist*> &nodes, const float &zoomAlpha )
 {
-	mTotalVertices = nodes.size() * 6; // 6 = 2 triangles per quad
+	mTotalVertices = nodes.size();//; // * 6; // 6 = 2 triangles per quad
     
     if (mTotalVertices != mPrevTotalVertices) {
         if (mVerts != NULL) delete[] mVerts; 
+        if (mSizes != NULL) delete[] mSizes; 
         mVerts = new VertexData[mTotalVertices];
+        mSizes = new float[mTotalVertices];
         mPrevTotalVertices = mTotalVertices;
     }
 	
@@ -41,59 +41,32 @@ void Stars::setup( const vector<NodeArtist*> &nodes,
 			r -= zoomOffset;
 		}
         
-		Vec3f right	= bbRight * r;
-		Vec3f up	= bbUp * r;
-		
-		Vec3f p1	= pos - right - up;
-		Vec3f p2	= pos + right - up;
-		Vec3f p3	= pos - right + up;
-		Vec3f p4	= pos + right + up;
-		
-		mVerts[vIndex].vertex = p1;
-        mVerts[vIndex].texture = Vec2f(0.0f,0.0f);
+		mVerts[vIndex].vertex = pos; // p1;
         mVerts[vIndex].color = col;
+        mSizes[vIndex] = r * 0.5f;
         vIndex++;
-
-		mVerts[vIndex].vertex = p2;
-        mVerts[vIndex].texture = Vec2f(1.0f,0.0f);
-        mVerts[vIndex].color = col;
-        vIndex++;
-
-        mVerts[vIndex].vertex = p3;
-        mVerts[vIndex].texture = Vec2f(0.0f,1.0f);
-        mVerts[vIndex].color = col;
-        vIndex++;
-
-        mVerts[vIndex].vertex = p2;
-        mVerts[vIndex].texture = Vec2f(1.0f,0.0f);
-        mVerts[vIndex].color = col;
-        vIndex++;
-
-        mVerts[vIndex].vertex = p3;
-        mVerts[vIndex].texture = Vec2f(0.0f,1.0f);
-        mVerts[vIndex].color = col;
-        vIndex++;
-		
-        mVerts[vIndex].vertex = p4;
-        mVerts[vIndex].texture = Vec2f(1.0f,1.0f);
-        mVerts[vIndex].color = col;
-        vIndex++;		
 	}
 }
 
 void Stars::draw( )
 {
+    glEnable(GL_POINT_SPRITE_OES);
+    glTexEnvi(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+    
 	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	glEnableClientState( GL_COLOR_ARRAY );
+    glEnableClientState( GL_POINT_SIZE_ARRAY_OES );
 	
 	glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), mVerts );
-	glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );
 	glColorPointer( 4, GL_FLOAT, sizeof(VertexData), &mVerts[0].color );
+    glPointSizePointerOES( GL_FLOAT, 4, mSizes );
 	
-	glDrawArrays( GL_TRIANGLES, 0, mTotalVertices );
+	glDrawArrays( GL_POINTS, 0, mTotalVertices );
 	
 	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	glDisableClientState( GL_COLOR_ARRAY );
+    glDisableClientState( GL_POINT_SIZE_ARRAY_OES );
+    
+    glDisable(GL_POINT_SPRITE_OES);
+    glTexEnvi(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_FALSE);    
 }

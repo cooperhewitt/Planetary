@@ -18,24 +18,23 @@ public:
     
     struct VertexData {
         ci::Vec3f vertex;
-        ci::Vec2f texture;
         ci::Vec4f color;
     };        
     
     Stars()
     {
         mVerts = NULL;
+        mSizes = NULL;
         mPrevTotalVertices = -1;
     }
     
     ~Stars()
     {
-        if (mVerts != NULL)		delete[] mVerts;
+        if (mVerts != NULL)	delete[] mVerts;
+        if (mSizes != NULL)	delete[] mSizes;
     }
     
-    void setup( const std::vector<NodeArtist*> &nodes,
-                const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, 
-                const float &zoomAlpha );
+    void setup( const std::vector<NodeArtist*> &nodes, const float &zoomAlpha );
     void draw();
 
 private:
@@ -43,5 +42,6 @@ private:
     int mTotalVertices;
     int mPrevTotalVertices; // so we only recreate frames
 	VertexData *mVerts;
+    float *mSizes;
     
 };

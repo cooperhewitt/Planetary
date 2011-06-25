@@ -200,7 +200,7 @@ void World::updateGraphics( const CameraPersp &cam, const Vec2f &center, const V
 	}
     
     if (mIsInitialized) {
-        mStars.setup(mNodes, bbRight, bbUp, zoomAlpha * 0.3f);
+        mStars.setup(mNodes, zoomAlpha * 0.3f);
         mStarGlows.setup(mFilteredNodes, bbRight, bbUp, zoomAlpha);
     }
 }
