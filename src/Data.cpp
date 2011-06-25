@@ -48,6 +48,7 @@ void Data::backgroundInit()
 	}
 	float maxCount = 0.0001f;
 	for( vector<ci::ipod::PlaylistRef>::iterator it = mPendingArtists.begin(); it != mPendingArtists.end(); ++it ){
+        
 		string name		= (*it)->getArtistName();
 		string the		= name.substr( 0, 4 );
 		char firstLetter;
