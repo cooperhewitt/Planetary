@@ -20,7 +20,7 @@ class NodeArtist : public Node
 	
 	void update( float param1, float param2 );
 	void drawEclipseGlow();
-	void drawExtraGlow( const ci::gl::Texture &tex );
+	void drawExtraGlow( const ci::gl::Texture &texGlow, const ci::gl::Texture &texCore );
 	void drawPlanet( const ci::gl::Texture &tex );
 //	void drawAtmosphere( const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
 	void drawAtmosphere( const ci::Vec3f &camEye, const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );

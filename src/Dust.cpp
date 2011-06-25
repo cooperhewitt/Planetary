@@ -26,7 +26,7 @@ void Dust::setup( const Vec3f &camEye )
 	mPos		= randVec;
 	
 	mPrevPos	= mPos;
-	mVel		= randVec * Rand::randFloat( 0.001f, 0.00475f );
+	mVel		= randVec * Rand::randFloat( 0.004f, 0.00675f );
 	mDecay		= 0.98f;
 	mAge		= 0;
 }

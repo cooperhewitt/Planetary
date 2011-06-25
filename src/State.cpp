@@ -101,7 +101,7 @@ void State::setSelectedNode( Node* node )
 			}
 		}
 		
-		for (int i = currentChain.size() - 1; i >= 0; i--) {
+		for (int i = currentChain.size() - 1; i >= 0; i--) { 
 			if (!sharedAncestor[i]) {
 				currentChain[i]->deselect();
 			}

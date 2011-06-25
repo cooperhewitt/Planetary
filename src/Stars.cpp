@@ -54,13 +54,18 @@ void Stars::setup( const vector<NodeArtist*> &nodes, const ci::Vec3f &bbRight, c
         
 		uint col = (uint)(c.r*255.0f) << 24 | (uint)(c.g*255.0f) << 16 | (uint)(c.b*255.0f) << 8 | 0xff;
 
-		float r = (*it)->mRadius * scaleOffset * 0.85f + ( 0.5f - scaleOffset );
-        if( !(*it)->mIsHighlighted ){
-			r -= zoomOffset;
+//		float r = (*it)->mRadius * scaleOffset * 0.85f + ( 0.5f - scaleOffset );
+		float radius = (*it)->mRadius * 3.5f;
+		
+//		if( (*it)->mIsSelected ){
+//			radius *= 65.0f;
+//		} else 
+		if( (*it)->mIsHighlighted ){
+			radius *= 2.0f;
 		}
         
-        Vec3f right			= bbRight * r;
-        Vec3f up			= bbUp * r;
+        Vec3f right			= bbRight * radius;
+        Vec3f up			= bbUp * radius;
         
         Vec3f p1			= pos - right - up;
         Vec3f p2			= pos + right - up;

@@ -45,7 +45,7 @@ void World::setup()
 	}
 	
 	mAge			= 0;
-	mEndRepulseAge	= 50;//200
+	mEndRepulseAge	= 30;//200
 	mIsRepulsing	= true;
 	mIsInitialized	= false;
 }
@@ -245,7 +245,7 @@ void World::repulseNodes()
 		for( ++p2; p2 != mNodes.end(); ++p2 ) {
 			Vec3f dir = (*p1)->mPosDest - (*p2)->mPosDest;
 			
-			float thresh = 50.0f;
+			float thresh = 10.0f;
 			if( dir.x > -thresh && dir.x < thresh && dir.y > -thresh && dir.y < thresh && dir.z > -thresh && dir.z < thresh ){
 				float distSqrd = dir.lengthSquared();
 				
