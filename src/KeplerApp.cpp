@@ -1021,7 +1021,9 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             if (mPlaylistIndex >= mData.mPlaylists.size()) {
                 mPlaylistIndex %= mData.mPlaylists.size(); 
             }
-            mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
+            if (mData.mPlaylists.size() > mPlaylistIndex) {
+                mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
+            }
             break;	
 
 		case PlayControls::PREV_PLAYLIST:
@@ -1065,7 +1067,9 @@ void KeplerApp::updatePlaylistControls()
     if (showPlaylist >= mData.mPlaylists.size()) {
         showPlaylist %= mData.mPlaylists.size(); 
     }
-    mPlayControls.setPlaylist( mData.mPlaylists[showPlaylist]->getPlaylistName() );
+    if (mData.mPlaylists.size() > showPlaylist) {
+        mPlayControls.setPlaylist( mData.mPlaylists[showPlaylist]->getPlaylistName() );
+    }
     const bool playlistMode = (mState.getFilterMode() == State::FilterModePlaylist);
     mPlayControls.setPlaylistSelected( playlistMode && (mPlaylistDisplayOffset == 0) );
 }
@@ -1134,6 +1138,9 @@ void KeplerApp::update()
             logEvent("Startup without Track Playing");
 			mAlphaWheel.setShowWheel( true );
 		}
+        if (mData.mPlaylists.size() > 0) {
+            mPlayControls.setPlaylist( mData.mPlaylists[0]->getPlaylistName() );
+        }
 	}
     
     if ( mRemainingSetupCalled )
