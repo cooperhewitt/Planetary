@@ -1535,8 +1535,10 @@ void KeplerApp::drawScene()
 			gl::disableDepthRead();
 			
 			gl::enableAdditiveBlending();
-			sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
-			
+			if( sortedNodes[i]->mGen == G_ARTIST_LEVEL )
+				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereSunTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
+			else 
+				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
 		}
         
 		glDisable( GL_CULL_FACE );

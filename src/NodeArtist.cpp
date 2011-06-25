@@ -192,7 +192,7 @@ void NodeArtist::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const
 		gl::color( ColorA( ( mColor + Color::white() ), alpha ) );
 		
 		float radiusOffset = ( ( mSphereScreenRadius/300.0f ) ) * 0.1f;
-		Vec2f radius = Vec2f( mRadius, mRadius ) * ( 2.46f + radiusOffset ) * 0.16f;
+		Vec2f radius = Vec2f( mRadius, mRadius ) * ( 2.42f + radiusOffset ) * 0.16f;
 		
 		tex.enableAndBind();
 		bloom::gl::drawSphericalBillboard( camEye, mPos, radius, 0.0f );
