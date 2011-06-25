@@ -14,16 +14,37 @@
 using namespace ci;
 using namespace std;
 
+Stars::Stars()
+{
+    mVerts = NULL;
+    mPrevTotalVertices = -1;
+}
+
+Stars::~Stars()
+{
+    if (mVerts != NULL)	{
+        delete[] mVerts;
+        glDeleteBuffers(1, &vboId);        
+    }
+}
+
 void Stars::setup( const vector<NodeArtist*> &nodes, const float &zoomAlpha )
 {
 	mTotalVertices = nodes.size();//; // * 6; // 6 = 2 triangles per quad
-    
+        
     if (mTotalVertices != mPrevTotalVertices) {
-        if (mVerts != NULL) delete[] mVerts; 
-        if (mSizes != NULL) delete[] mSizes; 
-        mVerts = new VertexData[mTotalVertices];
-        mSizes = new float[mTotalVertices];
-        mPrevTotalVertices = mTotalVertices;
+        if (mVerts != NULL) {
+            delete[] mVerts; 
+            mVerts = NULL;
+        }
+        if ( mPrevTotalVertices != -1 ) {
+            glDeleteBuffers(1, &vboId);      
+        }
+        if (mTotalVertices > 0) {
+            glGenBuffers(1, &vboId);        
+            mVerts = new VertexData[mTotalVertices];
+            mPrevTotalVertices = mTotalVertices;
+        }
     }
 	
 	int vIndex	= 0;
@@ -41,11 +62,15 @@ void Stars::setup( const vector<NodeArtist*> &nodes, const float &zoomAlpha )
 			r -= zoomOffset;
 		}
         
-		mVerts[vIndex].vertex = pos; // p1;
+		mVerts[vIndex].vertex = pos;
         mVerts[vIndex].color = col;
-        mSizes[vIndex] = r * 0.5f;
+        mVerts[vIndex].size = 7.0f * r;
         vIndex++;
 	}
+    
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData)*mTotalVertices, mVerts, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);            
 }
 
 void Stars::draw( )
@@ -53,15 +78,21 @@ void Stars::draw( )
     glEnable(GL_POINT_SPRITE_OES);
     glTexEnvi(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
     
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
+    
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_COLOR_ARRAY );
     glEnableClientState( GL_POINT_SIZE_ARRAY_OES );
 	
-	glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), mVerts );
-	glColorPointer( 4, GL_FLOAT, sizeof(VertexData), &mVerts[0].color );
-    glPointSizePointerOES( GL_FLOAT, 4, mSizes );
+	glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), 0 );
+//	glColorPointer( 4, GL_FLOAT, sizeof(VertexData), (GLvoid*)offsetof(VertexData,color) );
+//    glPointSizePointerOES( GL_FLOAT, sizeof(VertexData), (GLvoid*)offsetof(VertexData,size) );
+	glColorPointer( 4, GL_FLOAT, sizeof(VertexData), (GLvoid*)sizeof(Vec3f) );
+    glPointSizePointerOES( GL_FLOAT, sizeof(VertexData), (GLvoid*)(sizeof(Vec3f) + sizeof(Vec4f)) );
 	
 	glDrawArrays( GL_POINTS, 0, mTotalVertices );
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_COLOR_ARRAY );
