@@ -51,8 +51,7 @@ void Stars::setup( const vector<NodeArtist*> &nodes, const ci::Vec3f &bbRight, c
 		
         Vec3f pos = (*it)->mPos;
         Color c = (*it)->mColor;
-        
-		uint col = (uint)(c.r*255.0f) << 24 | (uint)(c.g*255.0f) << 16 | (uint)(c.b*255.0f) << 8 | 0xff;
+		Vec4f col = Vec4f(c.r, c.g, c.b, 1.0);
 
 		float radius = (*it)->mRadius * scaleOffset * 0.85f + ( 0.5f - scaleOffset );
         
@@ -108,7 +107,7 @@ void Stars::draw( )
 	
 	glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), mVerts );
 	glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );
-	glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof(VertexData), &mVerts[0].color );
+	glColorPointer( 4, GL_FLOAT, sizeof(VertexData), &mVerts[0].color );
 	
 	glDrawArrays( GL_TRIANGLES, 0, mTotalVertices );
 	

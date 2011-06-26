@@ -19,7 +19,7 @@ public:
     struct VertexData {
         ci::Vec3f vertex;
         ci::Vec2f texture;
-        uint      color;
+        ci::Vec4f color;
     };
     
     Stars();
