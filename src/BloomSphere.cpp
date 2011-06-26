@@ -38,8 +38,8 @@ namespace bloom {
             float cosTheta2 = cos( theta2 );
             float sinTheta2 = sin( theta2 );
             
-            Vec4f oldv1, oldv2, newv1, newv2;
-            Vec4f oldt1, oldt2, newt1, newt2;
+            Vec3f oldv1, oldv2, newv1, newv2;
+            Vec2f oldt1, oldt2, newt1, newt2;
             
             for( int i = 0; i <= segments; i++ ) {
                 oldv1			= newv1;
@@ -58,11 +58,11 @@ namespace bloom {
                 float v1		= 0.999f - 2.0f * (float)j * invSegs;
                 float v2		= 0.999f - 2.0f * (float)(j+1) * invSegs;
                 
-                newt1			= Vec4f( u, v1, 0, 0 );
-                newt2			= Vec4f( u, v2, 0, 0 );
+                newt1			= Vec2f( u, v1 );
+                newt2			= Vec2f( u, v2 );
                 
-                newv1			= Vec4f( cosTheta1 * cosTheta3, sinTheta1, cosTheta1 * sinTheta3, 0 );			
-                newv2			= Vec4f( cosTheta2 * cosTheta3, sinTheta2, cosTheta2 * sinTheta3, 0 );
+                newv1			= Vec3f( cosTheta1 * cosTheta3, sinTheta1, cosTheta1 * sinTheta3 );			
+                newv2			= Vec3f( cosTheta2 * cosTheta3, sinTheta2, cosTheta2 * sinTheta3 );
                 
                 if( i > 0 ){
                     mVerts[vert].vertex = oldv1;

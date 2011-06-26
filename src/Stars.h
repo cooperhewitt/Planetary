@@ -20,7 +20,6 @@ public:
         ci::Vec3f vertex;
         ci::Vec2f texture;
         uint      color;
-        float padding[2]; // fit to 32 byte boundaries
     };
     
     Stars();

@@ -17,9 +17,9 @@ namespace bloom {
     public:
         
         struct VertexData {
-            ci::Vec4f vertex;
+            ci::Vec3f vertex;
             // no normal, normal == vertex
-            ci::Vec4f texture;
+            ci::Vec2f texture;
         };            
         
         BloomSphere(): mInited(false) {}

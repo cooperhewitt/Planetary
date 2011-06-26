@@ -9,6 +9,7 @@
 #include "cinder/CinderMath.h"
 #include "Shadow.h"
 #include "Node.h"
+#include "Globals.h"
 
 using namespace ci;
 
@@ -105,95 +106,97 @@ void Shadow::setup( Node* node, Node* mParentNode, float camAlpha )
         draw();
 	}
     
-	/*
      if( G_DEBUG ){
-     glDisable( GL_TEXTURE_2D );
-     
-     gl::enableAlphaBlending();
-     gl::color( ColorA( mGlowColor, 0.4f ) );
-     gl::drawLine( P0, P1 );
-     
-     glPushMatrix();
-     gl::translate( P0 );
-     gl::rotate( mMatrix );
-     gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
-     gl::drawStrokedCircle( Vec2f::zero(), r0, 50 );
-     glPopMatrix();
-     
-     glPushMatrix();
-     gl::translate( P0 );
-     gl::rotate( mMatrix );
-     gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
-     gl::drawStrokedCircle( Vec2f::zero(), r0Inner, 50 );
-     glPopMatrix();
-     
-     glPushMatrix();
-     gl::translate( P1 );
-     gl::rotate( mMatrix );
-     gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
-     gl::drawStrokedCircle( Vec2f::zero(), r1, 25 );
-     glPopMatrix();
-     
-     glPushMatrix();
-     gl::translate( P2 );
-     gl::rotate( mMatrix );
-     gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
-     gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-     glPopMatrix();
-     
-     
-     
-     glPushMatrix();
-     gl::translate( P3a );
-     //gl::rotate( mMatrix );
-     //gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
-     gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-     glPopMatrix();
-     
-     glPushMatrix();
-     gl::translate( P3b );
-     //gl::rotate( mMatrix );
-     //gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
-     gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-     glPopMatrix();
-     
-     glPushMatrix();
-     gl::translate( P5a );
-     gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-     glPopMatrix();
-     
-     glPushMatrix();
-     gl::translate( P5b );
-     gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-     glPopMatrix();
-     
-     glPushMatrix();
-     gl::translate( P6a );
-     gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-     glPopMatrix();
-     
-     glPushMatrix();
-     gl::translate( P6b );
-     gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
-     glPopMatrix();
-     
-     
-     gl::drawLine( P6a, ( P6a + mMatrix * outerTanBDir ) );
-     gl::drawLine( P6b, ( P6b + mMatrix * outerTanBDir ) );
-     gl::drawLine( P6a, ( P6a + mMatrix * innerTanBDir ) );
-     gl::drawLine( P6b, ( P6b + mMatrix * innerTanBDir ) );
-     
-     gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.4f ) );	
-     glPushMatrix();
-     gl::translate( P4 );
-     gl::rotate( mMatrix );
-     gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
-     gl::drawStrokedCircle( Vec2f::zero(), dMid, 50 );
-     glPopMatrix();
-     
-     glEnable( GL_TEXTURE_2D );
+         glDisable( GL_TEXTURE_2D );
+         
+         gl::enableAlphaBlending();
+         gl::color( ColorA( node->mGlowColor, 0.4f ) );
+         gl::drawLine( P0, P1 );
+         
+         glPushMatrix();
+         gl::translate( P0 );
+//         gl::rotate( mMatrix );
+         gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+         gl::drawStrokedCircle( Vec2f::zero(), r0, 50 );
+         glPopMatrix();
+         
+         glPushMatrix();
+         gl::translate( P0 );
+//         gl::rotate( mMatrix );
+         gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+         gl::drawStrokedCircle( Vec2f::zero(), r0Inner, 50 );
+         glPopMatrix();
+         
+         glPushMatrix();
+         gl::translate( P1 );
+//         gl::rotate( mMatrix );
+         gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+         gl::drawStrokedCircle( Vec2f::zero(), r1, 25 );
+         glPopMatrix();
+         
+         glPushMatrix();
+         gl::translate( P2 );
+//         gl::rotate( mMatrix );
+         gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+         gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+         glPopMatrix();
+         
+         
+         
+         glPushMatrix();
+         gl::translate( P3a );
+         //gl::rotate( mMatrix );
+         //gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+         gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+         glPopMatrix();
+         
+         glPushMatrix();
+         gl::translate( P3b );
+         //gl::rotate( mMatrix );
+         //gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+         gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+         glPopMatrix();
+         
+         glPushMatrix();
+         gl::translate( P5a );
+         gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+         glPopMatrix();
+         
+         glPushMatrix();
+         gl::translate( P5b );
+         gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+         glPopMatrix();
+         
+         glPushMatrix();
+         gl::translate( P6a );
+         gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+         glPopMatrix();
+         
+         glPushMatrix();
+         gl::translate( P6b );
+         gl::drawStrokedCircle( Vec2f::zero(), 0.01f, 16 );
+         glPopMatrix();
+         
+         
+//         gl::drawLine( P6a, ( P6a + mMatrix * outerTanBDir ) );
+//         gl::drawLine( P6b, ( P6b + mMatrix * outerTanBDir ) );
+//         gl::drawLine( P6a, ( P6a + mMatrix * innerTanBDir ) );
+//         gl::drawLine( P6b, ( P6b + mMatrix * innerTanBDir ) );
+         gl::drawLine( P6a, ( P6a + outerTanBDir ) );
+         gl::drawLine( P6b, ( P6b + outerTanBDir ) );
+         gl::drawLine( P6a, ( P6a + innerTanBDir ) );
+         gl::drawLine( P6b, ( P6b + innerTanBDir ) );
+         
+         gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.4f ) );	
+         glPushMatrix();
+         gl::translate( P4 );
+//         gl::rotate( mMatrix );
+         gl::rotate( Vec3f( 90.0f, 0.0f, 0.0f ) );
+         gl::drawStrokedCircle( Vec2f::zero(), dMid, 50 );
+         glPopMatrix();
+         
+         glEnable( GL_TEXTURE_2D );
      }
-     */    
 }
 
 void Shadow::buildVerts( Vec3f p1, Vec3f p2, Vec3f p3, Vec3f p4 )
