@@ -9,6 +9,8 @@
 #include "cinder/Vector.h"
 #include "cinder/gl/gl.h"
 
+class Node;
+
 class Shadow
 {
 public:
@@ -16,10 +18,12 @@ public:
     Shadow();
     ~Shadow();
     
-    void setup( ci::Vec3f p1, ci::Vec3f p2, ci::Vec3f p3, ci::Vec3f p4 );
+    void setup( Node* node, Node* mParentNode, float camAlpha );
     void draw();
 
 private:
+
+    void buildVerts( ci::Vec3f p1, ci::Vec3f p2, ci::Vec3f p3, ci::Vec3f p4 );
     
 	GLfloat		*mShadowVerts;
 	GLfloat		*mShadowTexCoords;
