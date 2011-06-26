@@ -130,15 +130,13 @@ void ParticleController::buildDustVertexArray( float scaleOffset, Node *node, fl
 	float alpha = dustAlpha * pinchAlphaPer;
 	Color col;
 	
-	if( node )
+	if (node) {
 		col	= node->mGlowColor;
+    }
 
-    uint color = (uint)(col.r*255.0f) << 24 | (uint)(col.g*255.0f) << 16 | (uint)(col.b*255.0f) << 8 | 0xff;
-	
 	for( list<Dust>::iterator it = mDusts.begin(); it != mDusts.end(); ++it ){        
-        uint colorMask = 0xffffff00 | (uint)(255.0f * alpha * it->mAgePer);
 		mDustVerts[vIndex].vertex = it->mPos * scaleOffset * 0.7f;
-		mDustVerts[vIndex].color = color & colorMask;
+		mDustVerts[vIndex].color = Vec4f(col.r, col.g, col.b, alpha * it->mAgePer);
         vIndex++;
 	}
 }
@@ -153,7 +151,6 @@ void ParticleController::drawParticleVertexArray( Node *node )
 	
 	glVertexPointer( 3, GL_FLOAT, sizeof(ParticleVertex), mParticleVerts );
 	glTexCoordPointer( 2, GL_FLOAT, sizeof(ParticleVertex), &mParticleVerts[0].texture );
-//	glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof(ParticleVertex), &mParticleVerts[0].color );	
 	glColorPointer( 4, GL_FLOAT, sizeof(ParticleVertex), &mParticleVerts[0].color );	
 	
 	glPushMatrix();
@@ -174,7 +171,7 @@ void ParticleController::drawDustVertexArray( Node *node )
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_COLOR_ARRAY );
 	glVertexPointer( 3, GL_FLOAT, sizeof(DustVertex), mDustVerts );
-	glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof(DustVertex), &mDustVerts[0].color );
+	glColorPointer( 4, GL_FLOAT, sizeof(DustVertex), &mDustVerts[0].color );
 
 	glPushMatrix();
 	if( node ) {

@@ -11,12 +11,11 @@ class ParticleController {
         ci::Vec3f vertex;
         ci::Vec2f texture;
         ci::Vec4f color;
-//        uint color;
     };
     
     struct DustVertex {
         ci::Vec3f vertex;
-        uint color;
+        ci::Vec4f color;
     };
     
 	ParticleController();
