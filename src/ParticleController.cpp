@@ -29,8 +29,9 @@ void ParticleController::update( const Vec3f &camEye, float radius, const Vec3f 
 	}
 	
 	bool isGalaxyDust = false;
-	if( G_ZOOM < G_ARTIST_LEVEL - 0.5f )
+	if( G_ZOOM < G_ARTIST_LEVEL - 0.5f ) { // pass in as arguments to avoid global dependencies
 		isGalaxyDust = true;
+    }
 	
 	for( list<Dust>::iterator d = mDusts.begin(); d != mDusts.end(); ++d ){
 		d->update( camEye );
@@ -42,22 +43,26 @@ void ParticleController::buildParticleVertexArray( float scaleOffset, Color c, f
 {
 //	Vec3f lookVec = mBbRight.cross( mBbUp ) * 0.025f;
 	
-	mTotalParticleVertices	= G_NUM_PARTICLES;
+	mTotalParticleVertices = mParticles.size() * 6;
 	
     if (mTotalParticleVertices != mPrevTotalParticleVertices) {
-        if( mParticleVerts != NULL )
+        if( mParticleVerts != NULL ) {
             delete[] mParticleVerts; 
+        }
         mParticleVerts = new ParticleVertex[mTotalParticleVertices];
         mPrevTotalParticleVertices = mTotalParticleVertices;
     }
 	
-	float u1   = 0.0f;
-	float u2   = 1.0f;
-	float v1   = 0.0f;
-	float v2   = 1.0f;
+	const float u1   = 0.0f;
+	const float u2   = 1.0f;
+	const float v1   = 0.0f;
+	const float v2   = 1.0f;
     
 	int vIndex = 0;
 	
+//    // TODO: Cinder Color function for this?    
+//    const uint color = (uint)(c.r*255.0f) << 24 | (uint)(c.g*255.0f) << 16 | (uint)(c.b*255.0f) << 8 | 0xff;    
+    
 	for( list<Particle>::iterator it = mParticles.begin(); it != mParticles.end(); ++it ){
         
 		Vec3f pos				= it->mPos;// + lookVec;
@@ -72,9 +77,11 @@ void ParticleController::buildParticleVertexArray( float scaleOffset, Color c, f
 		Vec3f p3				= pos - right + up;
 		Vec3f p4				= pos + right + up;
         
-        // TODO: Cinder Color function for this?
-        uint col = (uint)(c.r*255.0f) << 24 | (uint)(c.g*255.0f) << 16 | (uint)(c.b*255.0f) << 8 | (uint)(alpha * 255.0f);
+//        uint colorMask = 0xffffff00 | (uint)(255.0f * alpha);
+//        uint col = color & colorMask;
 		
+        Vec4f col(c.r, c.g, c.b, alpha);
+        
 		mParticleVerts[vIndex].vertex  = p1;
 		mParticleVerts[vIndex].texture = Vec2f(u1,v1);
 		mParticleVerts[vIndex].color   = col;
@@ -109,11 +116,12 @@ void ParticleController::buildParticleVertexArray( float scaleOffset, Color c, f
 
 void ParticleController::buildDustVertexArray( float scaleOffset, Node *node, float pinchAlphaPer, float dustAlpha )
 {
-	mTotalDustVertices	= G_NUM_DUSTS;
+	mTotalDustVertices = mDusts.size();
 	
     if (mTotalDustVertices != mPrevTotalDustVertices) {
-        if (mDustVerts != NULL)
+        if (mDustVerts != NULL) {
             delete[] mDustVerts;
+        }
         mDustVerts = new DustVertex[mTotalDustVertices];
         mPrevTotalDustVertices = mTotalDustVertices;
     }
@@ -145,7 +153,8 @@ void ParticleController::drawParticleVertexArray( Node *node )
 	
 	glVertexPointer( 3, GL_FLOAT, sizeof(ParticleVertex), mParticleVerts );
 	glTexCoordPointer( 2, GL_FLOAT, sizeof(ParticleVertex), &mParticleVerts[0].texture );
-	glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof(ParticleVertex), &mParticleVerts[0].color );	
+//	glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof(ParticleVertex), &mParticleVerts[0].color );	
+	glColorPointer( 4, GL_FLOAT, sizeof(ParticleVertex), &mParticleVerts[0].color );	
 	
 	glPushMatrix();
 	if( node ){
