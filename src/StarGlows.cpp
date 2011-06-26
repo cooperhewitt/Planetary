@@ -51,8 +51,8 @@ void StarGlows::setup( const vector<NodeArtist*> &filteredNodes, const Vec3f &bb
         //if( !(*it)->mIsSelected && !(*it)->mIsPlaying )
         //	alpha			= 1.0f - zoomAlpha;
         
-        ColorA c			= ColorA( (*it)->mGlowColor, alpha );
-        uint col            = (uint)(255.0f*c.r) << 24 | (uint)(255.0f*c.g) << 16 | (uint)(255.0f*c.b) << 8 | (uint)(255.0f*c.a);
+        Color c             = (*it)->mGlowColor;
+        Vec4f col			= Vec4f( c.r, c.g, c.b, alpha );
         
         Vec3f right			= bbRight * r;
         Vec3f up			= bbUp * r;
@@ -102,7 +102,7 @@ void StarGlows::draw()
 	
 	glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), mVerts );
 	glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );
-	glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof(VertexData), &mVerts[0].color );
+	glColorPointer( 4, GL_FLOAT, sizeof(VertexData), &mVerts[0].color );
 	
 	glDrawArrays( GL_TRIANGLES, 0, mTotalVertices );
 	

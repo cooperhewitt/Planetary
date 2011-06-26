@@ -60,9 +60,6 @@ void ParticleController::buildParticleVertexArray( float scaleOffset, Color c, f
     
 	int vIndex = 0;
 	
-//    // TODO: Cinder Color function for this?    
-//    const uint color = (uint)(c.r*255.0f) << 24 | (uint)(c.g*255.0f) << 16 | (uint)(c.b*255.0f) << 8 | 0xff;    
-    
 	for( list<Particle>::iterator it = mParticles.begin(); it != mParticles.end(); ++it ){
         
 		Vec3f pos				= it->mPos;// + lookVec;
@@ -77,9 +74,6 @@ void ParticleController::buildParticleVertexArray( float scaleOffset, Color c, f
 		Vec3f p3				= pos - right + up;
 		Vec3f p4				= pos + right + up;
         
-//        uint colorMask = 0xffffff00 | (uint)(255.0f * alpha);
-//        uint col = color & colorMask;
-		
         Vec4f col(c.r, c.g, c.b, alpha);
         
 		mParticleVerts[vIndex].vertex  = p1;
