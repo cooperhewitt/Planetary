@@ -15,65 +15,45 @@ using namespace std;
 
 void PlanetRing::setup()
 {
-    if (mVerts != NULL) delete[] mVerts;
-    if (mTexCoords != NULL) delete[] mTexCoords;
+    if (mVerts != NULL) {
+        delete[] mVerts;
+    }
     
-	mVerts		= new float[18];
-	mTexCoords	= new float[12];
+	mVerts		= new VertexData[6];
 	int i = 0;
-	int t = 0;
-	Vec3f corner;
 	float w	= 1.0f;
 	
-	corner			= Vec3f( -w, 0.0f, -w );
-	mVerts[i++]		= corner.x;
-	mVerts[i++]		= corner.y;
-	mVerts[i++]		= corner.z;
-	mTexCoords[t++]	= 0.0f;
-	mTexCoords[t++]	= 0.0f;
+	mVerts[i].vertex  = Vec3f( -w, 0.0f, -w );
+    mVerts[i].texture = Vec2f( 0.0f, 0.0f );
+    i++;
 	
-	corner			= Vec3f( w, 0.0f, -w );
-	mVerts[i++]		= corner.x;
-	mVerts[i++]		= corner.y;
-	mVerts[i++]		= corner.z;
-	mTexCoords[t++]	= 1.0f;
-	mTexCoords[t++]	= 0.0f;
+	mVerts[i].vertex  = Vec3f( w, 0.0f, -w );
+    mVerts[i].texture = Vec2f( 1.0f, 0.0f );
+    i++;
 	
-	corner			= Vec3f( w, 0.0f, w );	
-	mVerts[i++]		= corner.x;
-	mVerts[i++]		= corner.y;
-	mVerts[i++]		= corner.z;
-	mTexCoords[t++]	= 1.0f;
-	mTexCoords[t++]	= 1.0f;
+	mVerts[i].vertex  = Vec3f( w, 0.0f, w );	
+    mVerts[i].texture = Vec2f( 1.0f, 1.0f );
+    i++;
 	
-	corner			= Vec3f( -w, 0.0f, -w );
-	mVerts[i++]		= corner.x;
-	mVerts[i++]		= corner.y;
-	mVerts[i++]		= corner.z;
-	mTexCoords[t++]	= 0.0f;
-	mTexCoords[t++]	= 0.0f;
+	mVerts[i].vertex  = Vec3f( -w, 0.0f, -w );
+    mVerts[i].texture = Vec2f( 0.0f, 0.0f );
+    i++;
 	
-	corner			= Vec3f( w, 0.0f, w );
-	mVerts[i++]		= corner.x;
-	mVerts[i++]		= corner.y;
-	mVerts[i++]		= corner.z;
-	mTexCoords[t++]	= 1.0f;
-	mTexCoords[t++]	= 1.0f;
+	mVerts[i].vertex  = Vec3f( w, 0.0f, w );
+    mVerts[i].texture = Vec2f( 1.0f, 1.0f );
+    i++;
 	
-	corner			= Vec3f( -w, 0.0f, w );
-	mVerts[i++]		= corner.x;
-	mVerts[i++]		= corner.y;
-	mVerts[i++]		= corner.z;
-	mTexCoords[t++]	= 0.0f;
-	mTexCoords[t++]	= 1.0f;
+	mVerts[i].vertex  = Vec3f( -w, 0.0f, w );
+    mVerts[i].texture = Vec2f( 0.0f, 1.0f );
+    i++;
 }
 
 void PlanetRing::draw() const
 {
     glEnableClientState( GL_VERTEX_ARRAY );
     glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-    glVertexPointer( 3, GL_FLOAT, 0, mVerts );
-    glTexCoordPointer( 2, GL_FLOAT, 0, mTexCoords );    
+    glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), mVerts );
+    glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );    
     glDrawArrays( GL_TRIANGLES, 0, 6 );
     glDisableClientState( GL_VERTEX_ARRAY );
     glDisableClientState( GL_TEXTURE_COORD_ARRAY );    

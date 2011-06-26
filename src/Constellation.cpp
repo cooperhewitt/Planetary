@@ -45,31 +45,24 @@ void Constellation::setup(const vector<NodeArtist*> &filteredNodes)
     
 	mTotalConstellationVertices	= mConstellation.size();
 	if (mTotalConstellationVertices != mPrevTotalConstellationVertices) {
-		if (mConstellationVerts != NULL) delete[] mConstellationVerts; 
-		if (mConstellationTexCoords != NULL) delete[] mConstellationTexCoords; 
-		
-		mConstellationVerts			= new float[mTotalConstellationVertices*3];
-		mConstellationTexCoords		= new float[mTotalConstellationVertices*2];
+		if (mConstellationVerts != NULL) 
+            delete[] mConstellationVerts; 
+		mConstellationVerts	= new VertexData[mTotalConstellationVertices];
 		mPrevTotalConstellationVertices = mTotalConstellationVertices;
 	}
 	
 	int vIndex = 0;
-	int tIndex = 0;
 	int distancesIndex = 0;
 	for( int i=0; i<mTotalConstellationVertices; i++ ){
 		Vec3f pos = mConstellation[i];
-		mConstellationVerts[vIndex++]	= pos.x;
-		mConstellationVerts[vIndex++]	= pos.y;
-		mConstellationVerts[vIndex++]	= pos.z;
-		
+		mConstellationVerts[vIndex].vertex = mConstellation[i];
 		if( i%2 == 0 ){
-			mConstellationTexCoords[tIndex++]	= 0.0f;
-			mConstellationTexCoords[tIndex++]	= 0.5f;
+			mConstellationVerts[vIndex].texture	= Vec2f(0.0f, 0.5f);
 		} else {
-			mConstellationTexCoords[tIndex++]	= distances[distancesIndex];// * 0.4f;
-			mConstellationTexCoords[tIndex++]	= 0.5f;
-			distancesIndex ++;
+			mConstellationVerts[vIndex].texture	= Vec2f(distances[distancesIndex], 0.5f);
+			distancesIndex++;
 		}
+        vIndex++;
 	}    
 }
 
@@ -84,9 +77,9 @@ void Constellation::draw() const
         glEnableClientState( GL_VERTEX_ARRAY );
         glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-        // FIXME: move to an interleaved VBO for this
-        glVertexPointer( 3, GL_FLOAT, 0, mConstellationVerts );
-        glTexCoordPointer( 2, GL_FLOAT, 0, mConstellationTexCoords );
+        glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), mConstellationVerts );
+        glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mConstellationVerts[0].texture );
+        
         glDrawArrays( GL_LINES, 0, mTotalConstellationVertices );
         
         glDisableClientState( GL_VERTEX_ARRAY );

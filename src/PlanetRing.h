@@ -8,20 +8,28 @@
 
 #pragma once
 
+#include "cinder/Vector.h"
+
 class PlanetRing {
 
 public:
     
+    struct VertexData {
+        ci::Vec3f vertex;
+        ci::Vec2f texture;
+    };
+    
     PlanetRing()
     {
         mVerts = NULL;
-        mTexCoords = NULL;
     }
     
     ~PlanetRing()
     {
-        if (mVerts != NULL) delete[] mVerts;
-        if (mTexCoords != NULL) delete[] mTexCoords;        
+        if (mVerts != NULL) {
+            delete[] mVerts;
+            mVerts = NULL;
+        }
     }
     
     void setup();
@@ -29,7 +37,6 @@ public:
     
 private:
 
-	float *mVerts;
-	float *mTexCoords;
+    VertexData *mVerts;
     
 };

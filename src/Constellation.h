@@ -17,16 +17,22 @@ class Constellation
 
 public:
     
+    struct VertexData {
+        ci::Vec3f vertex;
+        ci::Vec2f texture;
+    };
+    
     Constellation()
     {
         mPrevTotalConstellationVertices = -1;
         mConstellationVerts			= NULL;
-        mConstellationTexCoords		= NULL;        
     }
     ~Constellation()
     {
-		if (mConstellationVerts != NULL) delete[] mConstellationVerts; 
-		if (mConstellationTexCoords != NULL) delete[] mConstellationTexCoords;         
+		if (mConstellationVerts != NULL) {
+            delete[] mConstellationVerts; 
+            mConstellationVerts = NULL;
+        }
     }
     
     void setup(const vector<NodeArtist*> &filteredNodes);
@@ -38,7 +44,6 @@ private:
 	std::vector<float> mConstellationDistances;
 	int mTotalConstellationVertices;
 	int mPrevTotalConstellationVertices;
-	float *mConstellationVerts;
-	float *mConstellationTexCoords;
+	VertexData *mConstellationVerts;
     
 };
