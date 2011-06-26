@@ -273,13 +273,6 @@ void World::drawStarGlowsVertexArray()
     mStarGlows.draw();
 }
 
-void World::drawEclipseGlows()
-{
-	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawEclipseGlow();
-	}
-}
-
 void World::drawRings( const gl::Texture &tex, float camZPos )
 {
 	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){

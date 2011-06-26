@@ -59,7 +59,6 @@ public:
 
 	void drawStarsVertexArray();
 	void drawStarGlowsVertexArray();
-	void drawEclipseGlows();
 	void drawNames( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
 	void drawOrbitRings( float pinchAlphaOffset, float camAlpha );
 	void drawConstellation();

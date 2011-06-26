@@ -1555,7 +1555,7 @@ void KeplerApp::drawScene()
 				mEclipseShadowTex.enableAndBind();
 				sortedNodes[i]->findShadows( pow( mCamRingAlpha, 1.2f ) );
 				glEnable( GL_CULL_FACE );
-
+				mEclipseShadowTex.disable();
 				//gl::enableDepthWrite();
 			}
 			
