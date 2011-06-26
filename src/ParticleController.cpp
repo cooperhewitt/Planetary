@@ -42,7 +42,7 @@ void ParticleController::buildParticleVertexArray( float scaleOffset, Color c, f
 {
 //	Vec3f lookVec = mBbRight.cross( mBbUp ) * 0.025f;
 	
-	mTotalParticleVertices	= G_NUM_PARTICLES * 6;
+	mTotalParticleVertices	= G_NUM_PARTICLES;
 	
     if (mTotalParticleVertices != mPrevTotalParticleVertices) {
         if( mParticleVerts != NULL )
@@ -62,7 +62,7 @@ void ParticleController::buildParticleVertexArray( float scaleOffset, Color c, f
         
 		Vec3f pos				= it->mPos;// + lookVec;
 		float radius			= it->mRadius * ( 1.0f - it->mAgePer ) * scaleOffset;// * eclipseStrength;// * sin( it->mAgePer * M_PI );
-		float alpha				= it->mAgePer * eclipseStrength;
+		float alpha				= constrain(it->mAgePer * eclipseStrength, 0.0f, 1.0f);
 		
 		Vec3f right				= mBbRight * radius;
 		Vec3f up				= mBbUp * radius;
@@ -145,7 +145,7 @@ void ParticleController::drawParticleVertexArray( Node *node )
 	
 	glVertexPointer( 3, GL_FLOAT, sizeof(ParticleVertex), mParticleVerts );
 	glTexCoordPointer( 2, GL_FLOAT, sizeof(ParticleVertex), &mParticleVerts[0].texture );
-	glColorPointer( 4, GL_FLOAT, sizeof(ParticleVertex), &mParticleVerts[0].color );	
+	glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof(ParticleVertex), &mParticleVerts[0].color );	
 	
 	glPushMatrix();
 	if( node ){
@@ -165,7 +165,7 @@ void ParticleController::drawDustVertexArray( Node *node )
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_COLOR_ARRAY );
 	glVertexPointer( 3, GL_FLOAT, sizeof(DustVertex), mDustVerts );
-	glColorPointer( 4, GL_FLOAT, sizeof(DustVertex), &mDustVerts[0].color );
+	glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof(DustVertex), &mDustVerts[0].color );
 
 	glPushMatrix();
 	if( node ) {

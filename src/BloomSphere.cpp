@@ -113,7 +113,7 @@ namespace bloom {
         glBindBuffer(GL_ARRAY_BUFFER, mVBO);
         glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), 0 ); // last arg becomes an offset instead of an address
         glNormalPointer( GL_FLOAT, sizeof(VertexData), 0 );
-        glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), (void*)offsetof(VertexData,texture) );        
+        glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), (GLvoid*)sizeof(Vec3f) );        
         glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
 
 		glEnableClientState( GL_VERTEX_ARRAY );
