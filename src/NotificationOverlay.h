@@ -42,6 +42,7 @@ private:
     Matrix44f mOrientationMatrix;
     Vec2f mInterfaceSize;
     
+    bool mSetup;
     bool mActive;
     float mFadeDelay, mFadeDuration, mLastShowTime;
     gl::Texture mCurrentTexture;

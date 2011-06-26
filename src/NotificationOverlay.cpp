@@ -16,13 +16,16 @@
 
 using std::stringstream;
 
-NotificationOverlay::NotificationOverlay() {
+NotificationOverlay::NotificationOverlay() 
+{
     mActive			= false;
+    mSetup          = false;
     mFadeDelay		= 2.0f;
     mFadeDuration	= 1.0f;
 }
 
-NotificationOverlay::~NotificationOverlay() {
+NotificationOverlay::~NotificationOverlay() 
+{
     hide();
 }
 
@@ -31,6 +34,7 @@ void NotificationOverlay::setup( AppCocoaTouch *app, const Orientation &orientat
     mApp = app;
     setInterfaceOrientation(orientation);
 	mFont = font;
+    mSetup = true;
 }
 
 void NotificationOverlay::update()
@@ -89,6 +93,8 @@ void NotificationOverlay::setInterfaceOrientation( const Orientation &orientatio
 
 void NotificationOverlay::show(const gl::Texture &texture, const Area &srcArea, const string &message)
 {
+    if (!mSetup) return;
+    
     mCurrentTexture = texture;
     mCurrentSrcArea = srcArea;
     mCurrentMessage = message;
