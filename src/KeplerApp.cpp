@@ -864,7 +864,23 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
             if (trackNode) {
                 const bool isPlayingTrack = mPlayingTrack && trackNode->getId() == mPlayingTrack->getItemId();
                 if ( !isPlayingTrack ){
-                    mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
+                    const bool playlistMode = (mState.getFilterMode() == State::FilterModePlaylist);                    
+                    if( playlistMode ) {
+                        // find this track node in the current playlist
+                        ipod::PlaylistRef playlist = mState.getPlaylist();
+                        int index = 0;
+                        for (int i = 0; i < playlist->size(); i++) {
+                            if ((*playlist)[i]->getItemId() == trackNode->getId()) {
+                                index = i;
+                                break;
+                            }
+                        }
+                        mIpodPlayer.play( playlist, index );                        
+                    }
+                    else {
+                        // just play the album from the current track
+                        mIpodPlayer.play( trackNode->mAlbum, trackNode->mIndex );
+                    }
                 }
             }
             logEvent("Track Selected");            
@@ -1778,9 +1794,18 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
         if (isPlaying && !selectionIsCorrect) {
 
-            // make doubly-sure we're focused on the correct letter
-            mState.setAlphaChar( artistName );
-            // FIXME: which playlist related update goes here?            
+            const bool playlistMode = (mState.getFilterMode() == State::FilterModePlaylist);                    
+            if (!playlistMode) {
+                // make doubly-sure we're focused on the correct letter
+                mState.setAlphaChar( artistName );
+            }
+            else {
+                // FIXME: which playlist related update goes here?            
+                // e.g. what happens if a playlist was selected outside of our app
+                // how do we tell which one it is?
+                // maybe if playlistMode isn't true we just stay in artist mode?
+                // (this seems right - playlistMode can *only* be true if you selected a playlist inside Planetary)
+            }
             
             // be sure to create nodes for artist, album and track:
             mWorld.selectHierarchy( artistId, albumId, trackId );
