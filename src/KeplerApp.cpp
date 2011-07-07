@@ -56,7 +56,7 @@ using namespace bloom;
 float G_ZOOM			= 0;
 int G_CURRENT_LEVEL		= 0;
 bool G_ACCEL			= true;
-bool G_DEBUG			= false;
+bool G_DEBUG			= true;
 bool G_SHOW_SETTINGS	= false;
 bool G_HELP             = false;
 bool G_DRAW_RINGS		= false;
@@ -1146,12 +1146,15 @@ void KeplerApp::update()
 		mWorld.initNodes( mData.mArtists, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
 		mLoadingScreen.setEnabled( false );
 		mUiLayer.setIsPanelOpen( true );
+        // reset...
         onSelectedNodeChanged( NULL );
-        // and then make sure we know about the current track if there is one
+        // and then make sure we know about the current track if there is one...
         if ( mCurrentPlayState == ipod::Player::StatePlaying ) {
-            logEvent("Startup with Track Playing");                        
+            std::cout << "Startup with Track Playing" << std::endl;
+            logEvent("Startup with Track Playing");
             onPlayerTrackChanged( &mIpodPlayer );
         } else {
+            std::cout << "Startup without Track Playing" << std::endl;
             logEvent("Startup without Track Playing");
 			mAlphaWheel.setShowWheel( true );
 		}
@@ -1768,19 +1771,23 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                                       + " • " + mPlayingTrack->getAlbumTitle() 
                                       + " • " + mPlayingTrack->getTitle() + " " );
 
-        // make doubly-sure we're focused on the correct letter
-        mState.setAlphaChar( artistName );
-        // FIXME: which playlist related update goes here?
-        
         uint64_t artistId = mPlayingTrack->getArtistId();
-        uint64_t albumId = mPlayingTrack->getAlbumId();
+        uint64_t albumId = mPlayingTrack->getAlbumId();            
         
-        // first be sure to create nodes for artist, album and track:
-        mWorld.selectHierarchy( artistId, albumId, trackId );
+        // update things that care about the current selection
+        bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
+        if (isPlaying && !selectionIsCorrect) {
 
-        // and finally tell other things that care about the current selection
-        if (!selectionIsCorrect) {
-            mState.setSelectedNode( mWorld.getTrackNodeById( artistId, albumId, trackId ) );
+            // make doubly-sure we're focused on the correct letter
+            mState.setAlphaChar( artistName );
+            // FIXME: which playlist related update goes here?            
+            
+            // be sure to create nodes for artist, album and track:
+            mWorld.selectHierarchy( artistId, albumId, trackId );
+            
+            // make sure the previous selection is correctly unselected
+            // (see also: onSelectedNodeChanged, triggered by this call):
+            mState.setSelectedNode( mWorld.getTrackNodeById( artistId, albumId, trackId ) );            
         }
 
         // then sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
@@ -1825,7 +1832,8 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
     mPlayheadUpdateSeconds = -1;    
 
     // make sure mCurrentTrack and mWorld.mPlayingTrackNode are taken care of:
-    onPlayerTrackChanged( player );
+    // XXX: removed for Eyeo shuffler but this doesn't cover every case :(
+    //onPlayerTrackChanged( player );
     
     // do stats:
     std::map<string, string> params;
