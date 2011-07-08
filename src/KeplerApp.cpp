@@ -1228,8 +1228,8 @@ void KeplerApp::update()
         Vec3f bbRight, bbUp;
         mCam.getBillboardVectors( &bbRight, &bbUp );        
         
-		
-		// FIXME: Tom, is this right? does getWindowSize return the proper size without needing to swizzle the xy for landscape mode?
+		// use raw getWindowSize (without swizzle) because 3D stuff is always drawn portrait
+        // the labels and interactions are rotated for landscape left/right and upside-down modes
 		Vec2f interfaceSize = getWindowSize();
         mWorld.updateGraphics( mCam, interfaceSize * 0.5f, bbRight, bbUp, mFadeInAlphaToArtist );
 

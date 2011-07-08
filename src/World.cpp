@@ -85,6 +85,7 @@ void World::setFilter(const Filter &filter)
 	}
 	
     mFilteredNodes.clear();
+    
 	for(vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it){
         if ( filter.test( (*it)->getPlaylist() ) ) {
             (*it)->mIsHighlighted = true;
@@ -191,7 +192,6 @@ void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 
 void World::updateGraphics( const CameraPersp &cam, const Vec2f &center, const Vec3f &bbRight, const Vec3f &bbUp, const float &zoomAlpha )
 {
-    
     const float w = app::getWindowWidth();
     const float h = app::getWindowHeight();
     
