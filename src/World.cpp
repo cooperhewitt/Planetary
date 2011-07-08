@@ -210,7 +210,6 @@ void World::update( float param1, float param2 )
 	if( mIsInitialized ){
 		mAge ++;
 	
-	
 		if( mAge == mEndRepulseAge ){
 			mIsRepulsing = false;
 		}

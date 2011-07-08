@@ -19,7 +19,7 @@ namespace bloom {
     void BloomSphere::setup( int segments )
     {	
         if (mInited) {
-            delete[] mVerts;
+            glDeleteBuffers(1, &mVBO);
         }
         
         mNumVerts		= segments * (segments/2) * 2 * 3;
@@ -97,8 +97,10 @@ namespace bloom {
         glGenBuffers(1, &mVBO);
         glBindBuffer(GL_ARRAY_BUFFER, mVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * mNumVerts, mVerts, GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
+        glBindBuffer(GL_ARRAY_BUFFER, 0); // Leave no VBO bound.        
 
+        delete[] mVerts;
+        
         mInited = true;
     }
 
@@ -114,7 +116,7 @@ namespace bloom {
         glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), 0 ); // last arg becomes an offset instead of an address
         glNormalPointer( GL_FLOAT, sizeof(VertexData), 0 );
         glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), (GLvoid*)sizeof(Vec3f) );        
-        glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
+        glBindBuffer(GL_ARRAY_BUFFER, 0); // Leave no VBO bound.        
 
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
