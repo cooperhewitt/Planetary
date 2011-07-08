@@ -19,10 +19,18 @@ public:
         ci::Vec2f texture;
     };    
     
+    Galaxy() {
+        mGalaxyVBO = 0;
+        mDarkMatterVBO = 0;
+    }
+    
     ~Galaxy() {
-        delete[] mGalaxyVerts;
-        delete[] mDarkMatterVerts;
-        // FIXME: clear VBOs
+        if (mDarkMatterVBO != 0) {
+            glDeleteBuffers(1, &mDarkMatterVBO);
+        }
+        if (mGalaxyVBO != 0) {
+            glDeleteBuffers(1, &mGalaxyVBO);
+        }
     }
     
     void setup(float initialCamDist, 
@@ -59,12 +67,9 @@ private:
     void initDarkMatterVertexArray();
 
     // set in initXXX(), used in drawXXX()
-    GLuint      mGalaxyVBO;
-	VertexData *mGalaxyVerts;
-    GLuint      mDarkMatterVBO;
-	VertexData *mDarkMatterVerts;
+    GLuint mGalaxyVBO, mDarkMatterVBO;
 
-	int				mDarkMatterCylinderRes;
-	float			mLightMatterBaseRadius;
-	float			mDarkMatterBaseRadius;     
+	int	  mDarkMatterCylinderRes;
+	float mLightMatterBaseRadius;
+	float mDarkMatterBaseRadius;     
 };

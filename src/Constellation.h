@@ -25,7 +25,7 @@ public:
     Constellation()
     {
         mPrevTotalConstellationVertices = -1;
-        mConstellationVerts			= NULL;
+        mConstellationVerts	= NULL;
     }
     ~Constellation()
     {
@@ -35,8 +35,8 @@ public:
         }
     }
     
-    void setup(const vector<NodeArtist*> &filteredNodes);
-    void draw() const;
+    void setup( const vector<NodeArtist*> &filteredNodes );
+    void draw( const float &alpha ) const;
     
 private:
 

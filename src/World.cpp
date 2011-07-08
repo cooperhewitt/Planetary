@@ -308,7 +308,8 @@ void World::drawTouchHighlights( float zoomAlpha )
 
 void World::drawConstellation()
 {
-    mConstellation.draw();
+    const float alpha = ( 1.0f - (G_ZOOM-1.0f) ) * 0.4f;
+    mConstellation.draw( alpha );
 }
 
 void World::drawHitAreas()

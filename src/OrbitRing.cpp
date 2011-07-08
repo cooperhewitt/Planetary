@@ -13,13 +13,25 @@
 
 using namespace ci;
 
+OrbitRing::OrbitRing()
+{
+    mLowResVBO = 0;
+    mHighResVBO = 0;
+}
+
+OrbitRing::~OrbitRing()
+{
+    if (mLowResVBO != 0) {
+        glDeleteBuffers(1, &mLowResVBO);
+    }
+    if (mHighResVBO != 0) {
+        glDeleteBuffers(1, &mHighResVBO);
+    }
+}
+
 void OrbitRing::setup()
 {
-	if( mVertsLowRes	!= NULL ) delete[] mVertsLowRes;
-	if( mVertsHighRes	!= NULL ) delete[] mVertsHighRes;
-	
-	mVertsLowRes  = new VertexData[ G_RING_LOW_RES ];	 // X,Y,U,V
-	mVertsHighRes = new VertexData[ G_RING_HIGH_RES ]; // X,Y,U,V
+	VertexData *mVertsLowRes  = new VertexData[ G_RING_LOW_RES ];  // X,Y,U,V
 	
 	for( int i=0; i<G_RING_LOW_RES; i++ ){
 		float per	= (float)i/(float)(G_RING_LOW_RES-1);
@@ -32,6 +44,10 @@ void OrbitRing::setup()
     glBindBuffer(GL_ARRAY_BUFFER, mLowResVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * G_RING_LOW_RES, mVertsLowRes, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
+
+    delete[] mVertsLowRes;
+
+	VertexData *mVertsHighRes = new VertexData[ G_RING_HIGH_RES ]; // X,Y,U,V
 	
 	for( int i=0; i<G_RING_HIGH_RES; i++ ){
 		float per	= (float)i/(float)(G_RING_HIGH_RES-1);
@@ -44,7 +60,8 @@ void OrbitRing::setup()
     glBindBuffer(GL_ARRAY_BUFFER, mHighResVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * G_RING_HIGH_RES, mVertsHighRes, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
-    
+
+    delete[] mVertsHighRes;    
 }
 
 void OrbitRing::drawLowRes() const

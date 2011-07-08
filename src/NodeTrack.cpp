@@ -490,9 +490,6 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 			gl::translate( mPos );
 			clouds[mCloudTexIndex].enableAndBind();
 
-            // !!! ROBERT/FIXME: there used to be an extra pushModelView() here
-            // if things look weird with the clouds, it's probably Tom's fault for removing it
-            
 			const float radius = mRadius * mDeathPer + mCloudLayerRadius;
 			gl::scale( Vec3f( radius, radius, radius ) );
 			

@@ -14,34 +14,21 @@
 class OrbitRing {
 
 public:
-    
-    struct VertexData {
-        ci::Vec2f vertex;
-        ci::Vec2f texture;
-    };    
-    
-    OrbitRing()
-    {
-        mVertsLowRes  = NULL;
-        mVertsHighRes = NULL;
-    }
-    
-    ~OrbitRing()
-    {
-        if( mVertsLowRes  != NULL ) delete[] mVertsLowRes;
-        if( mVertsHighRes != NULL ) delete[] mVertsHighRes;
-        // FIXME delete VBO
-    }
+        
+    OrbitRing();    
+    ~OrbitRing();
     
     void setup();
     void drawLowRes() const;
     void drawHighRes() const;
 
 private:
+
+    struct VertexData {
+        ci::Vec2f vertex;
+        ci::Vec2f texture;
+    };
     
-    GLuint mLowResVBO;
-	VertexData *mVertsLowRes;
-    GLuint mHighResVBO;
-	VertexData *mVertsHighRes;
+    GLuint mLowResVBO, mHighResVBO;
     
 };

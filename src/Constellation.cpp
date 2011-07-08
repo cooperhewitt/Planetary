@@ -66,13 +66,11 @@ void Constellation::setup(const vector<NodeArtist*> &filteredNodes)
 	}    
 }
 
-void Constellation::draw() const
+void Constellation::draw( const float &alpha ) const
 {
     if( mTotalConstellationVertices > 2 ){
         
-        // FIXME: pass this in as a function argument (to remove dependency on global)
-        const float zoomPer = ( 1.0f - (G_ZOOM-1.0f) ) * 0.4f;
-        gl::color( ColorA( 0.12f, 0.25f, 0.85f, zoomPer ) );
+        gl::color( ColorA( 0.12f, 0.25f, 0.85f, alpha ) );
         
         glEnableClientState( GL_VERTEX_ARRAY );
         glEnableClientState( GL_TEXTURE_COORD_ARRAY );

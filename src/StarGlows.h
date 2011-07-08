@@ -32,10 +32,8 @@ public:
     
 private:
 
-    // FIXME: use a "DYNAMIC" VBO, or a VAO
-    // don't use POINT_SPRITE because we need to draw BIG
 	int mTotalVertices;
-    int mPrevTotalVertices; // so we only recreate frames
+    int mPrevTotalVertices;
 	VertexData *mVerts;
 	
 };

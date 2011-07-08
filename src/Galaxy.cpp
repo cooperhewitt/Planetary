@@ -168,49 +168,50 @@ void Galaxy::initGalaxyVertexArray()
 {
 	std::cout << "initializing Galaxy Vertex Array" << std::endl;
     
-	mGalaxyVerts = new VertexData[6];
+	VertexData *galaxyVerts = new VertexData[6];
 
 	const float w = 200.0f;
 
     int vert = 0;
 
-	mGalaxyVerts[vert].vertex  = Vec3f( -w, 0.0f, -w );
-    mGalaxyVerts[vert].texture = Vec2f::zero();
+	galaxyVerts[vert].vertex  = Vec3f( -w, 0.0f, -w );
+    galaxyVerts[vert].texture = Vec2f::zero();
     vert++;
 	
-	mGalaxyVerts[vert].vertex  = Vec3f( w, 0.0f, -w );
-    mGalaxyVerts[vert].texture = Vec2f(1.0f, 0.0f);
+	galaxyVerts[vert].vertex  = Vec3f( w, 0.0f, -w );
+    galaxyVerts[vert].texture = Vec2f(1.0f, 0.0f);
     vert++;
 
-    mGalaxyVerts[vert].vertex  = Vec3f( w, 0.0f, w );
-    mGalaxyVerts[vert].texture = Vec2f(1.0f, 1.0f);
+    galaxyVerts[vert].vertex  = Vec3f( w, 0.0f, w );
+    galaxyVerts[vert].texture = Vec2f(1.0f, 1.0f);
     vert++;
 
-    mGalaxyVerts[vert].vertex  = Vec3f( -w, 0.0f, -w );
-    mGalaxyVerts[vert].texture = Vec2f(0.0f, 0.0f);
+    galaxyVerts[vert].vertex  = Vec3f( -w, 0.0f, -w );
+    galaxyVerts[vert].texture = Vec2f(0.0f, 0.0f);
     vert++;
 
-    mGalaxyVerts[vert].vertex  = Vec3f( w, 0.0f, w );
-    mGalaxyVerts[vert].texture = Vec2f(1.0f, 1.0f);
+    galaxyVerts[vert].vertex  = Vec3f( w, 0.0f, w );
+    galaxyVerts[vert].texture = Vec2f(1.0f, 1.0f);
     vert++;
 
-    mGalaxyVerts[vert].vertex  = Vec3f( -w, 0.0f, w );
-    mGalaxyVerts[vert].texture = Vec2f(0.0f, 1.0f);
+    galaxyVerts[vert].vertex  = Vec3f( -w, 0.0f, w );
+    galaxyVerts[vert].texture = Vec2f(0.0f, 1.0f);
     vert++;
     
     glGenBuffers(1, &mGalaxyVBO);
     glBindBuffer(GL_ARRAY_BUFFER, mGalaxyVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * vert, mGalaxyVerts, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * vert, galaxyVerts, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Leave no VBO bound.        
     
+    delete[] galaxyVerts;
 }
 
 
 void Galaxy::initDarkMatterVertexArray()
 {
 	std::cout << "initializing Dark Matter Vertex Array" << std::endl;
-	mDarkMatterVerts = new VertexData[ mDarkMatterCylinderRes * 6 ]; // cylinderRes * two-triangles
-	
+	VertexData *darkMatterVerts = new VertexData[ mDarkMatterCylinderRes * 6 ]; // cylinderRes * two-triangles
+
     const float TWO_PI = 2.0f * M_PI;
     
 	int vert = 0;
@@ -235,34 +236,35 @@ void Galaxy::initDarkMatterVertexArray()
 		
         const float texRepeat = G_USE_COMPRESSED ? 2.0f : 1.0f;
         
-		mDarkMatterVerts[vert].vertex = v1;
-		mDarkMatterVerts[vert].texture = Vec2f(per1 * texRepeat, 0.0f);
+		darkMatterVerts[vert].vertex = v1;
+		darkMatterVerts[vert].texture = Vec2f(per1 * texRepeat, 0.0f);
 		vert++;
 
-        mDarkMatterVerts[vert].vertex = v2;
-		mDarkMatterVerts[vert].texture = Vec2f(per2 * texRepeat, 0.0f);
+        darkMatterVerts[vert].vertex = v2;
+		darkMatterVerts[vert].texture = Vec2f(per2 * texRepeat, 0.0f);
 		vert++;
 
-        mDarkMatterVerts[vert].vertex = v3;
-		mDarkMatterVerts[vert].texture = Vec2f(per1 * texRepeat, 1.0f);
+        darkMatterVerts[vert].vertex = v3;
+		darkMatterVerts[vert].texture = Vec2f(per1 * texRepeat, 1.0f);
 		vert++;
 
-        mDarkMatterVerts[vert].vertex = v2;
-		mDarkMatterVerts[vert].texture = Vec2f(per2 * texRepeat, 0.0f);
+        darkMatterVerts[vert].vertex = v2;
+		darkMatterVerts[vert].texture = Vec2f(per2 * texRepeat, 0.0f);
 		vert++;
 
-        mDarkMatterVerts[vert].vertex = v4;
-		mDarkMatterVerts[vert].texture = Vec2f(per2 * texRepeat, 1.0f);
+        darkMatterVerts[vert].vertex = v4;
+		darkMatterVerts[vert].texture = Vec2f(per2 * texRepeat, 1.0f);
 		vert++;
 
-        mDarkMatterVerts[vert].vertex = v3;
-		mDarkMatterVerts[vert].texture = Vec2f(per1 * texRepeat, 1.0f);
+        darkMatterVerts[vert].vertex = v3;
+		darkMatterVerts[vert].texture = Vec2f(per1 * texRepeat, 1.0f);
 		vert++;
 	}
     
     glGenBuffers(1, &mDarkMatterVBO);
     glBindBuffer(GL_ARRAY_BUFFER, mDarkMatterVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * vert, mDarkMatterVerts, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * vert, darkMatterVerts, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Leave no VBO bound.        
     
+    delete[] darkMatterVerts;
 }

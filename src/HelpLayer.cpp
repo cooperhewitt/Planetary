@@ -204,9 +204,6 @@ void HelpLayer::update()
 
 void HelpLayer::draw( const gl::Texture &tex, float y )
 {		
-    // FIXME: can we use glDrawTexfOES instead of gl::draw(...)?
-    // (is fiddly, so maybe not?)
-    
 	if( mHelpPer > 0.001f ){
 		float dragAlphaPer = pow( ( mInterfaceSize.y - y ) / 65.0f, 2.0f );
 		float alpha = mHelpPer * dragAlphaPer;

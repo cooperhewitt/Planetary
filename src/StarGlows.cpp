@@ -100,6 +100,9 @@ void StarGlows::draw()
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	glEnableClientState( GL_COLOR_ARRAY );
 	
+    // TODO: could we use a DYNAMIC VBO or a "VAO" (as Apple recommends) to manage this?
+    // NB:- we don't use POINT_SPRITE because we need to draw BIG points sometimes
+    
 	glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), mVerts );
 	glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );
 	glColorPointer( 4, GL_FLOAT, sizeof(VertexData), &mVerts[0].color );
