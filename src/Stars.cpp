@@ -105,6 +105,9 @@ void Stars::draw( )
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	glEnableClientState( GL_COLOR_ARRAY );
 	
+    // TODO: maybe use a DYNAMIC VBO, or a VAO (as Apple recommends)
+    // we don't use POINT_SPRITE because we need to draw BIG stars
+    
 	glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), mVerts );
 	glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );
 	glColorPointer( 4, GL_FLOAT, sizeof(VertexData), &mVerts[0].color );

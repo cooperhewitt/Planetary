@@ -16,12 +16,6 @@ class NodeArtist;
 class Stars {
 public:
     
-    struct VertexData {
-        ci::Vec3f vertex;
-        ci::Vec2f texture;
-        ci::Vec4f color;
-    };
-    
     Stars();
     
     ~Stars();
@@ -32,11 +26,14 @@ public:
     void draw();
     
 private:
+
+    struct VertexData {
+        ci::Vec3f vertex;
+        ci::Vec2f texture;
+        ci::Vec4f color;
+    };
     
-    // FIXME: use a "DYNAMIC" VBO, or a VAO
-    // don't use POINT_SPRITE because we need to draw BIG
-	int mTotalVertices;
-    int mPrevTotalVertices; // so we only recreate frames
+	int mTotalVertices, mPrevTotalVertices;
 	VertexData *mVerts;
 	
 };

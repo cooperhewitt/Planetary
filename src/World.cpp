@@ -27,11 +27,9 @@ using namespace std;
 
 void World::setup()
 {
-    // FIXME: this check for mIsInitialized looks wrong (it's set to false below)
-    // ... when is it set to true? ... in anycase, these should only be set once :)
-	if( !mIsInitialized ){
+	if( !mSpheresInitialized ){
 		// VERTEX ARRAY SPHERE      
-		if( G_IS_IPAD2 ){
+		if ( G_IS_IPAD2 ) {
             mHiSphere.setup(32);
             mMdSphere.setup(20);
             mLoSphere.setup(16);
@@ -42,6 +40,7 @@ void World::setup()
             mLoSphere.setup(12);
             mTySphere.setup(8);
 		}
+        mSpheresInitialized = true;
 	}
 	
 	mAge			= 0;

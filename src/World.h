@@ -33,7 +33,7 @@ class World {
 
 public:
 	
-    World() {};
+    World() { mSpheresInitialized = false; mIsInitialized = false; };
     ~World() {};
     
 	void setup();
@@ -82,6 +82,7 @@ private:
 	int mEndRepulseAge;
     bool mIsRepulsing;
 	bool mIsInitialized;
+    bool mSpheresInitialized;
 
     ///////////////
 
