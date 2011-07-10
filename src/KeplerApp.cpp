@@ -787,7 +787,7 @@ bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 bool KeplerApp::onAlphaCharStateChanged( State *state )
 {
     if (mState.getAlphaChar() != ' ') {
-        mWorld.setFilter( std::shared_ptr<Filter>(new LetterFilter(mState.getAlphaChar())) );
+        mWorld.setFilter( FilterRef(new LetterFilter(mState.getAlphaChar())) );
         mState.setFilterMode( State::FilterModeAlphaChar );
 
         mState.setSelectedNode( NULL );
@@ -813,7 +813,7 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
 	std::cout << "playlist changed to " << playlistName << std::endl;
     
     mState.setAlphaChar( ' ' );
-    mWorld.setFilter( std::shared_ptr<Filter>(new PlaylistFilter(playlist)) );
+    mWorld.setFilter( FilterRef(new PlaylistFilter(playlist)) );
     mState.setFilterMode( State::FilterModePlaylist ); // TODO: make this part of Filter?
     mState.setSelectedNode( NULL );
 

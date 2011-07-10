@@ -75,7 +75,7 @@ void World::initNodes( const vector<PlaylistRef> &artists, const Font &font, con
 	mIsInitialized = true;
 }
 
-void World::setFilter(std::shared_ptr<Filter> filterRef)
+void World::setFilter(FilterRef filterRef)
 {
     mFilterRef = filterRef;
     

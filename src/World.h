@@ -45,7 +45,7 @@ public:
                     const ci::Surface &loResSurfaces, 
                     const ci::Surface &noAlbumArt );
     
-	void setFilter(std::shared_ptr<Filter> filterRef);
+	void setFilter(FilterRef filterRef);
     int  getNumFilteredNodes() const { return mFilteredNodes.size(); }
     
     void updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
@@ -75,7 +75,7 @@ private:
 
     std::vector<NodeArtist*> mNodes;
     std::vector<NodeArtist*> mFilteredNodes;
-    std::shared_ptr<Filter> mFilterRef;
+    FilterRef mFilterRef;
 
     ///////////////
 

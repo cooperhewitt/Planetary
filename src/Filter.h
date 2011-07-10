@@ -17,3 +17,5 @@ public:
     virtual bool test(ci::ipod::PlaylistRef artistOrAlbum) const = 0;
     virtual bool test(ci::ipod::TrackRef track) const = 0;
 };
+
+typedef std::shared_ptr<Filter> FilterRef;
