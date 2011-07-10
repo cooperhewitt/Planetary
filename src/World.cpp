@@ -75,8 +75,10 @@ void World::initNodes( const vector<PlaylistRef> &artists, const Font &font, con
 	mIsInitialized = true;
 }
 
-void World::setFilter(const Filter &filter)
+void World::setFilter(std::shared_ptr<Filter> filterRef)
 {
+    mFilterRef = filterRef;
+    
     // deselect all nodes first
 	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
 		(*it)->mIsHighlighted = false;
@@ -86,7 +88,7 @@ void World::setFilter(const Filter &filter)
     mFilteredNodes.clear();
     
 	for(vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it){
-        if ( filter.test( (*it)->getPlaylist() ) ) {
+        if ( mFilterRef->test( (*it)->getPlaylist() ) ) {
             (*it)->mIsHighlighted = true;
             mFilteredNodes.push_back(*it);
         }

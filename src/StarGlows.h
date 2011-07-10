@@ -16,12 +16,6 @@ class NodeArtist;
 class StarGlows {
 public:
     
-    struct VertexData {
-        ci::Vec3f vertex;
-        ci::Vec2f texture;
-        ci::Vec4f color; // TODO: try uint again?
-    };
-    
     StarGlows();    
     ~StarGlows();
     
@@ -32,6 +26,12 @@ public:
     
 private:
 
+    struct VertexData {
+        ci::Vec3f vertex;
+        ci::Vec2f texture;
+        ci::Vec4f color; // TODO: try uint again? ColorA8u
+    };
+    
 	int mTotalVertices;
     int mPrevTotalVertices;
 	VertexData *mVerts;
