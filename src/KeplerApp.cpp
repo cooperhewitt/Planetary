@@ -1890,18 +1890,25 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
-    // this should be the only call to getPlayState()
+    ipod::Player::State prevPlayState = mCurrentPlayState;
+    const bool wasPaused = (prevPlayState == ipod::Player::StatePaused);
+    
+    // this should be the only call to getPlayState() apart from during setup()
     // TODO: modify CinderIPod library to pass the new play state directly
     mCurrentPlayState = mIpodPlayer.getPlayState();
 
     // update UI:
-    mPlayControls.setPlaying(mCurrentPlayState == ipod::Player::StatePlaying);
+    const bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
+    mPlayControls.setPlaying(isPlaying);
     
     // be sure the track moon and elapsed time things get an update:
     mPlayheadUpdateSeconds = -1;    
 
-    // make sure mCurrentTrack and mWorld.mPlayingTrackNode are taken care of:
-    onPlayerTrackChanged( player );
+    // make sure mCurrentTrack and mWorld.mPlayingTrackNode are taken care of,
+    // unless we're just continuing to play a track we're already aware of
+    if (!wasPaused && isPlaying) {
+        onPlayerTrackChanged( player );
+    }
     
     // do stats:
     std::map<string, string> params;
