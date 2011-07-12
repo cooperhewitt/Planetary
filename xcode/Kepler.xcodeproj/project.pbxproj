@@ -114,6 +114,8 @@
 		E28177EE139AFA8500049D69 /* PlaylistFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28177EC139AFA8500049D69 /* PlaylistFilter.cpp */; };
 		E28177F6139AFB0800049D69 /* LetterFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28177F5139AFB0800049D69 /* LetterFilter.cpp */; };
 		E28FDA831339B782005EDBB4 /* PlayControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA821339B782005EDBB4 /* PlayControls.cpp */; };
+		E2CD4B9D13CA6F350047AF5F /* PlaylistChooser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */; };
+		E2CD4BA013CA70F60047AF5F /* FilterToggleButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */; };
 		E2DC1E0213984774000B1D11 /* NotificationOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */; };
 		E2E21CB413A14A3800A476A2 /* Galaxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CB213A14A3700A476A2 /* Galaxy.cpp */; };
 		E2E21CD413A17B9F00A476A2 /* Easing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CD313A17B9F00A476A2 /* Easing.cpp */; };
@@ -254,6 +256,10 @@
 		E28177EC139AFA8500049D69 /* PlaylistFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlaylistFilter.cpp; path = ../src/PlaylistFilter.cpp; sourceTree = "<group>"; };
 		E28177F5139AFB0800049D69 /* LetterFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LetterFilter.cpp; path = ../src/LetterFilter.cpp; sourceTree = "<group>"; };
 		E28FDA821339B782005EDBB4 /* PlayControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayControls.cpp; path = ../src/PlayControls.cpp; sourceTree = "<group>"; };
+		E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlaylistChooser.cpp; path = ../src/PlaylistChooser.cpp; sourceTree = "<group>"; };
+		E2CD4B9C13CA6F350047AF5F /* PlaylistChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistChooser.h; path = ../src/PlaylistChooser.h; sourceTree = "<group>"; };
+		E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FilterToggleButton.cpp; path = ../src/FilterToggleButton.cpp; sourceTree = "<group>"; };
+		E2CD4B9F13CA70F60047AF5F /* FilterToggleButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FilterToggleButton.h; path = ../src/FilterToggleButton.h; sourceTree = "<group>"; };
 		E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NotificationOverlay.cpp; path = ../src/NotificationOverlay.cpp; sourceTree = "<group>"; };
 		E2E21CB213A14A3700A476A2 /* Galaxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Galaxy.cpp; path = ../src/Galaxy.cpp; sourceTree = "<group>"; };
 		E2E21CB613A177E200A476A2 /* AlphaWheel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlphaWheel.h; path = ../src/AlphaWheel.h; sourceTree = "<group>"; };
@@ -660,6 +666,8 @@
 				E2E21CC913A177EA00A476A2 /* PlayControls.h */,
 				E2E21CD113A177EE00A476A2 /* UiLayer.h */,
 				E2E21CDC13A2D70E00A476A2 /* Stats.h */,
+				E2CD4B9C13CA6F350047AF5F /* PlaylistChooser.h */,
+				E2CD4B9F13CA70F60047AF5F /* FilterToggleButton.h */,
 			);
 			name = Ui;
 			sourceTree = "<group>";
@@ -723,6 +731,8 @@
 				E1B0DBB113510C890093EB9D /* HelpLayer.cpp */,
 				E15C90B61300B2F900FB8389 /* UiLayer.cpp */,
 				E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */,
+				E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */,
+				E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */,
 				E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */,
 			);
 			name = Ui;
@@ -978,6 +988,8 @@
 				E219CEFB13A7D7CE006C7F26 /* PlanetRing.cpp in Sources */,
 				E219CEFE13A7DAFD006C7F26 /* Constellation.cpp in Sources */,
 				E22D983B13B6A2B700F9DB06 /* Shadow.cpp in Sources */,
+				E2CD4B9D13CA6F350047AF5F /* PlaylistChooser.cpp in Sources */,
+				E2CD4BA013CA70F60047AF5F /* FilterToggleButton.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

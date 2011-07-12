@@ -14,8 +14,11 @@
 class PlaylistFilter : public Filter {
   public:
     PlaylistFilter(ci::ipod::PlaylistRef playlist);
-    bool test(ci::ipod::PlaylistRef artist) const;
-    bool test(ci::ipod::TrackRef track) const;
+    bool testArtist( ci::ipod::PlaylistRef artist ) const;
+    bool testAlbum( ci::ipod::PlaylistRef album ) const;
+    bool testTrack( ci::ipod::TrackRef track ) const;
   private:
     std::set<uint64_t> mArtistSet;    
+    std::set<uint64_t> mAlbumSet;    
+    std::set<uint64_t> mTrackSet;    
 };

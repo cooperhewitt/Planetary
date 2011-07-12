@@ -34,6 +34,8 @@ class NodeAlbum : public Node
 	float getReleaseYear();
     uint64_t getId();
 
+	ci::ipod::PlaylistRef getPlaylist() { return mAlbum; }
+    
 	// TODO: should this be private?
 	int mNumTracks;
 	ci::Surface	mAlbumArtSurface;

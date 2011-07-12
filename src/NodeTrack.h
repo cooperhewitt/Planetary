@@ -41,7 +41,7 @@ class NodeTrack : public Node
     uint64_t getId();
 	bool isMostPlayed() { return mIsMostPlayed; }
 
-	// TODO: should this be from a getData() function? or private?
+	// FIXME: should this be from a getData() function? or private?
 	ci::ipod::TrackRef      mTrack;
 	ci::ipod::PlaylistRef   mAlbum;	
 	

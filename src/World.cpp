@@ -11,6 +11,8 @@
 #include <deque>
 #include "World.h"
 #include "NodeArtist.h"
+#include "NodeAlbum.h"
+#include "NodeTrack.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Rect.h"
 #include "cinder/Text.h"
@@ -88,7 +90,7 @@ void World::setFilter(FilterRef filterRef)
     mFilteredNodes.clear();
     
 	for(vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it){
-        if ( mFilterRef->test( (*it)->getPlaylist() ) ) {
+        if ( mFilterRef->testAlbum( (*it)->getPlaylist() ) ) {
             (*it)->mIsHighlighted = true;
             mFilteredNodes.push_back(*it);
         }
@@ -180,6 +182,27 @@ NodeTrack* World::getTrackNodeById( uint64_t artistId, uint64_t albumId, uint64_
         }
     }    
     return NULL;
+}
+
+void World::updateAgainstCurrentFilter()
+{
+    if (mFilterRef) {
+        // TODO: proper iterators I suppose?
+        for (int i = 0; i < mNodes.size(); i++) {
+            NodeArtist* artistNode = mNodes[i];
+            artistNode->mIsHighlighted = mFilterRef->testArtist(artistNode->getPlaylist());
+            for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+                // FIXME: static cast?
+                NodeAlbum* albumNode = (NodeAlbum*)(artistNode->mChildNodes[j]);
+                albumNode->mIsHighlighted = mFilterRef->testAlbum(albumNode->getPlaylist());
+                for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+                    // FIXME: static cast?
+                    NodeTrack *trackNode = (NodeTrack*)(albumNode->mChildNodes[k]);
+                    trackNode->mIsHighlighted = mFilterRef->testTrack(trackNode->mTrack);
+                }            
+            }
+        }        
+    }
 }
 
 void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )

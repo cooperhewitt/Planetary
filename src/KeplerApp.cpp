@@ -39,6 +39,8 @@
 #include "NotificationOverlay.h"
 #include "Stats.h"
 #include "AlphaWheel.h"
+#include "PlaylistChooser.h"
+#include "FilterToggleButton.h"
 #include "PinchRecognizer.h"
 #include "ParticleController.h"
 
@@ -100,7 +102,8 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onPlaylistStateChanged( State *state );
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
 	bool			onWheelToggled( AlphaWheel *alphaWheel );
-
+    bool            onFilterToggled( State::FilterMode filterMode );
+    
 	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
     void            togglePlayPaused();
 	bool			onPlayControlsPlayheadMoved ( float amount );
@@ -117,6 +120,8 @@ class KeplerApp : public AppCocoaTouch {
 // UI BITS:
     LoadingScreen       mLoadingScreen;
 	AlphaWheel          mAlphaWheel;
+    PlaylistChooser     mPlaylistChooser;
+    FilterToggleButton  mFilterToggleButton;
 	UiLayer             mUiLayer;
 	HelpLayer		    mHelpLayer;
     NotificationOverlay mNotificationOverlay;
@@ -404,6 +409,14 @@ void KeplerApp::remainingSetup()
 	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
 	mAlphaWheel.initAlphaTextures( mFontBig );	
 	
+    // PLAYLIST CHOOSER
+    mPlaylistChooser.setup( /* this, mOrientationHelper.getInterfaceOrientation() */ );
+    // FIXME register listeners
+    
+    // FILTER TOGGLE
+    mFilterToggleButton.setup( this, mState.getFilterMode(), mFontBig, mOrientationHelper.getInterfaceOrientation() );
+    mFilterToggleButton.registerFilterModeSelected( this, &KeplerApp::onFilterToggled );
+    
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
 	mState.registerNodeSelected( this, &KeplerApp::onSelectedNodeChanged );
@@ -750,12 +763,18 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
     if( ! G_USE_GYRO ) mUp = getUpVectorForOrientation( mInterfaceOrientation );
 	else			   mUp = Vec3f::yAxis();
 
+    // FIXME: perhaps mOrientationMatrix can be applied before drawing all these UI bits
+    //        this way they don't need to know what orientation they're in
+    //        EXCEPT: they would also need the orientation helper to proxy mouse/touch events and correct the positions
+    
     mLoadingScreen.setInterfaceOrientation(orientation);
     if (mData.getState() == Data::LoadStateComplete) {
         mPlayControls.setInterfaceOrientation(orientation);
         mHelpLayer.setInterfaceOrientation(orientation);
         mUiLayer.setInterfaceOrientation(orientation);
         mAlphaWheel.setInterfaceOrientation(orientation);
+        // FIXME: mPlaylistChooser.setInterfaceOrientation(orientation);
+        mFilterToggleButton.setInterfaceOrientation(orientation);
         mNotificationOverlay.setInterfaceOrientation(orientation);
     }
 }
@@ -778,6 +797,23 @@ bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 	return false;
 }
 
+bool KeplerApp::onFilterToggled( State::FilterMode filterMode )
+{
+    if (filterMode == State::FilterModeAlphaChar) {
+        mState.setAlphaChar( 'A' ); // triggers onAlphaCharStateChanged
+        // FIXME: set to first letter of current track, if there is one
+        //        else set to blank and show the wheel?
+        //        or maybe set to the previously chosen alphachar?
+    }
+    else if (filterMode == State::FilterModePlaylist) {
+        mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] ); // triggers onPlaylistStateChanged
+    }
+    // now make sure that everything is cool with the current filter
+    mWorld.updateAgainstCurrentFilter();
+    return false;
+}
+
+
 bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 {
 	mState.setAlphaChar( alphaWheel->getAlphaChar() );	
@@ -789,6 +825,7 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
     if (mState.getAlphaChar() != ' ') {
         mWorld.setFilter( FilterRef(new LetterFilter(mState.getAlphaChar())) );
         mState.setFilterMode( State::FilterModeAlphaChar );
+        mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );
 
         mState.setSelectedNode( NULL );
         updatePlaylistControls();
@@ -815,6 +852,7 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
     mState.setAlphaChar( ' ' );
     mWorld.setFilter( FilterRef(new PlaylistFilter(playlist)) );
     mState.setFilterMode( State::FilterModePlaylist ); // TODO: make this part of Filter?
+    mFilterToggleButton.setFilterMode( State::FilterModePlaylist );
     mState.setSelectedNode( NULL );
 
     updatePlaylistControls();
@@ -896,6 +934,9 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
         logEvent("Selection Cleared");        
     }
 
+    // now make sure that everything is cool with the current filter
+    mWorld.updateAgainstCurrentFilter();    
+    
 	return false;
 }
 
@@ -1250,6 +1291,7 @@ void KeplerApp::update()
         
 		mHelpLayer.update();
 		mAlphaWheel.update( mFov );
+        mPlaylistChooser.update(); // FIXME: what does this do?
         
         mPlayControls.update();
 
@@ -1701,23 +1743,23 @@ void KeplerApp::drawScene()
 
 	
 // PINCH FINGER POSITIONS
-	if( mIsPinching ){
-
+	if( mIsPinching ) {
 		float radius = mPinchHighlightRadius;
 		float alpha = mPinchPer > mPinchPerThresh ? 0.2f : 1.0f;
         mStarGlowTex.enableAndBind();					  
 		gl::color( ColorA( c, max( mPinchPer - mPinchPerInit, 0.0f ) * alpha ) );
-		
 		for( vector<Vec2f>::iterator it = mPinchPositions.begin(); it != mPinchPositions.end(); ++it ){
 			gl::drawSolidRect( Rectf( it->x - radius, it->y - radius, it->x + radius, it->y + radius ) );
 		}
-	} else if( mIsTouching ){
+		mStarGlowTex.disable();                
+	} 
+    else if( mIsTouching ){
 		float radius = 100.0f;
 		float alpha = 0.5f;
 		mStarGlowTex.enableAndBind();
-		gl::color( ColorA( BLUE, alpha ) );
-		
+		gl::color( ColorA( BLUE, alpha ) );		
 		gl::drawSolidRect( Rectf( mTouchPos.x - radius, mTouchPos.y - radius, mTouchPos.x + radius, mTouchPos.y + radius ) );
+		mStarGlowTex.disable();        
 	}
 
 //    if (G_DEBUG) {
@@ -1729,6 +1771,8 @@ void KeplerApp::drawScene()
 	
 // EVERYTHING ELSE	
 	mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
+    mPlaylistChooser.draw(); // FIXME: what does this do?
+    mFilterToggleButton.draw( ); // FIXME: only when alpha wheel is visible
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
     mPlayControls.draw( mUiLayer.getPanelYPos() );
@@ -1816,7 +1860,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         }
 
         // then sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
-        mWorld.updateIsPlaying( artistId, albumId, trackId );
+        mWorld.updateIsPlaying( artistId, albumId, trackId );        
 	}
 	else {
         
@@ -1857,8 +1901,7 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
     mPlayheadUpdateSeconds = -1;    
 
     // make sure mCurrentTrack and mWorld.mPlayingTrackNode are taken care of:
-    // XXX: removed for Eyeo shuffler but this doesn't cover every case :(
-    //onPlayerTrackChanged( player );
+    onPlayerTrackChanged( player );
     
     // do stats:
     std::map<string, string> params;

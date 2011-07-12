@@ -218,6 +218,7 @@ void AlphaWheel::draw( float *numberAlphaPerChar )
 			mAlphaTextures[i].enableAndBind();
             // TODO: batch these rects (adapt bloom::gl::batchRect for color tints?)
 			gl::drawSolidRect( mAlphaRects[i] );
+			mAlphaTextures[i].disable();            
 		}
 		
 		glPopMatrix();

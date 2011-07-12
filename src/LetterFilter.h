@@ -14,8 +14,9 @@
 class LetterFilter : public Filter {
   public:
     LetterFilter( char letter );
-    bool test( ci::ipod::PlaylistRef artist ) const;
-    bool test( ci::ipod::TrackRef track ) const;
+    bool testArtist( ci::ipod::PlaylistRef artist ) const;
+    bool testAlbum( ci::ipod::PlaylistRef album ) const;
+    bool testTrack( ci::ipod::TrackRef track ) const;
   private:
     char mLetter; // always uppercase, unless '#'
     bool testArtistName(const std::string &name) const;

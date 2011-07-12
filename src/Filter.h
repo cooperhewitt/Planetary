@@ -14,8 +14,9 @@ class Filter {
 public:
     Filter() {}
     virtual ~Filter() {}
-    virtual bool test(ci::ipod::PlaylistRef artistOrAlbum) const = 0;
-    virtual bool test(ci::ipod::TrackRef track) const = 0;
+    virtual bool testArtist(ci::ipod::PlaylistRef artist) const = 0;
+    virtual bool testAlbum(ci::ipod::PlaylistRef album) const = 0;
+    virtual bool testTrack(ci::ipod::TrackRef track) const = 0;
 };
 
 typedef std::shared_ptr<Filter> FilterRef;

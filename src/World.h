@@ -52,6 +52,8 @@ public:
     void selectHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId );
     NodeTrack* getTrackNodeById( uint64_t artistId, uint64_t albumId, uint64_t trackId );
     
+    void updateAgainstCurrentFilter();
+    
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );
     
 	void update( float param1, float param2 );

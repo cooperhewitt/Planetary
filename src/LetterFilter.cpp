@@ -19,12 +19,17 @@ LetterFilter::LetterFilter(char letter)
     }
 }
 
-bool LetterFilter::test(ci::ipod::PlaylistRef artist) const
+bool LetterFilter::testArtist(ci::ipod::PlaylistRef artist) const
 {
     return testArtistName(artist->getArtistName());
 }
 
-bool LetterFilter::test(ci::ipod::TrackRef track) const
+bool LetterFilter::testAlbum(ci::ipod::PlaylistRef album) const
+{
+    return testArtistName(album->getArtistName());
+}
+
+bool LetterFilter::testTrack(ci::ipod::TrackRef track) const
 {
     return testArtistName(track->getArtist());    
 }
