@@ -68,6 +68,8 @@ public:
 	void drawRings( const ci::gl::Texture &tex, float camZPos );
     void drawHitAreas();
     
+    NodeArtist* getArtistNodeById(const uint64_t theId) { return mNodesById[theId]; }
+    
 	std::vector<Node*> getUnsortedNodes( int fromGen, int toGen );
     std::vector<Node*> sortNodes( std::vector<Node*> unsortedNodes );
 	
@@ -76,6 +78,7 @@ public:
 private:
 
     std::vector<NodeArtist*> mNodes;
+    std::map<uint64_t, NodeArtist*> mNodesById;
     std::vector<NodeArtist*> mFilteredNodes;
     FilterRef mFilterRef;
 

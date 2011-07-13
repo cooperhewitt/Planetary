@@ -410,7 +410,7 @@ void KeplerApp::remainingSetup()
 	mAlphaWheel.initAlphaTextures( mFontBig );	
 	
     // PLAYLIST CHOOSER
-    mPlaylistChooser.setup( /* this, mOrientationHelper.getInterfaceOrientation() */ );
+    mPlaylistChooser.setup( this, mOrientationHelper.getInterfaceOrientation(), mFont, BRIGHT_BLUE );
     // FIXME register listeners
     
     // FILTER TOGGLE
@@ -827,6 +827,8 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
         mState.setFilterMode( State::FilterModeAlphaChar );
         mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );
 
+        // FIXME: if we're showing mPlaylistChooser then show mAlphaWheel instead
+        
         mState.setSelectedNode( NULL );
         updatePlaylistControls();
 
@@ -852,6 +854,8 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
     mState.setAlphaChar( ' ' );
     mWorld.setFilter( FilterRef(new PlaylistFilter(playlist)) );
     mState.setFilterMode( State::FilterModePlaylist ); // TODO: make this part of Filter?
+    mAlphaWheel.setShowWheel(false);
+    // FIXME: mPlaylistChooser.showChooser(true);
     mFilterToggleButton.setFilterMode( State::FilterModePlaylist );
     mState.setSelectedNode( NULL );
 
@@ -1217,6 +1221,7 @@ void KeplerApp::update()
 		}
         if (mData.mPlaylists.size() > 0) {
             mPlayControls.setPlaylist( mData.mPlaylists[0]->getPlaylistName() );
+            mPlaylistChooser.setDataWorldCam( &mData, &mWorld, &mCam );
         }
 	}
     
@@ -1290,8 +1295,17 @@ void KeplerApp::update()
         mUiLayer.update();
         
 		mHelpLayer.update();
-		mAlphaWheel.update( mFov );
-        mPlaylistChooser.update(); // FIXME: what does this do?
+        
+        if (mState.getFilterMode() == State::FilterModeAlphaChar) {
+            mAlphaWheel.update( mFov );
+        }
+        else if (mState.getFilterMode() == State::FilterModePlaylist) {
+            mPlaylistChooser.update(); // FIXME: what does this do?
+        }
+        else {
+            // FIXME: we still automatically select the alpha char so this might never be called, right?
+            console() << "unknown filter mode - do we update the alphawheel or what?" << endl;
+        }        
         
         mPlayControls.update();
 
@@ -1338,6 +1352,7 @@ void KeplerApp::updateArcball()
 void KeplerApp::updateCamera()
 {	
 	mPinchTotal -= ( mPinchTotal - mPinchTotalDest ) * 0.4f;
+    //mPinchTotal = mPinchTotalDest; // Tom thinks things should be less swooshy
 	mPinchPer = ( mPinchTotal - mPinchScaleMin )/( mPinchScaleMax - mPinchScaleMin );
 	mPinchHighlightRadius -= ( mPinchHighlightRadius - 200.0f ) * 0.4f;
 	
@@ -1384,7 +1399,7 @@ void KeplerApp::updateCamera()
 			if( selectedNode->mParentNode && mPinchPer > mPinchPerThresh ){
 				Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
 				mCenterOffset -= ( mCenterOffset - ( dirToParent * ( mPinchPer - mPinchPerThresh ) * 2.5f ) ) * 0.2f;
-				
+				//mCenterOffset = ( dirToParent * ( mPinchPer - mPinchPerThresh ) * 2.5f ); // Tom thinks things should be less swooshy
 			} else {
 				mCenterOffset -= ( mCenterOffset - Vec3f::zero() ) * 0.2f;
 			}
@@ -1414,14 +1429,24 @@ void KeplerApp::updateCamera()
 	
 	
 	if( mIsPinching && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
-		if( mPinchPer > mPinchPerThresh && ! mAlphaWheel.getShowWheel() ){
-			mAlphaWheel.setShowWheel( true ); 
-			std::cout << "updateCamera opened alphawheel" << std::endl;
+        bool isAlphaFilter = mState.getFilterMode() == State::FilterModeAlphaChar;
+        bool isPlaylistFilter = mState.getFilterMode() == State::FilterModePlaylist;
+		if( mPinchPer > mPinchPerThresh ){
+            if (!mAlphaWheel.getShowWheel() && isAlphaFilter) {
+                mAlphaWheel.setShowWheel(true);
+                std::cout << "updateCamera opened alphawheel" << std::endl;
+            }
+            // FIXME: if (isPlaylistFilter) mPlaylistChooser.showChooser(true);            
 			
-		} else if( mPinchPer <= mPinchPerThresh && mAlphaWheel.getShowWheel() ){
-			mAlphaWheel.setShowWheel( false ); 
+		} else if( mPinchPer <= mPinchPerThresh ){
+            if (mAlphaWheel.getShowWheel() && isAlphaFilter) {
+                mAlphaWheel.setShowWheel( false ); 
+            }
 			std::cout << "updateCamera closed alphawheel" << std::endl;
 		}
+        if (!isAlphaFilter && !isPlaylistFilter) {
+            std::cout << "unknown filter type in updateCamera, needs FIXME" << std::endl;
+        }
 	}
 	
 	

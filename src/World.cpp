@@ -60,13 +60,16 @@ void World::initNodes( const vector<PlaylistRef> &artists, const Font &font, con
         delete node;
     }
 	mNodes.clear();
+    mNodesById.clear();
     
 	int i=0;
 	for(vector<PlaylistRef>::const_iterator it = artists.begin(); it != artists.end(); ++it){
+        PlaylistRef artistPlaylist = *it;
 		NodeArtist *newNode = new NodeArtist( i++, font, smallFont, highResSurfaces, lowResSurfaces, noAlbumArt );
-		newNode->setData(*it);
+		newNode->setData( artistPlaylist );
         newNode->setSphereData( &mHiSphere, &mMdSphere, &mLoSphere, &mTySphere );
 		mNodes.push_back( newNode );
+        mNodesById[artistPlaylist->getArtistId()] = newNode;
 	}
 
     mOrbitRing.setup();
