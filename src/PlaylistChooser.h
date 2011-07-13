@@ -23,17 +23,26 @@ class PlaylistChooser {
 
 public:    
     
-    PlaylistChooser() { mData = NULL; }
+    PlaylistChooser(): mData(NULL), mVisible(false), offsetX(0.0f) {}
     
     void setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation, const ci::Font &font, const ci::Color &lineColor );
-    void update();
     void draw();
 
+    void setVisible( bool visible = true ) { mVisible = visible; }
+    bool isVisible() { return mVisible; }
+    
     void setInterfaceOrientation( const ci::app::Orientation &orientation );    
     
     void setDataWorldCam(Data *data, World *world, ci::CameraPersp *cam);
 
 private:
+
+    bool mVisible;
+    float offsetX; // for scrolling
+    
+    bool touchesBegan( ci::app::TouchEvent event );
+    bool touchesMoved( ci::app::TouchEvent event );
+    bool touchesEnded( ci::app::TouchEvent event );
     
     Data *mData; // for playlists
     World *mWorld; // for nodes

@@ -855,7 +855,7 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
     mWorld.setFilter( FilterRef(new PlaylistFilter(playlist)) );
     mState.setFilterMode( State::FilterModePlaylist ); // TODO: make this part of Filter?
     mAlphaWheel.setShowWheel(false);
-    // FIXME: mPlaylistChooser.showChooser(true);
+//    mPlaylistChooser.setVisible(true); // if you're selecting a playlist this is probably already visible?
     mFilterToggleButton.setFilterMode( State::FilterModePlaylist );
     mState.setSelectedNode( NULL );
 
@@ -1111,7 +1111,16 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;	
 			
 		case PlayControls::SHOW_WHEEL:
-			mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );
+            {
+                bool isAlphaFilter = (mState.getFilterMode() == State::FilterModeAlphaChar);
+                bool isPlaylistFilter = (mState.getFilterMode() == State::FilterModePlaylist);
+                if (isAlphaFilter) {
+                    mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );                
+                }
+                else if (isPlaylistFilter) {
+                    mPlaylistChooser.setVisible( !mPlaylistChooser.isVisible() );
+                }
+            }
             break;	
 			
         case PlayControls::NO_BUTTON:
@@ -1300,7 +1309,7 @@ void KeplerApp::update()
             mAlphaWheel.update( mFov );
         }
         else if (mState.getFilterMode() == State::FilterModePlaylist) {
-            mPlaylistChooser.update(); // FIXME: what does this do?
+//            mPlaylistChooser.update(); // FIXME: what does this do?
         }
         else {
             // FIXME: we still automatically select the alpha char so this might never be called, right?
@@ -1432,17 +1441,31 @@ void KeplerApp::updateCamera()
         bool isAlphaFilter = mState.getFilterMode() == State::FilterModeAlphaChar;
         bool isPlaylistFilter = mState.getFilterMode() == State::FilterModePlaylist;
 		if( mPinchPer > mPinchPerThresh ){
-            if (!mAlphaWheel.getShowWheel() && isAlphaFilter) {
-                mAlphaWheel.setShowWheel(true);
-                std::cout << "updateCamera opened alphawheel" << std::endl;
+            if (isAlphaFilter) {
+                if (!mAlphaWheel.getShowWheel()) {
+                    mAlphaWheel.setShowWheel(true);
+                    std::cout << "updateCamera opened alphawheel" << std::endl;
+                }
+            }
+            else if (isPlaylistFilter) {
+                if (!mPlaylistChooser.isVisible()) {
+                    mPlaylistChooser.setVisible();
+                }
             }
             // FIXME: if (isPlaylistFilter) mPlaylistChooser.showChooser(true);            
 			
 		} else if( mPinchPer <= mPinchPerThresh ){
-            if (mAlphaWheel.getShowWheel() && isAlphaFilter) {
-                mAlphaWheel.setShowWheel( false ); 
+            if (isAlphaFilter) {
+                if (mAlphaWheel.getShowWheel()) {
+                    mAlphaWheel.setShowWheel(false);
+                    std::cout << "updateCamera closed alphawheel" << std::endl;
+                }
             }
-			std::cout << "updateCamera closed alphawheel" << std::endl;
+            else if (isPlaylistFilter) {
+                if (mPlaylistChooser.isVisible()) {
+                    mPlaylistChooser.setVisible(false);
+                }
+            }
 		}
         if (!isAlphaFilter && !isPlaylistFilter) {
             std::cout << "unknown filter type in updateCamera, needs FIXME" << std::endl;

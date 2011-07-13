@@ -22,11 +22,27 @@ void PlaylistChooser::setup( AppCocoaTouch *app, const Orientation &orientation,
     mFont = font;
     mTextureFont = gl::TextureFont::create( font );
     setInterfaceOrientation(orientation);
+    app->registerTouchesBegan( this, &PlaylistChooser::touchesBegan );
+    app->registerTouchesMoved( this, &PlaylistChooser::touchesMoved );
+    app->registerTouchesEnded( this, &PlaylistChooser::touchesEnded );
 }
 
-void PlaylistChooser::update()
+bool PlaylistChooser::touchesBegan( ci::app::TouchEvent event )
 {
-    
+    if (mData == NULL || !mVisible) return false;
+    return false;
+}
+
+bool PlaylistChooser::touchesMoved( ci::app::TouchEvent event )
+{
+    if (mData == NULL || !mVisible) return false;
+    return false;    
+}
+
+bool PlaylistChooser::touchesEnded( ci::app::TouchEvent event )
+{
+    if (mData == NULL || !mVisible) return false;
+    return false;    
 }
 
 void PlaylistChooser::setInterfaceOrientation( const Orientation &orientation )
@@ -43,7 +59,7 @@ void PlaylistChooser::setInterfaceOrientation( const Orientation &orientation )
 
 void PlaylistChooser::draw()
 {
-    if (mData == NULL) return;
+    if (mData == NULL || !mVisible) return;
 
     // show three-ish playlists, allow swipey navigation
     const float playlistWidth = 200.0f;
@@ -55,6 +71,9 @@ void PlaylistChooser::draw()
     const float startY = 150.0f;
     const float endX = mInterfaceSize.x - 50.0f;
     
+    glPushMatrix();
+    glMultMatrixf( mOrientationMatrix );
+    
     glEnable(GL_SCISSOR_TEST);
 //    glScissor( startX-1, startY-1+playlistHeight+2, endX-startX+2, playlistHeight+2 );
     
@@ -65,7 +84,7 @@ void PlaylistChooser::draw()
         
         Rectf listRect(pos, pos+playlistSize);
 
-        // scissor rect is from bottom left of window
+        // scissor rect is from bottom left of window, FIXME: in *untransformed* coords :(
         glScissor( listRect.x1, mInterfaceSize.y - listRect.y2, listRect.getWidth(), listRect.getHeight() );        
 
         gl::color( ColorA(0.0f,0.0f,0.0f,0.25f) );
@@ -96,6 +115,8 @@ void PlaylistChooser::draw()
 
     glScissor( 0, mInterfaceSize.y, mInterfaceSize.x, mInterfaceSize.y );
     glDisable(GL_SCISSOR_TEST);
+    
+    glPopMatrix();
 }
 
 void PlaylistChooser::setDataWorldCam( Data *data, World *world, CameraPersp *cam )

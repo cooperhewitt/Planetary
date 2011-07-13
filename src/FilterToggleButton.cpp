@@ -97,7 +97,7 @@ void FilterToggleButton::setFilterMode(const State::FilterMode &filterMode)
 void FilterToggleButton::draw()
 {    
     glPushMatrix();
-    gl::multModelView( mOrientationMatrix );
+    glMultMatrixf( mOrientationMatrix );
     
     gl::color( mFilterMode == State::FilterModeAlphaChar ? ColorA( BRIGHT_BLUE, 0.45f ) : ColorA( 0.0f, 0.0f, 0.0f, 0.15f) );
     gl::drawSolidRect( mAlphaRect );
