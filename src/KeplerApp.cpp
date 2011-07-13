@@ -1770,9 +1770,18 @@ void KeplerApp::drawScene()
     gl::enableAlphaBlending();  // reinstates normal alpha blending
 	
 // EVERYTHING ELSE	
-	mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
-    mPlaylistChooser.draw(); // FIXME: what does this do?
-    mFilterToggleButton.draw( ); // FIXME: only when alpha wheel is visible
+    if (mState.getFilterMode() == State::FilterModeAlphaChar) {
+        mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
+    }
+    else if (mState.getFilterMode() == State::FilterModePlaylist) {
+        mPlaylistChooser.draw(); // FIXME: what does this do?
+    }
+    else {
+        // FIXME: we still automatically select the alpha char so this might never be called, right?
+        console() << "unknown filter mode - do we draw the alphawheel or what?" << endl;
+    }
+    
+    mFilterToggleButton.draw( ); // FIXME: only when alpha wheel is visible (change alpha wheel visibility to filter mode visibility)
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
     mPlayControls.draw( mUiLayer.getPanelYPos() );
@@ -1840,15 +1849,30 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
             const bool playlistMode = (mState.getFilterMode() == State::FilterModePlaylist);                    
             if (!playlistMode) {
-                // make doubly-sure we're focused on the correct letter
-                mState.setAlphaChar( artistName );
+                // if playlistMode isn't true we just stay in alphabet mode
+                // (playlistMode can *only* be true if you selected a playlist inside Planetary)                
+                // just make doubly-sure we're focused on the correct letter                
+                mState.setAlphaChar( artistName ); // triggers pretty hefty stuff in onAlphaCharStateChanged
             }
             else {
-                // FIXME: which playlist related update goes here?            
-                // e.g. what happens if a playlist was selected outside of our app
-                // how do we tell which one it is?
-                // maybe if playlistMode isn't true we just stay in artist mode?
-                // (this seems right - playlistMode can *only* be true if you selected a playlist inside Planetary)
+
+                // if we're in playlist mode then maybe this track is in the playlist, which is cool...
+                bool playingTrackIsInPlaylist = false;
+                ipod::PlaylistRef playlist = mData.mPlaylists[ mPlaylistIndex ];
+                for (int i = 0; i < playlist->size(); i++) {
+                    if ((*playlist)[i]->getItemId() == trackId) {
+                        playingTrackIsInPlaylist = true;
+                        break;
+                    }
+                }
+                
+                // but if it's not we need to switch to alphabet mode
+                if (!playingTrackIsInPlaylist) {
+                    mState.setAlphaChar( artistName ); // triggers pretty hefty stuff in onAlphaCharStateChanged
+                }
+                
+                // FIXME: what happens if a playlist was selected outside of our app
+                // how do we tell which one it is? can we even? (iOS 5.0)
             }
             
             // be sure to create nodes for artist, album and track:
