@@ -73,12 +73,10 @@ void PlaylistChooser::draw()
         
         gl::color( mLineColor );        
         string name = playlist->getPlaylistName();
-        mTextureFont->drawString( name, pos + textPadding );
+        // FIXME: sadly have to deeper on the text stuff because TextureFont won't support international characters
+        mTextureFont->drawStringWrapped( name, listRect, textPadding );
         gl::drawStrokedRect( Rectf(pos+Vec2f(1,1), pos+playlistSize) );
 
-        gl::pushMatrices();
-        gl::setMatrices( *mCam );
-                
         // FIXME: use constellation logic
         // FIXME: probably don't draw this on the fly, cache things instead?
         vector<Vec2f> lines(playlist->size());
@@ -89,8 +87,6 @@ void PlaylistChooser::draw()
             lines[j] = pos + mCam->worldToScreen(nodeArtist->mPos, playlistWidth, playlistHeight); // pretend screen is small
         }
         gl::draw(PolyLine2f(lines));
-        
-        gl::popMatrices();
         
         pos += spacing;
         if (pos.x > endX) {
