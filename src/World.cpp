@@ -93,7 +93,7 @@ void World::setFilter(FilterRef filterRef)
     mFilteredNodes.clear();
     
 	for(vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it){
-        if ( mFilterRef->testAlbum( (*it)->getPlaylist() ) ) {
+        if ( mFilterRef->testArtist( (*it)->getPlaylist() ) ) {
             (*it)->mIsHighlighted = true;
             mFilteredNodes.push_back(*it);
         }

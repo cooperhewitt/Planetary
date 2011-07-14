@@ -808,6 +808,15 @@ bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 
 bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
 {
+    mPlaylistIndex = -1;
+    mPlaylistDisplayOffset = 0;
+    for (int i = 0; i < mData.mPlaylists.size(); i++) {
+        if (mData.mPlaylists[i] == playlist) {
+            mPlaylistIndex = i;
+            break;
+        }
+    }
+    assert(mPlaylistIndex != -1);
     mState.setPlaylist( playlist ); // triggers onPlaylistStateChanged
     mShowFilterGUI = false;
     return false;
