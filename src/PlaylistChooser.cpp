@@ -30,6 +30,22 @@ void PlaylistChooser::setup( AppCocoaTouch *app, const Orientation &orientation,
 bool PlaylistChooser::touchesBegan( ci::app::TouchEvent event )
 {
     if (mData == NULL || !mVisible) return false;
+    
+    Matrix44f invMtx = mOrientationMatrix.inverted();
+    
+    std::vector<TouchEvent::Touch> touches = event.getTouches();
+    for (int j = 0; j < touches.size(); j++) {
+        TouchEvent::Touch touch = touches[j];
+        Vec2f pos = (mOrientationMatrix.inverted() * Vec3f(touch.getPos(),0)).xy();
+        for (int i = 0; i < mPlaylistRects.size(); i++) {
+            if (mPlaylistRects[i].contains(pos)) {
+                // FIXME: just remember the id and dispatch this event on touchesEnded instead?
+                mCbPlaylistSelected.call( mData->mPlaylists[i] );
+                break;
+            }
+        }
+    }
+    
     return false;
 }
 
@@ -71,6 +87,8 @@ void PlaylistChooser::draw()
     const float startY = 150.0f;
     const float endX = mInterfaceSize.x - 50.0f;
     
+    mPlaylistRects.clear();
+    
     glPushMatrix();
     glMultMatrixf( mOrientationMatrix );
     
@@ -83,7 +101,8 @@ void PlaylistChooser::draw()
         ipod::PlaylistRef playlist = mData->mPlaylists[i];
         
         Rectf listRect(pos, pos+playlistSize);
-
+        mPlaylistRects.push_back(listRect);
+        
         // scissor rect is from bottom left of window, FIXME: in *untransformed* coords :(
         glScissor( listRect.x1, mInterfaceSize.y - listRect.y2, listRect.getWidth(), listRect.getHeight() );        
 

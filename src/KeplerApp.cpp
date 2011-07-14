@@ -103,6 +103,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
 	bool			onWheelToggled( AlphaWheel *alphaWheel );
     bool            onFilterToggled( State::FilterMode filterMode );
+    bool            onPlaylistChooserSelected( ci::ipod::PlaylistRef );
     
 	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
     void            togglePlayPaused();
@@ -119,13 +120,15 @@ class KeplerApp : public AppCocoaTouch {
 	
 // UI BITS:
     LoadingScreen       mLoadingScreen;
-	AlphaWheel          mAlphaWheel;
-    PlaylistChooser     mPlaylistChooser;
     FilterToggleButton  mFilterToggleButton;
 	UiLayer             mUiLayer;
 	HelpLayer		    mHelpLayer;
     NotificationOverlay mNotificationOverlay;
-    
+
+    bool                mShowFilterGUI;
+    AlphaWheel          mAlphaWheel;
+    PlaylistChooser     mPlaylistChooser;
+
 // PERLIN BITS:
 	Perlin				mPerlin;
 	
@@ -411,7 +414,10 @@ void KeplerApp::remainingSetup()
 	
     // PLAYLIST CHOOSER
     mPlaylistChooser.setup( this, mOrientationHelper.getInterfaceOrientation(), mFont, BRIGHT_BLUE );
+    mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
     // FIXME register listeners
+    
+    mShowFilterGUI = false;
     
     // FILTER TOGGLE
     mFilterToggleButton.setup( this, mState.getFilterMode(), mFontBig, mOrientationHelper.getInterfaceOrientation() );
@@ -446,7 +452,7 @@ void KeplerApp::remainingSetup()
     mGalaxy.setup(G_INIT_CAM_DIST, BRIGHT_BLUE, BLUE, mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex);
 
     // Make sure initial PlayControl settings are correct:
-    mPlayControls.setAlphaWheelVisible( mAlphaWheel.getShowWheel() );
+    mPlayControls.setAlphaWheelVisible( mShowFilterGUI );
     mPlayControls.setShowSettings( G_SHOW_SETTINGS );
     mPlayControls.setOrbitsVisible( G_DRAW_RINGS );
     mPlayControls.setLabelsVisible( G_DRAW_TEXT );
@@ -782,7 +788,7 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 {
 	std::cout << "Wheel Toggled" << std::endl;
-    
+        
     const bool showWheel = mAlphaWheel.getShowWheel();
     
 	if( showWheel ){
@@ -791,10 +797,20 @@ bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 		G_HELP = false; 
 		mFovDest = G_DEFAULT_FOV;
 	}
-    
-    mPlayControls.setAlphaWheelVisible( showWheel );
+
+    if (mState.getFilterMode() == State::FilterModeAlphaChar) {
+        mShowFilterGUI = showWheel;
+    }
+    // FIXME: else? should this ever happen?
     
 	return false;
+}
+
+bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
+{
+    mState.setPlaylist( playlist ); // triggers onPlaylistStateChanged
+    mShowFilterGUI = false;
+    return false;
 }
 
 bool KeplerApp::onFilterToggled( State::FilterMode filterMode )
@@ -1111,16 +1127,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;	
 			
 		case PlayControls::SHOW_WHEEL:
-            {
-                bool isAlphaFilter = (mState.getFilterMode() == State::FilterModeAlphaChar);
-                bool isPlaylistFilter = (mState.getFilterMode() == State::FilterModePlaylist);
-                if (isAlphaFilter) {
-                    mAlphaWheel.setShowWheel( !mAlphaWheel.getShowWheel() );                
-                }
-                else if (isPlaylistFilter) {
-                    mPlaylistChooser.setVisible( !mPlaylistChooser.isVisible() );
-                }
-            }
+            mShowFilterGUI = !mShowFilterGUI;
             break;	
 			
         case PlayControls::NO_BUTTON:
@@ -1226,6 +1233,9 @@ void KeplerApp::update()
         } else {
             std::cout << "Startup without Track Playing" << std::endl;
             logEvent("Startup without Track Playing");
+            mState.setFilterMode( State::FilterModeAlphaChar );
+            mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );            
+            mShowFilterGUI = true;
 			mAlphaWheel.setShowWheel( true );
 		}
         if (mData.mPlaylists.size() > 0) {
@@ -1234,7 +1244,7 @@ void KeplerApp::update()
         }
 	}
     
-    if ( mRemainingSetupCalled )
+    if ( mRemainingSetupCalled && (mData.getState() == Data::LoadStateComplete) )
 	{
 		if( G_IS_IPAD2 && G_USE_GYRO ) {
 			mGyroHelper.update();
@@ -1305,16 +1315,28 @@ void KeplerApp::update()
         
 		mHelpLayer.update();
         
-        if (mState.getFilterMode() == State::FilterModeAlphaChar) {
+        bool isAlphaFilter = (mState.getFilterMode() == State::FilterModeAlphaChar);
+        bool isPlaylistFilter = (mState.getFilterMode() == State::FilterModePlaylist);
+        if (isAlphaFilter) {
+            if (mAlphaWheel.getShowWheel() != mShowFilterGUI) {
+                mAlphaWheel.setShowWheel( mShowFilterGUI );
+            }
+            mPlaylistChooser.setVisible( false );
             mAlphaWheel.update( mFov );
         }
-        else if (mState.getFilterMode() == State::FilterModePlaylist) {
-//            mPlaylistChooser.update(); // FIXME: what does this do?
-        }
+        else if (isPlaylistFilter) {
+            mPlaylistChooser.setVisible( mShowFilterGUI );
+            if (mAlphaWheel.getShowWheel()) {
+                mAlphaWheel.setShowWheel( false );
+            }
+            // mPlaylistChooser.update(); // FIXME: what does this do?
+        }	        
         else {
             // FIXME: we still automatically select the alpha char so this might never be called, right?
             console() << "unknown filter mode - do we update the alphawheel or what?" << endl;
         }        
+        
+        mPlayControls.setAlphaWheelVisible( mShowFilterGUI );
         
         mPlayControls.update();
 
@@ -1441,39 +1463,16 @@ void KeplerApp::updateCamera()
         bool isAlphaFilter = mState.getFilterMode() == State::FilterModeAlphaChar;
         bool isPlaylistFilter = mState.getFilterMode() == State::FilterModePlaylist;
 		if( mPinchPer > mPinchPerThresh ){
-            if (isAlphaFilter) {
-                if (!mAlphaWheel.getShowWheel()) {
-                    mAlphaWheel.setShowWheel(true);
-                    std::cout << "updateCamera opened alphawheel" << std::endl;
-                }
-            }
-            else if (isPlaylistFilter) {
-                if (!mPlaylistChooser.isVisible()) {
-                    mPlaylistChooser.setVisible();
-                }
-            }
-            // FIXME: if (isPlaylistFilter) mPlaylistChooser.showChooser(true);            
-			
+            mShowFilterGUI = true;
+            std::cout << "updateCamera opened filter GUI" << std::endl;			
 		} else if( mPinchPer <= mPinchPerThresh ){
-            if (isAlphaFilter) {
-                if (mAlphaWheel.getShowWheel()) {
-                    mAlphaWheel.setShowWheel(false);
-                    std::cout << "updateCamera closed alphawheel" << std::endl;
-                }
-            }
-            else if (isPlaylistFilter) {
-                if (mPlaylistChooser.isVisible()) {
-                    mPlaylistChooser.setVisible(false);
-                }
-            }
+            mShowFilterGUI = false;
+            std::cout << "updateCamera closed filter GUI" << std::endl;			
 		}
         if (!isAlphaFilter && !isPlaylistFilter) {
             std::cout << "unknown filter type in updateCamera, needs FIXME" << std::endl;
         }
 	}
-	
-	
-	
 
 	float distToTravel = mState.getDistBetweenNodes();
 	double duration = 3.0f;

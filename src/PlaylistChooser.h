@@ -35,10 +35,17 @@ public:
     
     void setDataWorldCam(Data *data, World *world, ci::CameraPersp *cam);
 
+    template<typename T>
+	ci::CallbackId registerPlaylistSelected( T *obj, bool ( T::*callback )( ci::ipod::PlaylistRef ) ){
+		return mCbPlaylistSelected.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
+	}
+    
 private:
 
     bool mVisible;
     float offsetX; // for scrolling
+    
+    std::vector<ci::Rectf> mPlaylistRects;
     
     bool touchesBegan( ci::app::TouchEvent event );
     bool touchesMoved( ci::app::TouchEvent event );
@@ -54,5 +61,7 @@ private:
     
     ci::app::Orientation mInterfaceOrientation;
     ci::Matrix44f mOrientationMatrix;
-    ci::Vec2f mInterfaceSize;    
+    ci::Vec2f mInterfaceSize; 
+    
+	ci::CallbackMgr<bool(ci::ipod::PlaylistRef)> mCbPlaylistSelected;        
 };
