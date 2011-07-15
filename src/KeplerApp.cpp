@@ -1402,13 +1402,11 @@ void KeplerApp::updateCamera()
 		mPinchAlphaPer -= ( mPinchAlphaPer ) * 0.1f;
 		mIsPastPinchThresh = true;
 		
-		if( G_CURRENT_LEVEL == G_TRACK_LEVEL )			mFovDest = 70.0f;
-		else if( G_CURRENT_LEVEL == G_ALBUM_LEVEL )		mFovDest = 85.0f;
-		else if( G_CURRENT_LEVEL == G_ARTIST_LEVEL )	mFovDest = 85.0f;
-		else											mFovDest = 95.0f; // FIXME: is more than G_MAX_FOV, is that intended?
-		
-		mFov -= ( mFov - mFovDest ) * 0.2f;
-	
+		if( G_CURRENT_LEVEL == G_TRACK_LEVEL )			mFovDest = 70.0f; // FIXME: G_TRACK_FOV?
+		else if( G_CURRENT_LEVEL == G_ALBUM_LEVEL )		mFovDest = 85.0f; // FIXME: G_ALBUM_FOV?
+		else if( G_CURRENT_LEVEL == G_ARTIST_LEVEL )	mFovDest = 85.0f; // FIXME: G_ARTIST_FOV?
+		else											mFovDest = G_MAX_FOV;
+			
 // OTHERWISE...
 	} else {
 		if( mIsPastPinchThresh ) mPinchHighlightRadius = 125.0f;
@@ -1420,10 +1418,9 @@ void KeplerApp::updateCamera()
         } else {
             mFovDest = G_DEFAULT_FOV;
         }
-        
-		mFov -= ( mFov - mFovDest ) * 0.2f;//075f;
 	}
-    
+
+    mFov -= ( mFov - mFovDest ) * 0.2f;    
 	
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){
