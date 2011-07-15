@@ -779,7 +779,7 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
         mHelpLayer.setInterfaceOrientation(orientation);
         mUiLayer.setInterfaceOrientation(orientation);
         mAlphaWheel.setInterfaceOrientation(orientation);
-        // FIXME: mPlaylistChooser.setInterfaceOrientation(orientation);
+        mPlaylistChooser.setInterfaceOrientation(orientation);
         mFilterToggleButton.setInterfaceOrientation(orientation);
         mNotificationOverlay.setInterfaceOrientation(orientation);
     }
@@ -1341,6 +1341,7 @@ void KeplerApp::update()
                 mAlphaWheel.setShowWheel( false );
             }
             // mPlaylistChooser.update(); // FIXME: what does this do?
+            mPlaylistChooser.setCurrentPlaylistIndex( mPlaylistIndex );
         }	        
         else {
             // FIXME: we still automatically select the alpha char so this might never be called, right?

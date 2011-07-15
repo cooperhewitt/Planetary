@@ -23,7 +23,7 @@ class PlaylistChooser {
 
 public:    
     
-    PlaylistChooser(): mData(NULL), mVisible(false), offsetX(0.0f) {}
+    PlaylistChooser(): mData(NULL), mVisible(false), offsetX(0.0f), mCurrentPlaylistIndex(-1) {}
     
     void setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation, const ci::Font &font, const ci::Color &lineColor );
     void draw();
@@ -32,7 +32,7 @@ public:
     bool isVisible() { return mVisible; }
     
     void setInterfaceOrientation( const ci::app::Orientation &orientation );    
-    
+    void setCurrentPlaylistIndex( int index ) { mCurrentPlaylistIndex = index; } // -1 is "none"
     void setDataWorldCam(Data *data, World *world, ci::CameraPersp *cam);
 
     template<typename T>
@@ -41,6 +41,10 @@ public:
 	}
     
 private:
+    
+    struct ScissorRect {
+        float x, y, w, h;  
+    };
 
     bool mVisible;
     float offsetX; // for scrolling
@@ -51,6 +55,8 @@ private:
     ci::Vec2f mTouchDragStartPos;
     float mTouchDragStartOffset;
     int mTouchDragPlaylistIndex;
+    
+    int mCurrentPlaylistIndex; // set from main app, passive
     
     bool touchesBegan( ci::app::TouchEvent event );
     bool touchesMoved( ci::app::TouchEvent event );
@@ -69,4 +75,6 @@ private:
     ci::Vec2f mInterfaceSize; 
     
 	ci::CallbackMgr<bool(ci::ipod::PlaylistRef)> mCbPlaylistSelected;        
+    
+    void getWindowSpaceRect( float &x, float &y, float &w, float &h );
 };

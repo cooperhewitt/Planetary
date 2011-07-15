@@ -85,15 +85,18 @@ bool PlaylistChooser::touchesEnded( ci::app::TouchEvent event )
             Vec2f pos = (mOrientationMatrix.inverted() * Vec3f(touch.getPos(),0)).xy();
             float movement = mTouchDragStartPos.distance(pos);
             offsetX = mTouchDragStartOffset + (mTouchDragStartPos.x - pos.x);            
-            if (movement < 3.0f) {
+            if (movement < 5.0f) {
                 // TODO: also measure time and don't allow long selection gaps
-                mCbPlaylistSelected.call( mData->mPlaylists[mTouchDragId] );
+                mCbPlaylistSelected.call( mData->mPlaylists[mTouchDragPlaylistIndex] );
+                mTouchDragId = 0;
+                mTouchDragPlaylistIndex = -1;
+                return true;                
             }
-            // remember the id and dispatch this event on touchesEnded if it hasn't moved much (otherwise just drag)
             mTouchDragId = 0;
+            mTouchDragPlaylistIndex = -1;
             mTouchDragStartPos = pos;
             mTouchDragStartOffset = offsetX;
-            mTouchDragPlaylistIndex = -1;
+            return false;
         }
     }
     
@@ -132,13 +135,14 @@ void PlaylistChooser::draw()
 //    if (offsetX < 0.0) offsetX = 0.0;
 //    if (offsetX > maxOffsetX) offsetX = maxOffsetX;
     
+//    std::vector<ScissorRect> scissorRects;
+    
     mPlaylistRects.clear();
     
     glPushMatrix();
     glMultMatrixf( mOrientationMatrix );
     
     glEnable(GL_SCISSOR_TEST);
-//    glScissor( startX-1, startY-1+playlistHeight+2, endX-startX+2, playlistHeight+2 );
     
     Vec2f pos( startX - offsetX, startY );
     for (int i = 0; i < numPlaylists; i++) {
@@ -149,15 +153,21 @@ void PlaylistChooser::draw()
         mPlaylistRects.push_back(listRect);
 
         if (pos.x < endX && pos.x + playlistWidth > startX) {
-                    
-            // scissor rect is from bottom left of window, FIXME: in *untransformed* coords :(
-            glScissor( max(startX, min(endX, listRect.x1)), mInterfaceSize.y - listRect.y2, min(endX,listRect.x2) - max(startX, listRect.x1), listRect.getHeight() );        
-
+            
+            ScissorRect sr;
+            sr.x = max(startX, min(endX, listRect.x1));
+            sr.y = listRect.y1; //mInterfaceSize.y - listRect.y2;
+            sr.w = min(endX,listRect.x2) - max(startX, listRect.x1);
+            sr.h = listRect.getHeight();
+            getWindowSpaceRect( sr.x, sr.y, sr.w, sr.h );
+//            scissorRects.push_back( sr );
+            glScissor( sr.x, sr.y, sr.w, sr.h );
+            
             gl::color( ColorA(0.0f,0.0f,0.0f,0.25f) );
             gl::drawSolidRect( listRect );        
             
-            // FIXME: make mHighlightColor?
-            gl::color( (i == mTouchDragPlaylistIndex) ? Color::white() : mLineColor );        
+            bool highlight = (i == mTouchDragPlaylistIndex) || (i == mCurrentPlaylistIndex);
+            gl::color( highlight ? Color::white() : mLineColor ); // FIXME: make mHighlightColor?
             string name = playlist->getPlaylistName();
             // FIXME: sadly have to dig deeper on the text stuff because TextureFont won't support international characters
             mTextureFont->drawStringWrapped( name, listRect, textPadding );
@@ -172,8 +182,7 @@ void PlaylistChooser::draw()
                 // can't use mScreenPos here because we only calculate it for highlighted (labeled) nodes
                 lines[j] = pos + mCam->worldToScreen(nodeArtist->mPos, playlistWidth, playlistHeight); // pretend screen is small
             }
-            gl::draw(PolyLine2f(lines));
-            
+            gl::draw(PolyLine2f(lines));            
         }
         
         pos += spacing;
@@ -186,6 +195,27 @@ void PlaylistChooser::draw()
     glDisable(GL_SCISSOR_TEST);
     
     glPopMatrix();
+
+//    gl::color( ColorA(1.0f,0.0f,0.0f,1.0f) );
+//    for (int i = 0; i < scissorRects.size(); i++) {
+//        ScissorRect sr = scissorRects[i];
+//        gl::drawStrokedRect( Rectf(sr.x, app::getWindowHeight() - sr.y - sr.h, sr.x + sr.w, app::getWindowHeight() - sr.y) );
+//    }
+
+}
+
+// scissor rect is from *bottom left* of window in *untransformed* coords
+// x,y,w,h to this function are in rotated screen space, from top left of screen
+void PlaylistChooser::getWindowSpaceRect( float &x, float &y, float &w, float &h )
+{
+    Vec3f topLeft(x,y,0);
+    Vec3f bottomRight(x+w,y+h,0);
+    Vec2f tl = (mOrientationMatrix * topLeft).xy();
+    Vec2f br = (mOrientationMatrix * bottomRight).xy();
+    x = tl.x;
+    y = app::getWindowHeight() - br.y; // flip y
+    w = br.x - tl.x;
+    h = br.y - tl.y;
 }
 
 void PlaylistChooser::setDataWorldCam( Data *data, World *world, CameraPersp *cam )
