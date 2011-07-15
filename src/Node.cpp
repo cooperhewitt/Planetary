@@ -395,7 +395,7 @@ void Node::drawTouchHighlight( float zoomAlpha )
 
 void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-	if( mDistFromCamZAxisPer > 0.0f ){
+	if( mIsHighlighted && mDistFromCamZAxisPer > 0.0f ){
 		if( mSphereHitArea.contains( pos ) || ( mNameTex != NULL && mHitArea.contains( pos ) && G_DRAW_TEXT ) ) {
 			nodes.push_back( this );
 		}
