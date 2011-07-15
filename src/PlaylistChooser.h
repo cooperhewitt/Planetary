@@ -47,6 +47,11 @@ private:
     
     std::vector<ci::Rectf> mPlaylistRects;
     
+    uint64_t mTouchDragId;
+    ci::Vec2f mTouchDragStartPos;
+    float mTouchDragStartOffset;
+    int mTouchDragPlaylistIndex;
+    
     bool touchesBegan( ci::app::TouchEvent event );
     bool touchesMoved( ci::app::TouchEvent event );
     bool touchesEnded( ci::app::TouchEvent event );
