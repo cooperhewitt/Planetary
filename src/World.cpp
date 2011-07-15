@@ -194,10 +194,12 @@ void World::updateAgainstCurrentFilter()
         for (int i = 0; i < mNodes.size(); i++) {
             NodeArtist* artistNode = mNodes[i];
             artistNode->mIsHighlighted = mFilterRef->testArtist(artistNode->getPlaylist());
+			
             for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
                 // FIXME: static cast?
                 NodeAlbum* albumNode = (NodeAlbum*)(artistNode->mChildNodes[j]);
                 albumNode->mIsHighlighted = mFilterRef->testAlbum(albumNode->getPlaylist());
+				
                 for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
                     // FIXME: static cast?
                     NodeTrack *trackNode = (NodeTrack*)(albumNode->mChildNodes[k]);
