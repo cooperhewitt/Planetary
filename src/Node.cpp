@@ -354,7 +354,9 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 	}
 	
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawName( cam, pinchAlphaPer, angle );
+		if( (*nodeIt)->mIsHighlighted ){
+            (*nodeIt)->drawName( cam, pinchAlphaPer, angle );
+		}
 	}
 }
 
