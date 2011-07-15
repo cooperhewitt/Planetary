@@ -789,17 +789,12 @@ bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 {
 	std::cout << "Wheel Toggled" << std::endl;
         
-    const bool showWheel = mAlphaWheel.getShowWheel();
-    
-	if( showWheel ){
-		mFovDest = G_MAX_FOV;
-	} else {
-		G_HELP = false; 
-		mFovDest = G_DEFAULT_FOV;
+	if( !mAlphaWheel.getShowWheel() ){
+		G_HELP = false; // dismiss help if alpha wheel was toggled away
 	}
 
     if (mState.getFilterMode() == State::FilterModeAlphaChar) {
-        mShowFilterGUI = showWheel;
+        mShowFilterGUI = mAlphaWheel.getShowWheel(); // record alphawheel state as general filter GUI state
     }
     // FIXME: else? should this ever happen?
     
@@ -1410,7 +1405,7 @@ void KeplerApp::updateCamera()
 		if( G_CURRENT_LEVEL == G_TRACK_LEVEL )			mFovDest = 70.0f;
 		else if( G_CURRENT_LEVEL == G_ALBUM_LEVEL )		mFovDest = 85.0f;
 		else if( G_CURRENT_LEVEL == G_ARTIST_LEVEL )	mFovDest = 85.0f;
-		else											mFovDest = 95.0f;
+		else											mFovDest = 95.0f; // FIXME: is more than G_MAX_FOV, is that intended?
 		
 		mFov -= ( mFov - mFovDest ) * 0.2f;
 	
@@ -1420,7 +1415,12 @@ void KeplerApp::updateCamera()
 		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.1f;
 		mIsPastPinchThresh = false;
 		
-		mFovDest = G_DEFAULT_FOV;
+        if( mAlphaWheel.getShowWheel() ){
+            mFovDest = G_MAX_FOV; // special FOV just for alpha wheel
+        } else {
+            mFovDest = G_DEFAULT_FOV;
+        }
+        
 		mFov -= ( mFov - mFovDest ) * 0.2f;//075f;
 	}
     
@@ -1455,16 +1455,13 @@ void KeplerApp::updateCamera()
 		mCamDistDest	= G_INIT_CAM_DIST * cameraDistMulti;
 		mCenterDest		= Vec3f::zero();
         
-		if( mState.getFilterMode() == State::FilterModeUndefined ){
+        if( mAlphaWheel.getShowWheel() ){        
+			mZoomDest = G_ALPHA_LEVEL; // special level for alphawheel telescope effect (when no node is selected)
+        }
+        else {
             mZoomDest = G_HOME_LEVEL;
-        } else {
-			mZoomDest = G_ALPHA_LEVEL;
-		}
-        //		mZoomDest		= G_HOME_LEVEL;
-        //		if( mState.getAlphaChar() != ' ' ){
-        //			mZoomDest	= G_ALPHA_LEVEL;
-        //		}        
-		
+        }
+
 		mCenterOffset -= ( mCenterOffset - Vec3f::zero() ) * 0.05f;
 	}
 	
