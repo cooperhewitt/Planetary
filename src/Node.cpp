@@ -204,14 +204,15 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec2f &center, const Ve
 	mBbRight = bbRight;
 	mBbUp    = bbUp;
     
-	if( mIsHighlighted ){
+	
+	if( mGen >= G_ALBUM_LEVEL || mIsHighlighted ){
+		mSphereScreenRadius		= cam.getScreenRadius( mSphere, w, h );
         mScreenPos              = cam.worldToScreen( mPos, w, h );
 		mScreenDirToCenter		= mScreenPos - center;
 		mScreenDistToCenterPer	= mScreenDirToCenter.length()/500.0f;
 		mPrevDistFromCamZAxis	= mDistFromCamZAxis;
 		mDistFromCamZAxis		= -cam.worldToEyeDepth( mPos );
 		mDistFromCamZAxisPer	= constrain( mDistFromCamZAxis * 0.5f, 0.0f, 1.0f ); // REL: -0.35f
-		mSphereScreenRadius     = cam.getScreenRadius( mSphere, w, h );
         float r					= max( mSphereScreenRadius, 15.0f );        
         mSphereHitArea			= Rectf( mScreenPos.x - r, mScreenPos.y - r, mScreenPos.x + r, mScreenPos.y + r );        
 	}

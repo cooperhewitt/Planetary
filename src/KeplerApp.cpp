@@ -1666,7 +1666,7 @@ void KeplerApp::drawScene()
         
 		for( int i = 0; i < sortedNodes.size(); i++ ){
             
-			if( (G_IS_IPAD2 || G_DEBUG) && sortedNodes[i]->mGen == G_ALBUM_LEVEL ){
+			if( (G_IS_IPAD2 || G_DEBUG) && sortedNodes[i]->mGen == G_ALBUM_LEVEL ){ // JUST ALBUM LEVEL CAUSE ALBUM TELLS CHILDREN TO ALSO FIND SHADOWS
 				gl::enableAlphaBlending();
 				glDisable( GL_CULL_FACE );
 				mEclipseShadowTex.enableAndBind();
