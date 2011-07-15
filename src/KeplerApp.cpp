@@ -1323,6 +1323,8 @@ void KeplerApp::update()
         mUiLayer.update();
         
 		mHelpLayer.update();
+
+        mFilterToggleButton.setVisible( mShowFilterGUI );
         
         bool isAlphaFilter = (mState.getFilterMode() == State::FilterModeAlphaChar);
         bool isPlaylistFilter = (mState.getFilterMode() == State::FilterModePlaylist);
@@ -1837,7 +1839,8 @@ void KeplerApp::drawScene()
         console() << "unknown filter mode - do we draw the alphawheel or what?" << endl;
     }
     
-    mFilterToggleButton.draw( ); // FIXME: only when alpha wheel is visible (change alpha wheel visibility to filter mode visibility)
+    mFilterToggleButton.draw(); // FIXME: fade-in/out according to mShowFilterGUI?
+    
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
     mUiLayer.draw( mUiButtonsTex );
     mPlayControls.draw( mUiLayer.getPanelYPos() );

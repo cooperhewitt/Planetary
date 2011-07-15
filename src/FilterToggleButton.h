@@ -18,10 +18,14 @@ class FilterToggleButton {
 
 public:
     
+    FilterToggleButton() { mVisible = false; }
+    
     void setup(ci::app::AppCocoaTouch *app, const State::FilterMode &filterMode, const ci::Font &font, const ci::app::Orientation &orientation );
     void setFilterMode(const State::FilterMode &filterMode);
     void draw();
     void setInterfaceOrientation( const ci::app::Orientation &orientation );    
+    
+    void setVisible( bool visible = true ) { mVisible = visible; }
     
     template<typename T>
 	ci::CallbackId registerFilterModeSelected( T *obj, bool ( T::*callback )( State::FilterMode ) ){
@@ -32,6 +36,8 @@ private:
     
     bool touchesBegan( ci::app::TouchEvent event );
     bool touchesEnded( ci::app::TouchEvent event );
+    
+    bool mVisible;
     
     ci::app::Orientation mInterfaceOrientation;
     Matrix44f mOrientationMatrix;

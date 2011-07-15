@@ -60,6 +60,7 @@ void FilterToggleButton::setInterfaceOrientation( const Orientation &orientation
 
 bool FilterToggleButton::touchesBegan( TouchEvent event )
 {
+    if (!mVisible) return false;
     if (event.getTouches().size() == 1) {
         TouchEvent::Touch touch = event.getTouches()[0];
         Vec2f pos = (mOrientationMatrix.inverted() * Vec3f(touch.getPos(),0)).xy();
@@ -72,6 +73,7 @@ bool FilterToggleButton::touchesBegan( TouchEvent event )
 
 bool FilterToggleButton::touchesEnded( TouchEvent event )
 {
+    if (!mVisible) return false;    
     if (event.getTouches().size() == 1) {
         TouchEvent::Touch touch = event.getTouches()[0];
         Vec2f pos = (mOrientationMatrix.inverted() * Vec3f(touch.getPos(),0)).xy();
@@ -96,6 +98,8 @@ void FilterToggleButton::setFilterMode(const State::FilterMode &filterMode)
 
 void FilterToggleButton::draw()
 {    
+    if (!mVisible) return; // FIXME fade in/out
+    
     glPushMatrix();
     glMultMatrixf( mOrientationMatrix );
     
