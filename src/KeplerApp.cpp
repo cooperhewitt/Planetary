@@ -1878,6 +1878,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         Node* currentSelection = mState.getSelectedNode();
         
         const bool trackIsCorrect = (mPlayingTrack && trackId == mPlayingTrack->getItemId());
+        // FIXME: if you switch tracks away from Planetary then mPlayingTrackNode could be deleted...
+        //        how about switching Node pointers everywhere to shared_ptr to avoid this issue?
         const bool nodeIsCorrect = (mWorld.mPlayingTrackNode && trackId == mWorld.mPlayingTrackNode->getId());
         const bool selectionIsCorrect = (currentSelection && currentSelection->getId() == trackId);
         
