@@ -213,8 +213,9 @@ void PlaylistChooser::getWindowSpaceRect( float &x, float &y, float &w, float &h
     Vec3f bottomRight(x+w,y+h,0);
     Vec2f tl = (mOrientationMatrix * topLeft).xy();
     Vec2f br = (mOrientationMatrix * bottomRight).xy();
+    // use min max and fabs to canonicalize the scissor rect...
     x = min(br.x, tl.x);
-    y = app::getWindowHeight() - min(br.y, tl.y); // flip y
+    y = app::getWindowHeight() - max(br.y, tl.y); // flip y
     w = fabs(br.x - tl.x);
     h = fabs(br.y - tl.y);
 }
