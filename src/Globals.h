@@ -17,7 +17,6 @@ static const double G_DURATION		= 2.5;
 
 // TODO: enum for these?
 // TODO: move into State.h?
-static const int G_HOME_LEVEL		= 0;
 static const int G_ALPHA_LEVEL		= 1;
 static const int G_ARTIST_LEVEL		= 2;
 static const int G_ALBUM_LEVEL		= 3;

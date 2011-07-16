@@ -1398,6 +1398,9 @@ void KeplerApp::updateCamera()
 	
 // IF THE PINCH IS PAST THE POP THRESHOLD...
 	if( mPinchPer > mPinchPerThresh ){
+        
+        std::cout << "modulating camera with pinch " << mPinchAlphaPer << std::endl;        
+        
 		if( ! mIsPastPinchThresh ) mPinchHighlightRadius = 650.0f;
 		mPinchAlphaPer -= ( mPinchAlphaPer ) * 0.1f;
 		mIsPastPinchThresh = true;
@@ -1409,6 +1412,9 @@ void KeplerApp::updateCamera()
 			
 // OTHERWISE...
 	} else {
+        
+        std::cout << "modulating camera without pinch " << mPinchAlphaPer << std::endl;        
+        
 		if( mIsPastPinchThresh ) mPinchHighlightRadius = 125.0f;
 		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.1f;
 		mIsPastPinchThresh = false;
@@ -1451,30 +1457,22 @@ void KeplerApp::updateCamera()
 	} else {
 		mCamDistDest	= G_INIT_CAM_DIST * cameraDistMulti;
 		mCenterDest		= Vec3f::zero();
-        
-        if( mAlphaWheel.getShowWheel() ){        
-			mZoomDest = G_ALPHA_LEVEL; // special level for alphawheel telescope effect (when no node is selected)
-        }
-        else {
-            mZoomDest = G_HOME_LEVEL;
-        }
-
+        mZoomDest       = G_ALPHA_LEVEL;
 		mCenterOffset -= ( mCenterOffset - Vec3f::zero() ) * 0.05f;
 	}
 	
 	G_CURRENT_LEVEL = mZoomDest;
 	
-	
 	if( mIsPinching && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
-        bool isAlphaFilter = mState.getFilterMode() == State::FilterModeAlphaChar;
-        bool isPlaylistFilter = mState.getFilterMode() == State::FilterModePlaylist;
 		if( mPinchPer > mPinchPerThresh ){
             mShowFilterGUI = true;
-            std::cout << "updateCamera opened filter GUI" << std::endl;			
+//            std::cout << "updateCamera opened filter GUI" << std::endl;			
 		} else if( mPinchPer <= mPinchPerThresh ){
             mShowFilterGUI = false;
-            std::cout << "updateCamera closed filter GUI" << std::endl;			
+//            std::cout << "updateCamera closed filter GUI" << std::endl;			
 		}
+        bool isAlphaFilter = mState.getFilterMode() == State::FilterModeAlphaChar;
+        bool isPlaylistFilter = mState.getFilterMode() == State::FilterModePlaylist;
         if (!isAlphaFilter && !isPlaylistFilter) {
             std::cout << "unknown filter type in updateCamera, needs FIXME" << std::endl;
         }
@@ -1764,6 +1762,7 @@ void KeplerApp::drawScene()
     gl::enableAdditiveBlending();
 	
     if( G_DRAW_TEXT ){
+        std::cout << "drawing names with alpha " << mPinchAlphaPer << std::endl;
 		mWorld.drawNames( mCam, mPinchAlphaPer, getAngleForOrientation(mInterfaceOrientation) );
 	}
 		

@@ -135,7 +135,7 @@ void PlaylistChooser::draw()
 //    if (offsetX < 0.0) offsetX = 0.0;
 //    if (offsetX > maxOffsetX) offsetX = maxOffsetX;
     
-//    std::vector<ScissorRect> scissorRects;
+    std::vector<ScissorRect> scissorRects;
     
     mPlaylistRects.clear();
     
@@ -156,11 +156,11 @@ void PlaylistChooser::draw()
             
             ScissorRect sr;
             sr.x = max(startX, min(endX, listRect.x1));
-            sr.y = listRect.y1; //mInterfaceSize.y - listRect.y2;
-            sr.w = min(endX,listRect.x2) - max(startX, listRect.x1);
+            sr.y = listRect.y1;
+            sr.w = min(endX,listRect.x2) - sr.x;
             sr.h = listRect.getHeight();
             getWindowSpaceRect( sr.x, sr.y, sr.w, sr.h );
-//            scissorRects.push_back( sr );
+            scissorRects.push_back( sr );
             glScissor( sr.x, sr.y, sr.w, sr.h );
             
             gl::color( ColorA(0.0f,0.0f,0.0f,0.25f) );
@@ -196,11 +196,12 @@ void PlaylistChooser::draw()
     
     glPopMatrix();
 
-//    gl::color( ColorA(1.0f,0.0f,0.0f,1.0f) );
-//    for (int i = 0; i < scissorRects.size(); i++) {
-//        ScissorRect sr = scissorRects[i];
-//        gl::drawStrokedRect( Rectf(sr.x, app::getWindowHeight() - sr.y - sr.h, sr.x + sr.w, app::getWindowHeight() - sr.y) );
-//    }
+    gl::color( ColorA(1.0f,0.0f,0.0f,1.0f) );
+    for (int i = 0; i < scissorRects.size(); i++) {
+        ScissorRect sr = scissorRects[i];
+        std::cout << i << " " << sr.x << " " << sr.y << " " << sr.w << " " << sr.h << std::endl;
+        gl::drawStrokedRect( Rectf(sr.x, app::getWindowHeight() - sr.y - sr.h, sr.x + sr.w, app::getWindowHeight() - sr.y) );
+    }
 
 }
 
@@ -212,10 +213,10 @@ void PlaylistChooser::getWindowSpaceRect( float &x, float &y, float &w, float &h
     Vec3f bottomRight(x+w,y+h,0);
     Vec2f tl = (mOrientationMatrix * topLeft).xy();
     Vec2f br = (mOrientationMatrix * bottomRight).xy();
-    x = tl.x;
-    y = app::getWindowHeight() - br.y; // flip y
-    w = br.x - tl.x;
-    h = br.y - tl.y;
+    x = min(br.x, tl.x);
+    y = app::getWindowHeight() - min(br.y, tl.y); // flip y
+    w = fabs(br.x - tl.x);
+    h = fabs(br.y - tl.y);
 }
 
 void PlaylistChooser::setDataWorldCam( Data *data, World *world, CameraPersp *cam )
