@@ -1399,7 +1399,7 @@ void KeplerApp::updateCamera()
 // IF THE PINCH IS PAST THE POP THRESHOLD...
 	if( mPinchPer > mPinchPerThresh ){
         
-        std::cout << "modulating camera with pinch " << mPinchAlphaPer << std::endl;        
+//        std::cout << "modulating camera with pinch " << mPinchAlphaPer << std::endl;        
         
 		if( ! mIsPastPinchThresh ) mPinchHighlightRadius = 650.0f;
 		mPinchAlphaPer -= ( mPinchAlphaPer ) * 0.1f;
@@ -1413,7 +1413,7 @@ void KeplerApp::updateCamera()
 // OTHERWISE...
 	} else {
         
-        std::cout << "modulating camera without pinch " << mPinchAlphaPer << std::endl;        
+//        std::cout << "modulating camera without pinch " << mPinchAlphaPer << std::endl;        
         
 		if( mIsPastPinchThresh ) mPinchHighlightRadius = 125.0f;
 		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.1f;
@@ -1762,7 +1762,7 @@ void KeplerApp::drawScene()
     gl::enableAdditiveBlending();
 	
     if( G_DRAW_TEXT ){
-        std::cout << "drawing names with alpha " << mPinchAlphaPer << std::endl;
+//        std::cout << "drawing names with alpha " << mPinchAlphaPer << std::endl;
 		mWorld.drawNames( mCam, mPinchAlphaPer, getAngleForOrientation(mInterfaceOrientation) );
 	}
 		

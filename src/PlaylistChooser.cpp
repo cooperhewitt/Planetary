@@ -135,14 +135,14 @@ void PlaylistChooser::draw()
 //    if (offsetX < 0.0) offsetX = 0.0;
 //    if (offsetX > maxOffsetX) offsetX = maxOffsetX;
     
-    std::vector<ScissorRect> scissorRects;
+//    std::vector<ScissorRect> scissorRects;
     
     mPlaylistRects.clear();
     
     glPushMatrix();
     glMultMatrixf( mOrientationMatrix );
     
-    glEnable(GL_SCISSOR_TEST);
+    glEnable(GL_SCISSOR_TEST); // NB:- simple clipping for window-space rectangles only (no rotations)
     
     Vec2f pos( startX - offsetX, startY );
     for (int i = 0; i < numPlaylists; i++) {
@@ -154,14 +154,14 @@ void PlaylistChooser::draw()
 
         if (pos.x < endX && pos.x + playlistWidth > startX) {
             
-            ScissorRect sr;
+            ScissorRect sr; // make a rect in the current screen space
             sr.x = max(startX, min(endX, listRect.x1));
             sr.y = listRect.y1;
             sr.w = min(endX,listRect.x2) - sr.x;
             sr.h = listRect.getHeight();
-            getWindowSpaceRect( sr.x, sr.y, sr.w, sr.h );
-            scissorRects.push_back( sr );
-            glScissor( sr.x, sr.y, sr.w, sr.h );
+            getWindowSpaceRect( sr.x, sr.y, sr.w, sr.h ); // transform rect to window coords
+//            scissorRects.push_back( sr );
+            glScissor( sr.x, sr.y, sr.w, sr.h ); // used for GL_SCISSOR_TEST
             
             gl::color( ColorA(0.0f,0.0f,0.0f,0.25f) );
             gl::drawSolidRect( listRect );        
@@ -196,12 +196,12 @@ void PlaylistChooser::draw()
     
     glPopMatrix();
 
-    gl::color( ColorA(1.0f,0.0f,0.0f,1.0f) );
-    for (int i = 0; i < scissorRects.size(); i++) {
-        ScissorRect sr = scissorRects[i];
-        std::cout << i << " " << sr.x << " " << sr.y << " " << sr.w << " " << sr.h << std::endl;
-        gl::drawStrokedRect( Rectf(sr.x, app::getWindowHeight() - sr.y - sr.h, sr.x + sr.w, app::getWindowHeight() - sr.y) );
-    }
+//    gl::color( ColorA(1.0f,0.0f,0.0f,1.0f) );
+//    for (int i = 0; i < scissorRects.size(); i++) {
+//        ScissorRect sr = scissorRects[i];
+//        std::cout << i << " " << sr.x << " " << sr.y << " " << sr.w << " " << sr.h << std::endl;
+//        gl::drawStrokedRect( Rectf(sr.x, app::getWindowHeight() - sr.y - sr.h, sr.x + sr.w, app::getWindowHeight() - sr.y) );
+//    }
 
 }
 
