@@ -192,11 +192,11 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
 	mParamSlider2Label = new TextLabel( NO_BUTTON, font, BRIGHT_BLUE );
 	mParamSlider2Label->setText( "Speed" );
     
-    // scrolling bits
-    Area aLeft = Area( 200.0f, 140.0f, 214.0f, 150.0f ); // references the uiButtons image    
-    mCoverLeftTextureRect = new TextureRect( mButtonsTex, aLeft );
-    // FIXME: I think this texture should be flipped in x? can we mess with aLeft to make an aRight?
-    mCoverRightTextureRect = new TextureRect( mButtonsTex, aLeft );    
+    //////// little fady bits to cover the edges of scrolling bits:
+    Area aLeft = Area( 200, 140, 214, 150 ); // references the uiButtons image    
+    mCoverLeftTextureRect = new TextureRect( uiButtonsTex, aLeft );
+    // NB:- when rect is set for the right side, x1 > x2 so it is flipped
+    mCoverRightTextureRect = new TextureRect( uiButtonsTex, aLeft );    
 }    
 
 bool PlayControls::addedToScene()
