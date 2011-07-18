@@ -84,12 +84,12 @@ void UINode::privateDraw()
 {
     glPushMatrix();
     glMultMatrixf(mTransform); // FIXME only push/mult/pop if mTransform isn't identity
+    // draw self
+    draw();
     // draw children
     for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
         (*i)->privateDraw();
     }
-    // draw self
-    draw();
     glPopMatrix();
 }
 void UINode::setTransform(const Matrix44f &transform)

@@ -64,8 +64,13 @@ public:
     
 protected:
     
+    // all access to privateDraw from UIController::draw()
+    // FIXME: is there a better way to do this in C++?
+    friend class UIController;
+    
     // recurse to children and call draw()
     virtual void privateDraw();
+    
     // recurse to children and call touchBegan/Moved/Ended
     bool privateTouchBegan(ci::app::TouchEvent::Touch touch);
     bool privateTouchMoved(ci::app::TouchEvent::Touch touch);

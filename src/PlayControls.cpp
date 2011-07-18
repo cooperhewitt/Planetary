@@ -192,6 +192,11 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
 	mParamSlider2Label = new TextLabel( NO_BUTTON, font, BRIGHT_BLUE );
 	mParamSlider2Label->setText( "Speed" );
     
+    // scrolling bits
+    Area aLeft = Area( 200.0f, 140.0f, 214.0f, 150.0f ); // references the uiButtons image    
+    mCoverLeftTextureRect = new TextureRect( mButtonsTex, aLeft );
+    // FIXME: I think this texture should be flipped in x? can we mess with aLeft to make an aRight?
+    mCoverRightTextureRect = new TextureRect( mButtonsTex, aLeft );    
 }    
 
 bool PlayControls::addedToScene()
@@ -247,7 +252,12 @@ void PlayControls::addChildren()
 	addChild( UINodeRef(mParamSlider2) );
 	addChild( UINodeRef(mParamSlider1Label) );
     addChild( UINodeRef(mParamSlider2Label) );    
+
+    // shaded bits on top of scrolling mTrackInfoLabel
+    addChild( UINodeRef(mCoverLeftTextureRect) );
+    addChild( UINodeRef(mCoverRightTextureRect) );
 }
+
 
 bool PlayControls::onUINodeTouchMoved( UINodeRef nodeRef )
 {
@@ -431,34 +441,30 @@ void PlayControls::update( float y )
     if ( mInterfaceSize != interfaceSize ) {
         setInterfaceSize( interfaceSize );
     }    
+
+    // FIXME: make an mActive bool so we can skip interaction and drawing if the panel is hiding
+    //mActive = (mInterfaceSize.y - y ) > 60.0f;
+    
+    const float w	 = 15.0f;
+	Rectf infoRect   = mTrackInfoLabel->getRect();
+
+	if( mTrackInfoLabel->isScrollingText() ) {
+        mCoverLeftTextureRect->setRect( infoRect.x1, infoRect.y1, infoRect.x1 + w, infoRect.y2 );
+    } else {
+        mCoverLeftTextureRect->setRect( infoRect.x1, infoRect.y1, infoRect.x1, infoRect.y1 ); // zero size (FIXME: visible true/false? or remove from scene?
+    }
+    mCoverRightTextureRect->setRect( infoRect.x2 + 1.0f, infoRect.y1, infoRect.x2 - ( w - 1.0f ), infoRect.y2 );
+    
+    // FIXME: need label gradients for playlist label as well - perhaps nest inside scrolling label class?
+
 }
 
 void PlayControls::draw()
 {
-    // FIXME: make an mActive bool so we can skip interaction if the panel is hiding
-    //mActive = (mInterfaceSize.y - y ) > 60.0f;
-        
+    // apply this alpha to all children
+    // FIXME: is there a more reliable way to do this, does UINode need more inheritable properties?
 	const float dragAlphaPer = pow( ( mInterfaceSize.y - mLastDrawY ) / 65.0f, 2.0f );    	
     gl::color( ColorA( 1.0f, 1.0f, 1.0f, dragAlphaPer ) );
-    
-    // draw children with current alpha:
     UINode::draw();
-
-    glPushMatrix();
-    gl::translate(Vec2f(0,mLastDrawY));
-    
-// TEXT LABEL GRADIENTS
-	const float w	 = 15.0f;
-	Rectf infoRect   = mTrackInfoLabel->getRect();
-	Area aLeft		 = Area( 200.0f, 140.0f, 214.0f, 150.0f ); // references the uiButtons image
-	Rectf coverLeft  = Rectf( infoRect.x1, infoRect.y1, infoRect.x1 + w, infoRect.y2 );
-	Rectf coverRight = Rectf( infoRect.x2 + 1.0f, infoRect.y1, infoRect.x2 - ( w - 1.0f ), infoRect.y2 );
-	if( mTrackInfoLabel->isScrollingText() ) {
-		gl::draw( mButtonsTex, aLeft, coverLeft );
-    }
-    gl::draw( mButtonsTex, aLeft, coverRight );
-
-    // FIXME: need label gradients for playlist label as well - perhaps nest inside scrolling label class?
-    
-    glPopMatrix();
 }
+

@@ -104,6 +104,7 @@
 		E23C29FA13B1A6D60038F3F4 /* skydomeFull.png in Resources */ = {isa = PBXBuildFile; fileRef = E23C29F813B1A6D60038F3F4 /* skydomeFull.png */; };
 		E23C29FD13B1A9710038F3F4 /* galaxyCropped.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E23C29FB13B1A9710038F3F4 /* galaxyCropped.jpg */; };
 		E23C29FE13B1A9710038F3F4 /* galaxyCropped.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E23C29FC13B1A9710038F3F4 /* galaxyCropped.pvr */; };
+		E2576E4213D4C8D600EC82EF /* TextureRect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2576E4013D4C8D500EC82EF /* TextureRect.cpp */; };
 		E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C872D131F1420000780A3 /* NodeArtist.cpp */; };
 		E25C8744131F14B3000780A3 /* NodeAlbum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8742131F14B3000780A3 /* NodeAlbum.cpp */; };
 		E25C8745131F14B3000780A3 /* NodeTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8743131F14B3000780A3 /* NodeTrack.cpp */; };
@@ -248,6 +249,8 @@
 		E23C29F813B1A6D60038F3F4 /* skydomeFull.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = skydomeFull.png; path = ../skydomeFull.png; sourceTree = "<group>"; };
 		E23C29FB13B1A9710038F3F4 /* galaxyCropped.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = galaxyCropped.jpg; path = ../galaxyCropped.jpg; sourceTree = "<group>"; };
 		E23C29FC13B1A9710038F3F4 /* galaxyCropped.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = galaxyCropped.pvr; path = ../galaxyCropped.pvr; sourceTree = "<group>"; };
+		E2576E4013D4C8D500EC82EF /* TextureRect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureRect.cpp; sourceTree = "<group>"; };
+		E2576E4113D4C8D600EC82EF /* TextureRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureRect.h; sourceTree = "<group>"; };
 		E25C872D131F1420000780A3 /* NodeArtist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeArtist.cpp; path = ../src/NodeArtist.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8742131F14B3000780A3 /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8743131F14B3000780A3 /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
@@ -789,6 +792,7 @@
 				E2E21CCC13A177EB00A476A2 /* Slider.h */,
 				E2E21CCE13A177EC00A476A2 /* TextLabel.h */,
 				E2E21CCF13A177ED00A476A2 /* TimeLabel.h */,
+				E2576E4113D4C8D600EC82EF /* TextureRect.h */,
 			);
 			name = Elements;
 			sourceTree = "<group>";
@@ -796,6 +800,7 @@
 		E25040C01392E83E00A8D673 /* Elements */ = {
 			isa = PBXGroup;
 			children = (
+				E2576E4013D4C8D500EC82EF /* TextureRect.cpp */,
 				E227B204138EFDC500AAAC7B /* TextLabel.cpp */,
 				E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */,
 				E2730444138DA83800A2A65B /* TimeLabel.cpp */,
@@ -1016,6 +1021,7 @@
 				E2CD4BA013CA70F60047AF5F /* FilterToggleButton.cpp in Sources */,
 				E2A868B313D3CA6F0024E4D0 /* UINode.cpp in Sources */,
 				E2A868B613D3D0950024E4D0 /* UIController.cpp in Sources */,
+				E2576E4213D4C8D600EC82EF /* TextureRect.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

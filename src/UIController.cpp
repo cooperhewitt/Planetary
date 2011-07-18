@@ -35,7 +35,7 @@ bool UIController::touchesBegan( TouchEvent event )
 {
     // FIXME: UIController only does one level of touches (UINode doesn't pass on touches to children yet)
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
-        touchBegan(*i);
+        privateTouchBegan(*i); // recurses to children
     }    
     return false;
 }
@@ -43,7 +43,7 @@ bool UIController::touchesBegan( TouchEvent event )
 bool UIController::touchesMoved( TouchEvent event )
 {
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
-        touchMoved(*i);
+        privateTouchMoved(*i); // recurses to children
     }
     return false;
 }
@@ -51,7 +51,7 @@ bool UIController::touchesMoved( TouchEvent event )
 bool UIController::touchesEnded( TouchEvent event )
 {
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
-        touchEnded(*i);
+        privateTouchEnded(*i); // recurses to children
     }    
     return false;
 }
@@ -74,19 +74,22 @@ void UIController::setInterfaceOrientation( const Orientation &orientation )
     }        
 }
 
-void UIController::privateDraw()
-{
-    // NB:- if you override this to draw extra things, 
-    //      apply the interface orientation before mTransform
-    glPushMatrix();
-    glMultMatrixf(mOrientationMatrix);    
-    UINode::privateDraw(); // draws children
-    glPopMatrix();
-}
-
 Matrix44f UIController::getConcatenatedTransform() const
 {
     return mOrientationMatrix * mTransform;
 }
 
+void UIController::draw()
+{
+    glPushMatrix();
+    glMultMatrixf(mOrientationMatrix); // FIXME only push/mult/pop if mOrientationMatrix isn't identity
 
+    glMultMatrixf(mTransform); // FIXME only mult if mTransform isn't identity
+    // draw children
+    for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
+        (*i)->privateDraw();
+    }
+    // dont' draw self or we'll recurse
+
+    glPopMatrix();
+}

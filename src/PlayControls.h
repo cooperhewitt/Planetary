@@ -24,6 +24,7 @@
 #include "Slider.h"
 #include "TextLabel.h"
 #include "TimeLabel.h"
+#include "TextureRect.h"
 #include "ScrollingLabel.h"
 #include "CinderIPodPlayer.h"
 
@@ -152,6 +153,8 @@ private:
 
     // current track info and playhead...
     ScrollingLabel *mTrackInfoLabel;
+        TextureRect *mCoverLeftTextureRect;
+        TextureRect *mCoverRightTextureRect;
     TimeLabel *mElapsedTimeLabel;
     Slider *mPlayheadSlider;
     TimeLabel *mRemainingTimeLabel;    
