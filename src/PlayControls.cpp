@@ -248,7 +248,7 @@ void PlayControls::updateUIRects( Vec2f interfaceSize )
 	const float timeTexWidth = 55.0f;
     const float sliderHeight = 20.0f;
     const float sliderInset  = bSize * 2.0f + sideBorder + timeTexWidth;
-    const bool  landscape    = interfaceSize.y > interfaceSize.x;
+    const bool  landscape    = interfaceSize.x > interfaceSize.y;
     const float sliderWidth  = landscape ? 328.0f : 201.0f;
     
     // FLY TO CURRENT TRACK-MOON BUTTON
