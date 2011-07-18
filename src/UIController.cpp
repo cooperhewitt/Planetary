@@ -33,7 +33,7 @@ UIController::~UIController()
 
 bool UIController::touchesBegan( TouchEvent event )
 {
-    // FIXME: UIController only does one level of touches (UINode doesn't pass on touches to children yet)
+    std::cout << "touchesBegan in UIController" << std::endl;
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
         privateTouchBegan(*i); // recurses to children
     }    
@@ -42,6 +42,7 @@ bool UIController::touchesBegan( TouchEvent event )
 
 bool UIController::touchesMoved( TouchEvent event )
 {
+    std::cout << "touchesMoved in UIController" << std::endl;
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
         privateTouchMoved(*i); // recurses to children
     }
@@ -50,6 +51,7 @@ bool UIController::touchesMoved( TouchEvent event )
 
 bool UIController::touchesEnded( TouchEvent event )
 {
+    std::cout << "touchesEnded in UIController" << std::endl;
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
         privateTouchEnded(*i); // recurses to children
     }    

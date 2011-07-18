@@ -130,7 +130,6 @@ bool UINode::privateTouchBegan( TouchEvent::Touch touch )
         if (childRef->privateTouchBegan(touch)) {
             consumed = true;
             mActiveTouches[touch.getId()] = childRef;
-            mRoot->onUINodeTouchBegan(childRef);
             break; // first child wins (touch can't affect more than one child node)
         }
     }    
@@ -156,12 +155,12 @@ bool UINode::privateTouchMoved( TouchEvent::Touch touch )
         if (nodeRef->getId() == this->getId()) {
             // check self
             consumed = touchMoved(touch);
+            if (consumed) {
+                mRoot->onUINodeTouchMoved(nodeRef);
+            }
         }
         else {
             consumed = nodeRef->privateTouchMoved(touch);
-        }
-        if (consumed) {
-            mRoot->onUINodeTouchMoved(nodeRef);
         }
     }
     return consumed;
@@ -177,12 +176,12 @@ bool UINode::privateTouchEnded( TouchEvent::Touch touch )
         if (nodeRef->getId() == this->getId()) {
             // check self
             consumed = touchEnded(touch);
+            if (consumed) {
+                mRoot->onUINodeTouchEnded(nodeRef);
+            }
         }
         else {
             consumed = nodeRef->privateTouchEnded(touch);
-        }
-        if (consumed) {
-            mRoot->onUINodeTouchEnded(nodeRef);
         }
         mActiveTouches.erase(touch.getId());
     }

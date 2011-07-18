@@ -204,6 +204,7 @@ bool PlayControls::addedToScene()
     // now mRoot is valid we can add children
     addChildren(); // FIXME: make it so you can add children even if mRoot is invalid
     // add listeners to relay callbacks...
+    std::cout << "registering callbacks in PlayControls" << std::endl;
     mCbTouchMoved = mRoot->registerUINodeTouchMoved( this, &PlayControls::onUINodeTouchMoved );
     mCbTouchEnded = mRoot->registerUINodeTouchEnded( this, &PlayControls::onUINodeTouchEnded );    
     return false;
