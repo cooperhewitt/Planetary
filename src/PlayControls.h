@@ -103,10 +103,14 @@ private:
 					  
     UIController *mUIController;
         
-    // layout happens here when interface size is different
-    void updateUIRects( ci::Vec2f interfaceSize );
-    // toggled by showsettings:
-    void updateElements();
+    // instantiate and set fonts/areas/textures (called once)
+    void createChildren( const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex );
+    
+    // add everything to mUIController (called once)
+    void addChildren();
+    
+    // set positions (can be called repeatedly whenever interfaceSize changes)
+    void updateLayout( ci::Vec2f interfaceSize );
     
     float mLastDrawY;
     ci::Vec2f prevInterfaceSize;

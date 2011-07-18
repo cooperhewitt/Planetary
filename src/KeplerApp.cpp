@@ -452,17 +452,7 @@ void KeplerApp::remainingSetup()
     mGalaxy.setup(G_INIT_CAM_DIST, BRIGHT_BLUE, BLUE, mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex);
 
     // Make sure initial PlayControl settings are correct:
-    mPlayControls.setAlphaWheelVisible( mShowFilterGUI );
-    mPlayControls.setShowSettings( G_SHOW_SETTINGS );
-    mPlayControls.setOrbitsVisible( G_DRAW_RINGS );
-    mPlayControls.setLabelsVisible( G_DRAW_TEXT );
-    mPlayControls.setHelpVisible( G_HELP );
-    mPlayControls.setDebugVisible( G_DEBUG );	    
-    mPlayControls.setShuffleVisible( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff );
-    mPlayControls.setRepeatVisible( mIpodPlayer.getRepeatMode() != ipod::Player::RepeatModeNone );    
-    if( G_IS_IPAD2 ) {
-        mPlayControls.setGyroVisible( G_USE_GYRO );
-    }    
+    mPlayControls.setAlphaWheelVisible( mShowFilterGUI ); // TODO: maybe move this to mPlayControls.setup()?
     
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
 

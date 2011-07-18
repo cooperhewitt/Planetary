@@ -23,14 +23,37 @@ PlayControls::~PlayControls()
 
 void PlayControls::setup( AppCocoaTouch *app, OrientationHelper *orientationHelper, ipod::Player *player, const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
 {
+    // TODO: share one UIController for whole app (pass it to setup instead of app and orientationHelper)
     mUIController = new UIController(app, orientationHelper);
     
-    mButtonsTex		= uiButtonsTex; // only stored for dimming sides of scrolling current track label
-    
+    mButtonsTex		= uiButtonsTex; // only stored for dimming sides of scrolling current track label    
     mShowSettings = false;
     
-    ////////
+    // create, add, and position everything...
+    createChildren( font, fontSmall, uiButtonsTex, uiBigButtonsTex, uiSmallButtonsTex );
+    addChildren();
+    updateLayout( mUIController->getInterfaceSize() );
+    
+    // add listeners to relay callbacks...
+    mUIController->registerUINodeTouchMoved( this, &PlayControls::onUINodeTouchMoved );
+    mUIController->registerUINodeTouchEnded( this, &PlayControls::onUINodeTouchEnded );
+    
+    // set initial state...
+    setPlaying( player->getPlayState() == ipod::Player::StatePlaying );    
+    setShowSettings( G_SHOW_SETTINGS );
+    setOrbitsVisible( G_DRAW_RINGS );
+    setLabelsVisible( G_DRAW_TEXT );
+    setHelpVisible( G_HELP );
+    setDebugVisible( G_DEBUG );	    
+    setShuffleVisible( player->getShuffleMode() != ipod::Player::ShuffleModeOff );
+    setRepeatVisible( player->getRepeatMode() != ipod::Player::RepeatModeNone );    
+    if( G_IS_IPAD2 ) {
+        setGyroVisible( G_USE_GYRO );
+    }
+}
 
+void PlayControls::createChildren( const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
+{
 	float uw = uiBigButtonsTex.getWidth() / 8.0f; // button tex width
 	float v1 = 0.0f;                              // button tex off start y
     float v2 = uiBigButtonsTex.getHeight() * 0.5f;// button tex on start y, off end y
@@ -56,10 +79,9 @@ void PlayControls::setup( AppCocoaTouch *app, OrientationHelper *orientationHelp
                                              uiBigButtonsTex,
                                              Area(uw*3.0f,v2,uw*4.0f,v3),  // on texture
                                              Area(uw*3.0f,v1,uw*4.0f,v2) );// off texture
-
-	bool isPlaying = ( player->getPlayState() == ipod::Player::StatePlaying );
+	
     mPlayPauseButton = new TwoStateButton( PLAY_PAUSE, 
-                                           isPlaying,
+                                           false, // initial state is updated in setup()
                                            uiBigButtonsTex,
                                            Area(uw*4.0f,v2,uw*5.0f,v3),  // offDown   
                                            Area(uw*4.0f,v1,uw*5.0f,v2),  // offUp
@@ -87,69 +109,69 @@ void PlayControls::setup( AppCocoaTouch *app, OrientationHelper *orientationHelp
     v3 = uiSmallButtonsTex.getHeight();
     
     {
-        mHelpButton = new ToggleButton(HELP, 
-                          false, 
-                          uiSmallButtonsTex,
-                          Area(uw*0.0f,v2,uw*1.0f,v3),  // on texture
-                          Area(uw*0.0f,v1,uw*1.0f,v2)); // off texture
+        mHelpButton = new ToggleButton( HELP, 
+                                        false, 
+                                        uiSmallButtonsTex,
+                                        Area(uw*0.0f,v2,uw*1.0f,v3),  // on texture
+                                        Area(uw*0.0f,v1,uw*1.0f,v2)); // off texture
         
 		if( G_IS_IPAD2 ){
-			mGyroButton = new ToggleButton(USE_GYRO, 
-								false, 
-								uiSmallButtonsTex,
-								Area(uw*1.0f,v2,uw*2.0f,v3),  // on texture
-								Area(uw*1.0f,v1,uw*2.0f,v2)); // off texture
+			mGyroButton = new ToggleButton( USE_GYRO, 
+                                            false, 
+                                            uiSmallButtonsTex,
+                                            Area(uw*1.0f,v2,uw*2.0f,v3),  // on texture
+                                            Area(uw*1.0f,v1,uw*2.0f,v2)); // off texture
 		}
         
-        mOrbitsButton = new ToggleButton(DRAW_RINGS, 
-                            false, 
-                            uiSmallButtonsTex,
-                            Area(uw*2.0f,v2,uw*3.0f,v3),  // on texture
-                            Area(uw*2.0f,v1,uw*3.0f,v2)); // off texture
+        mOrbitsButton = new ToggleButton( DRAW_RINGS, 
+                                          false, 
+                                          uiSmallButtonsTex,
+                                          Area(uw*2.0f,v2,uw*3.0f,v3),  // on texture
+                                          Area(uw*2.0f,v1,uw*3.0f,v2)); // off texture
 
-        mLabelsButton = new ToggleButton(DRAW_TEXT, 
-                          false, 
-                          uiSmallButtonsTex,
-                          Area(uw*3.0f,v2,uw*4.0f,v3),  // on texture
-                          Area(uw*3.0f,v1,uw*4.0f,v2)); // off texture
+        mLabelsButton = new ToggleButton( DRAW_TEXT, 
+                                          false, 
+                                          uiSmallButtonsTex,
+                                          Area(uw*3.0f,v2,uw*4.0f,v3),  // on texture
+                                          Area(uw*3.0f,v1,uw*4.0f,v2)); // off texture
 
-        mDebugButton = new ToggleButton(DEBUG_FEATURE, 
-                          false, 
-                          uiSmallButtonsTex,
-                          Area(uw*4.0f,v2,uw*5.0f,v3),  // on texture
-                          Area(uw*4.0f,v1,uw*5.0f,v2)); // off texture
+        mDebugButton = new ToggleButton( DEBUG_FEATURE, 
+                                         false, 
+                                         uiSmallButtonsTex,
+                                         Area(uw*4.0f,v2,uw*5.0f,v3),  // on texture
+                                         Area(uw*4.0f,v1,uw*5.0f,v2)); // off texture
 		
-		mPreviousPlaylistButton = new SimpleButton(PREV_PLAYLIST, 
-									  uiSmallButtonsTex,
-									  Area(uw*6.0f,v2,uw*7.0f,v3),  // on texture
-									  Area(uw*6.0f,v1,uw*7.0f,v2)); // off texture
+		mPreviousPlaylistButton = new SimpleButton( PREV_PLAYLIST, 
+                                                    uiSmallButtonsTex,
+                                                    Area(uw*6.0f,v2,uw*7.0f,v3),  // on texture
+                                                    Area(uw*6.0f,v1,uw*7.0f,v2)); // off texture
 		
-		mNextPlaylistButton = new SimpleButton(NEXT_PLAYLIST,
-								  uiSmallButtonsTex,
-								  Area(uw*7.0f,v2,uw*8.0f,v3),  // on texture
-								  Area(uw*7.0f,v1,uw*8.0f,v2)); // off texture
+		mNextPlaylistButton = new SimpleButton( NEXT_PLAYLIST,
+                                                uiSmallButtonsTex,
+                                                Area(uw*7.0f,v2,uw*8.0f,v3),  // on texture
+                                                Area(uw*7.0f,v1,uw*8.0f,v2)); // off texture
 		
-		mShuffleButton = new ToggleButton(SHUFFLE, 
-							 false, 
-                             uiSmallButtonsTex,
-							 Area(uw*8.0f,v2,uw*9.0f,v3),  // on texture
-							 Area(uw*8.0f,v1,uw*9.0f,v2)); // off texture
+		mShuffleButton = new ToggleButton( SHUFFLE, 
+                                           false, 
+                                           uiSmallButtonsTex,
+                                           Area(uw*8.0f,v2,uw*9.0f,v3),  // on texture
+                                           Area(uw*8.0f,v1,uw*9.0f,v2)); // off texture
 		
-		mRepeatButton = new ToggleButton(REPEAT, 
-							false, 
-                            uiSmallButtonsTex,
-							Area(uw*9.0f,v2,uw*10.0f,v3),  // on texture
-							Area(uw*9.0f,v1,uw*10.0f,v2)); // off texture
+		mRepeatButton = new ToggleButton( REPEAT, 
+                                          false, 
+                                          uiSmallButtonsTex,
+                                          Area(uw*9.0f,v2,uw*10.0f,v3),  // on texture
+                                          Area(uw*9.0f,v1,uw*10.0f,v2)); // off texture
     }
     
     const float vh = uiButtonsTex.getHeight();
     
-    mPlayheadSlider = new Slider(SLIDER,          // ID
-                          uiButtonsTex,
-                          Area(uw * 0.0f, vh * 0.5f, uw * 1.0f, vh * 0.6f),  // bg texture
-                          Area(uw * 0.0f, vh * 0.6f, uw * 1.0f, vh * 0.7f),  // fg texture
-                          Area(uw * 0.0f, vh * 0.2f, uw * 1.0f, vh * 0.4f),  // thumb on texture
-                          Area(uw * 0.0f, vh * 0.0f, uw * 1.0f, vh * 0.2f)); // thumb off texture
+    mPlayheadSlider = new Slider( SLIDER,          // ID
+                                  uiButtonsTex,
+                                  Area(uw * 0.0f, vh * 0.5f, uw * 1.0f, vh * 0.6f),  // bg texture
+                                  Area(uw * 0.0f, vh * 0.6f, uw * 1.0f, vh * 0.7f),  // fg texture
+                                  Area(uw * 0.0f, vh * 0.2f, uw * 1.0f, vh * 0.4f),  // thumb on texture
+                                  Area(uw * 0.0f, vh * 0.0f, uw * 1.0f, vh * 0.2f)); // thumb off texture
 
     /////// no textures please, we're British...
     
@@ -164,25 +186,29 @@ void PlayControls::setup( AppCocoaTouch *app, OrientationHelper *orientationHelp
     ///////
 	// TODO: add initial value
 	mParamSlider1 = new Slider( PARAMSLIDER1,          // ID
-						 uiButtonsTex,
-						 Area(uw * 0.0f, vh * 0.5f, uw * 1.0f, vh * 0.6f),  // bg texture
-						 Area(uw * 0.0f, vh * 0.6f, uw * 1.0f, vh * 0.7f),  // fg texture
-						 Area(uw * 0.0f, vh * 0.2f, uw * 1.0f, vh * 0.4f),  // thumb on texture
-						 Area(uw * 0.0f, vh * 0.0f, uw * 1.0f, vh * 0.2f)); // thumb off texture
+                                uiButtonsTex,
+                                Area(uw * 0.0f, vh * 0.5f, uw * 1.0f, vh * 0.6f),  // bg texture
+                                Area(uw * 0.0f, vh * 0.6f, uw * 1.0f, vh * 0.7f),  // fg texture
+                                Area(uw * 0.0f, vh * 0.2f, uw * 1.0f, vh * 0.4f),  // thumb on texture
+                                Area(uw * 0.0f, vh * 0.0f, uw * 1.0f, vh * 0.2f)); // thumb off texture
 	mParamSlider1->setValue( 0.25f );
 	mParamSlider1Label = new TextLabel( NO_BUTTON, font, BRIGHT_BLUE );
 	mParamSlider1Label->setText( "Scale" );
 	
 	mParamSlider2 = new Slider( PARAMSLIDER2,          // ID
-						 uiButtonsTex,
-						 Area(uw * 0.0f, vh * 0.5f, uw * 1.0f, vh * 0.6f),  // bg texture
-						 Area(uw * 0.0f, vh * 0.6f, uw * 1.0f, vh * 0.7f),  // fg texture
-						 Area(uw * 0.0f, vh * 0.2f, uw * 1.0f, vh * 0.4f),  // thumb on texture
-						 Area(uw * 0.0f, vh * 0.0f, uw * 1.0f, vh * 0.2f)); // thumb off texture
+                                uiButtonsTex,
+                                Area(uw * 0.0f, vh * 0.5f, uw * 1.0f, vh * 0.6f),  // bg texture
+                                Area(uw * 0.0f, vh * 0.6f, uw * 1.0f, vh * 0.7f),  // fg texture
+                                Area(uw * 0.0f, vh * 0.2f, uw * 1.0f, vh * 0.4f),  // thumb on texture
+                                Area(uw * 0.0f, vh * 0.0f, uw * 1.0f, vh * 0.2f)); // thumb off texture
 	mParamSlider2->setValue( 0.025f );
 	mParamSlider2Label = new TextLabel( NO_BUTTON, font, BRIGHT_BLUE );
 	mParamSlider2Label->setText( "Speed" );
-	    
+    
+}    
+    
+void PlayControls::addChildren()
+{
     // bit of hack, these are first for batch reasons
     // (we want the little fadey bits to be drawn on top)
     mUIController->addChild( UINodeRef(mElapsedTimeLabel) );
@@ -197,7 +223,7 @@ void PlayControls::setup( AppCocoaTouch *app, OrientationHelper *orientationHelp
     mUIController->addChild( UINodeRef(mPlayPauseButton) );
     mUIController->addChild( UINodeRef(mNextTrackButton) );
 	
-    // TODO: hide these if (!mShowSettings) {   
+    // FIXME: hide these if (!mShowSettings) {   
     mUIController->addChild( UINodeRef(mShuffleButton) );
     mUIController->addChild( UINodeRef(mRepeatButton) );
     mUIController->addChild( UINodeRef(mHelpButton) );
@@ -214,13 +240,7 @@ void PlayControls::setup( AppCocoaTouch *app, OrientationHelper *orientationHelp
 	mUIController->addChild( UINodeRef(mParamSlider1) );
 	mUIController->addChild( UINodeRef(mParamSlider2) );
 	mUIController->addChild( UINodeRef(mParamSlider1Label) );
-    mUIController->addChild( UINodeRef(mParamSlider2Label) );
-    
-    updateUIRects( mUIController->getInterfaceSize() );
-    
-    // add listeners
-    mUIController->registerUINodeTouchMoved( this, &PlayControls::onUINodeTouchMoved );
-    mUIController->registerUINodeTouchEnded( this, &PlayControls::onUINodeTouchEnded );
+    mUIController->addChild( UINodeRef(mParamSlider2Label) );    
 }
 
 bool PlayControls::onUINodeTouchMoved( UINodeRef nodeRef )
@@ -248,7 +268,7 @@ void PlayControls::setPlaylist(const string &playlist)
     mPlaylistLabel->setLastTrackChangeTime(app::getElapsedSeconds()); // FIXME: rename to setScrollBeginTime or something?
 }    
 
-void PlayControls::updateUIRects( Vec2f interfaceSize )
+void PlayControls::updateLayout( Vec2f interfaceSize )
 {
 	const float topBorder	 = 5.0f;
 	const float sideBorder	 = 10.0f;
@@ -386,7 +406,7 @@ void PlayControls::setShowSettings(bool visible)
 {
     if (mShowSettings != visible) {
         mShowSettings = visible;
-        // FIXME: updateElements();
+        // FIXME: make a container just for settings things and don't draw it when !mShowSettings
     }    
     mShowSettingsButton->setOn(visible); 
 }
@@ -402,7 +422,7 @@ void PlayControls::draw(float y)
 
     Vec2f interfaceSize = mUIController->getInterfaceSize();
     if (prevInterfaceSize != interfaceSize) {
-        updateUIRects( interfaceSize );
+        updateLayout( interfaceSize );
         prevInterfaceSize = interfaceSize;
     }
     
@@ -412,12 +432,7 @@ void PlayControls::draw(float y)
 	const float dragAlphaPer = pow( ( interfaceSize.y - y ) / 65.0f, 2.0f );    	
     gl::color( ColorA( 1.0f, 1.0f, 1.0f, dragAlphaPer ) );
     
-	//gl::enableAlphaBlending();    
-
-    // FIXME: is batch draw applicable here?
-//    bloom::gl::beginBatch();
     mUIController->draw();
-//    bloom::gl::endBatch();
 
     glPushMatrix();
     gl::translate(Vec2f(0,y));
@@ -428,25 +443,12 @@ void PlayControls::draw(float y)
 	Area aLeft		 = Area( 200.0f, 140.0f, 214.0f, 150.0f ); // references the uiButtons image
 	Rectf coverLeft  = Rectf( infoRect.x1, infoRect.y1, infoRect.x1 + w, infoRect.y2 );
 	Rectf coverRight = Rectf( infoRect.x2 + 1.0f, infoRect.y1, infoRect.x2 - ( w - 1.0f ), infoRect.y2 );
-//    bloom::gl::beginBatch();
 	if( mTrackInfoLabel->isScrollingText() ) {
-//		bloom::gl::batchRect( mButtonsTex, aLeft, coverLeft );
 		gl::draw( mButtonsTex, aLeft, coverLeft );
     }
-//    bloom::gl::batchRect( mButtonsTex, aLeft, coverRight );
     gl::draw( mButtonsTex, aLeft, coverRight );
-//    bloom::gl::endBatch(); // FIXME: could be the same batch, why not working?
 
-    // FIXME: need label gradients for playlist label as well - perhaps move into scrolling label class?
-
-//    if (G_DEBUG) {
-//        gl::color( ColorA( 1.0f, 0.0f, 0.0f, 0.2f ) );    
-//        for (int i = 0; i < interactiveElements.size(); i++) {
-//            gl::drawStrokedRect(interactiveElements[i]->getRect());
-//        }        
-//    }
+    // FIXME: need label gradients for playlist label as well - perhaps nest inside scrolling label class?
     
     glPopMatrix();
-    
-    //gl::disableAlphaBlending();    
 }
