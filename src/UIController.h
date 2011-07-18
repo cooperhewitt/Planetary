@@ -24,6 +24,9 @@ public:
     
     virtual void draw();
     
+    // override from UINode to stop infinite mParent recursion
+    ci::Matrix44f getConcatenatedTransform() const;
+    
 protected:
 
     bool touchesBegan( ci::app::TouchEvent event );

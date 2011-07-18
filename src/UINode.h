@@ -38,7 +38,7 @@ public:
 
     void setTransform(const ci::Matrix44f &transform);
     ci::Matrix44f getTransform() const;
-    ci::Matrix44f getConcatenatedTransform() const;
+    virtual ci::Matrix44f getConcatenatedTransform() const;
     
     int getId() const;
     

@@ -101,3 +101,9 @@ void UIController::draw()
     glPopMatrix();
 }
 
+Matrix44f UIController::getConcatenatedTransform() const
+{
+    return mOrientationMatrix * mTransform;
+}
+
+
