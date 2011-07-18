@@ -86,10 +86,10 @@ public:
     TwoStateButton( const int &buttonId, 
                     const bool &on,
                     const ci::gl::Texture &texture,
-                    const ci::Area &onDownTextureArea, 
-                    const ci::Area &onUpTextureArea,
                     const ci::Area &offDownTextureArea, 
-                    const ci::Area &offUpTextureArea ):
+                    const ci::Area &offUpTextureArea,
+                    const ci::Area &onDownTextureArea, 
+                    const ci::Area &onUpTextureArea ):
         UINode(buttonId),
         mOn(on),
         mTexture(texture),

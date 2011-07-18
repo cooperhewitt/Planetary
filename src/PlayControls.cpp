@@ -61,10 +61,10 @@ void PlayControls::setup( AppCocoaTouch *app, OrientationHelper *orientationHelp
     mPlayPauseButton = new TwoStateButton( PLAY_PAUSE, 
                                            isPlaying,
                                            uiBigButtonsTex,
-                                           Area(uw*4.0f,v2,uw*5.0f,v3),  // offUp   
-                                           Area(uw*4.0f,v1,uw*5.0f,v2),  // offDown
-                                           Area(uw*5.0f,v2,uw*6.0f,v3),  // onUp
-                                           Area(uw*5.0f,v1,uw*6.0f,v2) );// onDown
+                                           Area(uw*4.0f,v2,uw*5.0f,v3),  // offDown   
+                                           Area(uw*4.0f,v1,uw*5.0f,v2),  // offUp
+                                           Area(uw*5.0f,v2,uw*6.0f,v3),  // onDown
+                                           Area(uw*5.0f,v1,uw*6.0f,v2) );// onUp
 
     mNextTrackButton = new SimpleButton( NEXT_TRACK, 
                                          uiBigButtonsTex,
