@@ -124,13 +124,14 @@ Vec2f UINode::globalToLocal(const Vec2f pos)
 bool UINode::privateTouchBegan( TouchEvent::Touch touch )
 {
     bool consumed = false;
+    // check children
     for (std::vector<UINodeRef>::const_iterator j = mChildren.begin(); j != mChildren.end(); j++) {
         UINodeRef childRef = *j;
-        if (childRef->touchBegan(touch)) {
+        if (childRef->privateTouchBegan(touch)) {
             consumed = true;
             mActiveTouches[touch.getId()] = childRef;
             mRoot->onUINodeTouchBegan(childRef);
-            break; // check next touch
+            break; // first child wins (touch can't affect more than one child node)
         }
     }    
     if (!consumed) {
@@ -152,10 +153,17 @@ bool UINode::privateTouchMoved( TouchEvent::Touch touch )
     bool consumed = false;
     if ( mActiveTouches.find(touch.getId()) != mActiveTouches.end() ) {
         UINodeRef nodeRef = mActiveTouches[touch.getId()];
-        consumed = nodeRef->touchMoved(touch);
-        mRoot->onUINodeTouchMoved(nodeRef);
+        if (nodeRef->getId() == this->getId()) {
+            // check self
+            consumed = touchMoved(touch);
+        }
+        else {
+            consumed = nodeRef->privateTouchMoved(touch);
+        }
+        if (consumed) {
+            mRoot->onUINodeTouchMoved(nodeRef);
+        }
     }
-    // no need to check self, should be in mActiveTouches if needed
     return consumed;
 }
 
@@ -166,10 +174,17 @@ bool UINode::privateTouchEnded( TouchEvent::Touch touch )
     bool consumed = false;
     if ( mActiveTouches.find(touch.getId()) != mActiveTouches.end() ) {
         UINodeRef nodeRef = mActiveTouches[touch.getId()];
-        consumed = nodeRef->touchEnded(touch);
+        if (nodeRef->getId() == this->getId()) {
+            // check self
+            consumed = touchEnded(touch);
+        }
+        else {
+            consumed = nodeRef->privateTouchEnded(touch);
+        }
+        if (consumed) {
+            mRoot->onUINodeTouchEnded(nodeRef);
+        }
         mActiveTouches.erase(touch.getId());
-        mRoot->onUINodeTouchEnded(nodeRef);
     }
-    // no need to check self, should be in mActiveTouches if needed
     return consumed;
 }
