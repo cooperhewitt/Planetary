@@ -175,14 +175,14 @@ void PlaylistChooser::draw()
 
             // FIXME: use constellation logic
             // FIXME: probably don't draw this on the fly, cache things instead?
-            vector<Vec2f> lines(playlist->size());
-            for (int j = 0; j < playlist->size(); j++) {            
-                ipod::TrackRef track = (*playlist)[j];
-                NodeArtist* nodeArtist = mWorld->getArtistNodeById( track->getArtistId() );        
-                // can't use mScreenPos here because we only calculate it for highlighted (labeled) nodes
-                lines[j] = pos + mCam->worldToScreen(nodeArtist->mPos, playlistWidth, playlistHeight); // pretend screen is small
-            }
-            gl::draw(PolyLine2f(lines));            
+//            vector<Vec2f> lines(playlist->size());
+//            for (int j = 0; j < playlist->size(); j++) {            
+//                ipod::TrackRef track = (*playlist)[j];
+//                NodeArtist* nodeArtist = mWorld->getArtistNodeById( track->getArtistId() );        
+//                // can't use mScreenPos here because we only calculate it for highlighted (labeled) nodes
+//                lines[j] = pos + mCam->worldToScreen(nodeArtist->mPos, playlistWidth, playlistHeight); // pretend screen is small
+//            }
+//            gl::draw(PolyLine2f(lines));            
         }
         
         pos += spacing;

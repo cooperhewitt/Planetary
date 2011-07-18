@@ -60,7 +60,8 @@ bool Slider::touchBegan(ci::app::TouchEvent::Touch touch)
         // slider can only handle one touch
         return false;
     }
-    bool inside = mRect.contains( globalToLocal( touch.getPos() ) );
+	Rectf hitRect = Rectf( mRect.x1 - 5.0f, mRect.y1 - 3.0f, mRect.x2 + 5.0f, mRect.y2 + 3.0f );
+    bool inside = hitRect.contains( globalToLocal( touch.getPos() ) );
     setIsDragging(inside);
     return inside;
 }

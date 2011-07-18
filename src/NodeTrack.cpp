@@ -528,33 +528,21 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 
 void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
-	if( mClosenessFadeAlpha > 0.0f ){
-
-//		Vec2f dir		= mScreenPos - center;
-//		float dirLength = dir.length()/500.0f;
+	if( mClosenessFadeAlpha > 0.0f && mIsHighlighted ){
 		float alpha = mNormPlayCount * mDeathPer * mClosenessFadeAlpha;
-		
-//		float alpha = 0.3f * ( 1.0f - dirLength );
-//		if( G_ZOOM <= G_ALBUM_LEVEL )
-//			alpha = pinchAlphaPer;
-
 		Vec2f radius( mRadius, mRadius );
 		radius *= ( 2.435f + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) );
-		
-		
-//		float grey = mShadowPer + 0.2f;
+
 		gl::color( ColorA( BRIGHT_BLUE, alpha ) );
 		tex.enableAndBind();
 		bloom::gl::drawSphericalBillboard( camEye, mPos, radius, 0.0f );
 		tex.disable();
 		
-		if( mIsHighlighted ){ // ONLY DRAW HIGHLIGHTED ATMOSPHERE IF NOT A GHOST MOON
 			gl::color( ColorA( mShadowPer, mShadowPer, mShadowPer, alpha * mEclipseDirBasedAlpha * mDeathPer ) );
 			directionalTex.enableAndBind();
 			//bloom::gl::drawBillboard( mPos, radius, -mEclipseAngle, mBbRight, mBbUp );
 			bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, mParentNode->mParentNode->mPos, radius );        
 			directionalTex.disable();
-		}
 	}
 }
 

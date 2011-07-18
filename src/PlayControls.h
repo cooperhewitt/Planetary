@@ -78,9 +78,6 @@ public:
     void setCurrentTrack(std::string currentTrack) { mTrackInfoLabel->setText(currentTrack); }
     void setPlayheadProgress(float value) { mPlayheadSlider->setValue(value); }
     
-    void setPlaylist(const string &playlist);
-	void setPlaylistSelected(const bool &selected);
-    
     float getPlayheadValue() { return mPlayheadSlider->getValue(); }
 	float getParamSlider1Value(){ return mParamSlider1->getValue(); }
 	float getParamSlider2Value(){ return mParamSlider2->getValue(); }
@@ -160,11 +157,6 @@ private:
     TimeLabel *mRemainingTimeLabel;    
 
     ToggleButton *mAlphaWheelButton;
-
-    // playlist controls
-    SimpleButton *mPreviousPlaylistButton;
-    ScrollingLabel *mPlaylistLabel;
-    SimpleButton *mNextPlaylistButton;
         
     // settings...
     ToggleButton *mShowSettingsButton;

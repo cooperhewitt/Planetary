@@ -128,15 +128,6 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
                                          Area(uw*4.0f,v2,uw*5.0f,v3),  // on texture
                                          Area(uw*4.0f,v1,uw*5.0f,v2)); // off texture
 		
-		mPreviousPlaylistButton = new SimpleButton( PREV_PLAYLIST, 
-                                                    uiSmallButtonsTex,
-                                                    Area(uw*6.0f,v2,uw*7.0f,v3),  // on texture
-                                                    Area(uw*6.0f,v1,uw*7.0f,v2)); // off texture
-		
-		mNextPlaylistButton = new SimpleButton( NEXT_PLAYLIST,
-                                                uiSmallButtonsTex,
-                                                Area(uw*7.0f,v2,uw*8.0f,v3),  // on texture
-                                                Area(uw*7.0f,v1,uw*8.0f,v2)); // off texture
 		
 		mShuffleButton = new ToggleButton( SHUFFLE, 
                                            false, 
@@ -161,8 +152,6 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
                                   Area(uw * 0.0f, vh * 0.0f, uw * 1.0f, vh * 0.2f)); // thumb off texture
 
     /////// no textures please, we're British...
-    
-    mPlaylistLabel = new ScrollingLabel(SELECT_PLAYLIST, font, BRIGHT_BLUE);    
     
     mTrackInfoLabel = new ScrollingLabel(NO_BUTTON, font, BRIGHT_BLUE);
     
@@ -243,9 +232,6 @@ void PlayControls::addChildren()
     addChild( UINodeRef(mLabelsButton) );
     addChild( UINodeRef(mDebugButton) );
     if( G_IS_IPAD2 ) addChild( UINodeRef(mGyroButton) );
-    addChild( UINodeRef(mPlaylistLabel) );	
-    addChild( UINodeRef(mPreviousPlaylistButton) );
-    addChild( UINodeRef(mNextPlaylistButton) );
     //    }
     
 	addChild( UINodeRef(mPlayheadSlider) );
@@ -274,16 +260,6 @@ bool PlayControls::onUINodeTouchEnded( UINodeRef nodeRef )
     return false;
 }
 
-void PlayControls::setPlaylistSelected(const bool &selected) 
-{ 
-    mPlaylistLabel->setColor(selected ? Color::white() : BRIGHT_BLUE);
-}
-
-void PlayControls::setPlaylist(const string &playlist)
-{ 
-    mPlaylistLabel->setText(playlist); 
-}    
-
 void PlayControls::setInterfaceSize( Vec2f interfaceSize )
 {
     mInterfaceSize = interfaceSize;
@@ -299,7 +275,7 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
     const float sliderHeight = 20.0f;
     const float sliderInset  = bSize * 2.0f + sideBorder + timeTexWidth;
     const bool  landscape    = interfaceSize.x > interfaceSize.y;
-    const float sliderWidth  = landscape ? 328.0f : 201.0f;
+    const float sliderWidth  = landscape ? 200.0f : 160.0f;
     
     // FLY TO CURRENT TRACK-MOON BUTTON
 	float y1 = topBorder;
@@ -378,34 +354,41 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
 	
 	
 	
-// PREVIOUS PLAYLIST BUTTON
-	x1 = 10.0f;
-	x2 = x1 + bSize;
-	mPreviousPlaylistButton->setRect( x1, y1, x2, y2 );
-	
-// NEXT PLAYLIST BUTTON
-	x1 = x2;
-	x2 = x1 + bSize;
-	mNextPlaylistButton->setRect( x1, y1, x2, y2 );
-	
-// PLAYLIST LABEL
-	x1 = x2 + 10.0f;
-	x2 = x1 + 300.0f;
-	y1 += 12.0f;
-	// this 18.0f offset is a hack to make hit-testing work
-    // rect is used for layout and for hit-testing, but ScrollingLabel.draw compensates for this
-	y2 = y1 + 18.0f;
-	mPlaylistLabel->setRect( x1, y1, x2, y2 );
+//// PREVIOUS PLAYLIST BUTTON
+//	x1 = 10.0f;
+//	x2 = x1 + bSize;
+//	mPreviousPlaylistButton->setRect( x1, y1, x2, y2 );
+//	
+//// NEXT PLAYLIST BUTTON
+//	x1 = x2;
+//	x2 = x1 + bSize;
+//	mNextPlaylistButton->setRect( x1, y1, x2, y2 );
+//	
+//// PLAYLIST LABEL
+//	x1 = x2 + 10.0f;
+//	x2 = x1 + 300.0f;
+//	y1 += 12.0f;
+//	// this 18.0f offset is a hack to make hit-testing work
+//    // rect is used for layout and for hit-testing, but ScrollingLabel.draw compensates for this
+//	y2 = y1 + 18.0f;
+//	mPlaylistLabel->setRect( x1, y1, x2, y2 );
     
     const float bgx1 = sliderInset;
     const float bgx2 = bgx1 + sliderWidth;
     const float bgy1 = 32.0f;
     const float bgy2 = bgy1 + sliderHeight;
     mPlayheadSlider->setRect( bgx1, bgy1, bgx2, bgy2 );
-    mParamSlider1->setRect( 60.0f, bgy1 + 80.0f, interfaceSize.x * 0.5f - 20.0f, bgy2 + 80.0f );
-    mParamSlider2->setRect( interfaceSize.x * 0.5f + 60.0f, bgy1 + 80.0f, interfaceSize.x - 20.0f, bgy2 + 80.0f );
-	mParamSlider1Label->setRect( 20.0f, bgy1 + 80.0f, 70.0f, bgy2 + 80.0f );
-	mParamSlider2Label->setRect( interfaceSize.x * 0.5f + 20.0f, bgy1 + 80.0f, interfaceSize.x * 0.5f + 70.0f, bgy2 + 80.0f );
+	
+	
+	const float slider1X = 60.0f;
+	const float slider2X = slider1X + sliderWidth + 75.0f;
+	const float sliderYOff = 42.0f;
+	
+    mParamSlider1->setRect( slider1X, bgy1 + sliderYOff, slider1X + sliderWidth, bgy2 + sliderYOff );
+    mParamSlider2->setRect( slider2X, bgy1 + sliderYOff, slider2X + sliderWidth, bgy2 + sliderYOff );
+	
+	mParamSlider1Label->setRect( slider1X - 40.0f, bgy1 + sliderYOff, slider1X, bgy2 + sliderYOff );
+	mParamSlider2Label->setRect( slider2X - 45.0f, bgy1 + sliderYOff, slider2X, bgy2 + sliderYOff );
 	
     const float ctx1 = bgx1 - 43.0f;
     const float ctx2 = bgx2 + 48.0f;

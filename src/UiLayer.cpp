@@ -25,7 +25,7 @@ void UiLayer::setup( const gl::Texture &uiButtonsTex, const bool &showSettings, 
     mUiButtonsTex = uiButtonsTex;
     
 	mPanelOpenHeight		= 65.0f;
-	mPanelSettingsHeight	= 150.0f;    
+	mPanelSettingsHeight	= 105.0f;    
     
     mIsPanelOpen			= false;
 	mIsPanelTabTouched		= false;

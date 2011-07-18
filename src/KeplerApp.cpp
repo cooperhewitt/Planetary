@@ -1158,11 +1158,11 @@ void KeplerApp::updatePlaylistControls()
     if (showPlaylist >= mData.mPlaylists.size()) {
         showPlaylist %= mData.mPlaylists.size(); 
     }
-    if (mData.mPlaylists.size() > showPlaylist) {
-        mPlayControls.setPlaylist( mData.mPlaylists[showPlaylist]->getPlaylistName() );
-    }
-    const bool playlistMode = (mState.getFilterMode() == State::FilterModePlaylist);
-    mPlayControls.setPlaylistSelected( playlistMode && (mPlaylistDisplayOffset == 0) );
+//    if (mData.mPlaylists.size() > showPlaylist) {
+//        mPlayControls.setPlaylist( mData.mPlaylists[showPlaylist]->getPlaylistName() );
+//    }
+//    const bool playlistMode = (mState.getFilterMode() == State::FilterModePlaylist);
+//    mPlayControls.setPlaylistSelected( playlistMode && (mPlaylistDisplayOffset == 0) );
 }
  
 void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
@@ -1236,7 +1236,7 @@ void KeplerApp::update()
 			mAlphaWheel.setShowWheel( true );
 		}
         if (mData.mPlaylists.size() > 0) {
-            mPlayControls.setPlaylist( mData.mPlaylists[0]->getPlaylistName() );
+//            mPlayControls.setPlaylist( mData.mPlaylists[0]->getPlaylistName() );
             mPlaylistChooser.setDataWorldCam( &mData, &mWorld, &mCam );
         }
 	}
