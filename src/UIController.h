@@ -26,7 +26,8 @@ public:
     ci::app::Orientation getInterfaceOrientation() { return mInterfaceOrientation; }
     void setInterfaceOrientation( const ci::app::Orientation &orientation );
     
-    virtual void privateDraw();
+    // UIController draw starts the chain off, very much does *not* draw itself :)
+    virtual void draw() { privateDraw(); }
     
     // override from UINode to stop infinite mParent recursion
     ci::Matrix44f getConcatenatedTransform() const;
@@ -74,6 +75,9 @@ public:
 	}      
     
 protected:
+
+    // this actually does the orientation transform, draws children, etc.
+    virtual void privateDraw();
 
     bool touchesBegan( ci::app::TouchEvent event );
     bool touchesMoved( ci::app::TouchEvent event );
