@@ -19,6 +19,7 @@ void ScrollingLabel::setText(string text)
 		mIsScrolling = false;
         mText = text; 
         updateTexture(); 
+        mLastTrackChangeTime = app::getElapsedSeconds();
     }
 }
 

@@ -74,7 +74,6 @@ public:
     void setElapsedSeconds(int elapsedTime) { mElapsedTimeLabel->setSeconds(elapsedTime); }
     void setRemainingSeconds(int remainingTime) { mRemainingTimeLabel->setSeconds(remainingTime); }
     void setCurrentTrack(std::string currentTrack) { mTrackInfoLabel->setText(currentTrack); }
-    void setLastTrackChangeTime(float time) { mTrackInfoLabel->setLastTrackChangeTime(time); }
     void setPlayheadProgress(float value) { mPlayheadSlider->setValue(value); }
     
     void setPlaylist(const string &playlist);

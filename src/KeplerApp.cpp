@@ -1847,9 +1847,7 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 }
 
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
-{	
-    mPlayControls.setLastTrackChangeTime( getElapsedSeconds() );
-    
+{	    
 	if (mIpodPlayer.hasPlayingTrack()) {
         
         ipod::TrackRef newTrack = mIpodPlayer.getPlayingTrack();

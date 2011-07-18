@@ -27,7 +27,6 @@ public:
     virtual void draw();
 
     void setText(std::string text);
-    void setLastTrackChangeTime(float lastTrackChangeTime) { mLastTrackChangeTime = lastTrackChangeTime; }
 
 	bool isScrollingText() { return mIsScrolling; }
 

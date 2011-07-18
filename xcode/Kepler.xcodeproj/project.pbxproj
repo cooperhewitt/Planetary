@@ -664,7 +664,6 @@
 			isa = PBXGroup;
 			children = (
 				E2A868B813D3E5050024E4D0 /* Scene */,
-				E25040BF1392E82200A8D673 /* Elements */,
 				E2E21CB613A177E200A476A2 /* AlphaWheel.h */,
 				E2E21CBF13A177E600A476A2 /* HelpLayer.h */,
 				E2E21CC113A177E600A476A2 /* LoadingScreen.h */,
@@ -731,7 +730,6 @@
 			isa = PBXGroup;
 			children = (
 				E2A868B713D3E4E50024E4D0 /* Scene */,
-				E25040C01392E83E00A8D673 /* Elements */,
 				E2E21CDB13A2D70C00A476A2 /* Stats.cpp */,
 				E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */,
 				E28FDA821339B782005EDBB4 /* PlayControls.cpp */,
@@ -829,6 +827,7 @@
 		E2A868B713D3E4E50024E4D0 /* Scene */ = {
 			isa = PBXGroup;
 			children = (
+				E25040C01392E83E00A8D673 /* Elements */,
 				E2A868B413D3D0940024E4D0 /* UIController.cpp */,
 				E2A868B113D3CA6F0024E4D0 /* UINode.cpp */,
 			);
@@ -838,6 +837,7 @@
 		E2A868B813D3E5050024E4D0 /* Scene */ = {
 			isa = PBXGroup;
 			children = (
+				E25040BF1392E82200A8D673 /* Elements */,
 				E2A868B213D3CA6F0024E4D0 /* UINode.h */,
 				E2A868B513D3D0940024E4D0 /* UIController.h */,
 			);

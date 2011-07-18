@@ -265,7 +265,6 @@ void PlayControls::setPlaylistSelected(const bool &selected)
 void PlayControls::setPlaylist(const string &playlist)
 { 
     mPlaylistLabel->setText(playlist); 
-    mPlaylistLabel->setLastTrackChangeTime(app::getElapsedSeconds()); // FIXME: rename to setScrollBeginTime or something?
 }    
 
 void PlayControls::updateLayout( Vec2f interfaceSize )
