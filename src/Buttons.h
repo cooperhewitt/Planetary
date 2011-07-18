@@ -8,108 +8,116 @@
 
 #pragma once
 #include "cinder/gl/Texture.h"
-#include "UIElement.h"
-
-using namespace ci;
+#include "UINode.h"
 
 // toggle button is either on or off (e.g. show orbits)
-class ToggleButton : public UIElement {
+class ToggleButton : public UINode {
 public:
     
-    ToggleButton() {}
+    ToggleButton( const int &buttonId, 
+                  const bool &on, 
+                  const ci::gl::Texture &texture,
+                  const ci::Area &onTextureArea, 
+                  const ci::Area &offTextureArea ):
+        UINode(buttonId),
+        mOn(on),
+        mTexture(texture),
+        mOnTextureArea(onTextureArea),
+        mOffTextureArea(offTextureArea) {}
+
     ~ToggleButton() {}
     
-    void setup(int buttonId, 
-               bool on, 
-               const gl::Texture &texture,
-               Area onTextureArea, 
-               Area offTextureArea)
-    {
-        UIElement::setup(buttonId);
-        mOn = on;
-        mTexture = texture;
-        mOnTextureArea = onTextureArea;
-        mOffTextureArea = offTextureArea; 
-    }
-    
+    virtual bool touchBegan(ci::app::TouchEvent::Touch touch);
+    virtual bool touchEnded(ci::app::TouchEvent::Touch touch);    
     virtual void draw();
     
     bool isOn() { return mOn; }
     void setOn(bool on) { mOn = on; }
+
+    void setRect(const ci::Rectf &rect) { mRect = rect; }
+    void setRect(const float &x1, const float &y1, const float &x2, const float &y2) { mRect.set(x1,y1,x2,y2); }
+    const ci::Rectf& getRect() const { return mRect; }
     
 protected:
     
     bool mOn;
-    Area mOnTextureArea, mOffTextureArea;
-    gl::Texture mTexture;
+    ci::Area mOnTextureArea, mOffTextureArea;
+    ci::gl::Texture mTexture;
+    ci::Rectf mRect;
 };
 
 // simple button is either being pressed or not (e.g. next, prev)
-class SimpleButton : public UIElement {
+class SimpleButton : public UINode {
 public:
     
-    SimpleButton() {}
+    SimpleButton( const int &buttonId, 
+                 const ci::gl::Texture &texture,
+                 const ci::Area &downTextureArea, 
+                 const ci::Area &upTextureArea ):
+        UINode(buttonId),
+        mTexture(texture),
+        mDownTextureArea(downTextureArea),
+        mUpTextureArea(upTextureArea),
+        mDownCount(0) {}
+    
     ~SimpleButton() {}
     
-    void setup(int buttonId, 
-               const gl::Texture &texture,
-               Area downTextureArea, 
-               Area upTextureArea)
-    {
-        UIElement::setup(buttonId),
-        mTexture = texture;
-        mDown = false;
-        mDownTextureArea = downTextureArea;
-        mUpTextureArea = upTextureArea;
-    }
-
-    bool isDown() { return mDown; }
-    void setDown(bool down) { mDown = down; }
-    
+    virtual bool touchBegan(ci::app::TouchEvent::Touch touch);
+    virtual bool touchEnded(ci::app::TouchEvent::Touch touch);    
     virtual void draw();
+    
+    void setRect(const ci::Rectf &rect) { mRect = rect; }
+    void setRect(const float &x1, const float &y1, const float &x2, const float &y2) { mRect.set(x1,y1,x2,y2); }
+    const ci::Rectf& getRect() const { return mRect; }
     
 protected:
     
-    bool mDown;
-    Area mUpTextureArea, mDownTextureArea;
-    gl::Texture mTexture;
+    int mDownCount;
+    ci::Area mUpTextureArea, mDownTextureArea;
+    ci::gl::Texture mTexture;
+    ci::Rectf mRect;
     
 };
 
 // two-state button is either being pressed or not and has two possible states (e.g. play/pause)
-class TwoStateButton : public UIElement {
+class TwoStateButton : public UINode {
 public:
     
-    TwoStateButton() {}
+    TwoStateButton( const int &buttonId, 
+                    const bool &on,
+                    const ci::gl::Texture &texture,
+                    const ci::Area &onDownTextureArea, 
+                    const ci::Area &onUpTextureArea,
+                    const ci::Area &offDownTextureArea, 
+                    const ci::Area &offUpTextureArea ):
+        UINode(buttonId),
+        mOn(on),
+        mTexture(texture),
+        mDownCount(0),
+        mOnDownTextureArea(onDownTextureArea),
+        mOnUpTextureArea(onUpTextureArea),
+        mOffDownTextureArea(offDownTextureArea),
+        mOffUpTextureArea(offUpTextureArea) {}
+    
     ~TwoStateButton() {}
-    
-    void setup(int buttonId, 
-               bool on, 
-               const gl::Texture &texture,               
-               Area offDownTextureArea, Area offUpTextureArea,
-               Area onDownTextureArea, Area onUpTextureArea)
-    {
-        UIElement::setup(buttonId),
-        mOn = on;
-        mTexture = texture;
-        mDown = false;
-        mOnDownTextureArea = onDownTextureArea;
-        mOnUpTextureArea = onUpTextureArea;
-        mOffDownTextureArea = offDownTextureArea;
-        mOffUpTextureArea = offUpTextureArea;
-    }
-    
-    bool isDown() { return mDown; }
-    void setDown(bool down) { mDown = down; }
+        
     bool isOn() { return mOn; }
     void setOn(bool on) { mOn = on; }
     
+    virtual bool touchBegan(ci::app::TouchEvent::Touch touch);
+    virtual bool touchEnded(ci::app::TouchEvent::Touch touch);    
     virtual void draw();
-    
+
+    void setRect(const ci::Rectf &rect) { mRect = rect; }
+    void setRect(const float &x1, const float &y1, const float &x2, const float &y2) { mRect.set(x1,y1,x2,y2); }
+    const ci::Rectf& getRect() const { return mRect; }
+
 protected:
     
-    bool mDown, mOn;
-    Area mOnUpTextureArea, mOnDownTextureArea, mOffUpTextureArea, mOffDownTextureArea;
-    gl::Texture mTexture;
+    int mDownCount;
+    bool mOn;
+    ci::Area mOnUpTextureArea, mOnDownTextureArea, mOffUpTextureArea, mOffDownTextureArea;
+    ci::gl::Texture mTexture;
+    ci::Rectf mRect;
     
 };

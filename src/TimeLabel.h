@@ -14,37 +14,38 @@
 #include "cinder/Text.h"
 #include "cinder/Rect.h"
 #include "cinder/Utilities.h"
-#include "UIElement.h"
+#include "UINode.h"
 
 using namespace ci;
 using namespace std;
 
-class TimeLabel : public UIElement {
+class TimeLabel : public UINode {
     
 public:
     
-    TimeLabel() { mSeconds = -100000; }
+    TimeLabel(const int &id, const ci::Font &font, const ci::Color &color): UINode(id), mFont(font), mColor(color), mSeconds(-1000000) {}
     ~TimeLabel() {}
     
-    void setup(const int &id, const Font &font, const Color &color)
-    {
-        UIElement::setup(id);
-        mFont = font;
-        mColor = color;
-    }
-    
-    void draw();
+    virtual bool touchBegan(ci::app::TouchEvent::Touch touch);
+    virtual bool touchEnded(ci::app::TouchEvent::Touch touch);        
+    virtual void draw();
 
     void setSeconds(int seconds);
+
+    void setRect(const ci::Rectf &rect) { mRect = rect; }
+    void setRect(const float &x1, const float &y1, const float &x2, const float &y2) { mRect.set(x1,y1,x2,y2); }
+    const ci::Rectf& getRect() const { return mRect; }
 
 private:
     
     void updateTexture();
     
-    Font mFont;
-    Color mColor;
+    ci::Font mFont;
+    ci::Color mColor;
+    ci::Rectf mRect;
+    
     int mSeconds;
 
-    gl::Texture mTexture, mHyphenTexture;
+    ci::gl::Texture mTexture, mHyphenTexture;
     
 };

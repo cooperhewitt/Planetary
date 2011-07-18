@@ -13,45 +13,42 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/Text.h"
 #include "cinder/Rect.h"
-#include "UIElement.h"
+#include "UINode.h"
 
-using namespace std;
-using namespace ci;
-
-class ScrollingLabel : public UIElement {
+class ScrollingLabel : public UINode {
 
 public:
 
-    ScrollingLabel() {}
+    ScrollingLabel(const int &id, const ci::Font &font, const ci::Color &color): UINode(id), mFont(font), mColor(color) {}
     ~ScrollingLabel() {}
-    
-    void setup(const int &id, const Font &font, const Color &color)
-    {
-        UIElement::setup(id);
-        mFont = font;
-        mColor = color;
-    }
-    
-    void draw();
+        
+    virtual bool touchBegan(ci::app::TouchEvent::Touch touch);
+    virtual bool touchEnded(ci::app::TouchEvent::Touch touch);
+    virtual void draw();
 
-    void setText(string text);
+    void setText(std::string text);
     void setLastTrackChangeTime(float lastTrackChangeTime) { mLastTrackChangeTime = lastTrackChangeTime; }
 
 	bool isScrollingText() { return mIsScrolling; }
 
-    void setColor(Color color) { mColor = color; updateTexture(); }
+    void setColor(ci::Color color) { mColor = color; updateTexture(); }
     
+    void setRect(const ci::Rectf &rect) { mRect = rect; }
+    void setRect(const float &x1, const float &y1, const float &x2, const float &y2) { mRect.set(x1,y1,x2,y2); }
+    const ci::Rectf& getRect() const { return mRect; }
+
 private:
     
     void updateTexture();
     
-    Font mFont;
-    Color mColor;
-
-    string mText;
+    ci::Font mFont;
+    ci::Color mColor;
+    ci::Rectf mRect;
+    
+    std::string mText;
     float mLastTrackChangeTime;
     
-    gl::Texture mTexture;
+    ci::gl::Texture mTexture;
 	
 	bool mIsScrolling;
     

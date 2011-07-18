@@ -14,38 +14,34 @@
 #include "cinder/Text.h"
 #include "cinder/Rect.h"
 #include "cinder/Utilities.h"
-#include "UIElement.h"
+#include "UINode.h"
 
-using namespace ci;
-using namespace std;
-
-class TextLabel : public UIElement {
+class TextLabel : public UINode {
     
 public:
     
-    TextLabel() {}
+    TextLabel(const int &id, const ci::Font &font, const ci::Color &color): UINode(id), mFont(font), mColor(color) {}
     ~TextLabel() {}
     
-    void setup(const int &id, const Font &font, const Color &color)
-    {
-        UIElement::setup(id);
-        mFont = font;
-        mColor = color;
-    }
-    
-    void draw();
+    virtual bool touchBegan(ci::app::TouchEvent::Touch touch);
+    virtual bool touchEnded(ci::app::TouchEvent::Touch touch);    
+    virtual void draw();
 
-    void setText(string text);
+    void setText(std::string text);
 
+    void setRect(const ci::Rectf &rect) { mRect = rect; }
+    void setRect(const float &x1, const float &y1, const float &x2, const float &y2) { mRect.set(x1,y1,x2,y2); }
+    const ci::Rectf& getRect() const { return mRect; }
 
 private:
     
     void updateTexture();
     
-    Font mFont;
-    Color mColor;
-    string mText;
+    ci::Font mFont;
+    ci::Color mColor;
+    std::string mText;
+    ci::Rectf mRect;
 
-    gl::Texture mTexture;
+    ci::gl::Texture mTexture;
     
 };

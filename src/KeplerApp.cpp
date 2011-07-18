@@ -394,7 +394,7 @@ void KeplerApp::remainingSetup()
     // NB:- order of UI init is important to register callbacks in correct order
     
 	// PLAY CONTROLS
-	mPlayControls.setup( this, mOrientationHelper.getInterfaceOrientation(), &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex );
+	mPlayControls.setup( this, &mOrientationHelper, &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
 
@@ -775,7 +775,6 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
     
     mLoadingScreen.setInterfaceOrientation(orientation);
     if (mData.getState() == Data::LoadStateComplete) {
-        mPlayControls.setInterfaceOrientation(orientation);
         mHelpLayer.setInterfaceOrientation(orientation);
         mUiLayer.setInterfaceOrientation(orientation);
         mAlphaWheel.setInterfaceOrientation(orientation);

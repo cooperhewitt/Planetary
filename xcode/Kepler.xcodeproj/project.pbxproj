@@ -114,6 +114,8 @@
 		E28177EE139AFA8500049D69 /* PlaylistFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28177EC139AFA8500049D69 /* PlaylistFilter.cpp */; };
 		E28177F6139AFB0800049D69 /* LetterFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28177F5139AFB0800049D69 /* LetterFilter.cpp */; };
 		E28FDA831339B782005EDBB4 /* PlayControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA821339B782005EDBB4 /* PlayControls.cpp */; };
+		E2A868B313D3CA6F0024E4D0 /* UINode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2A868B113D3CA6F0024E4D0 /* UINode.cpp */; };
+		E2A868B613D3D0950024E4D0 /* UIController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2A868B413D3D0940024E4D0 /* UIController.cpp */; };
 		E2CD4B9D13CA6F350047AF5F /* PlaylistChooser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */; };
 		E2CD4BA013CA70F60047AF5F /* FilterToggleButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */; };
 		E2DC1E0213984774000B1D11 /* NotificationOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */; };
@@ -256,6 +258,10 @@
 		E28177EC139AFA8500049D69 /* PlaylistFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlaylistFilter.cpp; path = ../src/PlaylistFilter.cpp; sourceTree = "<group>"; };
 		E28177F5139AFB0800049D69 /* LetterFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LetterFilter.cpp; path = ../src/LetterFilter.cpp; sourceTree = "<group>"; };
 		E28FDA821339B782005EDBB4 /* PlayControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayControls.cpp; path = ../src/PlayControls.cpp; sourceTree = "<group>"; };
+		E2A868B113D3CA6F0024E4D0 /* UINode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UINode.cpp; path = ../src/UINode.cpp; sourceTree = "<group>"; };
+		E2A868B213D3CA6F0024E4D0 /* UINode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UINode.h; path = ../src/UINode.h; sourceTree = "<group>"; };
+		E2A868B413D3D0940024E4D0 /* UIController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UIController.cpp; path = ../src/UIController.cpp; sourceTree = "<group>"; };
+		E2A868B513D3D0940024E4D0 /* UIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UIController.h; path = ../src/UIController.h; sourceTree = "<group>"; };
 		E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlaylistChooser.cpp; path = ../src/PlaylistChooser.cpp; sourceTree = "<group>"; };
 		E2CD4B9C13CA6F350047AF5F /* PlaylistChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistChooser.h; path = ../src/PlaylistChooser.h; sourceTree = "<group>"; };
 		E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FilterToggleButton.cpp; path = ../src/FilterToggleButton.cpp; sourceTree = "<group>"; };
@@ -288,7 +294,6 @@
 		E2E21CCD13A177EC00A476A2 /* State.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../src/State.h; sourceTree = "<group>"; };
 		E2E21CCE13A177EC00A476A2 /* TextLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextLabel.h; path = ../src/TextLabel.h; sourceTree = "<group>"; };
 		E2E21CCF13A177ED00A476A2 /* TimeLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeLabel.h; path = ../src/TimeLabel.h; sourceTree = "<group>"; };
-		E2E21CD013A177ED00A476A2 /* UIElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UIElement.h; path = ../src/UIElement.h; sourceTree = "<group>"; };
 		E2E21CD113A177EE00A476A2 /* UiLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UiLayer.h; path = ../src/UiLayer.h; sourceTree = "<group>"; };
 		E2E21CD213A177EF00A476A2 /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = World.h; path = ../src/World.h; sourceTree = "<group>"; };
 		E2E21CD313A17B9F00A476A2 /* Easing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Easing.cpp; path = ../src/Easing.cpp; sourceTree = "<group>"; };
@@ -658,14 +663,15 @@
 		E1C6023C131C4B0E0022246C /* Ui */ = {
 			isa = PBXGroup;
 			children = (
+				E2A868B813D3E5050024E4D0 /* Scene */,
 				E25040BF1392E82200A8D673 /* Elements */,
 				E2E21CB613A177E200A476A2 /* AlphaWheel.h */,
 				E2E21CBF13A177E600A476A2 /* HelpLayer.h */,
 				E2E21CC113A177E600A476A2 /* LoadingScreen.h */,
 				E2E21CC613A177E800A476A2 /* NotificationOverlay.h */,
 				E2E21CC913A177EA00A476A2 /* PlayControls.h */,
-				E2E21CD113A177EE00A476A2 /* UiLayer.h */,
 				E2E21CDC13A2D70E00A476A2 /* Stats.h */,
+				E2E21CD113A177EE00A476A2 /* UiLayer.h */,
 				E2CD4B9C13CA6F350047AF5F /* PlaylistChooser.h */,
 				E2CD4B9F13CA70F60047AF5F /* FilterToggleButton.h */,
 			);
@@ -724,6 +730,7 @@
 		E2171053132ECE3900ADCC17 /* Ui */ = {
 			isa = PBXGroup;
 			children = (
+				E2A868B713D3E4E50024E4D0 /* Scene */,
 				E25040C01392E83E00A8D673 /* Elements */,
 				E2E21CDB13A2D70C00A476A2 /* Stats.cpp */,
 				E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */,
@@ -784,7 +791,6 @@
 				E2E21CCC13A177EB00A476A2 /* Slider.h */,
 				E2E21CCE13A177EC00A476A2 /* TextLabel.h */,
 				E2E21CCF13A177ED00A476A2 /* TimeLabel.h */,
-				E2E21CD013A177ED00A476A2 /* UIElement.h */,
 			);
 			name = Elements;
 			sourceTree = "<group>";
@@ -818,6 +824,24 @@
 				E2E21CCA13A177EB00A476A2 /* PlaylistFilter.h */,
 			);
 			name = Filters;
+			sourceTree = "<group>";
+		};
+		E2A868B713D3E4E50024E4D0 /* Scene */ = {
+			isa = PBXGroup;
+			children = (
+				E2A868B413D3D0940024E4D0 /* UIController.cpp */,
+				E2A868B113D3CA6F0024E4D0 /* UINode.cpp */,
+			);
+			name = Scene;
+			sourceTree = "<group>";
+		};
+		E2A868B813D3E5050024E4D0 /* Scene */ = {
+			isa = PBXGroup;
+			children = (
+				E2A868B213D3CA6F0024E4D0 /* UINode.h */,
+				E2A868B513D3D0940024E4D0 /* UIController.h */,
+			);
+			name = Scene;
 			sourceTree = "<group>";
 		};
 		E2D20EBF135CEEA900A29743 /* CinderOrientation */ = {
@@ -990,6 +1014,8 @@
 				E22D983B13B6A2B700F9DB06 /* Shadow.cpp in Sources */,
 				E2CD4B9D13CA6F350047AF5F /* PlaylistChooser.cpp in Sources */,
 				E2CD4BA013CA70F60047AF5F /* FilterToggleButton.cpp in Sources */,
+				E2A868B313D3CA6F0024E4D0 /* UINode.cpp in Sources */,
+				E2A868B613D3D0950024E4D0 /* UIController.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

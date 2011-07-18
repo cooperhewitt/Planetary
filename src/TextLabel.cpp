@@ -9,6 +9,9 @@
 #include "TextLabel.h"
 #include "BloomGl.h"
 
+using namespace std;
+using namespace ci;
+
 void TextLabel::setText(string text)
 { 
     if (mText != text) { 
@@ -30,6 +33,19 @@ void TextLabel::draw()
 {
     if (mTexture) {
         // use this even though the texture is unique because it minimizes state changes
-        bloom::gl::batchRect(mTexture, mRect.getUpperLeft());
+//        bloom::gl::batchRect(mTexture, mRect.getUpperLeft());
+        gl::draw(mTexture, mRect.getUpperLeft());
     }
+    // draw children:
+    UINode::draw();
+}
+
+
+bool TextLabel::touchBegan(ci::app::TouchEvent::Touch touch)
+{
+    return mRect.contains( globalToLocal( touch.getPos() ) );
+}
+bool TextLabel::touchEnded(ci::app::TouchEvent::Touch touch)
+{
+    return mRect.contains( globalToLocal( touch.getPos() ) );
 }

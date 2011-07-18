@@ -53,10 +53,22 @@ void TimeLabel::draw()
     // to keep the digit left-aligned in the box, squeeze the minus sign in before it
     if (mHyphenTexture) {
         // use batchRect to minimize state changes
-        bloom::gl::batchRect(mHyphenTexture, mRect.getUpperLeft() - Vec2f(mHyphenTexture.getWidth()-1.0f,0));
+//        bloom::gl::batchRect(mHyphenTexture, mRect.getUpperLeft() - Vec2f(mHyphenTexture.getWidth()-1.0f,0));
+        gl::draw(mHyphenTexture, mRect.getUpperLeft() - Vec2f(mHyphenTexture.getWidth()-1.0f,0));
     }    
     if (mTexture) {
         // use batchRect to minimize state changes
-        bloom::gl::batchRect(mTexture, mRect.getUpperLeft());
+//        bloom::gl::batchRect(mTexture, mRect.getUpperLeft());
+        gl::draw(mTexture, mRect.getUpperLeft());
     }
 }
+
+bool TimeLabel::touchBegan(ci::app::TouchEvent::Touch touch)
+{
+    return mRect.contains( globalToLocal( touch.getPos() ) );
+}
+bool TimeLabel::touchEnded(ci::app::TouchEvent::Touch touch)
+{
+    return mRect.contains( globalToLocal( touch.getPos() ) );
+}
+

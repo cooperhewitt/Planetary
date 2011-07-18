@@ -10,20 +10,56 @@
 #include "Buttons.h"
 #include "BloomGl.h"
 
+using namespace ci;
+
 void ToggleButton::draw()
 {
     Area textureArea = mOn ? mOnTextureArea : mOffTextureArea;
-    bloom::gl::batchRect(mTexture, textureArea, mRect);
+//    bloom::gl::batchRect(mTexture, textureArea, mRect);
+    gl::draw(mTexture, textureArea, mRect);
+}
+
+bool ToggleButton::touchBegan(ci::app::TouchEvent::Touch touch)
+{
+    return mRect.contains( globalToLocal( touch.getPos() ) );
+}
+bool ToggleButton::touchEnded(ci::app::TouchEvent::Touch touch)
+{
+    return mRect.contains( globalToLocal( touch.getPos() ) );
 }
 
 void SimpleButton::draw()
 {
-    Area textureArea = mDown ? mDownTextureArea : mUpTextureArea;
-    bloom::gl::batchRect(mTexture, textureArea, mRect);
+    Area textureArea = mDownCount ? mDownTextureArea : mUpTextureArea;
+//    bloom::gl::batchRect(mTexture, textureArea, mRect);
+    gl::draw(mTexture, textureArea, mRect);    
+}
+bool SimpleButton::touchBegan(ci::app::TouchEvent::Touch touch)
+{
+    bool inside = mRect.contains( globalToLocal( touch.getPos() ) );
+    if (inside) mDownCount++;
+    return inside;
+}
+bool SimpleButton::touchEnded(ci::app::TouchEvent::Touch touch)
+{
+    mDownCount--;
+    return mRect.contains( globalToLocal( touch.getPos() ) );
 }
 
 void TwoStateButton::draw()
 {
-    Area textureArea = mOn ? (mDown ? mOnDownTextureArea : mOnUpTextureArea) : (mDown ? mOffDownTextureArea : mOffUpTextureArea) ;    
-    bloom::gl::batchRect(mTexture, textureArea, mRect);
+    Area textureArea = mOn ? (mDownCount > 0 ? mOnDownTextureArea : mOnUpTextureArea) : (mDownCount > 0 ? mOffDownTextureArea : mOffUpTextureArea) ;    
+//    bloom::gl::batchRect(mTexture, textureArea, mRect);
+    gl::draw(mTexture, textureArea, mRect);    
+}
+bool TwoStateButton::touchBegan(ci::app::TouchEvent::Touch touch)
+{
+    bool inside = mRect.contains( globalToLocal( touch.getPos() ) );
+    if (inside) mDownCount++;
+    return inside;    
+}
+bool TwoStateButton::touchEnded(ci::app::TouchEvent::Touch touch)
+{
+    mDownCount--;    
+    return mRect.contains( globalToLocal( touch.getPos() ) );
 }

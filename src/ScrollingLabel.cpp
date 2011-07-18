@@ -10,6 +10,9 @@
 #include "ScrollingLabel.h"
 #include "BloomGl.h"
 
+using namespace std;
+using namespace ci;
+
 void ScrollingLabel::setText(string text)
 { 
     if (mText != text) {
@@ -49,7 +52,8 @@ void ScrollingLabel::draw()
         if( ctTexWidth < ctSpaceWidth ){ 
 			mIsScrolling = false;
             // if the texture width is less than the rect to fit it in...
-            bloom::gl::batchRect(mTexture, mRect.getUpperLeft());            
+//            bloom::gl::batchRect(mTexture, mRect.getUpperLeft());            
+            gl::draw(mTexture, mRect.getUpperLeft());            
         }
         else {
             // if the texture is too wide, animate the u coords...        
@@ -65,13 +69,24 @@ void ScrollingLabel::draw()
             
             Area a1( x1, 0.0f, 
                      x1 + ctSpaceWidth, mTexture.getHeight() );
-            bloom::gl::batchRect( mTexture, a1, mRect );
+//            bloom::gl::batchRect( mTexture, a1, mRect );
+            gl::draw( mTexture, a1, mRect );
             
             Area a2( x1 + ctTexWidth + 10.0f, 0.0f, 
                      x1 + ctTexWidth + 10.0f + ctSpaceWidth, mTexture.getHeight() );
-            bloom::gl::batchRect( mTexture, a2, mRect );			
+//            bloom::gl::batchRect( mTexture, a2, mRect );			
+            gl::draw( mTexture, a2, mRect );			
         }    
     
         mRect.y2 = restoreY2; // this is a hack because mRect is also used for hit testing
     }
+}
+
+bool ScrollingLabel::touchBegan(ci::app::TouchEvent::Touch touch)
+{
+    return mRect.contains( globalToLocal( touch.getPos() ) );
+}
+bool ScrollingLabel::touchEnded(ci::app::TouchEvent::Touch touch)
+{
+    return mRect.contains( globalToLocal( touch.getPos() ) );
 }
