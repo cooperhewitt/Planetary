@@ -30,18 +30,19 @@ void UiLayer::setup( const gl::Texture &uiButtonsTex, const bool &showSettings, 
     mIsPanelOpen			= false;
 	mIsPanelTabTouched		= false;
 	mHasPanelBeenDragged	= false;
-    
+
+    // set now, needed in setShowSettings and updateLayout
     mInterfaceSize = interfaceSize;
 
     // set this to something sensible, *temporary*:
     mPanelRect = Rectf(0, interfaceSize.y, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
-	mPanelUpperRect = Rectf(0, getWindowHeight(), getWindowWidth(), getWindowHeight() + mPanelSettingsHeight);
-	mPanelLowerRect = Rectf(0, getWindowHeight(), getWindowWidth(), getWindowHeight() + mPanelSettingsHeight);
+	mPanelUpperRect = Rectf(0, interfaceSize.y, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
+	mPanelLowerRect = Rectf(0, interfaceSize.y, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
     
     // make sure we're showing enough, then update layout
     setShowSettings(showSettings);    
     
-    updateLayout();
+    updateLayout( interfaceSize );
 }
 
 void UiLayer::setShowSettings( bool visible ) 
@@ -54,12 +55,12 @@ void UiLayer::setShowSettings( bool visible )
     mPanelOpenY	= mInterfaceSize.y - mPanelHeight;        
 }
 
-void UiLayer::updateLayout()
+void UiLayer::updateLayout( Vec2f interfaceSize )
 {
-    mPanelRect.x2 = mInterfaceSize.x;
+    mPanelRect.x2 = interfaceSize.x;
     
-    mPanelOpenY		= mInterfaceSize.y - mPanelHeight;
-    mPanelClosedY	= mInterfaceSize.y;
+    mPanelOpenY		= interfaceSize.y - mPanelHeight;
+    mPanelClosedY	= interfaceSize.y;
     
     // cancel interactions
     mIsPanelTabTouched   = false;
@@ -73,6 +74,8 @@ void UiLayer::updateLayout()
         mPanelRect.y1 = mPanelClosedY;        
     }       
     mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;    
+    
+    mInterfaceSize = interfaceSize;
 }
 
 bool UiLayer::touchBegan( TouchEvent::Touch touch )
@@ -139,10 +142,11 @@ bool UiLayer::touchEnded( TouchEvent::Touch touch )
 void UiLayer::update()
 {
     Vec2f interfaceSize = mRoot->getInterfaceSize();
+    std::cout << "UiLayer interfaceSize " << interfaceSize << std::endl;
     // check for orientation change
     if (interfaceSize != mInterfaceSize) {
-        updateLayout();
-        mInterfaceSize = interfaceSize;
+        std::cout << "UiLayer updateLayout()" << std::endl;
+        updateLayout( interfaceSize );
     }    
     
     if ( !mHasPanelBeenDragged ) {

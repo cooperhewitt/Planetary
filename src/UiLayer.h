@@ -42,7 +42,7 @@ class UiLayer : public UINode {
 	
  private:
 
-    void updateLayout();
+    void updateLayout( ci::Vec2f interfaceSize );
     
     ci::Vec2f       mInterfaceSize; // for detecting orientation changes    
     ci::gl::Texture mUiButtonsTex;
