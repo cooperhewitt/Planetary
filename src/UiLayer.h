@@ -8,36 +8,32 @@
  */
 
 #pragma once
-#include "cinder/app/AppCocoaTouch.h"
+#include <vector>
 #include "cinder/Vector.h"
-#include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Rect.h"
 #include "cinder/Color.h"
 #include "cinder/Font.h"
-#include "Orientation.h"
-#include "OrientationEvent.h"
-#include <vector>
+#include "UINode.h"
 
-class UiLayer {
+class UiLayer : public UINode {
  public:
 	
-    UiLayer();
-	~UiLayer();
+    UiLayer(): UINode() {}; // get a default ID
+	~UiLayer() {};
     
 	enum	ButtonTexId { TEX_PANEL_UP, TEX_PANEL_UP_ON, TEX_PANEL_DOWN, TEX_PANEL_DOWN_ON };
 	
-	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation, const bool &showSettings );
+	void	setup( const ci::gl::Texture &uiButtonsTex, const bool &showSettings, const ci::Vec2f interfaceSize );
 	
-    bool	touchesBegan( ci::app::TouchEvent event );
-	bool	touchesMoved( ci::app::TouchEvent event );
-	bool	touchesEnded( ci::app::TouchEvent event );
+    bool	touchBegan( ci::app::TouchEvent::Touch touch );
+	bool	touchMoved( ci::app::TouchEvent::Touch touch );
+	bool	touchEnded( ci::app::TouchEvent::Touch touch );
 
-    void    setInterfaceOrientation( const ci::app::Orientation &orientation );
     void    setShowSettings( bool visible );
     
 	void	update();
-	void	draw( const ci::gl::Texture &uiButtonsTex );
+	virtual void draw();
     
 	float	getPanelYPos(){ return mPanelRect.y1; }	
     ci::Rectf getPanelTabRect() { return mPanelTabRect; }
@@ -45,10 +41,12 @@ class UiLayer {
 	void	setIsPanelOpen( bool b ){ mIsPanelOpen = b; mHasPanelBeenDragged = false; }
 	
  private:
+
+    void updateLayout();
     
-	ci::app::AppCocoaTouch *mApp;
-	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded, mCbOrientationChanged;
-	
+    ci::Vec2f       mInterfaceSize; // for detecting orientation changes    
+    ci::gl::Texture mUiButtonsTex;
+    
 	float			mPanelOpenHeight;
 	float			mPanelSettingsHeight;
     float           mPanelHeight;           // varies depending on if settings are shown
@@ -62,13 +60,6 @@ class UiLayer {
 	bool			mIsPanelTabTouched;		// Is the Panel Tab currently being touched
 	bool			mIsPanelOpen;			// Is the Panel fully open
 	bool			mHasPanelBeenDragged;   // Are we dragging or just animating?
-    ci::Vec2f		mPanelTabTouchOffset;	// Remember the touch position value when dragging
-	
-    // TODO: use a Matrix32f (after we write one or someone adds one to Cinder - look at the Cairo one first)
-    ci::Matrix44f        mOrientationMatrix;     // For adjusting ui drawing and hitrects    
-    ci::app::Orientation mInterfaceOrientation;
-    ci::Vec2f            mInterfaceSize;
-
-    ci::Rectf   transformRect( const ci::Rectf &worldRect, const ci::Matrix44f &matrix );
+    ci::Vec2f		mPanelTabTouchOffset;	// Remember the touch position value when dragging	
 };
 

@@ -26,7 +26,7 @@ public:
     ci::app::Orientation getInterfaceOrientation() { return mInterfaceOrientation; }
     void setInterfaceOrientation( const ci::app::Orientation &orientation );
     
-    virtual void draw();
+    virtual void privateDraw();
     
     // override from UINode to stop infinite mParent recursion
     ci::Matrix44f getConcatenatedTransform() const;
@@ -46,6 +46,32 @@ public:
 	{
 		return mCbUINodeTouchEnded.registerCb(std::bind1st(std::mem_fun(callback), obj));
 	}    
+    void unregisterUINodeTouchBegan( ci::CallbackId cbId )
+	{
+		mCbUINodeTouchBegan.unregisterCb( cbId );
+	}    
+    void unregisterUINodeTouchMoved( ci::CallbackId cbId )
+	{
+		mCbUINodeTouchMoved.unregisterCb( cbId );
+	}    
+    void unregisterUINodeTouchEnded( ci::CallbackId cbId )
+	{
+		mCbUINodeTouchEnded.unregisterCb( cbId );
+	}  
+    
+    // FIXME: is there a better pattern for this (UINode handles own events? bubbling?)
+    void onUINodeTouchBegan( UINodeRef nodeRef )
+	{
+		mCbUINodeTouchBegan.call( nodeRef );
+	}    
+    void onUINodeTouchMoved( UINodeRef nodeRef )
+	{
+		mCbUINodeTouchMoved.call( nodeRef );
+	}    
+    void onUINodeTouchEnded( UINodeRef nodeRef )
+	{
+		mCbUINodeTouchEnded.call( nodeRef );
+	}      
     
 protected:
 
@@ -63,8 +89,6 @@ protected:
     ci::Matrix44f mOrientationMatrix;
     ci::Vec2f mInterfaceSize;
     
-    std::map<uint64_t, UINodeRef> activeTouches;
-
 	ci::CallbackMgr<bool(UINodeRef)> mCbUINodeTouchBegan;
 	ci::CallbackMgr<bool(UINodeRef)> mCbUINodeTouchMoved;
 	ci::CallbackMgr<bool(UINodeRef)> mCbUINodeTouchEnded;

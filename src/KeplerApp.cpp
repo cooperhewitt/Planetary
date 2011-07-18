@@ -32,6 +32,7 @@
 #include "Galaxy.h"
 #include "BloomSphere.h"
 
+#include "UIController.h"
 #include "LoadingScreen.h"
 #include "UiLayer.h"
 #include "PlayControls.h"
@@ -119,9 +120,11 @@ class KeplerApp : public AppCocoaTouch {
     bool			onPlayerLibraryChanged( ipod::Player *player );
 	
 // UI BITS:
+    UIControllerRef     mUIControllerRef;
     LoadingScreen       mLoadingScreen;
     FilterToggleButton  mFilterToggleButton;
 	UiLayer             mUiLayer;
+    PlayControls        mPlayControls;
 	HelpLayer		    mHelpLayer;
     NotificationOverlay mNotificationOverlay;
 
@@ -158,10 +161,7 @@ class KeplerApp : public AppCocoaTouch {
     double              mCurrentTrackPlayheadTime;
     double              mPlayheadUpdateSeconds;
     ipod::Player::State mCurrentPlayState;
-	
-// PLAY CONTROLS
-	PlayControls	mPlayControls;
-	
+		
 // CAMERA PERSP
 	CameraPersp		mCam;
 	float			mFov, mFovDest;
@@ -391,15 +391,19 @@ void KeplerApp::remainingSetup()
     mParticleController.addParticles( G_NUM_PARTICLES );
 	mParticleController.addDusts( G_NUM_DUSTS );
 	
-    // NB:- order of UI init is important to register callbacks in correct order
-    
-	// PLAY CONTROLS
-	mPlayControls.setup( this, &mOrientationHelper, &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex );
-	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
-	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
+    // NB:- order of UI init is important to register callbacks and drawing in correct order
+    mUIControllerRef = UIControllerRef(new UIController(this, &mOrientationHelper));
 
 	// UILAYER
-	mUiLayer.setup( this, mOrientationHelper.getInterfaceOrientation(), G_SHOW_SETTINGS );
+	mUiLayer.setup( mUiButtonsTex, G_SHOW_SETTINGS, mUIControllerRef->getInterfaceSize() );
+    mUIControllerRef->addChild( UINodeRef(&mUiLayer) );
+    
+	// PLAY CONTROLS
+	mPlayControls.setup( mUIControllerRef->getInterfaceSize(), &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex );
+	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
+	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
+    // add as child of UILayer so it inherits the transform
+    mUiLayer.addChild( UINodeRef(&mPlayControls) );
 
 	// HELP LAYER
 	mHelpLayer.setup( this, mOrientationHelper.getInterfaceOrientation() );
@@ -766,7 +770,6 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
     mLoadingScreen.setInterfaceOrientation(orientation);
     if (mData.getState() == Data::LoadStateComplete) {
         mHelpLayer.setInterfaceOrientation(orientation);
-        mUiLayer.setInterfaceOrientation(orientation);
         mAlphaWheel.setInterfaceOrientation(orientation);
         mPlaylistChooser.setInterfaceOrientation(orientation);
         mFilterToggleButton.setInterfaceOrientation(orientation);
@@ -1304,7 +1307,9 @@ void KeplerApp::update()
 		}
 				
         mUiLayer.setShowSettings( G_SHOW_SETTINGS );
-        mUiLayer.update();
+        mUiLayer.update(); // animates flick open/close
+        
+        mPlayControls.update( mUiLayer.getPanelYPos() );
         
 		mHelpLayer.update();
 
@@ -1823,8 +1828,9 @@ void KeplerApp::drawScene()
     mFilterToggleButton.draw(); // FIXME: fade-in/out according to mShowFilterGUI?
     
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
-    mUiLayer.draw( mUiButtonsTex );
-    mPlayControls.draw( mUiLayer.getPanelYPos() );
+
+    // UILayer and PlayControls draw here:
+    mUIControllerRef->draw();
 
     gl::enableAdditiveBlending();    
 	mNotificationOverlay.draw();

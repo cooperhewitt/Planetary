@@ -8,50 +8,37 @@
  */
 
 
+#include "cinder/gl/gl.h"
 #include "UiLayer.h"
 #include "CinderFlurry.h"
 #include "Globals.h"
 #include "BloomGl.h"
+#include "UIController.h"
 
 using namespace pollen::flurry;
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-UiLayer::UiLayer()
+void UiLayer::setup( const gl::Texture &uiButtonsTex, const bool &showSettings, const Vec2f interfaceSize )
 {
+    mUiButtonsTex = uiButtonsTex;
+    
 	mPanelOpenHeight		= 65.0f;
 	mPanelSettingsHeight	= 150.0f;    
-}
-
-UiLayer::~UiLayer()
-{
-	mApp->unregisterTouchesBegan( mCbTouchesBegan );
-	mApp->unregisterTouchesMoved( mCbTouchesMoved );
-	mApp->unregisterTouchesEnded( mCbTouchesEnded );
-}
-
-void UiLayer::setup( AppCocoaTouch *app, const Orientation &orientation, const bool &showSettings )
-{
-	mApp = app;
-	
-	mCbTouchesBegan       = mApp->registerTouchesBegan( this, &UiLayer::touchesBegan );
-	mCbTouchesMoved       = mApp->registerTouchesMoved( this, &UiLayer::touchesMoved );
-	mCbTouchesEnded       = mApp->registerTouchesEnded( this, &UiLayer::touchesEnded );
-
+    
     mIsPanelOpen			= false;
 	mIsPanelTabTouched		= false;
 	mHasPanelBeenDragged	= false;
+    
+    mInterfaceSize = interfaceSize;
 
     // set this to something sensible, *temporary*:
-    mPanelRect = Rectf(0, getWindowHeight(), getWindowWidth(), getWindowHeight() + mPanelSettingsHeight);
+    mPanelRect = Rectf(0, interfaceSize.y, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
 	mPanelUpperRect = Rectf(0, getWindowHeight(), getWindowWidth(), getWindowHeight() + mPanelSettingsHeight);
 	mPanelLowerRect = Rectf(0, getWindowHeight(), getWindowWidth(), getWindowHeight() + mPanelSettingsHeight);
     
-    // make sure we've got everything the right way around
-    setInterfaceOrientation(orientation);
-
-    // and make sure we're showing enough
+    // make sure we're showing enough, then update layout
     setShowSettings(showSettings);    
 }
 
@@ -63,22 +50,11 @@ void UiLayer::setShowSettings( bool visible )
 		mPanelHeight = mPanelOpenHeight;
 	}
     
-    mPanelOpenY		= mInterfaceSize.y - mPanelHeight;
-    mPanelClosedY	= mInterfaceSize.y;
+    updateLayout();
 }
 
-void UiLayer::setInterfaceOrientation( const Orientation &orientation )
+void UiLayer::updateLayout()
 {
-    mInterfaceOrientation = orientation;
-    
-    mOrientationMatrix = getOrientationMatrix44(mInterfaceOrientation, getWindowSize());
-    
-    mInterfaceSize = getWindowSize();
-    
-    if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
-        mInterfaceSize = mInterfaceSize.yx(); // swizzle it!
-    }
-    
     mPanelRect.x2 = mInterfaceSize.x;
     
     mPanelOpenY		= mInterfaceSize.y - mPanelHeight;
@@ -94,58 +70,42 @@ void UiLayer::setInterfaceOrientation( const Orientation &orientation )
     }
     else {
         mPanelRect.y1 = mPanelClosedY;        
-    }
+    }        
 }
 
-bool UiLayer::touchesBegan( TouchEvent event )
+bool UiLayer::touchBegan( TouchEvent::Touch touch )
 {
 	mHasPanelBeenDragged = false;
 
-	Vec2f touchPos = event.getTouches().begin()->getPos();
+	Vec2f touchPos = globalToLocal( touch.getPos() );
 
-    // find where mPanelTabRect is being drawn in screen space (i.e. touchPos space)
-    Rectf screenTabRect = transformRect(mPanelTabRect, mOrientationMatrix);
-
-    mIsPanelTabTouched = screenTabRect.contains( touchPos );
+    mIsPanelTabTouched = mPanelTabRect.contains( touchPos );
     
 	if( mIsPanelTabTouched ){
         // remember touch offset for accurate dragging
-		mPanelTabTouchOffset = Vec2f(screenTabRect.x1, screenTabRect.y1) - touchPos;
+		mPanelTabTouchOffset = mPanelTabRect.getUpperLeft() - touchPos;
 	}
 		
 	return mIsPanelTabTouched;
 }
 
-bool UiLayer::touchesMoved( TouchEvent event )
+bool UiLayer::touchMoved( TouchEvent::Touch touch )
 {
-	Vec2f touchPos = event.getTouches().begin()->getPos();
+	Vec2f touchPos = globalToLocal( touch.getPos() );
     
 	if( mIsPanelTabTouched ){
 		mHasPanelBeenDragged = true;
 
-        // find where mPanelTabRect is being drawn in screen space (i.e. touchPos space)
-        Rectf screenTabRect = transformRect(mPanelTabRect, mOrientationMatrix);
-        
-        // apply the touch pos and offset in screen space
+        // apply the touch pos and offset
         Vec2f newPos = touchPos + mPanelTabTouchOffset;
-        screenTabRect.offset(newPos - screenTabRect.getUpperLeft());
-
-        // pull the screen-space rect back into mPanelTabRect space
-        Rectf tabRect = transformRect( screenTabRect, mOrientationMatrix.inverted() );
-
-        // set the panel position based on the new tabRect (mPanelTabRect will follow in update())
-        mPanelRect.y1 = tabRect.y2;
-        mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;
+        mPanelTabRect.offset(newPos - mPanelTabRect.getUpperLeft());
 	}
 
 	return mIsPanelTabTouched;
 }
 
-bool UiLayer::touchesEnded( TouchEvent event )
+bool UiLayer::touchEnded( TouchEvent::Touch touch )
 {
-    // TODO: these touch handlers might need some refinement for multi-touch
-    // ... perhaps store the first touch ID in touchesBegan and reject other touches?
-    
     // decide if the open state should change:
 	if( mIsPanelTabTouched ){
 		if( mHasPanelBeenDragged ){
@@ -171,6 +131,13 @@ bool UiLayer::touchesEnded( TouchEvent event )
 
 void UiLayer::update()
 {
+    Vec2f interfaceSize = mRoot->getInterfaceSize();
+    // check for orientation change
+    if (interfaceSize != mInterfaceSize) {
+        updateLayout();
+        mInterfaceSize = interfaceSize;
+    }    
+    
     if ( !mHasPanelBeenDragged ) {
         // if we're not dragging, animate to current state
         if( mIsPanelOpen ){
@@ -187,7 +154,7 @@ void UiLayer::update()
     // keep up y2!
     mPanelRect.y2 = mPanelRect.y1 + mPanelSettingsHeight;
 	
-	mPanelUpperRect = Rectf( 0.0f, mPanelRect.y1,							mInterfaceSize.x, mPanelRect.y1 + mPanelOpenHeight );
+	mPanelUpperRect = Rectf( 0.0f, mPanelRect.y1, mInterfaceSize.x, mPanelRect.y1 + mPanelOpenHeight );
 	mPanelLowerRect = Rectf( 0.0f, mPanelRect.y1 + mPanelOpenHeight, mInterfaceSize.x, mPanelRect.y1 + mPanelSettingsHeight );
 	
     // adjust tab rect:
@@ -196,15 +163,12 @@ void UiLayer::update()
 	
 }
 
-void UiLayer::draw( const gl::Texture &uiButtonsTex )
+void UiLayer::draw()
 {	
-    glPushMatrix();
-    glMultMatrixf( mOrientationMatrix );
-
     bloom::gl::beginBatch();
-    bloom::gl::batchRect(uiButtonsTex, Rectf(0.0, 0.71f, 0.09f, 0.79f), mPanelUpperRect);
-    bloom::gl::batchRect(uiButtonsTex, Rectf(0.0, 0.91f, 0.09f, 0.99f), mPanelLowerRect);
-    bloom::gl::batchRect(uiButtonsTex, Rectf(0.5f, 0.5f, 1.0f, 0.7f), mPanelTabRect);
+    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.0, 0.71f, 0.09f, 0.79f), mPanelUpperRect);
+    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.0, 0.91f, 0.09f, 0.99f), mPanelLowerRect);
+    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.5f, 0.5f, 1.0f, 0.7f), mPanelTabRect);
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );    
     bloom::gl::endBatch();
 
@@ -214,15 +178,6 @@ void UiLayer::draw( const gl::Texture &uiButtonsTex )
 	gl::color( ColorA( BRIGHT_BLUE, 0.1f ) );
 	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 + mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelRect.y1 + mPanelOpenHeight + 1.0f ) );
     
-    glPopMatrix();    
-}
-
-// TODO: move this to an operator in Cinder's Matrix class?
-Rectf UiLayer::transformRect( const Rectf &rect, const Matrix44f &matrix )
-{
-    Vec2f topLeft = (matrix * Vec3f(rect.x1,rect.y1,0)).xy();
-    Vec2f bottomRight = (matrix * Vec3f(rect.x2,rect.y2,0)).xy();
-    Rectf newRect(topLeft, bottomRight);
-    newRect.canonicalize();    
-    return newRect;
+    // draw children:
+    UINode::draw();
 }

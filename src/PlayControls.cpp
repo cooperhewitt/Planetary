@@ -10,34 +10,21 @@
 #include "PlayControls.h"
 #include "Globals.h"
 #include "BloomGl.h"
-#include "UINode.h"
+#include "UIController.h" // for mRoot
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-PlayControls::~PlayControls()
+void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
 {
-    if (mUIController != NULL) delete mUIController;
-}
-
-void PlayControls::setup( AppCocoaTouch *app, OrientationHelper *orientationHelper, ipod::Player *player, const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
-{
-    // TODO: share one UIController for whole app (pass it to setup instead of app and orientationHelper)
-    mUIController = new UIController(app, orientationHelper);
-    
-    mButtonsTex		= uiButtonsTex; // only stored for dimming sides of scrolling current track label    
+    mButtonsTex = uiButtonsTex; // only stored for dimming sides of scrolling current track label    
     mShowSettings = false;
     
     // create, add, and position everything...
     createChildren( font, fontSmall, uiButtonsTex, uiBigButtonsTex, uiSmallButtonsTex );
-    addChildren();
-    updateLayout( mUIController->getInterfaceSize() );
-    
-    // add listeners to relay callbacks...
-    mUIController->registerUINodeTouchMoved( this, &PlayControls::onUINodeTouchMoved );
-    mUIController->registerUINodeTouchEnded( this, &PlayControls::onUINodeTouchEnded );
-    
+    setInterfaceSize( interfaceSize );
+        
     // set initial state...
     setPlaying( player->getPlayState() == ipod::Player::StatePlaying );    
     setShowSettings( G_SHOW_SETTINGS );
@@ -206,41 +193,60 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
 	mParamSlider2Label->setText( "Speed" );
     
 }    
-    
+
+bool PlayControls::addedToScene()
+{
+    // now mRoot is valid we can add children
+    addChildren(); // FIXME: make it so you can add children even if mRoot is invalid
+    // add listeners to relay callbacks...
+    mCbTouchMoved = mRoot->registerUINodeTouchMoved( this, &PlayControls::onUINodeTouchMoved );
+    mCbTouchEnded = mRoot->registerUINodeTouchEnded( this, &PlayControls::onUINodeTouchEnded );    
+    return false;
+}
+
+bool PlayControls::removedFromScene()
+{
+    // remove listeners...
+    // FIXME: this should also be done in destructor (?)
+    mRoot->unregisterUINodeTouchMoved( mCbTouchMoved );
+    mRoot->unregisterUINodeTouchEnded( mCbTouchEnded );    
+    return false;
+}
+
 void PlayControls::addChildren()
 {
     // bit of hack, these are first for batch reasons
     // (we want the little fadey bits to be drawn on top)
-    mUIController->addChild( UINodeRef(mElapsedTimeLabel) );
-    mUIController->addChild( UINodeRef(mTrackInfoLabel) );
-    mUIController->addChild( UINodeRef(mRemainingTimeLabel) );    
+    addChild( UINodeRef(mElapsedTimeLabel) );
+    addChild( UINodeRef(mTrackInfoLabel) );
+    addChild( UINodeRef(mRemainingTimeLabel) );    
     
-    mUIController->addChild( UINodeRef(mGalaxyButton) );
-	mUIController->addChild( UINodeRef(mCurrentTrackButton) );
-    mUIController->addChild( UINodeRef(mShowSettingsButton) );
-	mUIController->addChild( UINodeRef(mAlphaWheelButton) );
-    mUIController->addChild( UINodeRef(mPreviousTrackButton) );
-    mUIController->addChild( UINodeRef(mPlayPauseButton) );
-    mUIController->addChild( UINodeRef(mNextTrackButton) );
+    addChild( UINodeRef(mGalaxyButton) );
+	addChild( UINodeRef(mCurrentTrackButton) );
+    addChild( UINodeRef(mShowSettingsButton) );
+	addChild( UINodeRef(mAlphaWheelButton) );
+    addChild( UINodeRef(mPreviousTrackButton) );
+    addChild( UINodeRef(mPlayPauseButton) );
+    addChild( UINodeRef(mNextTrackButton) );
 	
     // FIXME: hide these if (!mShowSettings) {   
-    mUIController->addChild( UINodeRef(mShuffleButton) );
-    mUIController->addChild( UINodeRef(mRepeatButton) );
-    mUIController->addChild( UINodeRef(mHelpButton) );
-    mUIController->addChild( UINodeRef(mOrbitsButton) );
-    mUIController->addChild( UINodeRef(mLabelsButton) );
-    mUIController->addChild( UINodeRef(mDebugButton) );
-    if( G_IS_IPAD2 ) mUIController->addChild( UINodeRef(mGyroButton) );
-    mUIController->addChild( UINodeRef(mPlaylistLabel) );	
-    mUIController->addChild( UINodeRef(mPreviousPlaylistButton) );
-    mUIController->addChild( UINodeRef(mNextPlaylistButton) );
+    addChild( UINodeRef(mShuffleButton) );
+    addChild( UINodeRef(mRepeatButton) );
+    addChild( UINodeRef(mHelpButton) );
+    addChild( UINodeRef(mOrbitsButton) );
+    addChild( UINodeRef(mLabelsButton) );
+    addChild( UINodeRef(mDebugButton) );
+    if( G_IS_IPAD2 ) addChild( UINodeRef(mGyroButton) );
+    addChild( UINodeRef(mPlaylistLabel) );	
+    addChild( UINodeRef(mPreviousPlaylistButton) );
+    addChild( UINodeRef(mNextPlaylistButton) );
     //    }
     
-	mUIController->addChild( UINodeRef(mPlayheadSlider) );
-	mUIController->addChild( UINodeRef(mParamSlider1) );
-	mUIController->addChild( UINodeRef(mParamSlider2) );
-	mUIController->addChild( UINodeRef(mParamSlider1Label) );
-    mUIController->addChild( UINodeRef(mParamSlider2Label) );    
+	addChild( UINodeRef(mPlayheadSlider) );
+	addChild( UINodeRef(mParamSlider1) );
+	addChild( UINodeRef(mParamSlider2) );
+	addChild( UINodeRef(mParamSlider1Label) );
+    addChild( UINodeRef(mParamSlider2Label) );    
 }
 
 bool PlayControls::onUINodeTouchMoved( UINodeRef nodeRef )
@@ -267,8 +273,10 @@ void PlayControls::setPlaylist(const string &playlist)
     mPlaylistLabel->setText(playlist); 
 }    
 
-void PlayControls::updateLayout( Vec2f interfaceSize )
+void PlayControls::setInterfaceSize( Vec2f interfaceSize )
 {
+    mInterfaceSize = interfaceSize;
+    
 	const float topBorder	 = 5.0f;
 	const float sideBorder	 = 10.0f;
     
@@ -410,31 +418,34 @@ void PlayControls::setShowSettings(bool visible)
     mShowSettingsButton->setOn(visible); 
 }
 
-void PlayControls::draw(float y)
+void PlayControls::update( float y )
 {
     if (mLastDrawY != y) {
         Matrix44f transform;
         transform.translate(Vec3f(0,y,0));
         mLastDrawY = y;
-        mUIController->setTransform(transform);
-    }
-
-    Vec2f interfaceSize = mUIController->getInterfaceSize();
-    if (prevInterfaceSize != interfaceSize) {
-        updateLayout( interfaceSize );
-        prevInterfaceSize = interfaceSize;
+        setTransform(transform);
     }
     
+    Vec2f interfaceSize = mRoot->getInterfaceSize();
+    if ( mInterfaceSize != interfaceSize ) {
+        setInterfaceSize( interfaceSize );
+    }    
+}
+
+void PlayControls::draw()
+{
     // FIXME: make an mActive bool so we can skip interaction if the panel is hiding
     //mActive = (mInterfaceSize.y - y ) > 60.0f;
         
-	const float dragAlphaPer = pow( ( interfaceSize.y - y ) / 65.0f, 2.0f );    	
+	const float dragAlphaPer = pow( ( mInterfaceSize.y - mLastDrawY ) / 65.0f, 2.0f );    	
     gl::color( ColorA( 1.0f, 1.0f, 1.0f, dragAlphaPer ) );
     
-    mUIController->draw();
+    // draw children with current alpha:
+    UINode::draw();
 
     glPushMatrix();
-    gl::translate(Vec2f(0,y));
+    gl::translate(Vec2f(0,mLastDrawY));
     
 // TEXT LABEL GRADIENTS
 	const float w	 = 15.0f;

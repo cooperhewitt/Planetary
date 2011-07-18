@@ -19,7 +19,7 @@
 
 #include "OrientationHelper.h"
 
-#include "UIController.h"
+#include "UINode.h"
 #include "Buttons.h"
 #include "Slider.h"
 #include "TextLabel.h"
@@ -27,7 +27,7 @@
 #include "ScrollingLabel.h"
 #include "CinderIPodPlayer.h"
 
-class PlayControls {
+class PlayControls : public UINode {
 public:
 
 	enum ButtonId { NO_BUTTON, 
@@ -38,11 +38,10 @@ public:
                     HELP, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE,
                     SLIDER, PARAMSLIDER1, PARAMSLIDER2 };
 
-    PlayControls(): mUIController(NULL) { }
-    ~PlayControls();
+    PlayControls() {};
+    ~PlayControls() {};
     
-    void setup( ci::app::AppCocoaTouch *app, 
-                ci::app::OrientationHelper *orientationHelper, 
+    void setup( Vec2f interfaceSize, 
                 ci::ipod::Player *player,
                 const ci::Font &font, 
                 const ci::Font &fontSmall, 
@@ -50,7 +49,9 @@ public:
                 const ci::gl::Texture &bigButtonsTex, 
                 const ci::gl::Texture &smallButtonsTex );
     
-    void draw(float y);
+    void update(float y);
+    
+    void draw();
 
     // this one updates the drawable and interactive things too:
     void setShowSettings(bool visible);
@@ -98,30 +99,34 @@ public:
 		return mCallbacksPlayheadMoved.registerCb(std::bind1st(std::mem_fun(callback), obj));
 	}	
 	
+    bool addedToScene(); // from UINode
+    bool removedFromScene(); // from UINode
+    
 private:
 					  
-    UIController *mUIController;
-        
     // instantiate and set fonts/areas/textures (called once)
     void createChildren( const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex );
     
-    // add everything to mUIController (called once)
+    // add everything (called once)
     void addChildren();
     
     // set positions (can be called repeatedly whenever interfaceSize changes)
-    void updateLayout( ci::Vec2f interfaceSize );
+    void setInterfaceSize( ci::Vec2f interfaceSize );
     
     float mLastDrawY;
-    ci::Vec2f prevInterfaceSize;
+    ci::Vec2f mInterfaceSize; // for detecting orientation change, updating layout
     bool mShowSettings;
         
 	// !!! EVENT STUFF (keep track of listeners)
 	ci::CallbackMgr<bool(ButtonId)> mCallbacksButtonPressed;
 	ci::CallbackMgr<bool(float)> mCallbacksPlayheadMoved;
-	
+	    
     // relay events from mUIController
     bool onUINodeTouchMoved( UINodeRef nodeRef );    
     bool onUINodeTouchEnded( UINodeRef nodeRef );
+
+    // for removing events when cleaning up
+    ci::CallbackId mCbTouchMoved, mCbTouchEnded;
     
     ///////////// Shared UI resources:
     ci::gl::Texture mButtonsTex;
