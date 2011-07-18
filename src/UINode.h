@@ -10,6 +10,7 @@
 
 #include <map>
 #include <vector>
+#include "cinder/Cinder.h"
 #include "cinder/app/TouchEvent.h"
 #include "cinder/Matrix.h"
 
@@ -21,7 +22,7 @@ class UINode; // for UINodeRef
 typedef std::shared_ptr<UIController> UIControllerRef;
 typedef std::shared_ptr<UINode> UINodeRef;
 
-class UINode {
+class UINode : public std::enable_shared_from_this<UINode> {
 
 public:
     

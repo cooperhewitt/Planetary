@@ -32,14 +32,14 @@ UINode::~UINode()
 void UINode::addChild( UINodeRef child )
 {
     mChildren.push_back( child );
-    child->mParent = UINodeRef(this);
+    child->mParent = shared_from_this();
     child->mRoot = UIControllerRef(mParent->getRoot());    
     child->addedToScene(); // notify child that mRoot and mParent are set
 }
 void UINode::addChildAt( UINodeRef child, const int &index )
 {
     mChildren.insert( mChildren.begin() + index, child );
-    child->mParent = UINodeRef(this);
+    child->mParent = shared_from_this();
     child->mRoot = UIControllerRef(mParent->getRoot());
     child->addedToScene(); // notify child that mRoot and mParent are set
 }
@@ -137,7 +137,7 @@ bool UINode::privateTouchBegan( TouchEvent::Touch touch )
     if (!consumed) {
         // check self
         if (touchBegan(touch)) {
-            UINodeRef thisRef = UINodeRef(this);
+            UINodeRef thisRef = shared_from_this();
             mActiveTouches[touch.getId()] = thisRef;                
             mRoot->onUINodeTouchBegan(thisRef);
             consumed = true;
