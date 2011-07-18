@@ -40,6 +40,8 @@ void UiLayer::setup( const gl::Texture &uiButtonsTex, const bool &showSettings, 
     
     // make sure we're showing enough, then update layout
     setShowSettings(showSettings);    
+    
+    updateLayout();
 }
 
 void UiLayer::setShowSettings( bool visible ) 
@@ -48,9 +50,8 @@ void UiLayer::setShowSettings( bool visible )
 		mPanelHeight = mPanelSettingsHeight;
 	} else {
 		mPanelHeight = mPanelOpenHeight;
-	}
-    
-    updateLayout();
+	}    
+    mPanelOpenY	= mInterfaceSize.y - mPanelHeight;        
 }
 
 void UiLayer::updateLayout()
@@ -70,7 +71,8 @@ void UiLayer::updateLayout()
     }
     else {
         mPanelRect.y1 = mPanelClosedY;        
-    }        
+    }       
+    mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;    
 }
 
 bool UiLayer::touchBegan( TouchEvent::Touch touch )
@@ -98,7 +100,12 @@ bool UiLayer::touchMoved( TouchEvent::Touch touch )
 
         // apply the touch pos and offset
         Vec2f newPos = touchPos + mPanelTabTouchOffset;
+        newPos.x = mPanelTabRect.x1; // only translate y
         mPanelTabRect.offset(newPos - mPanelTabRect.getUpperLeft());
+        
+        // set the panel position based on the mPanelTabRect
+        mPanelRect.y1 = mPanelTabRect.y2;
+        mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;
 	}
 
 	return mIsPanelTabTouched;
@@ -146,11 +153,14 @@ void UiLayer::update()
         else {
             mPanelRect.y1 += (mPanelClosedY - mPanelRect.y1) * 0.25f;
         }
-    } else {
-        // otherwise, just make sure the drag hasn't messed anything up
-		mPanelRect.y1 = constrain( mPanelRect.y1, mPanelOpenY, mPanelClosedY );
-	}
-	
+    } 
+    else {
+        std::cout << "currently dragging in ui layer update()" << std::endl;
+    }
+    
+    // always make sure the drag/ease hasn't messed anything up
+    mPanelRect.y1 = constrain( mPanelRect.y1, mPanelOpenY, mPanelClosedY );
+    
     // keep up y2!
     mPanelRect.y2 = mPanelRect.y1 + mPanelSettingsHeight;
 	

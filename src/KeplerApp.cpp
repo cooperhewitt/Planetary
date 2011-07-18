@@ -1080,6 +1080,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             logEvent("Settings Button Selected");            
             G_SHOW_SETTINGS = !G_SHOW_SETTINGS;
             mPlayControls.setShowSettings( G_SHOW_SETTINGS );            
+            mUiLayer.setShowSettings( G_SHOW_SETTINGS );            
             break;
 
         case PlayControls::SLIDER:
@@ -1306,7 +1307,6 @@ void KeplerApp::update()
 			mParticleController.buildDustVertexArray( scaleSlider, selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
 		}
 				
-        mUiLayer.setShowSettings( G_SHOW_SETTINGS );
         mUiLayer.update(); // animates flick open/close
         
         mPlayControls.update( mUiLayer.getPanelYPos() );
