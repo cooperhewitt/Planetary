@@ -38,6 +38,7 @@ bool UIController::touchesBegan( TouchEvent event )
             if ((*j)->touchBegan(*i)) {
                 consumed = true;
                 activeTouches[i->getId()] = *j;
+                std::cout << "touch began captured id " << i->getId() << " with element " << (*j)->getId() << std::endl;
                 break; // check next touch
             }
         }    
@@ -45,6 +46,7 @@ bool UIController::touchesBegan( TouchEvent event )
             // check self
             if (touchBegan(*i)) {
                 activeTouches[i->getId()] = UINodeRef(this);                
+                std::cout << "touch began captured id " << i->getId() << " with element " << getId() << std::endl;
             }
         }
     }    

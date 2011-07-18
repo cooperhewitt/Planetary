@@ -43,7 +43,7 @@ public:
     int getId() const;
     
     // subclasses should mess with these:
-    virtual void draw() const;
+    virtual void draw();
     virtual bool touchBegan(ci::app::TouchEvent::Touch touch) { return false; };
     virtual bool touchMoved(ci::app::TouchEvent::Touch touch) { return false; };
     virtual bool touchEnded(ci::app::TouchEvent::Touch touch) { return false; };

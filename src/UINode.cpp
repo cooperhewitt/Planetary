@@ -12,7 +12,7 @@
 
 using namespace ci;
 
-int UINode::sTotalNodeCount = 0;
+int UINode::sTotalNodeCount = 10000000; // start high
 
 UINode::UINode()
 {
@@ -75,7 +75,7 @@ UINodeRef UINode::getChildById( const int &childId ) const
     }
     return UINodeRef(); // aka NULL
 }
-void UINode::draw() const
+void UINode::draw()
 {
     glPushMatrix();
     glMultMatrixf(mTransform);
