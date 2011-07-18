@@ -217,6 +217,24 @@ void PlayControls::setup( AppCocoaTouch *app, OrientationHelper *orientationHelp
     mUIController->addChild( UINodeRef(mParamSlider2Label) );
     
     updateUIRects( mUIController->getInterfaceSize() );
+    
+    // add listeners
+    mUIController->registerUINodeTouchMoved( this, &PlayControls::onUINodeTouchMoved );
+    mUIController->registerUINodeTouchEnded( this, &PlayControls::onUINodeTouchEnded );
+}
+
+bool PlayControls::onUINodeTouchMoved( UINodeRef nodeRef )
+{
+    if ( nodeRef->getId() == mPlayheadSlider->getId() ) {
+        mCallbacksPlayheadMoved.call( mPlayheadSlider->getValue() );
+    }
+    return false;
+}
+
+bool PlayControls::onUINodeTouchEnded( UINodeRef nodeRef )
+{
+    mCallbacksButtonPressed.call(ButtonId(nodeRef->getId()));
+    return false;
 }
 
 void PlayControls::setPlaylistSelected(const bool &selected) 
@@ -229,14 +247,6 @@ void PlayControls::setPlaylist(const string &playlist)
     mPlaylistLabel->setText(playlist); 
     mPlaylistLabel->setLastTrackChangeTime(app::getElapsedSeconds()); // FIXME: rename to setScrollBeginTime or something?
 }    
-
-
-void PlayControls::update()
-{
-//    FIXME: implement these callbacks (that shouldn't even be in this function)
-//    mCallbacksPlayheadMoved.call( mPlayheadSlider.getValue() );
-//    mCallbacksButtonPressed.call(ButtonId(mActiveElement->getId()));
-}
 
 void PlayControls::updateUIRects( Vec2f interfaceSize )
 {

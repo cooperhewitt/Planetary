@@ -1344,8 +1344,6 @@ void KeplerApp::update()
         
         mPlayControls.setAlphaWheelVisible( mShowFilterGUI );
         
-        mPlayControls.update();
-
         if (mPlayheadUpdateSeconds == elapsedSeconds) {
             mPlayControls.setElapsedSeconds( (int)mCurrentTrackPlayheadTime );
             mPlayControls.setRemainingSeconds( -(int)(mCurrentTrackLength - mCurrentTrackPlayheadTime) );

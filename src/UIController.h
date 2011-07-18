@@ -31,6 +31,22 @@ public:
     // override from UINode to stop infinite mParent recursion
     ci::Matrix44f getConcatenatedTransform() const;
     
+	template<typename T>
+    ci::CallbackId registerUINodeTouchBegan( T *obj, bool (T::*callback)(UINodeRef) )
+	{
+		return mCbUINodeTouchBegan.registerCb(std::bind1st(std::mem_fun(callback), obj));
+	}    
+	template<typename T>
+    ci::CallbackId registerUINodeTouchMoved( T *obj, bool (T::*callback)(UINodeRef) )
+	{
+		return mCbUINodeTouchMoved.registerCb(std::bind1st(std::mem_fun(callback), obj));
+	}    
+	template<typename T>
+    ci::CallbackId registerUINodeTouchEnded( T *obj, bool (T::*callback)(UINodeRef) )
+	{
+		return mCbUINodeTouchEnded.registerCb(std::bind1st(std::mem_fun(callback), obj));
+	}    
+    
 protected:
 
     bool touchesBegan( ci::app::TouchEvent event );
@@ -48,5 +64,9 @@ protected:
     ci::Vec2f mInterfaceSize;
     
     std::map<uint64_t, UINodeRef> activeTouches;
+
+	ci::CallbackMgr<bool(UINodeRef)> mCbUINodeTouchBegan;
+	ci::CallbackMgr<bool(UINodeRef)> mCbUINodeTouchMoved;
+	ci::CallbackMgr<bool(UINodeRef)> mCbUINodeTouchEnded;
     
 };

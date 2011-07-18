@@ -50,7 +50,6 @@ public:
                 const ci::gl::Texture &bigButtonsTex, 
                 const ci::gl::Texture &smallButtonsTex );
     
-	void update();
     void draw(float y);
 
     // this one updates the drawable and interactive things too:
@@ -117,6 +116,10 @@ private:
 	ci::CallbackMgr<bool(ButtonId)> mCallbacksButtonPressed;
 	ci::CallbackMgr<bool(float)> mCallbacksPlayheadMoved;
 	
+    // relay events from mUIController
+    bool onUINodeTouchMoved( UINodeRef nodeRef );    
+    bool onUINodeTouchEnded( UINodeRef nodeRef );
+    
     ///////////// Shared UI resources:
     ci::gl::Texture mButtonsTex;
 

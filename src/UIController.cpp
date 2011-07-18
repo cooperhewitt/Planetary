@@ -33,21 +33,23 @@ UIController::~UIController()
 
 bool UIController::touchesBegan( TouchEvent event )
 {
+    // FIXME: UIController only does one level of touches (UINode doesn't pass on touches to children yet)
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
         bool consumed = false;
         for (std::vector<UINodeRef>::const_iterator j = mChildren.begin(); j != mChildren.end(); j++) {
             if ((*j)->touchBegan(*i)) {
                 consumed = true;
                 activeTouches[i->getId()] = *j;
-                std::cout << "touch began captured id " << i->getId() << " with element " << (*j)->getId() << std::endl;
+                mCbUINodeTouchBegan.call(*j);
                 break; // check next touch
             }
         }    
         if (!consumed) {
             // check self
             if (touchBegan(*i)) {
-                activeTouches[i->getId()] = UINodeRef(this);                
-                std::cout << "touch began captured id " << i->getId() << " with element " << getId() << std::endl;
+                UINodeRef thisRef = UINodeRef(this);
+                activeTouches[i->getId()] = thisRef;                
+                mCbUINodeTouchBegan.call(thisRef);
             }
         }
     }    
@@ -62,6 +64,7 @@ bool UIController::touchesMoved( TouchEvent event )
         if ( activeTouches.find(i->getId()) != activeTouches.end() ) {
             UINodeRef nodeRef = activeTouches[i->getId()];
             nodeRef->touchMoved(*i);
+            mCbUINodeTouchMoved.call(nodeRef);
         }
     }
     return false;
@@ -76,6 +79,7 @@ bool UIController::touchesEnded( TouchEvent event )
             UINodeRef nodeRef = activeTouches[i->getId()];
             nodeRef->touchEnded(*i);
             activeTouches.erase(i->getId());
+            mCbUINodeTouchEnded.call(nodeRef);            
         }
     }    
     return false;
