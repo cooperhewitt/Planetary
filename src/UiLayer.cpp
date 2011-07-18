@@ -154,12 +154,11 @@ void UiLayer::update()
             mPanelRect.y1 += (mPanelClosedY - mPanelRect.y1) * 0.25f;
         }
     } 
-    else {
-        std::cout << "currently dragging in ui layer update()" << std::endl;
-    }
     
-    // always make sure the drag/ease hasn't messed anything up
-    mPanelRect.y1 = constrain( mPanelRect.y1, mPanelOpenY, mPanelClosedY );
+    // make sure the drag/ease hasn't messed anything up
+    // always use the tallest size for maxPanelY so we'll ease when closing settings...
+    const float maxPanelY = mInterfaceSize.y - mPanelSettingsHeight;
+    mPanelRect.y1 = constrain( mPanelRect.y1, maxPanelY, mPanelClosedY );
     
     // keep up y2!
     mPanelRect.y2 = mPanelRect.y1 + mPanelSettingsHeight;
