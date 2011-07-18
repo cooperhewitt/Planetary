@@ -16,11 +16,15 @@ class UIController : public UINode {
     
 public:
     
+    // FIXME: allow null OrientationHelper for desktop use
     UIController(ci::app::AppCocoaTouch *app, ci::app::OrientationHelper *orientationHelper);
     virtual ~UIController();
     
     ci::Vec2f getInterfaceSize() { return mInterfaceSize; }
+    void setInterfaceSize( ci::Vec2f interfaceSize ) { mInterfaceSize = interfaceSize; }
+    
     ci::app::Orientation getInterfaceOrientation() { return mInterfaceOrientation; }
+    void setInterfaceOrientation( const ci::app::Orientation &orientation );
     
     virtual void draw();
     
@@ -33,7 +37,7 @@ protected:
     bool touchesMoved( ci::app::TouchEvent event );
     bool touchesEnded( ci::app::TouchEvent event );
 	bool orientationChanged( ci::app::OrientationEvent event );
-
+    
     ci::app::AppCocoaTouch *mApp;
     ci::app::OrientationHelper *mOrientationHelper;
     

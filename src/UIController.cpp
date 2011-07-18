@@ -20,6 +20,7 @@ UIController::UIController( AppCocoaTouch *app, OrientationHelper *orientationHe
     cbTouchesMoved = mApp->registerTouchesMoved( this, &UIController::touchesMoved );
     cbTouchesEnded = mApp->registerTouchesEnded( this, &UIController::touchesEnded );
     cbOrientationChanged = mOrientationHelper->registerOrientationChanged( this, &UIController::orientationChanged );    
+    setInterfaceOrientation( mOrientationHelper->getInterfaceOrientation() );
 }
 
 UIController::~UIController()
@@ -82,15 +83,20 @@ bool UIController::touchesEnded( TouchEvent event )
 
 bool UIController::orientationChanged( OrientationEvent event )
 {
-    mInterfaceOrientation = event.getInterfaceOrientation();
+    setInterfaceOrientation( event.getInterfaceOrientation() );
+    return false;
+}
+
+void UIController::setInterfaceOrientation( const Orientation &orientation )
+{
+    mInterfaceOrientation = orientation;
     mOrientationMatrix = getOrientationMatrix44(mInterfaceOrientation, getWindowSize());
     
     mInterfaceSize = app::getWindowSize();
     
     if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
         mInterfaceSize = mInterfaceSize.yx(); // swizzle it!
-    }    
-    return false;
+    }        
 }
 
 void UIController::draw()

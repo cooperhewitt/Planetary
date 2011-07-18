@@ -215,6 +215,8 @@ void PlayControls::setup( AppCocoaTouch *app, OrientationHelper *orientationHelp
 	mUIController->addChild( UINodeRef(mParamSlider2) );
 	mUIController->addChild( UINodeRef(mParamSlider1Label) );
     mUIController->addChild( UINodeRef(mParamSlider2Label) );
+    
+    updateUIRects( mUIController->getInterfaceSize() );
 }
 
 void PlayControls::setPlaylistSelected(const bool &selected) 
