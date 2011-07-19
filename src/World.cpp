@@ -278,7 +278,7 @@ void World::repulseNodes()
 				float distSqrd = dir.lengthSquared();
 				
 				if( distSqrd > 0.0f ){
-					float F = 1.0f/distSqrd;
+					float F = constrain( 1.0f/distSqrd, 0.0f, 1.0f );
 					dir = F * dir.normalized() * 0.75f;
 					dir.y *= 0.7f;
 					

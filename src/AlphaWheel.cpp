@@ -92,21 +92,109 @@ void AlphaWheel::setRects()
 	}
 }
 
+void AlphaWheel::setVerts()
+{
+	mTotalVertices = 54;
+	delete[] mVerts; 
+	mVerts = NULL;
+	mVerts = new VertexData[mTotalVertices];
+	
+	
+	float W	= mInterfaceSize.x;
+	float H = mInterfaceSize.y;
+	float CW = W/2;
+	float CH = H/2;
+	float L = ( W - mAlphaRadius * 2.0f )/2;
+	float T = ( H - mAlphaRadius * 2.0f )/2;
+	float R = L + mAlphaRadius * 2.0f;
+	float B = T + mAlphaRadius * 2.0f;
+	
+	vector<Vec2i> positions;
+	positions.push_back( Vec2i( 0 - CW, 0 - CH ) );
+	positions.push_back( Vec2i( L - CW, 0 - CH ) );
+	positions.push_back( Vec2i( R - CW, 0 - CH ) );
+	positions.push_back( Vec2i( W - CW, 0 - CH ) );
+	
+	positions.push_back( Vec2i( 0 - CW, T - CH ) );
+	positions.push_back( Vec2i( L - CW, T - CH ) );
+	positions.push_back( Vec2i( R - CW, T - CH ) );
+	positions.push_back( Vec2i( W - CW, T - CH ) );
+	
+	positions.push_back( Vec2i( 0 - CW, B - CH ) );
+	positions.push_back( Vec2i( L - CW, B - CH ) );
+	positions.push_back( Vec2i( R - CW, B - CH ) );
+	positions.push_back( Vec2i( W - CW, B - CH ) );
+	
+	positions.push_back( Vec2i( 0 - CW, H - CH ) );
+	positions.push_back( Vec2i( L - CW, H - CH ) );
+	positions.push_back( Vec2i( R - CW, H - CH ) );
+	positions.push_back( Vec2i( W - CW, H - CH ) );
+	
+	vector<Vec2f> textures;
+	textures.push_back( Vec2f( 0, 0 ) );
+	textures.push_back( Vec2f( 0, 0 ) );
+	textures.push_back( Vec2f( 1, 0 ) );
+	textures.push_back( Vec2f( 1, 0 ) );
+	
+	textures.push_back( Vec2f( 0, 0 ) );
+	textures.push_back( Vec2f( 0, 0 ) );
+	textures.push_back( Vec2f( 1, 0 ) );
+	textures.push_back( Vec2f( 1, 0 ) );
+	
+	textures.push_back( Vec2f( 0, 1 ) );
+	textures.push_back( Vec2f( 0, 1 ) );
+	textures.push_back( Vec2f( 1, 1 ) );
+	textures.push_back( Vec2f( 1, 1 ) );
+	
+	textures.push_back( Vec2f( 0, 1 ) );
+	textures.push_back( Vec2f( 0, 1 ) );
+	textures.push_back( Vec2f( 1, 1 ) );
+	textures.push_back( Vec2f( 1, 1 ) );
+	
+	int indices[54] = { 0, 1, 4,
+					  1, 5, 4,
+					  1, 2, 5,
+					  2, 6, 5,
+					  2, 3, 6,
+					  3, 7, 6,
+					  4, 5, 8, 
+					  5, 9, 8,
+					  5, 6, 9, 
+					  6, 10, 9, 
+					  6, 7, 10, 
+					  7, 11, 10,
+					  8, 9, 12, 
+					  9, 13, 12, 
+					  9, 10, 13, 
+					  10, 14, 13, 
+					  10, 11, 14, 
+					  11, 15, 14 };
+	
+	int vIndex = 0;
+	for( int i=0; i<54; i++ ){
+		mVerts[vIndex].vertex	= positions[indices[i]];
+		mVerts[vIndex].texture	= textures[indices[i]];
+		
+		vIndex ++;
+	}
+}
+
 void AlphaWheel::setInterfaceOrientation( const Orientation &orientation )
 {
     mInterfaceOrientation = orientation;
     mOrientationMatrix	= getOrientationMatrix44( mInterfaceOrientation, getWindowSize() );
-    Vec2f interfaceSize = getWindowSize();
+    mInterfaceSize = getWindowSize();
     
 	mAlphaRadius = 300.0f;
     if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
-        interfaceSize = interfaceSize.yx(); // swizzle it!
-		mAlphaRadius = 280.0f;
+        mInterfaceSize = mInterfaceSize.yx(); // swizzle it!
+		mAlphaRadius = 270.0f;
     }
     
-    mInterfaceCenter = interfaceSize * 0.5f;
+    mInterfaceCenter = mInterfaceSize * 0.5f;
 	
 	setRects();
+	setVerts();
 }
 
 bool AlphaWheel::touchesBegan( TouchEvent event )
@@ -218,12 +306,11 @@ void AlphaWheel::draw( float *numberAlphaPerChar )
 		glPushMatrix();
 		glMultMatrixf( mOrientationMatrix );
 
+		gl::color( Color::white() );
 		gl::translate( mInterfaceCenter );
-		gl::scale( Vec3f( mWheelScale + 1.0f, mWheelScale + 1.0f, 1.0f ) );	
-        
+		gl::scale( Vec3f( mWheelScale + 1.0f, mWheelScale + 1.0f, 1.0f ) );
 		drawWheel();
 		
-		gl::color( Color::white() );
 		for( int i=0; i<27; i++ ){
 			float c = numberAlphaPerChar[i];
 			if( c > 0.0f ){
@@ -244,32 +331,45 @@ void AlphaWheel::draw( float *numberAlphaPerChar )
 
 void AlphaWheel::drawWheel()
 {
-    float wMask = mWheelTex.getWidth() * 0.5f;
-    float hMask = mWheelTex.getHeight() * 0.5f;
-
-    float c = 1.0f - mWheelScale;
-    gl::color( ColorA( c, c, c, c ) );
-    
-    mWheelTex.enableAndBind();
-    gl::drawSolidRect( Rectf( -wMask, -hMask, wMask, hMask ) );
-    mWheelTex.disable();    
+	mWheelTex.enableAndBind();
+	glEnableClientState( GL_VERTEX_ARRAY );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	
-    // TODO: batch this geometry, adapt bloom::gl::batchRect() for solid fills    
-    if ( isLandscapeOrientation(mInterfaceOrientation) ) {
-        Vec2f interfaceSize = getWindowSize().yx(); // SWIZ!
-        gl::color( Color::black() );
-        // left bar, relative to center:
-        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, -wMask, hMask ) );
-        // right bar, relative to center:
-        gl::drawSolidRect( Rectf( wMask, -interfaceSize.y/2, interfaceSize.x/2, hMask ) );
-    } else {
-		Vec2f interfaceSize = getWindowSize().xy();
-		gl::color( Color::black() );
-        // top bar, relative to center:
-        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, interfaceSize.x/2, -hMask ) );
-        // bottom bar, relative to center:
-        gl::drawSolidRect( Rectf( -interfaceSize.x/2, hMask, interfaceSize.x/2, interfaceSize.y/2 ) );
-	}
+	glVertexPointer( 2, GL_FLOAT, sizeof(VertexData), mVerts );
+	glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );
+	
+	glDrawArrays( GL_TRIANGLES, 0, mTotalVertices );
+	
+	glDisableClientState( GL_VERTEX_ARRAY );
+	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	mWheelTex.disable();
+	
+//    float wMask = mWheelTex.getWidth() * 0.5f;
+//    float hMask = mWheelTex.getHeight() * 0.5f;
+//
+//    float c = 1.0f - mWheelScale;
+//    gl::color( ColorA( c, c, c, c ) );
+//    
+//    mWheelTex.enableAndBind();
+//    gl::drawSolidRect( Rectf( -wMask, -hMask, wMask, hMask ) );
+//    mWheelTex.disable();    
+//	
+//    // TODO: batch this geometry, adapt bloom::gl::batchRect() for solid fills    
+//    if ( isLandscapeOrientation(mInterfaceOrientation) ) {
+//        Vec2f interfaceSize = getWindowSize().yx(); // SWIZ!
+//        gl::color( Color::black() );
+//        // left bar, relative to center:
+//        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, -wMask, hMask ) );
+//        // right bar, relative to center:
+//        gl::drawSolidRect( Rectf( wMask, -interfaceSize.y/2, interfaceSize.x/2, hMask ) );
+//    } else {
+//		Vec2f interfaceSize = getWindowSize().xy();
+//		gl::color( Color::black() );
+//        // top bar, relative to center:
+//        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, interfaceSize.x/2, -hMask ) );
+//        // bottom bar, relative to center:
+//        gl::drawSolidRect( Rectf( -interfaceSize.x/2, hMask, interfaceSize.x/2, interfaceSize.y/2 ) );
+//	}
 }
 
 void AlphaWheel::drawAlphaChar()
