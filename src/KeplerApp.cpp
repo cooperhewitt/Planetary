@@ -886,7 +886,7 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
     }
     stringstream s;
     s << "SHOWING ARTISTS FROM" << br << "'" << playlistName << "'";
-    mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), s.str() );            
+    mNotificationOverlay.show( mOverlayIconsTex, Area( 1024.0f, 0.0f, 1152.0f, 128.0f ), s.str() );            
 	
     /////// stats...
     
