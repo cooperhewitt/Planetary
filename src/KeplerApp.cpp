@@ -1020,16 +1020,16 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             logEvent("Repeat Button Selected");   
             break;
         
-        case PlayControls::HELP:
-			std::cout << "HELP!!!! IN PLAYCONTROLS!!!!" << std::endl;
-			if( G_SHOW_SETTINGS ){
-				logEvent("Help Button Selected");            
-				G_HELP = !G_HELP;
-				if( G_HELP && !mAlphaWheel.getShowWheel() )
-					mAlphaWheel.setShowWheel( true );
-			}
-            mPlayControls.setHelpVisible( G_HELP );
-            break;
+//        case PlayControls::HELP:
+//			std::cout << "HELP!!!! IN PLAYCONTROLS!!!!" << std::endl;
+//			if( G_SHOW_SETTINGS ){
+//				logEvent("Help Button Selected");            
+//				G_HELP = !G_HELP;
+//				if( G_HELP && !mAlphaWheel.getShowWheel() )
+//					mAlphaWheel.setShowWheel( true );
+//			}
+//            mPlayControls.setHelpVisible( G_HELP );
+//            break;
         
         case PlayControls::DRAW_RINGS:
 			if( G_SHOW_SETTINGS ){

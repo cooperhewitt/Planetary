@@ -36,7 +36,7 @@ public:
                     SHOW_WHEEL, GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, 
                     PREV_TRACK, PLAY_PAUSE, NEXT_TRACK, 
                     SHUFFLE, REPEAT, 
-                    HELP, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE,
+                    /*HELP, */DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE,
                     SLIDER, PARAMSLIDER1, PARAMSLIDER2 };
 
     PlayControls() {};
@@ -63,7 +63,7 @@ public:
 	void setPlaying(bool playing) { mPlayPauseButton->setOn(playing); }
     void setAlphaWheelVisible(bool visible) { mAlphaWheelButton->setOn(visible); };
 
-    void setHelpVisible(bool visible) {		mHelpButton->setOn(visible); };
+//    void setHelpVisible(bool visible) {		mHelpButton->setOn(visible); };
 	void setDebugVisible(bool visible) {	mDebugButton->setOn(visible); };
 	void setGyroVisible(bool visible) {		mGyroButton->setOn(visible); };
     void setOrbitsVisible(bool visible) {	mOrbitsButton->setOn(visible); };
@@ -162,7 +162,7 @@ private:
         
     // settings...
     ToggleButton *mShowSettingsButton;
-        ToggleButton *mHelpButton;
+//        ToggleButton *mHelpButton;
         ToggleButton *mOrbitsButton;
         ToggleButton *mLabelsButton;
         ToggleButton *mDebugButton;

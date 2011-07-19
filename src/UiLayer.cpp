@@ -38,7 +38,7 @@ void UiLayer::setup( const gl::Texture &uiButtonsTex, const bool &showSettings, 
     mPanelRect      = Rectf(0, 0, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
 	mPanelUpperRect = Rectf(0, 0, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
 	mPanelLowerRect = Rectf(0, 0, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
-    mPanelTabRect   = Rectf( interfaceSize.x - 180.0f, -42.0f, interfaceSize.x, 2.0f );
+    mPanelTabRect   = Rectf( interfaceSize.x - 179.0f, -42.0f, interfaceSize.x, 2.0f );
     
     // make sure we're showing enough, then update layout
     setShowSettings(showSettings);    
@@ -171,12 +171,12 @@ void UiLayer::draw()
     bloom::gl::beginBatch();
     bloom::gl::batchRect(mUiButtonsTex, Rectf(0.01f, 0.51f, 0.09f, 0.99f), mPanelUpperRect);
     bloom::gl::batchRect(mUiButtonsTex, Rectf(0.01f, 0.51f, 0.09f, 0.99f), mPanelLowerRect);
-    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.1f, 0.0f, 1.0f, 1.0f), mPanelTabRect);
+    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.11f, 0.0f, 1.0f, 1.0f), mPanelTabRect);
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );    
     bloom::gl::endBatch();
 
     gl::color( ColorA( BRIGHT_BLUE, 0.2f ) );
-	gl::drawLine( Vec2f( mPanelRect.x1, 0.0f ), Vec2f( mPanelTabRect.x1 + 5, 0.0f ) );
+	gl::drawLine( Vec2f( mPanelRect.x1, 0.0f ), Vec2f( mPanelTabRect.x1 + 4, 0.0f ) );
 	
 	gl::color( ColorA( BRIGHT_BLUE, 0.1f ) );
 	gl::drawLine( Vec2f( mPanelRect.x1, mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelOpenHeight + 1.0f ) ); 

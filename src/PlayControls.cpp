@@ -30,7 +30,7 @@ void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font 
     setShowSettings( G_SHOW_SETTINGS );
     setOrbitsVisible( G_DRAW_RINGS );
     setLabelsVisible( G_DRAW_TEXT );
-    setHelpVisible( G_HELP );
+//    setHelpVisible( G_HELP );
     setDebugVisible( G_DEBUG );	    
     setShuffleVisible( player->getShuffleMode() != ipod::Player::ShuffleModeOff );
     setRepeatMode( player->getRepeatMode() );    
@@ -41,66 +41,64 @@ void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font 
 
 void PlayControls::createChildren( const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
 {
-	float uw = uiBigButtonsTex.getWidth() / 8.0f; // button tex width
-	float v1 = 0.0f;                              // button tex off start y
-    float v2 = uiBigButtonsTex.getHeight() * 0.5f;// button tex on start y, off end y
-    float v3 = uiBigButtonsTex.getHeight();       // button tex on end y
+	float uw = uiBigButtonsTex.getWidth() / 4.0f;   // button tex width
+	float uh = uiBigButtonsTex.getHeight() / 4.0f;	// button tex height
 
     mGalaxyButton = new SimpleButton( GOTO_GALAXY,   // ID
                                       uiBigButtonsTex,
-                                      Area(uw*0.0f,v2,uw*1.0f,v3),  // on texture
-                                      Area(uw*0.0f,v1,uw*1.0f,v2) );// off texture
+                                      Area( uw*0, uh*1, uw*1, uh*2 ),  // on texture
+                                      Area( uw*0, uh*0, uw*1, uh*1 ) );// off texture
     
     mCurrentTrackButton = new SimpleButton( GOTO_CURRENT_TRACK,   // ID
                                             uiBigButtonsTex,
-                                            Area(uw*1.0f,v2,uw*2.0f,v3),  // on texture
-                                            Area(uw*1.0f,v1,uw*2.0f,v2) );// off texture
+                                            Area( uw*1, uh*1, uw*2, uh*2 ),  // on texture
+                                            Area( uw*1, uh*0, uw*2, uh*1 ) );// off texture
 
 	mShowSettingsButton = new ToggleButton( SETTINGS, 
                                             false, 
                                             uiBigButtonsTex,
-                                            Area(uw*2.0f,v2,uw*3.0f,v3),  // on texture
-                                            Area(uw*2.0f,v1,uw*3.0f,v2) );// off texture   
+                                            Area( uw*2, uh*1, uw*3, uh*2 ),  // on texture
+                                            Area( uw*2, uh*0, uw*3, uh*1 ) );// off texture   
 
     mPreviousTrackButton = new SimpleButton( PREV_TRACK, 
                                              uiBigButtonsTex,
-                                             Area(uw*3.0f,v2,uw*4.0f,v3),  // on texture
-                                             Area(uw*3.0f,v1,uw*4.0f,v2) );// off texture
+                                             Area( uw*3, uh*1, uw*4, uh*2 ),  // on texture
+                                             Area( uw*3, uh*0, uw*4, uh*1 ) );// off texture
 	
     mPlayPauseButton = new TwoStateButton( PLAY_PAUSE, 
                                            false, // initial state is updated in setup()
                                            uiBigButtonsTex,
-                                           Area(uw*4.0f,v2,uw*5.0f,v3),  // offDown   
-                                           Area(uw*4.0f,v1,uw*5.0f,v2),  // offUp
-                                           Area(uw*5.0f,v2,uw*6.0f,v3),  // onDown
-                                           Area(uw*5.0f,v1,uw*6.0f,v2) );// onUp
+                                           Area( uw*0, uh*3, uw*1, uh*4 ),  // offDown   
+                                           Area( uw*0, uh*2, uw*1, uh*3 ),  // offUp
+                                           Area( uw*1, uh*3, uw*2, uh*4 ),  // onDown
+                                           Area( uw*1, uh*2, uw*2, uh*3 ) );// onUp
 
     mNextTrackButton = new SimpleButton( NEXT_TRACK, 
                                          uiBigButtonsTex,
-                                         Area(uw*6.0f,v2,uw*7.0f,v3),  // on texture
-                                         Area(uw*6.0f,v1,uw*7.0f,v2) );// off texture
+                                         Area( uw*2, uh*3, uw*3, uh*4 ),  // on texture
+                                         Area( uw*2, uh*2, uw*3, uh*3 ) );// off texture
 	
     mAlphaWheelButton = new ToggleButton( SHOW_WHEEL,      // ID
                                           false,           // initial toggle state
                                           uiBigButtonsTex,
-                                          Area(uw*7.0f,v2,uw*8.0f,v3),  // on texture
-                                          Area(uw*7.0f,v1,uw*8.0f,v2) );// off texture    
+                                          Area( uw*3, uh*3, uw*4, uh*4 ),  // on texture
+                                          Area( uw*3, uh*2, uw*4, uh*3 ) );// off texture    
 
     
      
 
     // !!! SMALL BUTTONS !!!
     uw = uiSmallButtonsTex.getWidth() / 10.0f;
-	v1 = 0.0f; 
-    v2 = uiSmallButtonsTex.getHeight() * 0.5f; 
-    v3 = uiSmallButtonsTex.getHeight();
+	float v1 = 0.0f; 
+    float v2 = uiSmallButtonsTex.getHeight() * 0.5f; 
+    float v3 = uiSmallButtonsTex.getHeight();
     
     {
-        mHelpButton = new ToggleButton( HELP, 
-                                        false, 
-                                        uiSmallButtonsTex,
-                                        Area(uw*0.0f,v2,uw*1.0f,v3),  // on texture
-                                        Area(uw*0.0f,v1,uw*1.0f,v2)); // off texture
+//        mHelpButton = new ToggleButton( HELP, 
+//                                        false, 
+//                                        uiSmallButtonsTex,
+//                                        Area(uw*0.0f,v2,uw*1.0f,v3),  // on texture
+//                                        Area(uw*0.0f,v1,uw*1.0f,v2)); // off texture
         
 		if( G_IS_IPAD2 ){
 			mGyroButton = new ToggleButton( USE_GYRO, 
@@ -229,7 +227,7 @@ void PlayControls::addChildren()
     // FIXME: hide these if (!mShowSettings) {   
     addChild( UINodeRef(mShuffleButton) );
     addChild( UINodeRef(mRepeatButton) );
-    addChild( UINodeRef(mHelpButton) );
+//    addChild( UINodeRef(mHelpButton) );
     addChild( UINodeRef(mOrbitsButton) );
     addChild( UINodeRef(mLabelsButton) );
     addChild( UINodeRef(mDebugButton) );
@@ -349,10 +347,10 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
 	x2 = x1 + bSizeSmall;
     mDebugButton->setRect( x1, y1, x2, y2 );
 	
-// HELP TOGGLE BUTTON
-    x1 -= bSizeSmall;
-	x2 = x1 + bSizeSmall;
-    mHelpButton->setRect( x1, y1, x2, y2 );
+//// HELP TOGGLE BUTTON
+//    x1 -= bSizeSmall;
+//	x2 = x1 + bSizeSmall;
+//    mHelpButton->setRect( x1, y1, x2, y2 );
 	
 	
 	
