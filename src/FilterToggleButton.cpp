@@ -49,8 +49,8 @@ void FilterToggleButton::setInterfaceOrientation( const Orientation &orientation
     const float padding = 10.0f;
     const Vec2f paddingVec( padding, padding );
     
-    mAlphaPos.set( mInterfaceSize.x/2.0f - mAlphaTexture.getWidth() - padding, 60.0f );
-    mPlaylistPos.set( mInterfaceSize.x/2.0f + padding, 60.0f );
+    mAlphaPos.set( mInterfaceSize.x/2.0f - mAlphaTexture.getWidth() - padding, 40.0f );
+    mPlaylistPos.set( mInterfaceSize.x/2.0f + padding, 40.0f );
     
     mAlphaRect = Rectf( mAlphaPos - paddingVec, 
                         mAlphaPos + mAlphaTexture.getSize() + paddingVec );
@@ -115,7 +115,7 @@ void FilterToggleButton::draw()
     
     // FIXME: whither roundrect? :)
     // at least, fix the corners to be snuggier than this
-    gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.5f ) );
+    gl::color( ColorA( BRIGHT_BLUE, 0.25f ) );
     gl::drawStrokedRect( mAlphaRect );
     gl::drawStrokedRect( mPlaylistRect );    
     //gl::drawLine( Vec2f(mInterfaceSize.x/2.0f, 100.0f), Vec2f(mInterfaceSize.x/2.0f, 100.0f+mAlphaTexture.getHeight()) );

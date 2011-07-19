@@ -24,8 +24,8 @@ void UiLayer::setup( const gl::Texture &uiButtonsTex, const bool &showSettings, 
 {
     mUiButtonsTex = uiButtonsTex;
     
-	mPanelOpenHeight		= 65.0f;
-	mPanelSettingsHeight	= 105.0f;    
+	mPanelOpenHeight		= 63.0f;
+	mPanelSettingsHeight	= 108.0f;    
     
     mIsPanelOpen			= false;
 	mIsPanelTabTouched		= false;
@@ -38,7 +38,7 @@ void UiLayer::setup( const gl::Texture &uiButtonsTex, const bool &showSettings, 
     mPanelRect      = Rectf(0, 0, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
 	mPanelUpperRect = Rectf(0, 0, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
 	mPanelLowerRect = Rectf(0, 0, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
-    mPanelTabRect   = Rectf( interfaceSize.x - 200.0f, -38.0f, interfaceSize.x, 2.0f );
+    mPanelTabRect   = Rectf( interfaceSize.x - 180.0f, -42.0f, interfaceSize.x, 2.0f );
     
     // make sure we're showing enough, then update layout
     setShowSettings(showSettings);    
@@ -142,7 +142,7 @@ void UiLayer::update()
 {
     Vec2f interfaceSize = mRoot->getInterfaceSize();
     // check for orientation change
-    if (interfaceSize != mInterfaceSize) {
+    if( interfaceSize != mInterfaceSize ){
         updateLayout( interfaceSize );
     }
     
@@ -160,25 +160,24 @@ void UiLayer::update()
     // always use the tallest size for maxPanelY so we'll ease when closing settings...
     const float maxPanelY = mInterfaceSize.y - mPanelSettingsHeight;
     mPanelY = constrain( mPanelY, maxPanelY, mPanelClosedY );
-    mPanelY = round(mPanelY);
     
     Matrix44f transform;
-    transform.translate(Vec3f(0,mPanelY,0));
-    setTransform(transform);
+    transform.translate( Vec3f( 0, ceil( mPanelY ), 0 ) );
+    setTransform( transform );
 }
 
 void UiLayer::draw()
 {	
     bloom::gl::beginBatch();
-    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.0, 0.71f, 0.09f, 0.79f), mPanelUpperRect);
-    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.0, 0.91f, 0.09f, 0.99f), mPanelLowerRect);
-    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.5f, 0.5f, 1.0f, 0.7f), mPanelTabRect);
+    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.01f, 0.51f, 0.09f, 0.99f), mPanelUpperRect);
+    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.01f, 0.51f, 0.09f, 0.99f), mPanelLowerRect);
+    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.1f, 0.0f, 1.0f, 1.0f), mPanelTabRect);
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );    
     bloom::gl::endBatch();
 
     gl::color( ColorA( BRIGHT_BLUE, 0.2f ) );
     // FIXME: can we "round" mPanelY so that this doesn't jitter?
-	gl::drawLine( Vec2f( mPanelRect.x1, 0.0f ), Vec2f( mPanelTabRect.x1+23, 0.0f ) );
+	gl::drawLine( Vec2f( mPanelRect.x1, 0.0f ), Vec2f( mPanelTabRect.x1 + 5, 0.0f ) );
 	
 	gl::color( ColorA( BRIGHT_BLUE, 0.1f ) );
 	gl::drawLine( Vec2f( mPanelRect.x1, mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelOpenHeight + 1.0f ) ); 

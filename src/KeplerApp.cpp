@@ -190,12 +190,11 @@ class KeplerApp : public AppCocoaTouch {
 	float			mFadeInArtistToAlbum;
 	float			mFadeInAlbumToTrack;
 	
-	float			mAlphaWheelRadius;
-	
 // FONTS
 	Font			mFontHuge;
 	Font			mFont;
 	Font			mFontBig;
+	Font			mFontMedium;
 	Font			mFontMediSmall;
 	Font			mFontMediTiny;
 	
@@ -362,6 +361,7 @@ void KeplerApp::remainingSetup()
 	mFontHuge			= Font( loadResource( "AauxPro-Black.ttf"), 100 );
 	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
 	mFontBig			= Font( loadResource( "AauxPro-Black.ttf"), 24 );
+	mFontMedium			= Font( loadResource( "AauxPro-Black.ttf"), 18 );
 	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
 	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 11 );
 
@@ -410,11 +410,11 @@ void KeplerApp::remainingSetup()
 	mHelpLayer.initHelpTextures( mFontMediSmall );
 	
     // ALPHA WHEEL
-	mAlphaWheelRadius = 300.0f;
-	mAlphaWheel.setup( this, mOrientationHelper.getInterfaceOrientation(), mAlphaWheelRadius );
+	mAlphaWheel.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontBig );
 	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
 	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
-	mAlphaWheel.initAlphaTextures( mFontBig );	
+	//mAlphaWheel.initAlphaTextures( mFontBig );
+	mAlphaWheel.setRects();
 	
     // PLAYLIST CHOOSER
     mPlaylistChooser.setup( this, mOrientationHelper.getInterfaceOrientation(), mFont, BRIGHT_BLUE );
@@ -424,7 +424,7 @@ void KeplerApp::remainingSetup()
     mShowFilterGUI = false;
     
     // FILTER TOGGLE
-    mFilterToggleButton.setup( this, mState.getFilterMode(), mFontBig, mOrientationHelper.getInterfaceOrientation() );
+    mFilterToggleButton.setup( this, mState.getFilterMode(), mFontMedium, mOrientationHelper.getInterfaceOrientation() );
     mFilterToggleButton.registerFilterModeSelected( this, &KeplerApp::onFilterToggled );
     
 	// STATE
@@ -516,7 +516,7 @@ void KeplerApp::initTextures()
         mGalaxyDome           = loadCompressedTexture( "lightMatter.pvr", Vec2i(1024,1024) );
     }
     else {
-        mSkyDome              = gl::Texture( loadImage( loadResource( "skydomeFull.png" ) ), mipFmt );
+        mSkyDome              = gl::Texture( loadImage( loadResource( "skydomeFull.png" ) ), mipFmt ); // skydomeFull.png
         mGalaxyDome           = gl::Texture( loadImage( loadResource( "lightMatterFull.jpg" ) ), mipFmt );
     }
     
@@ -1285,7 +1285,7 @@ void KeplerApp::update()
 		
 		const float scaleSlider = mPlayControls.getParamSlider1Value();
 		const float speedSlider = mPlayControls.getParamSlider2Value();
-        mWorld.update( 0.25f + scaleSlider * 2.0f, speedSlider * 0.075f );
+        mWorld.update( 0.25f + scaleSlider * 2.0f, pow( speedSlider, 2.4f ) * 0.1f );
 		
         updateCamera();
         
@@ -1499,14 +1499,14 @@ void KeplerApp::updateCamera()
 	
 	
 	
-	
-	if( G_IS_IPAD2 && G_USE_GYRO ){
-		Quatf currentGyro	= mGyroHelper.getQuat();
-		Quatf gyroStep		= mPrevGyro.inverse() * currentGyro;
-		mPrevGyro			= currentGyro;
-		
-		mArcball.setQuat( mArcball.getQuat() * gyroStep );
-	}
+// FAILED NEW GYRO + ARCBALL INTEGRATION	
+//	if( G_IS_IPAD2 && G_USE_GYRO ){
+//		Quatf currentGyro	= mGyroHelper.getQuat();
+//		Quatf gyroStep		= mPrevGyro.inverse() * currentGyro;
+//		mPrevGyro			= currentGyro;
+//		
+//		mArcball.setQuat( mArcball.getQuat() * gyroStep );
+//	}
 	
 	
 	
@@ -1516,9 +1516,9 @@ void KeplerApp::updateCamera()
     q.w *= -1.0; // reverse the angle, keep the axis
 	
 //	// TODO/FIXME/ROBERT: Robert test this?
-//	if( G_IS_IPAD2 && G_USE_GYRO ){
-//		q = mGyroHelper.getQuat();
-//	}
+	if( G_IS_IPAD2 && G_USE_GYRO ){
+		q = mGyroHelper.getQuat();
+	}
 	
 
 
@@ -1594,8 +1594,8 @@ void KeplerApp::drawScene()
         c = Color( CM_HSV, mPinchPer * 0.3f + 0.7f, 1.0f, 1.0f );
     
     if( artistNode && artistNode->mDistFromCamZAxis > 0.0f ){
-        float distToCenter = ( getWindowCenter() - artistNode->mScreenPos ).length();
-        gl::color( lerp( ( artistNode->mGlowColor + BRIGHT_BLUE ) * 0.5f, BRIGHT_BLUE, min( distToCenter / 300.0f, 1.0f ) ) );
+        float eclipseAmt = ( 1.0f - artistNode->mEclipseStrength );
+        gl::color( lerp( BLUE, BRIGHT_BLUE, eclipseAmt ) );
     } else {
         gl::color( BRIGHT_BLUE );
     }

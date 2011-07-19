@@ -459,7 +459,8 @@ void NodeTrack::drawPlanet( const gl::Texture &tex )
 			
 		if( mIsHighlighted ){
 			const float grey = mShadowPer + 0.2f;
-            gl::color( ColorA( grey, grey, grey, mClosenessFadeAlpha ) );
+			const float eclipseAmt = ( 1.0f - mParentNode->mEclipseStrength ) * grey;
+			gl::color( ColorA( eclipseAmt, eclipseAmt, eclipseAmt, mClosenessFadeAlpha  ) );
 			gl::enableAlphaBlending();
 		} else {
             gl::color( ColorA( BLUE, mClosenessFadeAlpha ) );
@@ -503,7 +504,8 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 
 			if( mIsHighlighted ){
 				const float grey = mShadowPer + 0.2f;
-				gl::color( ColorA( grey, grey, grey, alpha * mClosenessFadeAlpha ) );
+				const float eclipseAmt = ( 1.0f - mParentNode->mEclipseStrength ) * grey;
+				gl::color( ColorA( eclipseAmt, eclipseAmt, eclipseAmt, alpha * mClosenessFadeAlpha  ) );
 			} else {
 				gl::color( ColorA( BLUE, alpha * mClosenessFadeAlpha ) );
 			}

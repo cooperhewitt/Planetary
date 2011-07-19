@@ -334,7 +334,8 @@ void NodeAlbum::drawPlanet( const gl::Texture &tex )
 		
 		
 		if( mIsHighlighted ){
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, mClosenessFadeAlpha * mBlockedBySunPer ) );
+			const float eclipseAmt = ( 1.0f - mParentNode->mEclipseStrength );
+			gl::color( ColorA( eclipseAmt, eclipseAmt, eclipseAmt, mClosenessFadeAlpha * mBlockedBySunPer ) );
 			gl::enableAlphaBlending();
 		} else {
 			gl::color( ColorA( BLUE, mClosenessFadeAlpha * mBlockedBySunPer ) );
@@ -401,9 +402,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
         
         const float radius = mRadius * mDeathPer + mCloudLayerRadius;
         const float alpha = constrain( ( 5.0f - mDistFromCamZAxis ) * 0.2f, 0.0f, 0.334f ) * mClosenessFadeAlpha;        
-        
-       
-		
+
         gl::scale( Vec3f( radius, radius, radius ) );
         gl::rotate( mAxialRot * Vec3f( 1.0f, 0.75f, 1.0f ) + Vec3f( 0.0f, 0.5f, 0.0f ) ); 
 		
@@ -414,8 +413,8 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 				gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
 				lodSphere->draw();
 			}
-			
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha * 2.0f ) );
+			const float eclipseAmt = ( 1.0f - mParentNode->mEclipseStrength );
+			gl::color( ColorA( eclipseAmt, eclipseAmt, eclipseAmt, alpha * 2.0f ) );
 		} else {
 			gl::color( ColorA( BLUE, alpha * 2.0f ) );
 		}
