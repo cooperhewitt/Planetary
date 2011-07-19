@@ -63,3 +63,19 @@ bool TwoStateButton::touchEnded(ci::app::TouchEvent::Touch touch)
     mDownCount--;    
     return mRect.contains( globalToLocal( touch.getPos() ) );
 }
+
+
+void ThreeStateButton::draw()
+{
+    Area textureArea = mState == 0 ? mFirstTextureArea : mState == 1 ? mSecondTextureArea : mThirdTextureArea;
+    //    bloom::gl::batchRect(mTexture, textureArea, mRect);
+    gl::draw(mTexture, textureArea, mRect);    
+}
+bool ThreeStateButton::touchBegan(ci::app::TouchEvent::Touch touch)
+{
+    return mRect.contains( globalToLocal( touch.getPos() ) );
+}
+bool ThreeStateButton::touchEnded(ci::app::TouchEvent::Touch touch)
+{
+    return mRect.contains( globalToLocal( touch.getPos() ) );
+}

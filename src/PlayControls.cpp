@@ -33,7 +33,7 @@ void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font 
     setHelpVisible( G_HELP );
     setDebugVisible( G_DEBUG );	    
     setShuffleVisible( player->getShuffleMode() != ipod::Player::ShuffleModeOff );
-    setRepeatVisible( player->getRepeatMode() != ipod::Player::RepeatModeNone );    
+    setRepeatMode( player->getRepeatMode() );    
     if( G_IS_IPAD2 ) {
         setGyroVisible( G_USE_GYRO );
     }
@@ -135,11 +135,13 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
                                            Area(uw*8.0f,v2,uw*9.0f,v3),  // on texture
                                            Area(uw*8.0f,v1,uw*9.0f,v2)); // off texture
 		
-		mRepeatButton = new ToggleButton( REPEAT, 
-                                          false, 
+        // FIXME: make three textures for repeat button:
+		mRepeatButton = new ThreeStateButton( REPEAT, 
+                                          0, 
                                           uiSmallButtonsTex,
-                                          Area(uw*9.0f,v2,uw*10.0f,v3),  // on texture
-                                          Area(uw*9.0f,v1,uw*10.0f,v2)); // off texture
+                                          Area(uw*9.0f,v1,uw*10.0f,v2),  // first texture (off)
+                                          Area(uw*9.0f,v2,uw*10.0f,v3),  // second texture (repeat one?)
+                                          Area(uw*9.0f,v2,uw*10.0f,v3)); // third texture (repeat all?)
     }
     
     const float vh = uiButtonsTex.getHeight();

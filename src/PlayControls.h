@@ -68,9 +68,14 @@ public:
 	void setGyroVisible(bool visible) {		mGyroButton->setOn(visible); };
     void setOrbitsVisible(bool visible) {	mOrbitsButton->setOn(visible); };
     void setLabelsVisible(bool visible) {	mLabelsButton->setOn(visible); };	
-	void setRepeatVisible(bool visible) {	mRepeatButton->setOn(visible); };
 	void setShuffleVisible(bool visible) {	mShuffleButton->setOn(visible); };
-	
+	void setRepeatMode(ci::ipod::Player::RepeatMode state)
+    { 
+        int stateInt = state == ci::ipod::Player::RepeatModeNone ? 0 :
+        state == ci::ipod::Player::RepeatModeOne ? 1 :
+        state == ci::ipod::Player::RepeatModeAll ? 2 : 0; // 0 for RepeatModeDefault
+        mRepeatButton->setState(stateInt); 
+    };	
     void setElapsedSeconds(int elapsedTime) { mElapsedTimeLabel->setSeconds(elapsedTime); }
     void setRemainingSeconds(int remainingTime) { mRemainingTimeLabel->setSeconds(remainingTime); }
     void setCurrentTrack(std::string currentTrack) { mTrackInfoLabel->setText(currentTrack); }
@@ -163,7 +168,7 @@ private:
         ToggleButton *mDebugButton;
         ToggleButton *mGyroButton;
 		ToggleButton *mShuffleButton;
-		ToggleButton *mRepeatButton;
+		ThreeStateButton *mRepeatButton;
     
  // track skip and play/pause controls
     SimpleButton *mPreviousTrackButton;
