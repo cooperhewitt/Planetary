@@ -1012,6 +1012,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
                     break;
                 case ipod::Player::RepeatModeAll:
                 case ipod::Player::RepeatModeDefault:
+                    // repeat mode is RepeatModeDefault when we start up and until 
+                    // our user chooses it, we can't know what the current state is                    
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeNone );
                     mPlayControls.setRepeatMode( ipod::Player::RepeatModeNone );    
                     mNotificationOverlay.show( mOverlayIconsTex, Area( 256.0f, 128.0f, 384.0f, 256.0f ), "REPEAT NONE" );
@@ -1228,17 +1230,26 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 void KeplerApp::update()
 {
     if (mData.getState() == Data::LoadStatePending) {
-        mData.update(); // processes pending nodes
+        mData.update();
+        // processes pending nodes
 		mWorld.initNodes( mData.mArtists, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
 		mLoadingScreen.setEnabled( false );
 		mUiLayer.setIsPanelOpen( true );
         // reset...
         onSelectedNodeChanged( NULL );
+
         // and then make sure we know about the current track if there is one...
-        if ( mCurrentPlayState == ipod::Player::StatePlaying ) {
+        if ( mIpodPlayer.hasPlayingTrack() ) {
             std::cout << "Startup with Track Playing" << std::endl;
             logEvent("Startup with Track Playing");
             onPlayerTrackChanged( &mIpodPlayer );
+            // show the wheel if we're paused...
+            if ( mIpodPlayer.getPlayState() == ipod::Player::StatePaused ) {
+                mState.setFilterMode( State::FilterModeAlphaChar );
+                mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );            
+                mShowFilterGUI = true;
+                mAlphaWheel.setShowWheel( true );            
+            }
         } else {
             std::cout << "Startup without Track Playing" << std::endl;
             logEvent("Startup without Track Playing");
@@ -1247,6 +1258,7 @@ void KeplerApp::update()
             mShowFilterGUI = true;
 			mAlphaWheel.setShowWheel( true );
 		}
+        
         if (mData.mPlaylists.size() > 0) {
 //            mPlayControls.setPlaylist( mData.mPlaylists[0]->getPlaylistName() );
             mPlaylistChooser.setDataWorldCam( &mData, &mWorld, &mCam );
