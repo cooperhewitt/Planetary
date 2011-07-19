@@ -1001,16 +1001,16 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 		case PlayControls::REPEAT:
             switch ( mIpodPlayer.getRepeatMode() ) {
                 case ipod::Player::RepeatModeNone:
-                    mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeOne );
-                    mPlayControls.setRepeatMode( ipod::Player::RepeatModeOne );    
-                    mNotificationOverlay.show( mOverlayIconsTex, Area( 256.0f, 0.0f, 384.0f, 128.0f ), "REPEAT ONE" );
-                    break;
-                case ipod::Player::RepeatModeOne:
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeAll );
                     mPlayControls.setRepeatMode( ipod::Player::RepeatModeAll );    
                     mNotificationOverlay.show( mOverlayIconsTex, Area( 256.0f, 0.0f, 384.0f, 128.0f ), "REPEAT ALL" );
                     break;
                 case ipod::Player::RepeatModeAll:
+                    mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeOne );
+                    mPlayControls.setRepeatMode( ipod::Player::RepeatModeOne );    
+                    mNotificationOverlay.show( mOverlayIconsTex, Area( 256.0f, 0.0f, 384.0f, 128.0f ), "REPEAT ONE" );
+                    break;
+                case ipod::Player::RepeatModeOne:
                 case ipod::Player::RepeatModeDefault:
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeNone );
                     mPlayControls.setRepeatMode( ipod::Player::RepeatModeNone );    

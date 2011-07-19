@@ -88,68 +88,64 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
      
 
     // !!! SMALL BUTTONS !!!
-    uw = uiSmallButtonsTex.getWidth() / 10.0f;
-	float v1 = 0.0f; 
-    float v2 = uiSmallButtonsTex.getHeight() * 0.5f; 
-    float v3 = uiSmallButtonsTex.getHeight();
-    
+    uw = uiSmallButtonsTex.getWidth() / 5.0f;
+	uh = uiSmallButtonsTex.getHeight() / 5.0f;
+
     {
 //        mHelpButton = new ToggleButton( HELP, 
 //                                        false, 
 //                                        uiSmallButtonsTex,
-//                                        Area(uw*0.0f,v2,uw*1.0f,v3),  // on texture
-//                                        Area(uw*0.0f,v1,uw*1.0f,v2)); // off texture
+//                                        Area( uw*0, uh*1, uw*1, uh*2 ),  // on texture
+//                                        Area( uw*0, uh*0, uw*1, uh*1 ) ); // off texture
         
 		if( G_IS_IPAD2 ){
 			mGyroButton = new ToggleButton( USE_GYRO, 
                                             false, 
                                             uiSmallButtonsTex,
-                                            Area(uw*1.0f,v2,uw*2.0f,v3),  // on texture
-                                            Area(uw*1.0f,v1,uw*2.0f,v2)); // off texture
+                                            Area( uw*1, uh*1, uw*2, uh*2 ),  // on texture
+                                            Area( uw*1, uh*0, uw*2, uh*1 ) ); // off texture
 		}
         
         mOrbitsButton = new ToggleButton( DRAW_RINGS, 
                                           false, 
                                           uiSmallButtonsTex,
-                                          Area(uw*2.0f,v2,uw*3.0f,v3),  // on texture
-                                          Area(uw*2.0f,v1,uw*3.0f,v2)); // off texture
+                                          Area( uw*2, uh*1, uw*3, uh*2 ),  // on texture
+                                          Area( uw*2, uh*0, uw*3, uh*1 ) ); // off texture
 
         mLabelsButton = new ToggleButton( DRAW_TEXT, 
                                           false, 
                                           uiSmallButtonsTex,
-                                          Area(uw*3.0f,v2,uw*4.0f,v3),  // on texture
-                                          Area(uw*3.0f,v1,uw*4.0f,v2)); // off texture
+                                          Area( uw*3, uh*1, uw*4, uh*2 ),  // on texture
+                                          Area( uw*3, uh*0, uw*4, uh*1 ) ); // off texture
 
         mDebugButton = new ToggleButton( DEBUG_FEATURE, 
                                          false, 
                                          uiSmallButtonsTex,
-                                         Area(uw*4.0f,v2,uw*5.0f,v3),  // on texture
-                                         Area(uw*4.0f,v1,uw*5.0f,v2)); // off texture
+                                         Area( uw*4, uh*1, uw*5, uh*2 ),  // on texture
+                                         Area( uw*4, uh*0, uw*5, uh*1 ) ); // off texture
 		
 		
 		mShuffleButton = new ToggleButton( SHUFFLE, 
                                            false, 
                                            uiSmallButtonsTex,
-                                           Area(uw*6.0f,v2,uw*7.0f,v3),  // on texture
-                                           Area(uw*6.0f,v1,uw*7.0f,v2)); // off texture
+                                           Area( uw*0, uh*3, uw*1, uh*4 ),  // on texture
+                                           Area( uw*0, uh*2, uw*1, uh*3 ) ); // off texture
 		
         // FIXME: make three textures for repeat button:
 		mRepeatButton = new ThreeStateButton( REPEAT, 
                                           0, 
                                           uiSmallButtonsTex,
-                                          Area(uw*7.0f,v1,uw*8.0f,v2),  // first texture (off)
-                                          Area(uw*7.0f,v2,uw*8.0f,v3),  // second texture (repeat one?)
-                                          Area(uw*7.0f,v2,uw*8.0f,v3)); // third texture (repeat all?)
+                                          Area( uw*1, uh*2, uw*2, uh*3 ),   // first texture  (off)
+                                          Area( uw*1, uh*3, uw*2, uh*4 ),   // second texture (repeat all)
+                                          Area( uw*1, uh*4, uw*2, uh*5 ) ); // third texture  (repeat one)
     }
-    
-    //const float vh = uiButtonsTex.getHeight();
     
     mPlayheadSlider = new Slider( SLIDER,          // ID
                                   uiSmallButtonsTex,
-                                  Area(uw * 9.1f, v1, uw * 10.0f, v2 ),  // bg texture
-                                  Area(uw * 9.1f, v2, uw * 10.0f, v3 ),  // fg texture
-                                  Area(uw * 8.0f, v1, uw * 9.0f,  v2 ),  // thumb on texture
-                                  Area(uw * 8.0f, v2, uw * 9.0f,  v3 )); // thumb off texture
+                                  Area( uw*4, uh*2, uw*5, uh*3 ),  // bg texture
+                                  Area( uw*4, uh*3, uw*5, uh*4 ),  // fg texture
+                                  Area( uw*2, uh*3, uw*3, uh*4 ),  // thumb on texture
+                                  Area( uw*2, uh*2, uw*3, uh*3 )); // thumb off texture
 
     /////// no textures please, we're British...
     
@@ -163,20 +159,20 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
 	// TODO: add initial value
 	mParamSlider1 = new Slider( PARAMSLIDER1,          // ID
 							   uiSmallButtonsTex,
-							   Area(uw * 9.1f, v1, uw * 10.0f, v2 ),  // bg texture
-							   Area(uw * 9.1f, v2, uw * 10.0f, v3 ),  // fg texture
-							   Area(uw * 8.0f, v1, uw * 9.0f,  v2 ),  // thumb on texture
-							   Area(uw * 8.0f, v2, uw * 9.0f,  v3 )); // thumb off texture
+							   Area( uw*4, uh*2, uw*5, uh*3 ),  // bg texture
+							   Area( uw*4, uh*3, uw*5, uh*4 ),  // fg texture
+							   Area( uw*2, uh*3, uw*3, uh*4 ),  // thumb on texture
+							   Area( uw*2, uh*2, uw*3, uh*3 )); // thumb off texture
 	mParamSlider1->setValue( 0.25f );
 	mParamSlider1Label = new TextLabel( NO_BUTTON, font, BRIGHT_BLUE );
 	mParamSlider1Label->setText( "Scale" );
 	
 	mParamSlider2 = new Slider( PARAMSLIDER2,          // ID
 							   uiSmallButtonsTex,
-							   Area(uw * 9.1f, v1, uw * 10.0f, v2 ),  // bg texture
-							   Area(uw * 9.1f, v2, uw * 10.0f, v3 ),  // fg texture
-							   Area(uw * 8.0f, v1, uw * 9.0f,  v2 ),  // thumb on texture
-							   Area(uw * 8.0f, v2, uw * 9.0f,  v3 )); // thumb off texture
+							   Area( uw*4, uh*2, uw*5, uh*3 ),  // bg texture
+							   Area( uw*4, uh*3, uw*5, uh*4 ),  // fg texture
+							   Area( uw*2, uh*3, uw*3, uh*4 ),  // thumb on texture
+							   Area( uw*2, uh*2, uw*3, uh*3 )); // thumb off texture
 	mParamSlider2->setValue( 0.15f );
 	mParamSlider2Label = new TextLabel( NO_BUTTON, font, BRIGHT_BLUE );
 	mParamSlider2Label->setText( "Speed" );

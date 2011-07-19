@@ -30,27 +30,10 @@ void Stats::update(const float &fps,
     stringstream s;
 	TextLayout layout;	
 	layout.setFont( mFont );
-	layout.setColor( mFpsColor );
+	layout.setColor( mColor );
 
 	s.str("");
 	s << "FPS: " << fps;
-	layout.addLine( s.str() );
-	
-	layout.setColor( mColor );
-	s.str("");
-	s << "PLAYHEAD TIME: " << playheadTime;
-	layout.addLine( s.str() );
-	
-	s.str("");
-	s << "FOV: " << fov;
-	layout.addLine( s.str() );
-	
-	s.str("");
-	s << "CURRENT LEVEL: " << currentLevel;
-	layout.addLine( s.str() );
-	
-	s.str("");
-	s << "ZOOM LEVEL: " << zoom;
 	layout.addLine( s.str() );
 	
 	mParamsTex = gl::Texture( layout.render( true, false ) );    
