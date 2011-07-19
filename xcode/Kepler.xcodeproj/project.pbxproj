@@ -60,7 +60,6 @@
 		E1729B421378DFF700C62C97 /* moonClouds5.png in Resources */ = {isa = PBXBuildFile; fileRef = E1729B3D1378DFF700C62C97 /* moonClouds5.png */; };
 		E17667DE13202FB7006A4C2E /* rings.png in Resources */ = {isa = PBXBuildFile; fileRef = E17667DD13202FB7006A4C2E /* rings.png */; };
 		E177A6CE134E7B850014AD55 /* BloomGl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E177A6CC134E7B850014AD55 /* BloomGl.cpp */; };
-		E178AB51134A6B67000F017F /* alphaWheel.png in Resources */ = {isa = PBXBuildFile; fileRef = E178AB50134A6B67000F017F /* alphaWheel.png */; };
 		E189F6761339A377009B2E23 /* playheadProgress.png in Resources */ = {isa = PBXBuildFile; fileRef = E189F6751339A377009B2E23 /* playheadProgress.png */; };
 		E1A330391301013100CED126 /* starGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330361301013100CED126 /* starGlow.png */; };
 		E1A3303A1301013100CED126 /* star.png in Resources */ = {isa = PBXBuildFile; fileRef = E1A330371301013100CED126 /* star.png */; };
@@ -191,7 +190,6 @@
 		E1729B3D1378DFF700C62C97 /* moonClouds5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moonClouds5.png; sourceTree = "<group>"; };
 		E17667DD13202FB7006A4C2E /* rings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rings.png; path = ../resources/planets/rings.png; sourceTree = "<group>"; };
 		E177A6CC134E7B850014AD55 /* BloomGl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BloomGl.cpp; path = ../src/BloomGl.cpp; sourceTree = "<group>"; };
-		E178AB50134A6B67000F017F /* alphaWheel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = alphaWheel.png; path = ../resources/ui/alphaWheel.png; sourceTree = "<group>"; };
 		E189F6751339A377009B2E23 /* playheadProgress.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playheadProgress.png; path = ../resources/playheadProgress.png; sourceTree = "<group>"; };
 		E1A330361301013100CED126 /* starGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = starGlow.png; path = ../resources/starGlow.png; sourceTree = SOURCE_ROOT; };
 		E1A330371301013100CED126 /* star.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = star.png; path = ../resources/star.png; sourceTree = SOURCE_ROOT; };
@@ -475,7 +473,6 @@
 				E10D86D51384FF8200346445 /* origin.png */,
 				E1D99AB1134D63B0003FC316 /* uiButtons.png */,
 				E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */,
-				E178AB50134A6B67000F017F /* alphaWheel.png */,
 				E1D99A83134A9DB3003FC316 /* blurRect.png */,
 			);
 			name = ui;
@@ -917,7 +914,6 @@
 				E17667DE13202FB7006A4C2E /* rings.png in Resources */,
 				E1FC7DA313381853007F333C /* eclipseGlow.png in Resources */,
 				E189F6761339A377009B2E23 /* playheadProgress.png in Resources */,
-				E178AB51134A6B67000F017F /* alphaWheel.png in Resources */,
 				E1D99A84134A9DB3003FC316 /* blurRect.png in Resources */,
 				E1D99A8E134AFF2F003FC316 /* alphaWheelMask.png in Resources */,
 				E1D99A98134BD490003FC316 /* planet.png in Resources */,

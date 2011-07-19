@@ -32,7 +32,7 @@ AlphaWheel::~AlphaWheel()
 	mApp->unregisterTouchesEnded( mCbTouchesEnded );
 }
 
-void AlphaWheel::setup( AppCocoaTouch *app, const Orientation &orientation, float radius )
+void AlphaWheel::setup( AppCocoaTouch *app, const Orientation &orientation, const Font &font )
 {
 	mApp = app;
 	
@@ -49,8 +49,8 @@ void AlphaWheel::setup( AppCocoaTouch *app, const Orientation &orientation, floa
 	mPrevAlphaChar	= ' ';
 	mShowWheel		= false;
 	mWheelScale		= 1.0f;	
-	mAlphaRadius	= radius;
 	
+	initAlphaTextures( font );
     // just do orientation stuff in here:
     setInterfaceOrientation(orientation);
 }
@@ -77,19 +77,36 @@ void AlphaWheel::initAlphaTextures( const Font &font )
 	}
 }
 
+void AlphaWheel::setRects()
+{
+	mAlphaRects.clear();
+	for( int i=0; i<mAlphaString.length(); i++ ){
+		float per = (float)i/27.0f;
+		float angle = per * TWO_PI - M_PI_2;
+
+		float w = mAlphaTextures[i].getWidth()/2.0f;
+		float h = mAlphaTextures[i].getHeight()/2.0f;
+		Vec2f pos = Vec2f( cos( angle ), sin( angle ) ) * mAlphaRadius;
+		Rectf r = Rectf( pos.x - w, pos.y - h, pos.x + w, pos.y + h );
+		mAlphaRects.push_back( r );
+	}
+}
+
 void AlphaWheel::setInterfaceOrientation( const Orientation &orientation )
 {
     mInterfaceOrientation = orientation;
-    
-    mOrientationMatrix = getOrientationMatrix44( mInterfaceOrientation, getWindowSize() );
-    
+    mOrientationMatrix	= getOrientationMatrix44( mInterfaceOrientation, getWindowSize() );
     Vec2f interfaceSize = getWindowSize();
     
+	mAlphaRadius = 300.0f;
     if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
         interfaceSize = interfaceSize.yx(); // swizzle it!
+		mAlphaRadius = 280.0f;
     }
     
     mInterfaceCenter = interfaceSize * 0.5f;
+	
+	setRects();
 }
 
 bool AlphaWheel::touchesBegan( TouchEvent event )

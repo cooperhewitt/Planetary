@@ -9,7 +9,7 @@
 #include "Slider.h"
 #include "BloomGl.h"
 #include "cinder/gl/gl.h"
-
+#include "Globals.h"
 using namespace ci;
 
 bool Slider::isDragging() 
@@ -48,10 +48,21 @@ void Slider::draw()
     
 //    bloom::gl::batchRect(mTexture, mBgTexArea, mRect);            
 //    bloom::gl::batchRect(mTexture, mFgTexArea, fgRect);
-//    bloom::gl::batchRect(mTexture, thumbTexArea, thumbRect);        
+//    bloom::gl::batchRect(mTexture, thumbTexArea, thumbRect);
+	
+	
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
     gl::draw(mTexture, mBgTexArea, mRect);            
     gl::draw(mTexture, mFgTexArea, fgRect);
-    gl::draw(mTexture, thumbTexArea, thumbRect);        
+	
+	gl::color( ColorA( BRIGHT_YELLOW, 0.3f ) );
+	gl::drawLine( Vec2f( mRect.x1, mRect.y1 + 6.0f ), Vec2f( mRect.x1, mRect.y2 - 6.0f ) );
+	gl::color( ColorA( BLUE, 0.3f ) );
+	gl::drawLine( Vec2f( mRect.x2, mRect.y1 + 6.0f ), Vec2f( mRect.x2, mRect.y2 - 6.0f ) );
+	
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+    gl::draw(mTexture, thumbTexArea, thumbRect);
+ 
 }
 
 bool Slider::touchBegan(ci::app::TouchEvent::Touch touch)
@@ -61,7 +72,7 @@ bool Slider::touchBegan(ci::app::TouchEvent::Touch touch)
         return false;
     }
     Vec2f touchPos = globalToLocal( touch.getPos() );
-    Rectf hitRect = Rectf( mRect.x1 - 5.0f, mRect.y1 - 3.0f, mRect.x2 + 5.0f, mRect.y2 + 3.0f );
+    Rectf hitRect = Rectf( mRect.x1 - 10.0f, mRect.y1 - 3.0f, mRect.x2 + 10.0f, mRect.y2 + 3.0f );
     bool inside = hitRect.contains( globalToLocal( touch.getPos() ) );
     setIsDragging(inside);
     return inside;

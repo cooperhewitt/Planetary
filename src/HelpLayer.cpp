@@ -160,35 +160,35 @@ bool HelpLayer::touchesMoved( TouchEvent event )
 
 bool HelpLayer::touchesEnded( TouchEvent event )
 {
-	if( G_HELP ){
-		vector<TouchEvent::Touch> touches = event.getTouches();
-		
-		Vec2f pos = touches.begin()->getPos();
-		pos = (mOrientationMtx.inverted() * Vec3f(pos,0)).xy();
-
-		// TODO: should we use a callback for these and handle the actions in the main app?
-		
-		Url mailToLink( "mailto:planetary@bloom.io?subject=Planetary feedback" );
-		Url planetaryWebsite( "http://planetary.bloom.io" );
-		Url bloomWebsite( "http://bloom.io" );
-		Url cinderWebsite( "http://libcinder.org" );
-		
-		if( mMailButton.contains( pos ) ){
-            Flurry::getInstrumentation()->logEvent("Email Link Selected");            
-			launchWebBrowser( mailToLink );
-		} else if( mPlanetaryButton.contains( pos ) ){
-            Flurry::getInstrumentation()->logEvent("Planetary Link Selected");            
-			launchWebBrowser( planetaryWebsite );
-			
-		} else if( mBloomButton.contains( pos ) ){
-            Flurry::getInstrumentation()->logEvent("Bloom Link Selected");            
-			launchWebBrowser( bloomWebsite );
-			
-		} else if( mCinderButton.contains( pos ) ){
-            Flurry::getInstrumentation()->logEvent("Cinder Link Selected");            
-			launchWebBrowser( cinderWebsite );
-		}    
-	}
+//	if( G_HELP ){
+//		vector<TouchEvent::Touch> touches = event.getTouches();
+//		
+//		Vec2f pos = touches.begin()->getPos();
+//		pos = (mOrientationMtx.inverted() * Vec3f(pos,0)).xy();
+//
+//		// TODO: should we use a callback for these and handle the actions in the main app?
+//		
+//		Url mailToLink( "mailto:planetary@bloom.io?subject=Planetary feedback" );
+//		Url planetaryWebsite( "http://planetary.bloom.io" );
+//		Url bloomWebsite( "http://bloom.io" );
+//		Url cinderWebsite( "http://libcinder.org" );
+//		
+//		if( mMailButton.contains( pos ) ){
+//            Flurry::getInstrumentation()->logEvent("Email Link Selected");            
+//			launchWebBrowser( mailToLink );
+//		} else if( mPlanetaryButton.contains( pos ) ){
+//            Flurry::getInstrumentation()->logEvent("Planetary Link Selected");            
+//			launchWebBrowser( planetaryWebsite );
+//			
+//		} else if( mBloomButton.contains( pos ) ){
+//            Flurry::getInstrumentation()->logEvent("Bloom Link Selected");            
+//			launchWebBrowser( bloomWebsite );
+//			
+//		} else if( mCinderButton.contains( pos ) ){
+//            Flurry::getInstrumentation()->logEvent("Cinder Link Selected");            
+//			launchWebBrowser( cinderWebsite );
+//		}    
+//	}
 	
 	return false;
 }
@@ -217,10 +217,10 @@ void HelpLayer::draw( const gl::Texture &tex, float y )
 		gl::draw( mHelpPanelTex, mPanelRect );
 		gl::enableAlphaBlending();
         
-        float texw = tex.getWidth();
-        float texh = tex.getHeight();
-        gl::draw( tex, Area(0.75f * texw, 0.25f * texh, 1.0f * texw, 0.5f * texh), mMailButton );
-        gl::draw( tex, Area(0.75f * texw, 0.25f * texh, 1.0f * texw, 0.5f * texh), mPlanetaryButton );
+//        float texw = tex.getWidth();
+//        float texh = tex.getHeight();
+//        gl::draw( tex, Area(0.75f * texw, 0.25f * texh, 1.0f * texw, 0.5f * texh), mMailButton );
+//        gl::draw( tex, Area(0.75f * texw, 0.25f * texh, 1.0f * texw, 0.5f * texh), mPlanetaryButton );
 		
 		/*
 		int count = 0;

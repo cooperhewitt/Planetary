@@ -22,8 +22,9 @@ class AlphaWheel {
 public:
 	AlphaWheel();
 	~AlphaWheel();
-	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation, float radius );
+	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation, const ci::Font &font );
 	void	initAlphaTextures( const ci::Font &font );
+	void	setRects();
 	bool	touchesBegan( ci::app::TouchEvent event );
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
