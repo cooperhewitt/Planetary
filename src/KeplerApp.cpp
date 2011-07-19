@@ -193,7 +193,6 @@ class KeplerApp : public AppCocoaTouch {
 	float			mAlphaWheelRadius;
 	
 // FONTS
-	Font			mFontLarge;
 	Font			mFont;
 	Font			mFontBig;
 	Font			mFontMediSmall;
@@ -359,7 +358,6 @@ void KeplerApp::remainingSetup()
     // NB:- to would-be optimizers:
     //      loadResource is fairly fast (~7ms for 5 fonts)
     //      Font(...) is a bit slower, ~250ms for these fonts (measured a few times)
-	mFontLarge			= Font( loadResource( "AauxPro-Black.ttf" ), 26 );
 	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
 	mFontBig			= Font( loadResource( "AauxPro-Black.ttf"), 24 );
 	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
@@ -369,7 +367,7 @@ void KeplerApp::remainingSetup()
     mStats.setup( mFont, BRIGHT_BLUE, BLUE );
 	
 // NOTIFICATION OVERLAY
-	mNotificationOverlay.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontLarge );
+	mNotificationOverlay.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontBig );
 	
 // TOUCH VARS
 	mTouchPos			= getWindowCenter();

@@ -436,27 +436,26 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 
 void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
-	if( mClosenessFadeAlpha > 0.0f && mIsHighlighted ){		
+	if( mClosenessFadeAlpha > 0.0f ){		
 		float alpha = ( 1.0f - mScreenDistToCenterPer * 0.75f ) + mEclipseStrength;
 		alpha *= mDeathPer * mClosenessFadeAlpha * ( mBlockedBySunPer - 0.5f ) * 2.0f;
 		Vec2f radius( mRadius, mRadius );
 		radius *= ( 2.42f + max( ( mSphereScreenRadius - 160.0f ) * 0.001f, 0.0f ) );
 		
-		gl::color( ColorA( BRIGHT_BLUE, 1.0f + mEclipseStrength * 2.0f ) );
-		tex.enableAndBind();
-		bloom::gl::drawSphericalBillboard( camEye, mPos, radius, 0.0f );
-		tex.disable();
-		
-//		if( mIsHighlighted ){ // ONLY DRAW HIGHLIGHTED ATMOSPHERE IF NOT A GHOST PLANET
+		if( mIsHighlighted ){
+			gl::color( ColorA( BRIGHT_BLUE, 1.0f + mEclipseStrength * 2.0f ) );
+			tex.enableAndBind();
+			bloom::gl::drawSphericalBillboard( camEye, mPos, radius, 0.0f );
+			tex.disable();
 			gl::color( ColorA( mColor, alpha * mEclipseDirBasedAlpha ) );
-			directionalTex.enableAndBind();
-			//bloom::gl::drawSphericalBillboard( camEye, mPos, Vec2f( mRadius, mRadius ) * 2.46f, -mEclipseAngle );
-			//bloom::gl::drawBillboard( mPos, radius, -mEclipseAngle, mBbRight, mBbUp );
-			bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, mParentNode->mPos, radius );        
-	//		if( mIsPlaying ) std::cout << -toDegrees( mEclipseAngle ) << std::endl;
-			directionalTex.disable();
-//		}
+		} else {
+			gl::color( ColorA( BRIGHT_BLUE, alpha * mEclipseDirBasedAlpha ) );
+		}
 		
+		
+		directionalTex.enableAndBind();
+		bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, mParentNode->mPos, radius );        
+		directionalTex.disable();
 	}
 }
 

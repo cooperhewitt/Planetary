@@ -528,21 +528,24 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 
 void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
 {
-	if( mClosenessFadeAlpha > 0.0f && mIsHighlighted ){
+	if( mClosenessFadeAlpha > 0.0f ){
 		float alpha = mNormPlayCount * mDeathPer * mClosenessFadeAlpha;
 		Vec2f radius( mRadius, mRadius );
 		radius *= ( 2.435f + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) );
 
-		gl::color( ColorA( BRIGHT_BLUE, alpha ) );
-		tex.enableAndBind();
-		bloom::gl::drawSphericalBillboard( camEye, mPos, radius, 0.0f );
-		tex.disable();
-		
+		if( mIsHighlighted ){
+			gl::color( ColorA( BRIGHT_BLUE, alpha ) );
+			tex.enableAndBind();
+			bloom::gl::drawSphericalBillboard( camEye, mPos, radius, 0.0f );
+			tex.disable();
 			gl::color( ColorA( mShadowPer, mShadowPer, mShadowPer, alpha * mEclipseDirBasedAlpha * mDeathPer ) );
-			directionalTex.enableAndBind();
-			//bloom::gl::drawBillboard( mPos, radius, -mEclipseAngle, mBbRight, mBbUp );
-			bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, mParentNode->mParentNode->mPos, radius );        
-			directionalTex.disable();
+		} else {
+			gl::color( ColorA( BRIGHT_BLUE, alpha * mEclipseDirBasedAlpha ) );
+		}
+	
+		directionalTex.enableAndBind();
+		bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, mParentNode->mParentNode->mPos, radius );        
+		directionalTex.disable();
 	}
 }
 

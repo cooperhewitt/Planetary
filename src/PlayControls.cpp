@@ -275,7 +275,7 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
     const float sliderHeight = 20.0f;
     const float sliderInset  = bSize * 2.0f + sideBorder + timeTexWidth;
     const bool  landscape    = interfaceSize.x > interfaceSize.y;
-    const float sliderWidth  = landscape ? 200.0f : 160.0f;
+    const float sliderWidth  = landscape ? 328.0f : 201.0f;
     
     // FLY TO CURRENT TRACK-MOON BUTTON
 	float y1 = topBorder;
@@ -379,13 +379,13 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
     const float bgy2 = bgy1 + sliderHeight;
     mPlayheadSlider->setRect( bgx1, bgy1, bgx2, bgy2 );
 	
-	
+	const float paramSliderWidth = landscape ? 250.0f : 150.0f;
 	const float slider1X = 60.0f;
-	const float slider2X = slider1X + sliderWidth + 75.0f;
+	const float slider2X = slider1X + paramSliderWidth + 75.0f;
 	const float sliderYOff = 42.0f;
 	
-    mParamSlider1->setRect( slider1X, bgy1 + sliderYOff, slider1X + sliderWidth, bgy2 + sliderYOff );
-    mParamSlider2->setRect( slider2X, bgy1 + sliderYOff, slider2X + sliderWidth, bgy2 + sliderYOff );
+    mParamSlider1->setRect( slider1X, bgy1 + sliderYOff, slider1X + paramSliderWidth, bgy2 + sliderYOff );
+    mParamSlider2->setRect( slider2X, bgy1 + sliderYOff, slider2X + paramSliderWidth, bgy2 + sliderYOff );
 	
 	mParamSlider1Label->setRect( slider1X - 40.0f, bgy1 + sliderYOff, slider1X, bgy2 + sliderYOff );
 	mParamSlider2Label->setRect( slider2X - 45.0f, bgy1 + sliderYOff, slider2X, bgy2 + sliderYOff );
@@ -431,7 +431,7 @@ void PlayControls::update( float y )
     
     const float w	 = 15.0f;
 	Rectf infoRect   = mTrackInfoLabel->getRect();
-
+	
 	if( mTrackInfoLabel->isScrollingText() ) {
         mCoverLeftTextureRect->setRect( infoRect.x1, infoRect.y1, infoRect.x1 + w, infoRect.y2 );
     } else {
