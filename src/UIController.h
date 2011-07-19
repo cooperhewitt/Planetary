@@ -30,7 +30,7 @@ public:
     virtual void draw();
     
     // override from UINode to stop infinite mParent recursion
-    ci::Matrix44f getConcatenatedTransform() const;
+    virtual ci::Matrix44f getConcatenatedTransform() const;
     
 	template<typename T>
     ci::CallbackId registerUINodeTouchBegan( T *obj, bool (T::*callback)(UINodeRef) )

@@ -60,7 +60,8 @@ bool Slider::touchBegan(ci::app::TouchEvent::Touch touch)
         // slider can only handle one touch
         return false;
     }
-    bool inside = mRect.contains( globalToLocal( touch.getPos() ) );
+    Vec2f touchPos = globalToLocal( touch.getPos() );
+    bool inside = mRect.contains( touchPos );
     setIsDragging(inside);
     return inside;
 }
