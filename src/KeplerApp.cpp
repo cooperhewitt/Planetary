@@ -963,6 +963,8 @@ bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
     // every third frame, because setPlayheadTime is slow
 	if ( mIpodPlayer.hasPlayingTrack() ) {
         mIpodPlayer.setPlayheadTime( mCurrentTrackLength * dragPer );
+        mCurrentTrackPlayheadTime = mCurrentTrackLength * dragPer;
+        mPlayheadUpdateSeconds = getElapsedSeconds();        
     }
     return false;
 }
@@ -1270,11 +1272,14 @@ void KeplerApp::update()
 		if( G_IS_IPAD2 && G_USE_GYRO ) {
 			mGyroHelper.update();
         }
-		
+
+        const int elapsedFrames = getElapsedFrames();
+        const float elapsedSeconds = getElapsedSeconds();
+        
 		// IF NO INTERACTION FOR 20 seconds, START SCREENSAVER MODE.
 		// NEEDS SMOOTHER TRANSITION BETWEEN MODES.
-		float interactionThreshold = 20.0f;
-		if( getElapsedSeconds() - mTimeSinceLastInteraction > interactionThreshold ){
+		const float interactionThreshold = 20.0f;
+		if( elapsedSeconds - mTimeSinceLastInteraction > interactionThreshold ){
 			mCamAutoMove = true;
 		} else {
 			mCamAutoMove = false;
@@ -1282,9 +1287,6 @@ void KeplerApp::update()
 
         updateArcball();
 
-        const int elapsedFrames = getElapsedFrames();
-        const float elapsedSeconds = getElapsedSeconds();
-        
         // fake playhead time if we're dragging (so it looks really snappy)
         if (mPlayControls.playheadIsDragging()) {
             mCurrentTrackPlayheadTime = mCurrentTrackLength * mPlayControls.getPlayheadValue();

@@ -256,6 +256,9 @@ bool PlayControls::onUINodeTouchMoved( UINodeRef nodeRef )
 
 bool PlayControls::onUINodeTouchEnded( UINodeRef nodeRef )
 {
+    if ( nodeRef->getId() == mPlayheadSlider->getId() ) {
+        mCallbacksPlayheadMoved.call( mPlayheadSlider->getValue() );
+    }
     mCallbacksButtonPressed.call(ButtonId(nodeRef->getId()));
     return false;
 }
