@@ -83,13 +83,22 @@ void UIController::draw()
 {
     glPushMatrix();
     glMultMatrixf(mOrientationMatrix); // FIXME only push/mult/pop if mOrientationMatrix isn't identity
-
+    
     glMultMatrixf(mTransform); // FIXME only mult if mTransform isn't identity
     // draw children
     for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
         (*i)->privateDraw();
     }
     // dont' draw self or we'll recurse
-
+    
     glPopMatrix();
+}
+
+void UIController::update()
+{
+    // update children
+    for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
+        (*i)->privateUpdate();
+    }
+    // dont' update self or we'll recurse
 }

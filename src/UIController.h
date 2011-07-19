@@ -26,8 +26,9 @@ public:
     ci::app::Orientation getInterfaceOrientation() { return mInterfaceOrientation; }
     void setInterfaceOrientation( const ci::app::Orientation &orientation );
     
-    // UIController draw starts the chain off, very much does *not* draw itself :)
+    // UIController draw/update starts the chain off, very much does *not* draw/update itself :)
     virtual void draw();
+    virtual void update();
     
     // override from UINode to stop infinite mParent recursion
     virtual ci::Matrix44f getConcatenatedTransform() const;

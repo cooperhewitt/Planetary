@@ -46,8 +46,9 @@ public:
     
     int getId() const;
     
-    // subclasses should mess with these, just draw yourself (privateDraw draws children in correct order)
+    // subclasses should mess with these, just draw/update yourself (privateDraw/Update draws children in correct order)
     virtual void draw() {}
+    virtual void update() {}
     virtual bool touchBegan(ci::app::TouchEvent::Touch touch) { return false; }
     virtual bool touchMoved(ci::app::TouchEvent::Touch touch) { return false; }
     virtual bool touchEnded(ci::app::TouchEvent::Touch touch) { return false; }
@@ -71,6 +72,9 @@ protected:
     
     // recurse to children and call draw()
     virtual void privateDraw();
+
+    // recurse to children and call update()
+    virtual void privateUpdate();
     
     // recurse to children and call touchBegan/Moved/Ended
     bool privateTouchBegan(ci::app::TouchEvent::Touch touch);

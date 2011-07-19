@@ -1318,10 +1318,9 @@ void KeplerApp::update()
 														  ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f );
 			mParticleController.buildDustVertexArray( scaleSlider, selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
 		}
-				
-        mUiLayer.update(); // animates flick open/close
-        
-        mPlayControls.update(); // makes sure scrolling label edges are visible
+		
+		// update UiLayer, PlayControls etc.
+        mUIControllerRef->update();
         
 		mHelpLayer.update();
 
