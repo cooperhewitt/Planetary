@@ -110,6 +110,7 @@ class KeplerApp : public AppCocoaTouch {
     void            togglePlayPaused();
 	bool			onPlayControlsPlayheadMoved ( float amount );
     void            updatePlaylistControls();
+    void            flyToCurrentTrack();
 	
     bool			onSelectedNodeChanged( Node *node );
 
@@ -1095,8 +1096,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			
         case PlayControls::GOTO_CURRENT_TRACK:
             logEvent("Current Track Button Selected");            
-            // pretend the track just got changed again, this will select it:
-            onPlayerTrackChanged( &mIpodPlayer );
+            flyToCurrentTrack();
             break;
 			
 		case PlayControls::SETTINGS:
@@ -1157,6 +1157,32 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 	} // switch
 
 	return false;
+}
+
+// heavy function, should be avoided but should do the right thing when needed
+void KeplerApp::flyToCurrentTrack()
+{
+	if (mIpodPlayer.hasPlayingTrack()) {
+        
+        ipod::TrackRef newTrack = mIpodPlayer.getPlayingTrack();
+        
+        uint64_t trackId = newTrack->getItemId();
+        uint64_t artistId = newTrack->getArtistId();
+        uint64_t albumId = newTrack->getAlbumId();            
+        
+        // trigger hefty stuff in onAlphaCharStateChanged if needed
+        mState.setAlphaChar( newTrack->getArtist() ); 
+        
+        // be sure to create nodes for artist, album and track:
+        mWorld.selectHierarchy( artistId, albumId, trackId );
+        
+        // make sure the previous selection is correctly unselected
+        // (see also: onSelectedNodeChanged, triggered by this call):
+        mState.setSelectedNode( mWorld.getTrackNodeById( artistId, albumId, trackId ) );    
+        
+        // then sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
+        mWorld.updateIsPlaying( artistId, albumId, trackId );        
+    }
 }
 
 void KeplerApp::togglePlayPaused()
@@ -1923,8 +1949,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         mCurrentTrackLength = mPlayingTrack->getLength();
         
         // reset the mPlayingTrackNode orbit and playhead displays (see update())
-        mPlayheadUpdateSeconds = getElapsedSeconds();        
-        mCurrentTrackPlayheadTime = 0.0f;
+        mPlayheadUpdateSeconds = -1;
         
         string artistName = mPlayingTrack->getArtist();
         
@@ -2006,6 +2031,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
+    static bool firstRun = true;
+    
     ipod::Player::State prevPlayState = mCurrentPlayState;
     const bool wasPaused = (prevPlayState == ipod::Player::StatePaused);
     
@@ -2022,7 +2049,7 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 
     // make sure mCurrentTrack and mWorld.mPlayingTrackNode are taken care of,
     // unless we're just continuing to play a track we're already aware of
-    if (!wasPaused && isPlaying) {
+    if ((!wasPaused && isPlaying) || firstRun) {
         onPlayerTrackChanged( player );
     }
     
@@ -2030,6 +2057,8 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
     std::map<string, string> params;
     params["State"] = mIpodPlayer.getPlayStateString();
     logEvent("Player State Changed", params);
+    
+    firstRun = false;
     
     return false;
 }
