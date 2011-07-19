@@ -1395,7 +1395,12 @@ void KeplerApp::updateCamera()
 //        std::cout << "mPinchTotalDest = " << mPinchTotalDest << std::endl;  
         
 		if( ! mIsPastPinchThresh ) mPinchHighlightRadius = 650.0f;
-		mPinchAlphaPer -= ( mPinchAlphaPer ) * 0.1f;
+		if( G_CURRENT_LEVEL < G_ARTIST_LEVEL )
+			mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.1f;
+		else
+			mPinchAlphaPer -= ( mPinchAlphaPer ) * 0.1f;
+		
+		
 		mIsPastPinchThresh = true;
 		
 		if( G_CURRENT_LEVEL == G_TRACK_LEVEL )			mFovDest = 70.0f; // FIXME: G_TRACK_FOV?
