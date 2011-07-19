@@ -22,8 +22,6 @@ class UiLayer : public UINode {
     UiLayer(): UINode() {}; // get a default ID
 	~UiLayer() {};
     
-	enum	ButtonTexId { TEX_PANEL_UP, TEX_PANEL_UP_ON, TEX_PANEL_DOWN, TEX_PANEL_DOWN_ON };
-	
 	void	setup( const ci::gl::Texture &uiButtonsTex, const bool &showSettings, const ci::Vec2f interfaceSize );
 	
     bool	touchBegan( ci::app::TouchEvent::Touch touch );

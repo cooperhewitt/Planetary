@@ -121,3 +121,43 @@ protected:
     ci::Rectf mRect;
     
 };
+
+// three-state button has three possible states (e.g. play/pause)
+// FIXME: just use an array of texture areas and make it a MultiStateButton
+class ThreeStateButton : public UINode {
+public:
+    
+    ThreeStateButton( const int &buttonId, 
+                      const int &state,
+                      const ci::gl::Texture &texture,
+                      const ci::Area &firstTextureArea, 
+                      const ci::Area &secondTextureArea,
+                      const ci::Area &thirdTextureArea ):
+        UINode(buttonId),
+        mState(state),
+        mTexture(texture),
+        mFirstTextureArea(firstTextureArea),
+        mSecondTextureArea(secondTextureArea),
+        mThirdTextureArea(thirdTextureArea) {}
+    
+    ~ThreeStateButton() {}
+    
+    int getState() const { return mState; }
+    void setState(const int &state) { mState = state; }
+    
+    virtual bool touchBegan(ci::app::TouchEvent::Touch touch);
+    virtual bool touchEnded(ci::app::TouchEvent::Touch touch);    
+    virtual void draw();
+    
+    void setRect(const ci::Rectf &rect) { mRect = rect; }
+    void setRect(const float &x1, const float &y1, const float &x2, const float &y2) { mRect.set(x1,y1,x2,y2); }
+    const ci::Rectf& getRect() const { return mRect; }
+    
+protected:
+    
+    int mState;
+    ci::Area mFirstTextureArea, mSecondTextureArea, mThirdTextureArea;
+    ci::gl::Texture mTexture;
+    ci::Rectf mRect;
+    
+};

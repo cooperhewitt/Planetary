@@ -80,6 +80,15 @@ UINodeRef UINode::getChildById( const int &childId ) const
     }
     return UINodeRef(); // aka NULL
 }
+void UINode::privateUpdate()
+{
+    // update self
+    update();
+    // update children
+    for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
+        (*i)->privateUpdate();
+    }
+}
 void UINode::privateDraw()
 {
     glPushMatrix();
