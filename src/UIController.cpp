@@ -14,8 +14,8 @@ using namespace ci::app;
 
 UIController::UIController( AppCocoaTouch *app, OrientationHelper *orientationHelper ): mApp(app), mOrientationHelper(orientationHelper)
 {
-    mParent = UINodeRef(this);
-    mRoot = UIControllerRef(this);
+    mParent = UINodeRef(this); // FIXME: shared_from_this() but in a subclass
+    mRoot = UIControllerRef(this); // FIXME: shared_from_this() but for a subclass
     cbTouchesBegan = mApp->registerTouchesBegan( this, &UIController::touchesBegan );
     cbTouchesMoved = mApp->registerTouchesMoved( this, &UIController::touchesMoved );
     cbTouchesEnded = mApp->registerTouchesEnded( this, &UIController::touchesEnded );
@@ -33,7 +33,6 @@ UIController::~UIController()
 
 bool UIController::touchesBegan( TouchEvent event )
 {
-    std::cout << "touchesBegan in UIController" << std::endl;
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
         privateTouchBegan(*i); // recurses to children
     }    
@@ -42,7 +41,6 @@ bool UIController::touchesBegan( TouchEvent event )
 
 bool UIController::touchesMoved( TouchEvent event )
 {
-    std::cout << "touchesMoved in UIController" << std::endl;
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
         privateTouchMoved(*i); // recurses to children
     }
@@ -51,7 +49,6 @@ bool UIController::touchesMoved( TouchEvent event )
 
 bool UIController::touchesEnded( TouchEvent event )
 {
-    std::cout << "touchesEnded in UIController" << std::endl;
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
         privateTouchEnded(*i); // recurses to children
     }    
@@ -78,7 +75,7 @@ void UIController::setInterfaceOrientation( const Orientation &orientation )
 
 Matrix44f UIController::getConcatenatedTransform() const
 {
-    return mOrientationMatrix * mTransform;
+    return mTransform * mOrientationMatrix;
 }
 
 void UIController::draw()

@@ -393,7 +393,7 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
     const float ctx1 = bgx1 - 43.0f;
     const float ctx2 = bgx2 + 48.0f;
     const float cty1 = bgy1 - 16.0f;
-    const float cty2 = cty1; // NB:- will be overridden in ScrollingLabel::draw()
+    const float cty2 = cty1 + mTrackInfoLabel->getFontHeight();
     mTrackInfoLabel->setRect( ctx1, cty1, ctx2, cty2 );
 
     // FIXME: bottom right coords are made up... maybe just setPos (and getWidth) for these?

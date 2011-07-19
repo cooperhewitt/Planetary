@@ -142,12 +142,10 @@ bool UiLayer::touchEnded( TouchEvent::Touch touch )
 void UiLayer::update()
 {
     Vec2f interfaceSize = mRoot->getInterfaceSize();
-    std::cout << "UiLayer interfaceSize " << interfaceSize << std::endl;
     // check for orientation change
     if (interfaceSize != mInterfaceSize) {
-        std::cout << "UiLayer updateLayout()" << std::endl;
         updateLayout( interfaceSize );
-    }    
+    }
     
     if ( !mHasPanelBeenDragged ) {
         // if we're not dragging, animate to current state
@@ -157,7 +155,7 @@ void UiLayer::update()
         else {
             mPanelRect.y1 += (mPanelClosedY - mPanelRect.y1) * 0.25f;
         }
-    } 
+    }
     
     // make sure the drag/ease hasn't messed anything up
     // always use the tallest size for maxPanelY so we'll ease when closing settings...

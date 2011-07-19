@@ -36,6 +36,8 @@ public:
     void setRect(const float &x1, const float &y1, const float &x2, const float &y2) { mRect.set(x1,y1,x2,y2); }
     const ci::Rectf& getRect() const { return mRect; }
 
+    float getFontHeight() { return mFont.getAscent() + mFont.getDescent(); }
+    
 private:
     
     void updateTexture();
