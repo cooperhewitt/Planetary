@@ -176,7 +176,6 @@ void UiLayer::draw()
     bloom::gl::endBatch();
 
     gl::color( ColorA( BRIGHT_BLUE, 0.2f ) );
-    // FIXME: can we "round" mPanelY so that this doesn't jitter?
 	gl::drawLine( Vec2f( mPanelRect.x1, 0.0f ), Vec2f( mPanelTabRect.x1 + 5, 0.0f ) );
 	
 	gl::color( ColorA( BRIGHT_BLUE, 0.1f ) );

@@ -83,7 +83,7 @@ UINodeRef UINode::getChildById( const int &childId ) const
 void UINode::privateUpdate()
 {
     // update self
-    draw();
+    update();
     // update children
     for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
         (*i)->privateUpdate();
