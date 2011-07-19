@@ -79,6 +79,11 @@ bool Slider::touchBegan(ci::app::TouchEvent::Touch touch)
 }
 bool Slider::touchMoved(ci::app::TouchEvent::Touch touch)
 {
+    if (!mIsDragging) {
+        // reject touchMoved if dragging was canceled
+        return false;
+    }
+    
     // adjust for orientation and offset
     Vec2f pos = globalToLocal( touch.getPos() );
     
@@ -95,6 +100,10 @@ bool Slider::touchMoved(ci::app::TouchEvent::Touch touch)
 }
 bool Slider::touchEnded(ci::app::TouchEvent::Touch touch)
 {
+    if (!mIsDragging) {
+        // reject touchEnded if dragging was canceled
+        return false;
+    }    
     touchMoved(touch);
     setIsDragging(false);
     return true;

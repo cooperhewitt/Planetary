@@ -80,7 +80,8 @@ public:
     void setRemainingSeconds(int remainingTime) { mRemainingTimeLabel->setSeconds(remainingTime); }
     void setCurrentTrack(std::string currentTrack) { mTrackInfoLabel->setText(currentTrack); }
     void setPlayheadProgress(float value) { mPlayheadSlider->setValue(value); }
-    
+    void cancelPlayheadDrag() { mPlayheadSlider->setIsDragging(false); }
+        
     float getPlayheadValue() { return mPlayheadSlider->getValue(); }
 	float getParamSlider1Value(){ return mParamSlider1->getValue(); }
 	float getParamSlider2Value(){ return mParamSlider2->getValue(); }

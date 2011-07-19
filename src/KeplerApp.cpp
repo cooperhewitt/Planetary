@@ -960,11 +960,10 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
 
 bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
 {
-    // every third frame, because setPlayheadTime is slow
 	if ( mIpodPlayer.hasPlayingTrack() ) {
-        mIpodPlayer.setPlayheadTime( mCurrentTrackLength * dragPer );
         mCurrentTrackPlayheadTime = mCurrentTrackLength * dragPer;
         mPlayheadUpdateSeconds = getElapsedSeconds();        
+        mIpodPlayer.setPlayheadTime( mCurrentTrackPlayheadTime );
     }
     return false;
 }
@@ -1289,11 +1288,13 @@ void KeplerApp::update()
 
         // fake playhead time if we're dragging (so it looks really snappy)
         if (mPlayControls.playheadIsDragging()) {
+//            std::cout << "updating current playhead time from slider" << std::endl;                
             mCurrentTrackPlayheadTime = mCurrentTrackLength * mPlayControls.getPlayheadValue();
             mPlayheadUpdateSeconds = elapsedSeconds;
         }
         else if (elapsedSeconds - mPlayheadUpdateSeconds > 1) {
-            // mPlayheadUpdateSeconds is set to -1 if the track changes, so this part should always be hit
+//            std::cout << "updating current playhead time from ipod player" << std::endl;                
+            // mCurrentTrackPlayheadTime is set to 0 if the track changes
             mCurrentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
             mPlayheadUpdateSeconds = elapsedSeconds;
         }
@@ -1882,7 +1883,14 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 }
 
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
-{	    
+{	   
+    if (mPlayControls.playheadIsDragging()) {
+        std::cout << "canceling playhead drag" << std::endl;
+        mPlayControls.cancelPlayheadDrag();
+        mPlayControls.setPlayheadProgress(0.0f);
+        mIpodPlayer.setPlayheadTime( 0.0f );        
+    }
+    
 	if (mIpodPlayer.hasPlayingTrack()) {
         
         ipod::TrackRef newTrack = mIpodPlayer.getPlayingTrack();
@@ -1907,7 +1915,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         mCurrentTrackLength = mPlayingTrack->getLength();
         
         // reset the mPlayingTrackNode orbit and playhead displays (see update())
-        mPlayheadUpdateSeconds = -1;
+        mPlayheadUpdateSeconds = getElapsedSeconds();        
+        mCurrentTrackPlayheadTime = 0.0f;
         
         string artistName = mPlayingTrack->getArtist();
         
