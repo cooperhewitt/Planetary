@@ -1882,7 +1882,9 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 }
 
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
-{	    
+{	   
+    mPlayControls.cancelPlayheadDrag();
+    
 	if (mIpodPlayer.hasPlayingTrack()) {
         
         ipod::TrackRef newTrack = mIpodPlayer.getPlayingTrack();
