@@ -32,11 +32,12 @@ class UiLayer : public UINode {
 
     void    setShowSettings( bool visible );
     
-	void	update();
+	void	     update();
 	virtual void draw();
     
-	float	getPanelYPos(){ return mPanelRect.y1; }	
-    ci::Rectf getPanelTabRect() { return mPanelTabRect; }
+	float	  getPanelYPos(){ return mPanelY; }	
+    ci::Rectf getPanelTabRect() { return ci::Rectf(mPanelTabRect.x1,  mPanelY - mPanelTabRect.getHeight(), mPanelTabRect.x2, mPanelY); }
+
 	bool	getIsPanelOpen() { return mIsPanelOpen; }
 	void	setIsPanelOpen( bool b ){ mIsPanelOpen = b; mHasPanelBeenDragged = false; }
 	
@@ -47,11 +48,12 @@ class UiLayer : public UINode {
     ci::Vec2f       mInterfaceSize; // for detecting orientation changes    
     ci::gl::Texture mUiButtonsTex;
     
-	float			mPanelOpenHeight;
-	float			mPanelSettingsHeight;
+    float           mPanelY;                // used in setTransform
+	float			mPanelOpenHeight;       // small height when settings closed
+	float			mPanelSettingsHeight;   // full height when settings open
     float           mPanelHeight;           // varies depending on if settings are shown
-    float           mPanelOpenY;            // updated in orientationChanged, interfaceHeight-mPanelHeight
-    float           mPanelClosedY;          // updated in orientationChanged, interfaceHeight
+    float           mPanelOpenY;            // updated in setShowSettings/updateLayout
+    float           mPanelClosedY;          // updated in updateLayout
 	ci::Rectf		mPanelRect;				// Rect defining the panel width and height
 	ci::Rectf		mPanelTabRect;			// Rect defining the panel tab
 	ci::Rectf		mPanelUpperRect;		// Rect defining the upper half of the panel (used only when drawing panel)

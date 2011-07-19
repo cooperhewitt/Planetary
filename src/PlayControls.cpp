@@ -412,23 +412,13 @@ void PlayControls::setShowSettings(bool visible)
     mShowSettingsButton->setOn(visible); 
 }
 
-void PlayControls::update( float y )
+void PlayControls::update()
 {
-    if (mLastDrawY != y) {
-        Matrix44f transform;
-        transform.translate(Vec3f(0,y,0));
-        mLastDrawY = y;
-        setTransform(transform);
-    }
-    
     Vec2f interfaceSize = mRoot->getInterfaceSize();
     if ( mInterfaceSize != interfaceSize ) {
         setInterfaceSize( interfaceSize );
     }    
 
-    // FIXME: make an mActive bool so we can skip interaction and drawing if the panel is hiding
-    //mActive = (mInterfaceSize.y - y ) > 60.0f;
-    
     const float w	 = 15.0f;
 	Rectf infoRect   = mTrackInfoLabel->getRect();
 	
@@ -442,13 +432,3 @@ void PlayControls::update( float y )
     // FIXME: need label gradients for playlist label as well - perhaps nest inside scrolling label class?
 
 }
-
-void PlayControls::draw()
-{
-    // apply this alpha to all children
-    // FIXME: is there a more reliable way to do this, does UINode need more inheritable properties?
-	const float dragAlphaPer = pow( ( mInterfaceSize.y - mLastDrawY ) / 65.0f, 2.0f );    	
-    gl::color( ColorA( 1.0f, 1.0f, 1.0f, dragAlphaPer ) );
-    UINode::draw();
-}
-
