@@ -1010,7 +1010,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
                 case ipod::Player::RepeatModeAll:
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeOne );
                     mPlayControls.setRepeatMode( ipod::Player::RepeatModeOne );    
-                    mNotificationOverlay.show( mOverlayIconsTex, Area( 256.0f, 0.0f, 384.0f, 128.0f ), "REPEAT ONE" );
+                    mNotificationOverlay.show( mOverlayIconsTex, Area( 384.0f, 0.0f, 512.0f, 128.0f ), "REPEAT ONE" );
                     break;
                 case ipod::Player::RepeatModeOne:
                 case ipod::Player::RepeatModeDefault:
@@ -1039,8 +1039,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				logEvent("Draw Rings Button Selected");            
 				G_DRAW_RINGS = !G_DRAW_RINGS;
-				if( G_DRAW_RINGS )	mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 0.0f, 640.0f, 128.0f ), "ORBIT LINES" );
-				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 128.0f, 640.0f, 256.0f ), "ORBIT LINES" );
+				if( G_DRAW_RINGS )	mNotificationOverlay.show( mOverlayIconsTex, Area( 640.0f, 0.0f, 768.0f, 128.0f ), "ORBIT LINES" );
+				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 640.0f, 128.0f, 768.0f, 256.0f ), "ORBIT LINES" );
 			}
             mPlayControls.setOrbitsVisible( G_DRAW_RINGS );            
             break;
@@ -1049,8 +1049,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				logEvent("Draw Text Button Selected");            
 				G_DRAW_TEXT = !G_DRAW_TEXT;
-				if( G_DRAW_TEXT )	mNotificationOverlay.show( mOverlayIconsTex, Area( 640.0f, 0.0f, 768.0f, 128.0f ), "TEXT LABELS" );
-				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 640.0f, 128.0f, 768.0f, 256.0f ), "TEXT LABELS" );
+				if( G_DRAW_TEXT )	mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), "TEXT LABELS" );
+				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 128.0f, 896.0f, 256.0f ), "TEXT LABELS" );
 			}
             mPlayControls.setLabelsVisible( G_DRAW_TEXT );
             break;
@@ -1075,8 +1075,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				logEvent("Use Gyro Button Selected");            
 				G_USE_GYRO = !G_USE_GYRO;
-				if( G_USE_GYRO )	mNotificationOverlay.show( mOverlayIconsTex, Area( 384.0f, 0.0f, 512.0f, 128.0f ), "GYROSCOPE" );
-				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 384.0f, 128.0f, 512.0f, 256.0f ), "GYROSCOPE" );
+				if( G_USE_GYRO )	mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 0.0f, 640.0f, 128.0f ), "GYROSCOPE" );
+				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 128.0f, 640.0f, 256.0f ), "GYROSCOPE" );
 			}
             mPlayControls.setGyroVisible( G_USE_GYRO );
             break;
@@ -1107,8 +1107,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
         
 		case PlayControls::DEBUG_FEATURE:
 			G_DEBUG = !G_DEBUG;
-			if( G_DEBUG )	mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), "DEBUG MODE" );
-			else			mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 128.0f, 896.0f, 256.0f ), "DEBUG MODE" );
+			if( G_DEBUG )	mNotificationOverlay.show( mOverlayIconsTex, Area( 896.0f, 0.0f, 1024.0f, 128.0f ), "DEBUG MODE" );
+			else			mNotificationOverlay.show( mOverlayIconsTex, Area( 896.0f, 128.0f, 1024.0f, 256.0f ), "DEBUG MODE" );
             mPlayControls.setDebugVisible( G_DEBUG );
             break;
 			

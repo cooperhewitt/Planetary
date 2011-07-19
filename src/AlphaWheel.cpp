@@ -79,6 +79,11 @@ void AlphaWheel::initAlphaTextures( const Font &font )
 
 void AlphaWheel::setRects()
 {
+	float yOff = 0.0f;
+	if( isLandscapeOrientation( mInterfaceOrientation ) ){
+		yOff = -12.0f;
+	}
+	
 	mAlphaRects.clear();
 	for( int i=0; i<mAlphaString.length(); i++ ){
 		float per = (float)i/27.0f;
@@ -87,6 +92,7 @@ void AlphaWheel::setRects()
 		float w = mAlphaTextures[i].getWidth()/2.0f;
 		float h = mAlphaTextures[i].getHeight()/2.0f;
 		Vec2f pos = Vec2f( cos( angle ), sin( angle ) ) * mAlphaRadius;
+		pos.y += yOff;
 		Rectf r = Rectf( pos.x - w, pos.y - h, pos.x + w, pos.y + h );
 		mAlphaRects.push_back( r );
 	}
@@ -108,6 +114,11 @@ void AlphaWheel::setVerts()
 	float T = ( H - mAlphaRadius * 2.0f )/2;
 	float R = L + mAlphaRadius * 2.0f;
 	float B = T + mAlphaRadius * 2.0f;
+	
+	if( isLandscapeOrientation( mInterfaceOrientation ) ){
+		T -= 12.0f;
+		B -= 12.0f;
+	}
 	
 	vector<Vec2i> positions;
 	positions.push_back( Vec2i( 0 - CW, 0 - CH ) );

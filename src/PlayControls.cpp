@@ -270,7 +270,7 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
     const float bSizeSmall	 = 40.0f;
 	const float buttonGap	 = 1.0f;
 
-	const float timeTexWidth = 55.0f;
+	const float timeTexWidth = 60.0f;
     const float sliderHeight = 20.0f;
     const float sliderInset  = bSize * 2.0f + sideBorder + timeTexWidth;
     const bool  landscape    = interfaceSize.x > interfaceSize.y;
@@ -325,7 +325,8 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
     mRepeatButton->setRect( x1, y1, x2, y2 );
 	
 // TEXT LABELS TOGGLE BUTTON
-	x1 -= bSizeSmall;
+	float gap = 25.0f;
+	x1 -= bSizeSmall + gap;
 	x2 = x1 + bSizeSmall;
     mLabelsButton->setRect( x1, y1, x2, y2 );
 	
@@ -397,9 +398,10 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
 
     // FIXME: bottom right coords are made up... maybe just setPos (and getWidth) for these?
     // at least use font height for calculating y2
-    mElapsedTimeLabel->setRect( bgx1-40.0f, bgy1+2.0f, bgx1, bgy1+12.0f );
+//    mElapsedTimeLabel->setRect( bgx1-40.0f, bgy1+2.0f, bgx1, bgy1+12.0f );
+	
+	mElapsedTimeLabel->setRect( ctx1 + 3.0f, bgy1+2.0f, bgx1, bgy1+12.0f );
     mRemainingTimeLabel->setRect( bgx2+18.0f, bgy1+2.0f, bgx2+58.0f, bgy1+12.0f );
-
 }
 
 void PlayControls::setShowSettings(bool visible)

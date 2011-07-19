@@ -19,15 +19,20 @@ void TimeLabel::setSeconds(int seconds)
 
 void TimeLabel::updateTexture()
 {
+	int hours	= floor(abs(mSeconds)/3600.0f);
     int minutes = floor(abs(mSeconds)/60.0f);
+	minutes = minutes - hours * 60;
     int seconds = (int)abs(mSeconds)%60;
     
+	string hourStr = ci::toString( hours );
     string minsStr = ci::toString( minutes );
     string secsStr = ci::toString( seconds );
     if( minsStr.length() == 1 ) minsStr = "0" + minsStr;
     if( secsStr.length() == 1 ) secsStr = "0" + secsStr;		
-        
+	
     stringstream ss;
+	if( hours > 0 )
+		ss << hourStr << ":";
     ss << minsStr << ":" << secsStr << endl;
         
     TextLayout layout;
