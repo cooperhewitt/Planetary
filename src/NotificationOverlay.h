@@ -33,6 +33,7 @@ public:
     void setInterfaceOrientation( const Orientation &orientation );
     
     void show(const gl::Texture &texture, const Area &srcRect, const string &message);
+	void showLetter( const char c, const string &message, const Font &hugeFont );
     void hide();
     
 private:

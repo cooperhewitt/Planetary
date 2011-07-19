@@ -113,6 +113,34 @@ void NotificationOverlay::show(const gl::Texture &texture, const Area &srcArea, 
     mLastShowTime = mApp->getElapsedSeconds();
 }
 
+void NotificationOverlay::showLetter( const char c, const string &message, const Font &hugeFont )
+{
+    if (!mSetup) return;
+
+	TextLayout charLayout;
+	charLayout.setFont( hugeFont );
+	charLayout.setColor( ColorA( BRIGHT_BLUE, 0.5f ) );
+	string s = "";
+	s += c;
+	charLayout.addCenteredLine( s );
+	mCurrentTexture = gl::Texture( charLayout.render( true, true ) );
+	mCurrentSrcArea = Area( 0, 0, mCurrentTexture.getWidth(), mCurrentTexture.getHeight() + 15.0f );
+    mCurrentMessage = message;
+	
+	TextLayout layout;
+	layout.setFont( mFont );
+	layout.setColor( ColorA( BRIGHT_BLUE, 0.5f ) );
+    vector<string> results;
+    boost::split(results, message, boost::is_any_of("\n"));     
+    for (int i = 0; i < results.size(); i++) {
+        layout.addCenteredLine( results[i] );
+    }
+	mMessageTexture = gl::Texture( layout.render( true, true ) );
+	
+    mActive = true;
+    mLastShowTime = mApp->getElapsedSeconds();
+}
+
 void NotificationOverlay::hide()
 {
     mActive = false;

@@ -193,6 +193,7 @@ class KeplerApp : public AppCocoaTouch {
 	float			mAlphaWheelRadius;
 	
 // FONTS
+	Font			mFontHuge;
 	Font			mFont;
 	Font			mFontBig;
 	Font			mFontMediSmall;
@@ -358,6 +359,7 @@ void KeplerApp::remainingSetup()
     // NB:- to would-be optimizers:
     //      loadResource is fairly fast (~7ms for 5 fonts)
     //      Font(...) is a bit slower, ~250ms for these fonts (measured a few times)
+	mFontHuge			= Font( loadResource( "AauxPro-Black.ttf"), 100 );
 	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
 	mFontBig			= Font( loadResource( "AauxPro-Black.ttf"), 24 );
 	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
@@ -781,6 +783,7 @@ bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
         
 	if( !mAlphaWheel.getShowWheel() ){
 		G_HELP = false; // dismiss help if alpha wheel was toggled away
+		mPinchTotalDest = 1.0f;
 	}
 
     if (mState.getFilterMode() == State::FilterModeAlphaChar) {
@@ -844,8 +847,9 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 
         stringstream s;
         s << "FILTERING ARTISTS BY '" << mState.getAlphaChar() << "'";
-        mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), s.str() );        
-        
+//        mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), s.str() );   
+		
+        mNotificationOverlay.showLetter( mState.getAlphaChar(), s.str(), mFontHuge );
         std::map<string, string> params;
         params["Letter"] = toString( mState.getAlphaChar() );
         params["Count"] = toString( mWorld.getNumFilteredNodes() );
@@ -1388,8 +1392,7 @@ void KeplerApp::updateCamera()
 	
 // IF THE PINCH IS PAST THE POP THRESHOLD...
 	if( mPinchPer > mPinchPerThresh ){
-        
-//        std::cout << "modulating camera with pinch " << mPinchAlphaPer << std::endl;        
+//        std::cout << "mPinchTotalDest = " << mPinchTotalDest << std::endl;  
         
 		if( ! mIsPastPinchThresh ) mPinchHighlightRadius = 650.0f;
 		mPinchAlphaPer -= ( mPinchAlphaPer ) * 0.1f;
