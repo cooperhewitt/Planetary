@@ -60,7 +60,12 @@ void NotificationOverlay::draw()
         alpha = 1.0f - (elapsedSince - mFadeDelay) / mFadeDuration;
     }
     
-	Vec2f pos = Vec2f( mInterfaceSize.x * 0.5f, mInterfaceSize.y - 250.0f - mMessageTexture.getHeight() );
+	Vec2f pos;
+	if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
+		pos = Vec2f( mInterfaceSize.x * 0.5f, mInterfaceSize.y - 250.0f - mMessageTexture.getHeight() );
+	} else {
+		pos = Vec2f( mInterfaceSize.x * 0.5f, mInterfaceSize.y - 340.0f - mMessageTexture.getHeight() );
+	}
 	Vec2f iconSize = mCurrentSrcArea.getSize();
     
     Rectf iconRect( pos - iconSize/2.0f, pos + iconSize/2.0f );
