@@ -177,7 +177,7 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
 							   Area(uw * 9.1f, v2, uw * 10.0f, v3 ),  // fg texture
 							   Area(uw * 8.0f, v1, uw * 9.0f,  v2 ),  // thumb on texture
 							   Area(uw * 8.0f, v2, uw * 9.0f,  v3 )); // thumb off texture
-	mParamSlider2->setValue( 0.025f );
+	mParamSlider2->setValue( 0.15f );
 	mParamSlider2Label = new TextLabel( NO_BUTTON, font, BRIGHT_BLUE );
 	mParamSlider2Label->setText( "Speed" );
     
