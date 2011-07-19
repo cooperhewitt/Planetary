@@ -829,7 +829,15 @@ bool KeplerApp::onFilterToggled( State::FilterMode filterMode )
 
 bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 {
-	mState.setAlphaChar( alphaWheel->getAlphaChar() );	
+    if (mState.getAlphaChar() != alphaWheel->getAlphaChar()) {
+        logEvent("New Letter Selected In AlphaWheel");        
+        mState.setAlphaChar( alphaWheel->getAlphaChar() );	
+    }
+    else {
+        // same letter selected, if we're not at galaxy level then go to there
+        logEvent("Same Letter Selected In AlphaWheel");        
+        mState.setSelectedNode( NULL );        
+    }
 	return false;
 }
 
