@@ -20,7 +20,9 @@ UIController::UIController( AppCocoaTouch *app, OrientationHelper *orientationHe
     cbTouchesBegan = mApp->registerTouchesBegan( this, &UIController::touchesBegan );
     cbTouchesMoved = mApp->registerTouchesMoved( this, &UIController::touchesMoved );
     cbTouchesEnded = mApp->registerTouchesEnded( this, &UIController::touchesEnded );
-    cbOrientationChanged = mOrientationHelper->registerOrientationChanged( this, &UIController::orientationChanged );    
+    if (mOrientationHelper) {
+        cbOrientationChanged = mOrientationHelper->registerOrientationChanged( this, &UIController::orientationChanged );    
+    }
     setInterfaceOrientation( mOrientationHelper->getInterfaceOrientation() );
 }
 
@@ -29,7 +31,9 @@ UIController::~UIController()
     mApp->unregisterTouchesBegan( cbTouchesBegan );
     mApp->unregisterTouchesMoved( cbTouchesMoved );
     mApp->unregisterTouchesEnded( cbTouchesEnded );
-    mOrientationHelper->unregisterOrientationChanged( cbOrientationChanged );
+    if (mOrientationHelper) {
+        mOrientationHelper->unregisterOrientationChanged( cbOrientationChanged );
+    }
 }
 
 bool UIController::touchesBegan( TouchEvent event )
@@ -65,10 +69,10 @@ bool UIController::orientationChanged( OrientationEvent event )
 void UIController::setInterfaceOrientation( const Orientation &orientation )
 {
     mInterfaceOrientation = orientation;
+    // TODO: construct this matrix from translate/rotate components so it can be animated
     mOrientationMatrix = getOrientationMatrix44(mInterfaceOrientation, getWindowSize());
-    
+    // TODO: animate interface size as well (except on first call)
     mInterfaceSize = app::getWindowSize();
-    
     if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
         mInterfaceSize = mInterfaceSize.yx(); // swizzle it!
     }        
@@ -76,21 +80,18 @@ void UIController::setInterfaceOrientation( const Orientation &orientation )
 
 Matrix44f UIController::getConcatenatedTransform() const
 {
-    return mOrientationMatrix * mTransform;
+    return mOrientationMatrix * mTransform;        
 }
 
 void UIController::draw()
 {
     glPushMatrix();
-    glMultMatrixf(mOrientationMatrix); // FIXME only push/mult/pop if mOrientationMatrix isn't identity
-    
-    glMultMatrixf(mTransform); // FIXME only mult if mTransform isn't identity
+    glMultMatrixf( getConcatenatedTransform() );    
     // draw children
     for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
         (*i)->privateDraw();
     }
     // dont' draw self or we'll recurse
-    
     glPopMatrix();
 }
 

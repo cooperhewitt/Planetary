@@ -963,6 +963,8 @@ bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
     // every third frame, because setPlayheadTime is slow
 	if ( mIpodPlayer.hasPlayingTrack() ) {
         mIpodPlayer.setPlayheadTime( mCurrentTrackLength * dragPer );
+        mCurrentTrackPlayheadTime = mCurrentTrackLength * dragPer;
+        mPlayheadUpdateSeconds = getElapsedSeconds();        
     }
     return false;
 }
@@ -1012,6 +1014,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
                     break;
                 case ipod::Player::RepeatModeOne:
                 case ipod::Player::RepeatModeDefault:
+                    // repeat mode is RepeatModeDefault when we start up and until 
+                    // our user chooses it, we can't know what the current state is                    
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeNone );
                     mPlayControls.setRepeatMode( ipod::Player::RepeatModeNone );    
                     mNotificationOverlay.show( mOverlayIconsTex, Area( 256.0f, 128.0f, 384.0f, 256.0f ), "REPEAT NONE" );
@@ -1228,17 +1232,26 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 void KeplerApp::update()
 {
     if (mData.getState() == Data::LoadStatePending) {
-        mData.update(); // processes pending nodes
+        mData.update();
+        // processes pending nodes
 		mWorld.initNodes( mData.mArtists, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
 		mLoadingScreen.setEnabled( false );
 		mUiLayer.setIsPanelOpen( true );
         // reset...
         onSelectedNodeChanged( NULL );
+
         // and then make sure we know about the current track if there is one...
-        if ( mCurrentPlayState == ipod::Player::StatePlaying ) {
+        if ( mIpodPlayer.hasPlayingTrack() ) {
             std::cout << "Startup with Track Playing" << std::endl;
             logEvent("Startup with Track Playing");
             onPlayerTrackChanged( &mIpodPlayer );
+            // show the wheel if we're paused...
+            if ( mIpodPlayer.getPlayState() == ipod::Player::StatePaused ) {
+                mState.setFilterMode( State::FilterModeAlphaChar );
+                mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );            
+                mShowFilterGUI = true;
+                mAlphaWheel.setShowWheel( true );            
+            }
         } else {
             std::cout << "Startup without Track Playing" << std::endl;
             logEvent("Startup without Track Playing");
@@ -1247,6 +1260,7 @@ void KeplerApp::update()
             mShowFilterGUI = true;
 			mAlphaWheel.setShowWheel( true );
 		}
+        
         if (mData.mPlaylists.size() > 0) {
 //            mPlayControls.setPlaylist( mData.mPlaylists[0]->getPlaylistName() );
             mPlaylistChooser.setDataWorldCam( &mData, &mWorld, &mCam );
@@ -1258,11 +1272,14 @@ void KeplerApp::update()
 		if( G_IS_IPAD2 && G_USE_GYRO ) {
 			mGyroHelper.update();
         }
-		
+
+        const int elapsedFrames = getElapsedFrames();
+        const float elapsedSeconds = getElapsedSeconds();
+        
 		// IF NO INTERACTION FOR 20 seconds, START SCREENSAVER MODE.
 		// NEEDS SMOOTHER TRANSITION BETWEEN MODES.
-		float interactionThreshold = 20.0f;
-		if( getElapsedSeconds() - mTimeSinceLastInteraction > interactionThreshold ){
+		const float interactionThreshold = 20.0f;
+		if( elapsedSeconds - mTimeSinceLastInteraction > interactionThreshold ){
 			mCamAutoMove = true;
 		} else {
 			mCamAutoMove = false;
@@ -1270,9 +1287,6 @@ void KeplerApp::update()
 
         updateArcball();
 
-        const int elapsedFrames = getElapsedFrames();
-        const float elapsedSeconds = getElapsedSeconds();
-        
         // fake playhead time if we're dragging (so it looks really snappy)
         if (mPlayControls.playheadIsDragging()) {
             mCurrentTrackPlayheadTime = mCurrentTrackLength * mPlayControls.getPlayheadValue();
