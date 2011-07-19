@@ -50,10 +50,8 @@ public:
                 const ci::gl::Texture &bigButtonsTex, 
                 const ci::gl::Texture &smallButtonsTex );
     
-    void update(float y);
+    void update();
     
-    void draw();
-
     // this one updates the drawable and interactive things too:
     void setShowSettings(bool visible);
     
@@ -111,7 +109,6 @@ private:
     // set positions (can be called repeatedly whenever interfaceSize changes)
     void setInterfaceSize( ci::Vec2f interfaceSize );
     
-    float mLastDrawY;
     ci::Vec2f mInterfaceSize; // for detecting orientation change, updating layout
     bool mShowSettings;
         

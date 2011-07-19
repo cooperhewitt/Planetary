@@ -1307,7 +1307,7 @@ void KeplerApp::update()
 				
         mUiLayer.update(); // animates flick open/close
         
-        mPlayControls.update( mUiLayer.getPanelYPos() );
+        mPlayControls.update(); // makes sure scrolling label edges are visible
         
 		mHelpLayer.update();
 

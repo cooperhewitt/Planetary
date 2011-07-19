@@ -34,10 +34,11 @@ void UiLayer::setup( const gl::Texture &uiButtonsTex, const bool &showSettings, 
     // set now, needed in setShowSettings and updateLayout
     mInterfaceSize = interfaceSize;
 
-    // set this to something sensible, *temporary*:
-    mPanelRect = Rectf(0, interfaceSize.y, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
-	mPanelUpperRect = Rectf(0, interfaceSize.y, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
-	mPanelLowerRect = Rectf(0, interfaceSize.y, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
+    // these rectangles are essentially constant (except for width), movement is handled by setTransform
+    mPanelRect      = Rectf(0, 0, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
+	mPanelUpperRect = Rectf(0, 0, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
+	mPanelLowerRect = Rectf(0, 0, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
+    mPanelTabRect   = Rectf( interfaceSize.x - 200.0f, -38.0f, interfaceSize.x, 2.0f );
     
     // make sure we're showing enough, then update layout
     setShowSettings(showSettings);    
@@ -56,8 +57,12 @@ void UiLayer::setShowSettings( bool visible )
 }
 
 void UiLayer::updateLayout( Vec2f interfaceSize )
-{
+{    
     mPanelRect.x2 = interfaceSize.x;
+    mPanelTabRect.x1 = interfaceSize.x - 200.0f;
+    mPanelTabRect.x2 = interfaceSize.x;    
+	mPanelUpperRect.x2 = interfaceSize.x;
+	mPanelLowerRect.x2 = interfaceSize.x;
     
     mPanelOpenY		= interfaceSize.y - mPanelHeight;
     mPanelClosedY	= interfaceSize.y;
@@ -68,12 +73,11 @@ void UiLayer::updateLayout( Vec2f interfaceSize )
     
     // jump to end of animation
     if ( mIsPanelOpen ) {
-        mPanelRect.y1 = mPanelOpenY;        
+        mPanelY = mPanelOpenY;        
     }
     else {
-        mPanelRect.y1 = mPanelClosedY;        
+        mPanelY = mPanelClosedY;        
     }       
-    mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;    
     
     mInterfaceSize = interfaceSize;
 }
@@ -119,7 +123,7 @@ bool UiLayer::touchEnded( TouchEvent::Touch touch )
     // decide if the open state should change:
 	if( mIsPanelTabTouched ){
 		if( mHasPanelBeenDragged ){
-            mIsPanelOpen = (mPanelRect.y1 - mPanelOpenY) < mPanelHeight/2.0f;
+            mIsPanelOpen = (mPanelY - mPanelOpenY) < mPanelHeight/2.0f;
 		} 
         else {
             mIsPanelOpen = !mIsPanelOpen;
@@ -150,28 +154,21 @@ void UiLayer::update()
     if ( !mHasPanelBeenDragged ) {
         // if we're not dragging, animate to current state
         if( mIsPanelOpen ){
-            mPanelRect.y1 += (mPanelOpenY - mPanelRect.y1) * 0.25f;
+            mPanelY += (mPanelOpenY - mPanelY) * 0.25f;
         }
         else {
-            mPanelRect.y1 += (mPanelClosedY - mPanelRect.y1) * 0.25f;
+            mPanelY += (mPanelClosedY - mPanelY) * 0.25f;
         }
     }
     
     // make sure the drag/ease hasn't messed anything up
     // always use the tallest size for maxPanelY so we'll ease when closing settings...
     const float maxPanelY = mInterfaceSize.y - mPanelSettingsHeight;
-    mPanelRect.y1 = constrain( mPanelRect.y1, maxPanelY, mPanelClosedY );
+    mPanelY = constrain( mPanelY, maxPanelY, mPanelClosedY );
     
-    // keep up y2!
-    mPanelRect.y2 = mPanelRect.y1 + mPanelSettingsHeight;
-	
-	mPanelUpperRect = Rectf( 0.0f, mPanelRect.y1, mInterfaceSize.x, mPanelRect.y1 + mPanelOpenHeight );
-	mPanelLowerRect = Rectf( 0.0f, mPanelRect.y1 + mPanelOpenHeight, mInterfaceSize.x, mPanelRect.y1 + mPanelSettingsHeight );
-	
-    // adjust tab rect:
-    mPanelTabRect = Rectf( mPanelRect.x2 - 200.0f, mPanelRect.y1 - 38.0f,
-                           mPanelRect.x2, mPanelRect.y1 + 2.0f );
-	
+    Matrix44f transform;
+    transform.translate(Vec3f(0,mPanelY,0));
+    setTransform(transform);
 }
 
 void UiLayer::draw()
@@ -187,5 +184,14 @@ void UiLayer::draw()
 	gl::drawLine( Vec2f( mPanelRect.x1, round(mPanelRect.y1) ), Vec2f( mPanelTabRect.x1+23, round(mPanelRect.y1) ) );
 	
 	gl::color( ColorA( BRIGHT_BLUE, 0.1f ) );
-	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 + mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelRect.y1 + mPanelOpenHeight + 1.0f ) );    
+	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 + mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelRect.y1 + mPanelOpenHeight + 1.0f ) ); 
+    
+    // apply this alpha to all children
+    // FIXME: is there a more reliable way to do this, does UINode need more inheritable properties?
+    const float dragAlphaPer = pow( ( mInterfaceSize.y - mPanelY ) / 65.0f, 2.0f );    	
+    gl::color( ColorA( 1.0f, 1.0f, 1.0f, dragAlphaPer ) );
+    
+    // FIXME: make an mActive bool so we can skip interaction and drawing if the panel is hiding
+    //mActive = (mInterfaceSize.y - y ) > 60.0f;
+    
 }
