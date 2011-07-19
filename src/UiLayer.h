@@ -36,7 +36,7 @@ class UiLayer : public UINode {
 	virtual void draw();
     
 	float	  getPanelYPos(){ return mPanelY; }	
-    ci::Rectf getPanelTabRect() { return mPanelTabRect; }
+    ci::Rectf getPanelTabRect() { return ci::Rectf(mPanelTabRect.x1,  mPanelY - mPanelTabRect.getHeight(), mPanelTabRect.x2, mPanelY); }
 
 	bool	getIsPanelOpen() { return mIsPanelOpen; }
 	void	setIsPanelOpen( bool b ){ mIsPanelOpen = b; mHasPanelBeenDragged = false; }

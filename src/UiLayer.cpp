@@ -107,12 +107,7 @@ bool UiLayer::touchMoved( TouchEvent::Touch touch )
 
         // apply the touch pos and offset
         Vec2f newPos = touchPos + mPanelTabTouchOffset;
-        newPos.x = mPanelTabRect.x1; // only translate y
-        mPanelTabRect.offset(newPos - mPanelTabRect.getUpperLeft());
-        
-        // set the panel position based on the mPanelTabRect
-        mPanelRect.y1 = mPanelTabRect.y2;
-        mPanelRect.y2 = mPanelRect.y1 + mPanelHeight;
+        mPanelY += newPos.y - mPanelTabRect.y1;
 	}
 
 	return mIsPanelTabTouched;
@@ -165,6 +160,7 @@ void UiLayer::update()
     // always use the tallest size for maxPanelY so we'll ease when closing settings...
     const float maxPanelY = mInterfaceSize.y - mPanelSettingsHeight;
     mPanelY = constrain( mPanelY, maxPanelY, mPanelClosedY );
+    mPanelY = round(mPanelY);
     
     Matrix44f transform;
     transform.translate(Vec3f(0,mPanelY,0));
@@ -181,10 +177,11 @@ void UiLayer::draw()
     bloom::gl::endBatch();
 
     gl::color( ColorA( BRIGHT_BLUE, 0.2f ) );
-	gl::drawLine( Vec2f( mPanelRect.x1, round(mPanelRect.y1) ), Vec2f( mPanelTabRect.x1+23, round(mPanelRect.y1) ) );
+    // FIXME: can we "round" mPanelY so that this doesn't jitter?
+	gl::drawLine( Vec2f( mPanelRect.x1, 0.0f ), Vec2f( mPanelTabRect.x1+23, 0.0f ) );
 	
 	gl::color( ColorA( BRIGHT_BLUE, 0.1f ) );
-	gl::drawLine( Vec2f( mPanelRect.x1, mPanelRect.y1 + mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelRect.y1 + mPanelOpenHeight + 1.0f ) ); 
+	gl::drawLine( Vec2f( mPanelRect.x1, mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelOpenHeight + 1.0f ) ); 
     
     // apply this alpha to all children
     // FIXME: is there a more reliable way to do this, does UINode need more inheritable properties?
