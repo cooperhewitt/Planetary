@@ -103,7 +103,7 @@ Matrix44f UINode::getTransform() const
 Matrix44f UINode::getConcatenatedTransform() const
 {
     // TODO: cache and invalidate in setTransform? (needs to check dirty parent? bah)
-    return mTransform * mParent->getConcatenatedTransform();
+    return mParent->getConcatenatedTransform() * mTransform;
 }
 int UINode::getId() const
 {

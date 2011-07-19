@@ -75,7 +75,7 @@ void UIController::setInterfaceOrientation( const Orientation &orientation )
 
 Matrix44f UIController::getConcatenatedTransform() const
 {
-    return mTransform * mOrientationMatrix;
+    return mOrientationMatrix * mTransform;
 }
 
 void UIController::draw()
