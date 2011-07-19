@@ -72,8 +72,8 @@ public:
 	void setRepeatMode(ci::ipod::Player::RepeatMode state)
     { 
         int stateInt = state == ci::ipod::Player::RepeatModeNone ? 0 :
-        state == ci::ipod::Player::RepeatModeOne ? 1 :
-        state == ci::ipod::Player::RepeatModeAll ? 2 : 0; // 0 for RepeatModeDefault
+        state == ci::ipod::Player::RepeatModeAll ? 1 :
+        state == ci::ipod::Player::RepeatModeOne ? 2 : 0; // 0 for RepeatModeDefault
         mRepeatButton->setState(stateInt); 
     };	
     void setElapsedSeconds(int elapsedTime) { mElapsedTimeLabel->setSeconds(elapsedTime); }
