@@ -722,6 +722,7 @@ bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
     Vec2f worldPos = (mInverseOrientationMatrix * Vec3f(screenPos,0)).xy();
     bool aboveUI = worldPos.y < mUiLayer.getPanelYPos();
     bool notTab = !mUiLayer.getPanelTabRect().contains(worldPos);
+    // FIXME: to be complete notPlaylistChooser, notAlphaWheel and notFilterToggle
     return aboveUI && notTab;
 }
 
@@ -769,6 +770,7 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
     //        EXCEPT: they would also need the orientation helper to proxy mouse/touch events and correct the positions
     
     mLoadingScreen.setInterfaceOrientation(orientation);
+
     if (mData.getState() == Data::LoadStateComplete) {
         mHelpLayer.setInterfaceOrientation(orientation);
         mAlphaWheel.setInterfaceOrientation(orientation);
@@ -1273,6 +1275,13 @@ void KeplerApp::update()
         // reset...
         onSelectedNodeChanged( NULL );
 
+        // make sure everything that was ignoring orientation changes is updated:
+        mHelpLayer.setInterfaceOrientation( mInterfaceOrientation );
+        mAlphaWheel.setInterfaceOrientation( mInterfaceOrientation );
+        mPlaylistChooser.setInterfaceOrientation( mInterfaceOrientation );
+        mFilterToggleButton.setInterfaceOrientation( mInterfaceOrientation );
+        mNotificationOverlay.setInterfaceOrientation( mInterfaceOrientation );
+        
         // and then make sure we know about the current track if there is one...
         if ( mIpodPlayer.hasPlayingTrack() ) {
             std::cout << "Startup with Track Playing" << std::endl;
