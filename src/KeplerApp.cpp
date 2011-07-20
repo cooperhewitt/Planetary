@@ -58,9 +58,8 @@ using namespace bloom;
 
 float G_ZOOM			= 0;
 int G_CURRENT_LEVEL		= 0;
-bool G_ACCEL			= true;
-bool G_DEBUG			= true;
-bool G_SHOW_SETTINGS	= true;
+bool G_DEBUG			= false;
+bool G_SHOW_SETTINGS	= false;
 bool G_HELP             = false;
 bool G_DRAW_RINGS		= false;
 bool G_DRAW_TEXT		= false;
@@ -182,6 +181,7 @@ class KeplerApp : public AppCocoaTouch {
 	float			mPinchHighlightRadius;
 	float			mPinchRotation;
 	bool			mIsPastPinchThresh;
+	float			mPerlinForAutoMove;
 	
 	float			mZoomFrom, mZoomDest;
 	Arcball			mArcball;
@@ -232,7 +232,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mDottedTex;
 	gl::Texture		mPlayheadProgressTex;
     gl::Texture     mRingsTex;
-	gl::Texture		mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex, mOverlayIconsTex;
+	gl::Texture		mUiBigButtonsTex, mUiSmallButtonsTex, mOverlayIconsTex;
     gl::Texture		mAtmosphereTex, mAtmosphereDirectionalTex, mAtmosphereSunTex;
 	gl::Texture		mNoArtistsTex;
 	gl::Texture		mParticleTex;
@@ -240,6 +240,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mDarkMatterTex;
 	gl::Texture		mOrbitRingGradientTex;
 	gl::Texture		mTrackOriginTex;
+	gl::Texture		mSettingsBgTex;
 	vector<gl::Texture> mCloudsTex;
 	
 	Surface			mHighResSurfaces;
@@ -336,6 +337,9 @@ void KeplerApp::remainingSetup()
 	mPinchHighlightRadius = 50.0f;
 	mPinchRotation		= 0.0f;
 	mIsPastPinchThresh	= false;
+	mPerlinForAutoMove	= 0.0f;
+	
+	
 	
 	mCamDistFrom		= mCamDist;
 	mCamDistAnim		= 0.0f;
@@ -396,11 +400,11 @@ void KeplerApp::remainingSetup()
     mUIControllerRef = UIControllerRef(new UIController(this, &mOrientationHelper));
 
 	// UILAYER
-	mUiLayer.setup( mUiButtonsTex, G_SHOW_SETTINGS, mUIControllerRef->getInterfaceSize() );
+	mUiLayer.setup( mUiSmallButtonsTex, mSettingsBgTex, G_SHOW_SETTINGS, mUIControllerRef->getInterfaceSize() );
     mUIControllerRef->addChild( UINodeRef(&mUiLayer) );
     
 	// PLAY CONTROLS
-	mPlayControls.setup( mUIControllerRef->getInterfaceSize(), &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex );
+	mPlayControls.setup( mUIControllerRef->getInterfaceSize(), &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiBigButtonsTex, mUiSmallButtonsTex );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
     // add as child of UILayer so it inherits the transform
@@ -523,10 +527,10 @@ void KeplerApp::initTextures()
         mGalaxyDome           = gl::Texture( loadImage( loadResource( "lightMatterFull.jpg" ) ), mipFmt );
     }
     
+	mSettingsBgTex			  = gl::Texture( loadImage( loadResource( "settingsBg.png" ) ) );    
 	mDottedTex                = gl::Texture( loadImage( loadResource( "dotted.png" ) ), repeatMipFmt );    
 	mRingsTex                 = gl::Texture( loadImage( loadResource( "rings.png" ) ) /*, fmt */ );
     mPlayheadProgressTex      = gl::Texture( loadImage( loadResource( "playheadProgress.png" ) ), repeatMipFmt );
-	mUiButtonsTex             = gl::Texture( loadImage( loadResource( "uiButtons.png" ) )/*, fmt*/ );
 	mUiBigButtonsTex          = gl::Texture( loadImage( loadResource( "uiBigButtons.png" ) )/*, fmt*/ );
 	mUiSmallButtonsTex        = gl::Texture( loadImage( loadResource( "uiSmallButtons.png" ) )/*, fmt*/ );
 	mOverlayIconsTex          = gl::Texture( loadImage( loadResource( "overlayIcons.png" ) )/*, fmt*/ );
@@ -1499,15 +1503,18 @@ void KeplerApp::updateCamera()
 		mCamDistDest	= selectedNode->mIdealCameraDist * cameraDistMulti;
 		
 		if( mCamAutoMove ){
+			// ROBERT: Fix this crap. needs to transition correctly
 			if( selectedNode->mParentNode ){
 				Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
-				float perlin = mPerlin.fBm( app::getElapsedSeconds() * 0.01f );
-				float amt = perlin + 0.3f + sin( app::getElapsedSeconds() * 0.1f ) * 0.45f;
+				float timeForAnim = ( app::getElapsedSeconds() - mTimeSinceLastInteraction - 20.0f );
+				mPerlinForAutoMove -= ( mPerlinForAutoMove - mPerlin.fBm( timeForAnim * 0.01f ) ) * 0.15f;
+				float amt = 0.3f + sin( timeForAnim * 0.1f ) * 0.45f;
 				Vec3f lookToPos = dirToParent * amt;
 				mCenterOffset -= ( mCenterOffset - lookToPos ) * 0.1f;
-				mCamDistDest  *= ( perlin + 1.0f ) * G_ZOOM;
+				mCamDistDest  *= ( mPerlinForAutoMove + 1.0f ) * G_ZOOM;
 			}
 		} else {
+			mPerlinForAutoMove -= ( mPerlinForAutoMove - 0.0f ) * 0.15f;
 			if( selectedNode->mParentNode && mPinchPer > mPinchPerThresh ){
 				Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
 				mCenterOffset -= ( mCenterOffset - ( dirToParent * ( mPinchPer - mPinchPerThresh ) * 2.5f ) ) * 0.2f;
@@ -1899,7 +1906,7 @@ void KeplerApp::drawScene()
         console() << "unknown filter mode - do we draw the alphawheel or what?" << endl;
     }
     
-	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
+	mHelpLayer.draw( mUiSmallButtonsTex, mUiLayer.getPanelYPos() );
 
     // UILayer and PlayControls draw here:
     mUIControllerRef->draw();

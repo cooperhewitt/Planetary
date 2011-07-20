@@ -48,9 +48,10 @@ private:
     Rectf mAlphaRect;
     Rectf mPlaylistRect;
 	Rectf mHitRect;
+	Rectf mRect;
     
     State::FilterMode mFilterMode;
-    ci::gl::Texture mAlphaTexture, mPlaylistTexture;
+    ci::gl::Texture mAlphaTexture, mPlaylistTexture, mTex;
     
 	ci::CallbackMgr<bool(State::FilterMode)> mCbFilterModeSelected;    
 };

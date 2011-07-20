@@ -16,13 +16,12 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
-{
-    mButtonsTex = uiButtonsTex; // only stored for dimming sides of scrolling current track label    
+void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font &font, const Font &fontSmall, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
+{   
     mShowSettings = false;
     
     // create, add, and position everything...
-    createChildren( font, fontSmall, uiButtonsTex, uiBigButtonsTex, uiSmallButtonsTex );
+    createChildren( font, fontSmall, uiBigButtonsTex, uiSmallButtonsTex );
     setInterfaceSize( interfaceSize );
         
     // set initial state...
@@ -39,7 +38,7 @@ void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font 
     }
 }
 
-void PlayControls::createChildren( const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
+void PlayControls::createChildren( const Font &font, const Font &fontSmall, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
 {
 	float uw = uiBigButtonsTex.getWidth() / 4.0f;   // button tex width
 	float uh = uiBigButtonsTex.getHeight() / 4.0f;	// button tex height
@@ -137,15 +136,15 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
                                           uiSmallButtonsTex,
                                           Area( uw*1, uh*2, uw*2, uh*3 ),   // first texture  (off)
                                           Area( uw*1, uh*3, uw*2, uh*4 ),   // second texture (repeat all)
-                                          Area( uw*1, uh*4, uw*2, uh*5 ) ); // third texture  (repeat one)
+                                          Area( uw*2, uh*2, uw*3, uh*3 ) ); // third texture  (repeat one)
     }
     
     mPlayheadSlider = new Slider( SLIDER,          // ID
                                   uiSmallButtonsTex,
-                                  Area( uw*4, uh*2, uw*5, uh*3 ),  // bg texture
-                                  Area( uw*4, uh*3, uw*5, uh*4 ),  // fg texture
-                                  Area( uw*2, uh*3, uw*3, uh*4 ),  // thumb on texture
-                                  Area( uw*2, uh*2, uw*3, uh*3 )); // thumb off texture
+                                  Area( uw*4.1f, uh*2, uw*5, uh*3 ),  // bg texture
+                                  Area( uw*4.1f, uh*3, uw*5, uh*4 ),  // fg texture
+                                  Area( uw*3, uh*3, uw*4, uh*4 ),  // thumb on texture
+                                  Area( uw*3, uh*2, uw*4, uh*3 )); // thumb off texture
 
     /////// no textures please, we're British...
     
@@ -159,29 +158,29 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
 	// TODO: add initial value
 	mParamSlider1 = new Slider( PARAMSLIDER1,          // ID
 							   uiSmallButtonsTex,
-							   Area( uw*4, uh*2, uw*5, uh*3 ),  // bg texture
-							   Area( uw*4, uh*3, uw*5, uh*4 ),  // fg texture
-							   Area( uw*2, uh*3, uw*3, uh*4 ),  // thumb on texture
-							   Area( uw*2, uh*2, uw*3, uh*3 )); // thumb off texture
+							   Area( uw*4.1f, uh*2, uw*5, uh*3 ),  // bg texture
+							   Area( uw*4.1f, uh*3, uw*5, uh*4 ),  // fg texture
+							   Area( uw*3, uh*3, uw*4, uh*4 ),  // thumb on texture
+							   Area( uw*3, uh*2, uw*4, uh*3 )); // thumb off texture
 	mParamSlider1->setValue( 0.25f );
 	mParamSlider1Label = new TextLabel( NO_BUTTON, font, BRIGHT_BLUE );
 	mParamSlider1Label->setText( "Scale" );
 	
 	mParamSlider2 = new Slider( PARAMSLIDER2,          // ID
 							   uiSmallButtonsTex,
-							   Area( uw*4, uh*2, uw*5, uh*3 ),  // bg texture
-							   Area( uw*4, uh*3, uw*5, uh*4 ),  // fg texture
-							   Area( uw*2, uh*3, uw*3, uh*4 ),  // thumb on texture
-							   Area( uw*2, uh*2, uw*3, uh*3 )); // thumb off texture
+							   Area( uw*4.1f, uh*2, uw*5, uh*3 ),  // bg texture
+							   Area( uw*4.1f, uh*3, uw*5, uh*4 ),  // fg texture
+							   Area( uw*3, uh*3, uw*4, uh*4 ),  // thumb on texture
+							   Area( uw*3, uh*2, uw*4, uh*3 )); // thumb off texture
 	mParamSlider2->setValue( 0.15f );
 	mParamSlider2Label = new TextLabel( NO_BUTTON, font, BRIGHT_BLUE );
 	mParamSlider2Label->setText( "Speed" );
     
     //////// little fady bits to cover the edges of scrolling bits:
-    Area aLeft = Area( 0, 0, 14, 10 ); // references the uiButtons image    
-    mCoverLeftTextureRect = new TextureRect( uiButtonsTex, aLeft );
+    Area aLeft = Area( 0, 160, 14, 170 ); // references the uiButtons image    
+    mCoverLeftTextureRect = new TextureRect( uiSmallButtonsTex, aLeft );
     // NB:- when rect is set for the right side, x1 > x2 so it is flipped
-    mCoverRightTextureRect = new TextureRect( uiButtonsTex, aLeft );    
+    mCoverRightTextureRect = new TextureRect( uiSmallButtonsTex, aLeft );    
 }    
 
 bool PlayControls::addedToScene()

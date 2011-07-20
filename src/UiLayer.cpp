@@ -20,10 +20,11 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void UiLayer::setup( const gl::Texture &uiButtonsTex, const bool &showSettings, const Vec2f interfaceSize )
+void UiLayer::setup( const gl::Texture &uiButtonsTex, const gl::Texture &settingsBgTex, const bool &showSettings, const Vec2f interfaceSize )
 {
-    mUiButtonsTex = uiButtonsTex;
-    
+    mButtonsTex				= uiButtonsTex;
+	mSettingsBgTex			= settingsBgTex;
+	
 	mPanelOpenHeight		= 63.0f;
 	mPanelSettingsHeight	= 108.0f;    
     
@@ -36,8 +37,8 @@ void UiLayer::setup( const gl::Texture &uiButtonsTex, const bool &showSettings, 
 
     // these rectangles are essentially constant (except for width), movement is handled by setTransform
     mPanelRect      = Rectf(0, 0, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
-	mPanelUpperRect = Rectf(0, 0, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
-	mPanelLowerRect = Rectf(0, 0, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
+	mPanelUpperRect = Rectf(0, 0, interfaceSize.x, mPanelOpenHeight);
+	mPanelLowerRect = Rectf(0, mPanelOpenHeight, interfaceSize.x, mPanelSettingsHeight);
     mPanelTabRect   = Rectf( interfaceSize.x - 179.0f, -42.0f, interfaceSize.x, 2.0f );
     
     // make sure we're showing enough, then update layout
@@ -169,21 +170,24 @@ void UiLayer::update()
 void UiLayer::draw()
 {	
     bloom::gl::beginBatch();
-    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.01f, 0.51f, 0.09f, 0.99f), mPanelUpperRect);
-    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.01f, 0.51f, 0.09f, 0.99f), mPanelLowerRect);
-    bloom::gl::batchRect(mUiButtonsTex, Rectf(0.11f, 0.0f, 1.0f, 1.0f), mPanelTabRect);
+    bloom::gl::batchRect( mButtonsTex, Rectf(0.01f, 0.91f, 0.09f, 0.99f), mPanelUpperRect);
+    bloom::gl::batchRect( mSettingsBgTex, Rectf(0.0f, 0.0f, 1.0f, 1.0f), mPanelLowerRect);
+    bloom::gl::batchRect( mButtonsTex, Rectf(0.11f, 0.8f, 1.0f, 1.0f), mPanelTabRect);
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );    
     bloom::gl::endBatch();
 
-    gl::color( ColorA( BRIGHT_BLUE, 0.2f ) );
-	gl::drawLine( Vec2f( mPanelRect.x1, 0.0f ), Vec2f( mPanelTabRect.x1 + 4, 0.0f ) );
+	const float dragAlphaPer = min( pow( ( mInterfaceSize.y - mPanelY ) / 65.0f, 2.0f ), 1.0f ); 
+	// top highlight stroke
+    gl::color( ColorA( BRIGHT_BLUE, 0.1f * dragAlphaPer + 0.1f ) );
+	gl::drawLine( Vec2f( mPanelRect.x1, 0.0f ), Vec2f( mPanelTabRect.x1, 0.0f ) );
 	
-	gl::color( ColorA( BRIGHT_BLUE, 0.1f ) );
-	gl::drawLine( Vec2f( mPanelRect.x1, mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelOpenHeight + 1.0f ) ); 
+	// settings highlight stroke
+//	gl::color( ColorA( BLUE, 0.2f ) );
+//	gl::drawLine( Vec2f( mPanelRect.x1, mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelOpenHeight + 1.0f ) ); 
     
     // apply this alpha to all children
     // FIXME: is there a more reliable way to do this, does UINode need more inheritable properties?
-    const float dragAlphaPer = pow( ( mInterfaceSize.y - mPanelY ) / 65.0f, 2.0f );    	
+       	
     gl::color( ColorA( 1.0f, 1.0f, 1.0f, dragAlphaPer ) );
     
     // FIXME: make an mActive bool so we can skip interaction and drawing if the panel is hiding

@@ -10,7 +10,9 @@
 #include "Globals.h"
 #include "cinder/Text.h"
 #include "cinder/gl/gl.h"
+#include "cinder/ImageIo.h"
 #include "UIController.h"
+#include "BloomGl.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -27,7 +29,11 @@ void FilterToggleButton::setup( const State::FilterMode &filterMode, const Font 
     layout.setFont( font );
     layout.setColor( ColorA( BRIGHT_BLUE, 1.0f ) );
     layout.addCenteredLine( "Playlists" );
-    mPlaylistTexture = gl::Texture( layout.render( true, false ) );    
+    mPlaylistTexture = gl::Texture( layout.render( true, false ) );
+	
+	mTex	= gl::Texture( loadImage( loadResource( "filterToggleButton.png" ) ) );
+	mRect	= Rectf( 0.0f, 0.0f, mTex.getWidth(), mTex.getHeight()/2 );
+	
 
 	const float padding = 10.0f;
 	const Vec2f paddingVec( padding, padding );
@@ -87,8 +93,12 @@ void FilterToggleButton::update()
 	if( mInterfaceSize != interfaceSize ){
 		mInterfaceSize = interfaceSize;
 		
+		float y = 30.0f;
+		if( mInterfaceSize.x < mInterfaceSize.y ) // portrait mode
+			y = 120.0f;
+		
 		Matrix44f mat;
-		mat.translate( Vec3f( mInterfaceSize.x/2 - mAlphaRect.getWidth(), 40.0f, 0.0f ) );
+		mat.translate( Vec3f( mInterfaceSize.x/2 - mAlphaRect.getWidth(), y, 0.0f ) );
 		setTransform( mat );
 	}
 }
@@ -97,20 +107,28 @@ void FilterToggleButton::draw()
 {    
     if (!mVisible) return; // FIXME fade in/out
     
-    gl::color( mFilterMode == State::FilterModeAlphaChar ? ColorA( BRIGHT_BLUE, 0.45f ) : ColorA( 0.0f, 0.0f, 0.0f, 0.15f) );
-    gl::drawSolidRect( mAlphaRect );
-    
-    gl::color( mFilterMode == State::FilterModePlaylist ? ColorA( BRIGHT_BLUE, 0.45f ) : ColorA( 0.0f, 0.0f, 0.0f, 0.15f) );
-    gl::drawSolidRect( mPlaylistRect );    
-    
-    gl::color( Color::white() );
-    gl::draw( mAlphaTexture, mAlphaPos );
-    gl::draw( mPlaylistTexture, mPlaylistPos );
-    
-    // FIXME: whither roundrect? :)
-    // at least, fix the corners to be snuggier than this
-    gl::color( ColorA( BRIGHT_BLUE, 0.25f ) );
-    gl::drawStrokedRect( mAlphaRect );
-    gl::drawStrokedRect( mPlaylistRect );    
-    //gl::drawLine( Vec2f(mInterfaceSize.x/2.0f, 100.0f), Vec2f(mInterfaceSize.x/2.0f, 100.0f+mAlphaTexture.getHeight()) );
+	bloom::gl::beginBatch();
+	if( mFilterMode == State::FilterModeAlphaChar ){
+		bloom::gl::batchRect( mTex, Rectf(0.0f, 0.0f, 1.0f, 0.5f), mRect );
+	} else {
+		bloom::gl::batchRect( mTex, Rectf(0.0f, 0.5f, 1.0f, 1.0f), mRect );
+	}
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );    
+    bloom::gl::endBatch();
+	
+//    gl::color( mFilterMode == State::FilterModeAlphaChar ? ColorA( BRIGHT_BLUE, 0.45f ) : ColorA( 0.0f, 0.0f, 0.0f, 0.15f) );
+//    gl::drawSolidRect( mAlphaRect );
+//    
+//    gl::color( mFilterMode == State::FilterModePlaylist ? ColorA( BRIGHT_BLUE, 0.45f ) : ColorA( 0.0f, 0.0f, 0.0f, 0.15f) );
+//    gl::drawSolidRect( mPlaylistRect );    
+//    
+//    gl::color( Color::white() );
+//    gl::draw( mAlphaTexture, mAlphaPos );
+//    gl::draw( mPlaylistTexture, mPlaylistPos );
+//    
+//    // FIXME: whither roundrect? :)
+//    // at least, fix the corners to be snuggier than this
+//    gl::color( ColorA( BRIGHT_BLUE, 0.25f ) );
+//    gl::drawStrokedRect( mAlphaRect );
+//    gl::drawStrokedRect( mPlaylistRect );    
 }
