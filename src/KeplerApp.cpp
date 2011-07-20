@@ -424,9 +424,10 @@ void KeplerApp::remainingSetup()
     mShowFilterGUI = false;
     
     // FILTER TOGGLE
-    mFilterToggleButton.setup( this, mState.getFilterMode(), mFontMedium, mOrientationHelper.getInterfaceOrientation() );
+    mFilterToggleButton.setup( mState.getFilterMode(), mFontMedium );
     mFilterToggleButton.registerFilterModeSelected( this, &KeplerApp::onFilterToggled );
-    
+    mUIControllerRef->addChild( UINodeRef(&mFilterToggleButton) );
+	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
 	mState.registerNodeSelected( this, &KeplerApp::onSelectedNodeChanged );
@@ -772,7 +773,6 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
         mHelpLayer.setInterfaceOrientation(orientation);
         mAlphaWheel.setInterfaceOrientation(orientation);
         mPlaylistChooser.setInterfaceOrientation(orientation);
-        mFilterToggleButton.setInterfaceOrientation(orientation);
         mNotificationOverlay.setInterfaceOrientation(orientation);
     }
 }
@@ -1862,8 +1862,6 @@ void KeplerApp::drawScene()
         // FIXME: we still automatically select the alpha char so this might never be called, right?
         console() << "unknown filter mode - do we draw the alphawheel or what?" << endl;
     }
-    
-    mFilterToggleButton.draw(); // FIXME: fade-in/out according to mShowFilterGUI?
     
 	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
 
