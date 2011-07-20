@@ -24,8 +24,11 @@ public:
     void setup( const State::FilterMode &filterMode, const ci::Font &font );
 	void update();
     void setFilterMode(const State::FilterMode &filterMode);
+
     void draw();
+	Rectf getRect(){ return mHitRect; }
     void setVisible( bool visible = true ) { mVisible = visible; }
+	bool isVisible(){ return mVisible; }
     
     template<typename T>
 	ci::CallbackId registerFilterModeSelected( T *obj, bool ( T::*callback )( State::FilterMode ) ){
@@ -44,6 +47,7 @@ private:
     Vec2f mPlaylistPos;
     Rectf mAlphaRect;
     Rectf mPlaylistRect;
+	Rectf mHitRect;
     
     State::FilterMode mFilterMode;
     ci::gl::Texture mAlphaTexture, mPlaylistTexture;

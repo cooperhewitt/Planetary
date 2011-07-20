@@ -40,6 +40,8 @@ void FilterToggleButton::setup( const State::FilterMode &filterMode, const Font 
 	mPlaylistRect	= Rectf( mPlaylistPos - paddingVec, 
 							mPlaylistPos + mPlaylistTexture.getSize() + paddingVec );
 	
+	mHitRect		= Rectf( mAlphaRect.getUpperLeft(), mPlaylistRect.getLowerRight() ); 
+	
     setFilterMode( filterMode );
 }
 

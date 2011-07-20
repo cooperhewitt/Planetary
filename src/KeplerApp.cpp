@@ -417,8 +417,9 @@ void KeplerApp::remainingSetup()
 	mAlphaWheel.setRects();
 	
     // PLAYLIST CHOOSER
-    mPlaylistChooser.setup( this, mOrientationHelper.getInterfaceOrientation(), mFont, BRIGHT_BLUE );
+    mPlaylistChooser.setup( mFontBig, BRIGHT_BLUE );
     mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
+	mUIControllerRef->addChild( UINodeRef(&mPlaylistChooser) );
     // FIXME register listeners
     
     mShowFilterGUI = false;
@@ -689,6 +690,9 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	mTouchPos		= averageTouchPos;
 	mPinchRotation	+= event.getRotationDelta();
 
+	mTimePinchEnded = getElapsedSeconds();
+	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );
+	
     return false;
 }
 
@@ -707,6 +711,7 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 	
 	mTimePinchEnded = getElapsedSeconds();
 	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );
+	
     mPinchRays.clear();
 	mIsPinching = false;
     return false;
@@ -719,10 +724,19 @@ bool KeplerApp::keepTouchForPinching( TouchEvent::Touch touch )
 
 bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
 {
-    Vec2f worldPos = (mInverseOrientationMatrix * Vec3f(screenPos,0)).xy();
-    bool aboveUI = worldPos.y < mUiLayer.getPanelYPos();
-    bool notTab = !mUiLayer.getPanelTabRect().contains(worldPos);
-    return aboveUI && notTab;
+	Vec2f worldPos			= (mInverseOrientationMatrix * Vec3f(screenPos,0)).xy();
+    bool aboveUI			= worldPos.y < mUiLayer.getPanelYPos();
+    bool notTab				= !mUiLayer.getPanelTabRect().contains(worldPos);
+    bool notFilterToggle	= true;
+    if ( mFilterToggleButton.isVisible() && mFilterToggleButton.getRect().contains(worldPos) ) 
+        notFilterToggle = false;
+	
+    bool notPlaylistChooser = true;
+    if ( mPlaylistChooser.isVisible() && mPlaylistChooser.getRect().contains(worldPos) ) 
+        notPlaylistChooser = false;
+	
+    // FIXME: to be complete: notAlphaWheel?
+    return aboveUI && notTab && notFilterToggle && notPlaylistChooser;
 }
 
 
@@ -772,7 +786,6 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
     if (mData.getState() == Data::LoadStateComplete) {
         mHelpLayer.setInterfaceOrientation(orientation);
         mAlphaWheel.setInterfaceOrientation(orientation);
-        mPlaylistChooser.setInterfaceOrientation(orientation);
         mNotificationOverlay.setInterfaceOrientation(orientation);
     }
 }
@@ -1063,25 +1076,15 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
         
 		case PlayControls::USE_GYRO:
-//			{
-//				std::cout << "Starting tile render" << std::endl;
-//				gl::TileRender tr( getWindowWidth() * 3, getWindowHeight() * 3, 11, 131 );
-//				std::cout << "Tile Renderer initialized" << std::endl;
-//				tr.setMatrices( mCam );
-//				std::cout << "Matrices set" << std::endl;
-//				while( tr.nextTile() ) {
-//					std::cout << "While..." << std::endl;
-//					draw();
-//					std::cout << "Scene drawn" << std::endl;
-//				}
-//				std::cout << "done while." << std::endl;
-//				writeImage( getHomeDirectory() + "tileRenderOutput.png", tr.getSurface() );
-//				std::cout << "Image written" << std::endl;
-//			}
 			
 			if( G_SHOW_SETTINGS ){
 				logEvent("Use Gyro Button Selected");            
 				G_USE_GYRO = !G_USE_GYRO;
+				
+				if( ! G_USE_GYRO ) mUp = getUpVectorForOrientation( mInterfaceOrientation );
+				else			   mUp = Vec3f::yAxis();
+				
+				
 				if( G_USE_GYRO )	mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 0.0f, 640.0f, 128.0f ), "GYROSCOPE" );
 				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 128.0f, 640.0f, 256.0f ), "GYROSCOPE" );
 			}
@@ -1292,8 +1295,8 @@ void KeplerApp::update()
 			mCamAutoMove = false;
 		}
 
-        updateArcball();
-
+		updateArcball();
+		
         // fake playhead time if we're dragging (so it looks really snappy)
         if (mPlayControls.playheadIsDragging()) {
 //            std::cout << "updating current playhead time from slider" << std::endl;                
@@ -1400,16 +1403,16 @@ void KeplerApp::update()
 void KeplerApp::updateArcball()
 {	
 	if( mTouchVel.length() > 2.0f && !mIsDragging ){
-        Vec3f downPos;
+		Vec3f downPos;
 		if( G_USE_GYRO )	downPos = ( Vec3f(mTouchPos,0) );
 		else				downPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos,0) );
-        mArcball.mouseDown( Vec2i(downPos.x, downPos.y) );
+		mArcball.mouseDown( Vec2i(downPos.x, downPos.y) );
 		
 		Vec3f dragPos;
 		if( G_USE_GYRO )	dragPos = ( Vec3f(mTouchPos + mTouchVel,0) );
 		else				dragPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos + mTouchVel,0) );
-        mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
-	}	
+		mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
+	}
 }
 
 
@@ -1574,7 +1577,6 @@ void KeplerApp::draw()
 	} else {
 		drawScene();
 	}
-    mNotificationOverlay.draw();
     
     const GLenum discards[]  = {GL_DEPTH_ATTACHMENT_OES};
 //    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -1856,7 +1858,7 @@ void KeplerApp::drawScene()
         mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
     }
     else if (mState.getFilterMode() == State::FilterModePlaylist) {
-        mPlaylistChooser.draw(); // FIXME: what does this do?
+//        mPlaylistChooser.draw(); // FIXME: what does this do?
     }
     else {
         // FIXME: we still automatically select the alpha char so this might never be called, right?

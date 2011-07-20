@@ -236,10 +236,10 @@ bool AlphaWheel::touchesMoved( TouchEvent event )
     for (int i = 0; i < touches.size(); i++) {
         TouchEvent::Touch touch = touches[i];
         // only follow the last valid touch we received
-//        if (touch.getId() == mActiveTouchId) {
-//            mLastTouchPos = touch.getPos();
-//            return selectWheelItem( mLastTouchPos, false );
-//        }
+        if (touch.getId() == mActiveTouchId) {
+            mLastTouchPos = touch.getPos();
+            return selectWheelItem( mLastTouchPos, false );
+        }
     }
 	
 	return false;
