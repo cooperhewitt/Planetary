@@ -158,14 +158,14 @@ void UIController::update()
 float UIController::getOrientationAngle( const Orientation &orientation )
 {
     switch (orientation) {
-        case PORTRAIT_ORIENTATION:
-            return 0.0;
         case LANDSCAPE_LEFT_ORIENTATION:
             return M_PI * 3.0f / 2.0f;
         case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
             return M_PI;
         case LANDSCAPE_RIGHT_ORIENTATION:
             return M_PI / 2.0f;
+        case PORTRAIT_ORIENTATION:
+        default:
+            return 0.0;
     }
-    return 0.0f;
 }

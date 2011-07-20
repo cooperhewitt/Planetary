@@ -369,9 +369,6 @@ void KeplerApp::remainingSetup()
 // STATS
     mStats.setup( mFont, BRIGHT_BLUE, BLUE );
 	
-// NOTIFICATION OVERLAY
-	mNotificationOverlay.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontBig );
-	
 // TOUCH VARS
 	mTouchPos			= getWindowCenter();
 	mTouchVel			= Vec2f(2.1f, 0.3f );
@@ -458,7 +455,11 @@ void KeplerApp::remainingSetup()
 
     // Make sure initial PlayControl settings are correct:
     mPlayControls.setAlphaWheelVisible( mShowFilterGUI ); // TODO: maybe move this to mPlayControls.setup()?
-    
+
+    // NOTIFICATION OVERLAY
+	mNotificationOverlay.setup( mFontBig );
+    mUIControllerRef->addChild( UINodeRef(&mNotificationOverlay) );	
+
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
 
     //console() << "setupEnd: " << getElapsedSeconds() << std::endl;
@@ -776,7 +777,6 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
         mAlphaWheel.setInterfaceOrientation(orientation);
         mPlaylistChooser.setInterfaceOrientation(orientation);
         mFilterToggleButton.setInterfaceOrientation(orientation);
-        mNotificationOverlay.setInterfaceOrientation(orientation);
     }
 }
 
@@ -1280,7 +1280,6 @@ void KeplerApp::update()
         mAlphaWheel.setInterfaceOrientation( mInterfaceOrientation );
         mPlaylistChooser.setInterfaceOrientation( mInterfaceOrientation );
         mFilterToggleButton.setInterfaceOrientation( mInterfaceOrientation );
-        mNotificationOverlay.setInterfaceOrientation( mInterfaceOrientation );
         
         // and then make sure we know about the current track if there is one...
         if ( mIpodPlayer.hasPlayingTrack() ) {
@@ -1428,8 +1427,6 @@ void KeplerApp::update()
             remainingSetup();
         }        
     }
-    
-    mNotificationOverlay.update();
 }
 
 void KeplerApp::updateArcball()
@@ -1609,7 +1606,6 @@ void KeplerApp::draw()
 	} else {
 		drawScene();
 	}
-    mNotificationOverlay.draw();
     
     const GLenum discards[]  = {GL_DEPTH_ATTACHMENT_OES};
 //    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -1905,9 +1901,6 @@ void KeplerApp::drawScene()
     // UILayer and PlayControls draw here:
     mUIControllerRef->draw();
 
-    gl::enableAdditiveBlending();    
-	mNotificationOverlay.draw();
-	
 	if( G_DEBUG ){
         //gl::setMatricesWindow( getWindowSize() );
         mStats.draw( mOrientationMatrix );
