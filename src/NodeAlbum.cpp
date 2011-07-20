@@ -334,7 +334,7 @@ void NodeAlbum::drawPlanet( const gl::Texture &tex )
 		
 		
 		if( mIsHighlighted ){
-			const float eclipseAmt = ( 1.0f - mParentNode->mEclipseStrength );
+			const float eclipseAmt = ( 1.0f - mEclipseStrength ) * 0.5f + 0.5f;
 			gl::color( ColorA( eclipseAmt, eclipseAmt, eclipseAmt, mClosenessFadeAlpha * mBlockedBySunPer ) );
 			gl::enableAlphaBlending();
 		} else {
@@ -413,7 +413,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 				gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
 				lodSphere->draw();
 			}
-			const float eclipseAmt = ( 1.0f - mParentNode->mEclipseStrength );
+			const float eclipseAmt = ( 1.0f - mEclipseStrength ) * 0.5f + 0.5f;
 			gl::color( ColorA( eclipseAmt, eclipseAmt, eclipseAmt, alpha * 2.0f ) );
 		} else {
 			gl::color( ColorA( BLUE, alpha * 2.0f ) );

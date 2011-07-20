@@ -73,6 +73,7 @@
 		E1C6FFF3131847A40022246C /* Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C6FFF2131847A40022246C /* Data.cpp */; };
 		E1C942C7137B9BD900F88EA2 /* darkMatter.png in Resources */ = {isa = PBXBuildFile; fileRef = E1C942C6137B9BD900F88EA2 /* darkMatter.png */; };
 		E1D32DDC13D67BE3002F33ED /* playlist.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DDB13D67BE3002F33ED /* playlist.png */; };
+		E1D32DEC13D6C2E2002F33ED /* playlistBg.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DEB13D6C2E2002F33ED /* playlistBg.png */; };
 		E1D99A84134A9DB3003FC316 /* blurRect.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A83134A9DB3003FC316 /* blurRect.png */; };
 		E1D99A8E134AFF2F003FC316 /* alphaWheelMask.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */; };
 		E1D99A98134BD490003FC316 /* planet.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A96134BD490003FC316 /* planet.png */; };
@@ -204,6 +205,7 @@
 		E1C6FFF2131847A40022246C /* Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Data.cpp; path = ../src/Data.cpp; sourceTree = SOURCE_ROOT; };
 		E1C942C6137B9BD900F88EA2 /* darkMatter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = darkMatter.png; path = ../darkMatter.png; sourceTree = "<group>"; };
 		E1D32DDB13D67BE3002F33ED /* playlist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playlist.png; path = ../resources/playlist.png; sourceTree = "<group>"; };
+		E1D32DEB13D6C2E2002F33ED /* playlistBg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playlistBg.png; path = ../resources/playlistBg.png; sourceTree = "<group>"; };
 		E1D99A83134A9DB3003FC316 /* blurRect.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = blurRect.png; path = ../resources/ui/blurRect.png; sourceTree = "<group>"; };
 		E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = alphaWheelMask.png; path = ../resources/ui/alphaWheelMask.png; sourceTree = "<group>"; };
 		E1D99A96134BD490003FC316 /* planet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = planet.png; path = ../resources/loadscreen/planet.png; sourceTree = "<group>"; };
@@ -464,6 +466,7 @@
 		E12766401325E28900E1FC3F /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				E1D32DEB13D6C2E2002F33ED /* playlistBg.png */,
 				E1D32DDB13D67BE3002F33ED /* playlist.png */,
 				E10F84E2139899740062F73C /* overlayIcons.png */,
 				E1555CA4131EEBEB0079B05A /* dotted.png */,
@@ -965,6 +968,7 @@
 				E23C29FD13B1A9710038F3F4 /* galaxyCropped.jpg in Resources */,
 				E23C29FE13B1A9710038F3F4 /* galaxyCropped.pvr in Resources */,
 				E1D32DDC13D67BE3002F33ED /* playlist.png in Resources */,
+				E1D32DEC13D6C2E2002F33ED /* playlistBg.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

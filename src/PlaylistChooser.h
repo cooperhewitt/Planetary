@@ -92,7 +92,7 @@ private:
 	
 	std::map<int, ci::gl::Fbo> mFboMap;
     
-    ci::gl::Texture	mTex;
+    ci::gl::Texture	mTex, mBgTex;
     
     bool			touchBegan( ci::app::TouchEvent::Touch touch );
     bool			touchMoved( ci::app::TouchEvent::Touch touch );
@@ -110,7 +110,8 @@ private:
 	int mTotalVertices;
     int mPrevTotalVertices; // so we only recreate frames
 	VertexData *mVerts;
-    
+	
+	
 	ci::CallbackMgr<bool(ci::ipod::PlaylistRef)> mCbPlaylistSelected;        
     
     void getWindowSpaceRect( float &x, float &y, float &w, float &h );

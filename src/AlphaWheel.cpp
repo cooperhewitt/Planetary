@@ -48,7 +48,7 @@ void AlphaWheel::setup( AppCocoaTouch *app, const Orientation &orientation, cons
 	mAlphaChar		= ' ';
 	mPrevAlphaChar	= ' ';
 	mShowWheel		= false;
-	mWheelScale		= 1.0f;	
+	mWheelScale		= 1.0f;
 	
 	initAlphaTextures( font );
     // just do orientation stuff in here:
@@ -354,33 +354,6 @@ void AlphaWheel::drawWheel()
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	mWheelTex.disable();
-	
-//    float wMask = mWheelTex.getWidth() * 0.5f;
-//    float hMask = mWheelTex.getHeight() * 0.5f;
-//
-//    float c = 1.0f - mWheelScale;
-//    gl::color( ColorA( c, c, c, c ) );
-//    
-//    mWheelTex.enableAndBind();
-//    gl::drawSolidRect( Rectf( -wMask, -hMask, wMask, hMask ) );
-//    mWheelTex.disable();    
-//	
-//    // TODO: batch this geometry, adapt bloom::gl::batchRect() for solid fills    
-//    if ( isLandscapeOrientation(mInterfaceOrientation) ) {
-//        Vec2f interfaceSize = getWindowSize().yx(); // SWIZ!
-//        gl::color( Color::black() );
-//        // left bar, relative to center:
-//        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, -wMask, hMask ) );
-//        // right bar, relative to center:
-//        gl::drawSolidRect( Rectf( wMask, -interfaceSize.y/2, interfaceSize.x/2, hMask ) );
-//    } else {
-//		Vec2f interfaceSize = getWindowSize().xy();
-//		gl::color( Color::black() );
-//        // top bar, relative to center:
-//        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, interfaceSize.x/2, -hMask ) );
-//        // bottom bar, relative to center:
-//        gl::drawSolidRect( Rectf( -interfaceSize.x/2, hMask, interfaceSize.x/2, interfaceSize.y/2 ) );
-//	}
 }
 
 void AlphaWheel::drawAlphaChar()

@@ -110,6 +110,7 @@ class KeplerApp : public AppCocoaTouch {
     void            togglePlayPaused();
 	bool			onPlayControlsPlayheadMoved ( float amount );
     void            updatePlaylistControls();
+    void            flyToCurrentTrack();
 	
     bool			onSelectedNodeChanged( Node *node );
 
@@ -783,6 +784,7 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
     //        EXCEPT: they would also need the orientation helper to proxy mouse/touch events and correct the positions
     
     mLoadingScreen.setInterfaceOrientation(orientation);
+
     if (mData.getState() == Data::LoadStateComplete) {
         mHelpLayer.setInterfaceOrientation(orientation);
         mAlphaWheel.setInterfaceOrientation(orientation);
@@ -1098,8 +1100,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			
         case PlayControls::GOTO_CURRENT_TRACK:
             logEvent("Current Track Button Selected");            
-            // pretend the track just got changed again, this will select it:
-            onPlayerTrackChanged( &mIpodPlayer );
+            flyToCurrentTrack();
             break;
 			
 		case PlayControls::SETTINGS:
@@ -1160,6 +1161,32 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 	} // switch
 
 	return false;
+}
+
+// heavy function, should be avoided but should do the right thing when needed
+void KeplerApp::flyToCurrentTrack()
+{
+	if (mIpodPlayer.hasPlayingTrack()) {
+        
+        ipod::TrackRef newTrack = mIpodPlayer.getPlayingTrack();
+        
+        uint64_t trackId = newTrack->getItemId();
+        uint64_t artistId = newTrack->getArtistId();
+        uint64_t albumId = newTrack->getAlbumId();            
+        
+        // trigger hefty stuff in onAlphaCharStateChanged if needed
+        mState.setAlphaChar( newTrack->getArtist() ); 
+        
+        // be sure to create nodes for artist, album and track:
+        mWorld.selectHierarchy( artistId, albumId, trackId );
+        
+        // make sure the previous selection is correctly unselected
+        // (see also: onSelectedNodeChanged, triggered by this call):
+        mState.setSelectedNode( mWorld.getTrackNodeById( artistId, albumId, trackId ) );    
+        
+        // then sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
+        mWorld.updateIsPlaying( artistId, albumId, trackId );        
+    }
 }
 
 void KeplerApp::togglePlayPaused()
@@ -1250,6 +1277,11 @@ void KeplerApp::update()
         // reset...
         onSelectedNodeChanged( NULL );
 
+        // make sure everything that was ignoring orientation changes is updated:
+        mHelpLayer.setInterfaceOrientation( mInterfaceOrientation );
+        mAlphaWheel.setInterfaceOrientation( mInterfaceOrientation );
+        mNotificationOverlay.setInterfaceOrientation( mInterfaceOrientation );
+        
         // and then make sure we know about the current track if there is one...
         if ( mIpodPlayer.hasPlayingTrack() ) {
             std::cout << "Startup with Track Playing" << std::endl;
@@ -1452,7 +1484,8 @@ void KeplerApp::updateCamera()
 		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.1f;
 		mIsPastPinchThresh = false;
 		
-        if( mAlphaWheel.getShowWheel() ){
+//        if( mAlphaWheel.getShowWheel() ){
+		if( mFilterToggleButton.isVisible() ){
             mFovDest = G_MAX_FOV; // special FOV just for alpha wheel
         } else {
             mFovDest = G_DEFAULT_FOV;
@@ -1628,8 +1661,9 @@ void KeplerApp::drawScene()
         c = Color( CM_HSV, mPinchPer * 0.3f + 0.7f, 1.0f, 1.0f );
     
     if( artistNode && artistNode->mDistFromCamZAxis > 0.0f ){
-        float eclipseAmt = ( 1.0f - artistNode->mEclipseStrength );
-        gl::color( lerp( BLUE, BRIGHT_BLUE, eclipseAmt ) );
+		float distToCenter = min( ( ( getWindowCenter() - artistNode->mScreenPos ).length()/80.0f ) + ( 1.0f - mFadeInArtistToAlbum ), 1.0f );
+        gl::color( lerp( ( artistNode->mGlowColor + BRIGHT_BLUE ) * 0.15f, BRIGHT_BLUE, distToCenter ) );
+
     } else {
         gl::color( BRIGHT_BLUE );
     }
@@ -1923,8 +1957,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         mCurrentTrackLength = mPlayingTrack->getLength();
         
         // reset the mPlayingTrackNode orbit and playhead displays (see update())
-        mPlayheadUpdateSeconds = getElapsedSeconds();        
-        mCurrentTrackPlayheadTime = 0.0f;
+        mPlayheadUpdateSeconds = -1;
         
         string artistName = mPlayingTrack->getArtist();
         
@@ -2006,6 +2039,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
 bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 {	
+    static bool firstRun = true;
+    
     ipod::Player::State prevPlayState = mCurrentPlayState;
     const bool wasPaused = (prevPlayState == ipod::Player::StatePaused);
     
@@ -2022,7 +2057,7 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 
     // make sure mCurrentTrack and mWorld.mPlayingTrackNode are taken care of,
     // unless we're just continuing to play a track we're already aware of
-    if (!wasPaused && isPlaying) {
+    if ((!wasPaused && isPlaying) || firstRun) {
         onPlayerTrackChanged( player );
     }
     
@@ -2030,6 +2065,8 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
     std::map<string, string> params;
     params["State"] = mIpodPlayer.getPlayStateString();
     logEvent("Player State Changed", params);
+    
+    firstRun = false;
     
     return false;
 }

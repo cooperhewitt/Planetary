@@ -10,6 +10,7 @@
 #include "cinder/Vector.h"
 #include "cinder/PolyLine.h"
 #include "cinder/ImageIo.h"
+#include "cinder/Rand.h"
 #include "PlaylistChooser.h"
 #include "NodeArtist.h"
 #include "UIController.h"
@@ -47,6 +48,7 @@ void PlaylistChooser::setup( const Font &font, const Color &lineColor )
 	mStartY					= 350.0f;
 	mHitRect				= Rectf( 0.0f, 0.0f, 10.0f, 10.0f ); // paranoid if i didn't init it
 	mTex					= gl::Texture( loadImage( loadResource( "playlist.png" ) ) );
+	mBgTex					= gl::Texture( loadImage( loadResource( "playlistBg.png" ) ) );	
 }
 
 bool PlaylistChooser::touchBegan( ci::app::TouchEvent::Touch touch )
@@ -120,11 +122,12 @@ void PlaylistChooser::update()
 	if( mInterfaceSize != interfaceSize ){
 		mInterfaceSize	= interfaceSize;
 		
+		mStartY			= mInterfaceSize.y * 0.5f;
 		mHitRect		= Rectf( 0.0f, mStartY - 150.0f, mInterfaceSize.x, mStartY + 150.0f );
 		mXCenter		= mInterfaceSize.x * 0.5f;
 		mEndX			= mInterfaceSize.x - mBorder;
 		
-		mLeftLimit		= mXCenter - 200.0f;
+		mLeftLimit		= mXCenter - mPlaylistWidth;
 		mMaxOffsetX		= ( mNumPlaylists * mPlaylistWidth) + ( (mNumPlaylists-1) * mSpacerWidth ) - (mEndX - mStartX) + mLeftLimit;
 		mMinOffsetX		= -mLeftLimit;
 		
@@ -190,7 +193,7 @@ void PlaylistChooser::draw()
         if( pos.x < mEndX && pos.x + mPlaylistWidth > mStartX )
 		{
 			float x			= pos.x + mPlaylistWidth * 0.5f; // x center of the rect
-			float sinScale	= getScale( x );
+			float sinScale	= getScale( x ) * 1.25f;
 			float depth		= sinScale * 0.2f;
 			float alpha		= getAlpha( x );
 			Vec2f p			= Vec2f( getNewX( x ), mStartY );
@@ -206,9 +209,8 @@ void PlaylistChooser::draw()
 			if (iter == mFboMap.end() ) 
 				makeFbo( i, playlist );
 			
-			
-			
-			Vec4f col( 1.0f, 1.0f, 1.0f, alpha );
+			gl::enableAdditiveBlending();
+			gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha ) );
 			glPushMatrix();
 			glTranslatef( 0.0f, 0.0f, depth );
 			gl::draw( mFboMap.find(i)->second.getTexture(0), Rectf( rect.x1, rect.y2, rect.x2, rect.y1 ) );
@@ -246,29 +248,34 @@ void PlaylistChooser::makeFbo( int index, ipod::PlaylistRef playlist )
 	gl::enableAlphaBlending();
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
-	gl::clear( BRIGHT_BLUE );
+	gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
 	
 	string name = playlist->getPlaylistName();
 	TextLayout layout;
 	layout.setFont( mFont );
-	layout.setColor( Color( 1, 1, 1 ) );
+	layout.setColor( BRIGHT_BLUE );
 	layout.addLine( name );
 	gl::Texture textTexture = gl::Texture( layout.render( true, false ) );
 	
-	gl::color( Color( 0.0f, 0.0f, 0.0f ) );
-	gl::drawSolidRect( Rectf( 6.0f, 6.0f, FBO_WIDTH-6.0f, FBO_HEIGHT-6.0f ) );
+
+//	gl::color( ColorA( BRIGHT_BLUE, 0.2f ) );
+//	gl::drawSolidRect( Rectf( 4.0f, 4.0f, FBO_WIDTH-5.0f, FBO_HEIGHT-5.0f ) );
 	
 	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
-	gl::draw( textTexture, Vec2f( 15, 15 ) );
 	
+	gl::draw( mBgTex );
+	gl::draw( textTexture, Vec2f( FBO_WIDTH/2 - textTexture.getWidth()/2, 20.0f ) );
+	
+	float size = 35.0f;
 	gl::enableAdditiveBlending();
 	for (int j = 0; j < playlist->size(); j++) {            
 		ipod::TrackRef track = (*playlist)[j];
 		NodeArtist* nodeArtist = mWorld->getArtistNodeById( track->getArtistId() );
-		gl::color( nodeArtist->mGlowColor );
-		Vec2f pos = nodeArtist->mPos.xz() * 1.5f + Vec2f( FBO_WIDTH/2.0f, FBO_HEIGHT/2.0f );
-		gl::draw( mTex, Rectf( pos.x - 25.0f, pos.y - 25.0f, pos.x + 25.0f, pos.y + 25.0f ) );
+		gl::color( nodeArtist->mColor );
+		Vec2f pos = nodeArtist->mPos.xz() * 1.75f + Vec2f( FBO_WIDTH/2.0f, FBO_HEIGHT/2.0f );
+		pos += Rand::randVec2f() * Rand::randFloat( 3.0f );
+		gl::draw( mTex, Rectf( pos.x - size, pos.y - size, pos.x + size, pos.y + size ) );
 	}
 
 
@@ -351,11 +358,13 @@ void PlaylistChooser::makeFbo( int index, ipod::PlaylistRef playlist )
 //}
 
 
+
+
 float PlaylistChooser::getAlpha( float x )
 {
 	float per		= x/mInterfaceSize.x;
 	float invCos	= ( 1.0f - (float)cos( per * M_PI * 2.0f ) ) * 0.5f;
-	float cosPer	= pow( invCos, 0.25f );
+	float cosPer	= pow( invCos, 6.0f );
 	return cosPer;
 }
 
@@ -363,7 +372,7 @@ float PlaylistChooser::getScale( float x )
 {
 	float per		= x/mInterfaceSize.x;
 	float invCos	= ( 1.0f - (float)cos( per * M_PI * 2.0f ) ) * 0.5f;
-	float cosPer	= max( pow( invCos, 3.5f ) + 0.25f, 0.5f );
+	float cosPer	= max( pow( invCos, 3.5f ) + 0.4f, 0.5f );
 	return cosPer;
 }
 
