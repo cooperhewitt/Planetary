@@ -24,7 +24,7 @@ public:
     void setInterfaceSize( ci::Vec2f interfaceSize ) { mInterfaceSize = interfaceSize; }
     
     ci::app::Orientation getInterfaceOrientation() { return mInterfaceOrientation; }
-    void setInterfaceOrientation( const ci::app::Orientation &orientation );
+    void setInterfaceOrientation( const ci::app::Orientation &orientation, bool animate = true );
     
     // UIController draw/update starts the chain off, very much does *not* draw/update itself :)
     virtual void draw();
@@ -82,14 +82,25 @@ protected:
     bool touchesEnded( ci::app::TouchEvent event );
 	bool orientationChanged( ci::app::OrientationEvent event );
     
+    float getOrientationAngle( const ci::app::Orientation &orientation );
+    
     ci::app::AppCocoaTouch *mApp;
     ci::app::OrientationHelper *mOrientationHelper;
     
     ci::CallbackId cbTouchesBegan, cbTouchesMoved, cbTouchesEnded, cbOrientationChanged;
 
     ci::app::Orientation mInterfaceOrientation;
-    ci::Matrix44f mOrientationMatrix;
-    ci::Vec2f mInterfaceSize;
+    ci::Matrix44f        mOrientationMatrix;    // animated based on targets
+    ci::Vec2f            mInterfaceSize;        // animated based on target
+    float                mInterfaceAngle;       // animated, not always right-angle   
+    ci::Vec2f            mTargetInterfaceSize;  // depends on mInterfaceOrientation
+    float                mTargetInterfaceAngle; // normalized for shortest rotation animation
+
+    // for lerping:
+    float mLastOrientationChangeTime;
+    float mOrientationAnimationDuration;
+    float mPrevInterfaceAngle;
+    ci::Vec2f mPrevInterfaceSize;
     
 	ci::CallbackMgr<bool(UINodeRef)> mCbUINodeTouchBegan;
 	ci::CallbackMgr<bool(UINodeRef)> mCbUINodeTouchMoved;

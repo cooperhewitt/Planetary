@@ -23,7 +23,8 @@ UIController::UIController( AppCocoaTouch *app, OrientationHelper *orientationHe
     if (mOrientationHelper) {
         cbOrientationChanged = mOrientationHelper->registerOrientationChanged( this, &UIController::orientationChanged );    
     }
-    setInterfaceOrientation( mOrientationHelper->getInterfaceOrientation() );
+    mOrientationAnimationDuration = 0.25f;
+    setInterfaceOrientation( mOrientationHelper->getInterfaceOrientation(), false );
 }
 
 UIController::~UIController()
@@ -66,16 +67,45 @@ bool UIController::orientationChanged( OrientationEvent event )
     return false;
 }
 
-void UIController::setInterfaceOrientation( const Orientation &orientation )
+void UIController::setInterfaceOrientation( const Orientation &orientation, bool animate )
 {
     mInterfaceOrientation = orientation;
-    // TODO: construct this matrix from translate/rotate components so it can be animated
-    mOrientationMatrix = getOrientationMatrix44(mInterfaceOrientation, getWindowSize());
-    // TODO: animate interface size as well (except on first call)
-    mInterfaceSize = app::getWindowSize();
-    if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
-        mInterfaceSize = mInterfaceSize.yx(); // swizzle it!
-    }        
+
+    // get the facts
+    Vec2f deviceSize = mApp->getWindowSize();
+    float orientationAngle = getOrientationAngle(mInterfaceOrientation);
+    
+    // normalize interface angle (could be many turns)
+    while (mInterfaceAngle < 0.0) mInterfaceAngle += 2.0f * M_PI;
+    while (mInterfaceAngle > 2.0f * M_PI) mInterfaceAngle -= 2.0f * M_PI;
+    
+    // assign new targets
+    mTargetInterfaceSize.x = fabs(deviceSize.x * cos(orientationAngle) + deviceSize.y * sin(orientationAngle));
+    mTargetInterfaceSize.y = fabs(deviceSize.y * cos(orientationAngle) + deviceSize.x * sin(orientationAngle));
+    mTargetInterfaceAngle = 2.0f*M_PI-orientationAngle;
+    
+    // make sure we're turning the right way
+    if (abs(mTargetInterfaceAngle-mInterfaceAngle) > M_PI) {
+        if (mTargetInterfaceAngle < mInterfaceAngle) {
+            mTargetInterfaceAngle += 2.0f * M_PI;
+        }
+        else {
+            mTargetInterfaceAngle -= 2.0f * M_PI;
+        }
+    }
+    
+    mLastOrientationChangeTime = mApp->getElapsedSeconds();
+
+    if (!animate) {
+        // jump to animation end
+        mInterfaceSize = mTargetInterfaceSize;
+        mInterfaceAngle = mTargetInterfaceAngle;
+        mLastOrientationChangeTime = -1;                
+    }
+    
+    // remember current values for lerping later
+    mPrevInterfaceAngle = mInterfaceAngle;
+    mPrevInterfaceSize = mInterfaceSize;    
 }
 
 Matrix44f UIController::getConcatenatedTransform() const
@@ -97,9 +127,45 @@ void UIController::draw()
 
 void UIController::update()
 {
+    // animate transition
+    float t = mApp->getElapsedSeconds() - mLastOrientationChangeTime;
+    if (t < mOrientationAnimationDuration) {
+        float p = t / mOrientationAnimationDuration;
+        mInterfaceSize = lerp(mPrevInterfaceSize, mTargetInterfaceSize, p);
+        mInterfaceAngle = lerp(mPrevInterfaceAngle, mTargetInterfaceAngle, p);
+    }
+    else {
+        // ensure snap to final values
+        mInterfaceSize = mTargetInterfaceSize;
+        mInterfaceAngle = mTargetInterfaceAngle;        
+    }
+    
+    Vec2f deviceSize = mApp->getWindowSize();
+
+    // update matrix (for globalToLocal etc)
+    mOrientationMatrix.setToIdentity();
+    mOrientationMatrix.translate( Vec3f(deviceSize/2.0f,0) );
+    mOrientationMatrix.rotate( Vec3f(0,0,mInterfaceAngle) );
+    mOrientationMatrix.translate( Vec3f(-mInterfaceSize/2.0f,0) );    
+    
     // update children
     for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
         (*i)->privateUpdate();
     }
     // dont' update self or we'll recurse
+}
+
+float UIController::getOrientationAngle( const Orientation &orientation )
+{
+    switch (orientation) {
+        case PORTRAIT_ORIENTATION:
+            return 0.0;
+        case LANDSCAPE_LEFT_ORIENTATION:
+            return M_PI * 3.0f / 2.0f;
+        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
+            return M_PI;
+        case LANDSCAPE_RIGHT_ORIENTATION:
+            return M_PI / 2.0f;
+    }
+    return 0.0f;
 }
