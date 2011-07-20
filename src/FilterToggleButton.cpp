@@ -29,6 +29,17 @@ void FilterToggleButton::setup( const State::FilterMode &filterMode, const Font 
     layout.addCenteredLine( "Playlists" );
     mPlaylistTexture = gl::Texture( layout.render( true, false ) );    
 
+	const float padding = 10.0f;
+	const Vec2f paddingVec( padding, padding );
+	
+	mAlphaPos		= Vec2f( padding, padding );
+	mPlaylistPos	= Vec2f( mAlphaTexture.getWidth() + padding * 3.0f, padding );
+	
+	mAlphaRect		= Rectf( mAlphaPos - paddingVec, 
+							mAlphaPos + mAlphaTexture.getSize() + paddingVec );
+	mPlaylistRect	= Rectf( mPlaylistPos - paddingVec, 
+							mPlaylistPos + mPlaylistTexture.getSize() + paddingVec );
+	
     setFilterMode( filterMode );
 }
 
@@ -73,17 +84,10 @@ void FilterToggleButton::update()
 	Vec2f interfaceSize = mRoot->getInterfaceSize();
 	if( mInterfaceSize != interfaceSize ){
 		mInterfaceSize = interfaceSize;
-	
-		const float padding = 10.0f;
-		const Vec2f paddingVec( padding, padding );
 		
-		mAlphaPos.set( mInterfaceSize.x/2.0f - mAlphaTexture.getWidth() - padding, 60.0f );
-		mPlaylistPos.set( mInterfaceSize.x/2.0f + padding, 60.0f );
-		
-		mAlphaRect = Rectf( mAlphaPos - paddingVec, 
-							mAlphaPos + mAlphaTexture.getSize() + paddingVec );
-		mPlaylistRect = Rectf( mPlaylistPos - paddingVec, 
-							   mPlaylistPos + mPlaylistTexture.getSize() + paddingVec );
+		Matrix44f mat;
+		mat.translate( Vec3f( mInterfaceSize.x/2 - mAlphaRect.getWidth(), 40.0f, 0.0f ) );
+		setTransform( mat );
 	}
 }
 
