@@ -392,6 +392,14 @@ void KeplerApp::remainingSetup()
     // NB:- order of UI init is important to register callbacks and drawing in correct order
     mUIControllerRef = UIControllerRef(new UIController(this, &mOrientationHelper));
 
+    // ALPHA WHEEL
+	mAlphaWheel.setup( mFontBig );
+	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
+	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
+	//mAlphaWheel.initAlphaTextures( mFontBig );
+	//mAlphaWheel.setRects();    
+    mUIControllerRef->addChild( UINodeRef(&mAlphaWheel) );
+    
 	// UILAYER
 	mUiLayer.setup( mUiButtonsTex, G_SHOW_SETTINGS, mUIControllerRef->getInterfaceSize() );
     mUIControllerRef->addChild( UINodeRef(&mUiLayer) );
@@ -402,17 +410,10 @@ void KeplerApp::remainingSetup()
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
     // add as child of UILayer so it inherits the transform
     mUiLayer.addChild( UINodeRef(&mPlayControls) );
-
+    
 	// HELP LAYER
 	mHelpLayer.setup( this, mOrientationHelper.getInterfaceOrientation() );
 	mHelpLayer.initHelpTextures( mFontMediSmall );
-	
-    // ALPHA WHEEL
-	mAlphaWheel.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontBig );
-	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
-	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
-	//mAlphaWheel.initAlphaTextures( mFontBig );
-	mAlphaWheel.setRects();
 	
     // PLAYLIST CHOOSER
     mPlaylistChooser.setup( this, mOrientationHelper.getInterfaceOrientation(), mFont, BRIGHT_BLUE );
@@ -774,7 +775,6 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 
     if (mData.getState() == Data::LoadStateComplete) {
         mHelpLayer.setInterfaceOrientation(orientation);
-        mAlphaWheel.setInterfaceOrientation(orientation);
         mPlaylistChooser.setInterfaceOrientation(orientation);
         mFilterToggleButton.setInterfaceOrientation(orientation);
     }
@@ -1277,7 +1277,6 @@ void KeplerApp::update()
 
         // make sure everything that was ignoring orientation changes is updated:
         mHelpLayer.setInterfaceOrientation( mInterfaceOrientation );
-        mAlphaWheel.setInterfaceOrientation( mInterfaceOrientation );
         mPlaylistChooser.setInterfaceOrientation( mInterfaceOrientation );
         mFilterToggleButton.setInterfaceOrientation( mInterfaceOrientation );
         
@@ -1390,7 +1389,7 @@ void KeplerApp::update()
                 mAlphaWheel.setShowWheel( mShowFilterGUI );
             }
             mPlaylistChooser.setVisible( false );
-            mAlphaWheel.update( mFov );
+            mAlphaWheel.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar ); // FIXME: only needs calling when data changes            
         }
         else if (isPlaylistFilter) {
             mPlaylistChooser.setVisible( mShowFilterGUI );
@@ -1881,10 +1880,10 @@ void KeplerApp::drawScene()
 
 	gl::disableAlphaBlending(); // stops additive blending
     gl::enableAlphaBlending();  // reinstates normal alpha blending
-	
+    
 // EVERYTHING ELSE	
     if (mState.getFilterMode() == State::FilterModeAlphaChar) {
-        mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
+//        mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
     }
     else if (mState.getFilterMode() == State::FilterModePlaylist) {
         mPlaylistChooser.draw(); // FIXME: what does this do?

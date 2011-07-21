@@ -14,6 +14,7 @@
 #include "cinder/ImageIo.h"
 #include "Globals.h"
 #include "BloomGl.h"
+#include "UIController.h"
 #include <sstream>
 
 using std::stringstream;
@@ -21,25 +22,8 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-AlphaWheel::AlphaWheel()
-{
-}
-
-AlphaWheel::~AlphaWheel()
-{
-	mApp->unregisterTouchesBegan( mCbTouchesBegan );
-	mApp->unregisterTouchesMoved( mCbTouchesMoved );
-	mApp->unregisterTouchesEnded( mCbTouchesEnded );
-}
-
-void AlphaWheel::setup( AppCocoaTouch *app, const Orientation &orientation, const Font &font )
-{
-	mApp = app;
-	
-	mCbTouchesBegan = mApp->registerTouchesBegan( this, &AlphaWheel::touchesBegan );
-	mCbTouchesMoved = mApp->registerTouchesMoved( this, &AlphaWheel::touchesMoved );
-	mCbTouchesEnded = mApp->registerTouchesEnded( this, &AlphaWheel::touchesEnded );
-	
+void AlphaWheel::setup( const Font &font )
+{	
 	// Textures
 	mWheelTex		= gl::Texture( loadImage( loadResource( "alphaWheelMask.png" ) ) );
 	
@@ -51,15 +35,19 @@ void AlphaWheel::setup( AppCocoaTouch *app, const Orientation &orientation, cons
 	mWheelScale		= 1.0f;	
 	
 	initAlphaTextures( font );
-    // just do orientation stuff in here:
-    setInterfaceOrientation(orientation);
+
+//    mInterfaceSize = mRoot->getInterfaceSize();
+//
+//    mInterfaceCenter = mInterfaceSize * 0.5f;        
+//
+//	setRects();
 }
 
 void AlphaWheel::initAlphaTextures( const Font &font )
 {
 	for( int i=0; i<mAlphaString.length(); i++ ){
-		float per = (float)i/27.0f;
-		float angle = per * TWO_PI - M_PI_2;
+//		float per = (float)i/27.0f;
+//		float angle = per * TWO_PI - M_PI_2;
 		TextLayout layout;	
 		layout.setFont( font );
 		layout.setColor( ColorA( BRIGHT_BLUE, 1.0f ) );
@@ -69,30 +57,24 @@ void AlphaWheel::initAlphaTextures( const Font &font )
 		layout.addCenteredLine( s.str() );
 		mAlphaTextures.push_back( gl::Texture( layout.render( true, false ) ) );
 		
-		float w = mAlphaTextures[i].getWidth()/2.0f;
-		float h = mAlphaTextures[i].getHeight()/2.0f;
-		Vec2f pos = Vec2f( cos( angle ), sin( angle ) ) * mAlphaRadius;
-		Rectf r = Rectf( pos.x - w, pos.y - h, pos.x + w, pos.y + h );
-		mAlphaRects.push_back( r );
+        // setRects()
+//		float w = mAlphaTextures[i].getWidth()/2.0f;
+//		float h = mAlphaTextures[i].getHeight()/2.0f;
+//		Vec2f pos = Vec2f( cos( angle ), sin( angle ) ) * mAlphaRadius;
+//		Rectf r = Rectf( pos.x - w, pos.y - h, pos.x + w, pos.y + h );
+//		mAlphaRects.push_back( r );
 	}
 }
 
 void AlphaWheel::setRects()
 {
-	float yOff = 0.0f;
-	if( isLandscapeOrientation( mInterfaceOrientation ) ){
-		yOff = -12.0f;
-	}
-	
 	mAlphaRects.clear();
 	for( int i=0; i<mAlphaString.length(); i++ ){
 		float per = (float)i/27.0f;
 		float angle = per * TWO_PI - M_PI_2;
-
 		float w = mAlphaTextures[i].getWidth()/2.0f;
 		float h = mAlphaTextures[i].getHeight()/2.0f;
 		Vec2f pos = Vec2f( cos( angle ), sin( angle ) ) * mAlphaRadius;
-		pos.y += yOff;
 		Rectf r = Rectf( pos.x - w, pos.y - h, pos.x + w, pos.y + h );
 		mAlphaRects.push_back( r );
 	}
@@ -105,7 +87,6 @@ void AlphaWheel::setVerts()
 	mVerts = NULL;
 	mVerts = new VertexData[mTotalVertices];
 	
-	
 	float W	= mInterfaceSize.x;
 	float H = mInterfaceSize.y;
 	float CW = W/2;
@@ -114,12 +95,7 @@ void AlphaWheel::setVerts()
 	float T = ( H - mAlphaRadius * 2.0f )/2;
 	float R = L + mAlphaRadius * 2.0f;
 	float B = T + mAlphaRadius * 2.0f;
-	
-	if( isLandscapeOrientation( mInterfaceOrientation ) ){
-		T -= 12.0f;
-		B -= 12.0f;
-	}
-	
+		
 	vector<Vec2i> positions;
 	positions.push_back( Vec2i( 0 - CW, 0 - CH ) );
 	positions.push_back( Vec2i( L - CW, 0 - CH ) );
@@ -190,77 +166,39 @@ void AlphaWheel::setVerts()
 	}
 }
 
-void AlphaWheel::setInterfaceOrientation( const Orientation &orientation )
-{
-    mInterfaceOrientation = orientation;
-    mOrientationMatrix	= getOrientationMatrix44( mInterfaceOrientation, getWindowSize() );
-    mInterfaceSize = getWindowSize();
-    
-	mAlphaRadius = 300.0f;
-    if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
-        mInterfaceSize = mInterfaceSize.yx(); // swizzle it!
-		mAlphaRadius = 270.0f;
-    }
-    
-    mInterfaceCenter = mInterfaceSize * 0.5f;
-	
-	setRects();
-	setVerts();
-}
-
-bool AlphaWheel::touchesBegan( TouchEvent event )
+bool AlphaWheel::touchBegan( TouchEvent::Touch touch )
 {
     if (!mShowWheel) return false;
     
-	vector<TouchEvent::Touch> touches = event.getTouches();
-
-    for (int i = 0; i < touches.size(); i++) {
-        TouchEvent::Touch touch = touches[i];
-        if (selectWheelItem( touch.getPos(), false )) {
-            // this means we'll follow the last touch that starts on a wheel item
-            mLastTouchPos = touch.getPos();
-            mActiveTouchId = touch.getId();
-            return true;
-        }
+    if (selectWheelItem( touch.getPos(), false )) {
+        // this means we'll follow the last touch that starts on a wheel item
+        mLastTouchPos = touch.getPos();
+        mActiveTouchId = touch.getId();
+        return true;
     }
 	
 	return false;
 }
 
-bool AlphaWheel::touchesMoved( TouchEvent event )
+bool AlphaWheel::touchMoved( TouchEvent::Touch touch )
 {
     if (!mShowWheel) return false;
     
-	vector<TouchEvent::Touch> touches = event.getTouches();
-    
-    for (int i = 0; i < touches.size(); i++) {
-        TouchEvent::Touch touch = touches[i];
         // only follow the last valid touch we received
 //        if (touch.getId() == mActiveTouchId) {
 //            mLastTouchPos = touch.getPos();
 //            return selectWheelItem( mLastTouchPos, false );
 //        }
-    }
 	
 	return false;
 }
 
-bool AlphaWheel::touchesEnded( TouchEvent event )
+bool AlphaWheel::touchEnded( TouchEvent::Touch touch )
 {	
     if (!mShowWheel) return false;
     
-	vector<TouchEvent::Touch> touches = event.getTouches();
-
-    for (int i = 0; i < touches.size(); i++) {
-        TouchEvent::Touch touch = touches[i];
-        // only accept the last valid touch we received
-        if (touch.getId() == mActiveTouchId) {
-            mLastTouchPos = touch.getPos();
-            return selectWheelItem( mLastTouchPos, true );
-        }
-    }
-    
-	return false;
+    mLastTouchPos = touch.getPos();
+    return selectWheelItem( mLastTouchPos, true );
 }
 
 
@@ -274,7 +212,7 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 	
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
 	if( mShowWheel && timeSincePinchEnded > 0.5f ){ 
-        Vec2f dir = (mOrientationMatrix.inverted() * Vec3f(pos,0)).xy() - mInterfaceCenter;
+        Vec2f dir = globalToLocal(pos) - mInterfaceCenter;
 		float distToCenter = dir.length();
 		if( distToCenter > minDiam && distToCenter < maxDiam ){
 			float touchAngle	= atan2( dir.y, dir.x ) + M_PI;				// RANGE 0 -> TWO_PI
@@ -301,29 +239,59 @@ void AlphaWheel::setTimePinchEnded( float timePinchEnded )
 	mTimePinchEnded = timePinchEnded;	
 }
 
-void AlphaWheel::update( float fov )
+void AlphaWheel::update( )
 {
-	//mWheelScale = ( ( 130.0f - fov ) / 30.0f );
 	if( getShowWheel() ){
 		mWheelScale -= ( mWheelScale - 0.0f ) * 0.2f;
 	} else {
 		mWheelScale -= ( mWheelScale - 1.15f ) * 0.2f;	
 	}	
+    
+    Vec2f interfaceSize = mRoot->getInterfaceSize();
+    
+    if (mInterfaceSize != interfaceSize) {
+        mInterfaceSize = interfaceSize;
+        mInterfaceCenter = mInterfaceSize * 0.5f;        
+    
+        float prevRadius = mAlphaRadius;
+        
+        mAlphaRadius = 300.0f; // portrait
+        
+        if ( mInterfaceSize.x > mInterfaceSize.y ) {
+            float amount = (mInterfaceSize.x - mInterfaceSize.y) / (1024-768);
+
+            Matrix44f mat;
+            mat.translate( Vec3f(0, -12.0f * amount, 0) );
+            setTransform(mat);
+            
+            mAlphaRadius -= 30.0f * amount; // smaller for landscape to accomodate PlayControls/Settings
+        }
+        
+        if (prevRadius != mAlphaRadius) {
+            setRects();
+            setVerts();
+        }
+    }
 }
 
-void AlphaWheel::draw( float *numberAlphaPerChar )
+void AlphaWheel::setNumberAlphaPerChar( float *numberAlphaPerChar )
+{
+    mNumberAlphaPerChar = numberAlphaPerChar;
+}
+
+void AlphaWheel::draw()
 {	
 	if( mWheelScale < 0.95f ){
-		glPushMatrix();
-		glMultMatrixf( mOrientationMatrix );
 
+		glPushMatrix();
+        
 		gl::color( Color::white() );
 		gl::translate( mInterfaceCenter );
 		gl::scale( Vec3f( mWheelScale + 1.0f, mWheelScale + 1.0f, 1.0f ) );
 		drawWheel();
 		
 		for( int i=0; i<27; i++ ){
-			float c = numberAlphaPerChar[i];
+			float c = mNumberAlphaPerChar[i];
 			if( c > 0.0f ){
 				c += 0.3f;
 				gl::color( Color( c, c, c ) );
