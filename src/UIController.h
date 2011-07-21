@@ -17,7 +17,7 @@ namespace cinder { namespace app {
     class AppCocoaTouch;
     class OrientationHelper;
     class OrientationEvent;
-}
+} }
 
 class UIController : public UINode {
     

@@ -7,22 +7,17 @@
 //
 
 #include "LoadingScreen.h"
-#include "cinder/app/AppCocoaTouch.h"
 #include "cinder/gl/gl.h"
-#include "cinder/gl/Texture.h"
 #include "cinder/Rand.h"
 #include "cinder/ImageIo.h"
+#include "UIController.h"
+#include "cinder/app/AppCocoaTouch.h" // for loadResource
 
 using namespace ci;
 using namespace ci::app;
 
-void LoadingScreen::setup( AppCocoaTouch *app, const Orientation &orientation )
+void LoadingScreen::setup( const ci::gl::Texture &starGlowTex )
 {
-    mEnabled = true;
-    app->registerTouchesBegan(this, &LoadingScreen::onTouchEvent);
-    app->registerTouchesMoved(this, &LoadingScreen::onTouchEvent);
-    app->registerTouchesEnded(this, &LoadingScreen::onTouchEvent);            
-    setInterfaceOrientation( orientation );
     gl::Texture::Format fmt;
     fmt.enableMipmapping( true );
     fmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );        
@@ -30,36 +25,19 @@ void LoadingScreen::setup( AppCocoaTouch *app, const Orientation &orientation )
 	mPlanetaryTex	= gl::Texture( loadImage( loadResource( "planetary.png" ) )/*, fmt*/ );
 	mPlanetTex		= gl::Texture( loadImage( loadResource( "planet.png" ) ), fmt );
 	mBackgroundTex	= gl::Texture( loadImage( loadResource( "background.jpg" ) )/*, fmt*/ );
+    mStarGlowTex    = starGlowTex;
 }
 
-void LoadingScreen::setEnabled( bool enabled )
+void LoadingScreen::update()
 {
-    mEnabled = enabled;
+    mInterfaceSize = mRoot->getInterfaceSize();
 }
 
-void LoadingScreen::setInterfaceOrientation( const Orientation &orientation )
-{
-    mInterfaceOrientation = orientation;    
-    
-    mOrientationMatrix = getOrientationMatrix44(mInterfaceOrientation, getWindowSize());
-
-    mInterfaceSize = getWindowSize();
-    
-    // TODO: isLandscape()/isPortrait() conveniences on event?
-    if ( isLandscapeOrientation(mInterfaceOrientation) ) {
-        mInterfaceSize = mInterfaceSize.yx(); // swizzle it!
-    }
-}
-
-void LoadingScreen::draw( gl::Texture mStarGlowTex )
+void LoadingScreen::draw()
 {
 	Vec2f pos;
 	float radius;
 	
-    gl::setMatricesWindow( app::getWindowSize() );    
-
-    glPushMatrix();
-    glMultMatrixf( mOrientationMatrix );
     Vec2f center = mInterfaceSize * 0.5f;
     gl::color( Color::white() );
 	
@@ -161,5 +139,5 @@ void LoadingScreen::draw( gl::Texture mStarGlowTex )
 	gl::drawSolidRect( Rectf( v1, v2 ) );
 	*/
 	mPlanetTex.disable();
-    glPopMatrix();
+
 }

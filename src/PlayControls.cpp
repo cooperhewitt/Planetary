@@ -18,15 +18,12 @@ using namespace std;
 
 void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
 {
-    mShowSettings = false;
-    
     // create, add, and position everything...
     createChildren( font, fontSmall, uiButtonsTex, uiBigButtonsTex, uiSmallButtonsTex );
     setInterfaceSize( interfaceSize );
         
     // set initial state...
     setPlaying( player->getPlayState() == ipod::Player::StatePlaying );    
-    setShowSettings( G_SHOW_SETTINGS );
     setOrbitsVisible( G_DRAW_RINGS );
     setLabelsVisible( G_DRAW_TEXT );
 //    setHelpVisible( G_HELP );
@@ -131,7 +128,6 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
                                            Area( uw*0, uh*3, uw*1, uh*4 ),  // on texture
                                            Area( uw*0, uh*2, uw*1, uh*3 ) ); // off texture
 		
-        // FIXME: make three textures for repeat button:
 		mRepeatButton = new ThreeStateButton( REPEAT, 
                                           0, 
                                           uiSmallButtonsTex,
@@ -208,9 +204,13 @@ void PlayControls::addChildren()
 {
     // bit of hack, these are first for batch reasons
     // (we want the little fadey bits to be drawn on top)
-    addChild( UINodeRef(mElapsedTimeLabel) );
     addChild( UINodeRef(mTrackInfoLabel) );
-    addChild( UINodeRef(mRemainingTimeLabel) );    
+    // shaded bits on top of scrolling mTrackInfoLabel
+    addChild( UINodeRef(mCoverLeftTextureRect) );
+    addChild( UINodeRef(mCoverRightTextureRect) );    
+	addChild( UINodeRef(mPlayheadSlider) );    
+    addChild( UINodeRef(mElapsedTimeLabel) );
+    addChild( UINodeRef(mRemainingTimeLabel) ); 
     
     addChild( UINodeRef(mGalaxyButton) );
 	addChild( UINodeRef(mCurrentTrackButton) );
@@ -220,25 +220,21 @@ void PlayControls::addChildren()
     addChild( UINodeRef(mPlayPauseButton) );
     addChild( UINodeRef(mNextTrackButton) );
 	
-    // FIXME: hide these if (!mShowSettings) {   
-    addChild( UINodeRef(mShuffleButton) );
-    addChild( UINodeRef(mRepeatButton) );
-//    addChild( UINodeRef(mHelpButton) );
-    addChild( UINodeRef(mOrbitsButton) );
-    addChild( UINodeRef(mLabelsButton) );
-    addChild( UINodeRef(mDebugButton) );
-    if( G_IS_IPAD2 ) addChild( UINodeRef(mGyroButton) );
-    //    }
-    
-	addChild( UINodeRef(mPlayheadSlider) );
-	addChild( UINodeRef(mParamSlider1) );
-	addChild( UINodeRef(mParamSlider2) );
-	addChild( UINodeRef(mParamSlider1Label) );
-    addChild( UINodeRef(mParamSlider2Label) );    
-
-    // shaded bits on top of scrolling mTrackInfoLabel
-    addChild( UINodeRef(mCoverLeftTextureRect) );
-    addChild( UINodeRef(mCoverRightTextureRect) );
+    mSettingsNodeRef = UINodeRef(new UINode());
+    addChild( mSettingsNodeRef );
+    mSettingsNodeRef->setVisible( G_SHOW_SETTINGS );
+    mShowSettingsButton->setOn( G_SHOW_SETTINGS );     
+    mSettingsNodeRef->addChild( UINodeRef(mShuffleButton) );
+    mSettingsNodeRef->addChild( UINodeRef(mRepeatButton) );
+//    mSettingsNodeRef->addChild( UINodeRef(mHelpButton) );
+    mSettingsNodeRef->addChild( UINodeRef(mOrbitsButton) );
+    mSettingsNodeRef->addChild( UINodeRef(mLabelsButton) );
+    mSettingsNodeRef->addChild( UINodeRef(mDebugButton) );
+    if( G_IS_IPAD2 ) mSettingsNodeRef->addChild( UINodeRef(mGyroButton) );
+	mSettingsNodeRef->addChild( UINodeRef(mParamSlider1) );
+	mSettingsNodeRef->addChild( UINodeRef(mParamSlider2) );
+	mSettingsNodeRef->addChild( UINodeRef(mParamSlider1Label) );
+    mSettingsNodeRef->addChild( UINodeRef(mParamSlider2Label) );    
 }
 
 
@@ -406,12 +402,14 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
 
 void PlayControls::setShowSettings(bool visible)
 {
-    if (mShowSettings != visible) {
-        mShowSettings = visible;
-        // FIXME: make a container just for settings things and don't draw it when !mShowSettings
-    }    
+    mSettingsNodeRef->setVisible(visible);
     mShowSettingsButton->setOn(visible); 
 }
+
+//void PlayControls::draw()
+//{
+//    std::cout << "playcontrols::draw" << std::endl;
+//}
 
 void PlayControls::update()
 {

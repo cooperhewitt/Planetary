@@ -23,6 +23,7 @@ UINode::UINode()
 }
 UINode::UINode( const int &nodeId )
 {
+    mVisible = true;
     sTotalNodeCount++;
     mId = nodeId;
 }

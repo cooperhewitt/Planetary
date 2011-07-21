@@ -123,6 +123,7 @@ class KeplerApp : public AppCocoaTouch {
 // UI BITS:
     UIControllerRef     mUIControllerRef;
     LoadingScreen       mLoadingScreen;
+    UINodeRef           mMainUINodeRef;
     FilterToggleButton  mFilterToggleButton;
 	UiLayer             mUiLayer;
     PlayControls        mPlayControls;
@@ -288,11 +289,21 @@ void KeplerApp::setup()
     
     mRemainingSetupCalled = false;
 
-    // !!! this has to be set up before any other UI things so it can consume touch events
-    mLoadingScreen.setup( this, mOrientationHelper.getInterfaceOrientation() );
-    
     initLoadingTextures();
 
+    // initialize controller for all 2D UI
+    // this will receive touch events before anything else (so it can cancel them before they hit the world)
+    mUIControllerRef = UIControllerRef(new UIController(this, &mOrientationHelper));    
+    
+    // !!! this has to be set up before any other UI things so it can consume touch events
+    mLoadingScreen.setup( mStarGlowTex );
+    mUIControllerRef->addChild( UINodeRef(&mLoadingScreen) );
+    
+    // make a container for all the other UI, so visibility can be toggled when loading
+    mMainUINodeRef = UINodeRef( new UINode() );
+    mUIControllerRef->addChild( mMainUINodeRef );
+    mMainUINodeRef->setVisible(false);    
+    
     Flurry::getInstrumentation()->stopTimeEvent("Setup");
 }
 
@@ -304,7 +315,7 @@ void KeplerApp::remainingSetup()
 
     mRemainingSetupCalled = true;
 
-	mLoadingScreen.setEnabled( true );
+	mLoadingScreen.setVisible( true );
     
 	G_DRAW_RINGS	= true;
 	G_DRAW_TEXT		= true;
@@ -389,20 +400,17 @@ void KeplerApp::remainingSetup()
     mParticleController.addParticles( G_NUM_PARTICLES );
 	mParticleController.addDusts( G_NUM_DUSTS );
 	
-    // NB:- order of UI init is important to register callbacks and drawing in correct order
-    mUIControllerRef = UIControllerRef(new UIController(this, &mOrientationHelper));
-
     // ALPHA WHEEL
 	mAlphaWheel.setup( mFontBig );
 	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
 	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
 	//mAlphaWheel.initAlphaTextures( mFontBig );
 	//mAlphaWheel.setRects();    
-    mUIControllerRef->addChild( UINodeRef(&mAlphaWheel) );
+    mMainUINodeRef->addChild( UINodeRef(&mAlphaWheel) );
     
 	// UILAYER
 	mUiLayer.setup( mUiButtonsTex, G_SHOW_SETTINGS, mUIControllerRef->getInterfaceSize() );
-    mUIControllerRef->addChild( UINodeRef(&mUiLayer) );
+    mMainUINodeRef->addChild( UINodeRef(&mUiLayer) );
     
 	// PLAY CONTROLS
 	mPlayControls.setup( mUIControllerRef->getInterfaceSize(), &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex );
@@ -454,12 +462,9 @@ void KeplerApp::remainingSetup()
     // GALAXY (TODO: Move to World?)
     mGalaxy.setup(G_INIT_CAM_DIST, BRIGHT_BLUE, BLUE, mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex);
 
-    // Make sure initial PlayControl settings are correct:
-    mPlayControls.setAlphaWheelVisible( mShowFilterGUI ); // TODO: maybe move this to mPlayControls.setup()?
-
     // NOTIFICATION OVERLAY
 	mNotificationOverlay.setup( mFontBig );
-    mUIControllerRef->addChild( UINodeRef(&mNotificationOverlay) );	
+    mMainUINodeRef->addChild( UINodeRef(&mNotificationOverlay) );	
 
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
 
@@ -771,8 +776,6 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
     //        this way they don't need to know what orientation they're in
     //        EXCEPT: they would also need the orientation helper to proxy mouse/touch events and correct the positions
     
-    mLoadingScreen.setInterfaceOrientation(orientation);
-
     if (mData.getState() == Data::LoadStateComplete) {
         mHelpLayer.setInterfaceOrientation(orientation);
         mPlaylistChooser.setInterfaceOrientation(orientation);
@@ -1270,7 +1273,8 @@ void KeplerApp::update()
         mData.update();
         // processes pending nodes
 		mWorld.initNodes( mData.mArtists, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
-		mLoadingScreen.setEnabled( false );
+		mLoadingScreen.setVisible( false ); // TODO: remove from scene graph, clean up textures
+        mMainUINodeRef->setVisible( true );
 		mUiLayer.setIsPanelOpen( true );
         // reset...
         onSelectedNodeChanged( NULL );
@@ -1306,6 +1310,9 @@ void KeplerApp::update()
             mPlaylistChooser.setDataWorldCam( &mData, &mWorld, &mCam );
         }
 	}
+    
+    // update UiLayer, PlayControls etc.
+    mUIControllerRef->update();    
     
     if ( mRemainingSetupCalled && (mData.getState() == Data::LoadStateComplete) )
 	{
@@ -1374,10 +1381,7 @@ void KeplerApp::update()
 														  ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f );
 			mParticleController.buildDustVertexArray( scaleSlider, selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
 		}
-		
-		// update UiLayer, PlayControls etc.
-        mUIControllerRef->update();
-        
+		        
 		mHelpLayer.update();
 
         mFilterToggleButton.setVisible( mShowFilterGUI );
@@ -1599,7 +1603,8 @@ void KeplerApp::draw()
 {
 	gl::clear( Color( 0, 0, 0 ), true );
 	if( mData.getState() != Data::LoadStateComplete ){
-		mLoadingScreen.draw( mStarGlowTex );
+        // just for loading sc
+		mUIControllerRef->draw();
 	} else if( mData.mArtists.size() == 0 ){
 		drawNoArtists();
 	} else {
@@ -1909,7 +1914,8 @@ void KeplerApp::drawScene()
 bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 {	
     // RESET:
-	mLoadingScreen.setEnabled( true );
+	mLoadingScreen.setVisible( true ); // TODO: reload textures, add back to mUIControllerRef
+    mMainUINodeRef->setVisible( false );    
     mState.setup();    
     mData.setup();
 	mWorld.setup();

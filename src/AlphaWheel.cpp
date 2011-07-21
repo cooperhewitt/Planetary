@@ -15,9 +15,10 @@
 #include "Globals.h"
 #include "BloomGl.h"
 #include "UIController.h"
+#include "cinder/app/AppCocoaTouch.h" // for loadResource, getElapsedSeconds
+#include "cinder/Utilities.h" // for toString
 #include <sstream>
 
-using std::stringstream;
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -51,10 +52,7 @@ void AlphaWheel::initAlphaTextures( const Font &font )
 		TextLayout layout;	
 		layout.setFont( font );
 		layout.setColor( ColorA( BRIGHT_BLUE, 1.0f ) );
-		stringstream s;
-		s.str("");
-		s << mAlphaString[i];
-		layout.addCenteredLine( s.str() );
+		layout.addCenteredLine( ci::toString(mAlphaString[i]) );
 		mAlphaTextures.push_back( gl::Texture( layout.render( true, false ) ) );
 		
         // setRects()
