@@ -357,7 +357,7 @@ void KeplerApp::remainingSetup()
 	mCenterOffset		= mCenter;
     // FIXME: let's put this setup stuff back in setup()
     // this was overriding the (correct) value which is now always set by setInterfaceOrientation
-//	mUp					= Vec3f::yAxis();
+	mUp					= Vec3f::yAxis();
 	mFov				= G_DEFAULT_FOV;
 	mFovDest			= G_DEFAULT_FOV;
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.0001f, 1200.0f );
@@ -769,8 +769,8 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
     mOrientationMatrix = getOrientationMatrix44( mInterfaceOrientation, getWindowSize() );
     mInverseOrientationMatrix = mOrientationMatrix.inverted();
     
-    if( ! G_USE_GYRO ) mUp = getUpVectorForOrientation( mInterfaceOrientation );
-	else			   mUp = Vec3f::yAxis();
+//    if( ! G_USE_GYRO ) mUp = getUpVectorForOrientation( mInterfaceOrientation );
+//	else			   mUp = Vec3f::yAxis();
 
     // FIXME: perhaps mOrientationMatrix can be applied before drawing all these UI bits
     //        this way they don't need to know what orientation they're in
@@ -1587,10 +1587,11 @@ void KeplerApp::updateCamera()
 		q = mGyroHelper.getQuat();
 	}
 	
-
-
-	
-	
+    // set up vector according to screen orientation
+	mUp = Vec3f::yAxis();
+	if( !G_USE_GYRO ){
+        mUp.rotateZ( -1.0f * mUIControllerRef->getInterfaceAngle() );
+    }
     
     Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);
     mEye = mCenter - camOffset;

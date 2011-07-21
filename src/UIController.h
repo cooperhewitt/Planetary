@@ -33,6 +33,9 @@ public:
     ci::app::Orientation getInterfaceOrientation() { return mInterfaceOrientation; }
     void setInterfaceOrientation( const ci::app::Orientation &orientation, bool animate = true );
     
+    // useful for syncing 3D world to 2D UI animation
+    float getInterfaceAngle() { return mInterfaceAngle; }
+    
     // UIController draw/update starts the chain off, very much does *not* draw/update itself :)
     virtual void draw();
     virtual void update();
