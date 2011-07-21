@@ -74,12 +74,12 @@ bool AlphaWheel::touchBegan( TouchEvent::Touch touch )
         return true;
     }
     else {
-        // immediately dismiss a tap inside the world
+        // capture all touches inside wheel so we can dismiss a tap inside the world
         Vec2f dir = globalToLocal( touch.getPos() ) - mInterfaceCenter;
 		float distToCenter = dir.length();
-        float minDiam = mWheelOverlay.mRadius - 25.0f;        
-		if( distToCenter < minDiam ){
-            setShowWheel(false);
+        float maxDiam = mWheelOverlay.mRadius + 25.0f;        
+		if( distToCenter < maxDiam ){
+            return true;
         }
     }
 	
