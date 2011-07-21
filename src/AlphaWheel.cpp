@@ -85,12 +85,12 @@ void AlphaWheel::setVerts()
 	mVerts = NULL;
 	mVerts = new VertexData[mTotalVertices];
 	
-	float W	= mInterfaceSize.x;
-	float H = mInterfaceSize.y;
+	float W	= 1536; // square to avoid glimpses behind the curtain
+	float H = 1536;
 	float CW = W/2;
 	float CH = H/2;
-	float L = ( W - mAlphaRadius * 2.0f )/2;
-	float T = ( H - mAlphaRadius * 2.0f )/2;
+	float L = ( W - mAlphaRadius * 2.0f ) / 2.0f;
+	float T = ( H - mAlphaRadius * 2.0f ) / 2.0f;
 	float R = L + mAlphaRadius * 2.0f;
 	float B = T + mAlphaRadius * 2.0f;
 		
