@@ -45,7 +45,7 @@
 #include "PinchRecognizer.h"
 #include "ParticleController.h"
 
-#include "Easing.h"
+#include "cinder/Easing.h"
 
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
@@ -122,6 +122,7 @@ class KeplerApp : public AppCocoaTouch {
 // UI BITS:
     UIControllerRef     mUIControllerRef;
     LoadingScreen       mLoadingScreen;
+    UINodeRef           mMainUINodeRef;
     FilterToggleButton  mFilterToggleButton;
 	UiLayer             mUiLayer;
     PlayControls        mPlayControls;
@@ -291,11 +292,21 @@ void KeplerApp::setup()
     
     mRemainingSetupCalled = false;
 
-    // !!! this has to be set up before any other UI things so it can consume touch events
-    mLoadingScreen.setup( this, mOrientationHelper.getInterfaceOrientation() );
-    
     initLoadingTextures();
 
+    // initialize controller for all 2D UI
+    // this will receive touch events before anything else (so it can cancel them before they hit the world)
+    mUIControllerRef = UIControllerRef(new UIController(this, &mOrientationHelper));    
+    
+    // !!! this has to be set up before any other UI things so it can consume touch events
+    mLoadingScreen.setup( mStarGlowTex );
+    mUIControllerRef->addChild( UINodeRef(&mLoadingScreen) );
+    
+    // make a container for all the other UI, so visibility can be toggled when loading
+    mMainUINodeRef = UINodeRef( new UINode() );
+    mUIControllerRef->addChild( mMainUINodeRef );
+    mMainUINodeRef->setVisible(false);    
+    
     Flurry::getInstrumentation()->stopTimeEvent("Setup");
 }
 
@@ -307,7 +318,7 @@ void KeplerApp::remainingSetup()
 
     mRemainingSetupCalled = true;
 
-	mLoadingScreen.setEnabled( true );
+	mLoadingScreen.setVisible( true );
     
 	G_DRAW_RINGS	= true;
 	G_DRAW_TEXT		= true;
@@ -353,7 +364,7 @@ void KeplerApp::remainingSetup()
 	mCenterOffset		= mCenter;
     // FIXME: let's put this setup stuff back in setup()
     // this was overriding the (correct) value which is now always set by setInterfaceOrientation
-//	mUp					= Vec3f::yAxis();
+	mUp					= Vec3f::yAxis();
 	mFov				= G_DEFAULT_FOV;
 	mFovDest			= G_DEFAULT_FOV;
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.0001f, 1200.0f );
@@ -376,9 +387,6 @@ void KeplerApp::remainingSetup()
 // STATS
     mStats.setup( mFont, BRIGHT_BLUE, BLUE );
 	
-// NOTIFICATION OVERLAY
-	mNotificationOverlay.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontBig );
-	
 // TOUCH VARS
 	mTouchPos			= getWindowCenter();
 	mTouchVel			= Vec2f(2.1f, 0.3f );
@@ -398,21 +406,19 @@ void KeplerApp::remainingSetup()
     // PARTICLES
     mParticleController.addParticles( G_NUM_PARTICLES );
 	mParticleController.addDusts( G_NUM_DUSTS );
-	
-    // NB:- order of UI init is important to register callbacks and drawing in correct order
-    mUIControllerRef = UIControllerRef(new UIController(this, &mOrientationHelper));
 
+	// ALPHA WHEEL
+	mAlphaWheel.setup( mFontBig );
+	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
+	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
+	//mAlphaWheel.initAlphaTextures( mFontBig );
+	//mAlphaWheel.setRects();    
+    mMainUINodeRef->addChild( UINodeRef(&mAlphaWheel) );
 	
-	// PLAYLIST CHOOSER
-    mPlaylistChooser.setup( mFontMedium );
-    mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
-	mUIControllerRef->addChild( UINodeRef(&mPlaylistChooser) );
-    // FIXME register listeners
-	
-	
+    
 	// UILAYER
 	mUiLayer.setup( mUiSmallButtonsTex, mSettingsBgTex, G_SHOW_SETTINGS, mUIControllerRef->getInterfaceSize() );
-    mUIControllerRef->addChild( UINodeRef(&mUiLayer) );
+    mMainUINodeRef->addChild( UINodeRef(&mUiLayer) );
     
 	// PLAY CONTROLS
 	mPlayControls.setup( mUIControllerRef->getInterfaceSize(), &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiBigButtonsTex, mUiSmallButtonsTex );
@@ -420,24 +426,23 @@ void KeplerApp::remainingSetup()
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
     // add as child of UILayer so it inherits the transform
     mUiLayer.addChild( UINodeRef(&mPlayControls) );
-
+    
 	// HELP LAYER
 	mHelpLayer.setup( this, mOrientationHelper.getInterfaceOrientation() );
 	mHelpLayer.initHelpTextures( mFontMediSmall );
 	
-    // ALPHA WHEEL
-	mAlphaWheel.setup( this, mOrientationHelper.getInterfaceOrientation(), mFontBig );
-	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
-	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
-	//mAlphaWheel.initAlphaTextures( mFontBig );
-	mAlphaWheel.setRects();
+    // PLAYLIST CHOOSER
+    mPlaylistChooser.setup( mFontBig );
+    mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
+	mMainUINodeRef->addChild( UINodeRef(&mPlaylistChooser) );
+    // FIXME register listeners
     
     mShowFilterGUI = false;
     
     // FILTER TOGGLE
     mFilterToggleButton.setup( mState.getFilterMode(), mFontMedium );
     mFilterToggleButton.registerFilterModeSelected( this, &KeplerApp::onFilterToggled );
-    mUIControllerRef->addChild( UINodeRef(&mFilterToggleButton) );
+    mMainUINodeRef->addChild( UINodeRef(&mFilterToggleButton) );
 	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
@@ -467,9 +472,10 @@ void KeplerApp::remainingSetup()
     // GALAXY (TODO: Move to World?)
     mGalaxy.setup(G_INIT_CAM_DIST, BRIGHT_BLUE, BLUE, mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex);
 
-    // Make sure initial PlayControl settings are correct:
-    mPlayControls.setAlphaWheelVisible( mShowFilterGUI ); // TODO: maybe move this to mPlayControls.setup()?
-    
+    // NOTIFICATION OVERLAY
+	mNotificationOverlay.setup( mFontBig );
+    mMainUINodeRef->addChild( UINodeRef(&mNotificationOverlay) );	
+
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
 
     //console() << "setupEnd: " << getElapsedSeconds() << std::endl;
@@ -785,19 +791,11 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
     mOrientationMatrix = getOrientationMatrix44( mInterfaceOrientation, getWindowSize() );
     mInverseOrientationMatrix = mOrientationMatrix.inverted();
     
-    if( ! G_USE_GYRO ) mUp = getUpVectorForOrientation( mInterfaceOrientation );
-	else			   mUp = Vec3f::yAxis();
-
-    // FIXME: perhaps mOrientationMatrix can be applied before drawing all these UI bits
-    //        this way they don't need to know what orientation they're in
-    //        EXCEPT: they would also need the orientation helper to proxy mouse/touch events and correct the positions
-    
-    mLoadingScreen.setInterfaceOrientation(orientation);
+//    if( ! G_USE_GYRO ) mUp = getUpVectorForOrientation( mInterfaceOrientation );
+//	else			   mUp = Vec3f::yAxis();
 
     if (mData.getState() == Data::LoadStateComplete) {
         mHelpLayer.setInterfaceOrientation(orientation);
-        mAlphaWheel.setInterfaceOrientation(orientation);
-        mNotificationOverlay.setInterfaceOrientation(orientation);
     }
 }
 
@@ -1285,15 +1283,14 @@ void KeplerApp::update()
         mData.update();
         // processes pending nodes
 		mWorld.initNodes( mData.mArtists, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
-		mLoadingScreen.setEnabled( false );
+		mLoadingScreen.setVisible( false ); // TODO: remove from scene graph, clean up textures
+        mMainUINodeRef->setVisible( true );
 		mUiLayer.setIsPanelOpen( true );
         // reset...
         onSelectedNodeChanged( NULL );
 
         // make sure everything that was ignoring orientation changes is updated:
         mHelpLayer.setInterfaceOrientation( mInterfaceOrientation );
-        mAlphaWheel.setInterfaceOrientation( mInterfaceOrientation );
-        mNotificationOverlay.setInterfaceOrientation( mInterfaceOrientation );
         
         // and then make sure we know about the current track if there is one...
         if ( mIpodPlayer.hasPlayingTrack() ) {
@@ -1321,6 +1318,9 @@ void KeplerApp::update()
             mPlaylistChooser.setDataWorldCam( &mData, &mWorld, &mCam );
         }
 	}
+    
+    // update UiLayer, PlayControls etc.
+    mUIControllerRef->update();    
     
     if ( mRemainingSetupCalled && (mData.getState() == Data::LoadStateComplete) )
 	{
@@ -1390,10 +1390,7 @@ void KeplerApp::update()
 														  ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f );
 			mParticleController.buildDustVertexArray( scaleSlider, selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
 		}
-		
-		// update UiLayer, PlayControls etc.
-        mUIControllerRef->update();
-        
+		        
 		mHelpLayer.update();
 
         mFilterToggleButton.setVisible( mShowFilterGUI );
@@ -1405,7 +1402,7 @@ void KeplerApp::update()
                 mAlphaWheel.setShowWheel( mShowFilterGUI );
             }
             mPlaylistChooser.setVisible( false );
-            mAlphaWheel.update( mFov );
+            mAlphaWheel.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar ); // FIXME: only needs calling when data changes            
         }
         else if (isPlaylistFilter) {
             mPlaylistChooser.setVisible( mShowFilterGUI );
@@ -1442,8 +1439,6 @@ void KeplerApp::update()
             remainingSetup();
         }        
     }
-    
-    mNotificationOverlay.update();
 }
 
 void KeplerApp::updateArcball()
@@ -1574,16 +1569,17 @@ void KeplerApp::updateCamera()
 	if( distToTravel < 1.0f )		duration = 2.0;
 	else if( distToTravel < 5.0f )	duration = 2.75f;
 //	double duration = 2.0f;
-	double p		= constrain( getElapsedSeconds()-mSelectionTime, 0.0, duration );
-	
-	mCenter			= easeInOutCubic( p, mCenterFrom, (mCenterDest + mCenterOffset) - mCenterFrom, duration );
-//	mCenter			= easeInOutCubic( p, mCenterFrom, mCenterDest - mCenterFrom, duration );
-	mCamDist		= easeInOutCubic( p, mCamDistFrom, mCamDistDest - mCamDistFrom, duration );
+    double t		= constrain( getElapsedSeconds()-mSelectionTime, 0.0, duration );
+	double p        = easeInOutCubic( t / duration );
+
+	mCenter			= lerp( mCenterFrom, (mCenterDest + mCenterOffset), p );
+//	mCenter			= lerp( mCenterFrom, mCenterDest - mCenterFrom, p );
+	mCamDist		= lerp( mCamDistFrom, mCamDistDest, p );
 	mCamDist		= min( mCamDist, G_INIT_CAM_DIST );
-	mCamDistAnim	= easeInOutCubic( p, 0.0f, M_PI, duration );
-	//mPinchPer		= easeInOutCubic( p, mPinchPerFrom, 0.5f, duration );
-	//mPinchTotalDest	= easeInOutCubic( p, mPinchTotalFrom, mPinchTotalInit, duration );
-	G_ZOOM			= easeInOutCubic( p, mZoomFrom, mZoomDest - mZoomFrom, duration );
+	mCamDistAnim	= lerp( 0.0, M_PI, p );
+	//mPinchPer		= lerp( mPinchPerFrom, 0.5f, p );
+	//mPinchTotalDest	= lerp( mPinchTotalFrom, mPinchTotalInit, p );
+	G_ZOOM			= lerp( mZoomFrom, mZoomDest, p );
 
 	
 	mFadeInAlphaToArtist	= constrain( G_ZOOM - G_ALPHA_LEVEL, 0.0f, 1.0f );
@@ -1613,10 +1609,11 @@ void KeplerApp::updateCamera()
 		q = mGyroHelper.getQuat();
 	}
 	
-
-
-	
-	
+    // set up vector according to screen orientation
+	mUp = Vec3f::yAxis();
+	if( !G_USE_GYRO ){
+        mUp.rotateZ( -1.0f * mUIControllerRef->getInterfaceAngle() );
+    }
     
     Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);
     mEye = mCenter - camOffset;
@@ -1629,7 +1626,8 @@ void KeplerApp::draw()
 {
 	gl::clear( Color( 0, 0, 0 ), true );
 	if( mData.getState() != Data::LoadStateComplete ){
-		mLoadingScreen.draw( mStarGlowTex );
+        // just for loading sc
+		mUIControllerRef->draw();
 	} else if( mData.mArtists.size() == 0 ){
 		drawNoArtists();
 	} else {
@@ -1912,10 +1910,10 @@ void KeplerApp::drawScene()
 
 	gl::disableAlphaBlending(); // stops additive blending
     gl::enableAlphaBlending();  // reinstates normal alpha blending
-	
+    
 // EVERYTHING ELSE	
     if (mState.getFilterMode() == State::FilterModeAlphaChar) {
-        mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
+//        mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
     }
     else if (mState.getFilterMode() == State::FilterModePlaylist) {
 //        mPlaylistChooser.draw(); // FIXME: what does this do?
@@ -1930,9 +1928,6 @@ void KeplerApp::drawScene()
     // UILayer and PlayControls draw here:
     mUIControllerRef->draw();
 
-    gl::enableAdditiveBlending();    
-	mNotificationOverlay.draw();
-	
 	if( G_DEBUG ){
         //gl::setMatricesWindow( getWindowSize() );
         mStats.draw( mOrientationMatrix );
@@ -1942,7 +1937,8 @@ void KeplerApp::drawScene()
 bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 {	
     // RESET:
-	mLoadingScreen.setEnabled( true );
+	mLoadingScreen.setVisible( true ); // TODO: reload textures, add back to mUIControllerRef
+    mMainUINodeRef->setVisible( false );    
     mState.setup();    
     mData.setup();
 	mWorld.setup();

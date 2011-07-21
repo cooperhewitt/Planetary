@@ -8,7 +8,6 @@
  */
 
 #pragma once
-#include "cinder/app/AppCocoaTouch.h"
 #include "cinder/Vector.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
@@ -18,26 +17,38 @@
 #include "Orientation.h"
 #include "OrientationEvent.h"
 #include "WheelOverlay.h"
+#include "cinder/Function.h"
+#include "UINode.h"
 
-class AlphaWheel {
+class AlphaWheel : public UINode {
 public:
-	AlphaWheel();
-	~AlphaWheel();
+	AlphaWheel() {};
+	~AlphaWheel() {};
 	
-	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation, const ci::Font &font );
+	struct VertexData {
+        ci::Vec2f vertex;
+        ci::Vec2f texture;
+    };
+	
+	void	setup( const ci::Font &font );
 	void	initAlphaTextures( const ci::Font &font );
 	void	setRects();
-	bool	touchesBegan( ci::app::TouchEvent event );
-	bool	touchesMoved( ci::app::TouchEvent event );
-	bool	touchesEnded( ci::app::TouchEvent event );
-    void    setInterfaceOrientation( const ci::app::Orientation &orientation );
-	void	update( float fov );
+	bool	touchBegan( ci::app::TouchEvent::Touch touch );
+	bool	touchMoved( ci::app::TouchEvent::Touch touch );
+	bool	touchEnded( ci::app::TouchEvent::Touch touch );
+    
+    void    setNumberAlphaPerChar( float *numAlphaPerChar ); // FIXME: call this in main app
 	void	setTimePinchEnded( float timePinchEnded );
-	void	draw( float *numAlphaPerChar );
+    
+	void	update();
+	void	draw();
+    
 	void	setShowWheel( bool b );
 	bool	getShowWheel(){ return mShowWheel; }
+    
 	float	getWheelScale(){ return mWheelScale; }
-	void	setAlphaChar( char c ){ mAlphaChar = c; }
+	
+    void	setAlphaChar( char c ){ mAlphaChar = c; }
 	char	getAlphaChar(){ return mAlphaChar; }
 	
 	template<typename T>
@@ -54,14 +65,14 @@ private:
 	void	drawAlphaChar();    
 	bool	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
     
-	ci::app::AppCocoaTouch *mApp;
-	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded, mCbOrientationChanged;
     uint32_t        mActiveTouchId;
 	ci::Vec2f		mLastTouchPos;    
 
 	WheelOverlay	mWheelOverlay;
 	
 	float			mTimePinchEnded;
+    
+    float           *mNumberAlphaPerChar;
 
 	bool			mShowWheel;
 	std::string		mAlphaString;
@@ -75,8 +86,6 @@ private:
 	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksAlphaCharSelected;
 	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksWheelToggled;
     
-    ci::app::Orientation       mInterfaceOrientation;
-    ci::Matrix44f              mOrientationMatrix;
     ci::Vec2f                  mInterfaceSize, mInterfaceCenter;
 };
 

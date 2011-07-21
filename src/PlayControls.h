@@ -51,6 +51,8 @@ public:
     
     void update();
     
+//    void draw();
+    
     // this one updates the drawable and interactive things too:
     void setShowSettings(bool visible);
     
@@ -115,7 +117,6 @@ private:
     void setInterfaceSize( ci::Vec2f interfaceSize );
     
     ci::Vec2f mInterfaceSize; // for detecting orientation change, updating layout
-    bool mShowSettings;
         
 	// !!! EVENT STUFF (keep track of listeners)
 	ci::CallbackMgr<bool(ButtonId)> mCallbacksButtonPressed;
@@ -158,6 +159,7 @@ private:
     ToggleButton *mAlphaWheelButton;
         
     // settings...
+    UINodeRef mSettingsNodeRef;
     ToggleButton *mShowSettingsButton;
 //        ToggleButton *mHelpButton;
         ToggleButton *mOrbitsButton;

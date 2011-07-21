@@ -64,6 +64,9 @@ public:
     UINodeRef getParent() const { return mParent; }
     UIControllerRef getRoot() const { return mRoot; }
     
+    virtual void setVisible( bool visible = true ) { mVisible = visible; }
+    virtual bool isVisible() { return mVisible; }
+    
 protected:
     
     // all access to privateDraw from UIController::draw()
@@ -83,6 +86,7 @@ protected:
     
     static int sTotalNodeCount;
     int mId;
+    bool mVisible;
     std::vector<UINodeRef> mChildren;
     UINodeRef mParent;
     UIControllerRef mRoot;

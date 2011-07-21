@@ -13,8 +13,12 @@
 #include "cinder/Font.h"
 #include "cinder/Text.h"
 #include "Globals.h"
+#include "UIController.h"
+#include "cinder/app/AppCocoaTouch.h" // FIXME: just for time
 
 using std::stringstream;
+using namespace ci;
+using namespace ci::app;
 
 NotificationOverlay::NotificationOverlay() 
 {
@@ -29,10 +33,8 @@ NotificationOverlay::~NotificationOverlay()
     hide();
 }
 
-void NotificationOverlay::setup( AppCocoaTouch *app, const Orientation &orientation, const Font &font )
+void NotificationOverlay::setup( const Font &font )
 {
-    mApp = app;
-    setInterfaceOrientation(orientation);
 	mFont = font;
     mSetup = true;
 }
@@ -42,58 +44,31 @@ void NotificationOverlay::update()
     if (!mActive) return;
     
     // if enough time has passed, hide the overlay (cleanup happens in hide())
-    float elapsedSince = mApp->getElapsedSeconds() - mLastShowTime;
+    float elapsedSince = app::getElapsedSeconds() - mLastShowTime;
     if (elapsedSince > mFadeDelay + mFadeDuration) {
         hide();
     }
+    
+    mAlpha = 1.0f;
+    if (elapsedSince > mFadeDelay) {
+        mAlpha = 1.0f - (elapsedSince - mFadeDelay) / mFadeDuration;
+    }    
+    
+    Vec2f interfaceSize = mRoot->getInterfaceSize();
+    
+    Matrix44f mat;
+    mat.translate(Vec3f( interfaceSize.x * 0.5f, interfaceSize.y * 0.5f + 134.0f - mMessageTexture.getHeight(), 0.0f ));
+    setTransform(mat);
 }
 
 void NotificationOverlay::draw()
 {
     if (!mActive) return;
-    
-    float elapsedSince = mApp->getElapsedSeconds() - mLastShowTime;
-    
-    float alpha = 1.0f;
-        
-    if (elapsedSince > mFadeDelay) {
-        alpha = 1.0f - (elapsedSince - mFadeDelay) / mFadeDuration;
-    }
-    
-	Vec2f pos;
-	if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
-		pos = Vec2f( mInterfaceSize.x * 0.5f, mInterfaceSize.y - 250.0f - mMessageTexture.getHeight() );
-	} else {
-		pos = Vec2f( mInterfaceSize.x * 0.5f, mInterfaceSize.y - 340.0f - mMessageTexture.getHeight() );
-	}
-	Vec2f iconSize = mCurrentSrcArea.getSize();
-    
-    Rectf iconRect( pos - iconSize/2.0f, pos + iconSize/2.0f );
-    
-	float halfWidth = mMessageTexture.getWidth() * 0.5f;
-	Vec2f messageTopLeft(	  pos.x - halfWidth, iconRect.y2 - 10.0f );
-	Vec2f messageBottomRight( pos.x + halfWidth, iconRect.y2 + mMessageTexture.getHeight() - 10.0f );
-	Rectf messageRect( messageTopLeft, messageBottomRight );
-		
-	glPushMatrix();
-    glMultMatrixf( mOrientationMatrix );
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha ) );
+    gl::enableAdditiveBlending(); // as long as this is the last thing.
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, mAlpha ) );
     // TODO: batch these calls, avoid cinder::gl::draw()
-	gl::draw( mMessageTexture, messageRect );
-    gl::draw( mCurrentTexture, mCurrentSrcArea, iconRect );
-	glPopMatrix(); 
-}
-
-void NotificationOverlay::setInterfaceOrientation( const Orientation &orientation )
-{
-    mInterfaceOrientation = orientation;
-    mOrientationMatrix = getOrientationMatrix44(mInterfaceOrientation, getWindowSize());
-    
-    mInterfaceSize = getWindowSize();
-    
-    if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
-        mInterfaceSize = mInterfaceSize.yx(); // swizzle it!
-    }
+	gl::draw( mMessageTexture, mMessageRect );
+    gl::draw( mCurrentTexture, mCurrentSrcArea, mIconRect );
 }
 
 void NotificationOverlay::show(const gl::Texture &texture, const Area &srcArea, const string &message)
@@ -113,9 +88,17 @@ void NotificationOverlay::show(const gl::Texture &texture, const Area &srcArea, 
         layout.addCenteredLine( results[i] );
     }
 	mMessageTexture = gl::Texture( layout.render( true, true ) );
+
+	Vec2f iconSize = mCurrentSrcArea.getSize();
+    mIconRect = Rectf( -iconSize/2.0f, iconSize/2.0f );
+    
+	float halfWidth = mMessageTexture.getWidth() * 0.5f;
+	Vec2f messageTopLeft( -halfWidth, mIconRect.y2 - 10.0f );
+	Vec2f messageBottomRight( halfWidth, mIconRect.y2 + mMessageTexture.getHeight() - 10.0f );
+	mMessageRect = Rectf( messageTopLeft, messageBottomRight );
 	
     mActive = true;
-    mLastShowTime = mApp->getElapsedSeconds();
+    mLastShowTime = app::getElapsedSeconds();
 }
 
 void NotificationOverlay::showLetter( const char c, const string &message, const Font &hugeFont )
@@ -128,10 +111,12 @@ void NotificationOverlay::showLetter( const char c, const string &message, const
 	string s = "";
 	s += c;
 	charLayout.addCenteredLine( s );
-	mCurrentTexture = gl::Texture( charLayout.render( true, true ) );
+	mCurrentTexture = gl::Texture( charLayout.render( true, true ) );    
 	mCurrentSrcArea = Area( 0, 0, mCurrentTexture.getWidth(), mCurrentTexture.getHeight() + 15.0f );
     mCurrentMessage = message;
 	
+    // FIXME: at this point, just call show(...) with the right params and avoid mismatching functionality
+    
 	TextLayout layout;
 	layout.setFont( mFont );
 	layout.setColor( ColorA( BRIGHT_BLUE, 0.5f ) );
@@ -141,9 +126,17 @@ void NotificationOverlay::showLetter( const char c, const string &message, const
         layout.addCenteredLine( results[i] );
     }
 	mMessageTexture = gl::Texture( layout.render( true, true ) );
-	
+
+	Vec2f iconSize = mCurrentSrcArea.getSize();
+    mIconRect = Rectf( -iconSize/2.0f, iconSize/2.0f );
+    
+	float halfWidth = mMessageTexture.getWidth() * 0.5f;
+	Vec2f messageTopLeft( -halfWidth, mIconRect.y2 - 10.0f );
+	Vec2f messageBottomRight( halfWidth, mIconRect.y2 + mMessageTexture.getHeight() - 10.0f );
+	mMessageRect = Rectf( messageTopLeft, messageBottomRight );	
+    
     mActive = true;
-    mLastShowTime = mApp->getElapsedSeconds();
+    mLastShowTime = app::getElapsedSeconds();
 }
 
 void NotificationOverlay::hide()
