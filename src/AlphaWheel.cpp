@@ -36,12 +36,6 @@ void AlphaWheel::setup( const Font &font )
 	mWheelOverlay.setup();
 	
 	initAlphaTextures( font );
-
-//    mInterfaceSize = mRoot->getInterfaceSize();
-//
-//    mInterfaceCenter = mInterfaceSize * 0.5f;        
-//
-//	setRects();
 }
 
 void AlphaWheel::initAlphaTextures( const Font &font )
@@ -166,7 +160,6 @@ void AlphaWheel::update( )
 		
         if ( mInterfaceSize.x > mInterfaceSize.y ) {
             float amount = (mInterfaceSize.x - mInterfaceSize.y) / (1024-768);
-
             Matrix44f mat;
             mat.translate( Vec3f(0, -12.0f * amount, 0) );
             setTransform(mat);
