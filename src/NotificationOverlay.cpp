@@ -111,10 +111,12 @@ void NotificationOverlay::showLetter( const char c, const string &message, const
 	string s = "";
 	s += c;
 	charLayout.addCenteredLine( s );
-	mCurrentTexture = gl::Texture( charLayout.render( true, true ) );
+	mCurrentTexture = gl::Texture( charLayout.render( true, true ) );    
 	mCurrentSrcArea = Area( 0, 0, mCurrentTexture.getWidth(), mCurrentTexture.getHeight() + 15.0f );
     mCurrentMessage = message;
 	
+    // FIXME: at this point, just call show(...) with the right params and avoid mismatching functionality
+    
 	TextLayout layout;
 	layout.setFont( mFont );
 	layout.setColor( ColorA( BRIGHT_BLUE, 0.5f ) );
@@ -124,7 +126,15 @@ void NotificationOverlay::showLetter( const char c, const string &message, const
         layout.addCenteredLine( results[i] );
     }
 	mMessageTexture = gl::Texture( layout.render( true, true ) );
-	
+
+	Vec2f iconSize = mCurrentSrcArea.getSize();
+    mIconRect = Rectf( -iconSize/2.0f, iconSize/2.0f );
+    
+	float halfWidth = mMessageTexture.getWidth() * 0.5f;
+	Vec2f messageTopLeft( -halfWidth, mIconRect.y2 - 10.0f );
+	Vec2f messageBottomRight( halfWidth, mIconRect.y2 + mMessageTexture.getHeight() - 10.0f );
+	mMessageRect = Rectf( messageTopLeft, messageBottomRight );	
+    
     mActive = true;
     mLastShowTime = app::getElapsedSeconds();
 }
