@@ -30,11 +30,16 @@ WheelOverlay::~WheelOverlay()
 
 void WheelOverlay::setup()
 {
+	mRadius = 315.0f;
 	mTex			= gl::Texture( loadImage( loadResource( "alphaWheelMask.png" ) ) );
 }
 
-void WheelOverlay::update( const Vec2f &interfaceSize, float alphaRadius )
+void WheelOverlay::update( const Vec2f &interfaceSize )
 {
+	mRadius = 315.0f;
+	if( interfaceSize.x > interfaceSize.y )
+		mRadius = 285.0f;
+	
 	mTotalVertices = 54;
 	delete[] mVerts; 
 	mVerts = NULL;
@@ -45,10 +50,10 @@ void WheelOverlay::update( const Vec2f &interfaceSize, float alphaRadius )
 	float H = interfaceSize.y;
 	float CW = W/2;
 	float CH = H/2;
-	float L = ( W - alphaRadius * 2.0f )/2;
-	float T = ( H - alphaRadius * 2.0f )/2;
-	float R = L + alphaRadius * 2.0f;
-	float B = T + alphaRadius * 2.0f;
+	float L = ( W - mRadius * 2.0f )/2;
+	float T = ( H - mRadius * 2.0f )/2;
+	float R = L + mRadius * 2.0f;
+	float B = T + mRadius * 2.0f;
 	
 	if( interfaceSize.x > interfaceSize.y ){
 		T -= 12.0f;

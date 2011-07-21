@@ -93,15 +93,15 @@ void Galaxy::drawSpiralPlanes()
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		
-		gl::translate( Vec3f( 0.0f, 2.5f, 0.0f ) );
+		gl::translate( Vec3f( 0.0f, 3.5f, 0.0f ) );
 		gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -4.0f, 0.0f ) );
         glDrawArrays( GL_TRIANGLES, 0, 6 );
 		
-		gl::translate( Vec3f( 0.0f, -5.0f, 0.0f ) );
+		gl::translate( Vec3f( 0.0f, -7.0f, 0.0f ) );
 		gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -2.0f, 0.0f ) );
         glDrawArrays( GL_TRIANGLES, 0, 6 );
 		
-		gl::translate( Vec3f( 0.0f, 2.5f, 0.0f ) );
+		gl::translate( Vec3f( 0.0f, 3.5f, 0.0f ) );
 		gl::scale( Vec3f( 0.5f, 0.5f, 0.5f ) );
 		gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -15.0f, 0.0f ) );
         glDrawArrays( GL_TRIANGLES, 0, 6 );

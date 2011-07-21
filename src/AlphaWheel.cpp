@@ -40,15 +40,14 @@ void AlphaWheel::setup( AppCocoaTouch *app, const Orientation &orientation, cons
 	mCbTouchesMoved = mApp->registerTouchesMoved( this, &AlphaWheel::touchesMoved );
 	mCbTouchesEnded = mApp->registerTouchesEnded( this, &AlphaWheel::touchesEnded );
 	
-	// Textures
-	mWheelTex		= gl::Texture( loadImage( loadResource( "alphaWheelMask.png" ) ) );
-	
 	mAlphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
 	mAlphaIndex		= 0;
 	mAlphaChar		= ' ';
 	mPrevAlphaChar	= ' ';
 	mShowWheel		= false;
 	mWheelScale		= 1.0f;
+	
+	mWheelOverlay.setup();
 	
 	initAlphaTextures( font );
     // just do orientation stuff in here:
@@ -58,8 +57,6 @@ void AlphaWheel::setup( AppCocoaTouch *app, const Orientation &orientation, cons
 void AlphaWheel::initAlphaTextures( const Font &font )
 {
 	for( int i=0; i<mAlphaString.length(); i++ ){
-		float per = (float)i/27.0f;
-		float angle = per * TWO_PI - M_PI_2;
 		TextLayout layout;	
 		layout.setFont( font );
 		layout.setColor( ColorA( BRIGHT_BLUE, 1.0f ) );
@@ -68,12 +65,6 @@ void AlphaWheel::initAlphaTextures( const Font &font )
 		s << mAlphaString[i];
 		layout.addCenteredLine( s.str() );
 		mAlphaTextures.push_back( gl::Texture( layout.render( true, false ) ) );
-		
-		float w = mAlphaTextures[i].getWidth()/2.0f;
-		float h = mAlphaTextures[i].getHeight()/2.0f;
-		Vec2f pos = Vec2f( cos( angle ), sin( angle ) ) * mAlphaRadius;
-		Rectf r = Rectf( pos.x - w, pos.y - h, pos.x + w, pos.y + h );
-		mAlphaRects.push_back( r );
 	}
 }
 
@@ -91,102 +82,10 @@ void AlphaWheel::setRects()
 
 		float w = mAlphaTextures[i].getWidth()/2.0f;
 		float h = mAlphaTextures[i].getHeight()/2.0f;
-		Vec2f pos = Vec2f( cos( angle ), sin( angle ) ) * mAlphaRadius;
+		Vec2f pos = Vec2f( cos( angle ), sin( angle ) ) * ( mWheelOverlay.mRadius - 10.0f );
 		pos.y += yOff;
 		Rectf r = Rectf( pos.x - w, pos.y - h, pos.x + w, pos.y + h );
 		mAlphaRects.push_back( r );
-	}
-}
-
-void AlphaWheel::setVerts()
-{
-	mTotalVertices = 54;
-	delete[] mVerts; 
-	mVerts = NULL;
-	mVerts = new VertexData[mTotalVertices];
-	
-	
-	float W	= mInterfaceSize.x;
-	float H = mInterfaceSize.y;
-	float CW = W/2;
-	float CH = H/2;
-	float L = ( W - mAlphaRadius * 2.0f )/2;
-	float T = ( H - mAlphaRadius * 2.0f )/2;
-	float R = L + mAlphaRadius * 2.0f;
-	float B = T + mAlphaRadius * 2.0f;
-	
-	if( isLandscapeOrientation( mInterfaceOrientation ) ){
-		T -= 12.0f;
-		B -= 12.0f;
-	}
-	
-	vector<Vec2i> positions;
-	positions.push_back( Vec2i( 0 - CW, 0 - CH ) );
-	positions.push_back( Vec2i( L - CW, 0 - CH ) );
-	positions.push_back( Vec2i( R - CW, 0 - CH ) );
-	positions.push_back( Vec2i( W - CW, 0 - CH ) );
-	
-	positions.push_back( Vec2i( 0 - CW, T - CH ) );
-	positions.push_back( Vec2i( L - CW, T - CH ) );
-	positions.push_back( Vec2i( R - CW, T - CH ) );
-	positions.push_back( Vec2i( W - CW, T - CH ) );
-	
-	positions.push_back( Vec2i( 0 - CW, B - CH ) );
-	positions.push_back( Vec2i( L - CW, B - CH ) );
-	positions.push_back( Vec2i( R - CW, B - CH ) );
-	positions.push_back( Vec2i( W - CW, B - CH ) );
-	
-	positions.push_back( Vec2i( 0 - CW, H - CH ) );
-	positions.push_back( Vec2i( L - CW, H - CH ) );
-	positions.push_back( Vec2i( R - CW, H - CH ) );
-	positions.push_back( Vec2i( W - CW, H - CH ) );
-	
-	vector<Vec2f> textures;
-	textures.push_back( Vec2f( 0, 0 ) );
-	textures.push_back( Vec2f( 0, 0 ) );
-	textures.push_back( Vec2f( 1, 0 ) );
-	textures.push_back( Vec2f( 1, 0 ) );
-	
-	textures.push_back( Vec2f( 0, 0 ) );
-	textures.push_back( Vec2f( 0, 0 ) );
-	textures.push_back( Vec2f( 1, 0 ) );
-	textures.push_back( Vec2f( 1, 0 ) );
-	
-	textures.push_back( Vec2f( 0, 1 ) );
-	textures.push_back( Vec2f( 0, 1 ) );
-	textures.push_back( Vec2f( 1, 1 ) );
-	textures.push_back( Vec2f( 1, 1 ) );
-	
-	textures.push_back( Vec2f( 0, 1 ) );
-	textures.push_back( Vec2f( 0, 1 ) );
-	textures.push_back( Vec2f( 1, 1 ) );
-	textures.push_back( Vec2f( 1, 1 ) );
-	
-	int indices[54] = { 0, 1, 4,
-					  1, 5, 4,
-					  1, 2, 5,
-					  2, 6, 5,
-					  2, 3, 6,
-					  3, 7, 6,
-					  4, 5, 8, 
-					  5, 9, 8,
-					  5, 6, 9, 
-					  6, 10, 9, 
-					  6, 7, 10, 
-					  7, 11, 10,
-					  8, 9, 12, 
-					  9, 13, 12, 
-					  9, 10, 13, 
-					  10, 14, 13, 
-					  10, 11, 14, 
-					  11, 15, 14 };
-	
-	int vIndex = 0;
-	for( int i=0; i<54; i++ ){
-		mVerts[vIndex].vertex	= positions[indices[i]];
-		mVerts[vIndex].texture	= textures[indices[i]];
-		
-		vIndex ++;
 	}
 }
 
@@ -196,16 +95,13 @@ void AlphaWheel::setInterfaceOrientation( const Orientation &orientation )
     mOrientationMatrix	= getOrientationMatrix44( mInterfaceOrientation, getWindowSize() );
     mInterfaceSize = getWindowSize();
     
-	mAlphaRadius = 300.0f;
     if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
         mInterfaceSize = mInterfaceSize.yx(); // swizzle it!
-		mAlphaRadius = 270.0f;
     }
     
     mInterfaceCenter = mInterfaceSize * 0.5f;
-	
+	mWheelOverlay.update( mInterfaceSize );
 	setRects();
-	setVerts();
 }
 
 bool AlphaWheel::touchesBegan( TouchEvent event )
@@ -269,8 +165,8 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 	if( !mShowWheel ){
 		return false;
 	}
-	float minDiam = mAlphaRadius - 25.0f;
-	float maxDiam = mAlphaRadius + 25.0f;
+	float minDiam = mWheelOverlay.mRadius - 25.0f;
+	float maxDiam = mWheelOverlay.mRadius + 25.0f;
 	
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
 	if( mShowWheel && timeSincePinchEnded > 0.5f ){ 
@@ -305,22 +201,22 @@ void AlphaWheel::update( float fov )
 {
 	//mWheelScale = ( ( 130.0f - fov ) / 30.0f );
 	if( getShowWheel() ){
-		mWheelScale -= ( mWheelScale - 0.0f ) * 0.2f;
+		mWheelScale -= ( mWheelScale - 1.0f ) * 0.2f;
 	} else {
-		mWheelScale -= ( mWheelScale - 1.15f ) * 0.2f;	
+		mWheelScale -= ( mWheelScale - 2.15f ) * 0.2f;	
 	}	
 }
 
 void AlphaWheel::draw( float *numberAlphaPerChar )
 {	
-	if( mWheelScale < 0.95f ){
+	if( mWheelScale < 1.95f ){
 		glPushMatrix();
 		glMultMatrixf( mOrientationMatrix );
 
 		gl::color( Color::white() );
 		gl::translate( mInterfaceCenter );
-		gl::scale( Vec3f( mWheelScale + 1.0f, mWheelScale + 1.0f, 1.0f ) );
-		drawWheel();
+		gl::scale( Vec3f( mWheelScale, mWheelScale, 1.0f ) );
+		mWheelOverlay.draw();
 		
 		for( int i=0; i<27; i++ ){
 			float c = numberAlphaPerChar[i];
@@ -338,22 +234,6 @@ void AlphaWheel::draw( float *numberAlphaPerChar )
 		
 		glPopMatrix();
 	}
-}
-
-void AlphaWheel::drawWheel()
-{
-	mWheelTex.enableAndBind();
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	
-	glVertexPointer( 2, GL_FLOAT, sizeof(VertexData), mVerts );
-	glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );
-	
-	glDrawArrays( GL_TRIANGLES, 0, mTotalVertices );
-	
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	mWheelTex.disable();
 }
 
 void AlphaWheel::drawAlphaChar()

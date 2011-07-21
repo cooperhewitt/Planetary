@@ -17,21 +17,16 @@
 #include "cinder/Font.h"
 #include "Orientation.h"
 #include "OrientationEvent.h"
+#include "WheelOverlay.h"
 
 class AlphaWheel {
 public:
 	AlphaWheel();
 	~AlphaWheel();
 	
-	struct VertexData {
-        ci::Vec2f vertex;
-        ci::Vec2f texture;
-    };
-	
 	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation, const ci::Font &font );
 	void	initAlphaTextures( const ci::Font &font );
 	void	setRects();
-	void	setVerts();
 	bool	touchesBegan( ci::app::TouchEvent event );
 	bool	touchesMoved( ci::app::TouchEvent event );
 	bool	touchesEnded( ci::app::TouchEvent event );
@@ -56,7 +51,6 @@ public:
 	}
 		
 private:
-	void	drawWheel();
 	void	drawAlphaChar();    
 	bool	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
     
@@ -65,16 +59,16 @@ private:
     uint32_t        mActiveTouchId;
 	ci::Vec2f		mLastTouchPos;    
 
+	WheelOverlay	mWheelOverlay;
+	
 	float			mTimePinchEnded;
 
 	bool			mShowWheel;
 	std::string		mAlphaString;
 	int				mAlphaIndex;
 	char			mAlphaChar, mPrevAlphaChar;
-	float			mAlphaRadius;
 	float			mWheelScale;
 	
-	ci::gl::Texture	mWheelTex;
 	std::vector<ci::gl::Texture> mAlphaTextures;
 	std::vector<ci::Rectf> mAlphaRects;
 	
@@ -84,8 +78,5 @@ private:
     ci::app::Orientation       mInterfaceOrientation;
     ci::Matrix44f              mOrientationMatrix;
     ci::Vec2f                  mInterfaceSize, mInterfaceCenter;
-
-	int mTotalVertices;
-	VertexData *mVerts;
 };
 

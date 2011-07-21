@@ -109,6 +109,11 @@ bool UiLayer::touchMoved( TouchEvent::Touch touch )
         // apply the touch pos and offset
         Vec2f newPos = touchPos + mPanelTabTouchOffset;
         mPanelY += newPos.y - mPanelTabRect.y1;
+		
+		float panelHeight = mPanelOpenHeight;
+		if( G_SHOW_SETTINGS ) panelHeight = mPanelSettingsHeight;
+		const float maxPanelY = mInterfaceSize.y - panelHeight;
+		mPanelY = constrain( mPanelY, maxPanelY, mPanelClosedY );
 	}
 
 	return mIsPanelTabTouched;

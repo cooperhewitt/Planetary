@@ -183,7 +183,7 @@ void NodeArtist::drawPlanet( const gl::Texture &tex )
 	}
 }
 
-void NodeArtist::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer )
+void NodeArtist::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer, float scaleSliderOffset )
 {
 	if( mIsHighlighted ){
 		float alpha = ( 1.0f - mScreenDistToCenterPer * 0.75f );
@@ -201,15 +201,11 @@ void NodeArtist::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const
 	//}
 }
 
-void NodeArtist::drawExtraGlow( const gl::Texture &texGlow, const gl::Texture &texCore )
+void NodeArtist::drawExtraGlow( const Vec3f &camEye, const gl::Texture &texGlow, const gl::Texture &texCore )
 {
 	if( mIsHighlighted ){
-		float alpha = ( 1.0f - mScreenDistToCenterPer ) * sin( mEclipseStrength * M_PI_2 + M_PI_2 );
-
-		alpha *= mDeathPer;
-
+		float alpha = ( 1.0f - mScreenDistToCenterPer ) * sin( mEclipseStrength * M_PI_2 + M_PI_2 ) * mDeathPer;
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
-		
 		
 		texCore.enableAndBind();
 		gl::color( ColorA( mGlowColor, alpha * 0.1f ) );
@@ -218,8 +214,9 @@ void NodeArtist::drawExtraGlow( const gl::Texture &texGlow, const gl::Texture &t
 		
 	// SMALLER INNER GLOW
 		texGlow.enableAndBind();
-		gl::color( ColorA( Color::white(), sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 0.4f + 0.2f ) ) );
-		bloom::gl::drawBillboard( mPos, radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ), 0.0f, mBbRight, mBbUp );
+		alpha = sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 0.4f + 0.2f );
+		gl::color( ColorA( Color::white(), alpha ) );
+		bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, mPos + Rand::randVec3f(), radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ) );
 		texGlow.disable();
 	}
 	//}

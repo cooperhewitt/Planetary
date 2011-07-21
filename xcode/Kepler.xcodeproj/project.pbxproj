@@ -95,8 +95,6 @@
 		E227B205138EFDC500AAAC7B /* TextLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E227B204138EFDC500AAAC7B /* TextLabel.cpp */; };
 		E22998CC1332D62E0043CDCA /* LoadingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */; };
 		E22D983B13B6A2B700F9DB06 /* Shadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E22D983913B6A2B600F9DB06 /* Shadow.cpp */; };
-		E23C29E713B19F490038F3F4 /* galaxyFull.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E23C29E413B19F490038F3F4 /* galaxyFull.jpg */; };
-		E23C29E813B19F490038F3F4 /* galaxyFull.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E23C29E513B19F490038F3F4 /* galaxyFull.pvr */; };
 		E23C29F013B1A4A50038F3F4 /* lightMatter.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E23C29ED13B1A4A50038F3F4 /* lightMatter.jpg */; };
 		E23C29F113B1A4A50038F3F4 /* lightMatter.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E23C29EE13B1A4A50038F3F4 /* lightMatter.pvr */; };
 		E23C29F213B1A4A50038F3F4 /* lightMatterFull.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E23C29EF13B1A4A50038F3F4 /* lightMatterFull.jpg */; };
@@ -243,8 +241,6 @@
 		E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoadingScreen.cpp; path = ../src/LoadingScreen.cpp; sourceTree = "<group>"; };
 		E22D983913B6A2B600F9DB06 /* Shadow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Shadow.cpp; path = ../src/Shadow.cpp; sourceTree = "<group>"; };
 		E22D983A13B6A2B600F9DB06 /* Shadow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Shadow.h; path = ../src/Shadow.h; sourceTree = "<group>"; };
-		E23C29E413B19F490038F3F4 /* galaxyFull.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = galaxyFull.jpg; path = ../galaxyFull.jpg; sourceTree = "<group>"; };
-		E23C29E513B19F490038F3F4 /* galaxyFull.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = galaxyFull.pvr; path = ../galaxyFull.pvr; sourceTree = "<group>"; };
 		E23C29ED13B1A4A50038F3F4 /* lightMatter.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = lightMatter.jpg; path = ../lightMatter.jpg; sourceTree = "<group>"; };
 		E23C29EE13B1A4A50038F3F4 /* lightMatter.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = lightMatter.pvr; path = ../lightMatter.pvr; sourceTree = "<group>"; };
 		E23C29EF13B1A4A50038F3F4 /* lightMatterFull.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = lightMatterFull.jpg; path = ../lightMatterFull.jpg; sourceTree = "<group>"; };
@@ -603,8 +599,6 @@
 				E23C29EF13B1A4A50038F3F4 /* lightMatterFull.jpg */,
 				E23C29FB13B1A9710038F3F4 /* galaxyCropped.jpg */,
 				E23C29FC13B1A9710038F3F4 /* galaxyCropped.pvr */,
-				E23C29E413B19F490038F3F4 /* galaxyFull.jpg */,
-				E23C29E513B19F490038F3F4 /* galaxyFull.pvr */,
 				E10F84DE139856860062F73C /* eclipseShadow.png */,
 				E133FF84138C2FEA00A87B27 /* noAlbumArt.png */,
 			);
@@ -959,8 +953,6 @@
 				E10F84E1139893320062F73C /* AauxPro-Black.ttf in Resources */,
 				E10F84E3139899740062F73C /* overlayIcons.png in Resources */,
 				E154E58213996D8C002A3488 /* lensFlare.png in Resources */,
-				E23C29E713B19F490038F3F4 /* galaxyFull.jpg in Resources */,
-				E23C29E813B19F490038F3F4 /* galaxyFull.pvr in Resources */,
 				E23C29F013B1A4A50038F3F4 /* lightMatter.jpg in Resources */,
 				E23C29F113B1A4A50038F3F4 /* lightMatter.pvr in Resources */,
 				E23C29F213B1A4A50038F3F4 /* lightMatterFull.jpg in Resources */,

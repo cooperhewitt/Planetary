@@ -20,8 +20,8 @@ NotificationOverlay::NotificationOverlay()
 {
     mActive			= false;
     mSetup          = false;
-    mFadeDelay		= 2.0f;
-    mFadeDuration	= 1.0f;
+    mFadeDelay		= 1.0f;
+    mFadeDuration	= 0.5f;
 }
 
 NotificationOverlay::~NotificationOverlay() 

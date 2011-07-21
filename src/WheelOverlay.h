@@ -26,8 +26,10 @@ public:
 	
 	void	setup();
 	void	setVerts();
-	void	update( const ci::Vec2f &interfaceSize, float alphaRadius );
+	void	update( const ci::Vec2f &interfaceSize );
 	void	draw();
+	
+	float	mRadius;
 	
 private:
 	ci::gl::Texture	mTex;

@@ -20,6 +20,7 @@
 #include "Data.h"
 #include "World.h"
 #include "UINode.h"
+#include "WheelOverlay.h"
 #include <map>
 
 class PlaylistChooser : public UINode {
@@ -28,10 +29,11 @@ public:
     
     PlaylistChooser(): mData(NULL), mVisible(false), mOffsetX(0.0f), mCurrentPlaylistIndex(-1) {}
     
-    void setup( const ci::Font &font, const ci::Color &lineColor );
+    void setup( const ci::Font &font );
 	void update();
     void draw();
 	void makeFbo( int index, ci::ipod::PlaylistRef playlist );
+	void makeTexture( int index, ci::ipod::PlaylistRef playlist );
 	
 	ci::Rectf getRect(){ return mHitRect; }
     void setVisible( bool visible = true ) { mVisible = visible; }
@@ -65,6 +67,10 @@ private:
 	
 	int				mNumPlaylists;
 	int				mCurrentPlaylistIndex; // set from main app, passive
+	
+	int				mCurrentIndex;
+	int				mPrevIndex;
+	
     bool			mVisible;
 	
 	ci::Vec2i		mTouchPos, mTouchPrevPos;
@@ -91,6 +97,7 @@ private:
     std::vector<ci::Rectf> mPlaylistRects;
 	
 	std::map<int, ci::gl::Fbo> mFboMap;
+	std::map<int, ci::gl::Texture> mTextureMap;
     
     ci::gl::Texture	mTex, mBgTex;
     
@@ -111,6 +118,8 @@ private:
     int mPrevTotalVertices; // so we only recreate frames
 	VertexData *mVerts;
 	
+	float			mWheelScale;
+	WheelOverlay	mWheelOverlay;
 	
 	ci::CallbackMgr<bool(ci::ipod::PlaylistRef)> mCbPlaylistSelected;        
     

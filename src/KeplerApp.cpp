@@ -181,7 +181,9 @@ class KeplerApp : public AppCocoaTouch {
 	float			mPinchHighlightRadius;
 	float			mPinchRotation;
 	bool			mIsPastPinchThresh;
+	float			mInteractionThreshold;
 	float			mPerlinForAutoMove;
+	float			mAutoMoveScale;
 	
 	float			mZoomFrom, mZoomDest;
 	Arcball			mArcball;
@@ -337,6 +339,7 @@ void KeplerApp::remainingSetup()
 	mPinchHighlightRadius = 50.0f;
 	mPinchRotation		= 0.0f;
 	mIsPastPinchThresh	= false;
+	mInteractionThreshold = 10.0f;
 	mPerlinForAutoMove	= 0.0f;
 	
 	
@@ -399,6 +402,14 @@ void KeplerApp::remainingSetup()
     // NB:- order of UI init is important to register callbacks and drawing in correct order
     mUIControllerRef = UIControllerRef(new UIController(this, &mOrientationHelper));
 
+	
+	// PLAYLIST CHOOSER
+    mPlaylistChooser.setup( mFontMedium );
+    mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
+	mUIControllerRef->addChild( UINodeRef(&mPlaylistChooser) );
+    // FIXME register listeners
+	
+	
 	// UILAYER
 	mUiLayer.setup( mUiSmallButtonsTex, mSettingsBgTex, G_SHOW_SETTINGS, mUIControllerRef->getInterfaceSize() );
     mUIControllerRef->addChild( UINodeRef(&mUiLayer) );
@@ -420,12 +431,6 @@ void KeplerApp::remainingSetup()
 	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
 	//mAlphaWheel.initAlphaTextures( mFontBig );
 	mAlphaWheel.setRects();
-	
-    // PLAYLIST CHOOSER
-    mPlaylistChooser.setup( mFontBig, BRIGHT_BLUE );
-    mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
-	mUIControllerRef->addChild( UINodeRef(&mPlaylistChooser) );
-    // FIXME register listeners
     
     mShowFilterGUI = false;
     
@@ -803,6 +808,10 @@ bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 	if( !mAlphaWheel.getShowWheel() ){
 		G_HELP = false; // dismiss help if alpha wheel was toggled away
 		mPinchTotalDest = 1.0f;
+	} else {
+		G_SHOW_SETTINGS = false;
+		mPlayControls.setShowSettings( G_SHOW_SETTINGS );            
+		mUiLayer.setShowSettings( G_SHOW_SETTINGS );   
 	}
 
     if (mState.getFilterMode() == State::FilterModeAlphaChar) {
@@ -825,7 +834,7 @@ bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
     }
     assert(mPlaylistIndex != -1);
     mState.setPlaylist( playlist ); // triggers onPlaylistStateChanged
-    mShowFilterGUI = false;
+//    mShowFilterGUI = false;
     return false;
 }
 
@@ -1322,10 +1331,11 @@ void KeplerApp::update()
         const int elapsedFrames = getElapsedFrames();
         const float elapsedSeconds = getElapsedSeconds();
         
-		// IF NO INTERACTION FOR 20 seconds, START SCREENSAVER MODE.
-		// NEEDS SMOOTHER TRANSITION BETWEEN MODES.
-		const float interactionThreshold = 20.0f;
-		if( elapsedSeconds - mTimeSinceLastInteraction > interactionThreshold ){
+// AUTOMOVE
+		if( elapsedSeconds - mTimeSinceLastInteraction > mInteractionThreshold && !mAlphaWheel.getShowWheel() && G_ZOOM > G_ALPHA_LEVEL ){
+			if( !mCamAutoMove ){
+				mUiLayer.setIsPanelOpen( false );
+			}
 			mCamAutoMove = true;
 		} else {
 			mCamAutoMove = false;
@@ -1506,15 +1516,21 @@ void KeplerApp::updateCamera()
 			// ROBERT: Fix this crap. needs to transition correctly
 			if( selectedNode->mParentNode ){
 				Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
-				float timeForAnim = ( app::getElapsedSeconds() - mTimeSinceLastInteraction - 20.0f );
-				mPerlinForAutoMove -= ( mPerlinForAutoMove - mPerlin.fBm( timeForAnim * 0.01f ) ) * 0.15f;
+				float timeForAnim = ( getElapsedSeconds() - mTimeSinceLastInteraction - mInteractionThreshold );
+				
+				mPerlinForAutoMove = mPerlin.fBm( timeForAnim * 0.01f );
+				
 				float amt = 0.3f + sin( timeForAnim * 0.1f ) * 0.45f;
 				Vec3f lookToPos = dirToParent * amt;
-				mCenterOffset -= ( mCenterOffset - lookToPos ) * 0.1f;
-				mCamDistDest  *= ( mPerlinForAutoMove + 1.0f ) * G_ZOOM;
+				mCenterOffset -= ( mCenterOffset - lookToPos ) * 0.01f;
+				
+				mAutoMoveScale -= ( mAutoMoveScale - ( ( mPerlinForAutoMove + 1.0f ) * G_ZOOM ) ) * 0.01f;
+				
 			}
 		} else {
 			mPerlinForAutoMove -= ( mPerlinForAutoMove - 0.0f ) * 0.15f;
+			mAutoMoveScale -= ( mAutoMoveScale - 1.0f ) * 0.1f;
+			
 			if( selectedNode->mParentNode && mPinchPer > mPinchPerThresh ){
 				Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
 				mCenterOffset -= ( mCenterOffset - ( dirToParent * ( mPinchPer - mPinchPerThresh ) * 2.5f ) ) * 0.2f;
@@ -1523,6 +1539,8 @@ void KeplerApp::updateCamera()
 				mCenterOffset -= ( mCenterOffset - Vec3f::zero() ) * 0.2f;
 			}
 		}
+		
+		mCamDistDest  *= mAutoMoveScale;
 		mCenterDest		= selectedNode->mPos;
 		mZoomDest		= selectedNode->mGen;
 		mCenterFrom		+= selectedNode->mVel;
@@ -1758,9 +1776,10 @@ void KeplerApp::drawScene()
 			
 			gl::enableAdditiveBlending();
 			if( sortedNodes[i]->mGen == G_ARTIST_LEVEL ) {
-				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereSunTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
+				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereSunTex, mAtmosphereDirectionalTex, mPinchAlphaPer, 0.0f );
 			} else {
-				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer );
+				float scaleSliderOffset = mPlayControls.getParamSlider1Value() * 0.01f;
+				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer, scaleSliderOffset );
             }
 		}
         
@@ -1768,7 +1787,7 @@ void KeplerApp::drawScene()
 		glDisable( GL_RESCALE_NORMAL );
 		
 		gl::enableAdditiveBlending();
-		artistNode->drawExtraGlow( mStarGlowTex, mStarTex );
+		artistNode->drawExtraGlow( mEye - mCenterOffset, mStarGlowTex, mStarTex );
 	}
 
 	glDisable( GL_LIGHTING );

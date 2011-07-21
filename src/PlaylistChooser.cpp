@@ -20,9 +20,8 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void PlaylistChooser::setup( const Font &font, const Color &lineColor )
+void PlaylistChooser::setup( const Font &font )
 {
-    mLineColor				= lineColor;
     mFont					= font;
 
     mTouchDragId			= 0;
@@ -32,23 +31,28 @@ void PlaylistChooser::setup( const Font &font, const Color &lineColor )
 	mTouchVel				= 0.0f;
 	mTouchPos				= Vec2i( 0, 0 );
 	mTouchPrevPos			= Vec2i( 0, 0 );
-    mOffsetX				= -184.0f;
-	mOffsetXLocked			= -184.0f;
+    mOffsetX				= -200.0f;
+	mOffsetXLocked			= -200.0f;
 	mXCenter				= 0.0f;
 	
 	mNumPlaylists			= 0;
 	mIsDragging				= false;
 	
-	mPlaylistWidth			= 200.0f;
-	mPlaylistHeight			= 200.0f;
+	mPlaylistWidth			= 120.0f;
+	mPlaylistHeight			= 30.0f;
 	mPlaylistSize			= Vec2f( mPlaylistWidth, mPlaylistHeight );
-	mSpacerWidth			= 10.0f;
+	mSpacerWidth			= 30.0f;
 	mBorder					= mPlaylistWidth * 0.5f;
 	mStartX					= mBorder;
 	mStartY					= 350.0f;
 	mHitRect				= Rectf( 0.0f, 0.0f, 10.0f, 10.0f ); // paranoid if i didn't init it
 	mTex					= gl::Texture( loadImage( loadResource( "playlist.png" ) ) );
 	mBgTex					= gl::Texture( loadImage( loadResource( "playlistBg.png" ) ) );	
+	
+	mPrevIndex				= -1;
+	mCurrentIndex			= 0;
+	
+	mWheelOverlay.setup();
 }
 
 bool PlaylistChooser::touchBegan( ci::app::TouchEvent::Touch touch )
@@ -99,9 +103,12 @@ bool PlaylistChooser::touchEnded( ci::app::TouchEvent::Touch touch )
 		mTouchPos		= globalToLocal( touch.getPos() );
 		float movement	= mTouchDragStartPos.distance( mTouchPos );
 		mOffsetX		= mTouchDragStartOffset + (mTouchDragStartPos.x - mTouchPos.x);            
-		if (movement < 5.0f) {
+		if (movement < 15.0f) {
 			// TODO: also measure time and don't allow long selection gaps
-			mCbPlaylistSelected.call( mData->mPlaylists[mTouchDragPlaylistIndex] );
+//			mCbPlaylistSelected.call( mData->mPlaylists[mTouchDragPlaylistIndex] );
+			float lockOffset	= mTouchDragPlaylistIndex * ( mPlaylistWidth + mSpacerWidth ) - mLeftLimit;
+			
+			mOffsetX			= lockOffset;
 			mTouchDragId = 0;
 			mTouchDragPlaylistIndex = -1;
 			return true;                
@@ -122,14 +129,17 @@ void PlaylistChooser::update()
 	if( mInterfaceSize != interfaceSize ){
 		mInterfaceSize	= interfaceSize;
 		
-		mStartY			= mInterfaceSize.y * 0.5f;
-		mHitRect		= Rectf( 0.0f, mStartY - 150.0f, mInterfaceSize.x, mStartY + 150.0f );
+		mWheelOverlay.update( mInterfaceSize );
+		
+		mStartY			= mInterfaceSize.y * 0.5f + mWheelOverlay.mRadius - 20.0f;
+		mHitRect		= Rectf( 0.0f, mStartY - 25.0f, mInterfaceSize.x, mStartY + 25.0f );
 		mXCenter		= mInterfaceSize.x * 0.5f;
 		mEndX			= mInterfaceSize.x - mBorder;
 		
 		mLeftLimit		= mXCenter - mPlaylistWidth;
 		mMaxOffsetX		= ( mNumPlaylists * mPlaylistWidth) + ( (mNumPlaylists-1) * mSpacerWidth ) - (mEndX - mStartX) + mLeftLimit;
 		mMinOffsetX		= -mLeftLimit;
+		
 		
 	}
 }
@@ -160,6 +170,16 @@ void PlaylistChooser::draw()
 			mOffsetX			= lockOffset;
 			
 			mTouchVel			= 0.0f;
+			
+			
+			if( abs( mOffsetXLocked - lockOffset ) < 1.0f ){
+				mPrevIndex			= mCurrentIndex;
+				mCurrentIndex		= chosenIndex;
+				if( mPrevIndex != mCurrentIndex ){
+					mCbPlaylistSelected.call( mData->mPlaylists[mCurrentIndex] );
+				}	
+			}
+			
 		} else {
 			mOffsetXLocked		= mOffsetX;
 			mTouchVel			*= 0.95f;
@@ -167,6 +187,19 @@ void PlaylistChooser::draw()
 	} else {
 		mOffsetXLocked = mOffsetX;
 	}
+	
+	
+	gl::disableDepthRead();
+	gl::disableDepthWrite();
+	gl::enableAlphaBlending();
+	
+	glPushMatrix();
+	gl::color( Color::white() );
+	gl::translate( mInterfaceSize * 0.5f );
+	mWheelOverlay.draw();
+	glPopMatrix();
+	
+	
 	
 	
 	int maxTotalVisiblePlaylists = mInterfaceSize.x / mPlaylistWidth + 1;
@@ -181,9 +214,7 @@ void PlaylistChooser::draw()
 	
     Vec2f pos( mStartX - mOffsetXLocked, mStartY );
 	
-	gl::enableAlphaBlending();
-	gl::enableDepthRead();
-	gl::enableDepthWrite();
+	gl::enableAdditiveBlending();
 
     for( int i = 0; i < mNumPlaylists; i++ )
 	{	
@@ -193,28 +224,38 @@ void PlaylistChooser::draw()
         if( pos.x < mEndX && pos.x + mPlaylistWidth > mStartX )
 		{
 			float x			= pos.x + mPlaylistWidth * 0.5f; // x center of the rect
-			float sinScale	= getScale( x );
-			float depth		= sinScale * 0.2f;
 			float alpha		= getAlpha( x );
-			Vec2f p			= Vec2f( getNewX( x ), mStartY );
-			Vec2f p1		= p + Vec2f(-sinScale, -sinScale ) * mPlaylistSize * 0.75f;
-			Vec2f p2		= p + Vec2f( sinScale, -sinScale ) * mPlaylistSize * 0.75f;
-			Vec2f p3		= p + Vec2f(-sinScale,  sinScale ) * mPlaylistSize * 0.75f;
-			Vec2f p4		= p + Vec2f( sinScale,  sinScale ) * mPlaylistSize * 0.75f;
-			Rectf rect		= Rectf( p1, p4 );
+			Vec2f p			= Vec2f( x, mStartY );
+
+			map<int,gl::Texture>::iterator iter = mTextureMap.begin();
+			iter = mTextureMap.find( i );
+			if (iter == mTextureMap.end() ) 
+				makeTexture( i, playlist );
+			
+			bool highlight = (i == mTouchDragPlaylistIndex) || (i == mCurrentPlaylistIndex);
+			if( highlight ) gl::color( ColorA( BRIGHT_BLUE, alpha ) );
+			else			gl::color( ColorA( BLUE, alpha ) );
+			
+			gl::Texture &tex = mTextureMap.find(i)->second;
+			float w			= tex.getWidth() * 0.5f;
+			float h			= 10.0f;
+			float padding	= 10.0f;
+			Rectf rect		= Rectf( p.x - w - padding, p.y - h - padding, p.x + w + padding, p.y + h + padding );
 			mPlaylistRects.push_back( rect );
+			gl::draw( tex, p - Vec2f( w, h ) );
+
+			//gl::drawStrokedRect( rect );
 			
-			map<int,gl::Fbo>::iterator iter = mFboMap.begin();
-			iter = mFboMap.find( i );
-			if (iter == mFboMap.end() ) 
-				makeFbo( i, playlist );
-			
-//			gl::enableAdditiveBlending();
-			gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha ) );
-			glPushMatrix();
-			glTranslatef( 0.0f, 0.0f, depth );
-			gl::draw( mFboMap.find(i)->second.getTexture(0), Rectf( rect.x1, rect.y2, rect.x2, rect.y1 ) );
-			glPopMatrix();
+//			map<int,gl::Fbo>::iterator iter = mFboMap.begin();
+//			iter = mFboMap.find( i );
+//			if (iter == mFboMap.end() ) 
+//				makeFbo( i, playlist );
+//			
+//			gl::color( ColorA( 1.0f, 1.0f, 1.0f, alpha ) );
+//			glPushMatrix();
+//			glTranslatef( 0.0f, 0.0f, depth );
+//			gl::draw( mFboMap.find(i)->second.getTexture(0), Rectf( rect.x1, rect.y2, rect.x2, rect.y1 ) );
+//			glPopMatrix();
 			
         } else {
 			// STUPID FIX:
@@ -227,20 +268,22 @@ void PlaylistChooser::draw()
             break;
         }
     }
-
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
+	gl::enableAlphaBlending();
 }
 
 void PlaylistChooser::makeFbo( int index, ipod::PlaylistRef playlist )
 {
 	const int FBO_WIDTH		= 400;
-	const int FBO_HEIGHT	= 400;
+	const int FBO_HEIGHT	= 50;
 	
-	gl::Fbo::Format format;
-	gl::Fbo fbo = gl::Fbo( FBO_WIDTH, FBO_HEIGHT, format );
+	
 	
 	gl::SaveFramebufferBinding bindingSaver;
+	gl::Fbo::Format format;
+	gl::Fbo fbo = gl::Fbo( FBO_WIDTH, FBO_HEIGHT, format );
 	fbo.bindFramebuffer();
 	
 	gl::setViewport( fbo.getBounds() );
@@ -265,98 +308,40 @@ void PlaylistChooser::makeFbo( int index, ipod::PlaylistRef playlist )
 	gl::color( Color( 1.0f, 1.0f, 1.0f ) );
 	
 	gl::draw( mBgTex );
-	gl::draw( textTexture, Vec2f( FBO_WIDTH/2 - textTexture.getWidth()/2, 20.0f ) );
+	gl::draw( textTexture, Vec2f( FBO_WIDTH/2 - textTexture.getWidth()/2, 10.0f ) );
 	
-	float size = 35.0f;
-	gl::enableAdditiveBlending();
-	for (int j = 0; j < playlist->size(); j++) {            
-		ipod::TrackRef track = (*playlist)[j];
-		NodeArtist* nodeArtist = mWorld->getArtistNodeById( track->getArtistId() );
-		gl::color( nodeArtist->mColor );
-		Vec2f pos = nodeArtist->mPos.xz() * 1.75f + Vec2f( FBO_WIDTH/2.0f, FBO_HEIGHT/2.0f );
-		pos += Rand::randVec2f() * Rand::randFloat( 3.0f );
-		gl::draw( mTex, Rectf( pos.x - size, pos.y - size, pos.x + size, pos.y + size ) );
-	}
+//	float size = 35.0f;
+//	gl::enableAdditiveBlending();
+//	for (int j = 0; j < playlist->size(); j++) {            
+//		ipod::TrackRef track = (*playlist)[j];
+//		NodeArtist* nodeArtist = mWorld->getArtistNodeById( track->getArtistId() );
+//		gl::color( nodeArtist->mColor );
+//		Vec2f pos = nodeArtist->mPos.xz() * 1.75f + Vec2f( FBO_WIDTH/2.0f, FBO_HEIGHT/2.0f );
+//		pos += Rand::randVec2f() * Rand::randFloat( 3.0f );
+//		gl::draw( mTex, Rectf( pos.x - size, pos.y - size, pos.x + size, pos.y + size ) );
+//	}
 
 
 	mFboMap.insert( std::make_pair( index, fbo ) );
 }
 
 
-//void PlaylistChooser::draw()
-//{
-//    if (mData == NULL || !mVisible) return;
-//    
-//    // FIXME: keep track of scrolling momentum, do proper springy iOS style limits    
-////    const float maxOffsetX = (numPlaylists * playlistWidth) + ((numPlaylists-1) * spacing.x) - (endX - startX);
-////    if (offsetX < 0.0) offsetX = 0.0;
-////    if (offsetX > maxOffsetX) offsetX = maxOffsetX;
-//    
-////    std::vector<ScissorRect> scissorRects;
-//    
-//    mPlaylistRects.clear();
-//    
-//    glEnable(GL_SCISSOR_TEST); // NB:- simple clipping for window-space rectangles only (no rotations)
-//    
-//    Vec2f pos( startX - offsetX, startY );
-//    for (int i = 0; i < numPlaylists; i++) {
-//        ipod::PlaylistRef playlist = mData->mPlaylists[i];
-//
-//        // make a rect for everyone because the indexes are useful
-//        Rectf listRect(pos, pos+playlistSize);
-//        mPlaylistRects.push_back(listRect);
-//
-//        if (pos.x < endX && pos.x + playlistWidth > startX) {
-//            
-//            ScissorRect sr; // make a rect in the current screen space
-//            sr.x = max(startX, min(endX, listRect.x1));
-//            sr.y = listRect.y1;
-//            sr.w = min(endX,listRect.x2) - sr.x;
-//            sr.h = listRect.getHeight();
-//            getWindowSpaceRect( sr.x, sr.y, sr.w, sr.h ); // transform rect to window coords
-////            scissorRects.push_back( sr );
-//            glScissor( sr.x, sr.y, sr.w, sr.h ); // used for GL_SCISSOR_TEST
-//            
-//            gl::color( ColorA(0.0f,0.0f,0.0f,0.25f) );
-//            gl::drawSolidRect( listRect );        
-//            
-//            bool highlight = (i == mTouchDragPlaylistIndex) || (i == mCurrentPlaylistIndex);
-//            gl::color( highlight ? Color::white() : mLineColor ); // FIXME: make mHighlightColor?
-//            string name = playlist->getPlaylistName();
-//            // FIXME: sadly have to dig deeper on the text stuff because TextureFont won't support international characters
-//            mTextureFont->drawStringWrapped( name, listRect, textPadding );
-//            gl::drawStrokedRect( Rectf(pos+Vec2f(1,1), pos+playlistSize) );
-//
-//            // FIXME: use constellation logic
-//            // FIXME: probably don't draw this on the fly, cache things instead?
-////            vector<Vec2f> lines(playlist->size());
-////            for (int j = 0; j < playlist->size(); j++) {            
-////                ipod::TrackRef track = (*playlist)[j];
-////                NodeArtist* nodeArtist = mWorld->getArtistNodeById( track->getArtistId() );        
-////                // can't use mScreenPos here because we only calculate it for highlighted (labeled) nodes
-////                lines[j] = pos + mCam->worldToScreen(nodeArtist->mPos, playlistWidth, playlistHeight); // pretend screen is small
-////            }
-////            gl::draw(PolyLine2f(lines));            
-//        }
-//        
-//        pos += spacing;
-//        if (pos.x > endX) {
-//            break;
-//        }
-//    }
-//
-//    glScissor( 0, mInterfaceSize.y, mInterfaceSize.x, mInterfaceSize.y );
-//    glDisable(GL_SCISSOR_TEST);
-//
-////    gl::color( ColorA(1.0f,0.0f,0.0f,1.0f) );
-////    for (int i = 0; i < scissorRects.size(); i++) {
-////        ScissorRect sr = scissorRects[i];
-////        std::cout << i << " " << sr.x << " " << sr.y << " " << sr.w << " " << sr.h << std::endl;
-////        gl::drawStrokedRect( Rectf(sr.x, app::getWindowHeight() - sr.y - sr.h, sr.x + sr.w, app::getWindowHeight() - sr.y) );
-////    }
-//
-//}
 
+
+void PlaylistChooser::makeTexture( int index, ipod::PlaylistRef playlist )
+{
+	string name = playlist->getPlaylistName();
+	if( name.length() > 20 ){
+		name = name.substr( 0, 20 );
+		name += "...";
+	}
+	TextLayout layout;
+	layout.setFont( mFont );
+	layout.setColor( BRIGHT_BLUE );
+	layout.addLine( name );
+	gl::Texture textTexture = gl::Texture( layout.render( true, false ) );
+	mTextureMap.insert( std::make_pair( index, textTexture ) );
+}
 
 
 
@@ -364,7 +349,7 @@ float PlaylistChooser::getAlpha( float x )
 {
 	float per		= x/mInterfaceSize.x;
 	float invCos	= ( 1.0f - (float)cos( per * M_PI * 2.0f ) ) * 0.5f;
-	float cosPer	= pow( invCos, 0.25f );
+	float cosPer	= pow( invCos, 0.5f );
 	return cosPer;
 }
 

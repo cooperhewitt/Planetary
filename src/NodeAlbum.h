@@ -24,7 +24,7 @@ class NodeAlbum : public Node
 	void drawPlanet( const ci::gl::Texture &tex );
 	void drawClouds( const std::vector< ci::gl::Texture> &clouds );
 	void drawRings( const ci::gl::Texture &tex, const PlanetRing &planetRing, float camZPos );
-	void drawAtmosphere( const ci::Vec3f &camEye, const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer );
+	void drawAtmosphere( const ci::Vec3f &camEye, const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer, float scaleSliderOffset );
 	void drawOrbitRing( float pinchAlphaOffset, float camAlpha, const OrbitRing &orbitRing );
 	void findShadows( float camAlpha );
     void buildShadowVertexArray( ci::Vec3f p1, ci::Vec3f p2, ci::Vec3f p3, ci::Vec3f p4 );
