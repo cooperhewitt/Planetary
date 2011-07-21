@@ -415,7 +415,12 @@ void KeplerApp::remainingSetup()
 	//mAlphaWheel.setRects();    
     mMainUINodeRef->addChild( UINodeRef(&mAlphaWheel) );
 	
-    
+    // PLAYLIST CHOOSER
+    mPlaylistChooser.setup( mFontMedium );
+    mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
+	mMainUINodeRef->addChild( UINodeRef(&mPlaylistChooser) );
+    // FIXME register listeners
+	
 	// UILAYER
 	mUiLayer.setup( mUiSmallButtonsTex, mSettingsBgTex, G_SHOW_SETTINGS, mUIControllerRef->getInterfaceSize() );
     mMainUINodeRef->addChild( UINodeRef(&mUiLayer) );
@@ -431,11 +436,7 @@ void KeplerApp::remainingSetup()
 	mHelpLayer.setup( this, mOrientationHelper.getInterfaceOrientation() );
 	mHelpLayer.initHelpTextures( mFontMediSmall );
 	
-    // PLAYLIST CHOOSER
-    mPlaylistChooser.setup( mFontBig );
-    mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
-	mMainUINodeRef->addChild( UINodeRef(&mPlaylistChooser) );
-    // FIXME register listeners
+    
     
     mShowFilterGUI = false;
     
