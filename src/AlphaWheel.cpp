@@ -176,6 +176,7 @@ void AlphaWheel::update( )
 
 void AlphaWheel::setNumberAlphaPerChar( float *numberAlphaPerChar )
 {
+	std::cout << "setNumberAlphaPerChar" << std::endl;
     mNumberAlphaPerChar = numberAlphaPerChar;
 }
 
