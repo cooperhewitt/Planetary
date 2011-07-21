@@ -33,7 +33,7 @@ void AlphaWheel::setup( const Font &font )
 	mAlphaChar		= ' ';
 	mPrevAlphaChar	= ' ';
 	mShowWheel		= false;
-	mWheelScale		= 1.0f;	
+	mWheelScale		= 1.0f;
 	
 	initAlphaTextures( font );
 
@@ -180,14 +180,13 @@ bool AlphaWheel::touchBegan( TouchEvent::Touch touch )
 
 bool AlphaWheel::touchMoved( TouchEvent::Touch touch )
 {
-    if (!mShowWheel) return false;
-    
+    if (mShowWheel) {    
         // only follow the last valid touch we received
-//        if (touch.getId() == mActiveTouchId) {
-//            mLastTouchPos = touch.getPos();
-//            return selectWheelItem( mLastTouchPos, false );
-//        }
-	
+        if (touch.getId() == mActiveTouchId) {
+            mLastTouchPos = touch.getPos();
+            return selectWheelItem( mLastTouchPos, false );
+        }
+    }
 	return false;
 }
 
@@ -320,33 +319,6 @@ void AlphaWheel::drawWheel()
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	mWheelTex.disable();
-	
-//    float wMask = mWheelTex.getWidth() * 0.5f;
-//    float hMask = mWheelTex.getHeight() * 0.5f;
-//
-//    float c = 1.0f - mWheelScale;
-//    gl::color( ColorA( c, c, c, c ) );
-//    
-//    mWheelTex.enableAndBind();
-//    gl::drawSolidRect( Rectf( -wMask, -hMask, wMask, hMask ) );
-//    mWheelTex.disable();    
-//	
-//    // TODO: batch this geometry, adapt bloom::gl::batchRect() for solid fills    
-//    if ( isLandscapeOrientation(mInterfaceOrientation) ) {
-//        Vec2f interfaceSize = getWindowSize().yx(); // SWIZ!
-//        gl::color( Color::black() );
-//        // left bar, relative to center:
-//        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, -wMask, hMask ) );
-//        // right bar, relative to center:
-//        gl::drawSolidRect( Rectf( wMask, -interfaceSize.y/2, interfaceSize.x/2, hMask ) );
-//    } else {
-//		Vec2f interfaceSize = getWindowSize().xy();
-//		gl::color( Color::black() );
-//        // top bar, relative to center:
-//        gl::drawSolidRect( Rectf( -interfaceSize.x/2, -interfaceSize.y/2, interfaceSize.x/2, -hMask ) );
-//        // bottom bar, relative to center:
-//        gl::drawSolidRect( Rectf( -interfaceSize.x/2, hMask, interfaceSize.x/2, interfaceSize.y/2 ) );
-//	}
 }
 
 void AlphaWheel::drawAlphaChar()

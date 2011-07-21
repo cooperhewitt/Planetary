@@ -72,12 +72,15 @@
 		E1C600051318490F0022246C /* World.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C600041318490F0022246C /* World.cpp */; };
 		E1C6FFF3131847A40022246C /* Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1C6FFF2131847A40022246C /* Data.cpp */; };
 		E1C942C7137B9BD900F88EA2 /* darkMatter.png in Resources */ = {isa = PBXBuildFile; fileRef = E1C942C6137B9BD900F88EA2 /* darkMatter.png */; };
-		E1D99A84134A9DB3003FC316 /* blurRect.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A83134A9DB3003FC316 /* blurRect.png */; };
+		E1D32DDC13D67BE3002F33ED /* playlist.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DDB13D67BE3002F33ED /* playlist.png */; };
+		E1D32DEC13D6C2E2002F33ED /* playlistBg.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DEB13D6C2E2002F33ED /* playlistBg.png */; };
+		E1D32DFA13D77525002F33ED /* settingsBg.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DF913D77525002F33ED /* settingsBg.png */; };
+		E1D32DFC13D77F12002F33ED /* filterToggleButton.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DFB13D77F12002F33ED /* filterToggleButton.png */; };
+		E1D32DFF13D78E01002F33ED /* WheelOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1D32DFD13D78E01002F33ED /* WheelOverlay.cpp */; };
 		E1D99A8E134AFF2F003FC316 /* alphaWheelMask.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */; };
 		E1D99A98134BD490003FC316 /* planet.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A96134BD490003FC316 /* planet.png */; };
 		E1D99A99134BD490003FC316 /* planetary.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A97134BD490003FC316 /* planetary.png */; };
 		E1D99A9B134BDBFE003FC316 /* background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A9A134BDBFE003FC316 /* background.jpg */; };
-		E1D99AB2134D63B0003FC316 /* uiButtons.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99AB1134D63B0003FC316 /* uiButtons.png */; };
 		E1E663701317887F00E5E4B9 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E6636F1317887F00E5E4B9 /* State.cpp */; };
 		E1FA27E11355790500169830 /* atmosphere.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FA27E01355790500169830 /* atmosphere.png */; };
 		E1FC7DA11337E4D9007F333C /* Dust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1FC7D9F1337E4D9007F333C /* Dust.cpp */; };
@@ -201,12 +204,16 @@
 		E1C600041318490F0022246C /* World.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = World.cpp; path = ../src/World.cpp; sourceTree = SOURCE_ROOT; };
 		E1C6FFF2131847A40022246C /* Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Data.cpp; path = ../src/Data.cpp; sourceTree = SOURCE_ROOT; };
 		E1C942C6137B9BD900F88EA2 /* darkMatter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = darkMatter.png; path = ../darkMatter.png; sourceTree = "<group>"; };
-		E1D99A83134A9DB3003FC316 /* blurRect.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = blurRect.png; path = ../resources/ui/blurRect.png; sourceTree = "<group>"; };
+		E1D32DDB13D67BE3002F33ED /* playlist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playlist.png; path = ../resources/playlist.png; sourceTree = "<group>"; };
+		E1D32DEB13D6C2E2002F33ED /* playlistBg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playlistBg.png; path = ../resources/playlistBg.png; sourceTree = "<group>"; };
+		E1D32DF913D77525002F33ED /* settingsBg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = settingsBg.png; path = ../resources/ui/settingsBg.png; sourceTree = "<group>"; };
+		E1D32DFB13D77F12002F33ED /* filterToggleButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = filterToggleButton.png; path = ../resources/ui/filterToggleButton.png; sourceTree = "<group>"; };
+		E1D32DFD13D78E01002F33ED /* WheelOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WheelOverlay.cpp; path = ../src/WheelOverlay.cpp; sourceTree = "<group>"; };
+		E1D32DFE13D78E01002F33ED /* WheelOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WheelOverlay.h; path = ../src/WheelOverlay.h; sourceTree = "<group>"; };
 		E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = alphaWheelMask.png; path = ../resources/ui/alphaWheelMask.png; sourceTree = "<group>"; };
 		E1D99A96134BD490003FC316 /* planet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = planet.png; path = ../resources/loadscreen/planet.png; sourceTree = "<group>"; };
 		E1D99A97134BD490003FC316 /* planetary.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = planetary.png; path = ../resources/loadscreen/planetary.png; sourceTree = "<group>"; };
 		E1D99A9A134BDBFE003FC316 /* background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = background.jpg; path = ../resources/loadscreen/background.jpg; sourceTree = "<group>"; };
-		E1D99AB1134D63B0003FC316 /* uiButtons.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = uiButtons.png; path = ../resources/ui/uiButtons.png; sourceTree = "<group>"; };
 		E1E6636F1317887F00E5E4B9 /* State.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = State.cpp; path = ../src/State.cpp; sourceTree = SOURCE_ROOT; };
 		E1FA27E01355790500169830 /* atmosphere.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = atmosphere.png; path = ../resources/planets/atmosphere.png; sourceTree = "<group>"; };
 		E1FC74B3130B256D007FE9D6 /* DoubleTapEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DoubleTapEvent.h; sourceTree = "<group>"; };
@@ -459,6 +466,10 @@
 		E12766401325E28900E1FC3F /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				E1D32DFB13D77F12002F33ED /* filterToggleButton.png */,
+				E1D32DF913D77525002F33ED /* settingsBg.png */,
+				E1D32DEB13D6C2E2002F33ED /* playlistBg.png */,
+				E1D32DDB13D67BE3002F33ED /* playlist.png */,
 				E10F84E2139899740062F73C /* overlayIcons.png */,
 				E1555CA4131EEBEB0079B05A /* dotted.png */,
 				E1B7670E138F72EC00505163 /* uiSmallButtons.png */,
@@ -468,9 +479,7 @@
 				E128E33E1357B63E00707AA8 /* noArtists.png */,
 				E189F6751339A377009B2E23 /* playheadProgress.png */,
 				E10D86D51384FF8200346445 /* origin.png */,
-				E1D99AB1134D63B0003FC316 /* uiButtons.png */,
 				E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */,
-				E1D99A83134A9DB3003FC316 /* blurRect.png */,
 			);
 			name = ui;
 			sourceTree = "<group>";
@@ -659,15 +668,16 @@
 			isa = PBXGroup;
 			children = (
 				E2A868B813D3E5050024E4D0 /* Scene */,
+				E1D32DFE13D78E01002F33ED /* WheelOverlay.h */,
+				E2CD4B9F13CA70F60047AF5F /* FilterToggleButton.h */,
 				E2E21CB613A177E200A476A2 /* AlphaWheel.h */,
+				E2CD4B9C13CA6F350047AF5F /* PlaylistChooser.h */,
 				E2E21CBF13A177E600A476A2 /* HelpLayer.h */,
 				E2E21CC113A177E600A476A2 /* LoadingScreen.h */,
 				E2E21CC613A177E800A476A2 /* NotificationOverlay.h */,
 				E2E21CC913A177EA00A476A2 /* PlayControls.h */,
 				E2E21CDC13A2D70E00A476A2 /* Stats.h */,
 				E2E21CD113A177EE00A476A2 /* UiLayer.h */,
-				E2CD4B9C13CA6F350047AF5F /* PlaylistChooser.h */,
-				E2CD4B9F13CA70F60047AF5F /* FilterToggleButton.h */,
 			);
 			name = Ui;
 			sourceTree = "<group>";
@@ -727,12 +737,13 @@
 				E2A868B713D3E4E50024E4D0 /* Scene */,
 				E2E21CDB13A2D70C00A476A2 /* Stats.cpp */,
 				E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */,
+				E1D32DFD13D78E01002F33ED /* WheelOverlay.cpp */,
+				E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */,
+				E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */,
+				E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */,
 				E28FDA821339B782005EDBB4 /* PlayControls.cpp */,
 				E1B0DBB113510C890093EB9D /* HelpLayer.cpp */,
 				E15C90B61300B2F900FB8389 /* UiLayer.cpp */,
-				E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */,
-				E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */,
-				E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */,
 				E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */,
 			);
 			name = Ui;
@@ -909,12 +920,10 @@
 				E17667DE13202FB7006A4C2E /* rings.png in Resources */,
 				E1FC7DA313381853007F333C /* eclipseGlow.png in Resources */,
 				E189F6761339A377009B2E23 /* playheadProgress.png in Resources */,
-				E1D99A84134A9DB3003FC316 /* blurRect.png in Resources */,
 				E1D99A8E134AFF2F003FC316 /* alphaWheelMask.png in Resources */,
 				E1D99A98134BD490003FC316 /* planet.png in Resources */,
 				E1D99A99134BD490003FC316 /* planetary.png in Resources */,
 				E1D99A9B134BDBFE003FC316 /* background.jpg in Resources */,
-				E1D99AB2134D63B0003FC316 /* uiButtons.png in Resources */,
 				E1B0DBC2135124130093EB9D /* helpPanel.png in Resources */,
 				E1FA27E11355790500169830 /* atmosphere.png in Resources */,
 				E128E33F1357B63E00707AA8 /* noArtists.png in Resources */,
@@ -956,6 +965,10 @@
 				E23C29FA13B1A6D60038F3F4 /* skydomeFull.png in Resources */,
 				E23C29FD13B1A9710038F3F4 /* galaxyCropped.jpg in Resources */,
 				E23C29FE13B1A9710038F3F4 /* galaxyCropped.pvr in Resources */,
+				E1D32DDC13D67BE3002F33ED /* playlist.png in Resources */,
+				E1D32DEC13D6C2E2002F33ED /* playlistBg.png in Resources */,
+				E1D32DFA13D77525002F33ED /* settingsBg.png in Resources */,
+				E1D32DFC13D77F12002F33ED /* filterToggleButton.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1012,6 +1025,7 @@
 				E2A868B313D3CA6F0024E4D0 /* UINode.cpp in Sources */,
 				E2A868B613D3D0950024E4D0 /* UIController.cpp in Sources */,
 				E2576E4213D4C8D600EC82EF /* TextureRect.cpp in Sources */,
+				E1D32DFF13D78E01002F33ED /* WheelOverlay.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

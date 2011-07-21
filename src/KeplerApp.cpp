@@ -58,9 +58,8 @@ using namespace bloom;
 
 float G_ZOOM			= 0;
 int G_CURRENT_LEVEL		= 0;
-bool G_ACCEL			= true;
-bool G_DEBUG			= true;
-bool G_SHOW_SETTINGS	= true;
+bool G_DEBUG			= false;
+bool G_SHOW_SETTINGS	= false;
 bool G_HELP             = false;
 bool G_DRAW_RINGS		= false;
 bool G_DRAW_TEXT		= false;
@@ -183,6 +182,7 @@ class KeplerApp : public AppCocoaTouch {
 	float			mPinchHighlightRadius;
 	float			mPinchRotation;
 	bool			mIsPastPinchThresh;
+	float			mPerlinForAutoMove;
 	
 	float			mZoomFrom, mZoomDest;
 	Arcball			mArcball;
@@ -233,7 +233,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mDottedTex;
 	gl::Texture		mPlayheadProgressTex;
     gl::Texture     mRingsTex;
-	gl::Texture		mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex, mOverlayIconsTex;
+	gl::Texture		mUiBigButtonsTex, mUiSmallButtonsTex, mOverlayIconsTex;
     gl::Texture		mAtmosphereTex, mAtmosphereDirectionalTex, mAtmosphereSunTex;
 	gl::Texture		mNoArtistsTex;
 	gl::Texture		mParticleTex;
@@ -241,6 +241,7 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mDarkMatterTex;
 	gl::Texture		mOrbitRingGradientTex;
 	gl::Texture		mTrackOriginTex;
+	gl::Texture		mSettingsBgTex;
 	vector<gl::Texture> mCloudsTex;
 	
 	Surface			mHighResSurfaces;
@@ -347,6 +348,9 @@ void KeplerApp::remainingSetup()
 	mPinchHighlightRadius = 50.0f;
 	mPinchRotation		= 0.0f;
 	mIsPastPinchThresh	= false;
+	mPerlinForAutoMove	= 0.0f;
+	
+	
 	
 	mCamDistFrom		= mCamDist;
 	mCamDistAnim		= 0.0f;
@@ -409,11 +413,11 @@ void KeplerApp::remainingSetup()
     mMainUINodeRef->addChild( UINodeRef(&mAlphaWheel) );
     
 	// UILAYER
-	mUiLayer.setup( mUiButtonsTex, G_SHOW_SETTINGS, mUIControllerRef->getInterfaceSize() );
+	mUiLayer.setup( mUiSmallButtonsTex, mSettingsBgTex, G_SHOW_SETTINGS, mUIControllerRef->getInterfaceSize() );
     mMainUINodeRef->addChild( UINodeRef(&mUiLayer) );
     
 	// PLAY CONTROLS
-	mPlayControls.setup( mUIControllerRef->getInterfaceSize(), &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiButtonsTex, mUiBigButtonsTex, mUiSmallButtonsTex );
+	mPlayControls.setup( mUIControllerRef->getInterfaceSize(), &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiBigButtonsTex, mUiSmallButtonsTex );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
     // add as child of UILayer so it inherits the transform
@@ -424,16 +428,18 @@ void KeplerApp::remainingSetup()
 	mHelpLayer.initHelpTextures( mFontMediSmall );
 	
     // PLAYLIST CHOOSER
-    mPlaylistChooser.setup( this, mOrientationHelper.getInterfaceOrientation(), mFont, BRIGHT_BLUE );
+    mPlaylistChooser.setup( mFontBig, BRIGHT_BLUE );
     mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
+	mMainUINodeRef->addChild( UINodeRef(&mPlaylistChooser) );
     // FIXME register listeners
     
     mShowFilterGUI = false;
     
     // FILTER TOGGLE
-    mFilterToggleButton.setup( this, mState.getFilterMode(), mFontMedium, mOrientationHelper.getInterfaceOrientation() );
+    mFilterToggleButton.setup( mState.getFilterMode(), mFontMedium );
     mFilterToggleButton.registerFilterModeSelected( this, &KeplerApp::onFilterToggled );
-    
+    mMainUINodeRef->addChild( UINodeRef(&mFilterToggleButton) );
+	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
 	mState.registerNodeSelected( this, &KeplerApp::onSelectedNodeChanged );
@@ -528,10 +534,10 @@ void KeplerApp::initTextures()
         mGalaxyDome           = gl::Texture( loadImage( loadResource( "lightMatterFull.jpg" ) ), mipFmt );
     }
     
+	mSettingsBgTex			  = gl::Texture( loadImage( loadResource( "settingsBg.png" ) ) );    
 	mDottedTex                = gl::Texture( loadImage( loadResource( "dotted.png" ) ), repeatMipFmt );    
 	mRingsTex                 = gl::Texture( loadImage( loadResource( "rings.png" ) ) /*, fmt */ );
     mPlayheadProgressTex      = gl::Texture( loadImage( loadResource( "playheadProgress.png" ) ), repeatMipFmt );
-	mUiButtonsTex             = gl::Texture( loadImage( loadResource( "uiButtons.png" ) )/*, fmt*/ );
 	mUiBigButtonsTex          = gl::Texture( loadImage( loadResource( "uiBigButtons.png" ) )/*, fmt*/ );
 	mUiSmallButtonsTex        = gl::Texture( loadImage( loadResource( "uiSmallButtons.png" ) )/*, fmt*/ );
 	mOverlayIconsTex          = gl::Texture( loadImage( loadResource( "overlayIcons.png" ) )/*, fmt*/ );
@@ -696,6 +702,9 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	mTouchPos		= averageTouchPos;
 	mPinchRotation	+= event.getRotationDelta();
 
+	mTimePinchEnded = getElapsedSeconds();
+	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );
+	
     return false;
 }
 
@@ -714,6 +723,7 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 	
 	mTimePinchEnded = getElapsedSeconds();
 	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );
+	
     mPinchRays.clear();
 	mIsPinching = false;
     return false;
@@ -726,11 +736,19 @@ bool KeplerApp::keepTouchForPinching( TouchEvent::Touch touch )
 
 bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
 {
-    Vec2f worldPos = (mInverseOrientationMatrix * Vec3f(screenPos,0)).xy();
-    bool aboveUI = worldPos.y < mUiLayer.getPanelYPos();
-    bool notTab = !mUiLayer.getPanelTabRect().contains(worldPos);
-    // FIXME: to be complete notPlaylistChooser, notAlphaWheel and notFilterToggle
-    return aboveUI && notTab;
+	Vec2f worldPos			= (mInverseOrientationMatrix * Vec3f(screenPos,0)).xy();
+    bool aboveUI			= worldPos.y < mUiLayer.getPanelYPos();
+    bool notTab				= !mUiLayer.getPanelTabRect().contains(worldPos);
+    bool notFilterToggle	= true;
+    if ( mFilterToggleButton.isVisible() && mFilterToggleButton.getRect().contains(worldPos) ) 
+        notFilterToggle = false;
+	
+    bool notPlaylistChooser = true;
+    if ( mPlaylistChooser.isVisible() && mPlaylistChooser.getRect().contains(worldPos) ) 
+        notPlaylistChooser = false;
+	
+    // FIXME: to be complete: notAlphaWheel?
+    return aboveUI && notTab && notFilterToggle && notPlaylistChooser;
 }
 
 
@@ -772,14 +790,8 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 //    if( ! G_USE_GYRO ) mUp = getUpVectorForOrientation( mInterfaceOrientation );
 //	else			   mUp = Vec3f::yAxis();
 
-    // FIXME: perhaps mOrientationMatrix can be applied before drawing all these UI bits
-    //        this way they don't need to know what orientation they're in
-    //        EXCEPT: they would also need the orientation helper to proxy mouse/touch events and correct the positions
-    
     if (mData.getState() == Data::LoadStateComplete) {
         mHelpLayer.setInterfaceOrientation(orientation);
-        mPlaylistChooser.setInterfaceOrientation(orientation);
-        mFilterToggleButton.setInterfaceOrientation(orientation);
     }
 }
 
@@ -1069,25 +1081,15 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
         
 		case PlayControls::USE_GYRO:
-//			{
-//				std::cout << "Starting tile render" << std::endl;
-//				gl::TileRender tr( getWindowWidth() * 3, getWindowHeight() * 3, 11, 131 );
-//				std::cout << "Tile Renderer initialized" << std::endl;
-//				tr.setMatrices( mCam );
-//				std::cout << "Matrices set" << std::endl;
-//				while( tr.nextTile() ) {
-//					std::cout << "While..." << std::endl;
-//					draw();
-//					std::cout << "Scene drawn" << std::endl;
-//				}
-//				std::cout << "done while." << std::endl;
-//				writeImage( getHomeDirectory() + "tileRenderOutput.png", tr.getSurface() );
-//				std::cout << "Image written" << std::endl;
-//			}
 			
 			if( G_SHOW_SETTINGS ){
 				logEvent("Use Gyro Button Selected");            
 				G_USE_GYRO = !G_USE_GYRO;
+				
+				if( ! G_USE_GYRO ) mUp = getUpVectorForOrientation( mInterfaceOrientation );
+				else			   mUp = Vec3f::yAxis();
+				
+				
 				if( G_USE_GYRO )	mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 0.0f, 640.0f, 128.0f ), "GYROSCOPE" );
 				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 128.0f, 640.0f, 256.0f ), "GYROSCOPE" );
 			}
@@ -1281,8 +1283,6 @@ void KeplerApp::update()
 
         // make sure everything that was ignoring orientation changes is updated:
         mHelpLayer.setInterfaceOrientation( mInterfaceOrientation );
-        mPlaylistChooser.setInterfaceOrientation( mInterfaceOrientation );
-        mFilterToggleButton.setInterfaceOrientation( mInterfaceOrientation );
         
         // and then make sure we know about the current track if there is one...
         if ( mIpodPlayer.hasPlayingTrack() ) {
@@ -1332,8 +1332,8 @@ void KeplerApp::update()
 			mCamAutoMove = false;
 		}
 
-        updateArcball();
-
+		updateArcball();
+		
         // fake playhead time if we're dragging (so it looks really snappy)
         if (mPlayControls.playheadIsDragging()) {
 //            std::cout << "updating current playhead time from slider" << std::endl;                
@@ -1435,16 +1435,16 @@ void KeplerApp::update()
 void KeplerApp::updateArcball()
 {	
 	if( mTouchVel.length() > 2.0f && !mIsDragging ){
-        Vec3f downPos;
+		Vec3f downPos;
 		if( G_USE_GYRO )	downPos = ( Vec3f(mTouchPos,0) );
 		else				downPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos,0) );
-        mArcball.mouseDown( Vec2i(downPos.x, downPos.y) );
+		mArcball.mouseDown( Vec2i(downPos.x, downPos.y) );
 		
 		Vec3f dragPos;
 		if( G_USE_GYRO )	dragPos = ( Vec3f(mTouchPos + mTouchVel,0) );
 		else				dragPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos + mTouchVel,0) );
-        mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
-	}	
+		mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
+	}
 }
 
 
@@ -1484,7 +1484,8 @@ void KeplerApp::updateCamera()
 		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.1f;
 		mIsPastPinchThresh = false;
 		
-        if( mAlphaWheel.getShowWheel() ){
+//        if( mAlphaWheel.getShowWheel() ){
+		if( mFilterToggleButton.isVisible() ){
             mFovDest = G_MAX_FOV; // special FOV just for alpha wheel
         } else {
             mFovDest = G_DEFAULT_FOV;
@@ -1498,15 +1499,18 @@ void KeplerApp::updateCamera()
 		mCamDistDest	= selectedNode->mIdealCameraDist * cameraDistMulti;
 		
 		if( mCamAutoMove ){
+			// ROBERT: Fix this crap. needs to transition correctly
 			if( selectedNode->mParentNode ){
 				Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
-				float perlin = mPerlin.fBm( app::getElapsedSeconds() * 0.01f );
-				float amt = perlin + 0.3f + sin( app::getElapsedSeconds() * 0.1f ) * 0.45f;
+				float timeForAnim = ( app::getElapsedSeconds() - mTimeSinceLastInteraction - 20.0f );
+				mPerlinForAutoMove -= ( mPerlinForAutoMove - mPerlin.fBm( timeForAnim * 0.01f ) ) * 0.15f;
+				float amt = 0.3f + sin( timeForAnim * 0.1f ) * 0.45f;
 				Vec3f lookToPos = dirToParent * amt;
 				mCenterOffset -= ( mCenterOffset - lookToPos ) * 0.1f;
-				mCamDistDest  *= ( perlin + 1.0f ) * G_ZOOM;
+				mCamDistDest  *= ( mPerlinForAutoMove + 1.0f ) * G_ZOOM;
 			}
 		} else {
+			mPerlinForAutoMove -= ( mPerlinForAutoMove - 0.0f ) * 0.15f;
 			if( selectedNode->mParentNode && mPinchPer > mPinchPerThresh ){
 				Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
 				mCenterOffset -= ( mCenterOffset - ( dirToParent * ( mPinchPer - mPinchPerThresh ) * 2.5f ) ) * 0.2f;
@@ -1663,8 +1667,9 @@ void KeplerApp::drawScene()
         c = Color( CM_HSV, mPinchPer * 0.3f + 0.7f, 1.0f, 1.0f );
     
     if( artistNode && artistNode->mDistFromCamZAxis > 0.0f ){
-        float eclipseAmt = ( 1.0f - artistNode->mEclipseStrength );
-        gl::color( lerp( BLUE, BRIGHT_BLUE, eclipseAmt ) );
+		float distToCenter = min( ( ( getWindowCenter() - artistNode->mScreenPos ).length()/80.0f ) + ( 1.0f - mFadeInArtistToAlbum ), 1.0f );
+        gl::color( lerp( ( artistNode->mGlowColor + BRIGHT_BLUE ) * 0.15f, BRIGHT_BLUE, distToCenter ) );
+
     } else {
         gl::color( BRIGHT_BLUE );
     }
@@ -1893,16 +1898,14 @@ void KeplerApp::drawScene()
 //        mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
     }
     else if (mState.getFilterMode() == State::FilterModePlaylist) {
-        mPlaylistChooser.draw(); // FIXME: what does this do?
+//        mPlaylistChooser.draw(); // FIXME: what does this do?
     }
     else {
         // FIXME: we still automatically select the alpha char so this might never be called, right?
         console() << "unknown filter mode - do we draw the alphawheel or what?" << endl;
     }
     
-    mFilterToggleButton.draw(); // FIXME: fade-in/out according to mShowFilterGUI?
-    
-	mHelpLayer.draw( mUiButtonsTex, mUiLayer.getPanelYPos() );
+	mHelpLayer.draw( mUiSmallButtonsTex, mUiLayer.getPanelYPos() );
 
     // UILayer and PlayControls draw here:
     mUIControllerRef->draw();

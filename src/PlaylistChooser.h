@@ -11,6 +11,7 @@
 #include <vector>
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/gl/TextureFont.h"
+#include "cinder/gl/Fbo.h"
 #include "cinder/Font.h"
 #include "cinder/Color.h"
 #include "cinder/Camera.h"
@@ -18,20 +19,24 @@
 #include "OrientationHelper.h"
 #include "Data.h"
 #include "World.h"
+#include "UINode.h"
+#include <map>
 
-class PlaylistChooser {
+class PlaylistChooser : public UINode {
 
 public:    
     
-    PlaylistChooser(): mData(NULL), mVisible(false), offsetX(0.0f), mCurrentPlaylistIndex(-1) {}
+    PlaylistChooser(): mData(NULL), mVisible(false), mOffsetX(0.0f), mCurrentPlaylistIndex(-1) {}
     
-    void setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation, const ci::Font &font, const ci::Color &lineColor );
+    void setup( const ci::Font &font, const ci::Color &lineColor );
+	void update();
     void draw();
-
+	void makeFbo( int index, ci::ipod::PlaylistRef playlist );
+	
+	ci::Rectf getRect(){ return mHitRect; }
     void setVisible( bool visible = true ) { mVisible = visible; }
     bool isVisible() { return mVisible; }
-    
-    void setInterfaceOrientation( const ci::app::Orientation &orientation );    
+       
     void setCurrentPlaylistIndex( int index ) { mCurrentPlaylistIndex = index; } // -1 is "none"
     void setDataWorldCam(Data *data, World *world, ci::CameraPersp *cam);
 
@@ -45,35 +50,68 @@ private:
     struct ScissorRect {
         float x, y, w, h;  
     };
-
-    bool mVisible;
-    float offsetX; // for scrolling
+	
+	struct VertexData {
+        ci::Vec3f vertex;
+        ci::Vec2f texture;
+		ci::Vec4f color;
+    };
+	
+	float			getNewX( float x );
+	float			getNewY( float x );
+	float			getScale( float x );
+	float			getAlpha( float x );
+	
+	
+	int				mNumPlaylists;
+	int				mCurrentPlaylistIndex; // set from main app, passive
+    bool			mVisible;
+	
+	ci::Vec2i		mTouchPos, mTouchPrevPos;
+	float			mTouchVel;
+	uint64_t		mTouchDragId;
+    ci::Vec2f		mTouchDragStartPos;
+    float			mTouchDragStartOffset;
+    int				mTouchDragPlaylistIndex;
+    bool			mIsDragging;
+	
+	float			mPlaylistWidth, mPlaylistHeight;
+	ci::Vec2f		mPlaylistSize;
+	float			mSpacerWidth;
+	float			mOffsetX;		// for scrolling
+	float			mOffsetXLocked; // for snap-to effect
+	float			mMinOffsetX, mMaxOffsetX;
+	float			mBorder;
+	float			mStartX, mStartY;
+	float			mEndX;
+	float			mLeftLimit;
+	float			mXCenter;
     
+	ci::Rectf		mHitRect;
     std::vector<ci::Rectf> mPlaylistRects;
+	
+	std::map<int, ci::gl::Fbo> mFboMap;
     
-    uint64_t mTouchDragId;
-    ci::Vec2f mTouchDragStartPos;
-    float mTouchDragStartOffset;
-    int mTouchDragPlaylistIndex;
+    ci::gl::Texture	mTex, mBgTex;
     
-    int mCurrentPlaylistIndex; // set from main app, passive
+    bool			touchBegan( ci::app::TouchEvent::Touch touch );
+    bool			touchMoved( ci::app::TouchEvent::Touch touch );
+    bool			touchEnded( ci::app::TouchEvent::Touch touch );
     
-    bool touchesBegan( ci::app::TouchEvent event );
-    bool touchesMoved( ci::app::TouchEvent event );
-    bool touchesEnded( ci::app::TouchEvent event );
-    
-    Data *mData; // for playlists
-    World *mWorld; // for nodes
+    Data			*mData; // for playlists
+    World			*mWorld; // for nodes
     ci::CameraPersp *mCam; // for projecting to screen
+
+    ci::Color		mLineColor;
+    ci::Font		mFont;
     
-    ci::gl::TextureFontRef mTextureFont;
-    ci::Color mLineColor;
-    ci::Font mFont;
-    
-    ci::app::Orientation mInterfaceOrientation;
-    ci::Matrix44f mOrientationMatrix;
-    ci::Vec2f mInterfaceSize; 
-    
+    ci::Vec2f		mInterfaceSize;
+	
+	int mTotalVertices;
+    int mPrevTotalVertices; // so we only recreate frames
+	VertexData *mVerts;
+	
+	
 	ci::CallbackMgr<bool(ci::ipod::PlaylistRef)> mCbPlaylistSelected;        
     
     void getWindowSpaceRect( float &x, float &y, float &w, float &h );

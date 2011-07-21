@@ -11,21 +11,24 @@
 #include "cinder/Font.h"
 #include "cinder/gl/Texture.h"
 #include "State.h" // for FilterMode
-#include "OrientationHelper.h"
 #include "cinder/app/AppCocoaTouch.h"
+#include "UINode.h"
 
-class FilterToggleButton {
+
+class FilterToggleButton : public UINode {
 
 public:
     
     FilterToggleButton() { mVisible = false; }
     
-    void setup(ci::app::AppCocoaTouch *app, const State::FilterMode &filterMode, const ci::Font &font, const ci::app::Orientation &orientation );
+    void setup( const State::FilterMode &filterMode, const ci::Font &font );
+	void update();
     void setFilterMode(const State::FilterMode &filterMode);
+
     void draw();
-    void setInterfaceOrientation( const ci::app::Orientation &orientation );    
-    
+	Rectf getRect(){ return mHitRect; }
     void setVisible( bool visible = true ) { mVisible = visible; }
+	bool isVisible(){ return mVisible; }
     
     template<typename T>
 	ci::CallbackId registerFilterModeSelected( T *obj, bool ( T::*callback )( State::FilterMode ) ){
@@ -34,22 +37,21 @@ public:
     
 private:
     
-    bool touchesBegan( ci::app::TouchEvent event );
-    bool touchesEnded( ci::app::TouchEvent event );
-    
+    bool touchBegan( ci::app::TouchEvent::Touch touch );
+    bool touchEnded( ci::app::TouchEvent::Touch touch );    
     bool mVisible;
-    
-    ci::app::Orientation mInterfaceOrientation;
-    Matrix44f mOrientationMatrix;
+
     Vec2f mInterfaceSize;
     
     Vec2f mAlphaPos;
     Vec2f mPlaylistPos;
     Rectf mAlphaRect;
     Rectf mPlaylistRect;
+	Rectf mHitRect;
+	Rectf mRect;
     
     State::FilterMode mFilterMode;
-    ci::gl::Texture mAlphaTexture, mPlaylistTexture;
+    ci::gl::Texture mAlphaTexture, mPlaylistTexture, mTex;
     
 	ci::CallbackMgr<bool(State::FilterMode)> mCbFilterModeSelected;    
 };

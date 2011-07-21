@@ -22,7 +22,7 @@ class UiLayer : public UINode {
     UiLayer(): UINode() {}; // get a default ID
 	~UiLayer() {};
     
-	void	setup( const ci::gl::Texture &uiButtonsTex, const bool &showSettings, const ci::Vec2f interfaceSize );
+	void	setup( const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &uiButtonsTex, const bool &showSettings, const ci::Vec2f interfaceSize );
 	
     bool	touchBegan( ci::app::TouchEvent::Touch touch );
 	bool	touchMoved( ci::app::TouchEvent::Touch touch );
@@ -44,7 +44,8 @@ class UiLayer : public UINode {
     void updateLayout( ci::Vec2f interfaceSize );
     
     ci::Vec2f       mInterfaceSize; // for detecting orientation changes    
-    ci::gl::Texture mUiButtonsTex;
+    ci::gl::Texture mButtonsTex;
+	ci::gl::Texture	mSettingsBgTex;
     
     float           mPanelY;                // used in setTransform
 	float			mPanelOpenHeight;       // small height when settings closed
