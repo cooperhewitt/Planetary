@@ -129,9 +129,6 @@ private:
     // for removing events when cleaning up
     ci::CallbackId mCbTouchMoved, mCbTouchEnded;
     
-    ///////////// Shared UI resources:
-    ci::gl::Texture mButtonsTex;
-
     ///////////// UI Classes:
     
     // Remember:

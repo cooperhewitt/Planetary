@@ -18,7 +18,6 @@ using namespace std;
 
 void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
 {
-    mButtonsTex = uiButtonsTex; // only stored for dimming sides of scrolling current track label    
     mShowSettings = false;
     
     // create, add, and position everything...
@@ -34,6 +33,7 @@ void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font 
     setDebugVisible( G_DEBUG );	    
     setShuffleVisible( player->getShuffleMode() != ipod::Player::ShuffleModeOff );
     setRepeatMode( player->getRepeatMode() );    
+    setAlphaWheelVisible( false ); // this is the default in KeplerApp::remainingSetup()
     if( G_IS_IPAD2 ) {
         setGyroVisible( G_USE_GYRO );
     }
@@ -430,6 +430,4 @@ void PlayControls::update()
     }
     mCoverRightTextureRect->setRect( infoRect.x2 + 1.0f, infoRect.y1, infoRect.x2 - ( w - 1.0f ), infoRect.y2 );
     
-    // FIXME: need label gradients for playlist label as well - perhaps nest inside scrolling label class?
-
 }
