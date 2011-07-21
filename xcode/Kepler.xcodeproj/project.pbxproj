@@ -120,7 +120,6 @@
 		E2CD4BA013CA70F60047AF5F /* FilterToggleButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */; };
 		E2DC1E0213984774000B1D11 /* NotificationOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */; };
 		E2E21CB413A14A3800A476A2 /* Galaxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CB213A14A3700A476A2 /* Galaxy.cpp */; };
-		E2E21CD413A17B9F00A476A2 /* Easing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CD313A17B9F00A476A2 /* Easing.cpp */; };
 		E2E21CD913A1821300A476A2 /* GyroHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CD713A1821300A476A2 /* GyroHelper.cpp */; };
 		E2E21CDD13A2D71300A476A2 /* Stats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CDB13A2D70C00A476A2 /* Stats.cpp */; };
 /* End PBXBuildFile section */
@@ -274,7 +273,6 @@
 		E2E21CB813A177E300A476A2 /* Buttons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Buttons.h; path = ../src/Buttons.h; sourceTree = "<group>"; };
 		E2E21CB913A177E300A476A2 /* Data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Data.h; path = ../src/Data.h; sourceTree = "<group>"; };
 		E2E21CBA13A177E400A476A2 /* Dust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Dust.h; path = ../src/Dust.h; sourceTree = "<group>"; };
-		E2E21CBB13A177E400A476A2 /* Easing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Easing.h; path = ../src/Easing.h; sourceTree = "<group>"; };
 		E2E21CBC13A177E400A476A2 /* Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Filter.h; path = ../src/Filter.h; sourceTree = "<group>"; };
 		E2E21CBD13A177E400A476A2 /* Galaxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Galaxy.h; path = ../src/Galaxy.h; sourceTree = "<group>"; };
 		E2E21CBE13A177E500A476A2 /* Globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Globals.h; path = ../src/Globals.h; sourceTree = "<group>"; };
@@ -297,7 +295,6 @@
 		E2E21CCF13A177ED00A476A2 /* TimeLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeLabel.h; path = ../src/TimeLabel.h; sourceTree = "<group>"; };
 		E2E21CD113A177EE00A476A2 /* UiLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UiLayer.h; path = ../src/UiLayer.h; sourceTree = "<group>"; };
 		E2E21CD213A177EF00A476A2 /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = World.h; path = ../src/World.h; sourceTree = "<group>"; };
-		E2E21CD313A17B9F00A476A2 /* Easing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Easing.cpp; path = ../src/Easing.cpp; sourceTree = "<group>"; };
 		E2E21CD713A1821300A476A2 /* GyroHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GyroHelper.cpp; path = ../src/GyroHelper.cpp; sourceTree = "<group>"; };
 		E2E21CD813A1821300A476A2 /* GyroHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GyroHelper.h; path = ../src/GyroHelper.h; sourceTree = "<group>"; };
 		E2E21CDA13A1870E00A476A2 /* Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Device.h; path = ../src/Device.h; sourceTree = "<group>"; };
@@ -607,7 +604,6 @@
 			isa = PBXGroup;
 			children = (
 				E177A6CC134E7B850014AD55 /* BloomGl.cpp */,
-				E2E21CD313A17B9F00A476A2 /* Easing.cpp */,
 				E2E21CD713A1821300A476A2 /* GyroHelper.cpp */,
 				E219CEE513A5A615006C7F26 /* BloomSphere.cpp */,
 			);
@@ -632,7 +628,6 @@
 				E2E21CDA13A1870E00A476A2 /* Device.h */,
 				E2E21CD813A1821300A476A2 /* GyroHelper.h */,
 				E2E21CB713A177E200A476A2 /* BloomGl.h */,
-				E2E21CBB13A177E400A476A2 /* Easing.h */,
 				E2E21CBE13A177E500A476A2 /* Globals.h */,
 			);
 			name = Helpers;
@@ -1003,7 +998,6 @@
 				E28177EE139AFA8500049D69 /* PlaylistFilter.cpp in Sources */,
 				E28177F6139AFB0800049D69 /* LetterFilter.cpp in Sources */,
 				E2E21CB413A14A3800A476A2 /* Galaxy.cpp in Sources */,
-				E2E21CD413A17B9F00A476A2 /* Easing.cpp in Sources */,
 				E2E21CD913A1821300A476A2 /* GyroHelper.cpp in Sources */,
 				E2E21CDD13A2D71300A476A2 /* Stats.cpp in Sources */,
 				E219CEE713A5A615006C7F26 /* BloomSphere.cpp in Sources */,
