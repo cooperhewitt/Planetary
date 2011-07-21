@@ -30,36 +30,39 @@ WheelOverlay::~WheelOverlay()
 
 void WheelOverlay::setup()
 {
-	mRadius = 315.0f;
+	mRadius = -1.0f; // updated in update :)
+    mVerts = NULL;
 	mTex			= gl::Texture( loadImage( loadResource( "alphaWheelMask.png" ) ) );
 }
 
 void WheelOverlay::update( const Vec2f &interfaceSize )
 {
+    float prevRadius = mRadius;
+    
 	mRadius = 315.0f;
-	if( interfaceSize.x > interfaceSize.y )
-		mRadius = 285.0f;
+	if( interfaceSize.x > interfaceSize.y ) {
+        float amount = (interfaceSize.x - interfaceSize.y) / (1024-768);        
+		mRadius -= 30.0f * amount;
+    }
+    
+    if (mVerts != NULL && mRadius == prevRadius) {
+        return;
+    }
 	
 	mTotalVertices = 54;
 	delete[] mVerts; 
 	mVerts = NULL;
 	mVerts = new VertexData[mTotalVertices];
 	
-	
-	float W	= interfaceSize.x;
-	float H = interfaceSize.y;
+	float W	= 1280; // square off for orientation animation
+	float H = 1280;
 	float CW = W/2;
 	float CH = H/2;
 	float L = ( W - mRadius * 2.0f )/2;
 	float T = ( H - mRadius * 2.0f )/2;
 	float R = L + mRadius * 2.0f;
 	float B = T + mRadius * 2.0f;
-	
-	if( interfaceSize.x > interfaceSize.y ){
-		T -= 12.0f;
-		B -= 12.0f;
-	}
-	
+		
 	vector<Vec2i> positions;
 	positions.push_back( Vec2i( 0 - CW, 0 - CH ) );
 	positions.push_back( Vec2i( L - CW, 0 - CH ) );

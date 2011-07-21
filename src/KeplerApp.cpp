@@ -1283,6 +1283,7 @@ void KeplerApp::update()
         mData.update();
         // processes pending nodes
 		mWorld.initNodes( mData.mArtists, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
+        mAlphaWheel.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar );        
 		mLoadingScreen.setVisible( false ); // TODO: remove from scene graph, clean up textures
         mMainUINodeRef->setVisible( true );
 		mUiLayer.setIsPanelOpen( true );
@@ -1402,7 +1403,6 @@ void KeplerApp::update()
                 mAlphaWheel.setShowWheel( mShowFilterGUI );
             }
             mPlaylistChooser.setVisible( false );
-            mAlphaWheel.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar ); // FIXME: only needs calling when data changes            
         }
         else if (isPlaylistFilter) {
             mPlaylistChooser.setVisible( mShowFilterGUI );
