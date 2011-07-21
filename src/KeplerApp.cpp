@@ -45,7 +45,7 @@
 #include "PinchRecognizer.h"
 #include "ParticleController.h"
 
-#include "Easing.h"
+#include "cinder/Easing.h"
 
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
@@ -1548,16 +1548,17 @@ void KeplerApp::updateCamera()
 	if( distToTravel < 1.0f )		duration = 2.0;
 	else if( distToTravel < 5.0f )	duration = 2.75f;
 //	double duration = 2.0f;
-	double p		= constrain( getElapsedSeconds()-mSelectionTime, 0.0, duration );
-	
-	mCenter			= easeInOutCubic( p, mCenterFrom, (mCenterDest + mCenterOffset) - mCenterFrom, duration );
-//	mCenter			= easeInOutCubic( p, mCenterFrom, mCenterDest - mCenterFrom, duration );
-	mCamDist		= easeInOutCubic( p, mCamDistFrom, mCamDistDest - mCamDistFrom, duration );
+    double t		= constrain( getElapsedSeconds()-mSelectionTime, 0.0, duration );
+	double p        = easeInOutCubic( t / duration );
+
+	mCenter			= lerp( mCenterFrom, (mCenterDest + mCenterOffset), p );
+//	mCenter			= lerp( mCenterFrom, mCenterDest - mCenterFrom, p );
+	mCamDist		= lerp( mCamDistFrom, mCamDistDest, p );
 	mCamDist		= min( mCamDist, G_INIT_CAM_DIST );
-	mCamDistAnim	= easeInOutCubic( p, 0.0f, M_PI, duration );
-	//mPinchPer		= easeInOutCubic( p, mPinchPerFrom, 0.5f, duration );
-	//mPinchTotalDest	= easeInOutCubic( p, mPinchTotalFrom, mPinchTotalInit, duration );
-	G_ZOOM			= easeInOutCubic( p, mZoomFrom, mZoomDest - mZoomFrom, duration );
+	mCamDistAnim	= lerp( 0.0, M_PI, p );
+	//mPinchPer		= lerp( mPinchPerFrom, 0.5f, p );
+	//mPinchTotalDest	= lerp( mPinchTotalFrom, mPinchTotalInit, p );
+	G_ZOOM			= lerp( mZoomFrom, mZoomDest, p );
 
 	
 	mFadeInAlphaToArtist	= constrain( G_ZOOM - G_ALPHA_LEVEL, 0.0f, 1.0f );

@@ -18,7 +18,7 @@ UIController::UIController( AppCocoaTouch *app, OrientationHelper *orientationHe
 {
     mParent = UINodeRef(this); // FIXME: shared_from_this() but in a subclass
     mRoot = UIControllerRef(this); // FIXME: shared_from_this() but for a subclass
-    // FIXME: should mRoot be static (essentially, should UIController be a singleton?)
+    // FIXME: should mRoot be static (essentially, should UIController be a singleton?) how/when to clean up? mRoot as weak_ref?
     cbTouchesBegan = mApp->registerTouchesBegan( this, &UIController::touchesBegan );
     cbTouchesMoved = mApp->registerTouchesMoved( this, &UIController::touchesMoved );
     cbTouchesEnded = mApp->registerTouchesEnded( this, &UIController::touchesEnded );
