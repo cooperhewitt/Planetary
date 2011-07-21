@@ -7,7 +7,9 @@
 //
 
 #include "UIController.h"
+#include "cinder/app/AppCocoaTouch.h"
 #include "cinder/gl/gl.h"
+#include "OrientationHelper.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -39,26 +41,29 @@ UIController::~UIController()
 
 bool UIController::touchesBegan( TouchEvent event )
 {
+    bool consumed = true;
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
-        privateTouchBegan(*i); // recurses to children
+        consumed = privateTouchBegan(*i) && consumed; // recurses to children
     }    
-    return false;
+    return consumed; // only true if all touches were consumed
 }
 
 bool UIController::touchesMoved( TouchEvent event )
 {
+    bool consumed = true;
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
-        privateTouchMoved(*i); // recurses to children
+        consumed = privateTouchMoved(*i) && consumed; // recurses to children
     }
-    return false;
+    return consumed; // only true if all touches were consumed
 }
 
 bool UIController::touchesEnded( TouchEvent event )
 {
+    bool consumed = true;
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
-        privateTouchEnded(*i); // recurses to children
+        consumed = privateTouchEnded(*i) && consumed; // recurses to children
     }    
-    return false;
+    return consumed; // only true if all touches were consumed
 }
 
 bool UIController::orientationChanged( OrientationEvent event )
@@ -115,14 +120,16 @@ Matrix44f UIController::getConcatenatedTransform() const
 
 void UIController::draw()
 {
-    glPushMatrix();
-    glMultMatrixf( getConcatenatedTransform() );    
-    // draw children
-    for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
-        (*i)->privateDraw();
+    if (mVisible) {
+        glPushMatrix();
+        glMultMatrixf( getConcatenatedTransform() );    
+        // draw children
+        for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
+            (*i)->privateDraw();
+        }
+        // dont' draw self or we'll recurse
+        glPopMatrix();
     }
-    // dont' draw self or we'll recurse
-    glPopMatrix();
 }
 
 void UIController::update()
@@ -148,11 +155,13 @@ void UIController::update()
     mOrientationMatrix.rotate( Vec3f(0,0,mInterfaceAngle) );
     mOrientationMatrix.translate( Vec3f(-mInterfaceSize/2.0f,0) );    
     
-    // update children
-    for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
-        (*i)->privateUpdate();
+    if (mVisible) {
+        // update children
+        for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
+            (*i)->privateUpdate();
+        }
+        // dont' update self or we'll recurse
     }
-    // dont' update self or we'll recurse
 }
 
 float UIController::getOrientationAngle( const Orientation &orientation )

@@ -17,6 +17,7 @@ int UINode::sTotalNodeCount = 10000000; // start high
 
 UINode::UINode()
 {
+    mVisible = true;
     sTotalNodeCount++;
     mId = sTotalNodeCount;
 }
@@ -82,24 +83,28 @@ UINodeRef UINode::getChildById( const int &childId ) const
 }
 void UINode::privateUpdate()
 {
-    // update self
-    update();
-    // update children
-    for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
-        (*i)->privateUpdate();
+    if (mVisible) {
+        // update self
+        update();
+        // update children
+        for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
+            (*i)->privateUpdate();
+        }
     }
 }
 void UINode::privateDraw()
 {
-    glPushMatrix();
-    glMultMatrixf(mTransform); // FIXME only push/mult/pop if mTransform isn't identity
-    // draw self
-    draw();
-    // draw children
-    for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
-        (*i)->privateDraw();
-    }
-    glPopMatrix();
+    if (mVisible) {
+        glPushMatrix();
+        glMultMatrixf(mTransform); // FIXME only push/mult/pop if mTransform isn't identity
+        // draw self    
+        draw();
+        // draw children
+        for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
+            (*i)->privateDraw();
+        }
+        glPopMatrix();
+    }        
 }
 void UINode::setTransform(const Matrix44f &transform)
 {
@@ -132,6 +137,9 @@ Vec2f UINode::globalToLocal(const Vec2f pos)
 
 bool UINode::privateTouchBegan( TouchEvent::Touch touch )
 {
+    if (!mVisible) {
+        return false;
+    }
     bool consumed = false;
     // check children
     for (std::vector<UINodeRef>::const_iterator j = mChildren.begin(); j != mChildren.end(); j++) {
@@ -156,6 +164,9 @@ bool UINode::privateTouchBegan( TouchEvent::Touch touch )
 
 bool UINode::privateTouchMoved( TouchEvent::Touch touch )
 {
+    if (!mVisible) {
+        return false;
+    }    
     // in this current implementation, children only receive touchMoved calls 
     // if they returned true for the touch with the same ID in touchesBegan
     bool consumed = false;
@@ -177,6 +188,9 @@ bool UINode::privateTouchMoved( TouchEvent::Touch touch )
 
 bool UINode::privateTouchEnded( TouchEvent::Touch touch )
 {
+    if (!mVisible) {
+        return false;
+    }    
     // in this current implementation, children only receive touchEnded calls 
     // if they returned true for the touch with the same ID in touchesBegan
     bool consumed = false;

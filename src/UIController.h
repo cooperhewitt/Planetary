@@ -8,9 +8,16 @@
 
 #pragma once
 #include <map>
-#include "cinder/app/AppCocoaTouch.h"
-#include "OrientationHelper.h"
+#include "cinder/Function.h"
 #include "UINode.h"
+#include "Orientation.h"
+
+// forward declare to avoid full include
+namespace cinder { namespace app {
+    class AppCocoaTouch;
+    class OrientationHelper;
+    class OrientationEvent;
+}
 
 class UIController : public UINode {
     
