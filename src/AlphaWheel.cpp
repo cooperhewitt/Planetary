@@ -51,11 +51,6 @@ void AlphaWheel::initAlphaTextures( const Font &font )
 
 void AlphaWheel::setRects()
 {
-	float yOff = 0.0f;
-	if( mInterfaceSize.x > mInterfaceSize.y ){
-		yOff = -12.0f;
-	}
-	
 	mAlphaRects.clear();
 	for( int i=0; i<mAlphaString.length(); i++ ){
 		float per = (float)i/27.0f;
@@ -63,7 +58,6 @@ void AlphaWheel::setRects()
 		float w = mAlphaTextures[i].getWidth()/2.0f;
 		float h = mAlphaTextures[i].getHeight()/2.0f;
 		Vec2f pos = Vec2f( cos( angle ), sin( angle ) ) * ( mWheelOverlay.mRadius - 10.0f );
-		pos.y += yOff;
 		Rectf r = Rectf( pos.x - w, pos.y - h, pos.x + w, pos.y + h );
 		mAlphaRects.push_back( r );
 	}
@@ -78,6 +72,15 @@ bool AlphaWheel::touchBegan( TouchEvent::Touch touch )
         mLastTouchPos = touch.getPos();
         mActiveTouchId = touch.getId();
         return true;
+    }
+    else {
+        // immediately dismiss a tap inside the world
+        Vec2f dir = globalToLocal( touch.getPos() ) - mInterfaceCenter;
+		float distToCenter = dir.length();
+        float minDiam = mWheelOverlay.mRadius - 25.0f;        
+		if( distToCenter < minDiam ){
+            setShowWheel(false);
+        }
     }
 	
 	return false;
