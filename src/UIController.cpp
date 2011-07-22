@@ -27,6 +27,7 @@ UIController::UIController( AppCocoaTouch *app, OrientationHelper *orientationHe
     }
     mOrientationAnimationDuration = 0.25f;
     setInterfaceOrientation( mOrientationHelper->getInterfaceOrientation(), false );
+	mInterfaceAngle = 0.0f;
 }
 
 UIController::~UIController()
@@ -81,8 +82,13 @@ void UIController::setInterfaceOrientation( const Orientation &orientation, bool
     float orientationAngle = getOrientationAngle(mInterfaceOrientation);
     
     // normalize interface angle (could be many turns)
-    while (mInterfaceAngle < 0.0) mInterfaceAngle += 2.0f * M_PI;
-    while (mInterfaceAngle > 2.0f * M_PI) mInterfaceAngle -= 2.0f * M_PI;
+    while (mInterfaceAngle < 0.0){
+		mInterfaceAngle += 2.0f * M_PI;
+	}
+    while (mInterfaceAngle > 2.0f * M_PI){
+		mInterfaceAngle -= 2.0f * M_PI;
+		std::cout << mInterfaceAngle << std::endl;
+	}
     
     // assign new targets
     mTargetInterfaceSize.x = fabs(deviceSize.x * cos(orientationAngle) + deviceSize.y * sin(orientationAngle));

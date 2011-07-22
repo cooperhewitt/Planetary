@@ -106,6 +106,8 @@ bool AlphaWheel::touchMoved( TouchEvent::Touch touch )
 
 bool AlphaWheel::touchEnded( TouchEvent::Touch touch )
 {	
+	std::cout << "AlphaWheel touchEnded" << std::endl;
+	
     if (!mShowWheel) return false;
     
     mLastTouchPos = touch.getPos();

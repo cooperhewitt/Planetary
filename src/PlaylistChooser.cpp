@@ -57,7 +57,7 @@ void PlaylistChooser::setup( const Font &font )
 
 bool PlaylistChooser::touchBegan( ci::app::TouchEvent::Touch touch )
 {
-    if (mData == NULL || !mVisible || mTouchDragPlaylistIndex >= 0) return false;
+    if( mData == NULL || !mVisible || mTouchDragPlaylistIndex >= 0 ) return false;
 	
     mIsDragging		= false;
 	mTouchPrevPos	= mTouchPos;
@@ -71,6 +71,7 @@ bool PlaylistChooser::touchBegan( ci::app::TouchEvent::Touch touch )
 			mTouchDragStartPos		= mTouchPos;
 			mTouchDragStartOffset	= mOffsetX;
 			mTouchDragPlaylistIndex = i;
+			
 			return true;
 		}
 	}
@@ -88,6 +89,7 @@ bool PlaylistChooser::touchMoved( ci::app::TouchEvent::Touch touch )
 		mTouchPos		= globalToLocal( touch.getPos() );
 		mOffsetX		= mTouchDragStartOffset + ( mTouchDragStartPos.x - mTouchPos.x );
 		mTouchVel		= mTouchPos.x - mTouchPrevPos.x;
+		
 		return true;
 	}
     
@@ -97,7 +99,7 @@ bool PlaylistChooser::touchMoved( ci::app::TouchEvent::Touch touch )
 bool PlaylistChooser::touchEnded( ci::app::TouchEvent::Touch touch )
 {
     if (mData == NULL || !mVisible || mTouchDragPlaylistIndex < 0) return false;
-    
+
 	mIsDragging		= false;
 	if (touch.getId() == mTouchDragId) {
 		mTouchPos		= globalToLocal( touch.getPos() );
@@ -117,11 +119,13 @@ bool PlaylistChooser::touchEnded( ci::app::TouchEvent::Touch touch )
 		mTouchDragPlaylistIndex = -1;
 		mTouchDragStartPos		= mTouchPos;
 		mTouchDragStartOffset	= mOffsetX;
+
 		return false;
 	}
     
     return false;    
 }
+
 
 void PlaylistChooser::update()
 {
@@ -398,3 +402,5 @@ void PlaylistChooser::setDataWorldCam( Data *data, World *world, CameraPersp *ca
     mCam			= cam;
 	mNumPlaylists	= mData->mPlaylists.size();
 }
+
+

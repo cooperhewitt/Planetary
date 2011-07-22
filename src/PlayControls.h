@@ -36,7 +36,7 @@ public:
                     SHOW_WHEEL, GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, 
                     PREV_TRACK, PLAY_PAUSE, NEXT_TRACK, 
                     SHUFFLE, REPEAT, 
-                    /*HELP, */DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE,
+                    /*HELP, */AUTO_MOVE, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE,
                     SLIDER, PARAMSLIDER1, PARAMSLIDER2 };
 
     PlayControls() {};
@@ -70,6 +70,7 @@ public:
     void setOrbitsVisible(bool visible) {	mOrbitsButton->setOn(visible); };
     void setLabelsVisible(bool visible) {	mLabelsButton->setOn(visible); };	
 	void setShuffleVisible(bool visible) {	mShuffleButton->setOn(visible); };
+	void setScreensaverVisible( bool visible){ mScreensaverButton->setOn(visible); };
 	void setRepeatMode(ci::ipod::Player::RepeatMode state)
     { 
         int stateInt = state == ci::ipod::Player::RepeatModeNone ? 0 :
@@ -162,6 +163,7 @@ private:
     UINodeRef mSettingsNodeRef;
     ToggleButton *mShowSettingsButton;
 //        ToggleButton *mHelpButton;
+		ToggleButton *mScreensaverButton;
         ToggleButton *mOrbitsButton;
         ToggleButton *mLabelsButton;
         ToggleButton *mDebugButton;

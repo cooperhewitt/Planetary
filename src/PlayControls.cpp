@@ -103,7 +103,12 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
                                             Area( uw*1, uh*1, uw*2, uh*2 ),  // on texture
                                             Area( uw*1, uh*0, uw*2, uh*1 ) ); // off texture
 		}
-        
+        mScreensaverButton = new ToggleButton( AUTO_MOVE,
+											   false,
+											   uiSmallButtonsTex,
+											   Area( uw*4, uh*3, uw*5, uh*4 ),
+											   Area( uw*4, uh*2, uw*5, uh*3 ) );
+		
         mOrbitsButton = new ToggleButton( DRAW_RINGS, 
                                           false, 
                                           uiSmallButtonsTex,
@@ -139,8 +144,8 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
     
     mPlayheadSlider = new Slider( SLIDER,          // ID
                                   uiSmallButtonsTex,
-                                  Area( uw*4.1f, uh*2, uw*5, uh*3 ),  // bg texture
-                                  Area( uw*4.1f, uh*3, uw*5, uh*4 ),  // fg texture
+								 Area( uw*2.2f, uh*3, uw*2.3f, uh*4 ),  // bg texture
+								 Area( uw*2.7f, uh*3, uw*2.8f, uh*4 ),  // fg texture
                                   Area( uw*3, uh*3, uw*4, uh*4 ),  // thumb on texture
                                   Area( uw*3, uh*2, uw*4, uh*3 )); // thumb off texture
 
@@ -156,8 +161,8 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
 	// TODO: add initial value
 	mParamSlider1 = new Slider( PARAMSLIDER1,          // ID
 							   uiSmallButtonsTex,
-							   Area( uw*4.1f, uh*2, uw*5, uh*3 ),  // bg texture
-							   Area( uw*4.1f, uh*3, uw*5, uh*4 ),  // fg texture
+							   Area( uw*2.2f, uh*3, uw*2.3f, uh*4 ),  // bg texture
+							   Area( uw*2.7f, uh*3, uw*2.8f, uh*4 ),  // fg texture
 							   Area( uw*3, uh*3, uw*4, uh*4 ),  // thumb on texture
 							   Area( uw*3, uh*2, uw*4, uh*3 )); // thumb off texture
 	mParamSlider1->setValue( 0.25f );
@@ -166,8 +171,8 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
 	
 	mParamSlider2 = new Slider( PARAMSLIDER2,          // ID
 							   uiSmallButtonsTex,
-							   Area( uw*4.1f, uh*2, uw*5, uh*3 ),  // bg texture
-							   Area( uw*4.1f, uh*3, uw*5, uh*4 ),  // fg texture
+							   Area( uw*2.2f, uh*3, uw*2.3f, uh*4 ),  // bg texture
+							   Area( uw*2.7f, uh*3, uw*2.8f, uh*4 ),  // fg texture
 							   Area( uw*3, uh*3, uw*4, uh*4 ),  // thumb on texture
 							   Area( uw*3, uh*2, uw*4, uh*3 )); // thumb off texture
 	mParamSlider2->setValue( 0.15f );
@@ -227,6 +232,7 @@ void PlayControls::addChildren()
     mShowSettingsButton->setOn( G_SHOW_SETTINGS );     
     mSettingsNodeRef->addChild( UINodeRef(mShuffleButton) );
     mSettingsNodeRef->addChild( UINodeRef(mRepeatButton) );
+	mSettingsNodeRef->addChild( UINodeRef(mScreensaverButton) );
 //    mSettingsNodeRef->addChild( UINodeRef(mHelpButton) );
     mSettingsNodeRef->addChild( UINodeRef(mOrbitsButton) );
     mSettingsNodeRef->addChild( UINodeRef(mLabelsButton) );
@@ -343,6 +349,11 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
 	x1 -= bSizeSmall;
 	x2 = x1 + bSizeSmall;
     mDebugButton->setRect( x1, y1, x2, y2 );
+	
+// SCREENSAVER TOGGLE BUTTON
+	x1 -= bSizeSmall;
+	x2 = x1 + bSizeSmall;
+    mScreensaverButton->setRect( x1, y1, x2, y2 );
 	
 //// HELP TOGGLE BUTTON
 //    x1 -= bSizeSmall;

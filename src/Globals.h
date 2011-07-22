@@ -51,6 +51,7 @@ static const ci::Color BRIGHT_YELLOW	= ci::Color( 1.0f, 0.9f, 0.35f );
 extern float G_ZOOM;
 extern int G_CURRENT_LEVEL;
 extern bool G_DEBUG;
+extern bool G_AUTO_MOVE;
 extern bool G_SHOW_SETTINGS;
 extern bool G_HELP;
 extern bool G_DRAW_RINGS;

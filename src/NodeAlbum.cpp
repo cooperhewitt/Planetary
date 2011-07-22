@@ -320,9 +320,6 @@ void NodeAlbum::drawEclipseGlow()
 
 void NodeAlbum::drawPlanet( const gl::Texture &tex )
 {	
-	// std::cout << mDistFromCamZAxis << std::endl;
-	// closer than 0.1? fade out?
-	
 	if( mDistFromCamZAxis > mRadius ){
         
 		glPushMatrix();
@@ -346,10 +343,10 @@ void NodeAlbum::drawPlanet( const gl::Texture &tex )
 		// when the planet goes offscreen, the screenradius becomes huge. 
 		// so if the screen radius is greater than 600, assume it is offscreen and just render a lo-res version
 		// consider frustum culling?
-		if( mSphereScreenRadius < 500.0f ){
-			if( mSphereScreenRadius > 75.0f ){
+		if( mSphereScreenRadius < 800.0f ){
+			if( mSphereScreenRadius > 50.0f ){
                 mHiSphere->draw();
-			} else if( mSphereScreenRadius > 35.0f ){
+			} else if( mSphereScreenRadius > 30.0f ){
                 mMdSphere->draw();
 			} else if( mSphereScreenRadius > 10.0f ){
                 mLoSphere->draw();
@@ -378,10 +375,10 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		// when the planet goes offscreen, the screenradius becomes huge. 
 		// so if the screen radius is greater than 500, assume it is offscreen and just render a lo-res version
 		// consider frustum culling?
-		if( mSphereScreenRadius < 500.0f ){
-			if( mSphereScreenRadius > 75.0f ){
+		if( mSphereScreenRadius < 800.0f ){
+			if( mSphereScreenRadius > 50.0f ){
                 lodSphere = mHiSphere;
-			} else if( mSphereScreenRadius > 35.0f ){
+			} else if( mSphereScreenRadius > 30.0f ){
                 lodSphere = mMdSphere;
 			} else if( mSphereScreenRadius > 10.0f ){
                 lodSphere = mLoSphere;

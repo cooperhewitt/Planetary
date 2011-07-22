@@ -40,12 +40,12 @@ void StarGlows::setup( const vector<NodeArtist*> &filteredNodes, const Vec3f &bb
 	
 	int vIndex = 0;
 	
-	for( vector<NodeArtist*>::const_iterator it = filteredNodes.begin(); it != filteredNodes.end(); ++it ){
-
+	for( vector<NodeArtist*>::const_iterator it = filteredNodes.begin(); it != filteredNodes.end(); ++it )
+	{
         Vec3f pos			= (*it)->mPos;
         float r				= (*it)->mRadius * ( (*it)->mEclipseStrength * 2.0f + 1.5f ); // HERE IS WHERE YOU CAN MAKE THE GLOW HUGER/BIGGER/AWESOMER
-        //if( !(*it)->mIsSelected )
-        //	r				-= zoomAlpha;
+        if( (*it)->mIsSelected )
+        	r				*= 0.1f;
         
         float alpha			= (*it)->mDistFromCamZAxisPer * ( 1.0f - (*it)->mEclipseStrength );
         //if( !(*it)->mIsSelected && !(*it)->mIsPlaying )

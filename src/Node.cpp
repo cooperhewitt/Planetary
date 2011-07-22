@@ -155,7 +155,7 @@ void Node::createNameTexture()
 
 void Node::update( float param1, float param2 )
 {	
-	mInvRadius		= ( 1.0f/mRadius ) * 0.5f;
+	mInvRadius			= ( 1.0f/mRadius );
 	mClosenessFadeAlpha = constrain( ( mDistFromCamZAxis - mRadius ) * mInvRadius, 0.0f, 1.0f );
 	
 	mOrbitRadius	-= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;

@@ -128,6 +128,21 @@ void NodeArtist::update( float param1, float param2 )
 	mEclipseStrength = constrain( mEclipseStrength, 0.0f, 1.0f );
 }
 
+
+void NodeArtist::drawStarGlow( const Vec3f &camEye, const Vec3f &camNormal, const gl::Texture &tex )
+{
+	Vec2f radius = Vec2f( mRadius, mRadius ) * 15.0f;// * ( mEclipseStrength * 2.0f + 1.5f );
+	
+	float alpha			= mDistFromCamZAxisPer * ( 1.0f - mEclipseStrength );
+	Color c             = mGlowColor;
+	gl::color( ColorA( c.r, c.g, c.b, alpha ) );
+	
+	tex.enableAndBind();
+	bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, mPos + camNormal, radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ) );
+	tex.disable();
+}
+
+
 // NOT BEING USED AT THE MOMENT
 void NodeArtist::drawEclipseGlow()
 {
@@ -207,10 +222,10 @@ void NodeArtist::drawExtraGlow( const Vec3f &camEye, const gl::Texture &texGlow,
 		float alpha = ( 1.0f - mScreenDistToCenterPer ) * sin( mEclipseStrength * M_PI_2 + M_PI_2 ) * mDeathPer;
 		Vec2f radius = Vec2f( mRadius, mRadius ) * 7.5f;
 		
-		texCore.enableAndBind();
-		gl::color( ColorA( mGlowColor, alpha * 0.1f ) );
-		bloom::gl::drawBillboard( mPos, radius * 1.25f, 0.0f, mBbRight, mBbUp );
-		texCore.enableAndBind();
+//		texCore.enableAndBind();
+//		gl::color( ColorA( mGlowColor, alpha * 0.1f ) );
+//		bloom::gl::drawBillboard( mPos, radius * 1.25f, 0.0f, mBbRight, mBbUp );
+//		texCore.enableAndBind();
 		
 	// SMALLER INNER GLOW
 		texGlow.enableAndBind();

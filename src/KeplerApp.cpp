@@ -59,6 +59,7 @@ using namespace bloom;
 float G_ZOOM			= 0;
 int G_CURRENT_LEVEL		= 0;
 bool G_DEBUG			= false;
+bool G_AUTO_MOVE		= false;
 bool G_SHOW_SETTINGS	= false;
 bool G_HELP             = false;
 bool G_DRAW_RINGS		= false;
@@ -350,7 +351,7 @@ void KeplerApp::remainingSetup()
 	mPinchHighlightRadius = 50.0f;
 	mPinchRotation		= 0.0f;
 	mIsPastPinchThresh	= false;
-	mInteractionThreshold = 10.0f;
+	mInteractionThreshold = 30.0f;
 	mPerlinForAutoMove	= 0.0f;
 	
 	
@@ -802,7 +803,7 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 
 bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 {
-	std::cout << "Wheel Toggled" << std::endl;
+	std::cout << "Wheel Toggled in AlphaWheel" << std::endl;
         
 	if( !mAlphaWheel.getShowWheel() ){
 		G_HELP = false; // dismiss help if alpha wheel was toggled away
@@ -813,7 +814,7 @@ bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 		mUiLayer.setShowSettings( G_SHOW_SETTINGS );   
 	}
 
-    if (mState.getFilterMode() == State::FilterModeAlphaChar) {
+    if( mState.getFilterMode() == State::FilterModeAlphaChar ){
         mShowFilterGUI = mAlphaWheel.getShowWheel(); // record alphawheel state as general filter GUI state
     }
     // FIXME: else? should this ever happen?
@@ -919,9 +920,12 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
             playlistName = playlistName.substr(0, 35) + "..."; // ellipsis for long long playlist names
         }
     }
-    stringstream s;
-    s << "SHOWING ARTISTS FROM" << br << "'" << playlistName << "'";
-    mNotificationOverlay.show( mOverlayIconsTex, Area( 1024.0f, 0.0f, 1152.0f, 128.0f ), s.str() );            
+	
+// Commented out for now. Shouldn't notify if a playlist is being previewed. But once it is selected,
+// then it should notify.
+//    stringstream s;
+//    s << "SHOWING ARTISTS FROM" << br << "'" << playlistName << "'";
+//    mNotificationOverlay.show( mOverlayIconsTex, Area( 1024.0f, 0.0f, 1152.0f, 128.0f ), s.str() );            
 	
     /////// stats...
     
@@ -1005,6 +1009,9 @@ bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
 
 bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 {
+	int uw = 128;
+	int uh = 128;
+	
     switch( button ) {
         
         case PlayControls::PREV_TRACK:
@@ -1025,10 +1032,10 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 		case PlayControls::SHUFFLE:
 			if( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff ){
 				mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeOff );
-				mNotificationOverlay.show( mOverlayIconsTex, Area( 128.0f, 128.0f, 256.0f, 256.0f ), "SHUFFLE OFF" );
+				mNotificationOverlay.show( mOverlayIconsTex, Area( uw*1, uh*1, uw*2, uh*2 ), "SHUFFLE OFF" );
 			} else {
 				mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeSongs );
-				mNotificationOverlay.show( mOverlayIconsTex, Area( 128.0f, 0.0f, 256.0f, 128.0f ), "SHUFFLE ON" );
+				mNotificationOverlay.show( mOverlayIconsTex, Area( uw*1, uh*0, uw*2, uh*1 ), "SHUFFLE ON" );
 			}
             mPlayControls.setShuffleVisible( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff );
             logEvent("Shuffle Button Selected");    
@@ -1039,12 +1046,12 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
                 case ipod::Player::RepeatModeNone:
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeAll );
                     mPlayControls.setRepeatMode( ipod::Player::RepeatModeAll );    
-                    mNotificationOverlay.show( mOverlayIconsTex, Area( 256.0f, 0.0f, 384.0f, 128.0f ), "REPEAT ALL" );
+                    mNotificationOverlay.show( mOverlayIconsTex, Area( uw*2, uh*0, uw*3, uh*1 ), "REPEAT ALL" );
                     break;
                 case ipod::Player::RepeatModeAll:
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeOne );
                     mPlayControls.setRepeatMode( ipod::Player::RepeatModeOne );    
-                    mNotificationOverlay.show( mOverlayIconsTex, Area( 384.0f, 0.0f, 512.0f, 128.0f ), "REPEAT ONE" );
+                    mNotificationOverlay.show( mOverlayIconsTex, Area( uw*3, uh*0, uw*4, uh*1 ), "REPEAT ONE" );
                     break;
                 case ipod::Player::RepeatModeOne:
                 case ipod::Player::RepeatModeDefault:
@@ -1052,7 +1059,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
                     // our user chooses it, we can't know what the current state is                    
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeNone );
                     mPlayControls.setRepeatMode( ipod::Player::RepeatModeNone );    
-                    mNotificationOverlay.show( mOverlayIconsTex, Area( 256.0f, 128.0f, 384.0f, 256.0f ), "REPEAT NONE" );
+                    mNotificationOverlay.show( mOverlayIconsTex, Area( uw*2, uh*1, uw*3, uh*2 ), "REPEAT NONE" );
                     break;
             }
             logEvent("Repeat Button Selected");   
@@ -1069,12 +1076,23 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 //            mPlayControls.setHelpVisible( G_HELP );
 //            break;
         
+		case PlayControls::AUTO_MOVE:
+			if( G_SHOW_SETTINGS ){
+				logEvent("Automove Button Selected");            
+				G_AUTO_MOVE = !G_AUTO_MOVE;
+				if( G_AUTO_MOVE )	mNotificationOverlay.show( mOverlayIconsTex, Area( uw*4, uh*2, uw*5, uh*3 ), "ANIMATE CAMERA" );
+				else				mNotificationOverlay.show( mOverlayIconsTex, Area( uw*4, uh*3, uw*5, uh*4 ), "ANIMATE CAMERA" );
+			}
+            mPlayControls.setScreensaverVisible( G_AUTO_MOVE );            
+            break;
+			
+			
         case PlayControls::DRAW_RINGS:
 			if( G_SHOW_SETTINGS ){
 				logEvent("Draw Rings Button Selected");            
 				G_DRAW_RINGS = !G_DRAW_RINGS;
-				if( G_DRAW_RINGS )	mNotificationOverlay.show( mOverlayIconsTex, Area( 640.0f, 0.0f, 768.0f, 128.0f ), "ORBIT LINES" );
-				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 640.0f, 128.0f, 768.0f, 256.0f ), "ORBIT LINES" );
+				if( G_DRAW_RINGS )	mNotificationOverlay.show( mOverlayIconsTex, Area( uw*0, uh*2, uw*1, uh*3 ), "ORBIT LINES" );
+				else				mNotificationOverlay.show( mOverlayIconsTex, Area( uw*0, uh*3, uw*1, uh*4 ), "ORBIT LINES" );
 			}
             mPlayControls.setOrbitsVisible( G_DRAW_RINGS );            
             break;
@@ -1083,8 +1101,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				logEvent("Draw Text Button Selected");            
 				G_DRAW_TEXT = !G_DRAW_TEXT;
-				if( G_DRAW_TEXT )	mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), "TEXT LABELS" );
-				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 128.0f, 896.0f, 256.0f ), "TEXT LABELS" );
+				if( G_DRAW_TEXT )	mNotificationOverlay.show( mOverlayIconsTex, Area( uw*1, uh*2, uw*2, uh*3 ), "TEXT LABELS" );
+				else				mNotificationOverlay.show( mOverlayIconsTex, Area( uw*1, uh*3, uw*2, uh*4 ), "TEXT LABELS" );
 			}
             mPlayControls.setLabelsVisible( G_DRAW_TEXT );
             break;
@@ -1099,8 +1117,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 				else			   mUp = Vec3f::yAxis();
 				
 				
-				if( G_USE_GYRO )	mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 0.0f, 640.0f, 128.0f ), "GYROSCOPE" );
-				else				mNotificationOverlay.show( mOverlayIconsTex, Area( 512.0f, 128.0f, 640.0f, 256.0f ), "GYROSCOPE" );
+				if( G_USE_GYRO )	mNotificationOverlay.show( mOverlayIconsTex, Area( uw*4, uh*0, uw*5, uh*1 ), "GYROSCOPE" );
+				else				mNotificationOverlay.show( mOverlayIconsTex, Area( uw*4, uh*1, uw*5, uh*2 ), "GYROSCOPE" );
 			}
             mPlayControls.setGyroVisible( G_USE_GYRO );
             break;
@@ -1130,8 +1148,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
         
 		case PlayControls::DEBUG_FEATURE:
 			G_DEBUG = !G_DEBUG;
-			if( G_DEBUG )	mNotificationOverlay.show( mOverlayIconsTex, Area( 896.0f, 0.0f, 1024.0f, 128.0f ), "DEBUG MODE" );
-			else			mNotificationOverlay.show( mOverlayIconsTex, Area( 896.0f, 128.0f, 1024.0f, 256.0f ), "DEBUG MODE" );
+			if( G_DEBUG )	mNotificationOverlay.show( mOverlayIconsTex, Area( uw*2, uh*2, uw*3, uh*3 ), "DEBUG MODE" );
+			else			mNotificationOverlay.show( mOverlayIconsTex, Area( uw*2, uh*3, uw*3, uh*4 ), "DEBUG MODE" );
             mPlayControls.setDebugVisible( G_DEBUG );
             break;
 			
@@ -1332,16 +1350,6 @@ void KeplerApp::update()
 
         const int elapsedFrames = getElapsedFrames();
         const float elapsedSeconds = getElapsedSeconds();
-        
-// AUTOMOVE
-		if( elapsedSeconds - mTimeSinceLastInteraction > mInteractionThreshold && !mAlphaWheel.getShowWheel() && G_ZOOM > G_ALPHA_LEVEL ){
-			if( !mCamAutoMove ){
-				mUiLayer.setIsPanelOpen( false );
-			}
-			mCamAutoMove = true;
-		} else {
-			mCamAutoMove = false;
-		}
 
 		updateArcball();
 		
@@ -1407,7 +1415,7 @@ void KeplerApp::update()
         }
         else if (isPlaylistFilter) {
             mPlaylistChooser.setVisible( mShowFilterGUI );
-            if (mAlphaWheel.getShowWheel()) {
+            if( mAlphaWheel.getShowWheel() ){
                 mAlphaWheel.setShowWheel( false );
             }
             // mPlaylistChooser.update(); // FIXME: what does this do?
@@ -1508,7 +1516,7 @@ void KeplerApp::updateCamera()
 	if( selectedNode ){
 		mCamDistDest	= selectedNode->mIdealCameraDist * cameraDistMulti;
 		
-		if( mCamAutoMove ){
+		if( G_AUTO_MOVE ){
 			// ROBERT: Fix this crap. needs to transition correctly
 			if( selectedNode->mParentNode ){
 				Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
@@ -1724,6 +1732,9 @@ void KeplerApp::drawScene()
 	mStarGlowTex.disable();
 
 	if( artistNode ){ // defined at top of method
+		artistNode->drawStarGlow( mEye - mCenterOffset, ( mEye - mCenter ).normalized(), mStarGlowTex );
+		
+		
 		Vec2f interfaceSize = getWindowSize();
 //		if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
 //			interfaceSize = interfaceSize.yx(); // swizzle it!

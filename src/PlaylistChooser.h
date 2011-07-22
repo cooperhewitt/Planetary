@@ -32,6 +32,7 @@ public:
     void setup( const ci::Font &font );
 	void update();
     void draw();
+	
 	void makeFbo( int index, ci::ipod::PlaylistRef playlist );
 	void makeTexture( int index, ci::ipod::PlaylistRef playlist );
 	
@@ -118,10 +119,11 @@ private:
     int mPrevTotalVertices; // so we only recreate frames
 	VertexData *mVerts;
 	
+	bool			mShowWheel;
 	float			mWheelScale;
 	WheelOverlay	mWheelOverlay;
 	
 	ci::CallbackMgr<bool(ci::ipod::PlaylistRef)> mCbPlaylistSelected;        
-    
+	
     void getWindowSpaceRect( float &x, float &y, float &w, float &h );
 };
