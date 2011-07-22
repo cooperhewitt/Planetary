@@ -51,16 +51,14 @@ void Slider::draw()
 //    bloom::gl::batchRect(mTexture, thumbTexArea, thumbRect);
 	
 	
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
     gl::draw(mTexture, mBgTexArea, mRect);            
     gl::draw(mTexture, mFgTexArea, fgRect);
 	
-	gl::color( ColorA( BRIGHT_YELLOW, 0.3f ) );
-	gl::drawLine( Vec2f( mRect.x1, mRect.y1 + 6.0f ), Vec2f( mRect.x1, mRect.y2 - 6.0f ) );
-	gl::color( ColorA( BLUE, 0.3f ) );
-	gl::drawLine( Vec2f( mRect.x2, mRect.y1 + 6.0f ), Vec2f( mRect.x2, mRect.y2 - 6.0f ) );
+//	gl::color( ColorA( BRIGHT_YELLOW, 0.3f ) );
+//	gl::drawLine( Vec2f( mRect.x1, mRect.y1 + 6.0f ), Vec2f( mRect.x1, mRect.y2 - 6.0f ) );
+//	gl::color( ColorA( BLUE, 0.3f ) );
+//	gl::drawLine( Vec2f( mRect.x2, mRect.y1 + 6.0f ), Vec2f( mRect.x2, mRect.y2 - 6.0f ) );
 	
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
     gl::draw(mTexture, thumbTexArea, thumbRect);
  
 }

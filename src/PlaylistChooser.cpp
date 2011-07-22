@@ -136,6 +136,14 @@ void PlaylistChooser::update()
 		mWheelOverlay.update( mInterfaceSize );
 		
 		mStartY			= mInterfaceSize.y * 0.5f + mWheelOverlay.mRadius - 20.0f;
+		if ( mInterfaceSize.x > mInterfaceSize.y ) {
+            float amount = (mInterfaceSize.x - mInterfaceSize.y) / (1024-768);
+			
+            Matrix44f mat;
+            mat.translate( Vec3f(0, -15.0f * amount, 0) );
+            setTransform(mat);
+        }
+		
 		mHitRect		= Rectf( 0.0f, mStartY - 25.0f, mInterfaceSize.x, mStartY + 25.0f );
 		mXCenter		= mInterfaceSize.x * 0.5f;
 		mEndX			= mInterfaceSize.x - mBorder;

@@ -243,7 +243,7 @@ void World::update( float param1, float param2 )
 			mIsRepulsing = false;
 		}
 		
-		if( mAge == mEndRepulseAge + 100 ){
+		if( mAge == mEndRepulseAge + 150 ){
 			mConstellation.setup( mFilteredNodes );
 		}
 		
@@ -280,7 +280,7 @@ void World::repulseNodes()
 				if( distSqrd > 0.0f ){
 					float F = constrain( 1.0f/distSqrd, 0.0f, 1.0f );
 					dir = F * dir.normalized() * 0.75f;
-					dir.y *= 0.7f;
+					dir.y *= 0.5f;
 					
 					// acceleration = force / mass
 					(*p1)->mAcc += dir;

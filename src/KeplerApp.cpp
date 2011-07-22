@@ -94,6 +94,9 @@ class KeplerApp : public AppCocoaTouch {
 	virtual void	draw();
 	void			drawNoArtists();
     void            drawScene();
+	
+	void			makeNewCameraPath();
+	void			createRandomBSpline( const vector<ci::Vec3f> &positions );
 
     // convenience methods for Flurry
     void            logEvent(const string &event);
@@ -166,12 +169,12 @@ class KeplerApp : public AppCocoaTouch {
 		
 // CAMERA PERSP
 	CameraPersp		mCam;
+	
 	float			mFov, mFovDest;
 	Vec3f			mEye, mCenter, mUp;
 	Vec3f			mCenterDest, mCenterFrom;
 	Vec3f			mCenterOffset;		// if pinch threshold is exceeded, look towards parent?
 	float			mCamDist, mCamDistDest, mCamDistFrom;
-	float			mCamDistAnim;
 	float			mPinchPerInit;
 	float			mPinchPer;			// 0.0 (max pinched) to 1.0 (max spread)
 	float			mPinchTotalDest;	// accumulation of pinch deltas
@@ -186,6 +189,12 @@ class KeplerApp : public AppCocoaTouch {
 	float			mInteractionThreshold;
 	float			mPerlinForAutoMove;
 	float			mAutoMoveScale;
+	
+// SPLINE
+	BSpline3f		mSpline;
+	vector<Vec3f>	mSplinePos;
+	float			mSplineValue;
+	double			mLastTime;
 	
 	float			mZoomFrom, mZoomDest;
 	Arcball			mArcball;
@@ -219,8 +228,6 @@ class KeplerApp : public AppCocoaTouch {
 	float			mTimePinchEnded;
 	float			mPinchAlphaPer;
 	bool			mIsPinching;
-	float			mTimeSinceLastInteraction;
-	bool			mCamAutoMove;
 	
 	
 // PARTICLES
@@ -351,13 +358,19 @@ void KeplerApp::remainingSetup()
 	mPinchHighlightRadius = 50.0f;
 	mPinchRotation		= 0.0f;
 	mIsPastPinchThresh	= false;
-	mInteractionThreshold = 30.0f;
 	mPerlinForAutoMove	= 0.0f;
+	
+// SPLINE
+	mSplinePos.push_back( Rand::randVec3f() * 4.0f );
+	mSplinePos.push_back( Rand::randVec3f() * 4.0f );
+	mSplinePos.push_back( Rand::randVec3f() * 4.0f );
+	mSplinePos.push_back( Rand::randVec3f() * 4.0f );
+	createRandomBSpline( mSplinePos );
+	mLastTime			= getElapsedSeconds();
 	
 	
 	
 	mCamDistFrom		= mCamDist;
-	mCamDistAnim		= 0.0f;
 	mEye				= Vec3f( 0.0f, 0.0f, mCamDist );
 	mCenter				= Vec3f::zero();
 	mCenterDest			= mCenter;
@@ -401,8 +414,6 @@ void KeplerApp::remainingSetup()
     mPinchRecognizer.registerEnded( this, &KeplerApp::onPinchEnded );
     mPinchRecognizer.setKeepTouchCallback( this, &KeplerApp::keepTouchForPinching );
 	mPinchAlphaPer		= 1.0f;
-	mTimeSinceLastInteraction = 0.0f;
-	mCamAutoMove		= false;
     
     // PARTICLES
     mParticleController.addParticles( G_NUM_PARTICLES );
@@ -584,7 +595,7 @@ void KeplerApp::initTextures()
 void KeplerApp::touchesBegan( TouchEvent event )
 {	
     if (!mRemainingSetupCalled) return;
-	mTimeSinceLastInteraction = getElapsedSeconds();
+
 	mIsDragging = false;
 	const vector<TouchEvent::Touch> touches = getActiveTouches();
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
@@ -605,7 +616,7 @@ void KeplerApp::touchesBegan( TouchEvent event )
 void KeplerApp::touchesMoved( TouchEvent event )
 {
     if (!mRemainingSetupCalled) return;
-	mTimeSinceLastInteraction = getElapsedSeconds();
+
     if ( mIsTouching ) {
         float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
         const vector<TouchEvent::Touch> touches = getActiveTouches();
@@ -628,7 +639,7 @@ void KeplerApp::touchesMoved( TouchEvent event )
 void KeplerApp::touchesEnded( TouchEvent event )
 {
     if (!mRemainingSetupCalled) return;
-	mTimeSinceLastInteraction = getElapsedSeconds();
+
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
 	const vector<TouchEvent::Touch> touches = event.getTouches();
 	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){        
@@ -658,7 +669,6 @@ void KeplerApp::touchesEnded( TouchEvent event )
 
 bool KeplerApp::onPinchBegan( PinchEvent event )
 {
-	mTimeSinceLastInteraction = getElapsedSeconds();
 	mIsPinching = true;
     mPinchRays = event.getTouchRays( mCam );
 	mPinchPositions.clear();
@@ -684,7 +694,6 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 
 bool KeplerApp::onPinchMoved( PinchEvent event )
 {	
-	mTimeSinceLastInteraction = getElapsedSeconds();
     mPinchRays = event.getTouchRays( mCam );
 	mPinchPositions.clear();
 	
@@ -716,7 +725,6 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
-	mTimeSinceLastInteraction = getElapsedSeconds();
     logEvent("Pinch Ended");
 
 	if( mPinchPer > mPinchPerThresh ){
@@ -808,10 +816,6 @@ bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
 	if( !mAlphaWheel.getShowWheel() ){
 		G_HELP = false; // dismiss help if alpha wheel was toggled away
 		mPinchTotalDest = 1.0f;
-	} else {
-		G_SHOW_SETTINGS = false;
-		mPlayControls.setShowSettings( G_SHOW_SETTINGS );            
-		mUiLayer.setShowSettings( G_SHOW_SETTINGS );   
 	}
 
     if( mState.getFilterMode() == State::FilterModeAlphaChar ){
@@ -1082,6 +1086,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 				G_AUTO_MOVE = !G_AUTO_MOVE;
 				if( G_AUTO_MOVE )	mNotificationOverlay.show( mOverlayIconsTex, Area( uw*4, uh*2, uw*5, uh*3 ), "ANIMATE CAMERA" );
 				else				mNotificationOverlay.show( mOverlayIconsTex, Area( uw*4, uh*3, uw*5, uh*4 ), "ANIMATE CAMERA" );
+				
+//				if( G_AUTO_MOVE ) makeNewCameraPath();
 			}
             mPlayControls.setScreensaverVisible( G_AUTO_MOVE );            
             break;
@@ -1318,7 +1324,7 @@ void KeplerApp::update()
             logEvent("Startup with Track Playing");
             onPlayerTrackChanged( &mIpodPlayer );
             // show the wheel if we're paused...
-            if ( mIpodPlayer.getPlayState() == ipod::Player::StatePaused ) {
+            if ( mIpodPlayer.getPlayState() == ipod::Player::StatePaused || mIpodPlayer.getPlayState() == ipod::Player::StateStopped ) {
                 mState.setFilterMode( State::FilterModeAlphaChar );
                 mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );            
                 mShowFilterGUI = true;
@@ -1520,7 +1526,7 @@ void KeplerApp::updateCamera()
 			// ROBERT: Fix this crap. needs to transition correctly
 			if( selectedNode->mParentNode ){
 				Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
-				float timeForAnim = ( getElapsedSeconds() - mTimeSinceLastInteraction - mInteractionThreshold );
+				float timeForAnim = getElapsedSeconds();;
 				
 				mPerlinForAutoMove = mPerlin.fBm( timeForAnim * 0.01f );
 				
@@ -1582,12 +1588,9 @@ void KeplerApp::updateCamera()
 	double p        = easeInOutCubic( t / duration );
 
 	mCenter			= lerp( mCenterFrom, (mCenterDest + mCenterOffset), p );
-//	mCenter			= lerp( mCenterFrom, mCenterDest - mCenterFrom, p );
 	mCamDist		= lerp( mCamDistFrom, mCamDistDest, p );
 	mCamDist		= min( mCamDist, G_INIT_CAM_DIST );
-	mCamDistAnim	= lerp( 0.0, M_PI, p );
-	//mPinchPer		= lerp( mPinchPerFrom, 0.5f, p );
-	//mPinchTotalDest	= lerp( mPinchTotalFrom, mPinchTotalInit, p );
+
 	G_ZOOM			= lerp( mZoomFrom, mZoomDest, p );
 
 	
@@ -1626,6 +1629,20 @@ void KeplerApp::updateCamera()
     
     Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);
     mEye = mCenter - camOffset;
+
+	
+// Bspline curve camera follow	
+//	if( G_AUTO_MOVE ){
+//		mSplineValue += 0.002f;
+//
+//		mEye		= mSpline.getPosition( mSplineValue - 0.002f );
+//		mCenter		= mSpline.getPosition( mSplineValue );
+//		
+//		if( mSplineValue >= 0.675 ){
+//			makeNewCameraPath();
+//		}
+//	}
+	
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( mEye - mCenterOffset, mCenter, q * mUp );
@@ -1732,7 +1749,7 @@ void KeplerApp::drawScene()
 	mStarGlowTex.disable();
 
 	if( artistNode ){ // defined at top of method
-		artistNode->drawStarGlow( mEye - mCenterOffset, ( mEye - mCenter ).normalized(), mStarGlowTex );
+		artistNode->drawStarGlow( mEye, ( mEye - mCenter ).normalized(), mStarGlowTex );
 		
 		
 		Vec2f interfaceSize = getWindowSize();
@@ -1797,7 +1814,7 @@ void KeplerApp::drawScene()
 		glDisable( GL_RESCALE_NORMAL );
 		
 		gl::enableAdditiveBlending();
-		artistNode->drawExtraGlow( mEye - mCenterOffset, mStarGlowTex, mStarTex );
+		artistNode->drawExtraGlow( mEye, mStarGlowTex, mStarTex );
 	}
 
 	glDisable( GL_LIGHTING );
@@ -1851,6 +1868,20 @@ void KeplerApp::drawScene()
 		mDottedTex.disable();
 	}
 	
+	
+// SPLINE
+//	const int numSegments = 200;
+//	gl::color( ColorA( 0.8f, 0.2f, 0.8f, 0.5f ) );
+//	Vec3f pos	  = mEye;
+//	Vec3f prevPos = pos;
+//	for( int s = 0; s <= numSegments; ++s ) {
+//		float t = s / (float)numSegments;
+//		prevPos = pos;
+//		pos		= mSpline.getPosition( t );
+//		gl::drawLine( pos + Vec3f( 0.1f, 0.1f, 0.1f ), prevPos + Vec3f( 0.1f, 0.1f, 0.1f ) );
+//	}
+	
+	
 // GALAXY DARK MATTER:
     if (G_IS_IPAD2 || G_DEBUG) {
 		gl::enableAlphaBlending();    
@@ -1870,11 +1901,11 @@ void KeplerApp::drawScene()
 		
 // LENSFLARE?!?!  SURELY YOU MUST BE MAD.
 	if( (G_IS_IPAD2 || G_DEBUG) && artistNode && artistNode->mDistFromCamZAxis > 0.0f && artistNode->mEclipseStrength < 0.75f ){
-		int numFlares  = 3;
-		float radii[5] = { 4.5f, 18.0f, 12.0f };
-		float dists[5] = { 1.25f, 2.50f, 6.0f };
+		int numFlares  = 4;
+		float radii[5] = { 4.5f, 12.0f, 18.0f, 13.0f };
+		float dists[5] = { 1.25f, 2.50f, 6.0f, 8.5f };
 		
-		float distPer = constrain( 0.7f - artistNode->mScreenDistToCenterPer, 0.0f, 1.0f );
+		float distPer = constrain( 0.5f - artistNode->mScreenDistToCenterPer, 0.0f, 1.0f );
 		float alpha = distPer * 0.2f * mFadeInArtistToAlbum * sin( distPer * M_PI );
 
         gl::enableAlphaBlending();    
@@ -1884,7 +1915,7 @@ void KeplerApp::drawScene()
 		Vec2f flarePos = getWindowCenter() - artistNode->mScreenPos;
 		float flareDist = flarePos.length();
 		Vec2f flarePosNorm = flarePos.normalized();
-		
+
 		gl::color( ColorA( BRIGHT_BLUE, alpha ) );
 		for( int i=0; i<numFlares; i++ ){
 			flarePos = getWindowCenter() + flarePosNorm * dists[i] * flareDist;
@@ -2115,5 +2146,46 @@ void KeplerApp::logEvent(const string &event, const map<string,string> &params)
     if (G_DEBUG) std::cout << "logging: " << event << " with params..." << std::endl;
     Flurry::getInstrumentation()->logEvent(event, params);
 }
+
+void KeplerApp::makeNewCameraPath()
+{
+	Node *artistNode = mState.getSelectedArtistNode();
+	Node *albumNode = mState.getSelectedAlbumNode();
+	Node *trackNode = mState.getSelectedTrackNode();
+	
+	vector<ci::Vec3f> positions;
+	if( artistNode ) positions.push_back( artistNode->mPos );
+	if( albumNode )  positions.push_back( albumNode->mPos );
+	if( trackNode )  positions.push_back( trackNode->mPos );
+	
+	createRandomBSpline( positions );
+}
+
+void KeplerApp::createRandomBSpline( const vector<ci::Vec3f> &positions )
+{
+	int numPositions = positions.size();
+	int numPoints = 4;
+	
+	int totalSplinePos = mSplinePos.size();
+	Vec3f anchor3 = mSplinePos[ totalSplinePos - 4 ];
+	Vec3f anchor2 = mSplinePos[ totalSplinePos - 3 ];
+	Vec3f anchor1 = mSplinePos[ totalSplinePos - 2 ];
+	Vec3f anchor0 = mSplinePos[ totalSplinePos - 1 ];
+	
+	mSplinePos.clear();
+	mSplinePos.push_back( anchor3 );
+	mSplinePos.push_back( anchor2 );
+	mSplinePos.push_back( anchor1 );
+	mSplinePos.push_back( anchor0 );
+	for( int p = 0; p < numPoints; ++p ){
+//		int i = Rand::randInt( numPositions );
+		mSplinePos.push_back( Rand::randVec3f() * 0.2f );
+	}
+	
+	mSpline = BSpline3f( mSplinePos, 2, false, false );
+	
+	mSplineValue = 0.008f;
+}
+
 
 CINDER_APP_COCOA_TOUCH( KeplerApp, RendererGl )

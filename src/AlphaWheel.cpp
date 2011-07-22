@@ -173,7 +173,7 @@ void AlphaWheel::update( )
             float amount = (mInterfaceSize.x - mInterfaceSize.y) / (1024-768);
 
             Matrix44f mat;
-            mat.translate( Vec3f(0, -12.0f * amount, 0) );
+            mat.translate( Vec3f(0, -15.0f * amount, 0) );
             setTransform(mat);
         }
     }

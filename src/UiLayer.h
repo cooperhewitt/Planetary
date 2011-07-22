@@ -22,7 +22,7 @@ class UiLayer : public UINode {
     UiLayer(): UINode() {}; // get a default ID
 	~UiLayer() {};
     
-	void	setup( const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &uiButtonsTex, const bool &showSettings, const ci::Vec2f interfaceSize );
+	void	setup( const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &settingsBgTex, const bool &showSettings, const ci::Vec2f interfaceSize );
 	
     bool	touchBegan( ci::app::TouchEvent::Touch touch );
 	bool	touchMoved( ci::app::TouchEvent::Touch touch );

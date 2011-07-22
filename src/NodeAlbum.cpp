@@ -98,7 +98,7 @@ void NodeAlbum::setData( PlaylistRef album )
 	mHasRings			= false;
 	if( mNumTracks > 2 ) mHasRings = true;
 	mTotalLength		= mAlbum->getTotalLength();
-	std::cout<<mTotalLength<<std::endl;
+//	std::cout<<"NodeAlbum total length = " << mTotalLength<<std::endl;
 	mReleaseYear		= (*mAlbum)[0]->getReleaseYear();
 	
 	mRadiusInit			= mParentNode->mRadiusDest * constrain( mTotalLength * 0.00004f, 0.01f, 0.06f );//Rand::randFloat( 0.01f, 0.035f );

@@ -38,7 +38,7 @@ void WheelOverlay::setup()
 void WheelOverlay::update( const Vec2f &interfaceSize )
 {
     float prevRadius = mRadius;
-    
+
 	mRadius = 315.0f;
 	if( interfaceSize.x > interfaceSize.y ) {
         float amount = (interfaceSize.x - interfaceSize.y) / (1024-768);        

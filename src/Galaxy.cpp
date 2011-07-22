@@ -28,8 +28,8 @@ ci::gl::Texture galaxyDome, ci::gl::Texture galaxyTex, ci::gl::Texture darkMatte
 	mDarkMatterCylinderRes = 48;    
     initGalaxyVertexArray();
     initDarkMatterVertexArray();    
-   	mLightMatterBaseRadius = initialCamDist * 0.675f;
-	mDarkMatterBaseRadius = initialCamDist * 0.75f; 
+   	mLightMatterBaseRadius = initialCamDist * 0.6075f;
+	mDarkMatterBaseRadius = initialCamDist * 0.6375f; 
 
     mLightMatterColor = lightMatterColor;
     mCenterColor = centerColor;
@@ -48,7 +48,7 @@ void Galaxy::drawLightMatter()
 	if( mInvAlpha > 0.01f ){
 		gl::color( ColorA( mLightMatterColor, mInvAlpha * 2.0f ) );
         
-		const float radius = mLightMatterBaseRadius * 0.9f;
+		const float radius = mLightMatterBaseRadius;
 		glPushMatrix();
         mGalaxyDome.enableAndBind();
 
@@ -135,7 +135,7 @@ void Galaxy::drawDarkMatter()
 		
         //float alpha = pow( 1.0f - camGalaxyAlpha, 8.0f ) * zoomOff;
 		gl::color( ColorA( 1.0f, 1.0f, 1.0f, mInvAlpha ) );
-		const float radius = mDarkMatterBaseRadius * 0.85f;
+		const float radius = mDarkMatterBaseRadius;
         
 		glPushMatrix();
 		mDarkMatterTex.enableAndBind();
