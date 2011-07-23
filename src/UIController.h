@@ -10,31 +10,21 @@
 #include <map>
 #include "cinder/Function.h"
 #include "UINode.h"
-#include "Orientation.h"
 
 // forward declare to avoid full include
 namespace cinder { namespace app {
     class AppCocoaTouch;
-    class OrientationHelper;
-    class OrientationEvent;
 } }
 
 class UIController : public UINode {
     
 public:
     
-    // FIXME: allow null OrientationHelper for desktop use
-    UIController(ci::app::AppCocoaTouch *app, ci::app::OrientationHelper *orientationHelper);
+    UIController( ci::app::AppCocoaTouch *app );
     virtual ~UIController();
     
     ci::Vec2f getInterfaceSize() { return mInterfaceSize; }
     void setInterfaceSize( ci::Vec2f interfaceSize ) { mInterfaceSize = interfaceSize; }
-    
-    ci::app::Orientation getInterfaceOrientation() { return mInterfaceOrientation; }
-    void setInterfaceOrientation( const ci::app::Orientation &orientation, bool animate = true );
-    
-    // useful for syncing 3D world to 2D UI animation
-    float getInterfaceAngle() { return mInterfaceAngle; }
     
     // UIController draw/update starts the chain off, very much does *not* draw/update itself :)
     virtual void draw();
@@ -90,27 +80,12 @@ protected:
     bool touchesBegan( ci::app::TouchEvent event );
     bool touchesMoved( ci::app::TouchEvent event );
     bool touchesEnded( ci::app::TouchEvent event );
-	bool orientationChanged( ci::app::OrientationEvent event );
-    
-    float getOrientationAngle( const ci::app::Orientation &orientation );
     
     ci::app::AppCocoaTouch *mApp;
-    ci::app::OrientationHelper *mOrientationHelper;
     
-    ci::CallbackId cbTouchesBegan, cbTouchesMoved, cbTouchesEnded, cbOrientationChanged;
-
-    ci::app::Orientation mInterfaceOrientation;
-    ci::Matrix44f        mOrientationMatrix;    // animated based on targets
-    ci::Vec2f            mInterfaceSize;        // animated based on target
-    float                mInterfaceAngle;       // animated, not always right-angle   
-    ci::Vec2f            mTargetInterfaceSize;  // depends on mInterfaceOrientation
-    float                mTargetInterfaceAngle; // normalized for shortest rotation animation
-
-    // for lerping:
-    float mLastOrientationChangeTime;
-    float mOrientationAnimationDuration;
-    float mPrevInterfaceAngle;
-    ci::Vec2f mPrevInterfaceSize;
+    ci::Vec2f mInterfaceSize;    
+    
+    ci::CallbackId cbTouchesBegan, cbTouchesMoved, cbTouchesEnded;
     
 	ci::CallbackMgr<bool(UINodeRef)> mCbUINodeTouchBegan;
 	ci::CallbackMgr<bool(UINodeRef)> mCbUINodeTouchMoved;

@@ -14,17 +14,9 @@
 using namespace ci;
 using namespace ci::app;
 
-UIController::UIController( AppCocoaTouch *app, OrientationHelper *orientationHelper ): 
+UIController::UIController( AppCocoaTouch *app ): 
     mApp(app), 
-    mOrientationHelper(orientationHelper),
-    mInterfaceSize(0.0f,0.0f),
-    mInterfaceAngle(0.0f),
-    mTargetInterfaceSize(0.0f,0.0f),
-    mTargetInterfaceAngle(0.0f),
-    mLastOrientationChangeTime(-1.0f),
-    mOrientationAnimationDuration(0.25f),
-    mPrevInterfaceAngle(0.0f),
-    mPrevInterfaceSize(0.0f,0.0f)
+    mInterfaceSize(0.0f,0.0f)
 {
     mParent = UINodeRef(this); // FIXME: shared_from_this() but in a subclass
     mRoot = UIControllerRef(this); // FIXME: shared_from_this() but for a subclass
@@ -35,12 +27,7 @@ UIController::UIController( AppCocoaTouch *app, OrientationHelper *orientationHe
     cbTouchesMoved = mApp->registerTouchesMoved( this, &UIController::touchesMoved );
     cbTouchesEnded = mApp->registerTouchesEnded( this, &UIController::touchesEnded );
     
-    if (mOrientationHelper) {
-        cbOrientationChanged = mOrientationHelper->registerOrientationChanged( this, &UIController::orientationChanged );    
-    }
-    
-    // initialize orientation without animating
-    setInterfaceOrientation( mOrientationHelper->getInterfaceOrientation(), false );
+    mInterfaceSize = mApp->getWindowSize();
 }
 
 UIController::~UIController()
@@ -48,9 +35,6 @@ UIController::~UIController()
     mApp->unregisterTouchesBegan( cbTouchesBegan );
     mApp->unregisterTouchesMoved( cbTouchesMoved );
     mApp->unregisterTouchesEnded( cbTouchesEnded );
-    if (mOrientationHelper) {
-        mOrientationHelper->unregisterOrientationChanged( cbOrientationChanged );
-    }
 }
 
 bool UIController::touchesBegan( TouchEvent event )
@@ -80,70 +64,9 @@ bool UIController::touchesEnded( TouchEvent event )
     return consumed; // only true if all touches were consumed
 }
 
-bool UIController::orientationChanged( OrientationEvent event )
-{
-    setInterfaceOrientation( event.getInterfaceOrientation() );
-    return false;
-}
-
-void UIController::setInterfaceOrientation( const Orientation &orientation, bool animate )
-{
-    mInterfaceOrientation = orientation;
-
-    // get the facts
-    Vec2f deviceSize = mApp->getWindowSize();
-    float orientationAngle = getOrientationAngle(mInterfaceOrientation);
-    
-//	if( mInterfaceAngle < ( -2.0f * M_PI ) ){
-//		std::cout << "InterfaceAngle is way too low. Being adjusted" << std::endl;
-//		mInterfaceAngle = -2.0f * M_PI;
-//	} else if( mInterfaceAngle > ( 2.0f * M_PI ) ){
-//		std::cout << "InterfaceAngle is way too high. Being adjusted" << std::endl;
-//		mInterfaceAngle = 2.0f * M_PI;
-//	}
-	
-    // normalize interface angle (could be many turns)
-    while (mInterfaceAngle < 0.0){
-		mInterfaceAngle += 2.0f * M_PI;
-		std::cout << "mInterfaceAngle = " << mInterfaceAngle << std::endl;
-	}
-    while (mInterfaceAngle > 2.0f * M_PI){
-		mInterfaceAngle -= 2.0f * M_PI;
-		std::cout << "mInterfaceAngle = " << mInterfaceAngle << std::endl;
-	}
-    
-    // assign new targets
-    mTargetInterfaceSize.x = fabs(deviceSize.x * cos(orientationAngle) + deviceSize.y * sin(orientationAngle));
-    mTargetInterfaceSize.y = fabs(deviceSize.y * cos(orientationAngle) + deviceSize.x * sin(orientationAngle));
-    mTargetInterfaceAngle = 2.0f*M_PI-orientationAngle;
-    
-    // make sure we're turning the right way
-    if (abs(mTargetInterfaceAngle-mInterfaceAngle) > M_PI) {
-        if (mTargetInterfaceAngle < mInterfaceAngle) {
-            mTargetInterfaceAngle += 2.0f * M_PI;
-        }
-        else {
-            mTargetInterfaceAngle -= 2.0f * M_PI;
-        }
-    }
-    
-    mLastOrientationChangeTime = mApp->getElapsedSeconds();
-
-    if (!animate) {
-        // jump to animation end
-        mInterfaceSize = mTargetInterfaceSize;
-        mInterfaceAngle = mTargetInterfaceAngle;
-        mLastOrientationChangeTime = -1;                
-    }
-    
-    // remember current values for lerping later
-    mPrevInterfaceAngle = mInterfaceAngle;
-    mPrevInterfaceSize = mInterfaceSize;    
-}
-
 Matrix44f UIController::getConcatenatedTransform() const
 {
-    return mOrientationMatrix * mTransform;        
+    return mTransform;
 }
 
 void UIController::draw()
@@ -162,47 +85,11 @@ void UIController::draw()
 
 void UIController::update()
 {
-    // animate transition
-    float t = mApp->getElapsedSeconds() - mLastOrientationChangeTime;
-    if (t < mOrientationAnimationDuration) {
-        float p = t / mOrientationAnimationDuration;
-        mInterfaceSize = lerp(mPrevInterfaceSize, mTargetInterfaceSize, p);
-        mInterfaceAngle = lerp(mPrevInterfaceAngle, mTargetInterfaceAngle, p);
-    }
-    else {
-        // ensure snap to final values
-        mInterfaceSize = mTargetInterfaceSize;
-        mInterfaceAngle = mTargetInterfaceAngle;        
-    }
-    
-    Vec2f deviceSize = mApp->getWindowSize();
-
-    // update matrix (for globalToLocal etc)
-    mOrientationMatrix.setToIdentity();
-    mOrientationMatrix.translate( Vec3f(deviceSize/2.0f,0) );
-    mOrientationMatrix.rotate( Vec3f(0,0,mInterfaceAngle) );
-    mOrientationMatrix.translate( Vec3f(-mInterfaceSize/2.0f,0) );    
-    
     if (mVisible) {
         // update children
         for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
             (*i)->privateUpdate();
         }
         // dont' update self or we'll recurse
-    }
-}
-
-float UIController::getOrientationAngle( const Orientation &orientation )
-{
-    switch (orientation) {
-        case LANDSCAPE_LEFT_ORIENTATION:
-            return M_PI * 3.0f / 2.0f;
-        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
-            return M_PI;
-        case LANDSCAPE_RIGHT_ORIENTATION:
-            return M_PI / 2.0f;
-        case PORTRAIT_ORIENTATION:
-        default:
-            return 0.0;
     }
 }
