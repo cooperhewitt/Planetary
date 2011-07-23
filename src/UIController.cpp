@@ -14,21 +14,33 @@
 using namespace ci;
 using namespace ci::app;
 
-UIController::UIController( AppCocoaTouch *app, OrientationHelper *orientationHelper ): mApp(app), mOrientationHelper(orientationHelper)
+UIController::UIController( AppCocoaTouch *app, OrientationHelper *orientationHelper ): 
+    mApp(app), 
+    mOrientationHelper(orientationHelper),
+    mInterfaceSize(0.0f,0.0f),
+    mInterfaceAngle(0.0f),
+    mTargetInterfaceSize(0.0f,0.0f),
+    mTargetInterfaceAngle(0.0f),
+    mLastOrientationChangeTime(-1.0f),
+    mOrientationAnimationDuration(0.25f),
+    mPrevInterfaceAngle(0.0f),
+    mPrevInterfaceSize(0.0f,0.0f)
 {
     mParent = UINodeRef(this); // FIXME: shared_from_this() but in a subclass
     mRoot = UIControllerRef(this); // FIXME: shared_from_this() but for a subclass
+    
     // FIXME: should mRoot be static (essentially, should UIController be a singleton?) how/when to clean up? mRoot as weak_ref?
+    
     cbTouchesBegan = mApp->registerTouchesBegan( this, &UIController::touchesBegan );
     cbTouchesMoved = mApp->registerTouchesMoved( this, &UIController::touchesMoved );
     cbTouchesEnded = mApp->registerTouchesEnded( this, &UIController::touchesEnded );
+    
     if (mOrientationHelper) {
         cbOrientationChanged = mOrientationHelper->registerOrientationChanged( this, &UIController::orientationChanged );    
     }
-    mOrientationAnimationDuration = 0.25f;
+    
+    // initialize orientation without animating
     setInterfaceOrientation( mOrientationHelper->getInterfaceOrientation(), false );
-	mInterfaceAngle		= 0.0f;
-	mPrevInterfaceAngle = 0.0f;
 }
 
 UIController::~UIController()
@@ -82,13 +94,13 @@ void UIController::setInterfaceOrientation( const Orientation &orientation, bool
     Vec2f deviceSize = mApp->getWindowSize();
     float orientationAngle = getOrientationAngle(mInterfaceOrientation);
     
-	if( mInterfaceAngle < ( -2.0f * M_PI ) ){
-		std::cout << "InterfaceAngle is way too low. Being adjusted" << std::endl;
-		mInterfaceAngle = -2.0f * M_PI;
-	} else if( mInterfaceAngle > ( 2.0f * M_PI ) ){
-		std::cout << "InterfaceAngle is way too high. Being adjusted" << std::endl;
-		mInterfaceAngle = 2.0f * M_PI;
-	}
+//	if( mInterfaceAngle < ( -2.0f * M_PI ) ){
+//		std::cout << "InterfaceAngle is way too low. Being adjusted" << std::endl;
+//		mInterfaceAngle = -2.0f * M_PI;
+//	} else if( mInterfaceAngle > ( 2.0f * M_PI ) ){
+//		std::cout << "InterfaceAngle is way too high. Being adjusted" << std::endl;
+//		mInterfaceAngle = 2.0f * M_PI;
+//	}
 	
     // normalize interface angle (could be many turns)
     while (mInterfaceAngle < 0.0){
