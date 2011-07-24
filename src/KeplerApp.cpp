@@ -33,7 +33,7 @@
 #include "BloomSphere.h"
 
 #include "BloomScene.h"
-#include "UIOrientationNode.h"
+#include "OrientationNode.h"
 #include "LoadingScreen.h"
 #include "UiLayer.h"
 #include "PlayControls.h"
@@ -125,15 +125,15 @@ class KeplerApp : public AppCocoaTouch {
     bool			onPlayerLibraryChanged( ipod::Player *player );
 	
 // UI BITS:
-    BloomSceneRef      mBloomSceneRef;
-    UIOrientationNodeRef mUIOrientationNodeRef;
-    LoadingScreen        mLoadingScreen;
-    BloomNodeRef            mMainBloomNodeRef;
-    FilterToggleButton   mFilterToggleButton;
-	UiLayer              mUiLayer;
-    PlayControls         mPlayControls;
-	HelpLayer		     mHelpLayer;
-    NotificationOverlay  mNotificationOverlay;
+    BloomSceneRef       mBloomSceneRef;
+    OrientationNodeRef  mOrientationNodeRef;
+    LoadingScreen       mLoadingScreen;
+    BloomNodeRef        mMainBloomNodeRef;
+    FilterToggleButton  mFilterToggleButton;
+	UiLayer             mUiLayer;
+    PlayControls        mPlayControls;
+	HelpLayer		    mHelpLayer;
+    NotificationOverlay mNotificationOverlay;
 
     bool                mShowFilterGUI;
     AlphaWheel          mAlphaWheel;
@@ -308,16 +308,16 @@ void KeplerApp::setup()
     // this will receive touch events before anything else (so it can cancel them before they hit the world)
     mBloomSceneRef = BloomScene::create( this );
     
-    mUIOrientationNodeRef = UIOrientationNodeRef( new UIOrientationNode( &mOrientationHelper ) );
-    mBloomSceneRef->addChild( mUIOrientationNodeRef );
+    mOrientationNodeRef = OrientationNodeRef( new OrientationNode( &mOrientationHelper ) );
+    mBloomSceneRef->addChild( mOrientationNodeRef );
 
     // !!! this has to be set up before any other UI things so it can consume touch events
     mLoadingScreen.setup( mStarGlowTex );
-    mUIOrientationNodeRef->addChild( BloomNodeRef(&mLoadingScreen) );
+    mOrientationNodeRef->addChild( BloomNodeRef(&mLoadingScreen) );
     
     // make a container for all the other UI, so visibility can be toggled when loading
     mMainBloomNodeRef = BloomNodeRef( new BloomNode() );
-    mUIOrientationNodeRef->addChild( mMainBloomNodeRef );
+    mOrientationNodeRef->addChild( mMainBloomNodeRef );
     mMainBloomNodeRef->setVisible(false);    
     
     Flurry::getInstrumentation()->stopTimeEvent("Setup");
@@ -1629,7 +1629,7 @@ void KeplerApp::updateCamera()
     // set up vector according to screen orientation
 	mUp = Vec3f::yAxis();
 	if( !G_USE_GYRO ){
-        mUp.rotateZ( -1.0f * mUIOrientationNodeRef->getInterfaceAngle() );
+        mUp.rotateZ( -1.0f * mOrientationNodeRef->getInterfaceAngle() );
     }
     
     Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);

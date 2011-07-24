@@ -9,13 +9,13 @@
 #include "cinder/app/AppCocoaTouch.h" // for getElapsedSeconds, getWindowSize
 #include "cinder/gl/gl.h"
 #include "OrientationHelper.h"
-#include "UIOrientationNode.h"
+#include "OrientationNode.h"
 #include "BloomScene.h"
 
 using namespace ci;
 using namespace ci::app;
 
-UIOrientationNode::UIOrientationNode( OrientationHelper *orientationHelper ): 
+OrientationNode::OrientationNode( OrientationHelper *orientationHelper ): 
     mOrientationHelper(orientationHelper),
     mInterfaceAngle(0.0f),
     mTargetInterfaceSize(0.0f,0.0f),
@@ -27,23 +27,23 @@ UIOrientationNode::UIOrientationNode( OrientationHelper *orientationHelper ):
     mEnableAnimation(true),
     mCurrentlyAnimating(false)
 {
-    cbOrientationChanged = mOrientationHelper->registerOrientationChanged( this, &UIOrientationNode::orientationChanged );    
+    cbOrientationChanged = mOrientationHelper->registerOrientationChanged( this, &OrientationNode::orientationChanged );    
     // initialize orientation *without animating*
     setInterfaceOrientation( mOrientationHelper->getInterfaceOrientation(), false );
 }
 
-UIOrientationNode::~UIOrientationNode()
+OrientationNode::~OrientationNode()
 {
     mOrientationHelper->unregisterOrientationChanged( cbOrientationChanged );
 }
 
-bool UIOrientationNode::orientationChanged( OrientationEvent event )
+bool OrientationNode::orientationChanged( OrientationEvent event )
 {
     setInterfaceOrientation( event.getInterfaceOrientation(), mEnableAnimation );
     return false;
 }
 
-void UIOrientationNode::setInterfaceOrientation( const Orientation &orientation, bool animate )
+void OrientationNode::setInterfaceOrientation( const Orientation &orientation, bool animate )
 {
     mInterfaceOrientation = orientation;
     
@@ -94,7 +94,7 @@ void UIOrientationNode::setInterfaceOrientation( const Orientation &orientation,
     mCurrentlyAnimating = true;
 }
 
-void UIOrientationNode::update()
+void OrientationNode::update()
 {
     // animate transition
     if (mCurrentlyAnimating) {
@@ -119,7 +119,7 @@ void UIOrientationNode::update()
     }    
 }
 
-float UIOrientationNode::getOrientationAngle( const Orientation &orientation )
+float OrientationNode::getOrientationAngle( const Orientation &orientation )
 {
     switch (orientation) {
         case LANDSCAPE_LEFT_ORIENTATION:

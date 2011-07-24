@@ -1,5 +1,5 @@
 //
-//  UIOrientationNode.h
+//  OrientationNode.h
 //  Kepler
 //
 //  Created by Tom Carden on 7/23/11.
@@ -18,15 +18,15 @@ namespace cinder { namespace app {
     class OrientationEvent;
 } }
 
-class UIOrientationNode;
-typedef std::shared_ptr<UIOrientationNode> UIOrientationNodeRef;
+class OrientationNode;
+typedef std::shared_ptr<OrientationNode> OrientationNodeRef;
 
-class UIOrientationNode : public BloomNode {
+class OrientationNode : public BloomNode {
     
 public:
     
-    UIOrientationNode( ci::app::OrientationHelper *orientationHelper );
-    virtual ~UIOrientationNode();
+    OrientationNode( ci::app::OrientationHelper *orientationHelper );
+    virtual ~OrientationNode();
     
     ci::app::Orientation getInterfaceOrientation() { return mInterfaceOrientation; }
     void setInterfaceOrientation( const ci::app::Orientation &orientation, bool animate );

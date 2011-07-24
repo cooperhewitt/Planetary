@@ -123,7 +123,7 @@
 		E2E21CB413A14A3800A476A2 /* Galaxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CB213A14A3700A476A2 /* Galaxy.cpp */; };
 		E2E21CD913A1821300A476A2 /* GyroHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CD713A1821300A476A2 /* GyroHelper.cpp */; };
 		E2E21CDD13A2D71300A476A2 /* Stats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CDB13A2D70C00A476A2 /* Stats.cpp */; };
-		E2FADC1613DB740700C24F4D /* UIOrientationNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2FADC1413DB740700C24F4D /* UIOrientationNode.cpp */; };
+		E2FADC1613DB740700C24F4D /* OrientationNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2FADC1413DB740700C24F4D /* OrientationNode.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -304,8 +304,8 @@
 		E2E21CDA13A1870E00A476A2 /* Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Device.h; path = ../src/Device.h; sourceTree = "<group>"; };
 		E2E21CDB13A2D70C00A476A2 /* Stats.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Stats.cpp; path = ../src/Stats.cpp; sourceTree = "<group>"; };
 		E2E21CDC13A2D70E00A476A2 /* Stats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Stats.h; path = ../src/Stats.h; sourceTree = "<group>"; };
-		E2FADC1413DB740700C24F4D /* UIOrientationNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UIOrientationNode.cpp; path = ../src/UIOrientationNode.cpp; sourceTree = "<group>"; };
-		E2FADC1513DB740700C24F4D /* UIOrientationNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UIOrientationNode.h; path = ../src/UIOrientationNode.h; sourceTree = "<group>"; };
+		E2FADC1413DB740700C24F4D /* OrientationNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OrientationNode.cpp; path = ../src/OrientationNode.cpp; sourceTree = "<group>"; };
+		E2FADC1513DB740700C24F4D /* OrientationNode.h */ = {isa = PBXFileReference; fileEncoding = 4; name = OrientationNode.h; path = ../src/OrientationNode.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -843,7 +843,7 @@
 				E25040C01392E83E00A8D673 /* Elements */,
 				E2A868B413D3D0940024E4D0 /* BloomScene.cpp */,
 				E2A868B113D3CA6F0024E4D0 /* BloomNode.cpp */,
-				E2FADC1413DB740700C24F4D /* UIOrientationNode.cpp */,
+				E2FADC1413DB740700C24F4D /* OrientationNode.cpp */,
 			);
 			name = Scene;
 			sourceTree = "<group>";
@@ -854,7 +854,7 @@
 				E25040BF1392E82200A8D673 /* Elements */,
 				E2A868B213D3CA6F0024E4D0 /* BloomNode.h */,
 				E2A868B513D3D0940024E4D0 /* BloomScene.h */,
-				E2FADC1513DB740700C24F4D /* UIOrientationNode.h */,
+				E2FADC1513DB740700C24F4D /* OrientationNode.h */,
 			);
 			name = Scene;
 			sourceTree = "<group>";
@@ -1031,7 +1031,7 @@
 				E2A868B613D3D0950024E4D0 /* BloomScene.cpp in Sources */,
 				E2576E4213D4C8D600EC82EF /* TextureRect.cpp in Sources */,
 				E1D32DFF13D78E01002F33ED /* WheelOverlay.cpp in Sources */,
-				E2FADC1613DB740700C24F4D /* UIOrientationNode.cpp in Sources */,
+				E2FADC1613DB740700C24F4D /* OrientationNode.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
