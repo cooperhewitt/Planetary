@@ -81,7 +81,7 @@ void OrientationNode::setInterfaceOrientation( const Orientation &orientation, b
     if (animate) {
         // remember current values for lerping later
         mPrevInterfaceAngle = mInterfaceAngle;
-        mPrevInterfaceSize = mRoot->getInterfaceSize();
+        mPrevInterfaceSize = getRoot()->getInterfaceSize();
         // and reset the counter
         mLastOrientationChangeTime = app::getElapsedSeconds();
     }
@@ -101,12 +101,12 @@ void OrientationNode::update()
         float t = app::getElapsedSeconds() - mLastOrientationChangeTime;
         if (t < mOrientationAnimationDuration) {
             float p = t / mOrientationAnimationDuration;
-            mRoot->setInterfaceSize( lerp(mPrevInterfaceSize, mTargetInterfaceSize, p) );
+            getRoot()->setInterfaceSize( lerp(mPrevInterfaceSize, mTargetInterfaceSize, p) );
             mInterfaceAngle = lerp(mPrevInterfaceAngle, mTargetInterfaceAngle, p);
         }
         else {
             // ensure snap to final values
-            mRoot->setInterfaceSize( mTargetInterfaceSize );
+            getRoot()->setInterfaceSize( mTargetInterfaceSize );
             mInterfaceAngle = mTargetInterfaceAngle;
             mCurrentlyAnimating = false;
         }
@@ -115,7 +115,7 @@ void OrientationNode::update()
         mTransform.setToIdentity();
         mTransform.translate( Vec3f( app::getWindowCenter(), 0 ) );
         mTransform.rotate( Vec3f( 0, 0, mInterfaceAngle ) );
-        mTransform.translate( Vec3f( mRoot->getInterfaceSize() * -0.5f, 0 ) );                
+        mTransform.translate( Vec3f( getRoot()->getInterfaceSize() * -0.5f, 0 ) );                
     }    
 }
 

@@ -18,7 +18,7 @@ int BloomNode::sNextNodeId = 10000000; // start high
 void BloomNode::addChild( BloomNodeRef child )
 {
     mChildren.push_back( child );
-    child->mParent = shared_from_this();
+    child->mParent = BloomNodeWeakRef( shared_from_this() );
     child->mRoot = mRoot;    
     child->addedToScene(); // notify child that mRoot and mParent are set
 }
@@ -26,7 +26,7 @@ void BloomNode::addChild( BloomNodeRef child )
 void BloomNode::addChildAt( BloomNodeRef child, const int &index )
 {
     mChildren.insert( mChildren.begin() + index, child );
-    child->mParent = shared_from_this();
+    child->mParent = BloomNodeWeakRef( shared_from_this() );
     child->mRoot = mRoot;
     child->addedToScene(); // notify child that mRoot and mParent are set
 }
@@ -37,8 +37,8 @@ void BloomNode::removeChild( BloomNodeRef child )
         if ( (*i) == child ) {
             mChildren.erase( i );
             child->removedFromScene(); // notify child that mRoot and mParent are about to be invalid
-            child->mParent = BloomNodeRef();
-            child->mRoot = BloomSceneRef();
+            child->mParent = BloomNodeWeakRef();
+            child->mRoot = BloomSceneWeakRef();
             break;
         }
     }    
@@ -92,8 +92,10 @@ void BloomNode::privateDraw()
 
 Matrix44f BloomNode::getConcatenatedTransform() const
 {
-    // TODO: cache and invalidate in setTransform? (needs to check dirty parent? bah)
-    return mParent->getConcatenatedTransform() * mTransform;
+    if ( BloomNodeRef parent = mParent.lock() ) {
+        return parent->getConcatenatedTransform() * mTransform;
+    }
+    return mTransform;
 }
 
 Vec2f BloomNode::localToGlobal(const Vec2f pos)
@@ -126,8 +128,10 @@ bool BloomNode::privateTouchBegan( TouchEvent::Touch touch )
         // check self
         if (touchBegan(touch)) {
             BloomNodeRef thisRef = shared_from_this();
-            mActiveTouches[touch.getId()] = thisRef;                
-            mRoot->onBloomNodeTouchBegan(thisRef);
+            mActiveTouches[touch.getId()] = thisRef;
+            if ( BloomSceneRef root = mRoot.lock() ) {
+                root->onBloomNodeTouchBegan(thisRef);
+            }
             consumed = true;
         }
     }
@@ -148,7 +152,9 @@ bool BloomNode::privateTouchMoved( TouchEvent::Touch touch )
             // check self
             consumed = touchMoved(touch);
             if (consumed) {
-                mRoot->onBloomNodeTouchMoved(nodeRef);
+                if ( BloomSceneRef root = mRoot.lock() ) {
+                    root->onBloomNodeTouchMoved(nodeRef);
+                }
             }
         }
         else {
@@ -172,7 +178,9 @@ bool BloomNode::privateTouchEnded( TouchEvent::Touch touch )
             // check self
             consumed = touchEnded(touch);
             if (consumed) {
-                mRoot->onBloomNodeTouchEnded(nodeRef);
+                if ( BloomSceneRef root = mRoot.lock() ) {
+                    root->onBloomNodeTouchEnded(nodeRef);
+                }
             }
         }
         else {

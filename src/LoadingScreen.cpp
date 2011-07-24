@@ -30,7 +30,7 @@ void LoadingScreen::setup( const ci::gl::Texture &starGlowTex )
 
 void LoadingScreen::update()
 {
-    mInterfaceSize = mRoot->getInterfaceSize();
+    mInterfaceSize = getRoot()->getInterfaceSize();
 }
 
 void LoadingScreen::draw()

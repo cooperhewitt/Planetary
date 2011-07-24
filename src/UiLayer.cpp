@@ -146,7 +146,7 @@ bool UiLayer::touchEnded( TouchEvent::Touch touch )
 
 void UiLayer::update()
 {
-    Vec2f interfaceSize = mRoot->getInterfaceSize();
+    Vec2f interfaceSize = getRoot()->getInterfaceSize();
     // check for orientation change
     if( interfaceSize != mInterfaceSize ){
         updateLayout( interfaceSize );

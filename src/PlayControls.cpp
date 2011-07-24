@@ -192,8 +192,8 @@ bool PlayControls::addedToScene()
     addChildren(); // FIXME: make it so you can add children even if mRoot is invalid
     // add listeners to relay callbacks...
     std::cout << "registering callbacks in PlayControls" << std::endl;
-    mCbTouchMoved = mRoot->registerBloomNodeTouchMoved( this, &PlayControls::onBloomNodeTouchMoved );
-    mCbTouchEnded = mRoot->registerBloomNodeTouchEnded( this, &PlayControls::onBloomNodeTouchEnded );    
+    mCbTouchMoved = getRoot()->registerBloomNodeTouchMoved( this, &PlayControls::onBloomNodeTouchMoved );
+    mCbTouchEnded = getRoot()->registerBloomNodeTouchEnded( this, &PlayControls::onBloomNodeTouchEnded );    
     return false;
 }
 
@@ -201,8 +201,8 @@ bool PlayControls::removedFromScene()
 {
     // remove listeners...
     // FIXME: this should also be done in destructor (?)
-    mRoot->unregisterBloomNodeTouchMoved( mCbTouchMoved );
-    mRoot->unregisterBloomNodeTouchEnded( mCbTouchEnded );    
+    getRoot()->unregisterBloomNodeTouchMoved( mCbTouchMoved );
+    getRoot()->unregisterBloomNodeTouchEnded( mCbTouchEnded );    
     return false;
 }
 
@@ -425,7 +425,7 @@ void PlayControls::setShowSettings(bool visible)
 
 void PlayControls::update()
 {
-    Vec2f interfaceSize = mRoot->getInterfaceSize();
+    Vec2f interfaceSize = getRoot()->getInterfaceSize();
     if ( mInterfaceSize != interfaceSize ) {
         setInterfaceSize( interfaceSize );
     }    

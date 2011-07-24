@@ -17,7 +17,7 @@ using namespace ci::app;
 BloomSceneRef BloomScene::create( AppCocoaTouch *app )
 {
     BloomSceneRef ref = BloomSceneRef( new BloomScene( app ) );
-    ref->mRoot = ref;
+    ref->mRoot = BloomSceneWeakRef( ref );
     return ref;
 }
 

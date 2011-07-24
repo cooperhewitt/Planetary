@@ -160,7 +160,7 @@ void AlphaWheel::update( )
 		mWheelScale -= ( mWheelScale - 2.15f ) * 0.2f;	
 	}	
     
-    Vec2f interfaceSize = mRoot->getInterfaceSize();
+    Vec2f interfaceSize = getRoot()->getInterfaceSize();
     
     if (mInterfaceSize != interfaceSize) {
         mInterfaceSize = interfaceSize;

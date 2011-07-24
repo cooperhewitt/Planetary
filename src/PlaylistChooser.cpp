@@ -129,7 +129,7 @@ bool PlaylistChooser::touchEnded( ci::app::TouchEvent::Touch touch )
 
 void PlaylistChooser::update()
 {
-	Vec2f interfaceSize = mRoot->getInterfaceSize();
+	Vec2f interfaceSize = getRoot()->getInterfaceSize();
 	if( mInterfaceSize != interfaceSize ){
 		mInterfaceSize	= interfaceSize;
 		

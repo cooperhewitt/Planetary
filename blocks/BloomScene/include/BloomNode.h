@@ -14,13 +14,18 @@
 #include "cinder/app/TouchEvent.h"
 #include "cinder/Matrix.h"
 
-// FIXME: namespace this stuff
+// FIXME: namespace this stuff (and maybe don't prefix Bloom- if we do)
 
 class BloomScene; // for root
 class BloomNode; // for BloomNodeRef
 
+// for sharing ownership:
 typedef std::shared_ptr<BloomScene> BloomSceneRef;
 typedef std::shared_ptr<BloomNode> BloomNodeRef;
+
+// for avoiding circular refs:
+typedef std::weak_ptr<BloomScene> BloomSceneWeakRef;
+typedef std::weak_ptr<BloomNode> BloomNodeWeakRef;
 
 class BloomNode : public std::enable_shared_from_this<BloomNode> {
 
@@ -46,8 +51,8 @@ public:
     int getId() const { return mId; }
     void setId( int newId ) { mId = newId; }
     
-    BloomNodeRef getParent() const { return mParent; }
-    BloomSceneRef getRoot() const { return mRoot; }
+    BloomNodeRef getParent() const { return mParent.lock(); }
+    BloomSceneRef getRoot() const { return mRoot.lock(); }
     
     // override getConcatenatedTransform to change the behavior of these:
     ci::Vec2f localToGlobal(const ci::Vec2f pos);
@@ -74,7 +79,7 @@ public:
     
 protected:
     
-    // all access to privateDraw from BloomScene::draw()
+    // allow access to privateDraw from BloomScene::draw()
     // FIXME: is there a better way to do this in C++?
     friend class BloomScene;
     
@@ -89,12 +94,15 @@ protected:
     bool privateTouchMoved(ci::app::TouchEvent::Touch touch);
     bool privateTouchEnded(ci::app::TouchEvent::Touch touch);
     
-    BloomNodeRef mParent;
-    BloomSceneRef mRoot; // aka "stage"
+    // weakrefs because we don't "own" these, they're just convenient
+    BloomNodeWeakRef mParent;
+    BloomSceneWeakRef mRoot; // aka "stage"
 
     int mId;
     bool mVisible;    
     ci::Matrix44f mTransform;
+    
+    // normal shared_ptrs because we "own" children
     std::vector<BloomNodeRef> mChildren;
     
     // keep track of interactions claimed by ID

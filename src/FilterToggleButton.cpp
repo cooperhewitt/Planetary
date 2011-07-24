@@ -91,7 +91,7 @@ void FilterToggleButton::setFilterMode(const State::FilterMode &filterMode)
 
 void FilterToggleButton::update()
 {
-	Vec2f interfaceSize = mRoot->getInterfaceSize();
+	Vec2f interfaceSize = getRoot()->getInterfaceSize();
 	if( mInterfaceSize != interfaceSize ){
 		mInterfaceSize = interfaceSize;
 		
