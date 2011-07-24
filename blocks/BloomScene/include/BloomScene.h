@@ -20,6 +20,8 @@ class BloomScene : public BloomNode {
     
 public:
     
+    // use static create function and private constructor
+    // (see http://www.boost.org/doc/libs/1_47_0/libs/smart_ptr/sp_techniques.html#in_constructor for details)
     static BloomSceneRef create( ci::app::AppCocoaTouch *app );
     
     virtual ~BloomScene();
