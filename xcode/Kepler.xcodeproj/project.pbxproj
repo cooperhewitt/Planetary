@@ -619,6 +619,7 @@
 		E1A332D9130105EC00CED126 /* Blocks */ = {
 			isa = PBXGroup;
 			children = (
+				E22D4D3113DC25AD0019E529 /* BloomScene */,
 				E2D20EBF135CEEA900A29743 /* CinderOrientation */,
 				77B447EC133BCB3A00987E13 /* CinderFlurry */,
 				E1276E22132821AA00E1FC3F /* CinderIPod */,
@@ -782,6 +783,13 @@
 				E22D983A13B6A2B600F9DB06 /* Shadow.h */,
 			);
 			name = World;
+			sourceTree = "<group>";
+		};
+		E22D4D3113DC25AD0019E529 /* BloomScene */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = BloomScene;
 			sourceTree = "<group>";
 		};
 		E25040BF1392E82200A8D673 /* Elements */ = {

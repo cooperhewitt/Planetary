@@ -9,6 +9,7 @@
 #pragma once
 #include "UINode.h"
 #include "cinder/Area.h"
+#include "cinder/Rect.h"
 #include "cinder/gl/Texture.h"
 
 class Slider : public UINode {

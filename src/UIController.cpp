@@ -14,14 +14,19 @@
 using namespace ci;
 using namespace ci::app;
 
-UIController::UIController( AppCocoaTouch *app ): 
-    mApp(app), 
-    mInterfaceSize(0.0f,0.0f)
+UIControllerRef UIController::create( AppCocoaTouch *app )
 {
-    mParent = UINodeRef(this); // FIXME: shared_from_this() but in a subclass
-    mRoot = UIControllerRef(this); // FIXME: shared_from_this() but for a subclass
-    
-    // FIXME: should mRoot be static (essentially, should UIController be a singleton?) how/when to clean up? mRoot as weak_ref?
+    UIControllerRef ref = UIControllerRef( new UIController( app ) );
+    ref->mRoot = ref;
+    return ref;
+}
+
+UIController::UIController( AppCocoaTouch *app ): 
+    mApp( app ), 
+    mInterfaceSize( 0.0f, 0.0f )
+{
+    mParent = UINodeRef();     // NULL, we are the parent (crash rather than recurse)
+    mRoot = UIControllerRef(); // NULL, will be set in create() because we are the root
     
     cbTouchesBegan = mApp->registerTouchesBegan( this, &UIController::touchesBegan );
     cbTouchesMoved = mApp->registerTouchesMoved( this, &UIController::touchesMoved );

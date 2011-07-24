@@ -6,16 +6,14 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#include "cinder/gl/gl.h"
 #include "Buttons.h"
-#include "BloomGl.h"
+#include "cinder/gl/gl.h"
 
 using namespace ci;
 
 void ToggleButton::draw()
 {
     Area textureArea = mOn ? mOnTextureArea : mOffTextureArea;
-//    bloom::gl::batchRect(mTexture, textureArea, mRect);
     gl::draw(mTexture, textureArea, mRect);
 }
 
@@ -31,7 +29,6 @@ bool ToggleButton::touchEnded(ci::app::TouchEvent::Touch touch)
 void SimpleButton::draw()
 {
     Area textureArea = mDownCount ? mDownTextureArea : mUpTextureArea;
-//    bloom::gl::batchRect(mTexture, textureArea, mRect);
     gl::draw(mTexture, textureArea, mRect);    
 }
 bool SimpleButton::touchBegan(ci::app::TouchEvent::Touch touch)
@@ -49,7 +46,6 @@ bool SimpleButton::touchEnded(ci::app::TouchEvent::Touch touch)
 void TwoStateButton::draw()
 {
     Area textureArea = mOn ? (mDownCount > 0 ? mOnDownTextureArea : mOnUpTextureArea) : (mDownCount > 0 ? mOffDownTextureArea : mOffUpTextureArea) ;    
-//    bloom::gl::batchRect(mTexture, textureArea, mRect);
     gl::draw(mTexture, textureArea, mRect);    
 }
 bool TwoStateButton::touchBegan(ci::app::TouchEvent::Touch touch)
@@ -68,7 +64,6 @@ bool TwoStateButton::touchEnded(ci::app::TouchEvent::Touch touch)
 void ThreeStateButton::draw()
 {
     Area textureArea = mState == 0 ? mFirstTextureArea : mState == 1 ? mSecondTextureArea : mThirdTextureArea;
-    //    bloom::gl::batchRect(mTexture, textureArea, mRect);
     gl::draw(mTexture, textureArea, mRect);    
 }
 bool ThreeStateButton::touchBegan(ci::app::TouchEvent::Touch touch)

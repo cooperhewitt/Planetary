@@ -7,7 +7,8 @@
 //
 
 #include "TextLabel.h"
-#include "BloomGl.h"
+#include "cinder/gl/gl.h"
+#include "cinder/Text.h"
 
 using namespace std;
 using namespace ci;
@@ -32,8 +33,6 @@ void TextLabel::updateTexture()
 void TextLabel::draw()
 {
     if (mTexture) {
-        // use this even though the texture is unique because it minimizes state changes
-//        bloom::gl::batchRect(mTexture, mRect.getUpperLeft());
         gl::draw(mTexture, mRect.getUpperLeft());
     }
     // draw children:

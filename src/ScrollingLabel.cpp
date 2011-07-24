@@ -6,9 +6,10 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#include "cinder/app/AppCocoaTouch.h"
 #include "ScrollingLabel.h"
-#include "BloomGl.h"
+#include "cinder/app/AppCocoaTouch.h" // app::getElapsedSeconds()
+#include "cinder/gl/gl.h"
+#include "cinder/Text.h"
 
 using namespace std;
 using namespace ci;
@@ -53,7 +54,6 @@ void ScrollingLabel::draw()
         if( ctTexWidth < ctSpaceWidth ){ 
 			mIsScrolling = false;
             // if the texture width is less than the rect to fit it in...
-//            bloom::gl::batchRect(mTexture, mRect.getUpperLeft());            
             gl::draw(mTexture, mRect.getUpperLeft());            
         }
         else {
@@ -70,12 +70,10 @@ void ScrollingLabel::draw()
             
             Area a1( x1, 0.0f, 
                      x1 + ctSpaceWidth, mTexture.getHeight() );
-//            bloom::gl::batchRect( mTexture, a1, mRect );
             gl::draw( mTexture, a1, mRect );
             
             Area a2( x1 + ctTexWidth + 10.0f, 0.0f, 
                      x1 + ctTexWidth + 10.0f + ctSpaceWidth, mTexture.getHeight() );
-//            bloom::gl::batchRect( mTexture, a2, mRect );			
             gl::draw( mTexture, a2, mRect );			
         }    
     

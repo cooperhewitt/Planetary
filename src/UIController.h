@@ -20,7 +20,8 @@ class UIController : public UINode {
     
 public:
     
-    UIController( ci::app::AppCocoaTouch *app );
+    static UIControllerRef create( ci::app::AppCocoaTouch *app );
+    
     virtual ~UIController();
     
     ci::Vec2f getInterfaceSize() { return mInterfaceSize; }
@@ -90,5 +91,10 @@ protected:
 	ci::CallbackMgr<bool(UINodeRef)> mCbUINodeTouchBegan;
 	ci::CallbackMgr<bool(UINodeRef)> mCbUINodeTouchMoved;
 	ci::CallbackMgr<bool(UINodeRef)> mCbUINodeTouchEnded;
+
+    
+private:
+  
+    UIController( ci::app::AppCocoaTouch *app );
     
 };

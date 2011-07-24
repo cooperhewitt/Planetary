@@ -13,38 +13,24 @@
 using namespace ci;
 using namespace ci::app; // for TouchEvent::Touch
 
-int UINode::sTotalNodeCount = 10000000; // start high
+int UINode::sNextNodeId = 10000000; // start high
 
-UINode::UINode()
-{
-    mVisible = true;
-    sTotalNodeCount++;
-    mId = sTotalNodeCount;
-}
-UINode::UINode( const int &nodeId )
-{
-    mVisible = true;
-    sTotalNodeCount++;
-    mId = nodeId;
-}
-UINode::~UINode()
-{
-    sTotalNodeCount--;
-}
 void UINode::addChild( UINodeRef child )
 {
     mChildren.push_back( child );
     child->mParent = shared_from_this();
-    child->mRoot = UIControllerRef(mParent->getRoot());    
+    child->mRoot = mRoot;    
     child->addedToScene(); // notify child that mRoot and mParent are set
 }
+
 void UINode::addChildAt( UINodeRef child, const int &index )
 {
     mChildren.insert( mChildren.begin() + index, child );
     child->mParent = shared_from_this();
-    child->mRoot = UIControllerRef(mParent->getRoot());
+    child->mRoot = mRoot;
     child->addedToScene(); // notify child that mRoot and mParent are set
 }
+
 void UINode::removeChild( UINodeRef child )
 {
     for (std::vector<UINodeRef>::iterator i = mChildren.begin(); i != mChildren.end(); i++) {
@@ -57,6 +43,7 @@ void UINode::removeChild( UINodeRef child )
         }
     }    
 }
+
 UINodeRef UINode::removeChildAt( int index )
 {
     UINodeRef child = *mChildren.erase( mChildren.begin() + index );
@@ -65,14 +52,7 @@ UINodeRef UINode::removeChildAt( int index )
     child->mRoot = UIControllerRef();
     return child;
 }
-int UINode::getNumChildren() const
-{
-    return mChildren.size();
-}
-UINodeRef UINode::getChildAt( int index ) const
-{
-    return mChildren[index];
-}
+
 UINodeRef UINode::getChildById( const int &childId ) const
 {
     for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
@@ -82,6 +62,7 @@ UINodeRef UINode::getChildById( const int &childId ) const
     }
     return UINodeRef(); // aka NULL
 }
+
 void UINode::privateUpdate()
 {
     if (mVisible) {
@@ -93,6 +74,7 @@ void UINode::privateUpdate()
         }
     }
 }
+
 void UINode::privateDraw()
 {
     if (mVisible) {
@@ -107,22 +89,11 @@ void UINode::privateDraw()
         glPopMatrix();
     }        
 }
-void UINode::setTransform(const Matrix44f &transform)
-{
-    mTransform = transform; // copy OK
-}
-Matrix44f UINode::getTransform() const
-{
-    return mTransform; // copy OK
-}
+
 Matrix44f UINode::getConcatenatedTransform() const
 {
     // TODO: cache and invalidate in setTransform? (needs to check dirty parent? bah)
     return mParent->getConcatenatedTransform() * mTransform;
-}
-int UINode::getId() const
-{
-    return mId;
 }
 
 Vec2f UINode::localToGlobal(const Vec2f pos)

@@ -11,9 +11,7 @@
 #include "cinder/Font.h"
 #include "cinder/Color.h"
 #include "cinder/gl/Texture.h"
-#include "cinder/Text.h"
 #include "cinder/Rect.h"
-#include "cinder/Utilities.h"
 #include "UINode.h"
 
 class TextLabel : public UINode {

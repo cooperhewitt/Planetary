@@ -306,11 +306,11 @@ void KeplerApp::setup()
 
     // initialize controller for all 2D UI
     // this will receive touch events before anything else (so it can cancel them before they hit the world)
-    mUIControllerRef = UIControllerRef( new UIController( this ) );
+    mUIControllerRef = UIController::create( this );
     
     mUIOrientationNodeRef = UIOrientationNodeRef( new UIOrientationNode( &mOrientationHelper ) );
     mUIControllerRef->addChild( mUIOrientationNodeRef );
-                               
+
     // !!! this has to be set up before any other UI things so it can consume touch events
     mLoadingScreen.setup( mStarGlowTex );
     mUIOrientationNodeRef->addChild( UINodeRef(&mLoadingScreen) );

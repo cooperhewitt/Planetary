@@ -26,9 +26,9 @@ class UINode : public std::enable_shared_from_this<UINode> {
 
 public:
     
-    UINode();
-    UINode( const int &nodeId );
-    virtual ~UINode();
+    UINode(): mVisible(true), mId(sNextNodeId++) {}
+    UINode( const int &nodeId ): mVisible(true), mId(nodeId) {}
+    virtual ~UINode() {}
     
     void addChild( UINodeRef child );
     void addChildAt( UINodeRef child, const int &index );
@@ -36,15 +36,22 @@ public:
     void removeChild( UINodeRef child );
     UINodeRef removeChildAt( int index );
     
-    int getNumChildren() const;
-    UINodeRef getChildAt( int index ) const;
+    int getNumChildren() const { return mChildren.size(); }
+    UINodeRef getChildAt( int index ) const { return mChildren[index]; }
     UINodeRef getChildById( const int &childId ) const;
 
-    void setTransform(const ci::Matrix44f &transform);
-    ci::Matrix44f getTransform() const;
-    virtual ci::Matrix44f getConcatenatedTransform() const;
+    void setTransform(const ci::Matrix44f &transform) { mTransform = transform; /* copy OK */ }
+    ci::Matrix44f getTransform() const { return mTransform; /* copy OK */ }
     
-    int getId() const;
+    int getId() const { return mId; }
+    void setId( int newId ) { mId = newId; }
+    
+    UINodeRef getParent() const { return mParent; }
+    UIControllerRef getRoot() const { return mRoot; }
+    
+    // override getConcatenatedTransform to change the behavior of these:
+    ci::Vec2f localToGlobal(const ci::Vec2f pos);
+    ci::Vec2f globalToLocal(const ci::Vec2f pos);    
     
     // subclasses should mess with these, just draw/update yourself (privateDraw/Update draws children in correct order)
     virtual void draw() {}
@@ -58,12 +65,10 @@ public:
     // if you attach things to mRoot in setup, override this too:
     virtual bool removedFromScene() { return false; }
     
-    ci::Vec2f localToGlobal(const ci::Vec2f pos);
-    ci::Vec2f globalToLocal(const ci::Vec2f pos);
+    // if you have extra transforms/rotations that get applied in draw, override this too:
+    virtual ci::Matrix44f getConcatenatedTransform() const;    
     
-    UINodeRef getParent() const { return mParent; }
-    UIControllerRef getRoot() const { return mRoot; }
-    
+    // if you have behaviors to toggle when things are visible or not, override these
     virtual void setVisible( bool visible = true ) { mVisible = visible; }
     virtual bool isVisible() { return mVisible; }
     
@@ -84,13 +89,17 @@ protected:
     bool privateTouchMoved(ci::app::TouchEvent::Touch touch);
     bool privateTouchEnded(ci::app::TouchEvent::Touch touch);
     
-    static int sTotalNodeCount;
-    int mId;
-    bool mVisible;
-    std::vector<UINodeRef> mChildren;
     UINodeRef mParent;
-    UIControllerRef mRoot;
+    UIControllerRef mRoot; // aka "stage"
+
+    int mId;
+    bool mVisible;    
     ci::Matrix44f mTransform;
-    std::map<uint64_t, UINodeRef> mActiveTouches;
+    std::vector<UINodeRef> mChildren;
     
+    // keep track of interactions claimed by ID
+    std::map<uint64_t, UINodeRef> mActiveTouches;
+
+    // for generating IDs:
+    static int sNextNodeId;
 };

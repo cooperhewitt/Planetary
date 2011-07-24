@@ -19,6 +19,8 @@ using namespace ci::app;
 
 void FilterToggleButton::setup( const State::FilterMode &filterMode, const Font &font )
 {    
+    // FIXME: remove dynamic text if we're still using a texture from a file
+    
     TextLayout layout;
     layout.setFont( font );
     layout.setColor( ColorA( BRIGHT_BLUE, 1.0f ) );

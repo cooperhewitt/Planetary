@@ -7,9 +7,8 @@
 //
 
 #include "Slider.h"
-#include "BloomGl.h"
 #include "cinder/gl/gl.h"
-#include "Globals.h"
+
 using namespace ci;
 
 bool Slider::isDragging() 
@@ -46,18 +45,8 @@ void Slider::draw()
     
     Area thumbTexArea = mIsDragging ? mThumbDownTexArea : mThumbUpTexArea; 
     
-//    bloom::gl::batchRect(mTexture, mBgTexArea, mRect);            
-//    bloom::gl::batchRect(mTexture, mFgTexArea, fgRect);
-//    bloom::gl::batchRect(mTexture, thumbTexArea, thumbRect);
-	
-	
     gl::draw(mTexture, mBgTexArea, mRect);            
     gl::draw(mTexture, mFgTexArea, fgRect);
-	
-//	gl::color( ColorA( BRIGHT_YELLOW, 0.3f ) );
-//	gl::drawLine( Vec2f( mRect.x1, mRect.y1 + 6.0f ), Vec2f( mRect.x1, mRect.y2 - 6.0f ) );
-//	gl::color( ColorA( BLUE, 0.3f ) );
-//	gl::drawLine( Vec2f( mRect.x2, mRect.y1 + 6.0f ), Vec2f( mRect.x2, mRect.y2 - 6.0f ) );
 	
     gl::draw(mTexture, thumbTexArea, thumbRect);
  
