@@ -10,9 +10,9 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/Area.h"
 #include "cinder/Rect.h"
-#include "UINode.h"
+#include "BloomNode.h"
 
-class TextureRect : public UINode
+class TextureRect : public BloomNode
 {
 public:
     

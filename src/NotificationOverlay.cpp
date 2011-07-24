@@ -13,7 +13,7 @@
 #include "cinder/Font.h"
 #include "cinder/Text.h"
 #include "Globals.h"
-#include "UIController.h"
+#include "BloomScene.h"
 #include "cinder/app/AppCocoaTouch.h" // FIXME: just for time
 
 using std::stringstream;

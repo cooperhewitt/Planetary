@@ -10,7 +10,7 @@
 #include "PlayControls.h"
 #include "Globals.h"
 #include "BloomGl.h"
-#include "UIController.h" // for mRoot
+#include "BloomScene.h" // for mRoot
 
 using namespace ci;
 using namespace ci::app;
@@ -192,8 +192,8 @@ bool PlayControls::addedToScene()
     addChildren(); // FIXME: make it so you can add children even if mRoot is invalid
     // add listeners to relay callbacks...
     std::cout << "registering callbacks in PlayControls" << std::endl;
-    mCbTouchMoved = mRoot->registerUINodeTouchMoved( this, &PlayControls::onUINodeTouchMoved );
-    mCbTouchEnded = mRoot->registerUINodeTouchEnded( this, &PlayControls::onUINodeTouchEnded );    
+    mCbTouchMoved = mRoot->registerBloomNodeTouchMoved( this, &PlayControls::onBloomNodeTouchMoved );
+    mCbTouchEnded = mRoot->registerBloomNodeTouchEnded( this, &PlayControls::onBloomNodeTouchEnded );    
     return false;
 }
 
@@ -201,8 +201,8 @@ bool PlayControls::removedFromScene()
 {
     // remove listeners...
     // FIXME: this should also be done in destructor (?)
-    mRoot->unregisterUINodeTouchMoved( mCbTouchMoved );
-    mRoot->unregisterUINodeTouchEnded( mCbTouchEnded );    
+    mRoot->unregisterBloomNodeTouchMoved( mCbTouchMoved );
+    mRoot->unregisterBloomNodeTouchEnded( mCbTouchEnded );    
     return false;
 }
 
@@ -210,42 +210,42 @@ void PlayControls::addChildren()
 {
     // bit of hack, these are first for batch reasons
     // (we want the little fadey bits to be drawn on top)
-    addChild( UINodeRef(mTrackInfoLabel) );
+    addChild( BloomNodeRef(mTrackInfoLabel) );
     // shaded bits on top of scrolling mTrackInfoLabel
-    addChild( UINodeRef(mCoverLeftTextureRect) );
-    addChild( UINodeRef(mCoverRightTextureRect) );    
-	addChild( UINodeRef(mPlayheadSlider) );    
-    addChild( UINodeRef(mElapsedTimeLabel) );
-    addChild( UINodeRef(mRemainingTimeLabel) ); 
+    addChild( BloomNodeRef(mCoverLeftTextureRect) );
+    addChild( BloomNodeRef(mCoverRightTextureRect) );    
+	addChild( BloomNodeRef(mPlayheadSlider) );    
+    addChild( BloomNodeRef(mElapsedTimeLabel) );
+    addChild( BloomNodeRef(mRemainingTimeLabel) ); 
     
-    addChild( UINodeRef(mGalaxyButton) );
-	addChild( UINodeRef(mCurrentTrackButton) );
-    addChild( UINodeRef(mShowSettingsButton) );
-	addChild( UINodeRef(mAlphaWheelButton) );
-    addChild( UINodeRef(mPreviousTrackButton) );
-    addChild( UINodeRef(mPlayPauseButton) );
-    addChild( UINodeRef(mNextTrackButton) );
+    addChild( BloomNodeRef(mGalaxyButton) );
+	addChild( BloomNodeRef(mCurrentTrackButton) );
+    addChild( BloomNodeRef(mShowSettingsButton) );
+	addChild( BloomNodeRef(mAlphaWheelButton) );
+    addChild( BloomNodeRef(mPreviousTrackButton) );
+    addChild( BloomNodeRef(mPlayPauseButton) );
+    addChild( BloomNodeRef(mNextTrackButton) );
 	
-    mSettingsNodeRef = UINodeRef(new UINode());
+    mSettingsNodeRef = BloomNodeRef(new BloomNode());
     addChild( mSettingsNodeRef );
     mSettingsNodeRef->setVisible( G_SHOW_SETTINGS );
     mShowSettingsButton->setOn( G_SHOW_SETTINGS );     
-    mSettingsNodeRef->addChild( UINodeRef(mShuffleButton) );
-    mSettingsNodeRef->addChild( UINodeRef(mRepeatButton) );
-	mSettingsNodeRef->addChild( UINodeRef(mScreensaverButton) );
-//    mSettingsNodeRef->addChild( UINodeRef(mHelpButton) );
-    mSettingsNodeRef->addChild( UINodeRef(mOrbitsButton) );
-    mSettingsNodeRef->addChild( UINodeRef(mLabelsButton) );
-    mSettingsNodeRef->addChild( UINodeRef(mDebugButton) );
-    if( G_IS_IPAD2 ) mSettingsNodeRef->addChild( UINodeRef(mGyroButton) );
-	mSettingsNodeRef->addChild( UINodeRef(mParamSlider1) );
-	mSettingsNodeRef->addChild( UINodeRef(mParamSlider2) );
-	mSettingsNodeRef->addChild( UINodeRef(mParamSlider1Label) );
-    mSettingsNodeRef->addChild( UINodeRef(mParamSlider2Label) );    
+    mSettingsNodeRef->addChild( BloomNodeRef(mShuffleButton) );
+    mSettingsNodeRef->addChild( BloomNodeRef(mRepeatButton) );
+	mSettingsNodeRef->addChild( BloomNodeRef(mScreensaverButton) );
+//    mSettingsNodeRef->addChild( BloomNodeRef(mHelpButton) );
+    mSettingsNodeRef->addChild( BloomNodeRef(mOrbitsButton) );
+    mSettingsNodeRef->addChild( BloomNodeRef(mLabelsButton) );
+    mSettingsNodeRef->addChild( BloomNodeRef(mDebugButton) );
+    if( G_IS_IPAD2 ) mSettingsNodeRef->addChild( BloomNodeRef(mGyroButton) );
+	mSettingsNodeRef->addChild( BloomNodeRef(mParamSlider1) );
+	mSettingsNodeRef->addChild( BloomNodeRef(mParamSlider2) );
+	mSettingsNodeRef->addChild( BloomNodeRef(mParamSlider1Label) );
+    mSettingsNodeRef->addChild( BloomNodeRef(mParamSlider2Label) );    
 }
 
 
-bool PlayControls::onUINodeTouchMoved( UINodeRef nodeRef )
+bool PlayControls::onBloomNodeTouchMoved( BloomNodeRef nodeRef )
 {
     if ( nodeRef->getId() == mPlayheadSlider->getId() ) {
         mCallbacksPlayheadMoved.call( mPlayheadSlider->getValue() );
@@ -253,7 +253,7 @@ bool PlayControls::onUINodeTouchMoved( UINodeRef nodeRef )
     return false;
 }
 
-bool PlayControls::onUINodeTouchEnded( UINodeRef nodeRef )
+bool PlayControls::onBloomNodeTouchEnded( BloomNodeRef nodeRef )
 {
     if ( nodeRef->getId() == mPlayheadSlider->getId() ) {
         mCallbacksPlayheadMoved.call( mPlayheadSlider->getValue() );

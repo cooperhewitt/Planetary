@@ -9,7 +9,7 @@
 #pragma once
 #include <map>
 #include "cinder/Function.h"
-#include "UINode.h"
+#include "BloomNode.h"
 #include "Orientation.h" // can't forward declare enums
 
 // forward declare to avoid full include
@@ -21,7 +21,7 @@ namespace cinder { namespace app {
 class UIOrientationNode;
 typedef std::shared_ptr<UIOrientationNode> UIOrientationNodeRef;
 
-class UIOrientationNode : public UINode {
+class UIOrientationNode : public BloomNode {
     
 public:
     

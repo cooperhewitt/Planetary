@@ -9,9 +9,9 @@
 #pragma once
 
 #include "cinder/gl/Texture.h"
-#include "UINode.h"
+#include "BloomNode.h"
 
-class LoadingScreen : public UINode {  
+class LoadingScreen : public BloomNode {  
   public:
     void setup( const ci::gl::Texture &starGlowTex );
     void draw();

@@ -14,7 +14,7 @@
 #include "cinder/ImageIo.h"
 #include "Globals.h"
 #include "BloomGl.h"
-#include "UIController.h"
+#include "BloomScene.h"
 #include "cinder/app/AppCocoaTouch.h" // for loadResource, getElapsedSeconds
 #include "cinder/Utilities.h" // for toString
 #include <sstream>

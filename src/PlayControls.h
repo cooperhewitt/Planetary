@@ -19,7 +19,7 @@
 
 #include "OrientationHelper.h"
 
-#include "UINode.h"
+#include "BloomNode.h"
 #include "Buttons.h"
 #include "Slider.h"
 #include "TextLabel.h"
@@ -28,7 +28,7 @@
 #include "ScrollingLabel.h"
 #include "CinderIPodPlayer.h"
 
-class PlayControls : public UINode {
+class PlayControls : public BloomNode {
 public:
 
 	enum ButtonId { NO_BUTTON, 
@@ -103,8 +103,8 @@ public:
 		return mCallbacksPlayheadMoved.registerCb(std::bind1st(std::mem_fun(callback), obj));
 	}	
 	
-    bool addedToScene(); // from UINode
-    bool removedFromScene(); // from UINode
+    bool addedToScene(); // from BloomNode
+    bool removedFromScene(); // from BloomNode
     
 private:
 					  
@@ -123,9 +123,9 @@ private:
 	ci::CallbackMgr<bool(ButtonId)> mCallbacksButtonPressed;
 	ci::CallbackMgr<bool(float)> mCallbacksPlayheadMoved;
 	    
-    // relay events from mUIController
-    bool onUINodeTouchMoved( UINodeRef nodeRef );    
-    bool onUINodeTouchEnded( UINodeRef nodeRef );
+    // relay events from mBloomScene
+    bool onBloomNodeTouchMoved( BloomNodeRef nodeRef );    
+    bool onBloomNodeTouchEnded( BloomNodeRef nodeRef );
 
     // for removing events when cleaning up
     ci::CallbackId mCbTouchMoved, mCbTouchEnded;
@@ -160,7 +160,7 @@ private:
     ToggleButton *mAlphaWheelButton;
         
     // settings...
-    UINodeRef mSettingsNodeRef;
+    BloomNodeRef mSettingsNodeRef;
     ToggleButton *mShowSettingsButton;
 //        ToggleButton *mHelpButton;
 		ToggleButton *mScreensaverButton;

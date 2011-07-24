@@ -18,9 +18,9 @@
 #include "OrientationEvent.h"
 #include "WheelOverlay.h"
 #include "cinder/Function.h"
-#include "UINode.h"
+#include "BloomNode.h"
 
-class AlphaWheel : public UINode {
+class AlphaWheel : public BloomNode {
 public:
 	AlphaWheel() {};
 	~AlphaWheel() {};

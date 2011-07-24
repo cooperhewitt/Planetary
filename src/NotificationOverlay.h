@@ -12,13 +12,13 @@
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Area.h"
-#include "UINode.h"
+#include "BloomNode.h"
 
 using namespace std;
 using namespace ci;
 using namespace ci::app;
 
-class NotificationOverlay : public UINode {
+class NotificationOverlay : public BloomNode {
   
 public:
     

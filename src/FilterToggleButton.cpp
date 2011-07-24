@@ -11,7 +11,7 @@
 #include "cinder/Text.h"
 #include "cinder/gl/gl.h"
 #include "cinder/ImageIo.h"
-#include "UIController.h"
+#include "BloomScene.h"
 #include "BloomGl.h"
 
 using namespace ci;

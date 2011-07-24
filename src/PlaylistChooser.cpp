@@ -13,7 +13,7 @@
 #include "cinder/Rand.h"
 #include "PlaylistChooser.h"
 #include "NodeArtist.h"
-#include "UIController.h"
+#include "BloomScene.h"
 #include "Globals.h"
 
 using namespace ci;

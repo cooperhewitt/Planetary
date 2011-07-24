@@ -1,5 +1,5 @@
 //
-//  UIController.cpp
+//  BloomScene.cpp
 //  Kepler
 //
 //  Created by Tom Carden on 7/17/11.
@@ -10,7 +10,7 @@
 #include "cinder/gl/gl.h"
 #include "OrientationHelper.h"
 #include "UIOrientationNode.h"
-#include "UIController.h"
+#include "BloomScene.h"
 
 using namespace ci;
 using namespace ci::app;

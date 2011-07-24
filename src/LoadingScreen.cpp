@@ -10,7 +10,7 @@
 #include "cinder/gl/gl.h"
 #include "cinder/Rand.h"
 #include "cinder/ImageIo.h"
-#include "UIController.h"
+#include "BloomScene.h"
 #include "cinder/app/AppCocoaTouch.h" // for loadResource
 
 using namespace ci;

@@ -32,7 +32,7 @@
 #include "Galaxy.h"
 #include "BloomSphere.h"
 
-#include "UIController.h"
+#include "BloomScene.h"
 #include "UIOrientationNode.h"
 #include "LoadingScreen.h"
 #include "UiLayer.h"
@@ -125,10 +125,10 @@ class KeplerApp : public AppCocoaTouch {
     bool			onPlayerLibraryChanged( ipod::Player *player );
 	
 // UI BITS:
-    UIControllerRef      mUIControllerRef;
+    BloomSceneRef      mBloomSceneRef;
     UIOrientationNodeRef mUIOrientationNodeRef;
     LoadingScreen        mLoadingScreen;
-    UINodeRef            mMainUINodeRef;
+    BloomNodeRef            mMainBloomNodeRef;
     FilterToggleButton   mFilterToggleButton;
 	UiLayer              mUiLayer;
     PlayControls         mPlayControls;
@@ -306,19 +306,19 @@ void KeplerApp::setup()
 
     // initialize controller for all 2D UI
     // this will receive touch events before anything else (so it can cancel them before they hit the world)
-    mUIControllerRef = UIController::create( this );
+    mBloomSceneRef = BloomScene::create( this );
     
     mUIOrientationNodeRef = UIOrientationNodeRef( new UIOrientationNode( &mOrientationHelper ) );
-    mUIControllerRef->addChild( mUIOrientationNodeRef );
+    mBloomSceneRef->addChild( mUIOrientationNodeRef );
 
     // !!! this has to be set up before any other UI things so it can consume touch events
     mLoadingScreen.setup( mStarGlowTex );
-    mUIOrientationNodeRef->addChild( UINodeRef(&mLoadingScreen) );
+    mUIOrientationNodeRef->addChild( BloomNodeRef(&mLoadingScreen) );
     
     // make a container for all the other UI, so visibility can be toggled when loading
-    mMainUINodeRef = UINodeRef( new UINode() );
-    mUIOrientationNodeRef->addChild( mMainUINodeRef );
-    mMainUINodeRef->setVisible(false);    
+    mMainBloomNodeRef = BloomNodeRef( new BloomNode() );
+    mUIOrientationNodeRef->addChild( mMainBloomNodeRef );
+    mMainBloomNodeRef->setVisible(false);    
     
     Flurry::getInstrumentation()->stopTimeEvent("Setup");
 }
@@ -430,24 +430,24 @@ void KeplerApp::remainingSetup()
 	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
 	//mAlphaWheel.initAlphaTextures( mFontBig );
 	//mAlphaWheel.setRects();    
-    mMainUINodeRef->addChild( UINodeRef(&mAlphaWheel) );
+    mMainBloomNodeRef->addChild( BloomNodeRef(&mAlphaWheel) );
 	
     // PLAYLIST CHOOSER
     mPlaylistChooser.setup( mFontMedium );
     mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
-	mMainUINodeRef->addChild( UINodeRef(&mPlaylistChooser) );
+	mMainBloomNodeRef->addChild( BloomNodeRef(&mPlaylistChooser) );
     // FIXME register listeners
 	
 	// UILAYER
-	mUiLayer.setup( mUiSmallButtonsTex, mSettingsBgTex, G_SHOW_SETTINGS, mUIControllerRef->getInterfaceSize() );
-    mMainUINodeRef->addChild( UINodeRef(&mUiLayer) );
+	mUiLayer.setup( mUiSmallButtonsTex, mSettingsBgTex, G_SHOW_SETTINGS, mBloomSceneRef->getInterfaceSize() );
+    mMainBloomNodeRef->addChild( BloomNodeRef(&mUiLayer) );
     
 	// PLAY CONTROLS
-	mPlayControls.setup( mUIControllerRef->getInterfaceSize(), &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiBigButtonsTex, mUiSmallButtonsTex );
+	mPlayControls.setup( mBloomSceneRef->getInterfaceSize(), &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiBigButtonsTex, mUiSmallButtonsTex );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
     // add as child of UILayer so it inherits the transform
-    mUiLayer.addChild( UINodeRef(&mPlayControls) );
+    mUiLayer.addChild( BloomNodeRef(&mPlayControls) );
     
 	// HELP LAYER
 	mHelpLayer.setup( this, mOrientationHelper.getInterfaceOrientation() );
@@ -460,7 +460,7 @@ void KeplerApp::remainingSetup()
     // FILTER TOGGLE
     mFilterToggleButton.setup( mState.getFilterMode(), mFontMedium );
     mFilterToggleButton.registerFilterModeSelected( this, &KeplerApp::onFilterToggled );
-    mMainUINodeRef->addChild( UINodeRef(&mFilterToggleButton) );
+    mMainBloomNodeRef->addChild( BloomNodeRef(&mFilterToggleButton) );
 	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
@@ -492,7 +492,7 @@ void KeplerApp::remainingSetup()
 
     // NOTIFICATION OVERLAY
 	mNotificationOverlay.setup( mFontBig );
-    mMainUINodeRef->addChild( UINodeRef(&mNotificationOverlay) );	
+    mMainBloomNodeRef->addChild( BloomNodeRef(&mNotificationOverlay) );	
 
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
 
@@ -1315,7 +1315,7 @@ void KeplerApp::update()
 		mWorld.initNodes( mData.mArtists, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
         mAlphaWheel.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar );        
 		mLoadingScreen.setVisible( false ); // TODO: remove from scene graph, clean up textures
-        mMainUINodeRef->setVisible( true );
+        mMainBloomNodeRef->setVisible( true );
 		mUiLayer.setIsPanelOpen( true );
         // reset...
         onSelectedNodeChanged( NULL );
@@ -1351,7 +1351,7 @@ void KeplerApp::update()
 	}
     
     // update UiLayer, PlayControls etc.
-    mUIControllerRef->update();    
+    mBloomSceneRef->update();    
     
     if ( mRemainingSetupCalled && (mData.getState() == Data::LoadStateComplete) )
 	{
@@ -1658,7 +1658,7 @@ void KeplerApp::draw()
 	gl::clear( Color( 0, 0, 0 ), true );
 	if( mData.getState() != Data::LoadStateComplete ){
         // just for loading sc
-		mUIControllerRef->draw();
+		mBloomSceneRef->draw();
 	} else if( mData.mArtists.size() == 0 ){
 		drawNoArtists();
 	} else {
@@ -1974,7 +1974,7 @@ void KeplerApp::drawScene()
 	mHelpLayer.draw( mUiSmallButtonsTex, mUiLayer.getPanelYPos() );
 
     // UILayer and PlayControls draw here:
-    mUIControllerRef->draw();
+    mBloomSceneRef->draw();
 
 	if( G_DEBUG ){
         //gl::setMatricesWindow( getWindowSize() );
@@ -1985,8 +1985,8 @@ void KeplerApp::drawScene()
 bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 {	
     // RESET:
-	mLoadingScreen.setVisible( true ); // TODO: reload textures, add back to mUIControllerRef
-    mMainUINodeRef->setVisible( false );    
+	mLoadingScreen.setVisible( true ); // TODO: reload textures, add back to mBloomSceneRef
+    mMainBloomNodeRef->setVisible( false );    
     mState.setup();    
     mData.setup();
 	mWorld.setup();

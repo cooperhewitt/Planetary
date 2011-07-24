@@ -13,16 +13,16 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/Rect.h"
 #include "cinder/Utilities.h"
-#include "UINode.h"
+#include "BloomNode.h"
 
 using namespace ci;
 using namespace std;
 
-class TimeLabel : public UINode {
+class TimeLabel : public BloomNode {
     
 public:
     
-    TimeLabel(const int &id, const ci::Font &font, const ci::Color &color): UINode(id), mFont(font), mColor(color), mSeconds(-1000000) {}
+    TimeLabel(const int &id, const ci::Font &font, const ci::Color &color): BloomNode(id), mFont(font), mColor(color), mSeconds(-1000000) {}
     ~TimeLabel() {}
     
     virtual bool touchBegan(ci::app::TouchEvent::Touch touch);

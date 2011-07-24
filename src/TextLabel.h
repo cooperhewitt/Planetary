@@ -12,13 +12,13 @@
 #include "cinder/Color.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Rect.h"
-#include "UINode.h"
+#include "BloomNode.h"
 
-class TextLabel : public UINode {
+class TextLabel : public BloomNode {
     
 public:
     
-    TextLabel(const int &id, const ci::Font &font, const ci::Color &color): UINode(id), mFont(font), mColor(color) {}
+    TextLabel(const int &id, const ci::Font &font, const ci::Color &color): BloomNode(id), mFont(font), mColor(color) {}
     ~TextLabel() {}
     
     virtual bool touchBegan(ci::app::TouchEvent::Touch touch);

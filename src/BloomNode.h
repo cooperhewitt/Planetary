@@ -1,5 +1,5 @@
 //
-//  UINode.h
+//  BloomNode.h
 //  Kepler
 //
 //  Created by Tom Carden on 7/17/11.
@@ -16,29 +16,29 @@
 
 // FIXME: namespace this stuff
 
-class UIController; // for root
-class UINode; // for UINodeRef
+class BloomScene; // for root
+class BloomNode; // for BloomNodeRef
 
-typedef std::shared_ptr<UIController> UIControllerRef;
-typedef std::shared_ptr<UINode> UINodeRef;
+typedef std::shared_ptr<BloomScene> BloomSceneRef;
+typedef std::shared_ptr<BloomNode> BloomNodeRef;
 
-class UINode : public std::enable_shared_from_this<UINode> {
+class BloomNode : public std::enable_shared_from_this<BloomNode> {
 
 public:
     
-    UINode(): mVisible(true), mId(sNextNodeId++) {}
-    UINode( const int &nodeId ): mVisible(true), mId(nodeId) {}
-    virtual ~UINode() {}
+    BloomNode(): mVisible(true), mId(sNextNodeId++) {}
+    BloomNode( const int &nodeId ): mVisible(true), mId(nodeId) {}
+    virtual ~BloomNode() {}
     
-    void addChild( UINodeRef child );
-    void addChildAt( UINodeRef child, const int &index );
+    void addChild( BloomNodeRef child );
+    void addChildAt( BloomNodeRef child, const int &index );
     
-    void removeChild( UINodeRef child );
-    UINodeRef removeChildAt( int index );
+    void removeChild( BloomNodeRef child );
+    BloomNodeRef removeChildAt( int index );
     
     int getNumChildren() const { return mChildren.size(); }
-    UINodeRef getChildAt( int index ) const { return mChildren[index]; }
-    UINodeRef getChildById( const int &childId ) const;
+    BloomNodeRef getChildAt( int index ) const { return mChildren[index]; }
+    BloomNodeRef getChildById( const int &childId ) const;
 
     void setTransform(const ci::Matrix44f &transform) { mTransform = transform; /* copy OK */ }
     ci::Matrix44f getTransform() const { return mTransform; /* copy OK */ }
@@ -46,8 +46,8 @@ public:
     int getId() const { return mId; }
     void setId( int newId ) { mId = newId; }
     
-    UINodeRef getParent() const { return mParent; }
-    UIControllerRef getRoot() const { return mRoot; }
+    BloomNodeRef getParent() const { return mParent; }
+    BloomSceneRef getRoot() const { return mRoot; }
     
     // override getConcatenatedTransform to change the behavior of these:
     ci::Vec2f localToGlobal(const ci::Vec2f pos);
@@ -74,9 +74,9 @@ public:
     
 protected:
     
-    // all access to privateDraw from UIController::draw()
+    // all access to privateDraw from BloomScene::draw()
     // FIXME: is there a better way to do this in C++?
-    friend class UIController;
+    friend class BloomScene;
     
     // recurse to children and call draw()
     virtual void privateDraw();
@@ -89,16 +89,16 @@ protected:
     bool privateTouchMoved(ci::app::TouchEvent::Touch touch);
     bool privateTouchEnded(ci::app::TouchEvent::Touch touch);
     
-    UINodeRef mParent;
-    UIControllerRef mRoot; // aka "stage"
+    BloomNodeRef mParent;
+    BloomSceneRef mRoot; // aka "stage"
 
     int mId;
     bool mVisible;    
     ci::Matrix44f mTransform;
-    std::vector<UINodeRef> mChildren;
+    std::vector<BloomNodeRef> mChildren;
     
     // keep track of interactions claimed by ID
-    std::map<uint64_t, UINodeRef> mActiveTouches;
+    std::map<uint64_t, BloomNodeRef> mActiveTouches;
 
     // for generating IDs:
     static int sNextNodeId;

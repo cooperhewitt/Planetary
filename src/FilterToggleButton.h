@@ -12,10 +12,10 @@
 #include "cinder/gl/Texture.h"
 #include "State.h" // for FilterMode
 #include "cinder/app/AppCocoaTouch.h"
-#include "UINode.h"
+#include "BloomNode.h"
 
 
-class FilterToggleButton : public UINode {
+class FilterToggleButton : public BloomNode {
 
 public:
     

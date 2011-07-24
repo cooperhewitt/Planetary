@@ -1,21 +1,21 @@
 //
-//  UINode.cpp
+//  BloomNode.cpp
 //  Kepler
 //
 //  Created by Tom Carden on 7/17/11.
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#include "UINode.h"
-#include "UIController.h"
+#include "BloomNode.h"
+#include "BloomScene.h"
 #include "cinder/gl/gl.h"
 
 using namespace ci;
 using namespace ci::app; // for TouchEvent::Touch
 
-int UINode::sNextNodeId = 10000000; // start high
+int BloomNode::sNextNodeId = 10000000; // start high
 
-void UINode::addChild( UINodeRef child )
+void BloomNode::addChild( BloomNodeRef child )
 {
     mChildren.push_back( child );
     child->mParent = shared_from_this();
@@ -23,7 +23,7 @@ void UINode::addChild( UINodeRef child )
     child->addedToScene(); // notify child that mRoot and mParent are set
 }
 
-void UINode::addChildAt( UINodeRef child, const int &index )
+void BloomNode::addChildAt( BloomNodeRef child, const int &index )
 {
     mChildren.insert( mChildren.begin() + index, child );
     child->mParent = shared_from_this();
@@ -31,51 +31,51 @@ void UINode::addChildAt( UINodeRef child, const int &index )
     child->addedToScene(); // notify child that mRoot and mParent are set
 }
 
-void UINode::removeChild( UINodeRef child )
+void BloomNode::removeChild( BloomNodeRef child )
 {
-    for (std::vector<UINodeRef>::iterator i = mChildren.begin(); i != mChildren.end(); i++) {
+    for (std::vector<BloomNodeRef>::iterator i = mChildren.begin(); i != mChildren.end(); i++) {
         if ( (*i) == child ) {
             mChildren.erase( i );
             child->removedFromScene(); // notify child that mRoot and mParent are about to be invalid
-            child->mParent = UINodeRef();
-            child->mRoot = UIControllerRef();
+            child->mParent = BloomNodeRef();
+            child->mRoot = BloomSceneRef();
             break;
         }
     }    
 }
 
-UINodeRef UINode::removeChildAt( int index )
+BloomNodeRef BloomNode::removeChildAt( int index )
 {
-    UINodeRef child = *mChildren.erase( mChildren.begin() + index );
+    BloomNodeRef child = *mChildren.erase( mChildren.begin() + index );
     child->removedFromScene(); // notify child that mRoot and mParent are about to be invalid    
-    child->mParent = UINodeRef();
-    child->mRoot = UIControllerRef();
+    child->mParent = BloomNodeRef();
+    child->mRoot = BloomSceneRef();
     return child;
 }
 
-UINodeRef UINode::getChildById( const int &childId ) const
+BloomNodeRef BloomNode::getChildById( const int &childId ) const
 {
-    for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
+    for (std::vector<BloomNodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
         if ( (*i)->getId() == childId ) {
             return *i;
         }
     }
-    return UINodeRef(); // aka NULL
+    return BloomNodeRef(); // aka NULL
 }
 
-void UINode::privateUpdate()
+void BloomNode::privateUpdate()
 {
     if (mVisible) {
         // update self
         update();
         // update children
-        for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
+        for (std::vector<BloomNodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
             (*i)->privateUpdate();
         }
     }
 }
 
-void UINode::privateDraw()
+void BloomNode::privateDraw()
 {
     if (mVisible) {
         glPushMatrix();
@@ -83,39 +83,39 @@ void UINode::privateDraw()
         // draw self    
         draw();
         // draw children
-        for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
+        for (std::vector<BloomNodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
             (*i)->privateDraw();
         }
         glPopMatrix();
     }        
 }
 
-Matrix44f UINode::getConcatenatedTransform() const
+Matrix44f BloomNode::getConcatenatedTransform() const
 {
     // TODO: cache and invalidate in setTransform? (needs to check dirty parent? bah)
     return mParent->getConcatenatedTransform() * mTransform;
 }
 
-Vec2f UINode::localToGlobal(const Vec2f pos)
+Vec2f BloomNode::localToGlobal(const Vec2f pos)
 {
     return (getConcatenatedTransform() * Vec3f(pos.x,pos.y,0)).xy();
 }
 
-Vec2f UINode::globalToLocal(const Vec2f pos)
+Vec2f BloomNode::globalToLocal(const Vec2f pos)
 {
     Matrix44f invMtx = getConcatenatedTransform().inverted();
     return (invMtx * Vec3f(pos.x,pos.y,0)).xy();    
 }
 
-bool UINode::privateTouchBegan( TouchEvent::Touch touch )
+bool BloomNode::privateTouchBegan( TouchEvent::Touch touch )
 {
     if (!mVisible) {
         return false;
     }
     bool consumed = false;
     // check children
-    for (std::vector<UINodeRef>::const_iterator j = mChildren.begin(); j != mChildren.end(); j++) {
-        UINodeRef childRef = *j;
+    for (std::vector<BloomNodeRef>::const_iterator j = mChildren.begin(); j != mChildren.end(); j++) {
+        BloomNodeRef childRef = *j;
         if (childRef->privateTouchBegan(touch)) {
             consumed = true;
             mActiveTouches[touch.getId()] = childRef;
@@ -125,16 +125,16 @@ bool UINode::privateTouchBegan( TouchEvent::Touch touch )
     if (!consumed) {
         // check self
         if (touchBegan(touch)) {
-            UINodeRef thisRef = shared_from_this();
+            BloomNodeRef thisRef = shared_from_this();
             mActiveTouches[touch.getId()] = thisRef;                
-            mRoot->onUINodeTouchBegan(thisRef);
+            mRoot->onBloomNodeTouchBegan(thisRef);
             consumed = true;
         }
     }
     return consumed;
 }
 
-bool UINode::privateTouchMoved( TouchEvent::Touch touch )
+bool BloomNode::privateTouchMoved( TouchEvent::Touch touch )
 {
     if (!mVisible) {
         return false;
@@ -143,12 +143,12 @@ bool UINode::privateTouchMoved( TouchEvent::Touch touch )
     // if they returned true for the touch with the same ID in touchesBegan
     bool consumed = false;
     if ( mActiveTouches.find(touch.getId()) != mActiveTouches.end() ) {
-        UINodeRef nodeRef = mActiveTouches[touch.getId()];
+        BloomNodeRef nodeRef = mActiveTouches[touch.getId()];
         if (nodeRef->getId() == this->getId()) {
             // check self
             consumed = touchMoved(touch);
             if (consumed) {
-                mRoot->onUINodeTouchMoved(nodeRef);
+                mRoot->onBloomNodeTouchMoved(nodeRef);
             }
         }
         else {
@@ -158,7 +158,7 @@ bool UINode::privateTouchMoved( TouchEvent::Touch touch )
     return consumed;
 }
 
-bool UINode::privateTouchEnded( TouchEvent::Touch touch )
+bool BloomNode::privateTouchEnded( TouchEvent::Touch touch )
 {
     if (!mVisible) {
         return false;
@@ -167,12 +167,12 @@ bool UINode::privateTouchEnded( TouchEvent::Touch touch )
     // if they returned true for the touch with the same ID in touchesBegan
     bool consumed = false;
     if ( mActiveTouches.find(touch.getId()) != mActiveTouches.end() ) {
-        UINodeRef nodeRef = mActiveTouches[touch.getId()];
+        BloomNodeRef nodeRef = mActiveTouches[touch.getId()];
         if (nodeRef->getId() == this->getId()) {
             // check self
             consumed = touchEnded(touch);
             if (consumed) {
-                mRoot->onUINodeTouchEnded(nodeRef);
+                mRoot->onBloomNodeTouchEnded(nodeRef);
             }
         }
         else {

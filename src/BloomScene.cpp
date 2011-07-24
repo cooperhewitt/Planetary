@@ -1,12 +1,12 @@
 //
-//  UIController.cpp
+//  BloomScene.cpp
 //  Kepler
 //
 //  Created by Tom Carden on 7/17/11.
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#include "UIController.h"
+#include "BloomScene.h"
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/gl/gl.h"
 #include "OrientationHelper.h"
@@ -14,35 +14,35 @@
 using namespace ci;
 using namespace ci::app;
 
-UIControllerRef UIController::create( AppCocoaTouch *app )
+BloomSceneRef BloomScene::create( AppCocoaTouch *app )
 {
-    UIControllerRef ref = UIControllerRef( new UIController( app ) );
+    BloomSceneRef ref = BloomSceneRef( new BloomScene( app ) );
     ref->mRoot = ref;
     return ref;
 }
 
-UIController::UIController( AppCocoaTouch *app ): 
+BloomScene::BloomScene( AppCocoaTouch *app ): 
     mApp( app ), 
     mInterfaceSize( 0.0f, 0.0f )
 {
-    mParent = UINodeRef();     // NULL, we are the parent (crash rather than recurse)
-    mRoot = UIControllerRef(); // NULL, will be set in create() because we are the root
+    mParent = BloomNodeRef();     // NULL, we are the parent (crash rather than recurse)
+    mRoot = BloomSceneRef(); // NULL, will be set in create() because we are the root
     
-    cbTouchesBegan = mApp->registerTouchesBegan( this, &UIController::touchesBegan );
-    cbTouchesMoved = mApp->registerTouchesMoved( this, &UIController::touchesMoved );
-    cbTouchesEnded = mApp->registerTouchesEnded( this, &UIController::touchesEnded );
+    cbTouchesBegan = mApp->registerTouchesBegan( this, &BloomScene::touchesBegan );
+    cbTouchesMoved = mApp->registerTouchesMoved( this, &BloomScene::touchesMoved );
+    cbTouchesEnded = mApp->registerTouchesEnded( this, &BloomScene::touchesEnded );
     
     mInterfaceSize = mApp->getWindowSize();
 }
 
-UIController::~UIController()
+BloomScene::~BloomScene()
 {
     mApp->unregisterTouchesBegan( cbTouchesBegan );
     mApp->unregisterTouchesMoved( cbTouchesMoved );
     mApp->unregisterTouchesEnded( cbTouchesEnded );
 }
 
-bool UIController::touchesBegan( TouchEvent event )
+bool BloomScene::touchesBegan( TouchEvent event )
 {
     bool consumed = true;
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
@@ -51,7 +51,7 @@ bool UIController::touchesBegan( TouchEvent event )
     return consumed; // only true if all touches were consumed
 }
 
-bool UIController::touchesMoved( TouchEvent event )
+bool BloomScene::touchesMoved( TouchEvent event )
 {
     bool consumed = true;
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
@@ -60,7 +60,7 @@ bool UIController::touchesMoved( TouchEvent event )
     return consumed; // only true if all touches were consumed
 }
 
-bool UIController::touchesEnded( TouchEvent event )
+bool BloomScene::touchesEnded( TouchEvent event )
 {
     bool consumed = true;
     for (std::vector<TouchEvent::Touch>::const_iterator i = event.getTouches().begin(); i != event.getTouches().end(); i++) {
@@ -69,18 +69,18 @@ bool UIController::touchesEnded( TouchEvent event )
     return consumed; // only true if all touches were consumed
 }
 
-Matrix44f UIController::getConcatenatedTransform() const
+Matrix44f BloomScene::getConcatenatedTransform() const
 {
     return mTransform;
 }
 
-void UIController::draw()
+void BloomScene::draw()
 {
     if (mVisible) {
         glPushMatrix();
         glMultMatrixf( getConcatenatedTransform() );    
         // draw children
-        for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
+        for (std::vector<BloomNodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
             (*i)->privateDraw();
         }
         // dont' draw self or we'll recurse
@@ -88,11 +88,11 @@ void UIController::draw()
     }
 }
 
-void UIController::update()
+void BloomScene::update()
 {
     if (mVisible) {
         // update children
-        for (std::vector<UINodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
+        for (std::vector<BloomNodeRef>::const_iterator i = mChildren.begin(); i != mChildren.end(); i++) {
             (*i)->privateUpdate();
         }
         // dont' update self or we'll recurse

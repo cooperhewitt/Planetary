@@ -8,10 +8,10 @@
 
 #pragma once
 #include "cinder/gl/Texture.h"
-#include "UINode.h"
+#include "BloomNode.h"
 
 // toggle button is either on or off (e.g. show orbits)
-class ToggleButton : public UINode {
+class ToggleButton : public BloomNode {
 public:
     
     ToggleButton( const int &buttonId, 
@@ -19,7 +19,7 @@ public:
                   const ci::gl::Texture &texture,
                   const ci::Area &onTextureArea, 
                   const ci::Area &offTextureArea ):
-        UINode(buttonId),
+        BloomNode(buttonId),
         mOn(on),
         mTexture(texture),
         mOnTextureArea(onTextureArea),
@@ -47,14 +47,14 @@ protected:
 };
 
 // simple button is either being pressed or not (e.g. next, prev)
-class SimpleButton : public UINode {
+class SimpleButton : public BloomNode {
 public:
     
     SimpleButton( const int &buttonId, 
                  const ci::gl::Texture &texture,
                  const ci::Area &downTextureArea, 
                  const ci::Area &upTextureArea ):
-        UINode(buttonId),
+        BloomNode(buttonId),
         mTexture(texture),
         mDownTextureArea(downTextureArea),
         mUpTextureArea(upTextureArea),
@@ -80,7 +80,7 @@ protected:
 };
 
 // two-state button is either being pressed or not and has two possible states (e.g. play/pause)
-class TwoStateButton : public UINode {
+class TwoStateButton : public BloomNode {
 public:
     
     TwoStateButton( const int &buttonId, 
@@ -90,7 +90,7 @@ public:
                     const ci::Area &offUpTextureArea,
                     const ci::Area &onDownTextureArea, 
                     const ci::Area &onUpTextureArea ):
-        UINode(buttonId),
+        BloomNode(buttonId),
         mOn(on),
         mTexture(texture),
         mDownCount(0),
@@ -124,7 +124,7 @@ protected:
 
 // three-state button has three possible states (e.g. play/pause)
 // FIXME: just use an array of texture areas and make it a MultiStateButton
-class ThreeStateButton : public UINode {
+class ThreeStateButton : public BloomNode {
 public:
     
     ThreeStateButton( const int &buttonId, 
@@ -133,7 +133,7 @@ public:
                       const ci::Area &firstTextureArea, 
                       const ci::Area &secondTextureArea,
                       const ci::Area &thirdTextureArea ):
-        UINode(buttonId),
+        BloomNode(buttonId),
         mState(state),
         mTexture(texture),
         mFirstTextureArea(firstTextureArea),

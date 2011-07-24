@@ -13,7 +13,7 @@
 #include "CinderFlurry.h"
 #include "Globals.h"
 #include "BloomGl.h"
-#include "UIController.h"
+#include "BloomScene.h"
 
 using namespace pollen::flurry;
 using namespace ci;
@@ -191,7 +191,7 @@ void UiLayer::draw()
 //	gl::drawLine( Vec2f( mPanelRect.x1, mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelOpenHeight + 1.0f ) ); 
     
     // apply this alpha to all children
-    // FIXME: is there a more reliable way to do this, does UINode need more inheritable properties?
+    // FIXME: is there a more reliable way to do this, does BloomNode need more inheritable properties?
        	
     gl::color( ColorA( dragAlphaPer, dragAlphaPer, dragAlphaPer, 1.0f ) );
     

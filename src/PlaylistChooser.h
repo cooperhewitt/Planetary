@@ -19,11 +19,11 @@
 #include "OrientationHelper.h"
 #include "Data.h"
 #include "World.h"
-#include "UINode.h"
+#include "BloomNode.h"
 #include "WheelOverlay.h"
 #include <map>
 
-class PlaylistChooser : public UINode {
+class PlaylistChooser : public BloomNode {
 
 public:    
     

@@ -14,12 +14,12 @@
 #include "cinder/Rect.h"
 #include "cinder/Color.h"
 #include "cinder/Font.h"
-#include "UINode.h"
+#include "BloomNode.h"
 
-class UiLayer : public UINode {
+class UiLayer : public BloomNode {
  public:
 	
-    UiLayer(): UINode() {}; // get a default ID
+    UiLayer(): BloomNode() {}; // get a default ID
 	~UiLayer() {};
     
 	void	setup( const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &settingsBgTex, const bool &showSettings, const ci::Vec2f interfaceSize );

@@ -36,7 +36,7 @@ void TextLabel::draw()
         gl::draw(mTexture, mRect.getUpperLeft());
     }
     // draw children:
-    UINode::draw();
+    BloomNode::draw();
 }
 
 

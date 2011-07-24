@@ -7,12 +7,12 @@
 //
 
 #pragma once
-#include "UINode.h"
+#include "BloomNode.h"
 #include "cinder/Area.h"
 #include "cinder/Rect.h"
 #include "cinder/gl/Texture.h"
 
-class Slider : public UINode {
+class Slider : public BloomNode {
 public:
     
     Slider(const int &id, 
@@ -21,7 +21,7 @@ public:
            const ci::Area &fgTexArea, 
            const ci::Area &thumbDownTexArea, 
            const ci::Area &thumbUpTexArea): 
-        UINode(id), 
+        BloomNode(id), 
         mTexture(texture),
         // texture Areas:
         mBgTexArea(bgTexArea),
