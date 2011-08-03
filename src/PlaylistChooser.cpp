@@ -33,7 +33,6 @@ void PlaylistChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
 	mTouchPrevPos			= Vec2i( 0, 0 );
     mOffsetX				= -200.0f;
 	mOffsetXLocked			= -200.0f;
-	mXCenter				= 0.0f;
 	
 	mNumPlaylists			= 0;
 	mIsDragging				= false;
@@ -43,7 +42,6 @@ void PlaylistChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
 	mPlaylistSize			= Vec2f( mPlaylistWidth, mPlaylistHeight );
 	mSpacerWidth			= 30.0f;
 	mBorder					= mPlaylistWidth * 0.5f;
-	mStartX					= mBorder;
 	mStartY					= 350.0f;
     
     // FIXME: load these in main app and pass in to setup(...)
@@ -72,7 +70,6 @@ bool PlaylistChooser::touchBegan( ci::app::TouchEvent::Touch touch )
 			mTouchDragStartPos		= mTouchPos;
 			mTouchDragStartOffset	= mOffsetX;
 			mTouchDragPlaylistIndex = i;
-			
 			return true;
 		}
 	}
@@ -85,16 +82,12 @@ bool PlaylistChooser::touchMoved( ci::app::TouchEvent::Touch touch )
     if (mData == NULL || mTouchDragPlaylistIndex < 0) return false;
     mIsDragging = true;
 	
-	if (touch.getId() == mTouchDragId) {
-		mTouchPrevPos	= mTouchPos;
-		mTouchPos		= globalToLocal( touch.getPos() );
-		mOffsetX		= mTouchDragStartOffset + ( mTouchDragStartPos.x - mTouchPos.x );
-		mTouchVel		= mTouchPos.x - mTouchPrevPos.x;
-		
-		return true;
-	}
+    mTouchPrevPos	= mTouchPos;
+    mTouchPos		= globalToLocal( touch.getPos() );
+    mOffsetX		= mTouchDragStartOffset + ( mTouchDragStartPos.x - mTouchPos.x );
+    mTouchVel		= mTouchPos.x - mTouchPrevPos.x;
     
-    return false;    
+    return true;
 }
 
 bool PlaylistChooser::touchEnded( ci::app::TouchEvent::Touch touch )
@@ -102,27 +95,29 @@ bool PlaylistChooser::touchEnded( ci::app::TouchEvent::Touch touch )
     if (mData == NULL || mTouchDragPlaylistIndex < 0) return false;
 
 	mIsDragging		= false;
-	if (touch.getId() == mTouchDragId) {
-		mTouchPos		= globalToLocal( touch.getPos() );
-		float movement	= mTouchDragStartPos.distance( mTouchPos );
-		mOffsetX		= mTouchDragStartOffset + (mTouchDragStartPos.x - mTouchPos.x);            
-		if (movement < 15.0f) {
-			// TODO: also measure time and don't allow long selection gaps
-//			mCbPlaylistSelected.call( mData->mPlaylists[mTouchDragPlaylistIndex] );
-			float lockOffset	= mTouchDragPlaylistIndex * ( mPlaylistWidth + mSpacerWidth ) - mLeftLimit;
-			
-			mOffsetX			= lockOffset;
-			mTouchDragId = 0;
-			mTouchDragPlaylistIndex = -1;
-			return true;                
-		}
-		mTouchDragId			= 0;
-		mTouchDragPlaylistIndex = -1;
-		mTouchDragStartPos		= mTouchPos;
-		mTouchDragStartOffset	= mOffsetX;
 
-		return false;
-	}
+    mTouchPos		= globalToLocal( touch.getPos() );
+    
+    float movement	= mTouchDragStartPos.distance( mTouchPos );
+    mOffsetX		= mTouchDragStartOffset + (mTouchDragStartPos.x - mTouchPos.x);            
+    if (movement < 15.0f) {
+        // TODO: also measure time and don't allow long selection gaps
+        mCurrentIndex = mTouchDragPlaylistIndex;
+        mPrevIndex = mCurrentIndex; // set this so that we won't fire the callback twice
+        mCbPlaylistSelected.call( mData->mPlaylists[mTouchDragPlaylistIndex] );
+        mOffsetX = mTouchDragPlaylistIndex * ( mPlaylistWidth + mSpacerWidth );
+        mTouchDragId = 0;
+        mTouchDragPlaylistIndex = -1;
+        return true;                
+    }
+    mTouchDragId			= 0;
+    mTouchDragPlaylistIndex = -1;
+    mTouchDragStartPos		= mTouchPos;
+    mTouchDragStartOffset	= mOffsetX;
+
+    if (!mWheelOverlay->hitTest(touch.getPos())) {
+        mWheelOverlay->setShowWheel(false);
+    }
     
     return false;    
 }
@@ -132,46 +127,48 @@ void PlaylistChooser::update()
 {    
     if (mData == NULL) return;
     
-    mInterfaceSize = getRoot()->getInterfaceSize();
+    mInterfaceSize  = getRoot()->getInterfaceSize();
 
-    mStartY			= mWheelOverlay->getRadius() - 20.0f;
+    mStartY			= mWheelOverlay->getRadius() - 10.0f;
         
-    mStartX         = -mInterfaceSize.x/2.0 + mBorder;
-    mEndX			= mInterfaceSize.x/2.0 - mBorder;
-    mXCenter		= 0.0f;
-    
-    mLeftLimit		= mXCenter - mPlaylistWidth;
-    mMaxOffsetX		= ( mNumPlaylists * mPlaylistWidth) + ( (mNumPlaylists-1) * mSpacerWidth ) - (mEndX - mStartX) + mLeftLimit;
-    mMinOffsetX		= -mLeftLimit;    
+    mMaxOffsetX		= (mPlaylistWidth * (mNumPlaylists+0.5f)) + (mSpacerWidth * (mNumPlaylists-1));
+    mMinOffsetX		= -mPlaylistWidth * 0.5f;
     
     /////////////
     
 	if( !mIsDragging ){
+        
+        // carry on with inertia/momentum scrolling...
 		mOffsetX		-= mTouchVel;
 		
+        // spring back if we've gone too far...
 		if( mOffsetX < mMinOffsetX ){
 			mTouchVel = 0.0f;
 			mOffsetX -= ( mOffsetX - mMinOffsetX ) * 0.2f;
-			
-		} else if( mOffsetX > mMaxOffsetX ){
+		} 
+        else if( mOffsetX > mMaxOffsetX ){
 			mTouchVel = 0.0f;
 			mOffsetX -= ( mOffsetX - mMaxOffsetX ) * 0.2f;
 		}
 		
 		if( abs( mTouchVel ) < 10.0f ){
-			float newOffset		= mOffsetX + mLeftLimit;
-			float chosenIndex	= newOffset/(mPlaylistWidth + mSpacerWidth);
-			int chosenId		= constrain( (int)round( chosenIndex ), 0, mNumPlaylists-1 );
-			float lockOffset	= chosenId * (mPlaylistWidth + mSpacerWidth) - mLeftLimit;
-			mOffsetXLocked		-= ( mOffsetXLocked - lockOffset ) * 0.2f;
-			mOffsetX			= lockOffset;
+            
+            // how far through are we?
+			float offsetPer	 = (mOffsetX-mPlaylistWidth/2.0) / (mPlaylistWidth + mSpacerWidth);
+            // round that for index in mData->mPlaylists
+			int chosenIndex  = constrain( (int)round( offsetPer ), 0, mNumPlaylists-1 );
+            // ease to exact position (centered)
+			float lockOffset = chosenIndex * (mPlaylistWidth + mSpacerWidth) + mPlaylistWidth/2.0;            
+			mOffsetXLocked	 -= ( mOffsetXLocked - lockOffset ) * 0.2f;
+			mOffsetX		 = lockOffset;
 			
+            // cancel momentum
 			mTouchVel			= 0.0f;
 			
-			
+            // if we're done easing, check if we settled on a new selection...
 			if( abs( mOffsetXLocked - lockOffset ) < 1.0f ){
 				mPrevIndex			= mCurrentIndex;
-				mCurrentIndex		= chosenId;
+				mCurrentIndex		= chosenIndex;
 				if( mPrevIndex != mCurrentIndex ){
 					mCbPlaylistSelected.call( mData->mPlaylists[mCurrentIndex] );
 				}	
@@ -179,7 +176,7 @@ void PlaylistChooser::update()
 			
 		} else {
 			mOffsetXLocked		= mOffsetX;
-			mTouchVel			*= 0.95f;
+			mTouchVel			*= 0.95f; // slow down
 		}
 	} else {
 		mOffsetXLocked = mOffsetX;
@@ -199,39 +196,50 @@ void PlaylistChooser::draw()
 	gl::color( Color::white() );
 		
     mPlaylistRects.clear();
+
+    float startX = -mInterfaceSize.x / 2.0 + mBorder;
+    float endX = mInterfaceSize.x / 2.0 - mBorder;    
 	
-    Vec2f pos( mStartX - mOffsetXLocked, mStartY );
-	
+    Vec2f pos( -mOffsetXLocked, mStartY );
+	    
 	gl::enableAdditiveBlending();
 
     for( int i = 0; i < mNumPlaylists; i++ )
 	{	
 		ipod::PlaylistRef playlist = mData->mPlaylists[i];
 		
-        if( pos.x < mEndX && pos.x + mPlaylistWidth > mStartX )
+        if( pos.x < endX && pos.x + mPlaylistWidth > startX )
 		{
 			float x			= pos.x + mPlaylistWidth * 0.5f; // x center of the rect
 			float alpha		= getAlpha( x );
-			Vec2f p			= Vec2f( x, mStartY );
 
-			map<int,gl::Texture>::iterator iter = mTextureMap.begin();
-			iter = mTextureMap.find( i );
-			if (iter == mTextureMap.end() ) 
+			if (!mTextures[i]) {
 				makeTexture( i, playlist );
+            }
 			
-			bool highlight = (i == mTouchDragPlaylistIndex) || (i == mCurrentPlaylistIndex);
-			if( highlight ) gl::color( ColorA( BRIGHT_BLUE, alpha ) );
-			else			gl::color( ColorA( BLUE, alpha ) );
+            if ( i == mCurrentIndex ) {
+                gl::color( ColorA( 1, 1, 1, alpha ) );
+			} 
+            else if ( i == mTouchDragPlaylistIndex ) {
+                gl::color( ColorA( BRIGHT_BLUE, alpha ) );
+			} 
+            else {
+                gl::color( ColorA( BLUE, alpha ) );
+            }
 			
-			gl::Texture &tex = mTextureMap.find(i)->second;
-			float w			= tex.getWidth() * 0.5f;
-			float h			= 10.0f;
+			float w			= mTextures[i].getWidth() * 0.5f;
+			float h			= mFont.getAscent() + mFont.getDescent();
 			float padding	= 10.0f;
-			Rectf rect		= Rectf( p.x - w - padding, p.y - h - padding, p.x + w + padding, p.y + h + padding );
+			Rectf rect		= Rectf( x - w - padding, mStartY - padding, 
+                                     x + w + padding, mStartY + h + padding );
 			mPlaylistRects.push_back( rect );
-			gl::draw( tex, p - Vec2f( w, h ) );
-//            std::cout << playlist->getPlaylistName() << " : " << (p - Vec2f( w, h )) << std::endl;
-			
+			gl::draw( mTextures[i], Vec2f( x - w, mStartY ) );
+
+            // debuggenrectankles
+//            gl::drawStrokedRect( rect );
+//            gl::drawStrokedRect( Rectf( x - w, mStartY, x + w, mStartY + h ) );
+//            gl::drawStrokedRect( Rectf( x - mPlaylistWidth/2.0, mStartY, x + mPlaylistWidth/2.0, mStartY + h ) );
+
         } else {
 			// STUPID FIX:
 			// Making sure all rects are made, even ones that are offscreen.
@@ -239,10 +247,17 @@ void PlaylistChooser::draw()
 		}
 		
         pos.x += mSpacerWidth + mPlaylistWidth;
-        if( pos.x > mEndX ){
+        
+        if( pos.x > endX ){
             break;
         }
     }
+
+    // draw the rectangle things will settle into...
+    float w = mPlaylistWidth/2.0;
+    float h	= mFont.getAscent() + mFont.getDescent();
+	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
+    gl::drawStrokedRect( Rectf( -w, mStartY, w, mStartY + h ) );    
     
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	gl::disableDepthRead();
@@ -262,11 +277,8 @@ void PlaylistChooser::makeTexture( int index, ipod::PlaylistRef playlist )
 	layout.setFont( mFont );
 	layout.setColor( BRIGHT_BLUE );
 	layout.addLine( name );
-	gl::Texture textTexture = gl::Texture( layout.render( true, false ) );
-	mTextureMap.insert( std::make_pair( index, textTexture ) );
+	mTextures[index] = gl::Texture( layout.render( true, false ) );
 }
-
-
 
 float PlaylistChooser::getAlpha( float x )
 {
@@ -306,6 +318,7 @@ void PlaylistChooser::setDataWorldCam( Data *data, World *world, CameraPersp *ca
     mWorld			= world;
     mCam			= cam;
 	mNumPlaylists	= mData->mPlaylists.size();
+    mTextures.resize(mNumPlaylists);
 }
 
 
