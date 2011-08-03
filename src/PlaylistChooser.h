@@ -27,7 +27,7 @@ class PlaylistChooser : public BloomNode {
 
 public:    
     
-    PlaylistChooser(): mData(NULL), mOffsetX(0.0f), mCurrentPlaylistIndex(-1) {}
+    PlaylistChooser(): mData(NULL), mOffsetX(0.0f) {}
     
     void setup( const ci::Font &font, WheelOverlayRef wheelOverlay );
 	void update();
@@ -36,7 +36,6 @@ public:
 //	void makeFbo( int index, ci::ipod::PlaylistRef playlist );
 	void makeTexture( int index, ci::ipod::PlaylistRef playlist );
 	
-    void setCurrentPlaylistIndex( int index ) { mCurrentPlaylistIndex = index; } // -1 is "none"
     void setDataWorldCam(Data *data, World *world, ci::CameraPersp *cam);
 
     template<typename T>
@@ -57,10 +56,7 @@ private:
 	float			getScale( float x );
 	float			getAlpha( float x );
 	
-
-	int				mNumPlaylists;
-	int				mCurrentPlaylistIndex; // set from main app, passive
-	
+	int				mNumPlaylists;	
 	int				mCurrentIndex;
 	int				mPrevIndex;
 	
@@ -79,14 +75,11 @@ private:
 	float			mOffsetXLocked; // for snap-to effect
 	float			mMinOffsetX, mMaxOffsetX;
 	float			mBorder;
-	float			mStartX, mStartY;
-	float			mEndX;
-	float			mLeftLimit;
-	float			mXCenter;
+	float			mStartY;
     
     std::vector<ci::Rectf> mPlaylistRects;
 	
-	std::map<int, ci::gl::Texture> mTextureMap;
+	std::vector<ci::gl::Texture> mTextures;
     
     ci::gl::Texture	mTex, mBgTex;
     

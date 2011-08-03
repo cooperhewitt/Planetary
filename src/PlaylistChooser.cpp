@@ -11,6 +11,7 @@
 #include "cinder/PolyLine.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
+#include "cinder/Path2d.h"
 #include "PlaylistChooser.h"
 #include "NodeArtist.h"
 #include "BloomScene.h"
@@ -28,6 +29,7 @@ void PlaylistChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
     mTouchDragStartPos		= Vec2i( 0, 0 );
     mTouchDragStartOffset	= 0.0f;
     mTouchDragPlaylistIndex	= -1;
+    
 	mTouchVel				= 0.0f;
 	mTouchPos				= Vec2i( 0, 0 );
 	mTouchPrevPos			= Vec2i( 0, 0 );
@@ -73,8 +75,13 @@ bool PlaylistChooser::touchBegan( ci::app::TouchEvent::Touch touch )
 			return true;
 		}
 	}
-    
-    return false;
+
+    // if we didn't already return...
+    // capture all touches inside wheel so we can dismiss a tap inside the world
+    Vec2f dir = globalToLocal( touch.getPos() );
+    float distToCenter = dir.length();
+    float maxDiam = mWheelOverlay->getRadius() + 25.0f;        
+    return distToCenter < maxDiam;
 }
 
 bool PlaylistChooser::touchMoved( ci::app::TouchEvent::Touch touch )
@@ -92,34 +99,43 @@ bool PlaylistChooser::touchMoved( ci::app::TouchEvent::Touch touch )
 
 bool PlaylistChooser::touchEnded( ci::app::TouchEvent::Touch touch )
 {
-    if (mData == NULL || mTouchDragPlaylistIndex < 0) return false;
+    if (mData == NULL) return false;
 
 	mIsDragging		= false;
 
     mTouchPos		= globalToLocal( touch.getPos() );
     
-    float movement	= mTouchDragStartPos.distance( mTouchPos );
-    mOffsetX		= mTouchDragStartOffset + (mTouchDragStartPos.x - mTouchPos.x);            
-    if (movement < 15.0f) {
-        // TODO: also measure time and don't allow long selection gaps
-        mCurrentIndex = mTouchDragPlaylistIndex;
-        mPrevIndex = mCurrentIndex; // set this so that we won't fire the callback twice
-        mCbPlaylistSelected.call( mData->mPlaylists[mTouchDragPlaylistIndex] );
-        mOffsetX = mTouchDragPlaylistIndex * ( mPlaylistWidth + mSpacerWidth );
-        mTouchDragId = 0;
+    if (mTouchDragPlaylistIndex >= 0) {
+        float movement	= mTouchDragStartPos.distance( mTouchPos );
+        mOffsetX		= mTouchDragStartOffset + (mTouchDragStartPos.x - mTouchPos.x);            
+        if (movement < 15.0f) {
+            // TODO: also measure time and don't allow long selection gaps
+            mCurrentIndex = mTouchDragPlaylistIndex;
+            mPrevIndex = mCurrentIndex; // set this so that we won't fire the callback twice
+            mCbPlaylistSelected.call( mData->mPlaylists[mTouchDragPlaylistIndex] );
+            mOffsetX = mTouchDragPlaylistIndex * ( mPlaylistWidth + mSpacerWidth );
+            mTouchDragId = 0;
+            mTouchDragPlaylistIndex = -1;
+            return true;                
+        }
+        
+        mTouchDragId			= 0;
         mTouchDragPlaylistIndex = -1;
-        return true;                
-    }
-    mTouchDragId			= 0;
-    mTouchDragPlaylistIndex = -1;
-    mTouchDragStartPos		= mTouchPos;
-    mTouchDragStartOffset	= mOffsetX;
-
-    if (!mWheelOverlay->hitTest(touch.getPos())) {
-        mWheelOverlay->setShowWheel(false);
+        mTouchDragStartPos		= mTouchPos;
+        mTouchDragStartOffset	= mOffsetX;
     }
     
-    return false;    
+    // if we didn't already return...
+    // so we can dismiss the wheel if we tapped inside the world
+    Vec2f dir = globalToLocal( touch.getPos() );
+    float distToCenter = dir.length();
+    float maxDiam = mWheelOverlay->getRadius() + 25.0f;        
+    if (distToCenter < maxDiam) {
+        mWheelOverlay->setShowWheel(false);
+        return true;
+    }
+    
+    return false;
 }
 
 
@@ -253,11 +269,19 @@ void PlaylistChooser::draw()
         }
     }
 
-    // draw the rectangle things will settle into...
+    // highlight the region things will settle into...
     float w = mPlaylistWidth/2.0;
-    float h	= mFont.getAscent() + mFont.getDescent();
+    Path2d path;
+    path.moveTo( -w, mStartY - 8.0f);
+    path.curveTo( Vec2f( -w * 0.8f, mStartY - 14.0f), 
+                  Vec2f( -w * 0.1f, mStartY - 16.0f), 
+                  Vec2f( 0.0f, mStartY - 20.0f) );
+    path.curveTo( Vec2f( w * 0.1f, mStartY - 16.0f), 
+                  Vec2f( w * 0.8f, mStartY - 14.0f), 
+                  Vec2f( w, mStartY - 8.0f) );
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
-    gl::drawStrokedRect( Rectf( -w, mStartY, w, mStartY + h ) );    
+    gl::draw(path);
+//    gl::drawStrokedRect( Rectf( -w, mStartY, w, mStartY + h ) );    
     
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	gl::disableDepthRead();

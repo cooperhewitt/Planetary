@@ -130,7 +130,7 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 			}
 		}
 		
-		if( closeWheel && distToCenter < maxDiam ){
+		if( closeWheel ){ // && distToCenter < maxDiam ){
             mWheelOverlay->setShowWheel(false);
 		}
 
