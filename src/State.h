@@ -23,9 +23,8 @@ class State {
  public:
     
     enum FilterMode {
-        FilterModeUndefined,
-        FilterModePlaylist,
-        FilterModeAlphaChar
+        FilterModeAlphaChar,
+        FilterModePlaylist
     };    
     
 	State() {};

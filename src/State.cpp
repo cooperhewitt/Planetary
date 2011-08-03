@@ -19,8 +19,8 @@ using namespace std;
 
 void State::setup()
 {
-    mFilterMode = FilterModeUndefined;
-	mAlphaChar = ' ';
+    mFilterMode = FilterModeAlphaChar;
+	mAlphaChar = 'A';
 	mSelectedNode = NULL;
 	mDistBetweenPrevAndCurrentNode = 1.0f;
 }
