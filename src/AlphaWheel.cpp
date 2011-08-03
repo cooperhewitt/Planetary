@@ -23,25 +23,17 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void AlphaWheel::setup( const Font &font )
+void AlphaWheel::setup( const Font &font, WheelOverlayRef wheelOverlay )
 {	
 	// Textures
 	mAlphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
 	mAlphaIndex		= 0;
 	mAlphaChar		= ' ';
 	mPrevAlphaChar	= ' ';
-	mShowWheel		= false;
-	mWheelScale		= 1.0f;
-	
-	mWheelOverlay.setup();
+
+	mWheelOverlay = wheelOverlay;
 	
 	initAlphaTextures( font );
-
-//    mInterfaceSize = mRoot->getInterfaceSize();
-//
-//    mInterfaceCenter = mInterfaceSize * 0.5f;        
-//
-//	setRects();
 }
 
 void AlphaWheel::initAlphaTextures( const Font &font )
@@ -59,11 +51,12 @@ void AlphaWheel::setRects()
 {
 	mAlphaRects.clear();
 	for( int i=0; i<mAlphaString.length(); i++ ){
-		float per = (float)i/27.0f;
-		float angle = per * TWO_PI - M_PI_2;
-		float w = mAlphaTextures[i].getWidth()/2.0f;
-		float h = mAlphaTextures[i].getHeight()/2.0f;
-		Vec2f pos = Vec2f( cos( angle ), sin( angle ) ) * ( mWheelOverlay.mRadius - 10.0f );
+		const float per = (float)i/27.0f;
+		const float angle = per * TWO_PI - M_PI_2;
+		const float w = mAlphaTextures[i].getWidth()/2.0f;
+		const float h = mAlphaTextures[i].getHeight()/2.0f;
+        const float scale = ( mWheelOverlay->getRadius() - 10.0f );
+		Vec2f pos( cos( angle ) * scale, sin( angle ) * scale );
 		Rectf r = Rectf( pos.x - w, pos.y - h, pos.x + w, pos.y + h );
 		mAlphaRects.push_back( r );
 	}
@@ -71,7 +64,7 @@ void AlphaWheel::setRects()
 
 bool AlphaWheel::touchBegan( TouchEvent::Touch touch )
 {
-    if (!mShowWheel) return false;
+    if (!mWheelOverlay->getShowWheel()) return false;
     
     if (selectWheelItem( touch.getPos(), false )) {
         // this means we'll follow the last touch that starts on a wheel item
@@ -81,9 +74,9 @@ bool AlphaWheel::touchBegan( TouchEvent::Touch touch )
     }
     else {
         // capture all touches inside wheel so we can dismiss a tap inside the world
-        Vec2f dir = globalToLocal( touch.getPos() ) - mInterfaceCenter;
+        Vec2f dir = globalToLocal( touch.getPos() );
 		float distToCenter = dir.length();
-        float maxDiam = mWheelOverlay.mRadius + 25.0f;        
+        float maxDiam = mWheelOverlay->getRadius() + 25.0f;        
 		if( distToCenter < maxDiam ){
             return true;
         }
@@ -94,7 +87,7 @@ bool AlphaWheel::touchBegan( TouchEvent::Touch touch )
 
 bool AlphaWheel::touchMoved( TouchEvent::Touch touch )
 {
-    if (mShowWheel) {    
+    if (mWheelOverlay->getShowWheel()) {
         // only follow the last valid touch we received
         if (touch.getId() == mActiveTouchId) {
             mLastTouchPos = touch.getPos();
@@ -108,7 +101,7 @@ bool AlphaWheel::touchEnded( TouchEvent::Touch touch )
 {	
 	std::cout << "AlphaWheel touchEnded" << std::endl;
 	
-    if (!mShowWheel) return false;
+    if (!mWheelOverlay->getShowWheel()) return false;
     
     mLastTouchPos = touch.getPos();
     return selectWheelItem( mLastTouchPos, true );
@@ -117,15 +110,14 @@ bool AlphaWheel::touchEnded( TouchEvent::Touch touch )
 
 bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 {
-	if( !mShowWheel ){
-		return false;
-	}
-	float minDiam = mWheelOverlay.mRadius - 25.0f;
-	float maxDiam = mWheelOverlay.mRadius + 25.0f;
+    if (!mWheelOverlay->getShowWheel()) return false;
+
+	float minDiam = mWheelOverlay->getRadius() - 25.0f;
+	float maxDiam = minDiam + 50.0f;
 	
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
-	if( mShowWheel && timeSincePinchEnded > 0.5f ){ 
-        Vec2f dir = globalToLocal(pos) - mInterfaceCenter;
+	if( timeSincePinchEnded > 0.5f ){ 
+        Vec2f dir = globalToLocal(pos);
 		float distToCenter = dir.length();
 		if( distToCenter > minDiam && distToCenter < maxDiam ){
 			float touchAngle	= atan2( dir.y, dir.x ) + M_PI;				// RANGE 0 -> TWO_PI
@@ -139,7 +131,7 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 		}
 		
 		if( closeWheel && distToCenter < maxDiam ){
-            setShowWheel(false);
+            mWheelOverlay->setShowWheel(false);
 		}
 
         return distToCenter > minDiam && distToCenter < maxDiam;
@@ -152,49 +144,27 @@ void AlphaWheel::setTimePinchEnded( float timePinchEnded )
 	mTimePinchEnded = timePinchEnded;	
 }
 
-void AlphaWheel::update( )
-{
-	if( getShowWheel() ){
-		mWheelScale -= ( mWheelScale - 1.0f ) * 0.2f;
-	} else {
-		mWheelScale -= ( mWheelScale - 2.15f ) * 0.2f;	
-	}	
-    
-    Vec2f interfaceSize = getRoot()->getInterfaceSize();
-    
-    if (mInterfaceSize != interfaceSize) {
-        mInterfaceSize = interfaceSize;
-        mInterfaceCenter = mInterfaceSize * 0.5f;        
-    
-		mWheelOverlay.update( mInterfaceSize );
-		setRects();
-		
-        if ( mInterfaceSize.x > mInterfaceSize.y ) {
-            float amount = (mInterfaceSize.x - mInterfaceSize.y) / (1024-768);
-
-            Matrix44f mat;
-            mat.translate( Vec3f(0, -15.0f * amount, 0) );
-            setTransform(mat);
-        }
-    }
-}
-
 void AlphaWheel::setNumberAlphaPerChar( float *numberAlphaPerChar )
 {
     mNumberAlphaPerChar = numberAlphaPerChar;
 }
 
+void AlphaWheel::update( )
+{    
+    Vec2f interfaceSize = getRoot()->getInterfaceSize();    
+    if (mInterfaceSize != interfaceSize) {
+        mInterfaceSize = interfaceSize;
+        setRects();
+    }
+}
+
 void AlphaWheel::draw()
 {	
-	if( mWheelScale < 1.95f ){
+	if( mWheelOverlay->getWheelScale() < 1.95f ){
 
-		glPushMatrix();
+        // FIXME: fade everything using getWheelScale:
+//        gl::color( ColorA( BLUE, 1.0f - mWheelOverlay->getWheelScale() ) );
         
-		gl::color( Color::white() );
-		gl::translate( mInterfaceCenter );
-		gl::scale( Vec3f( mWheelScale, mWheelScale, 1.0f ) );
-		mWheelOverlay.draw();
-		
 		for( int i=0; i<27; i++ ){
 			float c = mNumberAlphaPerChar[i];
 			if( c > 0.0f ){
@@ -209,27 +179,5 @@ void AlphaWheel::draw()
 			mAlphaTextures[i].disable();            
 		}
 		
-		glPopMatrix();
 	}
 }
-
-void AlphaWheel::drawAlphaChar()
-{
-	//std::cout << "AlphaWheel::drawAlphaChar mAlphaIndex = " << mAlphaIndex << std::endl;
-	float w = mAlphaTextures[mAlphaIndex].getWidth() * 0.5f;
-	float h = mAlphaTextures[mAlphaIndex].getHeight() * 0.5f;
-	
-	gl::color( ColorA( BLUE, 1.0f - mWheelScale ) );
-	
-	gl::enableAdditiveBlending();
-    mAlphaTextures[mAlphaIndex].enableAndBind();
-	gl::drawSolidRect( Rectf( -w, -h, w, h ) );
-	mAlphaTextures[mAlphaIndex].disable();
-	gl::enableAlphaBlending();
-}
-
-void AlphaWheel::setShowWheel( bool b ){ 
-    mShowWheel = b; 
-    mCallbacksWheelToggled.call(this);
-}
-

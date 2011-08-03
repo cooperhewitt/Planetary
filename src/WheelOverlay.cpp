@@ -7,36 +7,63 @@
 //
 
 #include "WheelOverlay.h"
+
+#include <sstream>
+
 #include "cinder/gl/gl.h"
 #include "cinder/Font.h"
 #include "cinder/Text.h"
 #include "cinder/ImageIo.h"
+
 #include "Globals.h"
 #include "BloomGl.h"
-#include <sstream>
+#include "BloomScene.h"
+
 
 using std::stringstream;
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-WheelOverlay::WheelOverlay()
-{
-}
-
-WheelOverlay::~WheelOverlay()
-{
-}
-
 void WheelOverlay::setup()
 {
-	mRadius = -1.0f; // updated in update :)
-    mVerts = NULL;
-	mTex			= gl::Texture( loadImage( loadResource( "alphaWheelMask.png" ) ) );
+    mWheelScale	= 1.0f;
+	mShowWheel  = false;    
+	mRadius     = -1.0f; // updated in update :)
+    mVerts      = NULL;
+    // FIXME: pass this in and load with all the other textures in main app
+	mTex = gl::Texture( loadImage( loadResource( "alphaWheelMask.png" ) ) );
 }
 
-void WheelOverlay::update( const Vec2f &interfaceSize )
+void WheelOverlay::update()
 {
+    float prevWheelScale = mWheelScale;
+    
+	if( getShowWheel() ){
+		mWheelScale -= ( mWheelScale - 1.0f ) * 0.2f;
+	} else {
+		mWheelScale -= ( mWheelScale - 2.25f ) * 0.2f;	
+	}    
+        
+    const Vec2f interfaceSize = getRoot()->getInterfaceSize();
+    
+    if (mInterfaceSize != interfaceSize || mWheelScale != prevWheelScale) {
+        
+        mInterfaceSize = interfaceSize;
+        mInterfaceCenter = mInterfaceSize * 0.5f;        
+
+        Matrix44f mat;
+        mat.translate( Vec3f(mInterfaceCenter, 0) );
+        
+        if ( mInterfaceSize.x > mInterfaceSize.y ) {
+            float amount = (mInterfaceSize.x - mInterfaceSize.y) / (1024-768);            
+            mat.translate( Vec3f(0, -15.0f * amount, 0) );
+        }
+
+        mat.scale( Vec3f( mWheelScale, mWheelScale, 1.0f ) );
+        setTransform(mat);        
+    }    
+    
     float prevRadius = mRadius;
 
 	mRadius = 315.0f;
@@ -45,10 +72,13 @@ void WheelOverlay::update( const Vec2f &interfaceSize )
 		mRadius -= 30.0f * amount;
     }
     
-    if (mVerts != NULL && mRadius == prevRadius) {
-        return;
+    if (mVerts == NULL || mRadius == prevRadius) {
+        updateVerts();
     }
-	
+}
+
+void WheelOverlay::updateVerts()
+{	
 	mTotalVertices = 54;
 	delete[] mVerts; 
 	mVerts = NULL;
@@ -135,17 +165,31 @@ void WheelOverlay::update( const Vec2f &interfaceSize )
 
 void WheelOverlay::draw()
 {	
-	mTex.enableAndBind();
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	
-	glVertexPointer( 2, GL_FLOAT, sizeof(VertexData), mVerts );
-	glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );
-	
-	glDrawArrays( GL_TRIANGLES, 0, mTotalVertices );
-	
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	mTex.disable();
+    if ( mWheelScale < 2.24f ) {    
+        gl::color( Color::white() );
+        
+        mTex.enableAndBind();
+        glEnableClientState( GL_VERTEX_ARRAY );
+        glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+        
+        glVertexPointer( 2, GL_FLOAT, sizeof(VertexData), mVerts );
+        glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), &mVerts[0].texture );
+        
+        glDrawArrays( GL_TRIANGLES, 0, mTotalVertices );
+        
+        glDisableClientState( GL_VERTEX_ARRAY );
+        glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+        mTex.disable();
+    }
 }
 
+void WheelOverlay::setShowWheel( bool b )
+{
+    mShowWheel = b; 
+    mCallbacksWheelToggled.call( b );
+}
+
+bool WheelOverlay::hitTest( const Vec2f &globalPoint )
+{
+    return globalToLocal( globalPoint ).distance( Vec2f::zero() ) > mRadius;
+}

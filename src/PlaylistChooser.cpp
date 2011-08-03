@@ -20,7 +20,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void PlaylistChooser::setup( const Font &font )
+void PlaylistChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
 {
     mFont					= font;
 
@@ -45,14 +45,14 @@ void PlaylistChooser::setup( const Font &font )
 	mBorder					= mPlaylistWidth * 0.5f;
 	mStartX					= mBorder;
 	mStartY					= 350.0f;
-	mHitRect				= Rectf( 0.0f, 0.0f, 10.0f, 10.0f ); // paranoid if i didn't init it
+    // FIXME: load these in main app and pass in to setup(...)
 	mTex					= gl::Texture( loadImage( loadResource( "playlist.png" ) ) );
 	mBgTex					= gl::Texture( loadImage( loadResource( "playlistBg.png" ) ) );	
 	
 	mPrevIndex				= -1;
 	mCurrentIndex			= 0;
 	
-	mWheelOverlay.setup();
+	mWheelOverlay = wheelOverlay;
 }
 
 bool PlaylistChooser::touchBegan( ci::app::TouchEvent::Touch touch )
@@ -128,32 +128,18 @@ bool PlaylistChooser::touchEnded( ci::app::TouchEvent::Touch touch )
 
 
 void PlaylistChooser::update()
-{
-	Vec2f interfaceSize = getRoot()->getInterfaceSize();
-	if( mInterfaceSize != interfaceSize ){
-		mInterfaceSize	= interfaceSize;
-		
-		mWheelOverlay.update( mInterfaceSize );
-		
-		mStartY			= mInterfaceSize.y * 0.5f + mWheelOverlay.mRadius - 20.0f;
-		if ( mInterfaceSize.x > mInterfaceSize.y ) {
-            float amount = (mInterfaceSize.x - mInterfaceSize.y) / (1024-768);
-			
-            Matrix44f mat;
-            mat.translate( Vec3f(0, -15.0f * amount, 0) );
-            setTransform(mat);
-        }
-		
-		mHitRect		= Rectf( 0.0f, mStartY - 25.0f, mInterfaceSize.x, mStartY + 25.0f );
-		mXCenter		= mInterfaceSize.x * 0.5f;
-		mEndX			= mInterfaceSize.x - mBorder;
-		
-		mLeftLimit		= mXCenter - mPlaylistWidth;
-		mMaxOffsetX		= ( mNumPlaylists * mPlaylistWidth) + ( (mNumPlaylists-1) * mSpacerWidth ) - (mEndX - mStartX) + mLeftLimit;
-		mMinOffsetX		= -mLeftLimit;
-		
-		
-	}
+{    
+    mInterfaceSize = getRoot()->getInterfaceSize();
+
+    mStartY			= mWheelOverlay->getRadius() - 20.0f;
+        
+    mStartX         = -mInterfaceSize.x/2.0 + mBorder;
+    mEndX			= mInterfaceSize.x/2.0 - mBorder;
+    mXCenter		= 0.0f;
+    
+    mLeftLimit		= mXCenter - mPlaylistWidth;
+    mMaxOffsetX		= ( mNumPlaylists * mPlaylistWidth) + ( (mNumPlaylists-1) * mSpacerWidth ) - (mEndX - mStartX) + mLeftLimit;
+    mMinOffsetX		= -mLeftLimit;    
 }
 
 
@@ -204,16 +190,9 @@ void PlaylistChooser::draw()
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
 	gl::enableAlphaBlending();
-	
-	glPushMatrix();
+
 	gl::color( Color::white() );
-	gl::translate( mInterfaceSize * 0.5f );
-	mWheelOverlay.draw();
-	glPopMatrix();
-	
-	
-	
-	
+		
 	int maxTotalVisiblePlaylists = mInterfaceSize.x / mPlaylistWidth + 1;
 	mTotalVertices = maxTotalVisiblePlaylists * 6;
 	
@@ -359,7 +338,7 @@ void PlaylistChooser::makeTexture( int index, ipod::PlaylistRef playlist )
 
 float PlaylistChooser::getAlpha( float x )
 {
-	float per		= x/mInterfaceSize.x;
+	float per		= (x + mInterfaceSize.x/2.0f) / mInterfaceSize.x;
 	float invCos	= ( 1.0f - (float)cos( per * M_PI * 2.0f ) ) * 0.5f;
 	float cosPer	= pow( invCos, 0.5f );
 	return cosPer;
@@ -367,7 +346,7 @@ float PlaylistChooser::getAlpha( float x )
 
 float PlaylistChooser::getScale( float x )
 {
-	float per		= x/mInterfaceSize.x;
+	float per		= (x + mInterfaceSize.x/2.0f) / mInterfaceSize.x;
 	float invCos	= ( 1.0f - (float)cos( per * M_PI * 2.0f ) ) * 0.5f;
 	float cosPer	= max( pow( invCos, 3.5f ) + 0.4f, 0.5f );
 	return cosPer;
@@ -375,32 +354,18 @@ float PlaylistChooser::getScale( float x )
 
 float PlaylistChooser::getNewX( float x )
 {
-	float per		= ( x/mInterfaceSize.x ) * 0.7f + 0.15f;
+	float per		= (x + mInterfaceSize.x/2.0f) / mInterfaceSize.x;
+    per *= 0.7f;
+    per += 0.15f;
 	float cosPer	= ( 1.0f - cos( per * M_PI ) ) * 0.5f;
 	return cosPer * mInterfaceSize.x;
 }
 
 float PlaylistChooser::getNewY( float x )
 {
-	float per		= x/mInterfaceSize.x;
+	float per		= (x + mInterfaceSize.x/2.0f) / mInterfaceSize.x;
 	float sinPer	= sin( per * M_PI );
 	return sinPer;
-}
-
-
-// scissor rect is from *bottom left* of window in *untransformed* coords
-// x,y,w,h to this function are in rotated screen space, from top left of screen
-void PlaylistChooser::getWindowSpaceRect( float &x, float &y, float &w, float &h )
-{
-    Vec3f topLeft(x,y,0);
-    Vec3f bottomRight(x+w,y+h,0);
-    Vec2f tl = ( getConcatenatedTransform() * topLeft ).xy();
-    Vec2f br = ( getConcatenatedTransform() * bottomRight ).xy();
-    // use min max and fabs to canonicalize the scissor rect...
-    x = min(br.x, tl.x);
-    y = app::getWindowHeight() - max(br.y, tl.y); // flip y
-    w = fabs(br.x - tl.x);
-    h = fabs(br.y - tl.y);
 }
 
 void PlaylistChooser::setDataWorldCam( Data *data, World *world, CameraPersp *cam )

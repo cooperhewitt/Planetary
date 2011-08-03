@@ -29,17 +29,13 @@ public:
     
     PlaylistChooser(): mData(NULL), mVisible(false), mOffsetX(0.0f), mCurrentPlaylistIndex(-1) {}
     
-    void setup( const ci::Font &font );
+    void setup( const ci::Font &font, WheelOverlayRef wheelOverlay );
 	void update();
     void draw();
 	
 	void makeFbo( int index, ci::ipod::PlaylistRef playlist );
 	void makeTexture( int index, ci::ipod::PlaylistRef playlist );
 	
-	ci::Rectf getRect(){ return mHitRect; }
-    void setVisible( bool visible = true ) { mVisible = visible; }
-    bool isVisible() { return mVisible; }
-       
     void setCurrentPlaylistIndex( int index ) { mCurrentPlaylistIndex = index; } // -1 is "none"
     void setDataWorldCam(Data *data, World *world, ci::CameraPersp *cam);
 
@@ -50,10 +46,6 @@ public:
     
 private:
     
-    struct ScissorRect {
-        float x, y, w, h;  
-    };
-	
 	struct VertexData {
         ci::Vec3f vertex;
         ci::Vec2f texture;
@@ -94,7 +86,6 @@ private:
 	float			mLeftLimit;
 	float			mXCenter;
     
-	ci::Rectf		mHitRect;
     std::vector<ci::Rectf> mPlaylistRects;
 	
 	std::map<int, ci::gl::Fbo> mFboMap;
@@ -106,24 +97,19 @@ private:
     bool			touchMoved( ci::app::TouchEvent::Touch touch );
     bool			touchEnded( ci::app::TouchEvent::Touch touch );
     
-    Data			*mData; // for playlists
+    Data			*mData;  // for playlists
     World			*mWorld; // for nodes
-    ci::CameraPersp *mCam; // for projecting to screen
+    ci::CameraPersp *mCam;   // for projecting to screen
 
-    ci::Color		mLineColor;
     ci::Font		mFont;
     
     ci::Vec2f		mInterfaceSize;
 	
-	int mTotalVertices;
-    int mPrevTotalVertices; // so we only recreate frames
-	VertexData *mVerts;
+	int             mTotalVertices;
+    int             mPrevTotalVertices; // so we only recreate frames
+	VertexData      *mVerts;
 	
-	bool			mShowWheel;
-	float			mWheelScale;
-	WheelOverlay	mWheelOverlay;
+	WheelOverlayRef mWheelOverlay;
 	
 	ci::CallbackMgr<bool(ci::ipod::PlaylistRef)> mCbPlaylistSelected;        
-	
-    void getWindowSpaceRect( float &x, float &y, float &w, float &h );
 };

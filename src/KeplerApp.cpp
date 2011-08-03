@@ -106,7 +106,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onAlphaCharStateChanged( State *state );
 	bool			onPlaylistStateChanged( State *state );
 	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
-	bool			onWheelToggled( AlphaWheel *alphaWheel );
+	bool			onWheelToggled( bool on );
     bool            onFilterToggled( State::FilterMode filterMode );
     bool            onPlaylistChooserSelected( ci::ipod::PlaylistRef );
     
@@ -135,7 +135,7 @@ class KeplerApp : public AppCocoaTouch {
 	HelpLayer		    mHelpLayer;
     NotificationOverlay mNotificationOverlay;
 
-    bool                mShowFilterGUI;
+    WheelOverlayRef     mWheelOverlay;
     AlphaWheel          mAlphaWheel;
     PlaylistChooser     mPlaylistChooser;
 
@@ -424,19 +424,21 @@ void KeplerApp::remainingSetup()
     mParticleController.addParticles( G_NUM_PARTICLES );
 	mParticleController.addDusts( G_NUM_DUSTS );
 
+    // WHEEL OVERLAY
+    mWheelOverlay = WheelOverlayRef( new WheelOverlay() );
+    mWheelOverlay->setup();    
+	mWheelOverlay->registerWheelToggled( this, &KeplerApp::onWheelToggled );    
+    mMainBloomNodeRef->addChild( mWheelOverlay );
+    
 	// ALPHA WHEEL
-	mAlphaWheel.setup( mFontBig );
+	mAlphaWheel.setup( mFontBig, mWheelOverlay );
 	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
-	mAlphaWheel.registerWheelToggled( this, &KeplerApp::onWheelToggled );
-	//mAlphaWheel.initAlphaTextures( mFontBig );
-	//mAlphaWheel.setRects();    
-    mMainBloomNodeRef->addChild( BloomNodeRef(&mAlphaWheel) );
+    mWheelOverlay->addChild( BloomNodeRef(&mAlphaWheel) );
 	
     // PLAYLIST CHOOSER
-    mPlaylistChooser.setup( mFontMedium );
+    mPlaylistChooser.setup( mFontMedium, mWheelOverlay );
     mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
-	mMainBloomNodeRef->addChild( BloomNodeRef(&mPlaylistChooser) );
-    // FIXME register listeners
+	mWheelOverlay->addChild( BloomNodeRef(&mPlaylistChooser) );
 	
 	// UILAYER
 	mUiLayer.setup( mUiSmallButtonsTex, mSettingsBgTex, G_SHOW_SETTINGS, mBloomSceneRef->getInterfaceSize() );
@@ -452,10 +454,6 @@ void KeplerApp::remainingSetup()
 	// HELP LAYER
 	mHelpLayer.setup( this, mOrientationHelper.getInterfaceOrientation() );
 	mHelpLayer.initHelpTextures( mFontMediSmall );
-	
-    
-    
-    mShowFilterGUI = false;
     
     // FILTER TOGGLE
     mFilterToggleButton.setup( mState.getFilterMode(), mFontMedium );
@@ -529,6 +527,8 @@ void KeplerApp::initTextures()
 {
     Flurry::getInstrumentation()->startTimeEvent("Load Textures");    
     
+    float t = getElapsedSeconds();
+    
     gl::Texture::Format mipFmt;
     mipFmt.enableMipmapping( true );
     mipFmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );    
@@ -594,6 +594,8 @@ void KeplerApp::initTextures()
 	mLowResSurfaces		= Surface( loadImage( loadResource( "surfacesLowRes.png" ) ) );
     mNoAlbumArtSurface = Surface( loadImage( loadResource( "noAlbumArt.png" ) ) );
     
+    std::cout << (getElapsedSeconds() - t) << " seconds to load textures" << std::endl;
+    
     Flurry::getInstrumentation()->stopTimeEvent("Load Textures");    
 }
 
@@ -655,7 +657,7 @@ void KeplerApp::touchesEnded( TouchEvent event )
 			
             // if the nav wheel isnt showing and you havent been dragging
 			// and your touch is above the uiLayer panel and the Help panel isnt showing
-            if( ! mAlphaWheel.getShowWheel() && ! mIsDragging && !G_HELP ){
+            if( !(mWheelOverlay->getShowWheel() || mIsDragging || G_HELP) ){
                 float u			= mTouchPos.x / (float) getWindowWidth();
                 float v			= mTouchPos.y / (float) getWindowHeight();
                 Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
@@ -755,19 +757,11 @@ bool KeplerApp::keepTouchForPinching( TouchEvent::Touch touch )
 
 bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
 {
-	Vec2f worldPos			= (mInverseOrientationMatrix * Vec3f(screenPos,0)).xy();
-    bool aboveUI			= worldPos.y < mUiLayer.getPanelYPos();
-    bool notTab				= !mUiLayer.getPanelTabRect().contains(worldPos);
-    bool notFilterToggle	= true;
-    if ( mFilterToggleButton.isVisible() && mFilterToggleButton.getRect().contains(worldPos) ) 
-        notFilterToggle = false;
-	
-    bool notPlaylistChooser = true;
-    if ( mPlaylistChooser.isVisible() && mPlaylistChooser.getRect().contains(worldPos) ) 
-        notPlaylistChooser = false;
-	
-    // FIXME: to be complete: notAlphaWheel?
-    return aboveUI && notTab && notFilterToggle && notPlaylistChooser;
+	const Vec2f worldPos = (mInverseOrientationMatrix * Vec3f(screenPos,0)).xy();
+    const bool aboveUI   = (worldPos.y < mUiLayer.getPanelYPos());
+    const bool inTab     = (mUiLayer.getPanelTabRect().contains(worldPos));
+    const bool onWheel   = (mWheelOverlay->isVisible() && mWheelOverlay->hitTest(worldPos));
+    return aboveUI && !inTab && !onWheel;
 }
 
 
@@ -814,20 +808,13 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
     }
 }
 
-bool KeplerApp::onWheelToggled( AlphaWheel *alphaWheel )
+bool KeplerApp::onWheelToggled( bool on )
 {
-	std::cout << "Wheel Toggled in AlphaWheel" << std::endl;
-        
-	if( !mAlphaWheel.getShowWheel() ){
-		G_HELP = false; // dismiss help if alpha wheel was toggled away
+	std::cout << "Wheel Toggled!" << std::endl;
+	if( !on ){
+		G_HELP = false; // dismiss help if wheel was toggled away
 		mPinchTotalDest = 1.0f;
-	}
-
-    if( mState.getFilterMode() == State::FilterModeAlphaChar ){
-        mShowFilterGUI = mAlphaWheel.getShowWheel(); // record alphawheel state as general filter GUI state
-    }
-    // FIXME: else? should this ever happen?
-    
+	}    
 	return false;
 }
 
@@ -843,7 +830,6 @@ bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
     }
     assert(mPlaylistIndex != -1);
     mState.setPlaylist( playlist ); // triggers onPlaylistStateChanged
-//    mShowFilterGUI = false;
     return false;
 }
 
@@ -913,8 +899,6 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
     mState.setAlphaChar( ' ' );
     mWorld.setFilter( FilterRef(new PlaylistFilter(playlist)) );
     mState.setFilterMode( State::FilterModePlaylist ); // TODO: make this part of Filter?
-    mAlphaWheel.setShowWheel(false);
-//    mPlaylistChooser.setVisible(true); // if you're selecting a playlist this is probably already visible?
     mFilterToggleButton.setFilterMode( State::FilterModePlaylist );
     mState.setSelectedNode( NULL );
 
@@ -1192,7 +1176,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;	
 			
 		case PlayControls::SHOW_WHEEL:
-            mShowFilterGUI = !mShowFilterGUI;
+            mWheelOverlay->setShowWheel( !mWheelOverlay->getShowWheel() );
             break;	
 			
         case PlayControls::NO_BUTTON:
@@ -1331,17 +1315,15 @@ void KeplerApp::update()
             // show the wheel if we're paused...
             if ( mIpodPlayer.getPlayState() == ipod::Player::StatePaused || mIpodPlayer.getPlayState() == ipod::Player::StateStopped ) {
                 mState.setFilterMode( State::FilterModeAlphaChar );
-                mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );            
-                mShowFilterGUI = true;
-                mAlphaWheel.setShowWheel( true );            
+                mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );
+                mWheelOverlay->setShowWheel( true );
             }
         } else {
             std::cout << "Startup without Track Playing" << std::endl;
             logEvent("Startup without Track Playing");
             mState.setFilterMode( State::FilterModeAlphaChar );
             mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );            
-            mShowFilterGUI = true;
-			mAlphaWheel.setShowWheel( true );
+            mWheelOverlay->setShowWheel( true );
 		}
         
         if (mData.mPlaylists.size() > 0) {
@@ -1413,31 +1395,25 @@ void KeplerApp::update()
 		}
 		        
 		mHelpLayer.update();
-
-        mFilterToggleButton.setVisible( mShowFilterGUI );
         
-        bool isAlphaFilter = (mState.getFilterMode() == State::FilterModeAlphaChar);
-        bool isPlaylistFilter = (mState.getFilterMode() == State::FilterModePlaylist);
-        if (isAlphaFilter) {
-            if (mAlphaWheel.getShowWheel() != mShowFilterGUI) {
-                mAlphaWheel.setShowWheel( mShowFilterGUI );
-            }
+        if (mState.getFilterMode() == State::FilterModeAlphaChar) {
+            // FIXME: set visibility based on wheel radius
+            mAlphaWheel.setVisible( mWheelOverlay->getShowWheel() );
             mPlaylistChooser.setVisible( false );
         }
-        else if (isPlaylistFilter) {
-            mPlaylistChooser.setVisible( mShowFilterGUI );
-            if( mAlphaWheel.getShowWheel() ){
-                mAlphaWheel.setShowWheel( false );
-            }
-            // mPlaylistChooser.update(); // FIXME: what does this do?
+        else if (mState.getFilterMode() == State::FilterModePlaylist) {
+            // FIXME: set visibility based on wheel radius            
+            mPlaylistChooser.setVisible( mWheelOverlay->getShowWheel() );
+            mAlphaWheel.setVisible( false );
             mPlaylistChooser.setCurrentPlaylistIndex( mPlaylistIndex );
         }	        
         else {
             // FIXME: we still automatically select the alpha char so this might never be called, right?
             console() << "unknown filter mode - do we update the alphawheel or what?" << endl;
         }        
-        
-        mPlayControls.setAlphaWheelVisible( mShowFilterGUI );
+
+        mFilterToggleButton.setVisible( mWheelOverlay->getShowWheel() );
+        mPlayControls.setAlphaWheelVisible( mWheelOverlay->getShowWheel() );
         
         if (mPlayheadUpdateSeconds == elapsedSeconds) {
             mPlayControls.setElapsedSeconds( (int)mCurrentTrackPlayheadTime );
@@ -1571,10 +1547,14 @@ void KeplerApp::updateCamera()
 	
 	if( mIsPinching && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
 		if( mPinchPer > mPinchPerThresh ){
-            mShowFilterGUI = true;
+            if (!mWheelOverlay->getShowWheel()) {
+                mWheelOverlay->setShowWheel( true );
+            }
 //            std::cout << "updateCamera opened filter GUI" << std::endl;			
 		} else if( mPinchPer <= mPinchPerThresh ){
-            mShowFilterGUI = false;
+            if (mWheelOverlay->getShowWheel()) {
+                mWheelOverlay->setShowWheel( false );
+            }
 //            std::cout << "updateCamera closed filter GUI" << std::endl;			
 		}
         bool isAlphaFilter = mState.getFilterMode() == State::FilterModeAlphaChar;

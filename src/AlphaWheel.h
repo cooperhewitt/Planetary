@@ -21,33 +21,23 @@
 #include "BloomNode.h"
 
 class AlphaWheel : public BloomNode {
+
 public:
+    
 	AlphaWheel() {};
 	~AlphaWheel() {};
-	
-	struct VertexData {
-        ci::Vec2f vertex;
-        ci::Vec2f texture;
-    };
-	
-	void	setup( const ci::Font &font );
-	void	initAlphaTextures( const ci::Font &font );
-	void	setRects();
+		
+	void	setup( const ci::Font &font, WheelOverlayRef wheelOverlay );    
+	void	update();
+	void	draw();
+    
 	bool	touchBegan( ci::app::TouchEvent::Touch touch );
 	bool	touchMoved( ci::app::TouchEvent::Touch touch );
 	bool	touchEnded( ci::app::TouchEvent::Touch touch );
     
-    void    setNumberAlphaPerChar( float *numAlphaPerChar ); // FIXME: call this in main app
+    void    setNumberAlphaPerChar( float *numAlphaPerChar );
 	void	setTimePinchEnded( float timePinchEnded );
-    
-	void	update();
-	void	draw();
-    
-	void	setShowWheel( bool b );
-	bool	getShowWheel(){ return mShowWheel; }
-    
-	float	getWheelScale(){ return mWheelScale; }
-	
+        	
     void	setAlphaChar( char c ){ mAlphaChar = c; }
 	char	getAlphaChar(){ return mAlphaChar; }
 	
@@ -55,37 +45,31 @@ public:
 	ci::CallbackId registerAlphaCharSelected( T *obj, bool ( T::*callback )( AlphaWheel* ) ){
 		return mCallbacksAlphaCharSelected.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
-	
-	template<typename T>
-	ci::CallbackId registerWheelToggled( T *obj, bool ( T::*callback )( AlphaWheel* ) ){
-		return mCallbacksWheelToggled.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
-	}
-		
+			
 private:
-	void	drawAlphaChar();    
+    
+	void	setRects();    
+	void	initAlphaTextures( const ci::Font &font );
+    
 	bool	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
     
     uint32_t        mActiveTouchId;
-	ci::Vec2f		mLastTouchPos;    
+	ci::Vec2f		mLastTouchPos;
 
-	WheelOverlay	mWheelOverlay;
+    WheelOverlayRef mWheelOverlay;
 	
 	float			mTimePinchEnded;
-    
     float           *mNumberAlphaPerChar;
 
-	bool			mShowWheel;
 	std::string		mAlphaString;
 	int				mAlphaIndex;
 	char			mAlphaChar, mPrevAlphaChar;
-	float			mWheelScale;
 	
-	std::vector<ci::gl::Texture> mAlphaTextures;
-	std::vector<ci::Rectf> mAlphaRects;
-	
-	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksAlphaCharSelected;
-	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksWheelToggled;
+    ci::Vec2f       mInterfaceSize;
     
-    ci::Vec2f                  mInterfaceSize, mInterfaceCenter;
+	std::vector<ci::gl::Texture> mAlphaTextures;
+	std::vector<ci::Rectf>       mAlphaRects;
+	
+	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksAlphaCharSelected;    
 };
 
