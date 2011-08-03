@@ -27,7 +27,7 @@ using namespace std;
 
 void WheelOverlay::setup()
 {
-    mWheelScale	= 1.0f;
+    mWheelScale	= 2.25f;
 	mShowWheel  = false;    
 	mRadius     = -1.0f; // updated in update :)
     mVerts      = NULL;
@@ -56,6 +56,7 @@ void WheelOverlay::update()
         mat.translate( Vec3f(mInterfaceCenter, 0) );
         
         if ( mInterfaceSize.x > mInterfaceSize.y ) {
+            // adjust for control panel in landscape
             float amount = (mInterfaceSize.x - mInterfaceSize.y) / (1024-768);            
             mat.translate( Vec3f(0, -15.0f * amount, 0) );
         }
@@ -68,11 +69,12 @@ void WheelOverlay::update()
 
 	mRadius = 315.0f;
 	if( interfaceSize.x > interfaceSize.y ) {
+        // adjust for control panel in landscape
         float amount = (interfaceSize.x - interfaceSize.y) / (1024-768);        
 		mRadius -= 30.0f * amount;
     }
     
-    if (mVerts == NULL || mRadius == prevRadius) {
+    if (mVerts == NULL || mRadius != prevRadius) {
         updateVerts();
     }
 }
@@ -84,12 +86,12 @@ void WheelOverlay::updateVerts()
 	mVerts = NULL;
 	mVerts = new VertexData[mTotalVertices];
 	
-	float W	= 1280; // square off for orientation animation
-	float H = 1280;
+	float W	= 1280; // sqrt(1024 * 1024 + 768 * 768) (diagonal)
+	float H = W;    // squared off for orientation animation
 	float CW = W/2;
 	float CH = H/2;
-	float L = ( W - mRadius * 2.0f )/2;
-	float T = ( H - mRadius * 2.0f )/2;
+	float L = ( W - mRadius * 2.0f ) / 2.0f;
+	float T = ( H - mRadius * 2.0f ) / 2.0f;
 	float R = L + mRadius * 2.0f;
 	float B = T + mRadius * 2.0f;
 		

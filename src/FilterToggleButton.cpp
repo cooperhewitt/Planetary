@@ -96,11 +96,14 @@ void FilterToggleButton::update()
 		mInterfaceSize = interfaceSize;
 		
 		float y = 30.0f;
-		if( mInterfaceSize.x < mInterfaceSize.y ) // portrait mode
-			y = 120.0f;
+		if( mInterfaceSize.x < mInterfaceSize.y ) {
+            // portrait mode
+            float amount = (mInterfaceSize.y-mInterfaceSize.x) / (1024-768);
+			y += 90.0f * amount;
+        }
 		
 		Matrix44f mat;
-		mat.translate( Vec3f( mInterfaceSize.x/2 - mAlphaRect.getWidth(), y, 0.0f ) );
+		mat.translate( Vec3f( mInterfaceSize.x/2.0f - mAlphaRect.getWidth(), y, 0.0f ) );
 		setTransform( mat );
 	}
 }

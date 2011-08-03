@@ -113,7 +113,6 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
     void            togglePlayPaused();
 	bool			onPlayControlsPlayheadMoved ( float amount );
-    void            updatePlaylistControls();
     void            flyToCurrentTrack();
 	
     bool			onSelectedNodeChanged( Node *node );
@@ -162,8 +161,6 @@ class KeplerApp : public AppCocoaTouch {
 // AUDIO
 	ipod::Player		mIpodPlayer;
     ipod::TrackRef      mPlayingTrack;
-	int					mPlaylistIndex; // FIXME: move this into State
-    int                 mPlaylistDisplayOffset;
     double              mCurrentTrackLength; // cached by onPlayerTrackChanged
     double              mCurrentTrackPlayheadTime;
     double              mPlayheadUpdateSeconds;
@@ -470,8 +467,6 @@ void KeplerApp::remainingSetup()
 	mIpodPlayer.registerStateChanged( this, &KeplerApp::onPlayerStateChanged );
     mIpodPlayer.registerTrackChanged( this, &KeplerApp::onPlayerTrackChanged );
     mIpodPlayer.registerLibraryChanged( this, &KeplerApp::onPlayerLibraryChanged );
-	mPlaylistIndex = 0;
-    mPlaylistDisplayOffset = 0;
 	
 	// PERLIN
 	mPerlin = Perlin( 4 );
@@ -820,15 +815,6 @@ bool KeplerApp::onWheelToggled( bool on )
 
 bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
 {
-    mPlaylistIndex = -1;
-    mPlaylistDisplayOffset = 0;
-    for (int i = 0; i < mData.mPlaylists.size(); i++) {
-        if (mData.mPlaylists[i] == playlist) {
-            mPlaylistIndex = i;
-            break;
-        }
-    }
-    assert(mPlaylistIndex != -1);
     mState.setPlaylist( playlist ); // triggers onPlaylistStateChanged
     return false;
 }
@@ -842,7 +828,11 @@ bool KeplerApp::onFilterToggled( State::FilterMode filterMode )
         //        or maybe set to the previously chosen alphachar?
     }
     else if (filterMode == State::FilterModePlaylist) {
-        mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] ); // triggers onPlaylistStateChanged
+        ipod::PlaylistRef playlist = mState.getPlaylist();
+        if (!playlist) {
+            playlist = mData.mPlaylists[0];
+        }
+        mState.setPlaylist( playlist ); // triggers onPlaylistStateChanged
     }
     // now make sure that everything is cool with the current filter
     mWorld.updateAgainstCurrentFilter();
@@ -874,7 +864,6 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
         // FIXME: if we're showing mPlaylistChooser then show mAlphaWheel instead
         
         mState.setSelectedNode( NULL );
-        updatePlaylistControls();
 
         stringstream s;
         s << "FILTERING ARTISTS BY '" << mState.getAlphaChar() << "'";
@@ -901,8 +890,6 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
     mState.setFilterMode( State::FilterModePlaylist ); // TODO: make this part of Filter?
     mFilterToggleButton.setFilterMode( State::FilterModePlaylist );
     mState.setSelectedNode( NULL );
-
-    updatePlaylistControls();
 
     /////// notifications...
     
@@ -1148,33 +1135,6 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             mPlayControls.setDebugVisible( G_DEBUG );
             break;
 			
-		case PlayControls::NEXT_PLAYLIST:
-            // don't select a playlist, just change the one that's displayed on mPlayControls
-            mPlaylistDisplayOffset++;
-            updatePlaylistControls();
-            break;
-
-        case PlayControls::SELECT_PLAYLIST:
-            // select a playlist and reset the offset
-            mPlaylistIndex = mPlaylistIndex + mPlaylistDisplayOffset;
-            mPlaylistDisplayOffset = 0;
-            while (mPlaylistIndex < 0) {
-                mPlaylistIndex += mData.mPlaylists.size();
-            }
-            if (mPlaylistIndex >= mData.mPlaylists.size()) {
-                mPlaylistIndex %= mData.mPlaylists.size(); 
-            }
-            if (mData.mPlaylists.size() > mPlaylistIndex) {
-                mState.setPlaylist( mData.mPlaylists[ mPlaylistIndex ] );
-            }
-            break;	
-
-		case PlayControls::PREV_PLAYLIST:
-            // don't select a playlist, just change the one that's displayed on mPlayControls
-            mPlaylistDisplayOffset--;
-            updatePlaylistControls();
-            break;	
-			
 		case PlayControls::SHOW_WHEEL:
             mWheelOverlay->setShowWheel( !mWheelOverlay->getShowWheel() );
             break;	
@@ -1225,22 +1185,6 @@ void KeplerApp::togglePlayPaused()
         mIpodPlayer.play();
         mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 0.0f, 128.0f, 128.0f ), "PLAY" );
     }    
-}
-
-void KeplerApp::updatePlaylistControls()
-{
-    int showPlaylist =  mPlaylistIndex + mPlaylistDisplayOffset;
-    while (showPlaylist < 0) {
-        showPlaylist += mData.mPlaylists.size();
-    }
-    if (showPlaylist >= mData.mPlaylists.size()) {
-        showPlaylist %= mData.mPlaylists.size(); 
-    }
-//    if (mData.mPlaylists.size() > showPlaylist) {
-//        mPlayControls.setPlaylist( mData.mPlaylists[showPlaylist]->getPlaylistName() );
-//    }
-//    const bool playlistMode = (mState.getFilterMode() == State::FilterModePlaylist);
-//    mPlayControls.setPlaylistSelected( playlistMode && (mPlaylistDisplayOffset == 0) );
 }
  
 void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
@@ -1327,7 +1271,6 @@ void KeplerApp::update()
 		}
         
         if (mData.mPlaylists.size() > 0) {
-//            mPlayControls.setPlaylist( mData.mPlaylists[0]->getPlaylistName() );
             mPlaylistChooser.setDataWorldCam( &mData, &mWorld, &mCam );
         }
 	}
@@ -1405,7 +1348,6 @@ void KeplerApp::update()
             // FIXME: set visibility based on wheel radius            
             mPlaylistChooser.setVisible( mWheelOverlay->getShowWheel() );
             mAlphaWheel.setVisible( false );
-            mPlaylistChooser.setCurrentPlaylistIndex( mPlaylistIndex );
         }	        
         else {
             // FIXME: we still automatically select the alpha char so this might never be called, right?
@@ -2033,7 +1975,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
                 // if we're in playlist mode then maybe this track is in the playlist, which is cool...
                 bool playingTrackIsInPlaylist = false;
-                ipod::PlaylistRef playlist = mData.mPlaylists[ mPlaylistIndex ];
+                ipod::PlaylistRef playlist = mState.getPlaylist();
                 for (int i = 0; i < playlist->size(); i++) {
                     if ((*playlist)[i]->getItemId() == trackId) {
                         playingTrackIsInPlaylist = true;

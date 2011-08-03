@@ -27,13 +27,13 @@ class PlaylistChooser : public BloomNode {
 
 public:    
     
-    PlaylistChooser(): mData(NULL), mVisible(false), mOffsetX(0.0f), mCurrentPlaylistIndex(-1) {}
+    PlaylistChooser(): mData(NULL), mOffsetX(0.0f), mCurrentPlaylistIndex(-1) {}
     
     void setup( const ci::Font &font, WheelOverlayRef wheelOverlay );
 	void update();
     void draw();
 	
-	void makeFbo( int index, ci::ipod::PlaylistRef playlist );
+//	void makeFbo( int index, ci::ipod::PlaylistRef playlist );
 	void makeTexture( int index, ci::ipod::PlaylistRef playlist );
 	
     void setCurrentPlaylistIndex( int index ) { mCurrentPlaylistIndex = index; } // -1 is "none"
@@ -57,14 +57,12 @@ private:
 	float			getScale( float x );
 	float			getAlpha( float x );
 	
-	
+
 	int				mNumPlaylists;
 	int				mCurrentPlaylistIndex; // set from main app, passive
 	
 	int				mCurrentIndex;
 	int				mPrevIndex;
-	
-    bool			mVisible;
 	
 	ci::Vec2i		mTouchPos, mTouchPrevPos;
 	float			mTouchVel;
@@ -88,7 +86,6 @@ private:
     
     std::vector<ci::Rectf> mPlaylistRects;
 	
-	std::map<int, ci::gl::Fbo> mFboMap;
 	std::map<int, ci::gl::Texture> mTextureMap;
     
     ci::gl::Texture	mTex, mBgTex;
@@ -104,11 +101,7 @@ private:
     ci::Font		mFont;
     
     ci::Vec2f		mInterfaceSize;
-	
-	int             mTotalVertices;
-    int             mPrevTotalVertices; // so we only recreate frames
-	VertexData      *mVerts;
-	
+		
 	WheelOverlayRef mWheelOverlay;
 	
 	ci::CallbackMgr<bool(ci::ipod::PlaylistRef)> mCbPlaylistSelected;        
