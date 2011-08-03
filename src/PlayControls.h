@@ -32,7 +32,6 @@ class PlayControls : public BloomNode {
 public:
 
 	enum ButtonId { NO_BUTTON, 
-                    PREV_PLAYLIST, SELECT_PLAYLIST, NEXT_PLAYLIST, 
                     SHOW_WHEEL, GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, 
                     PREV_TRACK, PLAY_PAUSE, NEXT_TRACK, 
                     SHUFFLE, REPEAT, 
@@ -50,9 +49,7 @@ public:
                 const ci::gl::Texture &smallButtonsTex );
     
     void update();
-    
-//    void draw();
-    
+        
     // this one updates the drawable and interactive things too:
     void setShowSettings(bool visible);
     
