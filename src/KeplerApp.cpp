@@ -1162,9 +1162,29 @@ void KeplerApp::flyToCurrentTrack()
         uint64_t artistId = newTrack->getArtistId();
         uint64_t albumId = newTrack->getAlbumId();            
         
-        // trigger hefty stuff in onAlphaCharStateChanged if needed
-        mState.setAlphaChar( newTrack->getArtist() ); 
+        // see if we're in the current playlist
+        bool inCurrentPlaylist = false;
+        if( mState.getFilterMode() == State::FilterModePlaylist ) {
+            // find this track node in the current playlist
+            ipod::PlaylistRef playlist = mState.getPlaylist();
+            for (int i = 0; i < playlist->size(); i++) {
+                if ((*playlist)[i]->getItemId() == trackId) {
+                    inCurrentPlaylist = true;
+                    break;
+                }
+            }
+        }
         
+        // if we're not, set it back to alpha mode
+        if (!inCurrentPlaylist) {
+            // trigger hefty stuff in onFilterModeStateChanged if needed
+            if ( mState.getFilterMode() != State::FilterModeAlphaChar ) {
+                mState.setFilterMode( State::FilterModeAlphaChar );            
+            }
+            // trigger hefty stuff in onAlphaCharStateChanged if needed
+            mState.setAlphaChar( newTrack->getArtist() ); 
+        }
+    
         // be sure to create nodes for artist, album and track:
         mWorld.selectHierarchy( artistId, albumId, trackId );
         
