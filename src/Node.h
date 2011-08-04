@@ -15,6 +15,7 @@
 #include "cinder/Color.h"
 #include "cinder/Font.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/gl/Fbo.h"
 #include "cinder/Sphere.h"
 #include "cinder/Camera.h"
 #include "BloomSphere.h"
@@ -35,6 +36,8 @@ class Node {
 		}
 		mChildNodes.clear();
 	}	
+	
+//	static void		initFbo();
 	
 	// METHODS
 	void			setSphereData( BloomSphere *hiSphere, BloomSphere *mdSphere, BloomSphere *loSphere, BloomSphere *tySphere );
@@ -175,4 +178,6 @@ protected:
     BloomSphere *mMdSphere;
     BloomSphere *mLoSphere; 
     BloomSphere *mTySphere;
+	
+//	static ci::gl::Fbo	mAlbumArtFbo;
 };

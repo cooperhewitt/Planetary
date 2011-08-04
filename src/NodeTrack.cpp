@@ -605,11 +605,11 @@ void NodeTrack::drawPlayheadProgress( float pinchAlphaPer, float camAlpha, float
 		glPopMatrix();
 		
 		Vec3f pos = Vec3f( cos( mOrbitStartAngle ), 0.0f, sin( mOrbitStartAngle ) );
-
+		
 		gl::enableAlphaBlending();
 
 		originTex.enableAndBind();
-		gl::drawBillboard( mParentNode->mPos + pos * mOrbitRadius, Vec2f( mRadius, mRadius ) * 2.15f, 0.0f, Vec3f::xAxis(), Vec3f::zAxis() );
+		gl::drawBillboard( mParentNode->mPos + pos * mOrbitRadius, Vec2f( mRadius, mRadius ) * 2.15f, toDegrees( mOrbitStartAngle ), Vec3f::xAxis(), Vec3f::zAxis() );
 		originTex.disable();
 		
 	//	gl::drawLine( pos * ( mOrbitRadius + mRadius * 1.2f ), pos * ( mOrbitRadius - mRadius * 1.2f ) );

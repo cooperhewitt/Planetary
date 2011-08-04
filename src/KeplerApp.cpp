@@ -4,6 +4,7 @@
 #include "cinder/app/Renderer.h"
 #include "cinder/Surface.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/gl/Fbo.h"
 #include "cinder/Camera.h"
 #include "cinder/Font.h"
 #include "cinder/Arcball.h"
@@ -29,6 +30,7 @@
 
 #include "World.h"
 #include "NodeArtist.h"
+#include "NodeAlbum.h"
 #include "Galaxy.h"
 #include "BloomSphere.h"
 
@@ -487,6 +489,9 @@ void KeplerApp::remainingSetup()
 	mNotificationOverlay.setup( mFontBig );
     mMainBloomNodeRef->addChild( BloomNodeRef(&mNotificationOverlay) );	
 
+	// FBO
+//	Node::initFbo();
+	
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
 
     //console() << "setupEnd: " << getElapsedSeconds() << std::endl;
@@ -1676,7 +1681,7 @@ void KeplerApp::drawScene()
 	mStarGlowTex.disable();
 
 	if( artistNode ){ // defined at top of method
-		artistNode->drawStarGlow( mEye, ( mEye - mCenter ).normalized(), mStarGlowTex );
+		artistNode->drawStarGlow( mEye - mCenterOffset, ( mEye - mCenter ).normalized(), mStarGlowTex );
 		
 		
 		Vec2f interfaceSize = getWindowSize();
@@ -1721,10 +1726,10 @@ void KeplerApp::drawScene()
 
 			gl::disableAlphaBlending(); // dings additive blending            
 			gl::enableAlphaBlending();  // restores alpha blending
-            			
+
 			sortedNodes[i]->drawPlanet( mStarCoreTex ); // star core tex for artistars, planets do their own thing
 			sortedNodes[i]->drawClouds( mCloudsTex );
-
+			
 			glDisable( GL_LIGHTING );
 			gl::disableDepthRead();
 			
@@ -1741,7 +1746,7 @@ void KeplerApp::drawScene()
 		glDisable( GL_RESCALE_NORMAL );
 		
 		gl::enableAdditiveBlending();
-		artistNode->drawExtraGlow( mEye, mStarGlowTex, mStarTex );
+		artistNode->drawExtraGlow( mEye - mCenterOffset, mStarGlowTex, mStarTex );
 	}
 
 	glDisable( GL_LIGHTING );
@@ -2090,7 +2095,6 @@ void KeplerApp::makeNewCameraPath()
 
 void KeplerApp::createRandomBSpline( const vector<ci::Vec3f> &positions )
 {
-	int numPositions = positions.size();
 	int numPoints = 4;
 	
 	int totalSplinePos = mSplinePos.size();
