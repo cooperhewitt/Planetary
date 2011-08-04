@@ -162,16 +162,15 @@ void AlphaWheel::draw()
 {	
 	if( mWheelOverlay->getWheelScale() < 1.95f ){
 
-        // FIXME: fade everything using getWheelScale:
-//        gl::color( ColorA( BLUE, 1.0f - mWheelOverlay->getWheelScale() ) );
+        float alpha = constrain(2.0f - mWheelOverlay->getWheelScale(), 0.0f, 1.0f);
         
 		for( int i=0; i<27; i++ ){
 			float c = mNumberAlphaPerChar[i];
 			if( c > 0.0f ){
 				c += 0.3f;
-				gl::color( Color( c, c, c ) );
+				gl::color( ColorA( c, c, c, alpha ) );
 			} else {
-				gl::color( Color( 0.5f, 0, 0 ) );
+				gl::color( ColorA( 0.5f, 0, 0, alpha ) );
 			}
 			mAlphaTextures[i].enableAndBind();
             // TODO: batch these rects (adapt bloom::gl::batchRect for color tints?)

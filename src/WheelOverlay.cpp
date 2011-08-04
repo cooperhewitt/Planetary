@@ -167,7 +167,8 @@ void WheelOverlay::updateVerts()
 void WheelOverlay::draw()
 {	
     if ( mWheelScale < 2.24f ) {    
-        gl::color( Color::white() );
+        
+        gl::color( ColorA( 1.0f, 1.0f, 1.0f, constrain(2.0f - mWheelScale, 0.0f, 1.0f) ) );
         
         mTex.enableAndBind();
         glEnableClientState( GL_VERTEX_ARRAY );
