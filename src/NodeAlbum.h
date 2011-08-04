@@ -12,12 +12,15 @@
 #include "cinder/Vector.h"
 #include "Node.h"
 #include "OrbitRing.h"
+#include "cinder/gl/Fbo.h"
 //#include "Shadow.h"
 
 class NodeAlbum : public Node
 {
   public:
 	NodeAlbum( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &hiResSurfaces, const ci::Surface &loResSurfaces, const ci::Surface &noAlbumArt );
+	~NodeAlbum();
+	
 	void setData( ci::ipod::PlaylistRef album );
 	void update( float param1, float param2 );
 	void drawEclipseGlow();
@@ -39,8 +42,14 @@ class NodeAlbum : public Node
 	// TODO: should this be private?
 	int mNumTracks;
 	ci::Surface	mAlbumArtSurface;
-
+	
   private:
+	struct VertexData {
+        ci::Vec2f vertex;
+        ci::Vec2f texture;
+    }; 
+	GLuint		mAlbumArtVbo;
+	
 	float		mReleaseYear;
 	float		mTotalLength;
 	float		mAsciiPer;
@@ -55,5 +64,7 @@ class NodeAlbum : public Node
 	uint64_t    mId;
 //    Shadow      mShadow;	
 	GLfloat		*mShadowVerts;
-	GLfloat		*mShadowTexCoords;    
+	GLfloat		*mShadowTexCoords;
+	
+	
 };

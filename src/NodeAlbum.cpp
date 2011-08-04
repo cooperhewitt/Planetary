@@ -42,6 +42,14 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, const Font &sma
 }
 
 
+NodeAlbum::~NodeAlbum()
+{
+	if( mAlbumArtVbo != 0 ){
+		glDeleteBuffers( 1, &mAlbumArtVbo );
+	}
+}
+
+
 void NodeAlbum::setData( PlaylistRef album )
 {	
 	
@@ -133,7 +141,7 @@ void NodeAlbum::setData( PlaylistRef album )
 		hasAlbumArt = false;
 		mAlbumArtSurface = mNoAlbumArtSurface;
 	}
-
+	
 	int x			= (int)( mAsciiPer*halfWidth );
 	int y			= (int)( mAsciiPer*border );
 	
@@ -168,30 +176,30 @@ void NodeAlbum::setData( PlaylistRef album )
 			iter.b() = c.b * 255.0f;
 		}
 	}
-//	
-//	// fix the polar pinching
-//	Surface::Iter iter2 = crop.getIter();
-//	while( iter2.line() ) {
-//		float cosTheta = cos( M_PI * ( iter2.y() - (float)( totalWidth - 1 )/2.0f ) / (float)( totalWidth - 1 ) );
-//		
-//		while( iter2.pixel() ) {
-//			float phi	= TWO_PI * ( iter2.x() - halfWidth ) / (double)totalWidth;
-//			float phi2	= phi * cosTheta;
-//			int i2 = phi2 * totalWidth/TWO_PI + halfWidth;
-//			
-//			if( i2 < 0 || i2 > totalWidth-1 ){
-//				// this should never happen
-//				iter2.r() = 255.0f;
-//				iter2.g() = 0.0f;
-//				iter2.b() = 0.0f;
-//			} else {
-//				ColorA c = crop2.getPixel( Vec2i( i2, iter2.y() ) );
-//				iter2.r() = c.r * 255.0f;
-//				iter2.g() = c.g * 255.0f;
-//				iter2.b() = c.b * 255.0f;
-//			}
-//		}
-//	}
+	//	
+	//	// fix the polar pinching
+	//	Surface::Iter iter2 = crop.getIter();
+	//	while( iter2.line() ) {
+	//		float cosTheta = cos( M_PI * ( iter2.y() - (float)( totalWidth - 1 )/2.0f ) / (float)( totalWidth - 1 ) );
+	//		
+	//		while( iter2.pixel() ) {
+	//			float phi	= TWO_PI * ( iter2.x() - halfWidth ) / (double)totalWidth;
+	//			float phi2	= phi * cosTheta;
+	//			int i2 = phi2 * totalWidth/TWO_PI + halfWidth;
+	//			
+	//			if( i2 < 0 || i2 > totalWidth-1 ){
+	//				// this should never happen
+	//				iter2.r() = 255.0f;
+	//				iter2.g() = 0.0f;
+	//				iter2.b() = 0.0f;
+	//			} else {
+	//				ColorA c = crop2.getPixel( Vec2i( i2, iter2.y() ) );
+	//				iter2.r() = c.r * 255.0f;
+	//				iter2.g() = c.g * 255.0f;
+	//				iter2.b() = c.b * 255.0f;
+	//			}
+	//		}
+	//	}
 	
 	// add the planet texture
 	// and add the shadow from the cloud layer
@@ -217,13 +225,14 @@ void NodeAlbum::setData( PlaylistRef album )
 			iter.b() = constrain( final.b * 255.0f - 0.0f, 0.0f, 255.0f );// + 25.0f;
 		}
 	}
-
+	
     gl::Texture::Format fmt;
     fmt.enableMipmapping( true );
     fmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );
 	
 	mAlbumArtTex		= gl::Texture( planetSurface, fmt );
 	mHasAlbumArt		= true;
+
 }
 
 
