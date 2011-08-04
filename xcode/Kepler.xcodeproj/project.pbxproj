@@ -112,6 +112,7 @@
 		E273044A138DAA6400A2A65B /* ScrollingLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */; };
 		E278F90813830E7E00738472 /* Buttons.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E278F90713830E7E00738472 /* Buttons.cpp */; };
 		E278F90F138333FB00738472 /* Slider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E278F90D138333FB00738472 /* Slider.cpp */; };
+		E27A27E613DDDF8500B957EC /* TextureLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E27A27E413DDDF8500B957EC /* TextureLoader.cpp */; };
 		E28177EE139AFA8500049D69 /* PlaylistFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28177EC139AFA8500049D69 /* PlaylistFilter.cpp */; };
 		E28177F6139AFB0800049D69 /* LetterFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28177F5139AFB0800049D69 /* LetterFilter.cpp */; };
 		E28FDA831339B782005EDBB4 /* PlayControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E28FDA821339B782005EDBB4 /* PlayControls.cpp */; };
@@ -251,7 +252,7 @@
 		E23C29FB13B1A9710038F3F4 /* galaxyCropped.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = galaxyCropped.jpg; path = ../galaxyCropped.jpg; sourceTree = "<group>"; };
 		E23C29FC13B1A9710038F3F4 /* galaxyCropped.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = galaxyCropped.pvr; path = ../galaxyCropped.pvr; sourceTree = "<group>"; };
 		E2576E4013D4C8D500EC82EF /* TextureRect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextureRect.cpp; path = ../src/TextureRect.cpp; sourceTree = "<group>"; };
-		E2576E4113D4C8D600EC82EF /* TextureRect.h */ = {isa = PBXFileReference; fileEncoding = 4; path = TextureRect.h; sourceTree = "<group>"; };
+		E2576E4113D4C8D600EC82EF /* TextureRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureRect.h; sourceTree = "<group>"; };
 		E25C872D131F1420000780A3 /* NodeArtist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeArtist.cpp; path = ../src/NodeArtist.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8742131F14B3000780A3 /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8743131F14B3000780A3 /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
@@ -259,13 +260,15 @@
 		E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScrollingLabel.cpp; path = ../src/ScrollingLabel.cpp; sourceTree = "<group>"; };
 		E278F90713830E7E00738472 /* Buttons.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Buttons.cpp; path = ../src/Buttons.cpp; sourceTree = "<group>"; };
 		E278F90D138333FB00738472 /* Slider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Slider.cpp; path = ../src/Slider.cpp; sourceTree = "<group>"; };
+		E27A27E413DDDF8500B957EC /* TextureLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextureLoader.cpp; path = ../src/TextureLoader.cpp; sourceTree = "<group>"; };
+		E27A27E513DDDF8500B957EC /* TextureLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextureLoader.h; path = ../src/TextureLoader.h; sourceTree = "<group>"; };
 		E28177EC139AFA8500049D69 /* PlaylistFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlaylistFilter.cpp; path = ../src/PlaylistFilter.cpp; sourceTree = "<group>"; };
 		E28177F5139AFB0800049D69 /* LetterFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LetterFilter.cpp; path = ../src/LetterFilter.cpp; sourceTree = "<group>"; };
 		E28FDA821339B782005EDBB4 /* PlayControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayControls.cpp; path = ../src/PlayControls.cpp; sourceTree = "<group>"; };
 		E2A868B113D3CA6F0024E4D0 /* BloomNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BloomNode.cpp; path = ../src/BloomNode.cpp; sourceTree = "<group>"; };
-		E2A868B213D3CA6F0024E4D0 /* BloomNode.h */ = {isa = PBXFileReference; fileEncoding = 4; path = BloomNode.h; sourceTree = "<group>"; };
+		E2A868B213D3CA6F0024E4D0 /* BloomNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BloomNode.h; sourceTree = "<group>"; };
 		E2A868B413D3D0940024E4D0 /* BloomScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BloomScene.cpp; path = ../src/BloomScene.cpp; sourceTree = "<group>"; };
-		E2A868B513D3D0940024E4D0 /* BloomScene.h */ = {isa = PBXFileReference; fileEncoding = 4; path = BloomScene.h; sourceTree = "<group>"; };
+		E2A868B513D3D0940024E4D0 /* BloomScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BloomScene.h; sourceTree = "<group>"; };
 		E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlaylistChooser.cpp; path = ../src/PlaylistChooser.cpp; sourceTree = "<group>"; };
 		E2CD4B9C13CA6F350047AF5F /* PlaylistChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistChooser.h; path = ../src/PlaylistChooser.h; sourceTree = "<group>"; };
 		E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FilterToggleButton.cpp; path = ../src/FilterToggleButton.cpp; sourceTree = "<group>"; };
@@ -292,11 +295,11 @@
 		E2E21CC813A177EA00A476A2 /* ParticleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParticleController.h; path = ../src/ParticleController.h; sourceTree = "<group>"; };
 		E2E21CC913A177EA00A476A2 /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../src/PlayControls.h; sourceTree = "<group>"; };
 		E2E21CCA13A177EB00A476A2 /* PlaylistFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistFilter.h; path = ../src/PlaylistFilter.h; sourceTree = "<group>"; };
-		E2E21CCB13A177EB00A476A2 /* ScrollingLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; path = ScrollingLabel.h; sourceTree = "<group>"; };
-		E2E21CCC13A177EB00A476A2 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; path = Slider.h; sourceTree = "<group>"; };
+		E2E21CCB13A177EB00A476A2 /* ScrollingLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScrollingLabel.h; sourceTree = "<group>"; };
+		E2E21CCC13A177EB00A476A2 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Slider.h; sourceTree = "<group>"; };
 		E2E21CCD13A177EC00A476A2 /* State.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../src/State.h; sourceTree = "<group>"; };
-		E2E21CCE13A177EC00A476A2 /* TextLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; path = TextLabel.h; sourceTree = "<group>"; };
-		E2E21CCF13A177ED00A476A2 /* TimeLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; path = TimeLabel.h; sourceTree = "<group>"; };
+		E2E21CCE13A177EC00A476A2 /* TextLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextLabel.h; sourceTree = "<group>"; };
+		E2E21CCF13A177ED00A476A2 /* TimeLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeLabel.h; sourceTree = "<group>"; };
 		E2E21CD113A177EE00A476A2 /* UiLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UiLayer.h; path = ../src/UiLayer.h; sourceTree = "<group>"; };
 		E2E21CD213A177EF00A476A2 /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = World.h; path = ../src/World.h; sourceTree = "<group>"; };
 		E2E21CD713A1821300A476A2 /* GyroHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GyroHelper.cpp; path = ../src/GyroHelper.cpp; sourceTree = "<group>"; };
@@ -305,7 +308,7 @@
 		E2E21CDB13A2D70C00A476A2 /* Stats.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Stats.cpp; path = ../src/Stats.cpp; sourceTree = "<group>"; };
 		E2E21CDC13A2D70E00A476A2 /* Stats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Stats.h; path = ../src/Stats.h; sourceTree = "<group>"; };
 		E2FADC1413DB740700C24F4D /* OrientationNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OrientationNode.cpp; path = ../src/OrientationNode.cpp; sourceTree = "<group>"; };
-		E2FADC1513DB740700C24F4D /* OrientationNode.h */ = {isa = PBXFileReference; fileEncoding = 4; path = OrientationNode.h; sourceTree = "<group>"; };
+		E2FADC1513DB740700C24F4D /* OrientationNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrientationNode.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -612,6 +615,7 @@
 				E177A6CC134E7B850014AD55 /* BloomGl.cpp */,
 				E2E21CD713A1821300A476A2 /* GyroHelper.cpp */,
 				E219CEE513A5A615006C7F26 /* BloomSphere.cpp */,
+				E27A27E413DDDF8500B957EC /* TextureLoader.cpp */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -636,6 +640,7 @@
 				E2E21CD813A1821300A476A2 /* GyroHelper.h */,
 				E2E21CB713A177E200A476A2 /* BloomGl.h */,
 				E2E21CBE13A177E500A476A2 /* Globals.h */,
+				E27A27E513DDDF8500B957EC /* TextureLoader.h */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -1034,6 +1039,7 @@
 				E2576E4213D4C8D600EC82EF /* TextureRect.cpp in Sources */,
 				E1D32DFF13D78E01002F33ED /* WheelOverlay.cpp in Sources */,
 				E2FADC1613DB740700C24F4D /* OrientationNode.cpp in Sources */,
+				E27A27E613DDDF8500B957EC /* TextureLoader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
