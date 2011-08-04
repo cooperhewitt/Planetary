@@ -39,17 +39,10 @@ void PlaylistChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
 	mNumPlaylists			= 0;
 	mIsDragging				= false;
 	
-	mPlaylistWidth			= 120.0f;
-	mPlaylistHeight			= 30.0f;
-	mPlaylistSize			= Vec2f( mPlaylistWidth, mPlaylistHeight );
+	mPlaylistSize			= Vec2f( 120.f, 30.0f );
 	mSpacerWidth			= 30.0f;
-	mBorder					= mPlaylistWidth * 0.5f;
 	mStartY					= 350.0f;
-    
-    // FIXME: load these in main app and pass in to setup(...)
-	mTex					= gl::Texture( loadImage( loadResource( "playlist.png" ) ) );
-	mBgTex					= gl::Texture( loadImage( loadResource( "playlistBg.png" ) ) );	
-	
+
 	mPrevIndex				= -1;
 	mCurrentIndex			= 0;
 	
@@ -113,7 +106,7 @@ bool PlaylistChooser::touchEnded( ci::app::TouchEvent::Touch touch )
             mCurrentIndex = mTouchDragPlaylistIndex;
             mPrevIndex = mCurrentIndex; // set this so that we won't fire the callback twice
             mCbPlaylistSelected.call( mData->mPlaylists[mTouchDragPlaylistIndex] );
-            mOffsetX = mTouchDragPlaylistIndex * ( mPlaylistWidth + mSpacerWidth );
+            mOffsetX = mTouchDragPlaylistIndex * ( mPlaylistSize.x + mSpacerWidth );
             mTouchDragId = 0;
             mTouchDragPlaylistIndex = -1;
             return true;                
@@ -147,8 +140,8 @@ void PlaylistChooser::update()
 
     mStartY			= mWheelOverlay->getRadius() - 10.0f;
         
-    mMaxOffsetX		= (mPlaylistWidth * (mNumPlaylists+0.5f)) + (mSpacerWidth * (mNumPlaylists-1));
-    mMinOffsetX		= -mPlaylistWidth * 0.5f;
+    float maxOffsetX = (mPlaylistSize.x * (mNumPlaylists+0.5f)) + (mSpacerWidth * (mNumPlaylists-1));
+    float minOffsetX = -mPlaylistSize.x * 0.5f;
     
     /////////////
     
@@ -158,23 +151,23 @@ void PlaylistChooser::update()
 		mOffsetX		-= mTouchVel;
 		
         // spring back if we've gone too far...
-		if( mOffsetX < mMinOffsetX ){
+		if( mOffsetX < minOffsetX ){
 			mTouchVel = 0.0f;
-			mOffsetX -= ( mOffsetX - mMinOffsetX ) * 0.2f;
+			mOffsetX -= ( mOffsetX - minOffsetX ) * 0.2f;
 		} 
-        else if( mOffsetX > mMaxOffsetX ){
+        else if( mOffsetX > maxOffsetX ){
 			mTouchVel = 0.0f;
-			mOffsetX -= ( mOffsetX - mMaxOffsetX ) * 0.2f;
+			mOffsetX -= ( mOffsetX - maxOffsetX ) * 0.2f;
 		}
 		
 		if( abs( mTouchVel ) < 10.0f ){
             
             // how far through are we?
-			float offsetPer	 = (mOffsetX-mPlaylistWidth/2.0) / (mPlaylistWidth + mSpacerWidth);
+			float offsetPer	 = (mOffsetX-mPlaylistSize.x/2.0) / (mPlaylistSize.x + mSpacerWidth);
             // round that for index in mData->mPlaylists
 			int chosenIndex  = constrain( (int)round( offsetPer ), 0, mNumPlaylists-1 );
             // ease to exact position (centered)
-			float lockOffset = chosenIndex * (mPlaylistWidth + mSpacerWidth) + mPlaylistWidth/2.0;            
+			float lockOffset = chosenIndex * (mPlaylistSize.x + mSpacerWidth) + mPlaylistSize.x/2.0;            
 			mOffsetXLocked	 -= ( mOffsetXLocked - lockOffset ) * 0.2f;
 			mOffsetX		 = lockOffset;
 			
@@ -213,8 +206,9 @@ void PlaylistChooser::draw()
 		
     mPlaylistRects.clear();
 
-    float startX = -mInterfaceSize.x / 2.0 + mBorder;
-    float endX = mInterfaceSize.x / 2.0 - mBorder;    
+    float border = mPlaylistSize.x * 0.5f;
+    float startX = -mInterfaceSize.x / 2.0 + border;
+    float endX = mInterfaceSize.x / 2.0 - border;    
 	
     Vec2f pos( -mOffsetXLocked, mStartY );
 	    
@@ -224,9 +218,9 @@ void PlaylistChooser::draw()
 	{	
 		ipod::PlaylistRef playlist = mData->mPlaylists[i];
 		
-        if( pos.x < endX && pos.x + mPlaylistWidth > startX )
+        if( pos.x < endX && pos.x + mPlaylistSize.x > startX )
 		{
-			float x			= pos.x + mPlaylistWidth * 0.5f; // x center of the rect
+			float x			= pos.x + mPlaylistSize.x * 0.5f; // x center of the rect
 			float alpha		= getAlpha( x );
 
 			if (!mTextures[i]) {
@@ -254,7 +248,7 @@ void PlaylistChooser::draw()
             // debuggenrectankles
 //            gl::drawStrokedRect( rect );
 //            gl::drawStrokedRect( Rectf( x - w, mStartY, x + w, mStartY + h ) );
-//            gl::drawStrokedRect( Rectf( x - mPlaylistWidth/2.0, mStartY, x + mPlaylistWidth/2.0, mStartY + h ) );
+//            gl::drawStrokedRect( Rectf( x - mPlaylistSize.x/2.0, mStartY, x + mPlaylistSize.x/2.0, mStartY + h ) );
 
         } else {
 			// STUPID FIX:
@@ -262,7 +256,7 @@ void PlaylistChooser::draw()
 			mPlaylistRects.push_back( Rectf( Vec2f( -500.0f, 0.0f ), Vec2f( -400.0f, 0.0f ) ) );
 		}
 		
-        pos.x += mSpacerWidth + mPlaylistWidth;
+        pos.x += mSpacerWidth + mPlaylistSize.x;
         
         if( pos.x > endX ){
             break;
@@ -270,7 +264,7 @@ void PlaylistChooser::draw()
     }
 
     // highlight the region things will settle into...
-    float w = mPlaylistWidth/2.0;
+    float w = mPlaylistSize.x/2.0;
     Path2d path;
     path.moveTo( -w, mStartY - 8.0f);
     path.curveTo( Vec2f( -w * 0.8f, mStartY - 14.0f), 

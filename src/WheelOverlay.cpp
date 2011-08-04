@@ -25,14 +25,13 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void WheelOverlay::setup()
+void WheelOverlay::setup( const gl::Texture &tex )
 {
     mWheelScale	= 2.25f;
 	mShowWheel  = false;    
 	mRadius     = -1.0f; // updated in update :)
     mVerts      = NULL;
-    // FIXME: pass this in and load with all the other textures in main app
-	mTex = gl::Texture( loadImage( loadResource( "alphaWheelMask.png" ) ) );
+    mTex = tex;
 }
 
 void WheelOverlay::update()

@@ -21,7 +21,7 @@ public:
     
     FilterToggleButton() { setVisible(false); }
     
-    void setup( const State::FilterMode &filterMode, const ci::Font &font );
+    void setup( const State::FilterMode &filterMode, const ci::Font &font, const gl::Texture &tex );
 	void update();
     void setFilterMode(const State::FilterMode &filterMode);
 

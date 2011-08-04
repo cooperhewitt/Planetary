@@ -26,7 +26,7 @@ public:
         ci::Vec2f texture;
     };
 	
-	void	setup();
+	void	setup( const ci::gl::Texture &tex );
 	void	update();
 	void	draw();
 

@@ -17,9 +17,9 @@
 using namespace ci;
 using namespace ci::app;
 
-void FilterToggleButton::setup( const State::FilterMode &filterMode, const Font &font )
+void FilterToggleButton::setup( const State::FilterMode &filterMode, const Font &font, const gl::Texture &tex )
 {    
-	mTex	= gl::Texture( loadImage( loadResource( "filterToggleButton.png" ) ) );
+    mTex = tex;
 
 	mRect	= Rectf( 0.0f, 0.0f, mTex.getWidth(), mTex.getHeight()/2 );    
 	mAlphaRect		= Rectf( 0.0f, 0.0f, 127.0f, mRect.getHeight() ); 

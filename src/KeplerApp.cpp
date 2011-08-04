@@ -251,6 +251,8 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mOrbitRingGradientTex;
 	gl::Texture		mTrackOriginTex;
 	gl::Texture		mSettingsBgTex;
+    gl::Texture		mFilterToggleButtonTex;
+    gl::Texture     mWheelOverlayTex;
 	vector<gl::Texture> mCloudsTex;
 	
 	Surface			mHighResSurfaces;
@@ -423,7 +425,7 @@ void KeplerApp::remainingSetup()
 
     // WHEEL OVERLAY
     mWheelOverlay = WheelOverlayRef( new WheelOverlay() );
-    mWheelOverlay->setup();    
+    mWheelOverlay->setup( mWheelOverlayTex );    
 	mWheelOverlay->registerWheelToggled( this, &KeplerApp::onWheelToggled );    
     mMainBloomNodeRef->addChild( mWheelOverlay );
     
@@ -453,7 +455,7 @@ void KeplerApp::remainingSetup()
 	mHelpLayer.initHelpTextures( mFontMediSmall );
     
     // FILTER TOGGLE
-    mFilterToggleButton.setup( mState.getFilterMode(), mFontMedium );
+    mFilterToggleButton.setup( mState.getFilterMode(), mFontMedium, mFilterToggleButtonTex );
     mFilterToggleButton.registerFilterModeSelected( this, &KeplerApp::onFilterToggled );
     mMainBloomNodeRef->addChild( BloomNodeRef(&mFilterToggleButton) );
 	
@@ -552,6 +554,8 @@ void KeplerApp::initTextures()
     }
     
 	mSettingsBgTex			  = gl::Texture( loadImage( loadResource( "settingsBg.png" ) ) );    
+    mFilterToggleButtonTex    = gl::Texture( loadImage( loadResource( "filterToggleButton.png" ) ) );
+    mWheelOverlayTex          = gl::Texture( loadImage( loadResource( "alphaWheelMask.png" ) ) );
 	mDottedTex                = gl::Texture( loadImage( loadResource( "dotted.png" ) ), repeatMipFmt );    
 	mRingsTex                 = gl::Texture( loadImage( loadResource( "rings.png" ) ) /*, fmt */ );
     mPlayheadProgressTex      = gl::Texture( loadImage( loadResource( "playheadProgress.png" ) ), repeatMipFmt );
@@ -821,21 +825,12 @@ bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
 
 bool KeplerApp::onFilterToggled( State::FilterMode filterMode )
 {
-    if (filterMode == State::FilterModeAlphaChar) {
-        mState.setAlphaChar( 'A' ); // triggers onAlphaCharStateChanged
-        // FIXME: set to first letter of current track, if there is one
-        //        else set to blank and show the wheel?
-        //        or maybe set to the previously chosen alphachar?
-    }
-    else if (filterMode == State::FilterModePlaylist) {
-        ipod::PlaylistRef playlist = mState.getPlaylist();
-        if (!playlist) {
-            playlist = mData.mPlaylists[0];
-        }
-        mState.setPlaylist( playlist ); // triggers onPlaylistStateChanged
-    }
-    // now make sure that everything is cool with the current filter
+    // update State...
+    mState.setFilterMode( filterMode );
+    // ...and sure that everything is cool with the current filter
+    mFilterToggleButton.setFilterMode( filterMode );
     mWorld.updateAgainstCurrentFilter();
+    // FIXME: add a callback to State for FilterModeStateChanged?
     return false;
 }
 
@@ -857,19 +852,19 @@ bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 bool KeplerApp::onAlphaCharStateChanged( State *state )
 {
     if (mState.getAlphaChar() != ' ') {
-        mWorld.setFilter( FilterRef(new LetterFilter(mState.getAlphaChar())) );
-        mState.setFilterMode( State::FilterModeAlphaChar );
-        mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );
 
-        // FIXME: if we're showing mPlaylistChooser then show mAlphaWheel instead
+        // apply new filter to World:
+        mWorld.setFilter( FilterRef(new LetterFilter(mState.getAlphaChar())) );
         
+        // zoom to Galaxy level:
         mState.setSelectedNode( NULL );
 
+        // notify:
         stringstream s;
         s << "FILTERING ARTISTS BY '" << mState.getAlphaChar() << "'";
-//        mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), s.str() );   
-		
         mNotificationOverlay.showLetter( mState.getAlphaChar(), s.str(), mFontHuge );
+        
+        // log:
         std::map<string, string> params;
         params["Letter"] = toString( mState.getAlphaChar() );
         params["Count"] = toString( mWorld.getNumFilteredNodes() );
@@ -881,17 +876,15 @@ bool KeplerApp::onAlphaCharStateChanged( State *state )
 bool KeplerApp::onPlaylistStateChanged( State *state )
 {
     ipod::PlaylistRef playlist = mState.getPlaylist();
-    string playlistName = playlist->getPlaylistName();
-
-	std::cout << "playlist changed to " << playlistName << std::endl;
     
-    mState.setAlphaChar( ' ' );
     mWorld.setFilter( FilterRef(new PlaylistFilter(playlist)) );
-    mState.setFilterMode( State::FilterModePlaylist ); // TODO: make this part of Filter?
-    mFilterToggleButton.setFilterMode( State::FilterModePlaylist );
-    mState.setSelectedNode( NULL );
+    mState.setSelectedNode( NULL ); // zoom to galaxy
 
     /////// notifications...
+
+    string playlistName = playlist->getPlaylistName();
+    
+	std::cout << "playlist changed to " << playlistName << std::endl;
     
     string br = " "; // break with spaces
     if (playlistName.size() > 20) {
@@ -1266,6 +1259,7 @@ void KeplerApp::update()
             std::cout << "Startup without Track Playing" << std::endl;
             logEvent("Startup without Track Playing");
             mState.setFilterMode( State::FilterModeAlphaChar );
+            mState.setAlphaChar( 'A' ); // force an update
             mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );            
             mWheelOverlay->setShowWheel( true );
 		}
@@ -1349,10 +1343,6 @@ void KeplerApp::update()
             mPlaylistChooser.setVisible( mWheelOverlay->getShowWheel() );
             mAlphaWheel.setVisible( false );
         }	        
-        else {
-            // FIXME: we still automatically select the alpha char so this might never be called, right?
-            console() << "unknown filter mode - do we update the alphawheel or what?" << endl;
-        }        
 
         mFilterToggleButton.setVisible( mWheelOverlay->getShowWheel() );
         mPlayControls.setAlphaWheelVisible( mWheelOverlay->getShowWheel() );
@@ -1499,11 +1489,6 @@ void KeplerApp::updateCamera()
             }
 //            std::cout << "updateCamera closed filter GUI" << std::endl;			
 		}
-        bool isAlphaFilter = mState.getFilterMode() == State::FilterModeAlphaChar;
-        bool isPlaylistFilter = mState.getFilterMode() == State::FilterModePlaylist;
-        if (!isAlphaFilter && !isPlaylistFilter) {
-            std::cout << "unknown filter type in updateCamera, needs FIXME" << std::endl;
-        }
 	}
 
 	float distToTravel = mState.getDistBetweenNodes();
@@ -1880,18 +1865,6 @@ void KeplerApp::drawScene()
 
 	gl::disableAlphaBlending(); // stops additive blending
     gl::enableAlphaBlending();  // reinstates normal alpha blending
-    
-// EVERYTHING ELSE	
-    if (mState.getFilterMode() == State::FilterModeAlphaChar) {
-//        mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
-    }
-    else if (mState.getFilterMode() == State::FilterModePlaylist) {
-//        mPlaylistChooser.draw(); // FIXME: what does this do?
-    }
-    else {
-        // FIXME: we still automatically select the alpha char so this might never be called, right?
-        console() << "unknown filter mode - do we draw the alphawheel or what?" << endl;
-    }
     
 	mHelpLayer.draw( mUiSmallButtonsTex, mUiLayer.getPanelYPos() );
 
