@@ -1939,8 +1939,12 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
     }
     
 	if (mIpodPlayer.hasPlayingTrack()) {
+
+        // temporarily remember the previous track info
+        ipod::TrackRef previousTrack = mPlayingTrack;
+        Node* prevSelectedNode = mState.getSelectedNode();
         
-        // remember the new track
+        // cache the new track
         mPlayingTrack = mIpodPlayer.getPlayingTrack();
         mCurrentTrackLength = mPlayingTrack->getLength();
         
@@ -1955,8 +1959,21 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         uint64_t artistId = mPlayingTrack->getArtistId();
         uint64_t albumId = mPlayingTrack->getAlbumId();            
 
-        // then sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
-        mWorld.updateIsPlaying( artistId, albumId, trackId );
+        // we're only going to fly to the track if we were already looking at the previous track
+        bool doFlyToTrack = false;
+        if (previousTrack && prevSelectedNode != NULL) {
+            if (previousTrack->getItemId() == prevSelectedNode->getId()) {
+                doFlyToTrack = true;
+            }
+        }
+        
+        if (doFlyToTrack) {
+            flyToCurrentTrack(); // FIXME: might be able to speed this up, see below
+        }
+        else {
+            // just sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
+            mWorld.updateIsPlaying( artistId, albumId, trackId );
+        }
 	}
 	else {
         
