@@ -45,7 +45,12 @@ public:
 	ci::CallbackId registerPlaylistSelected( T *obj, bool ( T::*callback )( ci::ipod::PlaylistRef ) ){
 		return mCbPlaylistSelected.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
-    
+
+    template<typename T>
+	ci::CallbackId registerPlaylistTouched( T *obj, bool ( T::*callback )( ci::ipod::PlaylistRef ) ){
+		return mCbPlaylistTouched.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
+	}
+
 private:
     
 	float			getNewX( float x );
@@ -85,5 +90,5 @@ private:
 		
 	WheelOverlayRef mWheelOverlay;
 	
-	ci::CallbackMgr<bool(ci::ipod::PlaylistRef)> mCbPlaylistSelected;        
+	ci::CallbackMgr<bool(ci::ipod::PlaylistRef)> mCbPlaylistSelected, mCbPlaylistTouched;        
 };

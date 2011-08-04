@@ -106,6 +106,7 @@ bool PlaylistChooser::touchEnded( ci::app::TouchEvent::Touch touch )
             mCurrentIndex = mTouchDragPlaylistIndex;
             mPrevIndex = mCurrentIndex; // set this so that we won't fire the callback twice
             mCbPlaylistSelected.call( mData->mPlaylists[mTouchDragPlaylistIndex] );
+            mCbPlaylistTouched.call( mData->mPlaylists[mTouchDragPlaylistIndex] );
             mOffsetX = mTouchDragPlaylistIndex * ( mPlaylistSize.x + mSpacerWidth );
             mTouchDragId = 0;
             mTouchDragPlaylistIndex = -1;

@@ -437,6 +437,7 @@ void KeplerApp::remainingSetup()
     // PLAYLIST CHOOSER
     mPlaylistChooser.setup( mFontMedium, mWheelOverlay );
     mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
+    mPlaylistChooser.registerPlaylistTouched( this, &KeplerApp::onPlaylistChooserTouched );
 	mWheelOverlay->addChild( BloomNodeRef(&mPlaylistChooser) );
 	
 	// UILAYER
@@ -839,6 +840,14 @@ bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
         }
     }
     
+    return false;
+}
+
+bool KeplerApp::onPlaylistChooserTouched( ci::ipod::PlaylistRef playlist )
+{
+    // must have already called onPlaylistChooserSelected, so it's a "simple" matter of triggering play:
+    mIpodPlayer.play( playlist, 0 );
+    // RIGHT? SIMPLE? RIGHT?!
     return false;
 }
 
