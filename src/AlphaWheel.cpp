@@ -126,7 +126,7 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
 			mPrevAlphaChar		= mAlphaChar;
 			mAlphaChar			= mAlphaString.at( mAlphaIndex % mAlphaString.size() );
 			if( mPrevAlphaChar != mAlphaChar || closeWheel ){
-				mCallbacksAlphaCharSelected.call( this );
+				mCallbacksAlphaCharSelected.call( mAlphaChar );
 			}
 		}
 		

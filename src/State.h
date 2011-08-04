@@ -36,7 +36,7 @@ class State {
 	void setAlphaChar( char c );
 	void setAlphaChar( const string &artistName );
 	template<typename T>
-	CallbackId registerAlphaCharStateChanged( T *obj, bool ( T::*callback )( State* ) ){
+	CallbackId registerAlphaCharStateChanged( T *obj, bool ( T::*callback )( char ) ){
 		return mCallbacksAlphaCharStateChanged.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
 	
@@ -45,7 +45,7 @@ class State {
 	ci::ipod::PlaylistRef getPlaylist(){ return mCurrentPlaylist; }
 	void setPlaylist( ci::ipod::PlaylistRef playlist );
 	template<typename T>
-	CallbackId registerPlaylistStateChanged( T *obj, bool ( T::*callback )( State* ) ){
+	CallbackId registerPlaylistStateChanged( T *obj, bool ( T::*callback )( ci::ipod::PlaylistRef ) ){
 		return mCallbacksPlaylistStateChanged.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
 	
@@ -74,13 +74,17 @@ class State {
 		return NULL;
 	}
 
-    void setFilterMode(const FilterMode &filterMode) { mFilterMode = filterMode; }
+    bool setFilterMode(FilterMode filterMode);
     FilterMode getFilterMode() { return mFilterMode; }
-    // TODO: callback for FilterModeChanged? should State own Filter (currently in Data)?
+	template<typename T>
+	CallbackId registerFilterModeStateChanged( T *obj, bool ( T::*callback )( FilterMode ) ){
+		return mCallbacksFilterModeStateChanged.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
+	}
     
 private:
-	CallbackMgr<bool(State*)> mCallbacksPlaylistStateChanged;
-	CallbackMgr<bool(State*)> mCallbacksAlphaCharStateChanged;	
+	CallbackMgr<bool(ci::ipod::PlaylistRef)> mCallbacksPlaylistStateChanged;
+	CallbackMgr<bool(char)> mCallbacksAlphaCharStateChanged;	
+	CallbackMgr<bool(FilterMode)> mCallbacksFilterModeStateChanged;
 	CallbackMgr<bool(Node*)> mCallbacksNodeSelected;
 	CallbackMgr<bool(NodeTrack*)> mCallbacksNodePlaying;
 

@@ -30,7 +30,7 @@ void State::setAlphaChar( char c )
 	if (mAlphaChar != c) {
         std::cout << "State::setAlphaChar " << c << std::endl;
 		mAlphaChar = c;
-		mCallbacksAlphaCharStateChanged.call( this );
+		mCallbacksAlphaCharStateChanged.call( mAlphaChar );
 	}
 }
 
@@ -53,7 +53,7 @@ void State::setAlphaChar( const string &name )
 void State::setPlaylist( ci::ipod::PlaylistRef playlist )
 {
 	mCurrentPlaylist = playlist;
-	mCallbacksPlaylistStateChanged.call( this );
+	mCallbacksPlaylistStateChanged.call( playlist );
 }
 
 
@@ -122,4 +122,11 @@ void State::setSelectedNode( Node* node )
     
 	// and then spread the good word
 	mCallbacksNodeSelected.call(mSelectedNode);
+}
+
+bool State::setFilterMode(FilterMode filterMode)
+{ 
+    mFilterMode = filterMode; 
+    mCallbacksFilterModeStateChanged.call(filterMode);
+    return false; // for use in callbacks
 }

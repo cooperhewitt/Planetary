@@ -103,11 +103,11 @@ class KeplerApp : public AppCocoaTouch {
     void            logEvent(const string &event);
     void            logEvent(const string &event, const map<string,string> &params);
     
-	bool			onAlphaCharStateChanged( State *state );
-	bool			onPlaylistStateChanged( State *state );
-	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
+	bool			onAlphaCharStateChanged( char c );
+	bool			onPlaylistStateChanged( ipod::PlaylistRef playlist );
+	bool			onAlphaCharSelected( char c );
 	bool			onWheelToggled( bool on );
-    bool            onFilterToggled( State::FilterMode filterMode );
+    bool            onFilterModeStateChanged( State::FilterMode filterMode );
     bool            onPlaylistChooserSelected( ci::ipod::PlaylistRef );
     
 	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
@@ -456,13 +456,14 @@ void KeplerApp::remainingSetup()
     
     // FILTER TOGGLE
     mFilterToggleButton.setup( mState.getFilterMode(), mFontMedium, mFilterToggleButtonTex );
-    mFilterToggleButton.registerFilterModeSelected( this, &KeplerApp::onFilterToggled );
+    mFilterToggleButton.registerFilterModeSelected( &mState, &State::setFilterMode );
     mMainBloomNodeRef->addChild( BloomNodeRef(&mFilterToggleButton) );
 	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
 	mState.registerNodeSelected( this, &KeplerApp::onSelectedNodeChanged );
 	mState.registerPlaylistStateChanged( this, &KeplerApp::onPlaylistStateChanged );
+    mState.registerFilterModeStateChanged( this, &KeplerApp::onFilterModeStateChanged );
 	
 	// PLAYER
     mCurrentPlayState = mIpodPlayer.getPlayState();
@@ -817,29 +818,41 @@ bool KeplerApp::onWheelToggled( bool on )
 	return false;
 }
 
+bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
+{    
+    // update the button...
+    mFilterToggleButton.setFilterMode( filterMode );
+
+    // apply a new filter to world...
+    if (filterMode == State::FilterModeAlphaChar) {
+        mWorld.setFilter( LetterFilter::create( mState.getAlphaChar() ) );
+        mState.setSelectedNode( NULL );
+    }
+    else if (filterMode == State::FilterModePlaylist) {
+        ipod::PlaylistRef playlist = mState.getPlaylist();
+        if (!playlist) {
+            mState.setPlaylist( mData.mPlaylists[0] ); // triggers onPlaylistStateChanged
+        }
+        else {
+            mWorld.setFilter( PlaylistFilter::create(playlist) );
+            mState.setSelectedNode( NULL );
+        }
+    }
+    
+    return false;
+}
+
 bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
 {
     mState.setPlaylist( playlist ); // triggers onPlaylistStateChanged
     return false;
 }
 
-bool KeplerApp::onFilterToggled( State::FilterMode filterMode )
+bool KeplerApp::onAlphaCharSelected( char c )
 {
-    // update State...
-    mState.setFilterMode( filterMode );
-    // ...and sure that everything is cool with the current filter
-    mFilterToggleButton.setFilterMode( filterMode );
-    mWorld.updateAgainstCurrentFilter();
-    // FIXME: add a callback to State for FilterModeStateChanged?
-    return false;
-}
-
-
-bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
-{
-    if (mState.getAlphaChar() != alphaWheel->getAlphaChar()) {
+    if ( c != mState.getAlphaChar() ) {
         logEvent("New Letter Selected In AlphaWheel");        
-        mState.setAlphaChar( alphaWheel->getAlphaChar() );	
+        mState.setAlphaChar( c );	
     }
     else {
         // same letter selected, if we're not at galaxy level then go to there
@@ -849,36 +862,35 @@ bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 	return false;
 }
 
-bool KeplerApp::onAlphaCharStateChanged( State *state )
+bool KeplerApp::onAlphaCharStateChanged( char c )
 {
-    if (mState.getAlphaChar() != ' ') {
+    // apply new filter to World:
+    mWorld.setFilter( LetterFilter::create( c ) );
+    
+    // zoom to Galaxy level:
+    mState.setSelectedNode( NULL );
 
-        // apply new filter to World:
-        mWorld.setFilter( FilterRef(new LetterFilter(mState.getAlphaChar())) );
-        
-        // zoom to Galaxy level:
-        mState.setSelectedNode( NULL );
+    // notify:
+    stringstream s;
+    s << "FILTERING ARTISTS BY '" << mState.getAlphaChar() << "'";
+    mNotificationOverlay.showLetter( mState.getAlphaChar(), s.str(), mFontHuge );
+    
+    // log:
+    std::map<string, string> params;
+    params["Letter"] = toString( mState.getAlphaChar() );
+    params["Count"] = toString( mWorld.getNumFilteredNodes() );
+    logEvent("Letter Selected" , params);
 
-        // notify:
-        stringstream s;
-        s << "FILTERING ARTISTS BY '" << mState.getAlphaChar() << "'";
-        mNotificationOverlay.showLetter( mState.getAlphaChar(), s.str(), mFontHuge );
-        
-        // log:
-        std::map<string, string> params;
-        params["Letter"] = toString( mState.getAlphaChar() );
-        params["Count"] = toString( mWorld.getNumFilteredNodes() );
-        logEvent("Letter Selected" , params);
-    }
 	return false;
 }
 
-bool KeplerApp::onPlaylistStateChanged( State *state )
+bool KeplerApp::onPlaylistStateChanged( ipod::PlaylistRef playlist )
 {
-    ipod::PlaylistRef playlist = mState.getPlaylist();
-    
-    mWorld.setFilter( FilterRef(new PlaylistFilter(playlist)) );
-    mState.setSelectedNode( NULL ); // zoom to galaxy
+    // apply new filter to World:    
+    mWorld.setFilter( PlaylistFilter::create(playlist) );
+
+    // zoom to Galaxy level:
+    mState.setSelectedNode( NULL );
 
     /////// notifications...
 
@@ -886,22 +898,20 @@ bool KeplerApp::onPlaylistStateChanged( State *state )
     
 	std::cout << "playlist changed to " << playlistName << std::endl;
     
-    string br = " "; // break with spaces
-    if (playlistName.size() > 20) {
-        br = "\n"; // break with newline instead
-        if (playlistName.size() > 40) {
-            playlistName = playlistName.substr(0, 35) + "..."; // ellipsis for long long playlist names
-        }
-    }
-	
 // Commented out for now. Shouldn't notify if a playlist is being previewed. But once it is selected,
 // then it should notify.
+//    string br = " "; // break with spaces
+//    if (playlistName.size() > 20) {
+//        br = "\n"; // break with newline instead
+//        if (playlistName.size() > 40) {
+//            playlistName = playlistName.substr(0, 35) + "..."; // ellipsis for long long playlist names
+//        }
+//    }
 //    stringstream s;
 //    s << "SHOWING ARTISTS FROM" << br << "'" << playlistName << "'";
 //    mNotificationOverlay.show( mOverlayIconsTex, Area( 1024.0f, 0.0f, 1152.0f, 128.0f ), s.str() );            
 	
-    /////// stats...
-    
+    // log:
     std::map<string, string> parameters;
     parameters["Playlist"] = mState.getPlaylist()->getPlaylistName();
     parameters["Count"] = toString( mWorld.getNumFilteredNodes() );    
@@ -1251,16 +1261,16 @@ void KeplerApp::update()
             onPlayerTrackChanged( &mIpodPlayer );
             // show the wheel if we're paused...
             if ( mIpodPlayer.getPlayState() == ipod::Player::StatePaused || mIpodPlayer.getPlayState() == ipod::Player::StateStopped ) {
-                mState.setFilterMode( State::FilterModeAlphaChar );
-                mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );
+//                mState.setFilterMode( State::FilterModeAlphaChar );
+//                mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );
                 mWheelOverlay->setShowWheel( true );
             }
         } else {
             std::cout << "Startup without Track Playing" << std::endl;
             logEvent("Startup without Track Playing");
-            mState.setFilterMode( State::FilterModeAlphaChar );
-            mState.setAlphaChar( 'A' ); // force an update
-            mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );            
+//            mState.setFilterMode( State::FilterModeAlphaChar );
+//            mState.setAlphaChar( 'A' ); // force an update
+//            mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );            
             mWheelOverlay->setShowWheel( true );
 		}
         

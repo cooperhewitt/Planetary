@@ -11,6 +11,11 @@
 #include <string>
 #include <boost/algorithm/string.hpp> // for boost::to_upper(std::string)
 
+FilterRef LetterFilter::create(char letter)
+{
+    return FilterRef( new LetterFilter( letter ) );
+}
+
 LetterFilter::LetterFilter(char letter)
 {
     mLetter = letter;

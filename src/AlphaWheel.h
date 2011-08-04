@@ -42,7 +42,7 @@ public:
 	char	getAlphaChar(){ return mAlphaChar; }
 	
 	template<typename T>
-	ci::CallbackId registerAlphaCharSelected( T *obj, bool ( T::*callback )( AlphaWheel* ) ){
+	ci::CallbackId registerAlphaCharSelected( T *obj, bool ( T::*callback )( char ) ){
 		return mCallbacksAlphaCharSelected.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
 			
@@ -70,6 +70,6 @@ private:
 	std::vector<ci::gl::Texture> mAlphaTextures;
 	std::vector<ci::Rectf>       mAlphaRects;
 	
-	ci::CallbackMgr<bool(AlphaWheel*)> mCallbacksAlphaCharSelected;    
+	ci::CallbackMgr<bool(char)> mCallbacksAlphaCharSelected;    
 };
 
