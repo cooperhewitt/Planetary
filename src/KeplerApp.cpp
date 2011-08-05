@@ -1429,7 +1429,7 @@ void KeplerApp::update()
             mPlayControls.setPlayheadProgress( mCurrentTrackPlayheadTime / mCurrentTrackLength );
         }
                 
-        if( G_DEBUG && elapsedFrames % 30 == 0 ){
+        if( /*G_DEBUG &&*/ elapsedFrames % 30 == 0 ){
             mStats.update(getAverageFps(), mCurrentTrackPlayheadTime, mFov, G_CURRENT_LEVEL, G_ZOOM);
         }
         
@@ -1944,10 +1944,10 @@ void KeplerApp::drawScene()
     // UILayer and PlayControls draw here:
     mBloomSceneRef->draw();
 
-	if( G_DEBUG ){
+//	if( G_DEBUG ){
         //gl::setMatricesWindow( getWindowSize() );
         mStats.draw( mOrientationMatrix );
-	}
+//	}
 }
 
 bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
