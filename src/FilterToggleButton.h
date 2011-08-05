@@ -19,16 +19,14 @@ class FilterToggleButton : public BloomNode {
 
 public:
     
-    FilterToggleButton() { mVisible = false; }
+    FilterToggleButton() { setVisible(false); }
     
-    void setup( const State::FilterMode &filterMode, const ci::Font &font );
+    void setup( const State::FilterMode &filterMode, const ci::Font &font, const gl::Texture &tex );
 	void update();
     void setFilterMode(const State::FilterMode &filterMode);
 
     void draw();
-	Rectf getRect(){ return mHitRect; }
-    void setVisible( bool visible = true ) { mVisible = visible; }
-	bool isVisible(){ return mVisible; }
+	Rectf getRect(){ return mRect; }
     
     template<typename T>
 	ci::CallbackId registerFilterModeSelected( T *obj, bool ( T::*callback )( State::FilterMode ) ){
@@ -39,19 +37,15 @@ private:
     
     bool touchBegan( ci::app::TouchEvent::Touch touch );
     bool touchEnded( ci::app::TouchEvent::Touch touch );    
-    bool mVisible;
 
     Vec2f mInterfaceSize;
     
-    Vec2f mAlphaPos;
-    Vec2f mPlaylistPos;
     Rectf mAlphaRect;
     Rectf mPlaylistRect;
-	Rectf mHitRect;
 	Rectf mRect;
     
     State::FilterMode mFilterMode;
-    ci::gl::Texture mAlphaTexture, mPlaylistTexture, mTex;
+    ci::gl::Texture mTex;
     
 	ci::CallbackMgr<bool(State::FilterMode)> mCbFilterModeSelected;    
 };

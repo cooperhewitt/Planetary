@@ -13,11 +13,12 @@
 
 class LetterFilter : public Filter {
   public:
-    LetterFilter( char letter );
+    static FilterRef create( char letter );
     bool testArtist( ci::ipod::PlaylistRef artist ) const;
     bool testAlbum( ci::ipod::PlaylistRef album ) const;
     bool testTrack( ci::ipod::TrackRef track ) const;
   private:
+    LetterFilter( char letter );    
     char mLetter; // always uppercase, unless '#'
     bool testArtistName(const std::string &name) const;
 };

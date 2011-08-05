@@ -418,11 +418,6 @@ void PlayControls::setShowSettings(bool visible)
     mShowSettingsButton->setOn(visible); 
 }
 
-//void PlayControls::draw()
-//{
-//    std::cout << "playcontrols::draw" << std::endl;
-//}
-
 void PlayControls::update()
 {
     Vec2f interfaceSize = getRoot()->getInterfaceSize();

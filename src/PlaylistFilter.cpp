@@ -8,6 +8,11 @@
 
 #include "PlaylistFilter.h"
 
+FilterRef PlaylistFilter::create(ci::ipod::PlaylistRef playlist)
+{
+    return FilterRef( new PlaylistFilter( playlist ) );
+}
+
 PlaylistFilter::PlaylistFilter(ci::ipod::PlaylistRef playlist)
 {
     for( ci::ipod::Playlist::Iter i = playlist->begin(); i != playlist->end(); i++ ){

@@ -105,12 +105,13 @@ class KeplerApp : public AppCocoaTouch {
     void            logEvent(const string &event);
     void            logEvent(const string &event, const map<string,string> &params);
     
-	bool			onAlphaCharStateChanged( State *state );
-	bool			onPlaylistStateChanged( State *state );
-	bool			onAlphaCharSelected( AlphaWheel *alphaWheel );
+	bool			onAlphaCharStateChanged( char c );
+	bool			onPlaylistStateChanged( ipod::PlaylistRef playlist );
+	bool			onAlphaCharSelected( char c );
 	bool			onWheelToggled( bool on );
-    bool            onFilterToggled( State::FilterMode filterMode );
+    bool            onFilterModeStateChanged( State::FilterMode filterMode );
     bool            onPlaylistChooserSelected( ci::ipod::PlaylistRef );
+    bool            onPlaylistChooserTouched( ci::ipod::PlaylistRef );
     
 	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
     void            togglePlayPaused();
@@ -253,6 +254,8 @@ class KeplerApp : public AppCocoaTouch {
 	gl::Texture		mOrbitRingGradientTex;
 	gl::Texture		mTrackOriginTex;
 	gl::Texture		mSettingsBgTex;
+    gl::Texture		mFilterToggleButtonTex;
+    gl::Texture     mWheelOverlayTex;
 	vector<gl::Texture> mCloudsTex;
 	
 	Surface			mHighResSurfaces;
@@ -425,7 +428,7 @@ void KeplerApp::remainingSetup()
 
     // WHEEL OVERLAY
     mWheelOverlay = WheelOverlayRef( new WheelOverlay() );
-    mWheelOverlay->setup();    
+    mWheelOverlay->setup( mWheelOverlayTex );    
 	mWheelOverlay->registerWheelToggled( this, &KeplerApp::onWheelToggled );    
     mMainBloomNodeRef->addChild( mWheelOverlay );
     
@@ -437,6 +440,7 @@ void KeplerApp::remainingSetup()
     // PLAYLIST CHOOSER
     mPlaylistChooser.setup( mFontMedium, mWheelOverlay );
     mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
+    mPlaylistChooser.registerPlaylistTouched( this, &KeplerApp::onPlaylistChooserTouched );
 	mWheelOverlay->addChild( BloomNodeRef(&mPlaylistChooser) );
 	
 	// UILAYER
@@ -455,14 +459,15 @@ void KeplerApp::remainingSetup()
 	mHelpLayer.initHelpTextures( mFontMediSmall );
     
     // FILTER TOGGLE
-    mFilterToggleButton.setup( mState.getFilterMode(), mFontMedium );
-    mFilterToggleButton.registerFilterModeSelected( this, &KeplerApp::onFilterToggled );
+    mFilterToggleButton.setup( mState.getFilterMode(), mFontMedium, mFilterToggleButtonTex );
+    mFilterToggleButton.registerFilterModeSelected( &mState, &State::setFilterMode );
     mMainBloomNodeRef->addChild( BloomNodeRef(&mFilterToggleButton) );
 	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
 	mState.registerNodeSelected( this, &KeplerApp::onSelectedNodeChanged );
 	mState.registerPlaylistStateChanged( this, &KeplerApp::onPlaylistStateChanged );
+    mState.registerFilterModeStateChanged( this, &KeplerApp::onFilterModeStateChanged );
 	
 	// PLAYER
     mCurrentPlayState = mIpodPlayer.getPlayState();
@@ -557,6 +562,8 @@ void KeplerApp::initTextures()
     }
     
 	mSettingsBgTex			  = gl::Texture( loadImage( loadResource( "settingsBg.png" ) ) );    
+    mFilterToggleButtonTex    = gl::Texture( loadImage( loadResource( "filterToggleButton.png" ) ) );
+    mWheelOverlayTex          = gl::Texture( loadImage( loadResource( "alphaWheelMask.png" ) ) );
 	mDottedTex                = gl::Texture( loadImage( loadResource( "dotted.png" ) ), repeatMipFmt );    
 	mRingsTex                 = gl::Texture( loadImage( loadResource( "rings.png" ) ) /*, fmt */ );
     mPlayheadProgressTex      = gl::Texture( loadImage( loadResource( "playheadProgress.png" ) ), repeatMipFmt );
@@ -818,38 +825,49 @@ bool KeplerApp::onWheelToggled( bool on )
 	return false;
 }
 
+bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
+{    
+    // update the button...
+    mFilterToggleButton.setFilterMode( filterMode );
+
+    // apply a new filter to world...
+    if (filterMode == State::FilterModeAlphaChar) {
+        mWorld.setFilter( LetterFilter::create( mState.getAlphaChar() ) );
+        mState.setSelectedNode( NULL );
+    }
+    else if (filterMode == State::FilterModePlaylist) {
+        ipod::PlaylistRef playlist = mState.getPlaylist();
+        if (!playlist) {
+            mState.setPlaylist( mData.mPlaylists[0] ); // triggers onPlaylistStateChanged
+        }
+        else {
+            mWorld.setFilter( PlaylistFilter::create(playlist) );
+            mState.setSelectedNode( NULL );
+        }
+    }
+    
+    return false;
+}
+
+bool KeplerApp::onPlaylistChooserTouched( ci::ipod::PlaylistRef playlist )
+{
+    // must have already called onPlaylistChooserSelected, so it's a "simple" matter of triggering play:
+    mIpodPlayer.play( playlist, 0 );
+    // RIGHT? SIMPLE? RIGHT?!
+    return false;
+}
+
 bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
 {
     mState.setPlaylist( playlist ); // triggers onPlaylistStateChanged
     return false;
 }
 
-bool KeplerApp::onFilterToggled( State::FilterMode filterMode )
+bool KeplerApp::onAlphaCharSelected( char c )
 {
-    if (filterMode == State::FilterModeAlphaChar) {
-        mState.setAlphaChar( 'A' ); // triggers onAlphaCharStateChanged
-        // FIXME: set to first letter of current track, if there is one
-        //        else set to blank and show the wheel?
-        //        or maybe set to the previously chosen alphachar?
-    }
-    else if (filterMode == State::FilterModePlaylist) {
-        ipod::PlaylistRef playlist = mState.getPlaylist();
-        if (!playlist) {
-            playlist = mData.mPlaylists[0];
-        }
-        mState.setPlaylist( playlist ); // triggers onPlaylistStateChanged
-    }
-    // now make sure that everything is cool with the current filter
-    mWorld.updateAgainstCurrentFilter();
-    return false;
-}
-
-
-bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
-{
-    if (mState.getAlphaChar() != alphaWheel->getAlphaChar()) {
+    if ( c != mState.getAlphaChar() ) {
         logEvent("New Letter Selected In AlphaWheel");        
-        mState.setAlphaChar( alphaWheel->getAlphaChar() );	
+        mState.setAlphaChar( c );	
     }
     else {
         // same letter selected, if we're not at galaxy level then go to there
@@ -859,61 +877,56 @@ bool KeplerApp::onAlphaCharSelected( AlphaWheel *alphaWheel )
 	return false;
 }
 
-bool KeplerApp::onAlphaCharStateChanged( State *state )
+bool KeplerApp::onAlphaCharStateChanged( char c )
 {
-    if (mState.getAlphaChar() != ' ') {
-        mWorld.setFilter( FilterRef(new LetterFilter(mState.getAlphaChar())) );
-        mState.setFilterMode( State::FilterModeAlphaChar );
-        mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );
+    // apply new filter to World:
+    mWorld.setFilter( LetterFilter::create( c ) );
+    
+    // zoom to Galaxy level:
+    mState.setSelectedNode( NULL );
 
-        // FIXME: if we're showing mPlaylistChooser then show mAlphaWheel instead
-        
-        mState.setSelectedNode( NULL );
+    // notify:
+    stringstream s;
+    s << "FILTERING ARTISTS BY '" << mState.getAlphaChar() << "'";
+    mNotificationOverlay.showLetter( mState.getAlphaChar(), s.str(), mFontHuge );
+    
+    // log:
+    std::map<string, string> params;
+    params["Letter"] = toString( mState.getAlphaChar() );
+    params["Count"] = toString( mWorld.getNumFilteredNodes() );
+    logEvent("Letter Selected" , params);
 
-        stringstream s;
-        s << "FILTERING ARTISTS BY '" << mState.getAlphaChar() << "'";
-//        mNotificationOverlay.show( mOverlayIconsTex, Area( 768.0f, 0.0f, 896.0f, 128.0f ), s.str() );   
-		
-        mNotificationOverlay.showLetter( mState.getAlphaChar(), s.str(), mFontHuge );
-        std::map<string, string> params;
-        params["Letter"] = toString( mState.getAlphaChar() );
-        params["Count"] = toString( mWorld.getNumFilteredNodes() );
-        logEvent("Letter Selected" , params);
-    }
 	return false;
 }
 
-bool KeplerApp::onPlaylistStateChanged( State *state )
+bool KeplerApp::onPlaylistStateChanged( ipod::PlaylistRef playlist )
 {
-    ipod::PlaylistRef playlist = mState.getPlaylist();
-    string playlistName = playlist->getPlaylistName();
+    // apply new filter to World:    
+    mWorld.setFilter( PlaylistFilter::create(playlist) );
 
-	std::cout << "playlist changed to " << playlistName << std::endl;
-    
-    mState.setAlphaChar( ' ' );
-    mWorld.setFilter( FilterRef(new PlaylistFilter(playlist)) );
-    mState.setFilterMode( State::FilterModePlaylist ); // TODO: make this part of Filter?
-    mFilterToggleButton.setFilterMode( State::FilterModePlaylist );
+    // zoom to Galaxy level:
     mState.setSelectedNode( NULL );
 
     /////// notifications...
+
+    string playlistName = playlist->getPlaylistName();
     
-    string br = " "; // break with spaces
-    if (playlistName.size() > 20) {
-        br = "\n"; // break with newline instead
-        if (playlistName.size() > 40) {
-            playlistName = playlistName.substr(0, 35) + "..."; // ellipsis for long long playlist names
-        }
-    }
-	
+	std::cout << "playlist changed to " << playlistName << std::endl;
+    
 // Commented out for now. Shouldn't notify if a playlist is being previewed. But once it is selected,
 // then it should notify.
+//    string br = " "; // break with spaces
+//    if (playlistName.size() > 20) {
+//        br = "\n"; // break with newline instead
+//        if (playlistName.size() > 40) {
+//            playlistName = playlistName.substr(0, 35) + "..."; // ellipsis for long long playlist names
+//        }
+//    }
 //    stringstream s;
 //    s << "SHOWING ARTISTS FROM" << br << "'" << playlistName << "'";
 //    mNotificationOverlay.show( mOverlayIconsTex, Area( 1024.0f, 0.0f, 1152.0f, 128.0f ), s.str() );            
 	
-    /////// stats...
-    
+    // log:
     std::map<string, string> parameters;
     parameters["Playlist"] = mState.getPlaylist()->getPlaylistName();
     parameters["Count"] = toString( mWorld.getNumFilteredNodes() );    
@@ -1164,9 +1177,29 @@ void KeplerApp::flyToCurrentTrack()
         uint64_t artistId = newTrack->getArtistId();
         uint64_t albumId = newTrack->getAlbumId();            
         
-        // trigger hefty stuff in onAlphaCharStateChanged if needed
-        mState.setAlphaChar( newTrack->getArtist() ); 
+        // see if we're in the current playlist
+        bool inCurrentPlaylist = false;
+        if( mState.getFilterMode() == State::FilterModePlaylist ) {
+            // find this track node in the current playlist
+            ipod::PlaylistRef playlist = mState.getPlaylist();
+            for (int i = 0; i < playlist->size(); i++) {
+                if ((*playlist)[i]->getItemId() == trackId) {
+                    inCurrentPlaylist = true;
+                    break;
+                }
+            }
+        }
         
+        // if we're not, set it back to alpha mode
+        if (!inCurrentPlaylist) {
+            // trigger hefty stuff in onFilterModeStateChanged if needed
+            if ( mState.getFilterMode() != State::FilterModeAlphaChar ) {
+                mState.setFilterMode( State::FilterModeAlphaChar );            
+            }
+            // trigger hefty stuff in onAlphaCharStateChanged if needed
+            mState.setAlphaChar( newTrack->getArtist() ); 
+        }
+    
         // be sure to create nodes for artist, album and track:
         mWorld.selectHierarchy( artistId, albumId, trackId );
         
@@ -1222,6 +1255,34 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
                     togglePlayPaused();
                     logEvent( "Playing Track Node Touched" );
                 }
+            }     
+            else if ( highestGen == G_ALBUM_LEVEL ) {
+                NodeAlbum* nodeAlbum = dynamic_cast<NodeAlbum*>(nodeWithHighestGen);
+                const bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
+                if (isPlaying && nodeAlbum->getPlaylist() == mIpodPlayer.getCurrentPlaylist()) {
+                    mIpodPlayer.pause();
+                    // FIXME: use album name in overlay:
+                    mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 128.0f, 128.0f, 256.0f ), "Pausing Album" );
+                }
+                else {
+                    mIpodPlayer.play( nodeAlbum->getPlaylist() );
+                    // FIXME: use album name in overlay:
+                    mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Album" );
+                }
+            }
+            if ( highestGen == G_ARTIST_LEVEL ) {
+                NodeArtist* nodeArtist = dynamic_cast<NodeArtist*>(nodeWithHighestGen);
+                const bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
+                if (isPlaying && nodeArtist->getPlaylist() == mIpodPlayer.getCurrentPlaylist()) {
+                    mIpodPlayer.pause();
+                    // FIXME: use album name in overlay:
+                    mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 128.0f, 128.0f, 256.0f ), "Pausing Artist" );
+                }
+                else {
+                    mIpodPlayer.play( nodeArtist->getPlaylist() );
+                    // FIXME: use artist name in overlay:
+                    mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Artist" );
+                }
             }            
         }
         else {
@@ -1263,15 +1324,16 @@ void KeplerApp::update()
             onPlayerTrackChanged( &mIpodPlayer );
             // show the wheel if we're paused...
             if ( mIpodPlayer.getPlayState() == ipod::Player::StatePaused || mIpodPlayer.getPlayState() == ipod::Player::StateStopped ) {
-                mState.setFilterMode( State::FilterModeAlphaChar );
-                mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );
+//                mState.setFilterMode( State::FilterModeAlphaChar );
+//                mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );
                 mWheelOverlay->setShowWheel( true );
             }
         } else {
             std::cout << "Startup without Track Playing" << std::endl;
             logEvent("Startup without Track Playing");
-            mState.setFilterMode( State::FilterModeAlphaChar );
-            mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );            
+//            mState.setFilterMode( State::FilterModeAlphaChar );
+//            mState.setAlphaChar( 'A' ); // force an update
+//            mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );            
             mWheelOverlay->setShowWheel( true );
 		}
         
@@ -1354,10 +1416,6 @@ void KeplerApp::update()
             mPlaylistChooser.setVisible( mWheelOverlay->getShowWheel() );
             mAlphaWheel.setVisible( false );
         }	        
-        else {
-            // FIXME: we still automatically select the alpha char so this might never be called, right?
-            console() << "unknown filter mode - do we update the alphawheel or what?" << endl;
-        }        
 
         mFilterToggleButton.setVisible( mWheelOverlay->getShowWheel() );
         mPlayControls.setAlphaWheelVisible( mWheelOverlay->getShowWheel() );
@@ -1371,7 +1429,7 @@ void KeplerApp::update()
             mPlayControls.setPlayheadProgress( mCurrentTrackPlayheadTime / mCurrentTrackLength );
         }
                 
-        if( G_DEBUG && elapsedFrames % 30 == 0 ){
+        if( /*G_DEBUG &&*/ elapsedFrames % 30 == 0 ){
             mStats.update(getAverageFps(), mCurrentTrackPlayheadTime, mFov, G_CURRENT_LEVEL, G_ZOOM);
         }
         
@@ -1504,11 +1562,6 @@ void KeplerApp::updateCamera()
             }
 //            std::cout << "updateCamera closed filter GUI" << std::endl;			
 		}
-        bool isAlphaFilter = mState.getFilterMode() == State::FilterModeAlphaChar;
-        bool isPlaylistFilter = mState.getFilterMode() == State::FilterModePlaylist;
-        if (!isAlphaFilter && !isPlaylistFilter) {
-            std::cout << "unknown filter type in updateCamera, needs FIXME" << std::endl;
-        }
 	}
 
 	float distToTravel = mState.getDistBetweenNodes();
@@ -1886,27 +1939,15 @@ void KeplerApp::drawScene()
 	gl::disableAlphaBlending(); // stops additive blending
     gl::enableAlphaBlending();  // reinstates normal alpha blending
     
-// EVERYTHING ELSE	
-    if (mState.getFilterMode() == State::FilterModeAlphaChar) {
-//        mAlphaWheel.draw( mData.mNormalizedArtistsPerChar );
-    }
-    else if (mState.getFilterMode() == State::FilterModePlaylist) {
-//        mPlaylistChooser.draw(); // FIXME: what does this do?
-    }
-    else {
-        // FIXME: we still automatically select the alpha char so this might never be called, right?
-        console() << "unknown filter mode - do we draw the alphawheel or what?" << endl;
-    }
-    
 	mHelpLayer.draw( mUiSmallButtonsTex, mUiLayer.getPanelYPos() );
 
     // UILayer and PlayControls draw here:
     mBloomSceneRef->draw();
 
-	if( G_DEBUG ){
+//	if( G_DEBUG ){
         //gl::setMatricesWindow( getWindowSize() );
         mStats.draw( mOrientationMatrix );
-	}
+//	}
 }
 
 bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
@@ -1931,82 +1972,41 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
     }
     
 	if (mIpodPlayer.hasPlayingTrack()) {
-        
-        ipod::TrackRef newTrack = mIpodPlayer.getPlayingTrack();
 
-        uint64_t trackId = newTrack->getItemId();
-
-        Node* currentSelection = mState.getSelectedNode();
+        // temporarily remember the previous track info
+        ipod::TrackRef previousTrack = mPlayingTrack;
+        Node* prevSelectedNode = mState.getSelectedNode();
         
-        const bool trackIsCorrect = (mPlayingTrack && trackId == mPlayingTrack->getItemId());
-        // FIXME: if you switch tracks away from Planetary then mPlayingTrackNode could be deleted...
-        //        how about switching Node pointers everywhere to shared_ptr to avoid this issue?
-        const bool nodeIsCorrect = (mWorld.mPlayingTrackNode && trackId == mWorld.mPlayingTrackNode->getId());
-        const bool selectionIsCorrect = (currentSelection && currentSelection->getId() == trackId);
-        
-        if (trackIsCorrect && nodeIsCorrect && selectionIsCorrect) {
-            // skip needless onPlayerTrackChange
-            return false;
-        }
-
-        // remember the new track
-        mPlayingTrack = newTrack;
+        // cache the new track
+        mPlayingTrack = mIpodPlayer.getPlayingTrack();
         mCurrentTrackLength = mPlayingTrack->getLength();
         
         // reset the mPlayingTrackNode orbit and playhead displays (see update())
         mPlayheadUpdateSeconds = -1;
         
-        string artistName = mPlayingTrack->getArtist();
-        
-        mPlayControls.setCurrentTrack( " " + artistName 
+        mPlayControls.setCurrentTrack( " " + mPlayingTrack->getArtist()
                                       + " • " + mPlayingTrack->getAlbumTitle() 
                                       + " • " + mPlayingTrack->getTitle() + " " );
 
+        uint64_t trackId = mPlayingTrack->getItemId();
         uint64_t artistId = mPlayingTrack->getArtistId();
         uint64_t albumId = mPlayingTrack->getAlbumId();            
-        
-        // update things that care about the current selection
-        bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
-        if (isPlaying && !selectionIsCorrect) {
 
-            const bool playlistMode = (mState.getFilterMode() == State::FilterModePlaylist);                    
-            if (!playlistMode) {
-                // if playlistMode isn't true we just stay in alphabet mode
-                // (playlistMode can *only* be true if you selected a playlist inside Planetary)                
-                // just make doubly-sure we're focused on the correct letter                
-                mState.setAlphaChar( artistName ); // triggers pretty hefty stuff in onAlphaCharStateChanged
+        // we're only going to fly to the track if we were already looking at the previous track
+        bool doFlyToTrack = false;
+        if (previousTrack && prevSelectedNode != NULL) {
+            if (previousTrack->getItemId() == prevSelectedNode->getId()) {
+                doFlyToTrack = true;
             }
-            else {
-
-                // if we're in playlist mode then maybe this track is in the playlist, which is cool...
-                bool playingTrackIsInPlaylist = false;
-                ipod::PlaylistRef playlist = mState.getPlaylist();
-                for (int i = 0; i < playlist->size(); i++) {
-                    if ((*playlist)[i]->getItemId() == trackId) {
-                        playingTrackIsInPlaylist = true;
-                        break;
-                    }
-                }
-                
-                // but if it's not we need to switch to alphabet mode
-                if (!playingTrackIsInPlaylist) {
-                    mState.setAlphaChar( artistName ); // triggers pretty hefty stuff in onAlphaCharStateChanged
-                }
-                
-                // FIXME: what happens if a playlist was selected outside of our app
-                // how do we tell which one it is? can we even? (iOS 5.0)
-            }
-            
-            // be sure to create nodes for artist, album and track:
-            mWorld.selectHierarchy( artistId, albumId, trackId );
-            
-            // make sure the previous selection is correctly unselected
-            // (see also: onSelectedNodeChanged, triggered by this call):
-            mState.setSelectedNode( mWorld.getTrackNodeById( artistId, albumId, trackId ) );            
         }
-
-        // then sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
-        mWorld.updateIsPlaying( artistId, albumId, trackId );        
+        
+        if (doFlyToTrack) {
+            flyToCurrentTrack(); // FIXME: might be able to speed this up, see below
+        }
+        else {
+            // just sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
+            mWorld.updateIsPlaying( artistId, albumId, trackId );
+        }
 	}
 	else {
         
@@ -2020,14 +2020,112 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         // tidy up
         mPlayControls.setCurrentTrack("");
         
-		// go to album level view (or NULL) when the last track ends:
-		mState.setSelectedNode( mState.getSelectedAlbumNode() );
-        
-        // FIXME: should we disable play button and zoom-to-current-track button?
-        
         // this should be OK to do since the above will happen if something is queued and paused
         mWorld.updateIsPlaying( 0, 0, 0 );        
 	}
+
+//	if (mIpodPlayer.hasPlayingTrack()) {
+//        
+//        ipod::TrackRef newTrack = mIpodPlayer.getPlayingTrack();
+//
+//        uint64_t trackId = newTrack->getItemId();
+//
+//        Node* currentSelection = mState.getSelectedNode();
+//        
+//        const bool trackIsCorrect = (mPlayingTrack && trackId == mPlayingTrack->getItemId());
+//        // FIXME: if you switch tracks away from Planetary then mPlayingTrackNode could be deleted...
+//        //        how about switching Node pointers everywhere to shared_ptr to avoid this issue?
+//        const bool nodeIsCorrect = (mWorld.mPlayingTrackNode && trackId == mWorld.mPlayingTrackNode->getId());
+//        const bool selectionIsCorrect = (currentSelection && currentSelection->getId() == trackId);
+//        
+//        if (trackIsCorrect && nodeIsCorrect && selectionIsCorrect) {
+//            // skip needless onPlayerTrackChange
+//            return false;
+//        }
+//
+//        // remember the new track
+//        mPlayingTrack = newTrack;
+//        mCurrentTrackLength = mPlayingTrack->getLength();
+//        
+//        // reset the mPlayingTrackNode orbit and playhead displays (see update())
+//        mPlayheadUpdateSeconds = -1;
+//        
+//        string artistName = mPlayingTrack->getArtist();
+//        
+//        mPlayControls.setCurrentTrack( " " + artistName 
+//                                      + " • " + mPlayingTrack->getAlbumTitle() 
+//                                      + " • " + mPlayingTrack->getTitle() + " " );
+//
+//        uint64_t artistId = mPlayingTrack->getArtistId();
+//        uint64_t albumId = mPlayingTrack->getAlbumId();            
+//        
+//        // update things that care about the current selection
+//        bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
+//        if (isPlaying && !selectionIsCorrect) {
+//
+//            const bool playlistMode = (mState.getFilterMode() == State::FilterModePlaylist);                    
+//            if (!playlistMode) {
+//                // if playlistMode isn't true we just stay in alphabet mode
+//                // (playlistMode can *only* be true if you selected a playlist inside Planetary)                
+//                // just make doubly-sure we're focused on the correct letter                
+//                mState.setAlphaChar( artistName ); // triggers pretty hefty stuff in onAlphaCharStateChanged
+//            }
+//            else {
+//
+//                // if we're in playlist mode then maybe this track is in the playlist, which is cool...
+//                bool playingTrackIsInPlaylist = false;
+//                ipod::PlaylistRef playlist = mState.getPlaylist();
+//                for (int i = 0; i < playlist->size(); i++) {
+//                    if ((*playlist)[i]->getItemId() == trackId) {
+//                        playingTrackIsInPlaylist = true;
+//                        break;
+//                    }
+//                }
+//                
+//                // but if it's not we need to switch to alphabet mode
+//                if (!playingTrackIsInPlaylist) {
+//                    // trigger hefty stuff in onFilterModeStateChanged if needed
+//                    if ( mState.getFilterMode() != State::FilterModeAlphaChar ) {
+//                        mState.setFilterMode( State::FilterModeAlphaChar );            
+//                    }                    
+//                    mState.setAlphaChar( artistName ); // triggers pretty hefty stuff in onAlphaCharStateChanged
+//                }
+//                
+//                // FIXME: what happens if a playlist was selected outside of our app
+//                // how do we tell which one it is? can we even? (iOS 5.0)
+//            }
+//            
+//            // be sure to create nodes for artist, album and track:
+//            mWorld.selectHierarchy( artistId, albumId, trackId );
+//            
+//            // make sure the previous selection is correctly unselected
+//            // (see also: onSelectedNodeChanged, triggered by this call):
+//            mState.setSelectedNode( mWorld.getTrackNodeById( artistId, albumId, trackId ) );            
+//        }
+//
+//        // then sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
+//        mWorld.updateIsPlaying( artistId, albumId, trackId );        
+//	}
+//	else {
+//        
+//        // can't assign shared pointers to NULL, so this is it:
+//        mPlayingTrack.reset();
+//        mCurrentTrackLength = 0; // reset cached track stuff
+//
+//        // calibrate time labels and orbit positions in update()
+//        mPlayheadUpdateSeconds = -1;
+//        
+//        // tidy up
+//        mPlayControls.setCurrentTrack("");
+//        
+//		// go to album level view (or NULL) when the last track ends:
+//		mState.setSelectedNode( mState.getSelectedAlbumNode() );
+//        
+//        // FIXME: should we disable play button and zoom-to-current-track button?
+//        
+//        // this should be OK to do since the above will happen if something is queued and paused
+//        mWorld.updateIsPlaying( 0, 0, 0 );        
+//	}
         
     logEvent("Player Track Changed");
     

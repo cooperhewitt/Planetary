@@ -17,65 +17,31 @@
 using namespace ci;
 using namespace ci::app;
 
-void FilterToggleButton::setup( const State::FilterMode &filterMode, const Font &font )
+void FilterToggleButton::setup( const State::FilterMode &filterMode, const Font &font, const gl::Texture &tex )
 {    
-    // FIXME: remove dynamic text if we're still using a texture from a file
-    
-    TextLayout layout;
-    layout.setFont( font );
-    layout.setColor( ColorA( BRIGHT_BLUE, 1.0f ) );
-    layout.addCenteredLine( "Alphabetical" );
-    mAlphaTexture = gl::Texture( layout.render( true, false ) );
+    mTex = tex;
 
-    layout = TextLayout();
-    layout.setFont( font );
-    layout.setColor( ColorA( BRIGHT_BLUE, 1.0f ) );
-    layout.addCenteredLine( "Playlists" );
-    mPlaylistTexture = gl::Texture( layout.render( true, false ) );
-	
-	mTex	= gl::Texture( loadImage( loadResource( "filterToggleButton.png" ) ) );
-	mRect	= Rectf( 0.0f, 0.0f, mTex.getWidth(), mTex.getHeight()/2 );
-	
-
-	const float padding = 10.0f;
-	const Vec2f paddingVec( padding, padding );
-	
-	mAlphaPos		= Vec2f( padding, padding );
-	mPlaylistPos	= Vec2f( mAlphaTexture.getWidth() + padding * 3.0f, padding );
-	
-	mAlphaRect		= Rectf( mAlphaPos - paddingVec, 
-							mAlphaPos + mAlphaTexture.getSize() + paddingVec );
-	mPlaylistRect	= Rectf( mPlaylistPos - paddingVec, 
-							mPlaylistPos + mPlaylistTexture.getSize() + paddingVec );
-	
-	mHitRect		= Rectf( mAlphaRect.getUpperLeft(), mPlaylistRect.getLowerRight() ); 
-	
+	mRect	= Rectf( 0.0f, 0.0f, mTex.getWidth(), mTex.getHeight()/2 );    
+	mAlphaRect		= Rectf( 0.0f, 0.0f, 127.0f, mRect.getHeight() ); 
+	mPlaylistRect	= Rectf( 127.0f, 0.0f, mRect.getWidth(), mRect.getHeight() ); 
+		
     setFilterMode( filterMode );
 }
 
 bool FilterToggleButton::touchBegan( TouchEvent::Touch touch )
-{
-    if (!mVisible) return false;
-	
+{	
 	Vec2f pos = globalToLocal( touch.getPos() );
-	if (mPlaylistRect.contains(pos) || mAlphaRect.contains(pos)) {
-		return true;
-	}
-
-    return false;
+	return mPlaylistRect.contains(pos) || mAlphaRect.contains(pos);
 }
 
 bool FilterToggleButton::touchEnded( TouchEvent::Touch touch )
 {
-    if (!mVisible) return false;    
     Vec2f pos = globalToLocal( touch.getPos() );
 	if (mAlphaRect.contains(pos)) {
-		// TODO: check this touch started in this button?
 		mCbFilterModeSelected.call(State::FilterModeAlphaChar);
 		return true;
 	}
 	else if (mPlaylistRect.contains(pos)) {
-		// TODO: check this touch started in this button?
 		mCbFilterModeSelected.call(State::FilterModePlaylist);          
 		return true;
 	}
@@ -109,9 +75,7 @@ void FilterToggleButton::update()
 }
 
 void FilterToggleButton::draw()
-{    
-    if (!mVisible) return; // FIXME fade in/out
-    
+{   
 	bloom::gl::beginBatch();
 	if( mFilterMode == State::FilterModeAlphaChar ){
 		bloom::gl::batchRect( mTex, Rectf(0.0f, 0.0f, 1.0f, 0.5f), mRect );
@@ -119,21 +83,5 @@ void FilterToggleButton::draw()
 		bloom::gl::batchRect( mTex, Rectf(0.0f, 0.5f, 1.0f, 1.0f), mRect );
 	}
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );    
-    bloom::gl::endBatch();
-	
-//    gl::color( mFilterMode == State::FilterModeAlphaChar ? ColorA( BRIGHT_BLUE, 0.45f ) : ColorA( 0.0f, 0.0f, 0.0f, 0.15f) );
-//    gl::drawSolidRect( mAlphaRect );
-//    
-//    gl::color( mFilterMode == State::FilterModePlaylist ? ColorA( BRIGHT_BLUE, 0.45f ) : ColorA( 0.0f, 0.0f, 0.0f, 0.15f) );
-//    gl::drawSolidRect( mPlaylistRect );    
-//    
-//    gl::color( Color::white() );
-//    gl::draw( mAlphaTexture, mAlphaPos );
-//    gl::draw( mPlaylistTexture, mPlaylistPos );
-//    
-//    // FIXME: whither roundrect? :)
-//    // at least, fix the corners to be snuggier than this
-//    gl::color( ColorA( BRIGHT_BLUE, 0.25f ) );
-//    gl::drawStrokedRect( mAlphaRect );
-//    gl::drawStrokedRect( mPlaylistRect );    
+    bloom::gl::endBatch();   
 }
