@@ -1258,15 +1258,31 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
             }     
             else if ( highestGen == G_ALBUM_LEVEL ) {
                 NodeAlbum* nodeAlbum = dynamic_cast<NodeAlbum*>(nodeWithHighestGen);
-                mIpodPlayer.play( nodeAlbum->getPlaylist() );
-                // FIXME: use album name in overlay:
-                mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Album" );
+                const bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
+                if (isPlaying && nodeAlbum->getPlaylist() == mIpodPlayer.getCurrentPlaylist()) {
+                    mIpodPlayer.pause();
+                    // FIXME: use album name in overlay:
+                    mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 128.0f, 128.0f, 256.0f ), "Pausing Album" );
+                }
+                else {
+                    mIpodPlayer.play( nodeAlbum->getPlaylist() );
+                    // FIXME: use album name in overlay:
+                    mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Album" );
+                }
             }
             if ( highestGen == G_ARTIST_LEVEL ) {
                 NodeArtist* nodeArtist = dynamic_cast<NodeArtist*>(nodeWithHighestGen);
-                mIpodPlayer.play( nodeArtist->getPlaylist() );
-                // FIXME: use artist name in overlay:
-                mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Artist" );
+                const bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
+                if (isPlaying && nodeArtist->getPlaylist() == mIpodPlayer.getCurrentPlaylist()) {
+                    mIpodPlayer.pause();
+                    // FIXME: use album name in overlay:
+                    mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 128.0f, 128.0f, 256.0f ), "Pausing Artist" );
+                }
+                else {
+                    mIpodPlayer.play( nodeArtist->getPlaylist() );
+                    // FIXME: use artist name in overlay:
+                    mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Artist" );
+                }
             }            
         }
         else {
