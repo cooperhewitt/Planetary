@@ -1318,7 +1318,7 @@ void KeplerApp::update()
 		
 		const float scaleSlider = mPlayControls.getParamSlider1Value();
 		const float speedSlider = mPlayControls.getParamSlider2Value();
-        mWorld.update( 0.25f + scaleSlider * 2.0f, pow( speedSlider, 2.4f ) * 0.1f );
+        mWorld.update( 0.25f + scaleSlider * 2.0f, pow( speedSlider, 3.0f ) * 0.1f );
 		
         updateCamera();
         
