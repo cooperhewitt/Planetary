@@ -12,6 +12,7 @@
 #include "cinder/Rand.h"
 #include "cinder/Utilities.h"
 #include "cinder/Perlin.h"
+#include "cinder/Easing.h"
 
 #include "CinderIPod.h"
 #include "CinderIPodPlayer.h"
@@ -47,11 +48,10 @@
 #include "FilterToggleButton.h"
 #include "PinchRecognizer.h"
 #include "ParticleController.h"
+#include "TextureLoader.h"
 
-#include "cinder/Easing.h"
-
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
+//#import <OpenGLES/ES1/gl.h>
+//#import <OpenGLES/ES1/glext.h>
 
 using namespace ci;
 using namespace ci::app;
@@ -65,8 +65,8 @@ bool G_DEBUG			= false;
 bool G_AUTO_MOVE		= false;
 bool G_SHOW_SETTINGS	= false;
 bool G_HELP             = false;
-bool G_DRAW_RINGS		= false;
-bool G_DRAW_TEXT		= false;
+bool G_DRAW_RINGS		= true;
+bool G_DRAW_TEXT		= true;
 bool G_USE_GYRO			= false;
 bool G_USE_COMPRESSED   = false; // set to true to load compressed images (experimental)
 bool G_IS_IPAD2			= false;
@@ -81,6 +81,7 @@ class KeplerApp : public AppCocoaTouch {
     void            remainingSetup();
 	void			initLoadingTextures();
 	void			initTextures();
+    void            onTextureLoaderComplete( TextureLoader* );
     gl::Texture     loadCompressedTexture(const std::string &dataPath, const Vec2i &imageSize);
 
 	virtual void	touchesBegan( TouchEvent event );
@@ -238,26 +239,50 @@ class KeplerApp : public AppCocoaTouch {
 // STATS
     Stats mStats;
     
-	// TEXTURES
-	gl::Texture		mStarTex, mStarGlowTex, mStarCoreTex, mEclipseGlowTex, mLensFlareTex;
-	gl::Texture		mEclipseShadowTex;
-	gl::Texture		mSkyDome, mGalaxyDome;
-	gl::Texture		mDottedTex;
-	gl::Texture		mPlayheadProgressTex;
-    gl::Texture     mRingsTex;
-	gl::Texture		mUiBigButtonsTex, mUiSmallButtonsTex, mOverlayIconsTex;
-    gl::Texture		mAtmosphereTex, mAtmosphereDirectionalTex, mAtmosphereSunTex;
-	gl::Texture		mNoArtistsTex;
-	gl::Texture		mParticleTex;
-	gl::Texture		mGalaxyTex;
-	gl::Texture		mDarkMatterTex;
-	gl::Texture		mOrbitRingGradientTex;
-	gl::Texture		mTrackOriginTex;
-	gl::Texture		mSettingsBgTex;
-    gl::Texture		mFilterToggleButtonTex;
-    gl::Texture     mWheelOverlayTex;
-	vector<gl::Texture> mCloudsTex;
+// TEXTURES
+    
+    // texture IDs for threaded loading
+    enum TextureId { 
+        STAR_TEX, 
+        STAR_CORE_TEX, 
+        ECLIPSE_GLOW_TEX, 
+        LENS_FLARE_TEX,
+        ECLIPSE_SHADOW_TEX,
+        SKY_DOME_TEX,
+        GALAXY_DOME_TEX,
+        DOTTED_TEX,
+        PLAYHEAD_PROGRESS_TEX,
+        RINGS_TEX,
+        UI_BIG_BUTTONS_TEX,
+        UI_SMALL_BUTTONS_TEX,
+        OVERLAY_ICONS_TEX,
+        ATMOSPHERE_TEX,
+        ATMOSPHERE_DIRECTIONAL_TEX,
+        ATMOSPHERE_SUN_TEX,
+        PARTICLE_TEX,
+        GALAXY_TEX,
+        DARK_MATTER_TEX,
+        ORBIT_RING_GRADIENT_TEX,
+        TRACK_ORIGIN_TEX,
+        SETTINGS_BG_TEX,
+        FILTER_TOGGLE_BUTTON_TEX,
+        WHEEL_OVERLAY_TEX,
+        TOTAL_TEXTURE_COUNT
+    };
+    
+    // manages threaded texture loading by ID (above)
+    TextureLoader mTextures;
+    
+    // FIXME: do this with TextureLoader as well
+	vector<gl::Texture> mCloudTextures;
 	
+    // needed for load screen:
+    gl::Texture		mStarGlowTex;
+    
+    // loaded on demand for empty music libraries
+	gl::Texture		mNoArtistsTex;    
+    
+    // FIXME: load these with TextureLoader as well
 	Surface			mHighResSurfaces;
 	Surface			mLowResSurfaces;
 	Surface			mNoAlbumArtSurface;
@@ -329,18 +354,93 @@ void KeplerApp::remainingSetup()
 {
     if (mRemainingSetupCalled) return;
 
-    Flurry::getInstrumentation()->startTimeEvent("Remaining Setup");
-
     mRemainingSetupCalled = true;
+    
+    Flurry::getInstrumentation()->startTimeEvent("Remaining Setup");
 
 	mLoadingScreen.setVisible( true );
     
-	G_DRAW_RINGS	= true;
-	G_DRAW_TEXT		= true;
-	//Rand::randomize();
-
-    // TEXTURES
     initTextures();
+}
+
+void KeplerApp::initTextures()
+{
+    Flurry::getInstrumentation()->startTimeEvent("Load Textures");    
+    
+    gl::Texture::Format mipFmt;
+    mipFmt.enableMipmapping( true );
+    mipFmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );    
+    mipFmt.setMagFilter( GL_LINEAR ); // TODO: experiment with GL_NEAREST where appropriate
+    
+    gl::Texture::Format repeatMipFmt;
+    repeatMipFmt.enableMipmapping( true );
+    repeatMipFmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );    
+    repeatMipFmt.setMagFilter( GL_LINEAR ); // TODO: experiment with GL_NEAREST where appropriate
+    repeatMipFmt.setWrap( GL_REPEAT, GL_REPEAT );    
+    
+    mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "planetClouds1.png" ) ), mipFmt ) );
+	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "planetClouds2.png" ) ), mipFmt ) );
+	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "planetClouds3.png" ) ), mipFmt ) );
+	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "planetClouds4.png" ) ), mipFmt ) );
+	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "planetClouds5.png" ) ), mipFmt ) );
+	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "moonClouds1.png" ) ), mipFmt ) );
+	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "moonClouds2.png" ) ), mipFmt ) );
+	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "moonClouds3.png" ) ), mipFmt ) );
+	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "moonClouds4.png" ) ), mipFmt ) );
+	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "moonClouds5.png" ) ), mipFmt ) );
+	
+    //////////
+    
+    mHighResSurfaces   = Surface( loadImage( loadResource( "surfacesHighRes.png" ) ) );
+	mLowResSurfaces	   = Surface( loadImage( loadResource( "surfacesLowRes.png" ) ) );
+    mNoAlbumArtSurface = Surface( loadImage( loadResource( "noAlbumArt.png" ) ) );
+    
+    //////////
+    
+    mTextures.addRequest( STAR_TEX,           "star.png",          mipFmt );
+    mTextures.addRequest( STAR_CORE_TEX,      "starCore.png",      mipFmt );
+    mTextures.addRequest( ECLIPSE_GLOW_TEX,   "eclipseGlow.png",   mipFmt );
+    mTextures.addRequest( LENS_FLARE_TEX,     "lensFlare.png",     mipFmt );
+    mTextures.addRequest( ECLIPSE_SHADOW_TEX, "eclipseShadow.png", mipFmt );
+    if (G_USE_COMPRESSED) {
+        mTextures.addRequest( SKY_DOME_TEX,    "skydome.pvr",     Vec2i(1024,1024) );
+        mTextures.addRequest( GALAXY_DOME_TEX, "lightMatter.pvr", Vec2i(1024,1024) );
+    }
+    else {
+        mTextures.addRequest( SKY_DOME_TEX,    "skydomeFull.png",     mipFmt );
+        mTextures.addRequest( GALAXY_DOME_TEX, "lightMatterFull.jpg", mipFmt );      
+    }
+    mTextures.addRequest( DOTTED_TEX,                 "dotted.png",           repeatMipFmt );
+    mTextures.addRequest( PLAYHEAD_PROGRESS_TEX,      "playheadProgress.png", repeatMipFmt );
+    mTextures.addRequest( RINGS_TEX,                  "rings.png" );
+    mTextures.addRequest( UI_BIG_BUTTONS_TEX,         "uiBigButtons.png" );
+    mTextures.addRequest( UI_SMALL_BUTTONS_TEX,       "uiSmallButtons.png" );
+    mTextures.addRequest( OVERLAY_ICONS_TEX,          "overlayIcons.png");
+    mTextures.addRequest( ATMOSPHERE_TEX,             "atmosphere.png",            mipFmt );
+    mTextures.addRequest( ATMOSPHERE_DIRECTIONAL_TEX, "atmosphereDirectional.png", mipFmt );
+    mTextures.addRequest( ATMOSPHERE_SUN_TEX,         "atmosphereSun.png",         mipFmt );
+    mTextures.addRequest( PARTICLE_TEX,               "particle.png",              mipFmt );
+    if (G_USE_COMPRESSED) {
+        mTextures.addRequest( GALAXY_TEX,      "galaxyCropped.pvr", Vec2i(1024, 1024) );
+        mTextures.addRequest( DARK_MATTER_TEX, "darkMatter.pvr",    Vec2i(1024, 1024) );
+    }
+    else {
+        mTextures.addRequest( GALAXY_TEX,      "galaxyCropped.jpg", mipFmt );
+        mTextures.addRequest( DARK_MATTER_TEX, "darkMatterFull.png" );
+    }                              
+    mTextures.addRequest( ORBIT_RING_GRADIENT_TEX,  "orbitRingGradient.png", mipFmt );
+    mTextures.addRequest( TRACK_ORIGIN_TEX,         "origin.png",            mipFmt );
+    mTextures.addRequest( SETTINGS_BG_TEX,          "settingsBg.png" );
+    mTextures.addRequest( FILTER_TOGGLE_BUTTON_TEX, "filterToggleButton.png" );
+    mTextures.addRequest( WHEEL_OVERLAY_TEX,        "alphaWheelMask.png" );
+    
+    mTextures.registerComplete( this, &KeplerApp::onTextureLoaderComplete );
+    mTextures.start();    
+}
+
+void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
+{
+    Flurry::getInstrumentation()->stopTimeEvent("Load Textures");        
 	
 	// ARCBALL
 	mArcball.setWindowSize( getWindowSize() );
@@ -428,7 +528,7 @@ void KeplerApp::remainingSetup()
 
     // WHEEL OVERLAY
     mWheelOverlay = WheelOverlayRef( new WheelOverlay() );
-    mWheelOverlay->setup( mWheelOverlayTex );    
+    mWheelOverlay->setup( mTextures[WHEEL_OVERLAY_TEX] );    
 	mWheelOverlay->registerWheelToggled( this, &KeplerApp::onWheelToggled );    
     mMainBloomNodeRef->addChild( mWheelOverlay );
     
@@ -444,11 +544,18 @@ void KeplerApp::remainingSetup()
 	mWheelOverlay->addChild( BloomNodeRef(&mPlaylistChooser) );
 	
 	// UILAYER
-	mUiLayer.setup( mUiSmallButtonsTex, mSettingsBgTex, G_SHOW_SETTINGS, mBloomSceneRef->getInterfaceSize() );
+	mUiLayer.setup( mTextures[UI_SMALL_BUTTONS_TEX], 
+                    mTextures[SETTINGS_BG_TEX], 
+                    G_SHOW_SETTINGS, 
+                    mBloomSceneRef->getInterfaceSize() );
     mMainBloomNodeRef->addChild( BloomNodeRef(&mUiLayer) );
     
 	// PLAY CONTROLS
-	mPlayControls.setup( mBloomSceneRef->getInterfaceSize(), &mIpodPlayer, mFontMediSmall, mFontMediTiny, mUiBigButtonsTex, mUiSmallButtonsTex );
+	mPlayControls.setup( mBloomSceneRef->getInterfaceSize(), 
+                         &mIpodPlayer, 
+                         mFontMediSmall, mFontMediTiny, 
+                         mTextures[UI_BIG_BUTTONS_TEX], 
+                         mTextures[UI_SMALL_BUTTONS_TEX] );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
     // add as child of UILayer so it inherits the transform
@@ -459,7 +566,9 @@ void KeplerApp::remainingSetup()
 	mHelpLayer.initHelpTextures( mFontMediSmall );
     
     // FILTER TOGGLE
-    mFilterToggleButton.setup( mState.getFilterMode(), mFontMedium, mFilterToggleButtonTex );
+    mFilterToggleButton.setup( mState.getFilterMode(), 
+                               mFontMedium, 
+                               mTextures[FILTER_TOGGLE_BUTTON_TEX] );
     mFilterToggleButton.registerFilterModeSelected( &mState, &State::setFilterMode );
     mMainBloomNodeRef->addChild( BloomNodeRef(&mFilterToggleButton) );
 	
@@ -488,15 +597,18 @@ void KeplerApp::remainingSetup()
     mSkySphere.setup(24);
     
     // GALAXY (TODO: Move to World?)
-    mGalaxy.setup(G_INIT_CAM_DIST, BRIGHT_BLUE, BLUE, mGalaxyDome, mGalaxyTex, mDarkMatterTex, mStarGlowTex);
+    mGalaxy.setup( G_INIT_CAM_DIST, 
+                   BRIGHT_BLUE, 
+                   BLUE, 
+                   mTextures[GALAXY_DOME_TEX], 
+                   mTextures[GALAXY_TEX], 
+                   mTextures[DARK_MATTER_TEX], 
+                   mStarGlowTex );
 
     // NOTIFICATION OVERLAY
 	mNotificationOverlay.setup( mFontBig );
     mMainBloomNodeRef->addChild( BloomNodeRef(&mNotificationOverlay) );	
 
-	// FBO
-//	Node::initFbo();
-	
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
 
     //console() << "setupEnd: " << getElapsedSeconds() << std::endl;
@@ -511,100 +623,22 @@ void KeplerApp::initLoadingTextures()
 	mStarGlowTex = gl::Texture( loadImage( loadResource( "starGlow.png" ) ), fmt);
 }
 
-gl::Texture KeplerApp::loadCompressedTexture(const std::string &dataPath, const Vec2i &imageSize)
-{
-    // NB:- compressed textures *must* be square
-    //      also, file sizes are actually larger than jpg 
-    //      ... but it stays compressed on the GPU for more awesome
-    gl::Texture::Format compressedFormat;
-    compressedFormat.setInternalFormat(GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG);
-    compressedFormat.enableMipmapping(false); // TODO: talk to Ryan about mipmapped compressed textures
-    compressedFormat.setMagFilter( GL_LINEAR );
-    compressedFormat.setMinFilter( GL_LINEAR );
-    
-    DataSourceRef dataSource = loadResource(dataPath);
-    const size_t dataSize = dataSource->getBuffer().getDataSize();
-    const uint8_t *data = static_cast<uint8_t*>(dataSource->getBuffer().getData());
-    return gl::Texture::withCompressedData(data, imageSize.x, imageSize.y, dataSize, compressedFormat);    
-}
-
-void KeplerApp::initTextures()
-{
-    Flurry::getInstrumentation()->startTimeEvent("Load Textures");    
-    
-    float t = getElapsedSeconds();
-    
-    gl::Texture::Format mipFmt;
-    mipFmt.enableMipmapping( true );
-    mipFmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );    
-    mipFmt.setMagFilter( GL_LINEAR ); // TODO: experiment with GL_NEAREST where appropriate
-
-    gl::Texture::Format repeatMipFmt;
-    repeatMipFmt.enableMipmapping( true );
-    repeatMipFmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );    
-    repeatMipFmt.setMagFilter( GL_LINEAR ); // TODO: experiment with GL_NEAREST where appropriate
-    repeatMipFmt.setWrap( GL_REPEAT, GL_REPEAT );
-    
-    mStarTex                  = gl::Texture( loadImage( loadResource( "star.png" ) ), mipFmt );
-	mStarCoreTex              = gl::Texture( loadImage( loadResource( "starCore.png" ) ), mipFmt );
-	mEclipseGlowTex           = gl::Texture( loadImage( loadResource( "eclipseGlow.png" ) ), mipFmt );
-	mEclipseShadowTex         = gl::Texture( loadImage( loadResource( "eclipseShadow.png" ) ), mipFmt );
-	mLensFlareTex             = gl::Texture( loadImage( loadResource( "lensFlare.png" ) ), mipFmt );
-	mParticleTex              = gl::Texture( loadImage( loadResource( "particle.png" ) ), mipFmt );
-
-    if (G_USE_COMPRESSED) {
-        mSkyDome              = loadCompressedTexture( "skydome.pvr", Vec2i(1024,1024) );
-        mGalaxyDome           = loadCompressedTexture( "lightMatter.pvr", Vec2i(1024,1024) );
-    }
-    else {
-        mSkyDome              = gl::Texture( loadImage( loadResource( "skydomeFull.png" ) ), mipFmt ); // skydomeFull.png
-        mGalaxyDome           = gl::Texture( loadImage( loadResource( "lightMatterFull.jpg" ) ), mipFmt );
-    }
-    
-	mSettingsBgTex			  = gl::Texture( loadImage( loadResource( "settingsBg.png" ) ) );    
-    mFilterToggleButtonTex    = gl::Texture( loadImage( loadResource( "filterToggleButton.png" ) ) );
-    mWheelOverlayTex          = gl::Texture( loadImage( loadResource( "alphaWheelMask.png" ) ) );
-	mDottedTex                = gl::Texture( loadImage( loadResource( "dotted.png" ) ), repeatMipFmt );    
-	mRingsTex                 = gl::Texture( loadImage( loadResource( "rings.png" ) ) /*, fmt */ );
-    mPlayheadProgressTex      = gl::Texture( loadImage( loadResource( "playheadProgress.png" ) ), repeatMipFmt );
-	mUiBigButtonsTex          = gl::Texture( loadImage( loadResource( "uiBigButtons.png" ) )/*, fmt*/ );
-	mUiSmallButtonsTex        = gl::Texture( loadImage( loadResource( "uiSmallButtons.png" ) )/*, fmt*/ );
-	mOverlayIconsTex          = gl::Texture( loadImage( loadResource( "overlayIcons.png" ) )/*, fmt*/ );
-    mAtmosphereTex            = gl::Texture( loadImage( loadResource( "atmosphere.png" ) ), mipFmt );
-	mAtmosphereDirectionalTex = gl::Texture( loadImage( loadResource( "atmosphereDirectional.png" ) ), mipFmt );
-	mAtmosphereSunTex         = gl::Texture( loadImage( loadResource( "atmosphereSun.png" ) ), mipFmt );
-
-    if (G_USE_COMPRESSED) {
-        mGalaxyTex                = loadCompressedTexture("galaxyCropped.pvr", Vec2i(1024, 1024));
-        mDarkMatterTex            = loadCompressedTexture("darkMatter.pvr", Vec2i(1024, 1024));
-    }
-    else {
-        mGalaxyTex                = gl::Texture( loadImage( loadResource( "galaxyCropped.jpg" ) ), mipFmt );
-        mDarkMatterTex            = gl::Texture( loadImage( loadResource( "darkMatterFull.png" ) )/*, fmt*/ );
-    }
-
-	mOrbitRingGradientTex     = gl::Texture( loadImage( loadResource( "orbitRingGradient.png" ) ), mipFmt );
-	mTrackOriginTex           = gl::Texture( loadImage( loadResource( "origin.png" ) ), mipFmt );
-
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds1.png" ) ), mipFmt ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds2.png" ) ), mipFmt ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds3.png" ) ), mipFmt ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds4.png" ) ), mipFmt ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "planetClouds5.png" ) ), mipFmt ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds1.png" ) ), mipFmt ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds2.png" ) ), mipFmt ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds3.png" ) ), mipFmt ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds4.png" ) ), mipFmt ) );
-	mCloudsTex.push_back( gl::Texture( loadImage( loadResource( "moonClouds5.png" ) ), mipFmt ) );
-	
-	mHighResSurfaces	= Surface( loadImage( loadResource( "surfacesHighRes.png" ) ) );
-	mLowResSurfaces		= Surface( loadImage( loadResource( "surfacesLowRes.png" ) ) );
-    mNoAlbumArtSurface = Surface( loadImage( loadResource( "noAlbumArt.png" ) ) );
-    
-    std::cout << (getElapsedSeconds() - t) << " seconds to load textures" << std::endl;
-    
-    Flurry::getInstrumentation()->stopTimeEvent("Load Textures");    
-}
+//gl::Texture KeplerApp::loadCompressedTexture(const std::string &dataPath, const Vec2i &imageSize)
+//{
+//    // NB:- compressed textures *must* be square
+//    //      also, file sizes are actually larger than jpg 
+//    //      ... but it stays compressed on the GPU for more awesome
+//    gl::Texture::Format compressedFormat;
+//    compressedFormat.setInternalFormat(GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG);
+//    compressedFormat.enableMipmapping(false); // TODO: talk to Ryan about mipmapped compressed textures
+//    compressedFormat.setMagFilter( GL_LINEAR );
+//    compressedFormat.setMinFilter( GL_LINEAR );
+//    
+//    DataSourceRef dataSource = loadResource(dataPath);
+//    const size_t dataSize = dataSource->getBuffer().getDataSize();
+//    const uint8_t *data = static_cast<uint8_t*>(dataSource->getBuffer().getData());
+//    return gl::Texture::withCompressedData(data, imageSize.x, imageSize.y, dataSize, compressedFormat);    
+//}
 
 void KeplerApp::touchesBegan( TouchEvent event )
 {	
@@ -924,7 +958,7 @@ bool KeplerApp::onPlaylistStateChanged( ipod::PlaylistRef playlist )
 //    }
 //    stringstream s;
 //    s << "SHOWING ARTISTS FROM" << br << "'" << playlistName << "'";
-//    mNotificationOverlay.show( mOverlayIconsTex, Area( 1024.0f, 0.0f, 1152.0f, 128.0f ), s.str() );            
+//    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 1024.0f, 0.0f, 1152.0f, 128.0f ), s.str() );            
 	
     // log:
     std::map<string, string> parameters;
@@ -1030,10 +1064,10 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 		case PlayControls::SHUFFLE:
 			if( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff ){
 				mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeOff );
-				mNotificationOverlay.show( mOverlayIconsTex, Area( uw*1, uh*1, uw*2, uh*2 ), "SHUFFLE OFF" );
+				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*1, uw*2, uh*2 ), "SHUFFLE OFF" );
 			} else {
 				mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeSongs );
-				mNotificationOverlay.show( mOverlayIconsTex, Area( uw*1, uh*0, uw*2, uh*1 ), "SHUFFLE ON" );
+				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*0, uw*2, uh*1 ), "SHUFFLE ON" );
 			}
             mPlayControls.setShuffleVisible( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff );
             logEvent("Shuffle Button Selected");    
@@ -1044,12 +1078,12 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
                 case ipod::Player::RepeatModeNone:
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeAll );
                     mPlayControls.setRepeatMode( ipod::Player::RepeatModeAll );    
-                    mNotificationOverlay.show( mOverlayIconsTex, Area( uw*2, uh*0, uw*3, uh*1 ), "REPEAT ALL" );
+                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*2, uh*0, uw*3, uh*1 ), "REPEAT ALL" );
                     break;
                 case ipod::Player::RepeatModeAll:
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeOne );
                     mPlayControls.setRepeatMode( ipod::Player::RepeatModeOne );    
-                    mNotificationOverlay.show( mOverlayIconsTex, Area( uw*3, uh*0, uw*4, uh*1 ), "REPEAT ONE" );
+                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*3, uh*0, uw*4, uh*1 ), "REPEAT ONE" );
                     break;
                 case ipod::Player::RepeatModeOne:
                 case ipod::Player::RepeatModeDefault:
@@ -1057,7 +1091,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
                     // our user chooses it, we can't know what the current state is                    
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeNone );
                     mPlayControls.setRepeatMode( ipod::Player::RepeatModeNone );    
-                    mNotificationOverlay.show( mOverlayIconsTex, Area( uw*2, uh*1, uw*3, uh*2 ), "REPEAT NONE" );
+                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*2, uh*1, uw*3, uh*2 ), "REPEAT NONE" );
                     break;
             }
             logEvent("Repeat Button Selected");   
@@ -1078,8 +1112,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				logEvent("Automove Button Selected");            
 				G_AUTO_MOVE = !G_AUTO_MOVE;
-				if( G_AUTO_MOVE )	mNotificationOverlay.show( mOverlayIconsTex, Area( uw*4, uh*2, uw*5, uh*3 ), "ANIMATE CAMERA" );
-				else				mNotificationOverlay.show( mOverlayIconsTex, Area( uw*4, uh*3, uw*5, uh*4 ), "ANIMATE CAMERA" );
+				if( G_AUTO_MOVE )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*4, uh*2, uw*5, uh*3 ), "ANIMATE CAMERA" );
+				else				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*4, uh*3, uw*5, uh*4 ), "ANIMATE CAMERA" );
 				
 //				if( G_AUTO_MOVE ) makeNewCameraPath();
 			}
@@ -1091,8 +1125,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				logEvent("Draw Rings Button Selected");            
 				G_DRAW_RINGS = !G_DRAW_RINGS;
-				if( G_DRAW_RINGS )	mNotificationOverlay.show( mOverlayIconsTex, Area( uw*0, uh*2, uw*1, uh*3 ), "ORBIT LINES" );
-				else				mNotificationOverlay.show( mOverlayIconsTex, Area( uw*0, uh*3, uw*1, uh*4 ), "ORBIT LINES" );
+				if( G_DRAW_RINGS )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*0, uh*2, uw*1, uh*3 ), "ORBIT LINES" );
+				else				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*0, uh*3, uw*1, uh*4 ), "ORBIT LINES" );
 			}
             mPlayControls.setOrbitsVisible( G_DRAW_RINGS );            
             break;
@@ -1101,8 +1135,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				logEvent("Draw Text Button Selected");            
 				G_DRAW_TEXT = !G_DRAW_TEXT;
-				if( G_DRAW_TEXT )	mNotificationOverlay.show( mOverlayIconsTex, Area( uw*1, uh*2, uw*2, uh*3 ), "TEXT LABELS" );
-				else				mNotificationOverlay.show( mOverlayIconsTex, Area( uw*1, uh*3, uw*2, uh*4 ), "TEXT LABELS" );
+				if( G_DRAW_TEXT )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*2, uw*2, uh*3 ), "TEXT LABELS" );
+				else				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*3, uw*2, uh*4 ), "TEXT LABELS" );
 			}
             mPlayControls.setLabelsVisible( G_DRAW_TEXT );
             break;
@@ -1117,8 +1151,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 				else			   mUp = Vec3f::yAxis();
 				
 				
-				if( G_USE_GYRO )	mNotificationOverlay.show( mOverlayIconsTex, Area( uw*4, uh*0, uw*5, uh*1 ), "GYROSCOPE" );
-				else				mNotificationOverlay.show( mOverlayIconsTex, Area( uw*4, uh*1, uw*5, uh*2 ), "GYROSCOPE" );
+				if( G_USE_GYRO )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*4, uh*0, uw*5, uh*1 ), "GYROSCOPE" );
+				else				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*4, uh*1, uw*5, uh*2 ), "GYROSCOPE" );
 			}
             mPlayControls.setGyroVisible( G_USE_GYRO );
             break;
@@ -1148,8 +1182,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
         
 		case PlayControls::DEBUG_FEATURE:
 			G_DEBUG = !G_DEBUG;
-			if( G_DEBUG )	mNotificationOverlay.show( mOverlayIconsTex, Area( uw*2, uh*2, uw*3, uh*3 ), "DEBUG MODE" );
-			else			mNotificationOverlay.show( mOverlayIconsTex, Area( uw*2, uh*3, uw*3, uh*4 ), "DEBUG MODE" );
+			if( G_DEBUG )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*2, uh*2, uw*3, uh*3 ), "DEBUG MODE" );
+			else			mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*2, uh*3, uw*3, uh*4 ), "DEBUG MODE" );
             mPlayControls.setDebugVisible( G_DEBUG );
             break;
 			
@@ -1217,11 +1251,11 @@ void KeplerApp::togglePlayPaused()
     const bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
     if ( isPlaying ) {
         mIpodPlayer.pause();
-        mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 128.0f, 128.0f, 256.0f ), "PAUSED" );
+        mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 128.0f, 128.0f, 256.0f ), "PAUSED" );
     }
     else {
         mIpodPlayer.play();
-        mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 0.0f, 128.0f, 128.0f ), "PLAY" );
+        mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 0.0f, 128.0f, 128.0f ), "PLAY" );
     }    
 }
  
@@ -1262,12 +1296,12 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
                 if (isPlaying && nodeAlbum->getPlaylist() == mIpodPlayer.getCurrentPlaylist()) {
                     mIpodPlayer.pause();
                     // FIXME: use album name in overlay:
-                    mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 128.0f, 128.0f, 256.0f ), "Pausing Album" );
+                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 128.0f, 128.0f, 256.0f ), "Pausing Album" );
                 }
                 else {
                     mIpodPlayer.play( nodeAlbum->getPlaylist() );
                     // FIXME: use album name in overlay:
-                    mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Album" );
+                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Album" );
                 }
             }
             if ( highestGen == G_ARTIST_LEVEL ) {
@@ -1276,12 +1310,12 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
                 if (isPlaying && nodeArtist->getPlaylist() == mIpodPlayer.getCurrentPlaylist()) {
                     mIpodPlayer.pause();
                     // FIXME: use album name in overlay:
-                    mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 128.0f, 128.0f, 256.0f ), "Pausing Artist" );
+                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 128.0f, 128.0f, 256.0f ), "Pausing Artist" );
                 }
                 else {
                     mIpodPlayer.play( nodeArtist->getPlaylist() );
                     // FIXME: use artist name in overlay:
-                    mNotificationOverlay.show( mOverlayIconsTex, Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Artist" );
+                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Artist" );
                 }
             }            
         }
@@ -1341,6 +1375,11 @@ void KeplerApp::update()
             mPlaylistChooser.setDataWorldCam( &mData, &mWorld, &mCam );
         }
 	}
+    
+    if ( mLoadingScreen.isVisible() ) {
+        // FIXME: do separate bars for images and music library data
+        mLoadingScreen.setProgress( mTextures.getProgress() );
+    }
     
     // update UiLayer, PlayControls etc.
     mBloomSceneRef->update();    
@@ -1440,6 +1479,8 @@ void KeplerApp::update()
             remainingSetup();
         }        
     }
+    
+    mTextures.update();
 }
 
 void KeplerApp::updateArcball()
@@ -1704,12 +1745,12 @@ void KeplerApp::drawScene()
   //  gl::color( c * pow( 1.0f - zoomOff, 3.0f ) );
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
-    mSkyDome.enableAndBind();
+    mTextures[SKY_DOME_TEX].enableAndBind();
     glPushMatrix();
     gl::scale( Vec3f(G_SKYDOME_RADIUS,G_SKYDOME_RADIUS,G_SKYDOME_RADIUS) );
     mSkySphere.draw();
     glPopMatrix();
-    mSkyDome.disable();
+    mTextures[SKY_DOME_TEX].disable();
     glDisable(GL_CULL_FACE);
     
 // GALAXY
@@ -1719,14 +1760,14 @@ void KeplerApp::drawScene()
 	
 // STARS
 	gl::enableAdditiveBlending();
-	mStarTex.enableAndBind();
+	mTextures[STAR_TEX].enableAndBind();
 	mWorld.drawStarsVertexArray();
-	mStarTex.disable();
+	mTextures[STAR_TEX].disable();
 	
 // STARGLOWS bloom (TOUCH HIGHLIGHTS)
-	mEclipseGlowTex.enableAndBind();
+	mTextures[ECLIPSE_GLOW_TEX].enableAndBind();
 	mWorld.drawTouchHighlights( mFadeInArtistToAlbum );
-	mEclipseGlowTex.disable();
+	mTextures[ECLIPSE_GLOW_TEX].disable();
 	
 // STARGLOWS bloom
 	mStarGlowTex.enableAndBind();
@@ -1767,10 +1808,10 @@ void KeplerApp::drawScene()
 			if( (G_IS_IPAD2 || G_DEBUG) && sortedNodes[i]->mGen == G_ALBUM_LEVEL ){ // JUST ALBUM LEVEL CAUSE ALBUM TELLS CHILDREN TO ALSO FIND SHADOWS
 				gl::enableAlphaBlending();
 				glDisable( GL_CULL_FACE );
-				mEclipseShadowTex.enableAndBind();
+                mTextures[ECLIPSE_SHADOW_TEX].enableAndBind();
 				sortedNodes[i]->findShadows( pow( mCamRingAlpha, 1.2f ) );
 				glEnable( GL_CULL_FACE );
-				mEclipseShadowTex.disable();
+				mTextures[ECLIPSE_SHADOW_TEX].disable();
 				//gl::enableDepthWrite();
 			}
 			
@@ -1780,18 +1821,18 @@ void KeplerApp::drawScene()
 			gl::disableAlphaBlending(); // dings additive blending            
 			gl::enableAlphaBlending();  // restores alpha blending
 
-			sortedNodes[i]->drawPlanet( mStarCoreTex ); // star core tex for artistars, planets do their own thing
-			sortedNodes[i]->drawClouds( mCloudsTex );
+			sortedNodes[i]->drawPlanet( mTextures[STAR_CORE_TEX] ); // star core tex for artistars, planets do their own thing
+			sortedNodes[i]->drawClouds( mCloudTextures );
 			
 			glDisable( GL_LIGHTING );
 			gl::disableDepthRead();
 			
 			gl::enableAdditiveBlending();
 			if( sortedNodes[i]->mGen == G_ARTIST_LEVEL ) {
-				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereSunTex, mAtmosphereDirectionalTex, mPinchAlphaPer, 0.0f );
+				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mTextures[ATMOSPHERE_SUN_TEX], mTextures[ATMOSPHERE_DIRECTIONAL_TEX], mPinchAlphaPer, 0.0f );
 			} else {
 				float scaleSliderOffset = mPlayControls.getParamSlider1Value() * 0.01f;
-				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mAtmosphereTex, mAtmosphereDirectionalTex, mPinchAlphaPer, scaleSliderOffset );
+				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mTextures[ATMOSPHERE_TEX], mTextures[ATMOSPHERE_DIRECTIONAL_TEX], mPinchAlphaPer, scaleSliderOffset );
             }
 		}
         
@@ -1799,7 +1840,7 @@ void KeplerApp::drawScene()
 		glDisable( GL_RESCALE_NORMAL );
 		
 		gl::enableAdditiveBlending();
-		artistNode->drawExtraGlow( mEye - mCenterOffset, mStarGlowTex, mStarTex );
+		artistNode->drawExtraGlow( mEye - mCenterOffset, mStarGlowTex, mTextures[STAR_TEX] );
 	}
 
 	glDisable( GL_LIGHTING );
@@ -1810,23 +1851,23 @@ void KeplerApp::drawScene()
 	
 // ORBITS
 	if( G_DRAW_RINGS ){
-        mOrbitRingGradientTex.enableAndBind();
+        mTextures[ORBIT_RING_GRADIENT_TEX].enableAndBind();
         mWorld.drawOrbitRings( mPinchAlphaPer, sqrt( mCamRingAlpha ) );
-        mOrbitRingGradientTex.disable();
+        mTextures[ORBIT_RING_GRADIENT_TEX].disable();
 	}
 	
 // PARTICLES
 	if( artistNode ){
-		mParticleTex.enableAndBind();
+        mTextures[PARTICLE_TEX].enableAndBind();
 		mParticleController.drawParticleVertexArray( artistNode );
-		mParticleTex.disable();
+        mTextures[PARTICLE_TEX].disable();
 	}
 	
 // RINGS
 	if( artistNode ){
 		//alpha = pow( mCamRingAlpha, 2.0f );
         // TODO: consider only doing this on planets in our sorted loop, above
-		mWorld.drawRings( mRingsTex, mCamRingAlpha * 0.5f );
+		mWorld.drawRings( mTextures[RINGS_TEX], mCamRingAlpha * 0.5f );
 	}
 	
 // FOR dust, playhead progress, constellations, etc.
@@ -1843,14 +1884,14 @@ void KeplerApp::drawScene()
         const bool isPaused = (mCurrentPlayState == ipod::Player::StatePaused);
         const bool isStopped = (mCurrentPlayState == ipod::Player::StateStopped);
         const float pauseAlpha = (isPaused || isStopped) ? sin(getElapsedSeconds() * M_PI * 2.0f ) * 0.25f + 0.75f : 1.0f;
-        mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mCamRingAlpha, pauseAlpha, mPlayheadProgressTex, mTrackOriginTex );
+        mWorld.mPlayingTrackNode->drawPlayheadProgress( mPinchAlphaPer, mCamRingAlpha, pauseAlpha, mTextures[PLAYHEAD_PROGRESS_TEX], mTextures[TRACK_ORIGIN_TEX] );
 	}
 	
 // CONSTELLATION
 	if( mWorld.getNumFilteredNodes() > 1 && G_DRAW_RINGS ){
-		mDottedTex.enableAndBind();
+		mTextures[DOTTED_TEX].enableAndBind();
 		mWorld.drawConstellation();
-		mDottedTex.disable();
+		mTextures[DOTTED_TEX].disable();
 	}
 	
 	
@@ -1895,7 +1936,7 @@ void KeplerApp::drawScene()
 
         gl::enableAlphaBlending();    
         gl::enableAdditiveBlending();		
-		mLensFlareTex.enableAndBind();
+        mTextures[LENS_FLARE_TEX].enableAndBind();
 		
 		Vec2f flarePos = getWindowCenter() - artistNode->mScreenPos;
 		float flareDist = flarePos.length();
@@ -1907,8 +1948,8 @@ void KeplerApp::drawScene()
 			float flareRadius = artistNode->mSphereScreenRadius * radii[i] * distPer;
 			gl::drawSolidRect( Rectf( flarePos.x - flareRadius, flarePos.y - flareRadius, flarePos.x + flareRadius, flarePos.y + flareRadius ) );
 		}
-		
-		mLensFlareTex.disable();
+
+        mTextures[LENS_FLARE_TEX].disable();
 	}
 
 	
@@ -1939,7 +1980,7 @@ void KeplerApp::drawScene()
 	gl::disableAlphaBlending(); // stops additive blending
     gl::enableAlphaBlending();  // reinstates normal alpha blending
     
-	mHelpLayer.draw( mUiSmallButtonsTex, mUiLayer.getPanelYPos() );
+	mHelpLayer.draw( mTextures[UI_SMALL_BUTTONS_TEX], mUiLayer.getPanelYPos() );
 
     // UILayer and PlayControls draw here:
     mBloomSceneRef->draw();

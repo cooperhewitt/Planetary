@@ -19,8 +19,9 @@ class LoadingScreen : public BloomNode {
     bool touchBegan( ci::app::TouchEvent::Touch touch ) { return isVisible(); };
     bool touchMoved( ci::app::TouchEvent::Touch touch ) { return isVisible(); };
     bool touchEnded( ci::app::TouchEvent::Touch touch ) { return isVisible(); };
-
+    void setProgress( float prop );
   private:
+    float mProgress, mProgressDest;
     ci::gl::Texture mStarGlowTex;
 	ci::gl::Texture	mPlanetaryTex;
 	ci::gl::Texture mPlanetTex;
