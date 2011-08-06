@@ -8,6 +8,7 @@
 
 #pragma once
 #include <map>
+#include <string>
 #include "cinder/Function.h"
 #include "BloomNode.h"
 #include "Orientation.h" // can't forward declare enums
@@ -48,6 +49,9 @@ protected:
     
     float getOrientationAngle( const ci::app::Orientation &orientation );
     
+    // useful for debugging
+    std::string getOrientationDescription( const ci::app::Orientation &orientation );
+        
     ci::app::OrientationHelper *mOrientationHelper;
     
     ci::CallbackId cbOrientationChanged;

@@ -292,6 +292,7 @@ class KeplerApp : public AppCocoaTouch {
 	
 	float			mSelectionTime;
     bool            mRemainingSetupCalled; // setup() is short and fast, remainingSetup() is slow
+    bool            mUiComplete;
 };
 
 void KeplerApp::prepareSettings(Settings *settings)
@@ -303,13 +304,19 @@ void KeplerApp::prepareSettings(Settings *settings)
     // "Planetary" ID:
     Flurry::getInstrumentation()->init("7FY9M7BIVCFVJRGNSD1E");
 #endif
+    
+    // start requesting events ASAP
+    mOrientationHelper.setup();
 }
 
 void KeplerApp::setup()
 {
+    float t = getElapsedSeconds();
+    
 	Flurry::getInstrumentation()->startTimeEvent("Setup");
     
-    //console() << "setupStart: " << getElapsedSeconds() << std::endl;
+    mRemainingSetupCalled = false;
+    mUiComplete = false;
     
     G_IS_IPAD2 = bloom::isIpad2();
     console() << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
@@ -320,20 +327,18 @@ void KeplerApp::setup()
         mGyroHelper.setup();
 	}
 	
-	mOrientationHelper.setup();
     mOrientationHelper.registerOrientationChanged( this, &KeplerApp::orientationChanged );    
     setInterfaceOrientation( mOrientationHelper.getInterfaceOrientation() );
     
-    mRemainingSetupCalled = false;
-
-    initLoadingTextures();
-
     // initialize controller for all 2D UI
     // this will receive touch events before anything else (so it can cancel them before they hit the world)
     mBloomSceneRef = BloomScene::create( this );
     
     mOrientationNodeRef = OrientationNode::create( &mOrientationHelper );
     mBloomSceneRef->addChild( mOrientationNodeRef );
+
+    // load textures (synchronously) for LoadingScreen
+    initLoadingTextures();    
 
     // !!! this has to be set up before any other UI things so it can consume touch events
     mLoadingScreen.setup( mPlanetaryTex, mPlanetTex, mBackgroundTex, mStarGlowTex );
@@ -345,24 +350,47 @@ void KeplerApp::setup()
     mMainBloomNodeRef->setVisible(false);    
     
     Flurry::getInstrumentation()->stopTimeEvent("Setup");
+    
+    std::cout << (getElapsedSeconds() - t) << " seconds to setup()" << std::endl;
 }
 
 void KeplerApp::remainingSetup()
 {
     if (mRemainingSetupCalled) return;
-
+    
     mRemainingSetupCalled = true;
+
+    float t = getElapsedSeconds();
     
     Flurry::getInstrumentation()->startTimeEvent("Remaining Setup");
 
 	mLoadingScreen.setVisible( true );
     
+    // DATA ... is asynchronous, see update() for what happens when it's done
+    mData.setup();
+    
+    // TEXTURES ... also mostly asynchronous
     initTextures();
+    
+    std::cout << (getElapsedSeconds() - t) << " seconds to remainingSetup()" << std::endl;
 }
 
 void KeplerApp::initTextures()
 {
-    Flurry::getInstrumentation()->startTimeEvent("Load Textures");    
+    Flurry::getInstrumentation()->startTimeEvent("Load Textures and Fonts");    
+    
+    // FONTS
+    // NB:- to would-be optimizers:
+    //      loadResource is fairly fast (~7ms for 5 fonts)
+    //      Font(...) is a bit slower, ~250ms for these fonts (measured a few times)
+	mFontHuge			= Font( loadResource( "AauxPro-Black.ttf"), 100 );
+	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
+	mFontBig			= Font( loadResource( "AauxPro-Black.ttf"), 24 );
+	mFontMedium			= Font( loadResource( "AauxPro-Black.ttf"), 18 );
+	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
+	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 11 );
+    
+    //////////////
     
     gl::Texture::Format mipFmt;
     mipFmt.enableMipmapping( true );
@@ -437,7 +465,9 @@ void KeplerApp::initTextures()
 
 void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 {
-    Flurry::getInstrumentation()->stopTimeEvent("Load Textures");        
+    float t = getElapsedSeconds();
+    
+    Flurry::getInstrumentation()->stopTimeEvent("Load Textures and Fonts");        
 	
 	// ARCBALL
 	mArcball.setWindowSize( getWindowSize() );
@@ -490,18 +520,6 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	mFadeInArtistToAlbum = 0.0f;
 	mFadeInAlbumToTrack = 0.0f;
 	
-	
-// FONTS
-    // NB:- to would-be optimizers:
-    //      loadResource is fairly fast (~7ms for 5 fonts)
-    //      Font(...) is a bit slower, ~250ms for these fonts (measured a few times)
-	mFontHuge			= Font( loadResource( "AauxPro-Black.ttf"), 100 );
-	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
-	mFontBig			= Font( loadResource( "AauxPro-Black.ttf"), 24 );
-	mFontMedium			= Font( loadResource( "AauxPro-Black.ttf"), 18 );
-	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
-	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 11 );
-
 // STATS
     mStats.setup( mFont, BRIGHT_BLUE, BLUE );
 	
@@ -584,9 +602,6 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	// PERLIN
 	mPerlin = Perlin( 4 );
 	
-    // DATA
-    mData.setup(); // NB:- is asynchronous, see update() for what happens when it's done
-
     // WORLD
     mWorld.setup();
 	
@@ -609,6 +624,10 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
 
     //console() << "setupEnd: " << getElapsedSeconds() << std::endl;
+
+    mUiComplete = true;
+    
+    std::cout << (getElapsedSeconds() - t) << " seconds to onTextureLoaderComplete()" << std::endl;
 }
 
 void KeplerApp::initLoadingTextures()
@@ -642,7 +661,7 @@ void KeplerApp::initLoadingTextures()
 
 void KeplerApp::touchesBegan( TouchEvent event )
 {	
-    if (!mRemainingSetupCalled) return;
+    if (!mUiComplete) return;
 
 	mIsDragging = false;
 	const vector<TouchEvent::Touch> touches = getActiveTouches();
@@ -663,7 +682,7 @@ void KeplerApp::touchesBegan( TouchEvent event )
 
 void KeplerApp::touchesMoved( TouchEvent event )
 {
-    if (!mRemainingSetupCalled) return;
+    if (!mUiComplete) return;
 
     if ( mIsTouching ) {
         float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
@@ -686,7 +705,7 @@ void KeplerApp::touchesMoved( TouchEvent event )
 
 void KeplerApp::touchesEnded( TouchEvent event )
 {
-    if (!mRemainingSetupCalled) return;
+    if (!mUiComplete) return;
 
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
 	const vector<TouchEvent::Touch> touches = event.getTouches();
@@ -1233,16 +1252,10 @@ void KeplerApp::flyToCurrentTrack()
             // trigger hefty stuff in onAlphaCharStateChanged if needed
             mState.setAlphaChar( newTrack->getArtist() ); 
         }
-    
-        // be sure to create nodes for artist, album and track:
-        mWorld.selectHierarchy( artistId, albumId, trackId );
         
-        // make sure the previous selection is correctly unselected
+        // select nodes, set mIsPlaying, return selected track node:
         // (see also: onSelectedNodeChanged, triggered by this call):
-        mState.setSelectedNode( mWorld.getTrackNodeById( artistId, albumId, trackId ) );    
-        
-        // then sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
-        mWorld.updateIsPlaying( artistId, albumId, trackId );        
+        mState.setSelectedNode( mWorld.selectPlayingHierarchy( artistId, albumId, trackId ) );
     }
 }
 
@@ -1337,7 +1350,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 
 void KeplerApp::update()
 {
-    if (mData.getState() == Data::LoadStatePending) {
+    if ( mUiComplete && (mData.getState() == Data::LoadStatePending)) {
         mData.update();
         // processes pending nodes
 		mWorld.initNodes( mData.mArtists, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
@@ -1386,7 +1399,7 @@ void KeplerApp::update()
     // update UiLayer, PlayControls etc.
     mBloomSceneRef->update();    
     
-    if ( mRemainingSetupCalled && (mData.getState() == Data::LoadStateComplete) )
+    if ( mUiComplete && (mData.getState() == Data::LoadStateComplete) )
 	{
 		if( G_IS_IPAD2 && G_USE_GYRO ) {
 			mGyroHelper.update();
@@ -1467,7 +1480,7 @@ void KeplerApp::update()
         }
         
         if (!mPlayControls.playheadIsDragging()) {
-            mPlayControls.setPlayheadProgress( mCurrentTrackPlayheadTime / mCurrentTrackLength );
+            mPlayControls.setPlayheadProgress( constrain( mCurrentTrackPlayheadTime / mCurrentTrackLength, 0.0, 1.0 ) );
         }
                 
         if( /*G_DEBUG &&*/ elapsedFrames % 30 == 0 ){
@@ -1475,13 +1488,15 @@ void KeplerApp::update()
         }
         
     }
-    else {
-        // make sure we've drawn the loading screen first
+    
+    if (!mRemainingSetupCalled) {
+        // make sure we've drawn the loading screen and then call this
         if (getElapsedFrames() > 1) {
             remainingSetup();
         }        
     }
     
+    // transfer any completed Surfaces into Textures
     mTextures.update();
 }
 
@@ -1998,7 +2013,9 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
     // RESET:
 	mLoadingScreen.setVisible( true ); // TODO: reload textures, add back to mBloomSceneRef
     mMainBloomNodeRef->setVisible( false );    
-    mState.setup();    
+    mState.setup();
+    mLoadingScreen.setArtistProgress( -1 );
+    mLoadingScreen.setPlaylistProgress( -1 );    
     mData.setup();
 	mWorld.setup();
     logEvent("Player Library Changed");
@@ -2007,6 +2024,8 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	   
+    logEvent("Player Track Changed");
+
     if (mPlayControls.playheadIsDragging()) {
         std::cout << "canceling playhead drag" << std::endl;
         mPlayControls.cancelPlayheadDrag();
@@ -2024,6 +2043,13 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         mPlayingTrack = mIpodPlayer.getPlayingTrack();
         mCurrentTrackLength = mPlayingTrack->getLength();
         
+        uint64_t trackId = mPlayingTrack->getItemId();
+        
+        if (previousTrack && previousTrack->getItemId() == trackId) {
+            // skip spurious change event
+            return false;
+        }
+        
         // reset the mPlayingTrackNode orbit and playhead displays (see update())
         mPlayheadUpdateSeconds = -1;
         
@@ -2031,7 +2057,6 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                                       + " • " + mPlayingTrack->getAlbumTitle() 
                                       + " • " + mPlayingTrack->getTitle() + " " );
 
-        uint64_t trackId = mPlayingTrack->getItemId();
         uint64_t artistId = mPlayingTrack->getArtistId();
         uint64_t albumId = mPlayingTrack->getAlbumId();            
 
@@ -2170,8 +2195,6 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 //        mWorld.updateIsPlaying( 0, 0, 0 );        
 //	}
         
-    logEvent("Player Track Changed");
-    
     return false;
 }
 

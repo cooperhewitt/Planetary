@@ -210,6 +210,52 @@ void World::updateAgainstCurrentFilter()
     }
 }
 
+NodeTrack* World::selectPlayingHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId )
+{
+    mPlayingTrackNode = NULL;
+    
+    // TODO: proper iterators I suppose?    
+    for (int i = 0; i < mNodes.size(); i++) {        
+        NodeArtist* artistNode = mNodes[i];
+        artistNode->mIsPlaying = artistNode->getId() == artistId;
+        if (artistNode->mIsPlaying) {
+            artistNode->select();
+        }
+        else {
+            artistNode->deselect();
+        }
+        for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+            Node* albumNode = artistNode->mChildNodes[j];
+            albumNode->mIsPlaying = albumNode->getId() == albumId;
+            if (albumNode->mIsPlaying) {
+                albumNode->select();
+            }
+            else {
+                albumNode->deselect();
+            }            
+            for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+                Node *trackNode = albumNode->mChildNodes[k];
+                bool wasPlaying = trackNode->mIsPlaying;
+                trackNode->mIsPlaying = trackNode->getId() == trackId;
+                if( trackNode->mIsPlaying && !trackNode->isDying() ){
+                    mPlayingTrackNode = (NodeTrack*)trackNode;
+                    if (!wasPlaying) {
+                        ((NodeTrack*)trackNode)->setStartAngle();
+                    }
+                }
+                if (trackNode->mIsPlaying) {
+                    trackNode->select();
+                }
+                else {
+                    trackNode->deselect();
+                }                            
+            }            
+        }
+    }    
+    
+    return mPlayingTrackNode;
+}
+
 void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
     for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); it++) {

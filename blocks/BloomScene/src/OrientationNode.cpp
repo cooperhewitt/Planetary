@@ -25,7 +25,7 @@ OrientationNode::OrientationNode( OrientationHelper *orientationHelper ):
     mInterfaceAngle(0.0f),
     mTargetInterfaceSize(0.0f,0.0f),
     mTargetInterfaceAngle(0.0f),
-    mLastOrientationChangeTime(-1.0f),
+    mLastOrientationChangeTime(0.0f),
     mOrientationAnimationDuration(0.25f),
     mPrevInterfaceAngle(0.0f),
     mPrevInterfaceSize(0.0f,0.0f),
@@ -51,6 +51,8 @@ bool OrientationNode::orientationChanged( OrientationEvent event )
 void OrientationNode::setInterfaceOrientation( const Orientation &orientation, bool animate )
 {
     mInterfaceOrientation = orientation;
+    
+    std::cout << "setting orientation node orientation to: " << getOrientationDescription(mInterfaceOrientation) << std::endl;
     
     const float TWO_PI = 2.0f * M_PI;
     
@@ -83,7 +85,7 @@ void OrientationNode::setInterfaceOrientation( const Orientation &orientation, b
         }
     }
     
-    if (animate) {
+    if (animate && mLastOrientationChangeTime >= 0.0f) {
         // remember current values for lerping later
         mPrevInterfaceAngle = mInterfaceAngle;
         mPrevInterfaceSize = getRoot()->getInterfaceSize();
@@ -103,7 +105,9 @@ void OrientationNode::update()
 {
     // animate transition
     if (mCurrentlyAnimating) {
+        
         float t = app::getElapsedSeconds() - mLastOrientationChangeTime;
+
         if (t < mOrientationAnimationDuration) {
             float p = t / mOrientationAnimationDuration;
             getRoot()->setInterfaceSize( lerp(mPrevInterfaceSize, mTargetInterfaceSize, p) );
@@ -113,6 +117,7 @@ void OrientationNode::update()
             // ensure snap to final values
             getRoot()->setInterfaceSize( mTargetInterfaceSize );
             mInterfaceAngle = mTargetInterfaceAngle;
+            mLastOrientationChangeTime = 0.0f; // used as sentinel in setInterfaceOrientation
             mCurrentlyAnimating = false;
         }
         
@@ -120,7 +125,7 @@ void OrientationNode::update()
         mTransform.setToIdentity();
         mTransform.translate( Vec3f( app::getWindowCenter(), 0 ) );
         mTransform.rotate( Vec3f( 0, 0, mInterfaceAngle ) );
-        mTransform.translate( Vec3f( getRoot()->getInterfaceSize() * -0.5f, 0 ) );                
+        mTransform.translate( Vec3f( getRoot()->getInterfaceSize() * -0.5f, 0 ) );                        
     }    
 }
 
@@ -136,5 +141,21 @@ float OrientationNode::getOrientationAngle( const Orientation &orientation )
         case PORTRAIT_ORIENTATION:
         default:
             return 0.0;
+    }
+}
+
+std::string OrientationNode::getOrientationDescription( const Orientation &orientation )
+{
+    switch (orientation) {
+        case LANDSCAPE_LEFT_ORIENTATION:
+            return "LANDSCAPE_LEFT_ORIENTATION";
+        case UPSIDE_DOWN_PORTRAIT_ORIENTATION:
+            return "UPSIDE_DOWN_PORTRAIT_ORIENTATION";
+        case LANDSCAPE_RIGHT_ORIENTATION:
+            return "LANDSCAPE_RIGHT_ORIENTATION";
+        case PORTRAIT_ORIENTATION:
+            return "PORTRAIT_ORIENTATION";
+        default:
+            return "UNKNOWN_ORIENTATION";
     }
 }
