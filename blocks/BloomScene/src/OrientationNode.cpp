@@ -15,6 +15,11 @@
 using namespace ci;
 using namespace ci::app;
 
+OrientationNodeRef OrientationNode::create( OrientationHelper *orientationHelper )
+{
+    return OrientationNodeRef( new OrientationNode( orientationHelper ) );    
+}
+
 OrientationNode::OrientationNode( OrientationHelper *orientationHelper ): 
     mOrientationHelper(orientationHelper),
     mInterfaceAngle(0.0f),

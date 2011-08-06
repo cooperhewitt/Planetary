@@ -50,9 +50,6 @@
 #include "ParticleController.h"
 #include "TextureLoader.h"
 
-//#import <OpenGLES/ES1/gl.h>
-//#import <OpenGLES/ES1/glext.h>
-
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -277,7 +274,7 @@ class KeplerApp : public AppCocoaTouch {
 	vector<gl::Texture> mCloudTextures;
 	
     // needed for load screen:
-    gl::Texture		mStarGlowTex;
+    gl::Texture mPlanetaryTex, mPlanetTex, mBackgroundTex, mStarGlowTex;
     
     // loaded on demand for empty music libraries
 	gl::Texture		mNoArtistsTex;    
@@ -335,11 +332,11 @@ void KeplerApp::setup()
     // this will receive touch events before anything else (so it can cancel them before they hit the world)
     mBloomSceneRef = BloomScene::create( this );
     
-    mOrientationNodeRef = OrientationNodeRef( new OrientationNode( &mOrientationHelper ) );
+    mOrientationNodeRef = OrientationNode::create( &mOrientationHelper );
     mBloomSceneRef->addChild( mOrientationNodeRef );
 
     // !!! this has to be set up before any other UI things so it can consume touch events
-    mLoadingScreen.setup( mStarGlowTex );
+    mLoadingScreen.setup( mPlanetaryTex, mPlanetTex, mBackgroundTex, mStarGlowTex );
     mOrientationNodeRef->addChild( BloomNodeRef(&mLoadingScreen) );
     
     // make a container for all the other UI, so visibility can be toggled when loading
@@ -620,7 +617,10 @@ void KeplerApp::initLoadingTextures()
     fmt.enableMipmapping( true );
     fmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );    
     fmt.setMagFilter( GL_LINEAR ); // TODO: experiment with GL_NEAREST where appropriate
-	mStarGlowTex = gl::Texture( loadImage( loadResource( "starGlow.png" ) ), fmt);
+    mPlanetaryTex	= gl::Texture( loadImage( loadResource( "planetary.png" ) )/*, fmt*/ );
+    mPlanetTex		= gl::Texture( loadImage( loadResource( "planet.png" ) ), fmt );
+    mBackgroundTex	= gl::Texture( loadImage( loadResource( "background.jpg" ) )/*, fmt*/ );        
+	mStarGlowTex    = gl::Texture( loadImage( loadResource( "starGlow.png" ) ), fmt);
 }
 
 //gl::Texture KeplerApp::loadCompressedTexture(const std::string &dataPath, const Vec2i &imageSize)
@@ -1378,7 +1378,9 @@ void KeplerApp::update()
     
     if ( mLoadingScreen.isVisible() ) {
         // FIXME: do separate bars for images and music library data
-        mLoadingScreen.setProgress( mTextures.getProgress() );
+        mLoadingScreen.setTextureProgress( mTextures.getProgress() );
+        mLoadingScreen.setArtistProgress( mData.getArtistProgress() );
+        mLoadingScreen.setPlaylistProgress( mData.getPlaylistProgress() );
     }
     
     // update UiLayer, PlayControls etc.

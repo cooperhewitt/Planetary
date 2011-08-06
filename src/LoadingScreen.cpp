@@ -16,36 +16,62 @@
 using namespace ci;
 using namespace ci::app;
 
-void LoadingScreen::setup( const ci::gl::Texture &starGlowTex )
+void LoadingScreen::setup( const ci::gl::Texture &planetaryTex, const ci::gl::Texture &planetTex,
+                          const ci::gl::Texture &backgroundTex, const ci::gl::Texture &starGlowTex )
 {
-    gl::Texture::Format fmt;
-    fmt.enableMipmapping( true );
-    fmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );        
-    fmt.setMagFilter( GL_LINEAR );     
-    // FIXME: pass these into setup and load threaded if possible
-	mPlanetaryTex	= gl::Texture( loadImage( loadResource( "planetary.png" ) )/*, fmt*/ );
-	mPlanetTex		= gl::Texture( loadImage( loadResource( "planet.png" ) ), fmt );
-	mBackgroundTex	= gl::Texture( loadImage( loadResource( "background.jpg" ) )/*, fmt*/ );
+	mPlanetaryTex	= planetaryTex;
+	mPlanetTex		= planetTex;
+	mBackgroundTex	= backgroundTex;
     mStarGlowTex    = starGlowTex;
-    mProgress = 0.0;
-    mProgressDest = 0.0;    
+    mTextureProgress = 0.0;
+    mTextureProgressDest = 0.0;
+    mArtistProgress = 0.0;
+    mArtistProgressDest = 0.0;
+    mPlaylistProgress = 0.0;
+    mPlaylistProgressDest = 0.0;
 }
 
-void LoadingScreen::setProgress( float prop )
+void LoadingScreen::setTextureProgress( float prop )
 {
     if (prop >= 0) {
-        mProgressDest = prop;
+        mTextureProgressDest = prop;
     }
     else {
         // reset with negative values
-        mProgress = 0.0;
-        mProgressDest = 0.0;
+        mTextureProgress = 0.0;
+        mTextureProgressDest = 0.0;
+    }
+}
+
+void LoadingScreen::setArtistProgress( float prop )
+{
+    if (prop >= 0) {
+        mArtistProgressDest = prop;
+    }
+    else {
+        // reset with negative values
+        mArtistProgress = 0.0;
+        mArtistProgressDest = 0.0;
+    }
+}
+
+void LoadingScreen::setPlaylistProgress( float prop )
+{
+    if (prop >= 0) {
+        mPlaylistProgressDest = prop;
+    }
+    else {
+        // reset with negative values
+        mPlaylistProgress = 0.0;
+        mPlaylistProgressDest = 0.0;
     }
 }
 
 void LoadingScreen::update()
 {
-    mProgress += (mProgressDest - mProgress) * 0.2f;
+    mTextureProgress += (mTextureProgressDest - mTextureProgress) * 0.2f;
+    mArtistProgress += (mArtistProgressDest - mArtistProgress) * 0.2f;
+    mPlaylistProgress += (mPlaylistProgressDest - mPlaylistProgress) * 0.2f;
     mInterfaceSize = getRoot()->getInterfaceSize();
 }
 
@@ -156,7 +182,11 @@ void LoadingScreen::draw()
 	*/
 	mPlanetTex.disable();
 
-    // FIXME: better progress bar
-    gl::color( Color::white() );
-    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - 10.0f, mInterfaceSize.x * mProgress, mInterfaceSize.y ) );
+    // FIXME: better progress bar?
+    gl::color( Color(1,1,0) );
+    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - 10.0f, mInterfaceSize.x * mTextureProgress, mInterfaceSize.y ) );
+    gl::color( Color(0,1,1) );
+    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - 10.0f, mInterfaceSize.x * mArtistProgress, mInterfaceSize.y ) );
+    gl::color( Color(1,0,1) );
+    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - 10.0f, mInterfaceSize.x * mPlaylistProgress, mInterfaceSize.y ) );
 }

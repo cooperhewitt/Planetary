@@ -25,7 +25,7 @@ class OrientationNode : public BloomNode {
     
 public:
     
-    OrientationNode( ci::app::OrientationHelper *orientationHelper );
+    static OrientationNodeRef create( ci::app::OrientationHelper *orientationHelper );
     virtual ~OrientationNode();
     
     ci::app::Orientation getInterfaceOrientation() { return mInterfaceOrientation; }
@@ -41,6 +41,8 @@ public:
     virtual void update();
         
 protected:
+    
+    OrientationNode( ci::app::OrientationHelper *orientationHelper );
     
 	bool orientationChanged( ci::app::OrientationEvent event );
     
