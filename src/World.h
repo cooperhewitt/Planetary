@@ -51,7 +51,8 @@ public:
     void updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
     void selectHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId );
     NodeTrack* getTrackNodeById( uint64_t artistId, uint64_t albumId, uint64_t trackId );
-    
+    NodeTrack* selectPlayingHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId );
+                                          
     void updateAgainstCurrentFilter();
     
 	void checkForNameTouch( std::vector<Node*> &nodes, const ci::Vec2f &pos );

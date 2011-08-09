@@ -18,7 +18,7 @@ class Data {
     
     enum LoadState { LoadStateDefault, LoadStateLoading, LoadStatePending, LoadStateComplete };
     
-	Data() { mState = LoadStateDefault; };
+	Data(): mState(LoadStateDefault) {};
     ~Data() {};
     
     void setup();
@@ -32,9 +32,17 @@ class Data {
     
     LoadState getState() { return mState; }
     
+    float getArtistProgress() { return mArtistProgress; }
+    float getPlaylistProgress() { return mPlaylistProgress; }
+
+    void artistProgress(float p) { mArtistProgress = p; }
+    void playlistProgress(float p) { mPlaylistProgress = p; }
+    
   private:
 	    
-	void backgroundInit();	
+	void backgroundInit();
+    
+    float mArtistProgress, mPlaylistProgress;
     
     LoadState mState;
 	std::vector<ci::ipod::PlaylistRef> mPendingArtists;

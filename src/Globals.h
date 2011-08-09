@@ -37,7 +37,7 @@ static const float G_DEFAULT_ARCBALL_RADIUS	= 500.0f;
 static const int G_RING_LOW_RES		= 250;
 static const int G_RING_HIGH_RES	= 500;
 
-static const int G_SKYDOME_RADIUS	= 1000.0f;
+static const float G_SKYDOME_RADIUS	= 1000.0f;
 
 static const int G_TOTAL_HELP_CALLOUTS = 8;
 

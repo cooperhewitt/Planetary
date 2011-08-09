@@ -28,8 +28,8 @@ void AlphaWheel::setup( const Font &font, WheelOverlayRef wheelOverlay )
 	// Textures
 	mAlphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
 	mAlphaIndex		= 0;
-	mAlphaChar		= ' ';
-	mPrevAlphaChar	= ' ';
+	mAlphaChar		= 'A';
+	mPrevAlphaChar	= 'A';
 
 	mWheelOverlay = wheelOverlay;
 	
@@ -41,7 +41,7 @@ void AlphaWheel::initAlphaTextures( const Font &font )
 	for( int i=0; i<mAlphaString.length(); i++ ){
 		TextLayout layout;	
 		layout.setFont( font );
-		layout.setColor( ColorA( BRIGHT_BLUE, 1.0f ) );
+		layout.setColor( Color::white() );
 		layout.addCenteredLine( ci::toString(mAlphaString[i]) );
 		mAlphaTextures.push_back( gl::Texture( layout.render( true, false ) ) );
 	}
@@ -162,18 +162,22 @@ void AlphaWheel::draw()
 {	
 	if( mWheelOverlay->getWheelScale() < 1.95f ){
 
+        float r = BRIGHT_BLUE.r;
+        float g = BRIGHT_BLUE.g;
+        float b = BRIGHT_BLUE.b;
         float alpha = constrain(2.0f - mWheelOverlay->getWheelScale(), 0.0f, 1.0f);
         
 		for( int i=0; i<27; i++ ){
 			float c = mNumberAlphaPerChar[i];
-			if( c > 0.0f ){
+            if ( mAlphaString[i] == mAlphaChar ) {
+                gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            } else if( c > 0.0f ){
 				c += 0.3f;
-				gl::color( ColorA( c, c, c, alpha ) );
+				gl::color( ColorA( r*c, g*c, b*c, alpha ) );
 			} else {
-				gl::color( ColorA( 0.5f, 0, 0, alpha ) );
+				gl::color( ColorA( 0.3f, 0.0f, 0.0f, alpha ) );
 			}
 			mAlphaTextures[i].enableAndBind();
-            // TODO: batch these rects (adapt bloom::gl::batchRect for color tints?)
 			gl::drawSolidRect( mAlphaRects[i] );
 			mAlphaTextures[i].disable();            
 		}

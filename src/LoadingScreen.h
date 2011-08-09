@@ -13,14 +13,20 @@
 
 class LoadingScreen : public BloomNode {  
   public:
-    void setup( const ci::gl::Texture &starGlowTex );
+    void setup( const ci::gl::Texture &planetaryTex, const ci::gl::Texture &planetTex,
+               const ci::gl::Texture &backgroundTex, const ci::gl::Texture &starGlowTex );
     void draw();
     void update();
     bool touchBegan( ci::app::TouchEvent::Touch touch ) { return isVisible(); };
     bool touchMoved( ci::app::TouchEvent::Touch touch ) { return isVisible(); };
     bool touchEnded( ci::app::TouchEvent::Touch touch ) { return isVisible(); };
-
+    void setTextureProgress( float prop );
+    void setArtistProgress( float prop );
+    void setPlaylistProgress( float prop );
   private:
+    float mTextureProgress, mTextureProgressDest;
+    float mArtistProgress, mArtistProgressDest;
+    float mPlaylistProgress, mPlaylistProgressDest;
     ci::gl::Texture mStarGlowTex;
 	ci::gl::Texture	mPlanetaryTex;
 	ci::gl::Texture mPlanetTex;
