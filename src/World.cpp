@@ -120,9 +120,9 @@ void World::updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t track
                 bool wasPlaying = trackNode->mIsPlaying;
                 trackNode->mIsPlaying = trackNode->getId() == trackId;
 				if( trackNode->mIsPlaying && !trackNode->isDying() ){
-					mPlayingTrackNode = (NodeTrack*)trackNode;
+					mPlayingTrackNode = static_cast<NodeTrack*>(trackNode);
                     if (!wasPlaying) {
-                        ((NodeTrack*)trackNode)->setStartAngle();
+                        mPlayingTrackNode->setStartAngle();
                     }
 				}
             }            
@@ -175,7 +175,7 @@ NodeTrack* World::getTrackNodeById( uint64_t artistId, uint64_t albumId, uint64_
                     for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
                         Node *trackNode = albumNode->mChildNodes[k];
                         if (trackNode->getId() == trackId) {
-                            return (NodeTrack*)trackNode;
+                            return static_cast<NodeTrack*>(trackNode);
                         }
                     }            
                     break;
@@ -193,16 +193,12 @@ void World::updateAgainstCurrentFilter()
         // TODO: proper iterators I suppose?
         for (int i = 0; i < mNodes.size(); i++) {
             NodeArtist* artistNode = mNodes[i];
-            artistNode->mIsHighlighted = mFilterRef->testArtist(artistNode->getPlaylist());
-			
+            artistNode->mIsHighlighted = mFilterRef->testArtist(artistNode->getPlaylist());			
             for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-                // FIXME: static cast?
-                NodeAlbum* albumNode = (NodeAlbum*)(artistNode->mChildNodes[j]);
+                NodeAlbum* albumNode = static_cast<NodeAlbum*>(artistNode->mChildNodes[j]);
                 albumNode->mIsHighlighted = mFilterRef->testAlbum(albumNode->getPlaylist());
-				
                 for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-                    // FIXME: static cast?
-                    NodeTrack *trackNode = (NodeTrack*)(albumNode->mChildNodes[k]);
+                    NodeTrack *trackNode = static_cast<NodeTrack*>(albumNode->mChildNodes[k]);
                     trackNode->mIsHighlighted = mFilterRef->testTrack(trackNode->mTrack);
                 }            
             }
@@ -238,9 +234,9 @@ NodeTrack* World::selectPlayingHierarchy( uint64_t artistId, uint64_t albumId, u
                 bool wasPlaying = trackNode->mIsPlaying;
                 trackNode->mIsPlaying = trackNode->getId() == trackId;
                 if( trackNode->mIsPlaying && !trackNode->isDying() ){
-                    mPlayingTrackNode = (NodeTrack*)trackNode;
+                    mPlayingTrackNode = static_cast<NodeTrack*>(trackNode);
                     if (!wasPlaying) {
-                        ((NodeTrack*)trackNode)->setStartAngle();
+                        mPlayingTrackNode->setStartAngle();
                     }
                 }
                 if (trackNode->mIsPlaying) {

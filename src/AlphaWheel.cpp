@@ -28,8 +28,8 @@ void AlphaWheel::setup( const Font &font, WheelOverlayRef wheelOverlay )
 	// Textures
 	mAlphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
 	mAlphaIndex		= 0;
-	mAlphaChar		= ' ';
-	mPrevAlphaChar	= ' ';
+	mAlphaChar		= 'A';
+	mPrevAlphaChar	= 'A';
 
 	mWheelOverlay = wheelOverlay;
 	

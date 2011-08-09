@@ -1368,20 +1368,16 @@ void KeplerApp::update()
         if ( mIpodPlayer.hasPlayingTrack() ) {
             std::cout << "Startup with Track Playing" << std::endl;
             logEvent("Startup with Track Playing");
+            // update player info and then fly to current track
             onPlayerTrackChanged( &mIpodPlayer );
-            // show the wheel if we're paused...
-            if ( mIpodPlayer.getPlayState() == ipod::Player::StatePaused || mIpodPlayer.getPlayState() == ipod::Player::StateStopped ) {
-//                mState.setFilterMode( State::FilterModeAlphaChar );
-//                mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );
-                mWheelOverlay->setShowWheel( true );
-            }
+            flyToCurrentTrack();                
         } else {
             std::cout << "Startup without Track Playing" << std::endl;
             logEvent("Startup without Track Playing");
-//            mState.setFilterMode( State::FilterModeAlphaChar );
-//            mState.setAlphaChar( 'A' ); // force an update
-//            mFilterToggleButton.setFilterMode( State::FilterModeAlphaChar );            
+            // show wheel (to invite filtering) and apply first filter
             mWheelOverlay->setShowWheel( true );
+            mWorld.setFilter( LetterFilter::create( mState.getAlphaChar() ) );
+            mState.setSelectedNode( NULL ); // trigger zoom to galaxy            
 		}
         
         if (mData.mPlaylists.size() > 0) {
