@@ -10,3 +10,6 @@
 [submodule "blocks/CinderOrientation"]
 	path = blocks/CinderOrientation
 	url = git@github.com:bloomtime/CinderOrientation.git
+[submodule "blocks/BloomScene"]
+	path = blocks/BloomScene
+	url = git@github.com:bloomtime/BloomScene.git
