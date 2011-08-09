@@ -376,7 +376,7 @@ void NodeTrack::update( float param1, float param2 )
 	
     /////////////////////////
     // CALCULATE ECLIPSE VARS
-	if( mParentNode->mParentNode->mDistFromCamZAxisPer > 0.001f && mDistFromCamZAxisPer > 0.001f )
+	if( mParentNode->mParentNode->mDistFromCamZAxisPer > 0.001f && mDistFromCamZAxisPer > 0.001f && mIsHighlighted )
 	{
 		Vec2f p		= mScreenPos;
 		float r		= mSphereScreenRadius;
