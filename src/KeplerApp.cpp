@@ -1042,8 +1042,18 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
         logEvent("Selection Cleared");        
     }
 
+    // highlight currently playing items
+    if (mPlayingTrack) {
+        uint64_t trackId = mPlayingTrack->getItemId();
+        uint64_t albumId = mPlayingTrack->getAlbumId();    
+        uint64_t artistId = mPlayingTrack->getArtistId();
+        mWorld.updateIsPlaying( artistId, albumId, trackId );
+    } else {
+        mWorld.updateIsPlaying( 0, 0, 0 );        
+    }
+    
     // now make sure that everything is cool with the current filter
-    mWorld.updateAgainstCurrentFilter();    
+    mWorld.updateAgainstCurrentFilter();
     
 	return false;
 }
