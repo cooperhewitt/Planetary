@@ -166,24 +166,37 @@ NodeTrack* World::getTrackNodeById( uint64_t artistId, uint64_t albumId, uint64_
 {
     // NB:- artist and album must be selected, otherwise track node won't exist
     // TODO: proper iterators I suppose?        
-    for (int i = 0; i < mNodes.size(); i++) {
-        NodeArtist* artistNode = mNodes[i];
-        if (artistNode->getId() == artistId) {
-            for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-                Node* albumNode = artistNode->mChildNodes[j];
-                if (albumNode->getId() == albumId) {
-                    for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-                        Node *trackNode = albumNode->mChildNodes[k];
-                        if (trackNode->getId() == trackId) {
-                            return static_cast<NodeTrack*>(trackNode);
-                        }
-                    }            
-                    break;
-                }
+    NodeArtist* artistNode = getArtistNodeById(artistId);
+    if (artistNode->getId() == artistId) {
+        for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+            Node* albumNode = artistNode->mChildNodes[j];
+            if (albumNode->getId() == albumId) {
+                for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
+                    Node *trackNode = albumNode->mChildNodes[k];
+                    if (trackNode->getId() == trackId) {
+                        return static_cast<NodeTrack*>(trackNode);
+                    }
+                }            
+                break;
             }
-            break;
         }
-    }    
+    }
+    return NULL;
+}
+
+NodeAlbum* World::getAlbumNodeById( uint64_t artistId, uint64_t albumId )
+{
+    // NB:- artist and album must be selected already
+    // TODO: proper iterators I suppose?        
+    NodeArtist* artistNode = getArtistNodeById(artistId);
+    if (artistNode->getId() == artistId) {
+        for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
+            Node* albumNode = artistNode->mChildNodes[j];
+            if (albumNode->getId() == albumId) {
+                return static_cast<NodeAlbum*>(albumNode);
+            }
+        }
+    }
     return NULL;
 }
 
