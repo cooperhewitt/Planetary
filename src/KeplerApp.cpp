@@ -1279,8 +1279,8 @@ void KeplerApp::flyToCurrentAlbum()
         ipod::TrackRef newTrack = mIpodPlayer.getPlayingTrack();
         
         uint64_t trackId = newTrack->getItemId();
+        uint64_t albumId = newTrack->getAlbumId();
         uint64_t artistId = newTrack->getArtistId();
-        uint64_t albumId = newTrack->getAlbumId();            
         
         // see if we're in the current playlist
         bool inCurrentPlaylist = false;
@@ -1307,9 +1307,11 @@ void KeplerApp::flyToCurrentAlbum()
         
         // select nodes, set mIsPlaying, return selected track node:
         // (see also: onSelectedNodeChanged, triggered by this call):
-        mWorld.selectPlayingHierarchy( artistId, albumId, 0 );
+        mWorld.selectHierarchy( artistId, albumId, 0 );
         
         mState.setSelectedNode( mWorld.getAlbumNodeById( artistId, albumId ) );
+        
+        mWorld.updateIsPlaying( artistId, albumId, trackId );
     }
 }
 
@@ -1321,6 +1323,7 @@ void KeplerApp::flyToCurrentArtist()
         ipod::TrackRef newTrack = mIpodPlayer.getPlayingTrack();
         
         uint64_t trackId = newTrack->getItemId();
+        uint64_t albumId = newTrack->getAlbumId();
         uint64_t artistId = newTrack->getArtistId();
         
         // see if we're in the current playlist
@@ -1348,9 +1351,11 @@ void KeplerApp::flyToCurrentArtist()
         
         // select nodes, set mIsPlaying, return selected track node:
         // (see also: onSelectedNodeChanged, triggered by this call):
-        mWorld.selectPlayingHierarchy( artistId, 0, 0 );
+        mWorld.selectHierarchy( artistId, 0, 0 );
         
         mState.setSelectedNode( mWorld.getArtistNodeById( artistId ) );
+        
+        mWorld.updateIsPlaying( artistId, albumId, trackId );
     }
 }
 
@@ -2142,9 +2147,6 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                                       + " • " + mPlayingTrack->getAlbumTitle() 
                                       + " • " + mPlayingTrack->getTitle() + " " );
 
-        uint64_t artistId = mPlayingTrack->getArtistId();
-        uint64_t albumId = mPlayingTrack->getAlbumId();            
-
         // we're only going to fly to the track if we were already looking at the previous track
         // or fly to the album if we were looking at the previous album
         // or fly to the artist if we were looking at the previous artist
@@ -2172,6 +2174,8 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         
         if (!flyingAround) {
             // just sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
+            uint64_t artistId = mPlayingTrack->getArtistId();
+            uint64_t albumId = mPlayingTrack->getAlbumId();            
             mWorld.updateIsPlaying( artistId, albumId, trackId );
         }
 	}
