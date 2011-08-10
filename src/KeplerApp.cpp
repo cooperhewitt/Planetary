@@ -504,7 +504,7 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	createRandomBSpline( mSplinePos );
 	mLastTime			= getElapsedSeconds();
 	
-	
+
 	
 	mCamDistFrom		= mCamDist;
 	mEye				= Vec3f( 0.0f, 0.0f, mCamDist );
@@ -1083,8 +1083,31 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
         
         case PlayControls::PLAY_PAUSE:
-            logEvent("Play/Pause Button Selected");            
-            togglePlayPaused();
+            {
+                logEvent("Play/Pause Button Selected");            
+                if (mIpodPlayer.hasPlayingTrack()) {
+                    togglePlayPaused();
+                }
+                else {
+                    // in the rare case that there's nothing queued, play whatever we're looking at
+                    Node* selectedNode = mState.getSelectedNode();
+                    if (selectedNode != NULL) {
+                        if (selectedNode->mGen == G_TRACK_LEVEL) {
+                            NodeTrack *nodeTrack = static_cast<NodeTrack*>(selectedNode);
+                            mIpodPlayer.play( nodeTrack->mAlbum, nodeTrack->mIndex );
+                        }
+                        else if (selectedNode->mGen == G_ALBUM_LEVEL) {
+                            NodeAlbum *nodeAlbum = static_cast<NodeAlbum*>(selectedNode);
+                            mIpodPlayer.play( nodeAlbum->getPlaylist(), 0 );
+                        }
+                        else if (selectedNode->mGen == G_ARTIST_LEVEL) {
+                            NodeArtist *nodeArtist = static_cast<NodeArtist*>(selectedNode);
+                            mIpodPlayer.play( nodeArtist->getPlaylist(), 0 );
+                        }
+                        mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 0.0f, 128.0f, 128.0f ), "PLAY" );                
+                    }
+                }
+            }
             break;
         
         case PlayControls::NEXT_TRACK:
@@ -1366,7 +1389,7 @@ void KeplerApp::togglePlayPaused()
         mIpodPlayer.pause();
         mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 128.0f, 128.0f, 256.0f ), "PAUSED" );
     }
-    else {
+    else {        
         mIpodPlayer.play();
         mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 0.0f, 128.0f, 128.0f ), "PLAY" );
     }    
@@ -1446,14 +1469,14 @@ void KeplerApp::update()
 {
     if ( mUiComplete && (mData.getState() == Data::LoadStatePending)) {
         mData.update();
+
         // processes pending nodes
 		mWorld.initNodes( mData.mArtists, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
+        
         mAlphaWheel.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar );        
 		mLoadingScreen.setVisible( false ); // TODO: remove from scene graph, clean up textures
         mMainBloomNodeRef->setVisible( true );
 		mUiLayer.setIsPanelOpen( true );
-        // reset...
-        onSelectedNodeChanged( NULL );
 
         // make sure everything that was ignoring orientation changes is updated:
         mHelpLayer.setInterfaceOrientation( mInterfaceOrientation );
@@ -1480,7 +1503,6 @@ void KeplerApp::update()
 	}
     
     if ( mLoadingScreen.isVisible() ) {
-        // FIXME: do separate bars for images and music library data
         mLoadingScreen.setTextureProgress( mTextures.getProgress() );
         mLoadingScreen.setArtistProgress( mData.getArtistProgress() );
         mLoadingScreen.setPlaylistProgress( mData.getPlaylistProgress() );
@@ -2125,6 +2147,9 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
     
 	if (mIpodPlayer.hasPlayingTrack()) {
 
+        // to be sure...
+        mPlayControls.enablePlayerControls();                    
+        
         // temporarily remember the previous track info
         ipod::TrackRef previousTrack = mPlayingTrack;
         Node* prevSelectedNode = mState.getSelectedNode();
@@ -2208,7 +2233,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
             
             // just sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
             mWorld.updateIsPlaying( artistId, albumId, trackId );
-        }
+        }        
 	}
 	else {
         
@@ -2224,6 +2249,13 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         
         // this should be OK to do since the above will happen if something is queued and paused
         mWorld.updateIsPlaying( 0, 0, 0 );        
+        
+        if (mState.getSelectedNode() == NULL) {
+            mPlayControls.disablePlayerControls();
+        }
+        else {
+            mPlayControls.enablePlayerControls();            
+        }
 	}
 
     return false;

@@ -42,6 +42,8 @@ void World::setup()
             mLoSphere.setup(12);
             mTySphere.setup(8);
 		}
+        mOrbitRing.setup();
+        mPlanetRing.setup();
         mSpheresInitialized = true;
 	}
 	
@@ -69,12 +71,9 @@ void World::initNodes( const vector<PlaylistRef> &artists, const Font &font, con
 		newNode->setData( artistPlaylist );
         newNode->setSphereData( &mHiSphere, &mMdSphere, &mLoSphere, &mTySphere );
 		mNodes.push_back( newNode );
-        mNodesById[artistPlaylist->getArtistId()] = newNode;
+        mNodesById[newNode->getId()] = newNode;
 	}
 
-    mOrbitRing.setup();
-    mPlanetRing.setup();
-	
 	cout << (App::get()->getElapsedSeconds() - t) << " seconds to World::initNodes" << endl;
     
 	mIsInitialized = true;

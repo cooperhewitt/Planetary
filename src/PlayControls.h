@@ -80,6 +80,8 @@ public:
     void setCurrentTrack(std::string currentTrack) { mTrackInfoLabel->setText(currentTrack); }
     void setPlayheadProgress(float value) { mPlayheadSlider->setValue(value); }
     void cancelPlayheadDrag() { mPlayheadSlider->setIsDragging(false); }
+    void enablePlayerControls( bool enable = true; );            
+    void disablePlayerControls() { enablePlayerControls(false); }
         
     float getPlayheadValue() { return mPlayheadSlider->getValue(); }
 	float getParamSlider1Value(){ return mParamSlider1->getValue(); }

@@ -436,3 +436,11 @@ void PlayControls::update()
     mCoverRightTextureRect->setRect( infoRect.x2 + 1.0f, infoRect.y1, infoRect.x2 - ( w - 1.0f ), infoRect.y2 );
     
 }
+
+void PlayControls::enablePlayerControls( bool enable )
+{
+    // FIXME: perhaps grayed out or dimmed would be more subtle?
+    mPreviousTrackButton->setVisible(enable);
+    mPlayPauseButton->setVisible(enable);
+    mNextTrackButton->setVisible(enable);    
+}
