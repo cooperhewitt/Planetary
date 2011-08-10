@@ -39,11 +39,11 @@ void Stats::update(const float &fps,
 	mParamsTex = gl::Texture( layout.render( true, false ) );    
 }
 
-void Stats::draw(const Matrix44f &orientationMatrix)
+void Stats::draw(const Matrix44f &mtx)
 {
     if (mParamsTex) {
         glPushMatrix();
-        glMultMatrixf( orientationMatrix );
+        glMultMatrixf( mtx );
         gl::color( Color::white() );
         gl::draw( mParamsTex, Vec2f( 23.0f, 25.0f ) );
         glPopMatrix();    

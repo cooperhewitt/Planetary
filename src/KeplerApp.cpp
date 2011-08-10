@@ -2106,8 +2106,11 @@ void KeplerApp::drawScene()
     mBloomSceneRef->draw();
 
 //	if( G_DEBUG ){
-        //gl::setMatricesWindow( getWindowSize() );
-        mStats.draw( mOrientationMatrix );
+        Matrix44f mat = mOrientationMatrix;
+        if ( mHelpLayer.isVisible() ) {
+            mat.translate( Vec3f(0, mHelpLayer.getHeight(), 0) );
+        }
+        mStats.draw( mat );
 //	}
 }
 
