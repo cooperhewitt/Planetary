@@ -115,6 +115,8 @@ class KeplerApp : public AppCocoaTouch {
     void            togglePlayPaused();
 	bool			onPlayControlsPlayheadMoved ( float amount );
     void            flyToCurrentTrack();
+    void            flyToCurrentAlbum();
+    void            flyToCurrentArtist();
 	
     bool			onSelectedNodeChanged( Node *node );
 
@@ -1269,6 +1271,89 @@ void KeplerApp::flyToCurrentTrack()
     }
 }
 
+// heavy function, should be avoided but should do the right thing when needed
+void KeplerApp::flyToCurrentAlbum()
+{
+	if (mIpodPlayer.hasPlayingTrack()) {
+        
+        ipod::TrackRef newTrack = mIpodPlayer.getPlayingTrack();
+        
+        uint64_t trackId = newTrack->getItemId();
+        uint64_t artistId = newTrack->getArtistId();
+        uint64_t albumId = newTrack->getAlbumId();            
+        
+        // see if we're in the current playlist
+        bool inCurrentPlaylist = false;
+        if( mState.getFilterMode() == State::FilterModePlaylist ) {
+            // find this track node in the current playlist
+            ipod::PlaylistRef playlist = mState.getPlaylist();
+            for (int i = 0; i < playlist->size(); i++) {
+                if ((*playlist)[i]->getItemId() == trackId) {
+                    inCurrentPlaylist = true;
+                    break;
+                }
+            }
+        }
+        
+        // if we're not, set it back to alpha mode
+        if (!inCurrentPlaylist) {
+            // trigger hefty stuff in onFilterModeStateChanged if needed
+            if ( mState.getFilterMode() != State::FilterModeAlphaChar ) {
+                mState.setFilterMode( State::FilterModeAlphaChar );            
+            }
+            // trigger hefty stuff in onAlphaCharStateChanged if needed
+            mState.setAlphaChar( newTrack->getArtist() ); 
+        }
+        
+        // select nodes, set mIsPlaying, return selected track node:
+        // (see also: onSelectedNodeChanged, triggered by this call):
+        mWorld.selectPlayingHierarchy( artistId, albumId, 0 );
+        
+        mState.setSelectedNode( mWorld.getAlbumNodeById( artistId, albumId ) );
+    }
+}
+
+// heavy function, should be avoided but should do the right thing when needed
+void KeplerApp::flyToCurrentArtist()
+{
+	if (mIpodPlayer.hasPlayingTrack()) {
+        
+        ipod::TrackRef newTrack = mIpodPlayer.getPlayingTrack();
+        
+        uint64_t trackId = newTrack->getItemId();
+        uint64_t artistId = newTrack->getArtistId();
+        
+        // see if we're in the current playlist
+        bool inCurrentPlaylist = false;
+        if( mState.getFilterMode() == State::FilterModePlaylist ) {
+            // find this track node in the current playlist
+            ipod::PlaylistRef playlist = mState.getPlaylist();
+            for (int i = 0; i < playlist->size(); i++) {
+                if ((*playlist)[i]->getItemId() == trackId) {
+                    inCurrentPlaylist = true;
+                    break;
+                }
+            }
+        }
+        
+        // if we're not, set it back to alpha mode
+        if (!inCurrentPlaylist) {
+            // trigger hefty stuff in onFilterModeStateChanged if needed
+            if ( mState.getFilterMode() != State::FilterModeAlphaChar ) {
+                mState.setFilterMode( State::FilterModeAlphaChar );            
+            }
+            // trigger hefty stuff in onAlphaCharStateChanged if needed
+            mState.setAlphaChar( newTrack->getArtist() ); 
+        }
+        
+        // select nodes, set mIsPlaying, return selected track node:
+        // (see also: onSelectedNodeChanged, triggered by this call):
+        mWorld.selectPlayingHierarchy( artistId, 0, 0 );
+        
+        mState.setSelectedNode( mWorld.getArtistNodeById( artistId ) );
+    }
+}
+
 void KeplerApp::togglePlayPaused()
 {
     const bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
@@ -1303,8 +1388,13 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
         //////// perform the selection if needed
         // (toggle play state if not)
         
-        const bool isSelectedNode = (mState.getSelectedNode() == nodeWithHighestGen);        
-        if ( isSelectedNode ) {
+        const bool notSelectedNode = (mState.getSelectedNode() != nodeWithHighestGen);        
+        if ( notSelectedNode ) {
+            // if the tapped node isn't the current selection, it should be:
+            mState.setSelectedNode( nodeWithHighestGen );
+            // (other selection logic happens in onSelectedNodeChanged)            
+        }
+        else {
             if ( highestGen == G_TRACK_LEVEL ) {
                 const bool isPlayingNode = (mPlayingTrack && mPlayingTrack->getItemId() == nodeWithHighestGen->getId());                
                 if ( isPlayingNode ) {
@@ -1315,25 +1405,19 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
             }     
             else if ( highestGen == G_ALBUM_LEVEL ) {
                 NodeAlbum* nodeAlbum = dynamic_cast<NodeAlbum*>(nodeWithHighestGen);
-                const bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
-                if (isPlaying && nodeAlbum->getPlaylist() == mIpodPlayer.getCurrentPlaylist()) {
-                    mIpodPlayer.pause();
-                    // FIXME: use album name in overlay:
-                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 128.0f, 128.0f, 256.0f ), "Pausing Album" );
+                if (mPlayingTrack && mPlayingTrack->getAlbumId() == nodeAlbum->getId()) {
+                    togglePlayPaused();
                 }
                 else {
                     mIpodPlayer.play( nodeAlbum->getPlaylist() );
                     // FIXME: use album name in overlay:
-                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Album" );
+                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Album" );                    
                 }
             }
             if ( highestGen == G_ARTIST_LEVEL ) {
                 NodeArtist* nodeArtist = dynamic_cast<NodeArtist*>(nodeWithHighestGen);
-                const bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
-                if (isPlaying && nodeArtist->getPlaylist() == mIpodPlayer.getCurrentPlaylist()) {
-                    mIpodPlayer.pause();
-                    // FIXME: use album name in overlay:
-                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 128.0f, 128.0f, 256.0f ), "Pausing Artist" );
+                if (mPlayingTrack && mPlayingTrack->getArtistId() == nodeArtist->getId()) {
+                    togglePlayPaused();
                 }
                 else {
                     mIpodPlayer.play( nodeArtist->getPlaylist() );
@@ -1341,11 +1425,6 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
                     mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Artist" );
                 }
             }            
-        }
-        else {
-            // if the tapped node isn't the current selection, it should be:
-            mState.setSelectedNode( nodeWithHighestGen );
-            // (other selection logic happens in onSelectedNodeChanged)            
         }
         
         ////// logging for interaction tracking...
@@ -2067,17 +2146,31 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         uint64_t albumId = mPlayingTrack->getAlbumId();            
 
         // we're only going to fly to the track if we were already looking at the previous track
-        bool doFlyToTrack = false;
-        if (previousTrack && prevSelectedNode != NULL) {
-            if (previousTrack->getItemId() == prevSelectedNode->getId()) {
-                doFlyToTrack = true;
+        // or fly to the album if we were looking at the previous album
+        // or fly to the artist if we were looking at the previous artist
+        bool flyingAround = false;
+        if (previousTrack && prevSelectedNode != NULL) {            
+            if (prevSelectedNode->mGen == G_TRACK_LEVEL) {
+                if (previousTrack->getItemId() == prevSelectedNode->getId()) {
+                    flyToCurrentTrack(); // FIXME: might be able to speed this up, see below
+                    flyingAround = true;
+                }
+            } 
+            else if (prevSelectedNode->mGen == G_ALBUM_LEVEL) {
+                if (previousTrack->getAlbumId() == prevSelectedNode->getId()) {
+                    flyToCurrentAlbum();
+                    flyingAround = true;
+                }
             }
+            else if (prevSelectedNode->mGen == G_ARTIST_LEVEL) {
+                if (previousTrack->getArtistId() == prevSelectedNode->getId()) {
+                    flyToCurrentArtist();
+                    flyingAround = true;
+                }
+            } 
         }
         
-        if (doFlyToTrack) {
-            flyToCurrentTrack(); // FIXME: might be able to speed this up, see below
-        }
-        else {
+        if (!flyingAround) {
             // just sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
             mWorld.updateIsPlaying( artistId, albumId, trackId );
         }

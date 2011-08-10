@@ -19,6 +19,7 @@
 
 #include "Node.h"
 #include "NodeArtist.h"
+#include "NodeAlbum.h"
 #include "NodeTrack.h"
 
 #include "Filter.h"
@@ -50,8 +51,10 @@ public:
     
     void updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId );
     void selectHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId );
-    NodeTrack* getTrackNodeById( uint64_t artistId, uint64_t albumId, uint64_t trackId );
-    NodeTrack* selectPlayingHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId );
+    NodeTrack*  getTrackNodeById( uint64_t artistId, uint64_t albumId, uint64_t trackId );
+    NodeAlbum*  getAlbumNodeById( uint64_t artistId, uint64_t albumId );
+    NodeArtist* getArtistNodeById(const uint64_t theId) { return mNodesById[theId]; }    
+    NodeTrack*  selectPlayingHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId );
                                           
     void updateAgainstCurrentFilter();
     
@@ -68,9 +71,7 @@ public:
 	void drawTouchHighlights( float zoomAlpha );
 	void drawRings( const ci::gl::Texture &tex, float camZPos );
     void drawHitAreas();
-    
-    NodeArtist* getArtistNodeById(const uint64_t theId) { return mNodesById[theId]; }
-    
+        
 	std::vector<Node*> getUnsortedNodes( int fromGen, int toGen );
     std::vector<Node*> sortNodes( std::vector<Node*> unsortedNodes );
 	
