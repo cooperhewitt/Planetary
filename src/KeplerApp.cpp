@@ -61,7 +61,6 @@ int G_CURRENT_LEVEL		= 0;
 bool G_DEBUG			= false;
 bool G_AUTO_MOVE		= false;
 bool G_SHOW_SETTINGS	= false;
-bool G_HELP             = false;
 bool G_DRAW_RINGS		= true;
 bool G_DRAW_TEXT		= true;
 bool G_USE_GYRO			= false;
@@ -213,6 +212,8 @@ class KeplerApp : public AppCocoaTouch {
 	Font			mFontMedium;
 	Font			mFontMediSmall;
 	Font			mFontMediTiny;
+    Font            mFontMediBig;
+    Font            mFontUltraBig;
 	
 // MULTITOUCH
 	Vec2f			mTouchPos;
@@ -382,16 +383,22 @@ void KeplerApp::initTextures()
     Flurry::getInstrumentation()->startTimeEvent("Load Textures and Fonts");    
     
     // FONTS
-    // NB:- to would-be optimizers:
-    //      loadResource is fairly fast (~7ms for 5 fonts)
-    //      Font(...) is a bit slower, ~250ms for these fonts (measured a few times)
-	mFontHuge			= Font( loadResource( "AauxPro-Black.ttf"), 100 );
-	mFont				= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 14 );
-	mFontBig			= Font( loadResource( "AauxPro-Black.ttf"), 24 );
-	mFontMedium			= Font( loadResource( "AauxPro-Black.ttf"), 18 );
-	mFontMediSmall		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 13 );
-	mFontMediTiny		= Font( loadResource( "UnitRoundedOT-Medi.otf" ), 11 );
-    
+    //   Note to would-be optimizers: loadResource is fairly fast (~7ms for 5 fonts)
+    //   ...it's Font() that's slow (~50ms per font?)
+    DataSourceRef aux   = loadResource( "AauxPro-Black.ttf");
+	mFontHuge			= Font( aux, 100 );
+	mFontBig			= Font( aux, 24 );
+	mFontMedium			= Font( aux, 18 );
+
+    DataSourceRef medi  = loadResource( "UnitRoundedOT-Medi.otf" );
+	mFont               = Font( medi, 14 );
+	mFontMediSmall		= Font( medi, 13 );
+	mFontMediTiny		= Font( medi, 11 );
+    mFontMediBig        = Font( medi, 24 );
+                               
+    DataSourceRef ultra = loadResource( "UnitRoundedOT-Ultra.otf" );                               
+    mFontUltraBig       = Font( ultra, 24 );
+
     //////////////
     
     gl::Texture::Format mipFmt;
@@ -579,8 +586,9 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     mUiLayer.addChild( BloomNodeRef(&mPlayControls) );
     
 	// HELP LAYER
-	mHelpLayer.setup( this, mOrientationHelper.getInterfaceOrientation() );
-	mHelpLayer.initHelpTextures( mFontMediSmall );
+	mHelpLayer.setup( mFontMediSmall, mFontMediBig, mFontUltraBig );
+    mHelpLayer.setVisible( false );
+    mMainBloomNodeRef->addChild( BloomNodeRef(&mHelpLayer) );
     
     // FILTER TOGGLE
     mFilterToggleButton.setup( mState.getFilterMode(), 
@@ -719,7 +727,7 @@ void KeplerApp::touchesEnded( TouchEvent event )
 			
             // if the nav wheel isnt showing and you havent been dragging
 			// and your touch is above the uiLayer panel and the Help panel isnt showing
-            if( !(mWheelOverlay->getShowWheel() || mIsDragging || G_HELP) ){
+            if( !(mWheelOverlay->getShowWheel() || mIsDragging) ){
                 float u			= mTouchPos.x / (float) getWindowWidth();
                 float v			= mTouchPos.y / (float) getWindowHeight();
                 Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
@@ -864,17 +872,12 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
     
 //    if( ! G_USE_GYRO ) mUp = getUpVectorForOrientation( mInterfaceOrientation );
 //	else			   mUp = Vec3f::yAxis();
-
-    if (mData.getState() == Data::LoadStateComplete) {
-        mHelpLayer.setInterfaceOrientation(orientation);
-    }
 }
 
 bool KeplerApp::onWheelToggled( bool on )
 {
 	std::cout << "Wheel Toggled!" << std::endl;
 	if( !on ){
-		G_HELP = false; // dismiss help if wheel was toggled away
 		mPinchTotalDest = 1.0f;
 	}    
 	return false;
@@ -1151,16 +1154,11 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             logEvent("Repeat Button Selected");   
             break;
         
-//        case PlayControls::HELP:
-//			std::cout << "HELP!!!! IN PLAYCONTROLS!!!!" << std::endl;
-//			if( G_SHOW_SETTINGS ){
-//				logEvent("Help Button Selected");            
-//				G_HELP = !G_HELP;
-//				if( G_HELP && !mAlphaWheel.getShowWheel() )
-//					mAlphaWheel.setShowWheel( true );
-//			}
-//            mPlayControls.setHelpVisible( G_HELP );
-//            break;
+        case PlayControls::HELP:
+            logEvent("Help Button Selected");            
+            mHelpLayer.setVisible( !mHelpLayer.isVisible() );
+            mPlayControls.setHelpVisible( mHelpLayer.isVisible() );
+            break;
         
 		case PlayControls::AUTO_MOVE:
 			if( G_SHOW_SETTINGS ){
@@ -1478,9 +1476,6 @@ void KeplerApp::update()
         mMainBloomNodeRef->setVisible( true );
 		mUiLayer.setIsPanelOpen( true );
 
-        // make sure everything that was ignoring orientation changes is updated:
-        mHelpLayer.setInterfaceOrientation( mInterfaceOrientation );
-        
         // and then make sure we know about the current track if there is one...
         if ( mIpodPlayer.hasPlayingTrack() ) {
             std::cout << "Startup with Track Playing" << std::endl;
@@ -1570,8 +1565,6 @@ void KeplerApp::update()
 			mParticleController.buildDustVertexArray( scaleSlider, selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
 		}
 		        
-		mHelpLayer.update();
-        
         if (mState.getFilterMode() == State::FilterModeAlphaChar) {
             // FIXME: set visibility based on wheel radius
             mAlphaWheel.setVisible( mWheelOverlay->getShowWheel() );
@@ -2109,8 +2102,6 @@ void KeplerApp::drawScene()
 	gl::disableAlphaBlending(); // stops additive blending
     gl::enableAlphaBlending();  // reinstates normal alpha blending
     
-	mHelpLayer.draw( mTextures[UI_SMALL_BUTTONS_TEX], mUiLayer.getPanelYPos() );
-
     // UILayer and PlayControls draw here:
     mBloomSceneRef->draw();
 

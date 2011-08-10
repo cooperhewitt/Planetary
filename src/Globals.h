@@ -53,7 +53,6 @@ extern int G_CURRENT_LEVEL;
 extern bool G_DEBUG;
 extern bool G_AUTO_MOVE;
 extern bool G_SHOW_SETTINGS;
-extern bool G_HELP;
 extern bool G_DRAW_RINGS;
 extern bool G_DRAW_TEXT;
 extern bool G_USE_GYRO;

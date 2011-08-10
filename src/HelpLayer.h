@@ -8,58 +8,43 @@
  */
 
 #pragma once
-#include "cinder/app/AppCocoaTouch.h"
-#include "cinder/Vector.h"
-#include "cinder/gl/gl.h"
-#include "cinder/gl/Texture.h"
-#include "cinder/Rect.h"
-#include "cinder/Color.h"
-#include "cinder/Font.h"
-#include "cinder/Text.h"
-#include "Orientation.h"
-#include "OrientationEvent.h"
-#include "Globals.h"
-#include <vector>
 
-class HelpLayer {
+#include "cinder/Vector.h"
+#include "cinder/gl/Texture.h"
+#include "cinder/Font.h"
+#include "cinder/Rect.h"
+#include "cinder/app/TouchEvent.h"
+#include "BloomNode.h"
+
+class HelpLayer : public BloomNode {
  public:
 	
-    HelpLayer();
-	~HelpLayer();
-	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation );
+    HelpLayer() {};
+	~HelpLayer() {};
+    
+	void	setup( const ci::Font &smallFont, const ci::Font &bigFont, const ci::Font &bigBoldFont );
 	
-    bool	touchesBegan( ci::app::TouchEvent event );
-	bool	touchesMoved( ci::app::TouchEvent event );
-	bool	touchesEnded( ci::app::TouchEvent event );
-    void    setInterfaceOrientation( const ci::app::Orientation &orientation );
-	void	initHelpTextures( const ci::Font &font );
-	
+    bool	touchBegan( ci::app::TouchEvent::Touch touch );
+	bool	touchEnded( ci::app::TouchEvent::Touch touch );
+
 	void	update();
-	void	draw( const ci::gl::Texture &tex, float y );
+	void	draw();
 	
  private:
-	
-    ci::Rectf   transformRect( const ci::Rectf &worldRect, const ci::Matrix44f &matrix );
     
-	ci::app::AppCocoaTouch *mApp;
-	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded, mCbOrientationChanged;
-	
-	ci::gl::Texture mHelpPanelTex;
-	
-    float           mPanelHeight;           // TODO: const?
-	ci::Rectf		mPanelRect;				// Rect defining the panel width and height
-	ci::Rectf		mCloseRect;				// close button
-	bool			mIsCloseTouched;
-	
-	ci::Rectf mPlanetaryButton, mMailButton, mBloomButton, mCinderButton;
-	
-	float			mHelpPer;
-	ci::gl::Texture mDescTex;
-	std::vector<ci::gl::Texture> mHelpTextures;
-	ci::Vec2f		mHelpLocs[G_TOTAL_HELP_CALLOUTS];
-	
-	ci::app::Orientation mInterfaceOrientation;
-    ci::Matrix44f   mOrientationMtx;
-    ci::Vec2f       mInterfaceSize;
+    void updateRect( ci::Rectf *rect, const std::string &fullStr, const std::string &rectStr, const std::vector<std::pair<uint16_t,ci::Vec2f> > &glyphPositions );
+               
+    // fonts
+    ci::Font mBigFont, mBigBoldFont, mSmallFont;
+
+    // textures
+    ci::gl::Texture mHeadingTex, mBodyTex;
+    
+    // dimensions and positions
+    ci::Vec2f mInterfaceSize, mHeadingPos, mBodyPos;
+    ci::Rectf mBgRect;
+    
+    // hit rects for links:
+    ci::Rectf mCinderRect, mWebRect, mEmailRect;
 };
 
