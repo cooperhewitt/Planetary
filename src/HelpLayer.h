@@ -34,7 +34,10 @@ class HelpLayer : public BloomNode {
     
  private:
     
-    void updateRect( ci::Rectf *rect, const std::string &fullStr, const std::string &rectStr, const std::vector<std::pair<uint16_t,ci::Vec2f> > &glyphPositions );
+    void updateRect( ci::Rectf *rect, const std::wstring &fullStr, const std::wstring &rectStr, const std::vector<std::pair<uint16_t,ci::Vec2f> > &glyphPositions );
+    
+    // TODO: add this as a ci::Rect method and issue pull request
+    void inflate( ci::Rectf *rect, const ci::Vec2f &amount );
                
     // fonts
     ci::Font mBigFont, mBigBoldFont, mSmallFont;

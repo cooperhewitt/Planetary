@@ -46,7 +46,7 @@ void HelpLayer::setup( const ci::Font &smallFont, const ci::Font &bigFont, const
     layout = TextLayout();	
     layout.setColor( BRIGHT_BLUE );
     layout.setFont( mSmallFont );
-    layout.addLine( "2011 Bloom Studio, Inc. All Rights Reserved. Made with " );
+    layout.addLine( "© 2011 Bloom Studio, Inc. All Rights Reserved. Made with " );
     layout.setColor( Color::white() );
     layout.append("Cinder");
     layout.setColor( BRIGHT_BLUE );
@@ -77,31 +77,56 @@ void HelpLayer::setup( const ci::Font &smallFont, const ci::Font &bigFont, const
     
     // use TextBox to measure glyphs and generate hit areas...
     
-    string bodyText = "2011 Bloom Studio, Inc. All Rights Reserved. Made with Cinder. Questions? Comments? Visit the website or send us an email.";
+    // make a wide string for counting characters (because © is double-wide)
+    wstring bodyText = L"© 2011 Bloom Studio, Inc. All Rights Reserved. Made with Cinder. Questions? Comments? Visit the website or send us an email.";
+    
+    // make a normal string to pass to cinder
+    // TODO: find a reliable way to convert this automatically, the std::copy routine below is screwy
+    string strBodyText = "© 2011 Bloom Studio, Inc. All Rights Reserved. Made with Cinder. Questions? Comments? Visit the website or send us an email.";
+//    std::copy(bodyText.begin(), bodyText.end(), std::back_inserter(strBodyText));
     
     // TODO: use some sort of markup so that text doesn't have to be repeated
     // and then we can generate hit rects lazily on demand
     
     TextBox box;
     box.setFont( mSmallFont );
-    box.setText( bodyText );
+    box.setText( strBodyText );
 
     std::vector<std::pair<uint16_t,Vec2f> > glyphPositions = box.measureGlyphs();
     
-    updateRect( &mCinderRect, bodyText, "Cinder", glyphPositions );
-    updateRect( &mWebRect, bodyText, "Visit the website", glyphPositions );
-    updateRect( &mEmailRect, bodyText, "send us an email", glyphPositions );
+//    cout << glyphPositions.size() << " glyph positions available" << endl;
+//    cout << bodyText.size() << " characters in bodyText" << endl;
+//    cout << strBodyText.size() << " characters in strBodyText" << endl;
+    
+    updateRect( &mCinderRect, bodyText, L"Cinder", glyphPositions );
+    updateRect( &mWebRect, bodyText, L"Visit the website", glyphPositions );
+    updateRect( &mEmailRect, bodyText, L"send us an email", glyphPositions );
     
     mCinderRect.offset( mBodyPos );
     mWebRect.offset( mBodyPos );
     mEmailRect.offset( mBodyPos );
+    
+//    const Vec2f linkPadding(5,5);
+//    inflate( &mCinderRect, linkPadding );
+//    inflate( &mWebRect, linkPadding );
+//    inflate( &mEmailRect, linkPadding );
 }
 
+void HelpLayer::inflate( ci::Rectf *rect, const ci::Vec2f &amount )
+{
+    rect->canonicalize();
+    rect->x1 -= amount.x;
+    rect->x2 += amount.x;
+    rect->y1 -= amount.y;
+    rect->y2 += amount.y;
+}
 
-void HelpLayer::updateRect( Rectf *rect, const std::string &fullStr, const std::string &rectStr, const std::vector<std::pair<uint16_t,Vec2f> > &glyphPositions )
+void HelpLayer::updateRect( Rectf *rect, const std::wstring &fullStr, const std::wstring &rectStr, const std::vector<std::pair<uint16_t,Vec2f> > &glyphPositions )
 {
     const size_t startIndex = fullStr.find(rectStr);
     const size_t endIndex = startIndex + rectStr.size();
+    
+//    wcout << rectStr << L" length is: " << rectStr.size() << endl; 
     
     // glyph the first
     uint16_t glyph = glyphPositions[startIndex].first;
@@ -177,4 +202,17 @@ void HelpLayer::draw()
     
     gl::color( ColorA(BRIGHT_BLUE, 0.15f) );
     gl::drawLine( mBgRect.getLowerLeft(), mBgRect.getLowerRight() );
+
+//    gl::color( Color::white() );
+//    gl::drawStrokedRect( mCinderRect );
+//    gl::drawStrokedRect( mWebRect );
+//    gl::drawStrokedRect( mEmailRect );
+
+    glPushMatrix();
+    gl::translate( Vec2f(0, 2.0f) );
+    gl::color( ColorA(1.0f, 1.0f, 1.0f, 0.5f) );
+    gl::drawLine( mCinderRect.getLowerLeft(), mCinderRect.getLowerRight() );
+    gl::drawLine( mWebRect.getLowerLeft(), mWebRect.getLowerRight() );
+    gl::drawLine( mEmailRect.getLowerLeft(), mEmailRect.getLowerRight() );
+    glPopMatrix();
 }
