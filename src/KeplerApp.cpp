@@ -881,6 +881,10 @@ bool KeplerApp::onWheelToggled( bool on )
 	if( !on ){
 		mPinchTotalDest = 1.0f;
 	}    
+    if (mData.mPlaylists.size() > 0) {
+        mFilterToggleButton.setVisible( on );
+    }
+    mPlayControls.setAlphaWheelVisible( on );    
 	return false;
 }
 
@@ -1586,9 +1590,6 @@ void KeplerApp::update()
             mPlaylistChooser.setVisible( mWheelOverlay->getShowWheel() );
             mAlphaWheel.setVisible( false );
         }	        
-
-        mFilterToggleButton.setVisible( mWheelOverlay->getShowWheel() );
-        mPlayControls.setAlphaWheelVisible( mWheelOverlay->getShowWheel() );
         
         if (mPlayheadUpdateSeconds == elapsedSeconds) {
             mPlayControls.setElapsedSeconds( (int)mCurrentTrackPlayheadTime );
