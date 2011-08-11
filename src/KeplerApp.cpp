@@ -587,7 +587,7 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     
 	// HELP LAYER
 	mHelpLayer.setup( mFontMediSmall, mFontMediBig, mFontUltraBig );
-    mHelpLayer.setVisible( false );
+    mHelpLayer.hide( false ); // no animation
     mMainBloomNodeRef->addChild( BloomNodeRef(&mHelpLayer) );
     
     // FILTER TOGGLE
@@ -1156,8 +1156,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
         
         case PlayControls::HELP:
             logEvent("Help Button Selected");            
-            mHelpLayer.setVisible( !mHelpLayer.isVisible() );
-            mPlayControls.setHelpVisible( mHelpLayer.isVisible() );
+            mHelpLayer.toggle();
+            mPlayControls.setHelpVisible( mHelpLayer.isShowing() );
             break;
         
 		case PlayControls::AUTO_MOVE:

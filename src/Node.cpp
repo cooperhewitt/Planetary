@@ -11,9 +11,9 @@
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Text.h"
+#include "cinder/Utilities.h"
 #include "Globals.h"
 #include "Node.h"
-#include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
 
@@ -100,7 +100,7 @@ void Node::createNameTexture()
 	string nameLine2 = "(";
 	bool isTwoLines = false;
 	if( mGen == G_TRACK_LEVEL ){
-		numberLine1 = boost::lexical_cast<string>( getTrackNumber() ) + ". ";
+		numberLine1 = toString( getTrackNumber() ) + ". ";
 	}
 	
 	layout.setFont( mSmallFont );
@@ -156,7 +156,7 @@ void Node::createNameTexture()
 		} else if( year < 1900 ){
 			yearStr = "Incorrect Data";
 		} else {
-			yearStr = boost::lexical_cast<string>( getReleaseYear() );	
+			yearStr = toString( getReleaseYear() );	
 		}
 		layout.addLine( yearStr );
 	}

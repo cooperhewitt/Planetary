@@ -30,7 +30,12 @@ class HelpLayer : public BloomNode {
 	void	update();
 	void	draw();
 	
-    float   getHeight() { return mBgRect.getHeight(); }
+    void    show( bool show = true, bool animate = true );
+    void    hide( bool animate = true ) { show( false, animate ); }
+    void    toggle() { show( !isShowing() ); }
+    bool    isShowing() { return mShowing; }
+    
+    float   getHeight() { return mBgRect.getHeight() + mCurrentY; }
     
  private:
     
@@ -38,7 +43,11 @@ class HelpLayer : public BloomNode {
     
     // TODO: add this as a ci::Rect method and issue pull request
     void inflate( ci::Rectf *rect, const ci::Vec2f &amount );
-               
+    
+    // control visibility, animation
+    bool mShowing, mAnimating;
+    float mCurrentY, mTargetY;
+    
     // fonts
     ci::Font mBigFont, mBigBoldFont, mSmallFont;
 

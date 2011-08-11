@@ -8,6 +8,7 @@
  */
 
 
+#include <boost/lexical_cast.hpp>
 #include "HelpLayer.h"
 #include "cinder/Text.h"
 #include "cinder/gl/gl.h"
@@ -73,6 +74,12 @@ void HelpLayer::setup( const ci::Font &smallFont, const ci::Font &bigFont, const
     mBodyPos = padding + Vec2f(0,mHeadingTex.getHeight());
     mBgRect = Rectf( 0, 0, w, h );    
     
+    // and animation...
+    mAnimating = false;
+    mShowing = false;
+    mCurrentY = -h;
+    mTargetY = -h;
+    
     ///////////////////////
     
     // use TextBox to measure glyphs and generate hit areas...
@@ -84,6 +91,8 @@ void HelpLayer::setup( const ci::Font &smallFont, const ci::Font &bigFont, const
     // TODO: find a reliable way to convert this automatically, the std::copy routine below is screwy
     string strBodyText = "© 2011 Bloom Studio, Inc. All Rights Reserved. Made with Cinder. Questions? Comments? Visit the website or send us an email.";
 //    std::copy(bodyText.begin(), bodyText.end(), std::back_inserter(strBodyText));
+    // FIXME: maybe http://www.gamedeception.net/archive/index.php?t-18510.html&s=ef7697f2589b9887ce45cb3018db3907 can help?
+//    string strBodyText = boost::lexical_cast<string, wstring>(bodyText);
     
     // TODO: use some sort of markup so that text doesn't have to be repeated
     // and then we can generate hit rects lazily on demand
@@ -185,10 +194,43 @@ bool HelpLayer::touchEnded( TouchEvent::Touch touch )
 	return mBgRect.contains( pos );
 }
 
+void HelpLayer::show( bool show, bool animate )
+{
+    mShowing = show; 
+    mAnimating = animate; 
+    if (mShowing) {
+        mTargetY = 0.0f;
+        // ensure we're visible
+        setVisible(true);
+    }
+    else {
+        mTargetY = -mBgRect.getHeight();
+        // don't set invisible yet, do that in update when we're done animating
+    }
+}
+
 void HelpLayer::update()
 {
     mInterfaceSize = getRoot()->getInterfaceSize();
     mBgRect.x2 = mInterfaceSize.x;
+
+    if (mCurrentY != mTargetY) {
+        if (mAnimating) {
+            mCurrentY += (mTargetY - mCurrentY) * 0.2f;
+            if (fabs(mCurrentY - mTargetY) < 0.01f) {
+                mCurrentY = mTargetY;
+            }
+        }
+        else {
+            mCurrentY = mTargetY;
+        }
+        setTransform( Matrix44f::createTranslation( Vec3f(0, round(mCurrentY), 0) ) );
+    }
+    else {
+        if (!mShowing) {
+            setVisible(false);
+        }
+    }
 }
 
 void HelpLayer::draw()
