@@ -107,6 +107,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onAlphaCharSelected( char c );
 	bool			onWheelToggled( bool on );
     bool            onFilterModeStateChanged( State::FilterMode filterMode );
+    bool            onFilterModeToggled( State::FilterMode filterMode );
     bool            onPlaylistChooserSelected( ci::ipod::PlaylistRef );
     bool            onPlaylistChooserTouched( ci::ipod::PlaylistRef );
     
@@ -594,7 +595,7 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     mFilterToggleButton.setup( mState.getFilterMode(), 
                                mFontMedium, 
                                mTextures[FILTER_TOGGLE_BUTTON_TEX] );
-    mFilterToggleButton.registerFilterModeSelected( &mState, &State::setFilterMode );
+    mFilterToggleButton.registerFilterModeSelected( this, &KeplerApp::onFilterModeToggled );
     mMainBloomNodeRef->addChild( BloomNodeRef(&mFilterToggleButton) );
 	
 	// STATE
@@ -883,6 +884,13 @@ bool KeplerApp::onWheelToggled( bool on )
 	return false;
 }
 
+bool KeplerApp::onFilterModeToggled( State::FilterMode filterMode )
+{
+    mState.setFilterMode(filterMode);
+    // zoom to galaxy level whenever the filter toggle button is used:
+    mState.setSelectedNode( NULL );    
+}
+
 bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
 {    
     // update the button...
@@ -891,7 +899,6 @@ bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
     // apply a new filter to world...
     if (filterMode == State::FilterModeAlphaChar) {
         mWorld.setFilter( LetterFilter::create( mState.getAlphaChar() ) );
-        mState.setSelectedNode( NULL );
     }
     else if (filterMode == State::FilterModePlaylist) {
         ipod::PlaylistRef playlist = mState.getPlaylist();
@@ -900,7 +907,6 @@ bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
         }
         else {
             mWorld.setFilter( PlaylistFilter::create(playlist) );
-            mState.setSelectedNode( NULL );
         }
     }
     
@@ -918,6 +924,7 @@ bool KeplerApp::onPlaylistChooserTouched( ci::ipod::PlaylistRef playlist )
 bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
 {
     mState.setPlaylist( playlist ); // triggers onPlaylistStateChanged
+    mState.setSelectedNode( NULL ); // zoom to galaxy level
     return false;
 }
 
@@ -961,9 +968,6 @@ bool KeplerApp::onPlaylistStateChanged( ipod::PlaylistRef playlist )
 {
     // apply new filter to World:    
     mWorld.setFilter( PlaylistFilter::create(playlist) );
-
-    // zoom to Galaxy level:
-    mState.setSelectedNode( NULL );
 
     /////// notifications...
 
