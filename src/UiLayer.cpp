@@ -134,7 +134,6 @@ bool UiLayer::touchEnded( TouchEvent::Touch touch )
                 Flurry::getInstrumentation()->logEvent("UIPanel Closed");
             }
 		}
-		G_HELP = false;
 	}
 
     // reset for next time

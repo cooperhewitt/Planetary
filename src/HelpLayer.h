@@ -8,58 +8,57 @@
  */
 
 #pragma once
-#include "cinder/app/AppCocoaTouch.h"
-#include "cinder/Vector.h"
-#include "cinder/gl/gl.h"
-#include "cinder/gl/Texture.h"
-#include "cinder/Rect.h"
-#include "cinder/Color.h"
-#include "cinder/Font.h"
-#include "cinder/Text.h"
-#include "Orientation.h"
-#include "OrientationEvent.h"
-#include "Globals.h"
-#include <vector>
 
-class HelpLayer {
+#include "cinder/Vector.h"
+#include "cinder/gl/Texture.h"
+#include "cinder/Font.h"
+#include "cinder/Rect.h"
+#include "cinder/app/TouchEvent.h"
+#include "BloomNode.h"
+
+class HelpLayer : public BloomNode {
  public:
 	
-    HelpLayer();
-	~HelpLayer();
-	void	setup( ci::app::AppCocoaTouch *app, const ci::app::Orientation &orientation );
-	
-    bool	touchesBegan( ci::app::TouchEvent event );
-	bool	touchesMoved( ci::app::TouchEvent event );
-	bool	touchesEnded( ci::app::TouchEvent event );
-    void    setInterfaceOrientation( const ci::app::Orientation &orientation );
-	void	initHelpTextures( const ci::Font &font );
-	
-	void	update();
-	void	draw( const ci::gl::Texture &tex, float y );
-	
- private:
-	
-    ci::Rectf   transformRect( const ci::Rectf &worldRect, const ci::Matrix44f &matrix );
+    HelpLayer() {};
+	~HelpLayer() {};
     
-	ci::app::AppCocoaTouch *mApp;
-	ci::CallbackId	mCbTouchesBegan, mCbTouchesMoved, mCbTouchesEnded, mCbOrientationChanged;
+	void	setup( const ci::Font &smallFont, const ci::Font &bigFont, const ci::Font &bigBoldFont );
 	
-	ci::gl::Texture mHelpPanelTex;
+    bool	touchBegan( ci::app::TouchEvent::Touch touch );
+	bool	touchEnded( ci::app::TouchEvent::Touch touch );
+
+	void	update();
+	void	draw();
 	
-    float           mPanelHeight;           // TODO: const?
-	ci::Rectf		mPanelRect;				// Rect defining the panel width and height
-	ci::Rectf		mCloseRect;				// close button
-	bool			mIsCloseTouched;
-	
-	ci::Rectf mPlanetaryButton, mMailButton, mBloomButton, mCinderButton;
-	
-	float			mHelpPer;
-	ci::gl::Texture mDescTex;
-	std::vector<ci::gl::Texture> mHelpTextures;
-	ci::Vec2f		mHelpLocs[G_TOTAL_HELP_CALLOUTS];
-	
-	ci::app::Orientation mInterfaceOrientation;
-    ci::Matrix44f   mOrientationMtx;
-    ci::Vec2f       mInterfaceSize;
+    void    show( bool show = true, bool animate = true );
+    void    hide( bool animate = true ) { show( false, animate ); }
+    void    toggle() { show( !isShowing() ); }
+    bool    isShowing() { return mShowing; }
+    
+    float   getHeight() { return mBgRect.getHeight() + mCurrentY; }
+    
+ private:
+    
+    void updateRect( ci::Rectf *rect, const std::wstring &fullStr, const std::wstring &rectStr, const std::vector<std::pair<uint16_t,ci::Vec2f> > &glyphPositions );
+    
+    // TODO: add this as a ci::Rect method and issue pull request
+    void inflate( ci::Rectf *rect, const ci::Vec2f &amount );
+    
+    // control visibility, animation
+    bool mShowing, mAnimating;
+    float mCurrentY, mTargetY;
+    
+    // fonts
+    ci::Font mBigFont, mBigBoldFont, mSmallFont;
+
+    // textures
+    ci::gl::Texture mHeadingTex, mBodyTex;
+    
+    // dimensions and positions
+    ci::Vec2f mInterfaceSize, mHeadingPos, mBodyPos;
+    ci::Rectf mBgRect;
+    
+    // hit rects for links:
+    ci::Rectf mCinderRect, mWebRect, mEmailRect;
 };
 

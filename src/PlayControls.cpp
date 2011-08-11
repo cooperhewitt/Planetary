@@ -27,11 +27,11 @@ void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font 
     setPlaying( player->getPlayState() == ipod::Player::StatePlaying );    
     setOrbitsVisible( G_DRAW_RINGS );
     setLabelsVisible( G_DRAW_TEXT );
-//    setHelpVisible( G_HELP );
+    setHelpVisible( false ); // this is the default in KeplerApp
     setDebugVisible( G_DEBUG );	    
     setShuffleVisible( player->getShuffleMode() != ipod::Player::ShuffleModeOff );
     setRepeatMode( player->getRepeatMode() );    
-    setAlphaWheelVisible( false ); // this is the default in KeplerApp::remainingSetup()
+    setAlphaWheelVisible( false ); // this is the default in WheelOverlay::setup()
     if( G_IS_IPAD2 ) {
         setGyroVisible( G_USE_GYRO );
     }
@@ -90,11 +90,11 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
 	uh = uiSmallButtonsTex.getHeight() / 5.0f;
 
     {
-//        mHelpButton = new ToggleButton( HELP, 
-//                                        false, 
-//                                        uiSmallButtonsTex,
-//                                        Area( uw*0, uh*1, uw*1, uh*2 ),  // on texture
-//                                        Area( uw*0, uh*0, uw*1, uh*1 ) ); // off texture
+        mHelpButton = new ToggleButton( HELP, 
+                                        false, 
+                                        uiSmallButtonsTex,
+                                        Area( uw*0, uh*1, uw*1, uh*2 ),  // on texture
+                                        Area( uw*0, uh*0, uw*1, uh*1 ) ); // off texture
         
 		if( G_IS_IPAD2 ){
 			mGyroButton = new ToggleButton( USE_GYRO, 
@@ -233,7 +233,7 @@ void PlayControls::addChildren()
     mSettingsNodeRef->addChild( BloomNodeRef(mShuffleButton) );
     mSettingsNodeRef->addChild( BloomNodeRef(mRepeatButton) );
 	mSettingsNodeRef->addChild( BloomNodeRef(mScreensaverButton) );
-//    mSettingsNodeRef->addChild( BloomNodeRef(mHelpButton) );
+    mSettingsNodeRef->addChild( BloomNodeRef(mHelpButton) );
     mSettingsNodeRef->addChild( BloomNodeRef(mOrbitsButton) );
     mSettingsNodeRef->addChild( BloomNodeRef(mLabelsButton) );
     mSettingsNodeRef->addChild( BloomNodeRef(mDebugButton) );
@@ -356,31 +356,10 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
     mScreensaverButton->setRect( x1, y1, x2, y2 );
 	
 //// HELP TOGGLE BUTTON
-//    x1 -= bSizeSmall;
-//	x2 = x1 + bSizeSmall;
-//    mHelpButton->setRect( x1, y1, x2, y2 );
+    x1 -= bSizeSmall;
+	x2 = x1 + bSizeSmall;
+    mHelpButton->setRect( x1, y1, x2, y2 );
 	
-	
-	
-//// PREVIOUS PLAYLIST BUTTON
-//	x1 = 10.0f;
-//	x2 = x1 + bSize;
-//	mPreviousPlaylistButton->setRect( x1, y1, x2, y2 );
-//	
-//// NEXT PLAYLIST BUTTON
-//	x1 = x2;
-//	x2 = x1 + bSize;
-//	mNextPlaylistButton->setRect( x1, y1, x2, y2 );
-//	
-//// PLAYLIST LABEL
-//	x1 = x2 + 10.0f;
-//	x2 = x1 + 300.0f;
-//	y1 += 12.0f;
-//	// this 18.0f offset is a hack to make hit-testing work
-//    // rect is used for layout and for hit-testing, but ScrollingLabel.draw compensates for this
-//	y2 = y1 + 18.0f;
-//	mPlaylistLabel->setRect( x1, y1, x2, y2 );
-    
     const float bgx1 = sliderInset;
     const float bgx2 = bgx1 + sliderWidth;
     const float bgy1 = 32.0f;
@@ -435,4 +414,12 @@ void PlayControls::update()
     }
     mCoverRightTextureRect->setRect( infoRect.x2 + 1.0f, infoRect.y1, infoRect.x2 - ( w - 1.0f ), infoRect.y2 );
     
+}
+
+void PlayControls::enablePlayerControls( bool enable )
+{
+    // FIXME: perhaps grayed out or dimmed would be more subtle?
+    mPreviousTrackButton->setVisible(enable);
+    mPlayPauseButton->setVisible(enable);
+    mNextTrackButton->setVisible(enable);    
 }
