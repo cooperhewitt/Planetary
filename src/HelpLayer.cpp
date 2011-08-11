@@ -238,11 +238,12 @@ void HelpLayer::draw()
     gl::color( Color::black() );
     gl::drawSolidRect( mBgRect );
     
-    gl::color( Color::white() );
+    const float dragAlphaPer = min( pow( 1.0f - (fabs(mCurrentY) / mBgRect.getHeight()), 2.0f ), 1.0f ); 
+    gl::color( Color( dragAlphaPer, dragAlphaPer, dragAlphaPer ) );
     gl::draw( mHeadingTex, mHeadingPos );
     gl::draw( mBodyTex, mBodyPos );
     
-    gl::color( ColorA(BRIGHT_BLUE, 0.15f) );
+    gl::color( ColorA(BRIGHT_BLUE, 0.15f * dragAlphaPer) );
     gl::drawLine( mBgRect.getLowerLeft(), mBgRect.getLowerRight() );
 
 //    gl::color( Color::white() );
@@ -252,7 +253,7 @@ void HelpLayer::draw()
 
     glPushMatrix();
     gl::translate( Vec2f(0, 2.0f) );
-    gl::color( ColorA(1.0f, 1.0f, 1.0f, 0.5f) );
+    gl::color( ColorA(dragAlphaPer, dragAlphaPer, dragAlphaPer, 0.5f) );
     gl::drawLine( mCinderRect.getLowerLeft(), mCinderRect.getLowerRight() );
     gl::drawLine( mWebRect.getLowerLeft(), mWebRect.getLowerRight() );
     gl::drawLine( mEmailRect.getLowerLeft(), mEmailRect.getLowerRight() );
