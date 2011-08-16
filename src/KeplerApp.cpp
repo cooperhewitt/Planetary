@@ -43,7 +43,7 @@
 #include "HelpLayer.h"
 #include "NotificationOverlay.h"
 #include "Stats.h"
-#include "AlphaWheel.h"
+#include "AlphaChooser.h"
 #include "PlaylistChooser.h"
 #include "FilterToggleButton.h"
 #include "PinchRecognizer.h"
@@ -138,7 +138,7 @@ class KeplerApp : public AppCocoaTouch {
     NotificationOverlay mNotificationOverlay;
 
     WheelOverlayRef     mWheelOverlay;
-    AlphaWheel          mAlphaWheel;
+    AlphaChooser        mAlphaChooser;
     PlaylistChooser     mPlaylistChooser;
 
 // PERLIN BITS:
@@ -557,10 +557,10 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	mWheelOverlay->registerWheelToggled( this, &KeplerApp::onWheelToggled );    
     mMainBloomNodeRef->addChild( mWheelOverlay );
     
-	// ALPHA WHEEL
-	mAlphaWheel.setup( mFontBig, mWheelOverlay );
-	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
-    mWheelOverlay->addChild( BloomNodeRef(&mAlphaWheel) );
+	// ALPHA CHOOSER
+	mAlphaChooser.setup( mFontBig, mWheelOverlay );
+	mAlphaChooser.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
+    mWheelOverlay->addChild( BloomNodeRef(&mAlphaChooser) );
 	
     // PLAYLIST CHOOSER
     mPlaylistChooser.setup( mFontMedium, mWheelOverlay );
@@ -796,7 +796,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	mPinchRotation	+= event.getRotationDelta();
 
 	mTimePinchEnded = getElapsedSeconds();
-	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );
+	mAlphaChooser.setTimePinchEnded( mTimePinchEnded );
 	
     return false;
 }
@@ -814,7 +814,7 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 	}
 	
 	mTimePinchEnded = getElapsedSeconds();
-	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );
+	mAlphaChooser.setTimePinchEnded( mTimePinchEnded );
 	
     mPinchRays.clear();
 	mIsPinching = false;
@@ -884,7 +884,7 @@ bool KeplerApp::onWheelToggled( bool on )
     if (mData.mPlaylists.size() > 0) {
         mFilterToggleButton.setVisible( on );
     }
-    mPlayControls.setAlphaWheelVisible( on );    
+    mPlayControls.setWheelVisible( on );    
 	return false;
 }
 
@@ -941,7 +941,7 @@ bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
 bool KeplerApp::onAlphaCharSelected( char c )
 {
     // FIXME: log params
-    logEvent("AlphaWheel Selected");        
+    logEvent("AlphaChooser Selected");        
     mState.setAlphaChar( c );        // triggersonAlphaCharStateChanged
     mState.setSelectedNode( NULL );  // zoom to galaxy level
 	return false;
@@ -1486,7 +1486,7 @@ void KeplerApp::update()
         // processes pending nodes
 		mWorld.initNodes( mData.mArtists, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
         
-        mAlphaWheel.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar );        
+        mAlphaChooser.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar );        
 		mLoadingScreen.setVisible( false ); // TODO: remove from scene graph, clean up textures
         mMainBloomNodeRef->setVisible( true );
 		mUiLayer.setIsPanelOpen( true );
@@ -1582,13 +1582,13 @@ void KeplerApp::update()
 		        
         if (mState.getFilterMode() == State::FilterModeAlphaChar) {
             // FIXME: set visibility based on wheel radius
-            mAlphaWheel.setVisible( mWheelOverlay->getShowWheel() );
+            mAlphaChooser.setVisible( mWheelOverlay->getShowWheel() );
             mPlaylistChooser.setVisible( false );
         }
         else if (mState.getFilterMode() == State::FilterModePlaylist) {
             // FIXME: set visibility based on wheel radius            
             mPlaylistChooser.setVisible( mWheelOverlay->getShowWheel() );
-            mAlphaWheel.setVisible( false );
+            mAlphaChooser.setVisible( false );
         }	        
         
         if (mPlayheadUpdateSeconds == elapsedSeconds) {
@@ -1669,8 +1669,7 @@ void KeplerApp::updateCamera()
 		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.1f;
 		mIsPastPinchThresh = false;
 		
-//        if( mAlphaWheel.getShowWheel() ){
-		if( mFilterToggleButton.isVisible() ){
+		if( mWheelOverlay->getShowWheel() ){
             mFovDest = G_MAX_FOV; // special FOV just for alpha wheel
         } else {
             mFovDest = G_DEFAULT_FOV;

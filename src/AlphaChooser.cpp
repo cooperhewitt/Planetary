@@ -1,5 +1,5 @@
 /*
- *  AlphaWheel.cpp
+ *  AlphaChooser.cpp
  *  Kepler
  *
  *  Created by Tom Carden on 3/14/11.
@@ -7,7 +7,7 @@
  *
  */
 
-#include "AlphaWheel.h"
+#include "AlphaChooser.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Font.h"
 #include "cinder/Text.h"
@@ -23,7 +23,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void AlphaWheel::setup( const Font &font, WheelOverlayRef wheelOverlay )
+void AlphaChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
 {	
 	// Textures
 	mAlphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
@@ -36,7 +36,7 @@ void AlphaWheel::setup( const Font &font, WheelOverlayRef wheelOverlay )
 	initAlphaTextures( font );
 }
 
-void AlphaWheel::initAlphaTextures( const Font &font )
+void AlphaChooser::initAlphaTextures( const Font &font )
 {
 	for( int i=0; i<mAlphaString.length(); i++ ){
 		TextLayout layout;	
@@ -47,7 +47,7 @@ void AlphaWheel::initAlphaTextures( const Font &font )
 	}
 }
 
-void AlphaWheel::setRects()
+void AlphaChooser::setRects()
 {
 	mAlphaRects.clear();
 	for( int i=0; i<mAlphaString.length(); i++ ){
@@ -62,7 +62,7 @@ void AlphaWheel::setRects()
 	}
 }
 
-bool AlphaWheel::touchBegan( TouchEvent::Touch touch )
+bool AlphaChooser::touchBegan( TouchEvent::Touch touch )
 {
     if (!mWheelOverlay->getShowWheel()) return false;
     
@@ -85,7 +85,7 @@ bool AlphaWheel::touchBegan( TouchEvent::Touch touch )
 	return false;
 }
 
-bool AlphaWheel::touchMoved( TouchEvent::Touch touch )
+bool AlphaChooser::touchMoved( TouchEvent::Touch touch )
 {
     if (mWheelOverlay->getShowWheel()) {
         // only follow the last valid touch we received
@@ -97,9 +97,9 @@ bool AlphaWheel::touchMoved( TouchEvent::Touch touch )
 	return false;
 }
 
-bool AlphaWheel::touchEnded( TouchEvent::Touch touch )
+bool AlphaChooser::touchEnded( TouchEvent::Touch touch )
 {	
-	std::cout << "AlphaWheel touchEnded" << std::endl;
+	std::cout << "AlphaChooser touchEnded" << std::endl;
 	
     if (!mWheelOverlay->getShowWheel()) return false;
     
@@ -108,7 +108,7 @@ bool AlphaWheel::touchEnded( TouchEvent::Touch touch )
 }
 
 
-bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
+bool AlphaChooser::selectWheelItem( const Vec2f &pos, bool closeWheel )
 {
     if (!mWheelOverlay->getShowWheel()) return false;
 
@@ -139,17 +139,17 @@ bool AlphaWheel::selectWheelItem( const Vec2f &pos, bool closeWheel )
     return false;
 }
 
-void AlphaWheel::setTimePinchEnded( float timePinchEnded )
+void AlphaChooser::setTimePinchEnded( float timePinchEnded )
 {
 	mTimePinchEnded = timePinchEnded;	
 }
 
-void AlphaWheel::setNumberAlphaPerChar( float *numberAlphaPerChar )
+void AlphaChooser::setNumberAlphaPerChar( float *numberAlphaPerChar )
 {
     mNumberAlphaPerChar = numberAlphaPerChar;
 }
 
-void AlphaWheel::update( )
+void AlphaChooser::update( )
 {    
     Vec2f interfaceSize = getRoot()->getInterfaceSize();    
     if (mInterfaceSize != interfaceSize) {
@@ -158,7 +158,7 @@ void AlphaWheel::update( )
     }
 }
 
-void AlphaWheel::draw()
+void AlphaChooser::draw()
 {	
 	if( mWheelOverlay->getWheelScale() < 1.95f ){
 

@@ -1,5 +1,5 @@
 /*
- *  AlphaWheel.h
+ *  AlphaChooser.h
  *  Kepler
  *
  *  Created by Tom Carden on 3/14/11.
@@ -20,12 +20,12 @@
 #include "cinder/Function.h"
 #include "BloomNode.h"
 
-class AlphaWheel : public BloomNode {
+class AlphaChooser : public BloomNode {
 
 public:
     
-	AlphaWheel() {};
-	~AlphaWheel() {};
+	AlphaChooser() {};
+	~AlphaChooser() {};
 		
 	void	setup( const ci::Font &font, WheelOverlayRef wheelOverlay );    
 	void	update();

@@ -59,7 +59,7 @@ public:
     // TODO: investigate doing this automagically with &references or *pointers?
 
 	void setPlaying(bool playing) { mPlayPauseButton->setOn(playing); }
-    void setAlphaWheelVisible(bool visible) { mAlphaWheelButton->setOn(visible); };
+    void setWheelVisible(bool visible) { mWheelButton->setOn(visible); };
 
     void setHelpVisible(bool visible) {		mHelpButton->setOn(visible); };
 	void setDebugVisible(bool visible) {	mDebugButton->setOn(visible); };
@@ -156,7 +156,7 @@ private:
     Slider *mPlayheadSlider;
     TimeLabel *mRemainingTimeLabel;    
 
-    ToggleButton *mAlphaWheelButton;
+    ToggleButton *mWheelButton;
         
     // settings...
     BloomNodeRef mSettingsNodeRef;
