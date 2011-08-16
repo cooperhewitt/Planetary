@@ -570,7 +570,7 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     mWheelOverlay->addChild( BloomNodeRef(&mAlphaChooser) );
 	
     // PLAYLIST CHOOSER
-    mPlaylistChooser.setup( mFontMedium, mWheelOverlay );
+    mPlaylistChooser.setup( mFontMedium, uiLayerRef, mWheelOverlay );
     mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
     mPlaylistChooser.registerPlaylistTouched( this, &KeplerApp::onPlaylistChooserTouched );
 	mWheelOverlay->addChild( BloomNodeRef(&mPlaylistChooser) );

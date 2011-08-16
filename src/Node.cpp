@@ -288,7 +288,9 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			Vec2f offset0, offset1, offset2;
 			
 			if (mNameTex == NULL) {
-				createNameTexture();
+                if (mAge > mIndex) {
+                    createNameTexture();
+                }
 			}
             else {
                 offset0 = Vec2f( mSphereScreenRadius, mSphereScreenRadius ) * 0.75f;
