@@ -64,9 +64,11 @@ void Galaxy::drawLightMatter()
         gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -2.0f, 0.0f ) );
         glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
 		
-        gl::scale( Vec3f( 1.25, 1.15f, 1.25f ) );
-        gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -0.5f, 0.0f ) );
-        glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+		if( G_IS_IPAD2 ){
+			gl::scale( Vec3f( 1.25, 1.15f, 1.25f ) );
+			gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -0.5f, 0.0f ) );
+			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+		}
         
         glDisableClientState( GL_VERTEX_ARRAY );
         glDisableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -93,18 +95,23 @@ void Galaxy::drawSpiralPlanes()
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		
-		gl::translate( Vec3f( 0.0f, 3.5f, 0.0f ) );
-		gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -4.0f, 0.0f ) );
-        glDrawArrays( GL_TRIANGLES, 0, 6 );
-		
-		gl::translate( Vec3f( 0.0f, -7.0f, 0.0f ) );
-		gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -2.0f, 0.0f ) );
-        glDrawArrays( GL_TRIANGLES, 0, 6 );
-		
-		gl::translate( Vec3f( 0.0f, 3.5f, 0.0f ) );
-		gl::scale( Vec3f( 0.5f, 0.5f, 0.5f ) );
-		gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -15.0f, 0.0f ) );
-        glDrawArrays( GL_TRIANGLES, 0, 6 );
+		if( G_IS_IPAD2 ){
+			gl::translate( Vec3f( 0.0f, 3.5f, 0.0f ) );
+			gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -4.0f, 0.0f ) );
+			glDrawArrays( GL_TRIANGLES, 0, 6 );
+			
+			gl::translate( Vec3f( 0.0f, -7.0f, 0.0f ) );
+			gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -2.0f, 0.0f ) );
+			glDrawArrays( GL_TRIANGLES, 0, 6 );
+			
+			gl::translate( Vec3f( 0.0f, 3.5f, 0.0f ) );
+			gl::scale( Vec3f( 0.5f, 0.5f, 0.5f ) );
+			gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -15.0f, 0.0f ) );
+			glDrawArrays( GL_TRIANGLES, 0, 6 );
+		} else {
+			gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -4.0f, 0.0f ) );
+			glDrawArrays( GL_TRIANGLES, 0, 6 );
+		}
 		
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -152,9 +159,11 @@ void Galaxy::drawDarkMatter()
 		gl::scale( Vec3f( radius, radius * 0.5f, radius ) );
         glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
 		
-		gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -0.5f, 0.0f ) );
-		gl::scale( Vec3f( 1.3f, 1.3f, 1.3f ) );
-        glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+		if( G_IS_IPAD2 ){
+			gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -0.5f, 0.0f ) );
+			gl::scale( Vec3f( 1.3f, 1.3f, 1.3f ) );
+			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+		}
         
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
