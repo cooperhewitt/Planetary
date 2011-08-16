@@ -142,7 +142,7 @@ void PlaylistChooser::update()
     mInterfaceSize  = getRoot()->getInterfaceSize();
 
     // wheel is already centered, so we have to subtract half of interface height    
-    mStartY	=  = mUiLayer->getPanelYPos() - (mInterfaceSize.y / 2.0f) - 100.0f;
+    mStartY	= mUiLayer->getPanelYPos() - (mInterfaceSize.y / 2.0f) - 100.0f;
         
     float maxOffsetX = (mPlaylistSize.x * (mNumPlaylists+0.5f)) + (mSpacerWidth * (mNumPlaylists-1));
     float minOffsetX = -mPlaylistSize.x * 0.5f;
