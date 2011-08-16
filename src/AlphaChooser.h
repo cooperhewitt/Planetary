@@ -32,11 +32,9 @@ public:
 	void	draw();
     
 	bool	touchBegan( ci::app::TouchEvent::Touch touch );
-	bool	touchMoved( ci::app::TouchEvent::Touch touch );
 	bool	touchEnded( ci::app::TouchEvent::Touch touch );
     
     void    setNumberAlphaPerChar( float *numAlphaPerChar );
-	void	setTimePinchEnded( float timePinchEnded );
         	
     void	setAlphaChar( char c ){ mAlphaChar = c; }
 	char	getAlphaChar(){ return mAlphaChar; }
@@ -49,21 +47,14 @@ public:
 private:
     
 	void	setRects();    
-	void	initAlphaTextures( const ci::Font &font );
     
-	bool	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
-    
-    uint32_t        mActiveTouchId;
-	ci::Vec2f		mLastTouchPos;
-
     WheelOverlayRef mWheelOverlay;
 	
-	float			mTimePinchEnded;
     float           *mNumberAlphaPerChar;
 
 	std::string		mAlphaString;
 	int				mAlphaIndex;
-	char			mAlphaChar, mPrevAlphaChar;
+	char			mAlphaChar;
 	
     ci::Vec2f       mInterfaceSize;
     

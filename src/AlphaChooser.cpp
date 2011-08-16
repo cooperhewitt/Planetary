@@ -29,15 +29,9 @@ void AlphaChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
 	mAlphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
 	mAlphaIndex		= 0;
 	mAlphaChar		= 'A';
-	mPrevAlphaChar	= 'A';
 
 	mWheelOverlay = wheelOverlay;
 	
-	initAlphaTextures( font );
-}
-
-void AlphaChooser::initAlphaTextures( const Font &font )
-{
 	for( int i=0; i<mAlphaString.length(); i++ ){
 		TextLayout layout;	
 		layout.setFont( font );
@@ -50,15 +44,16 @@ void AlphaChooser::initAlphaTextures( const Font &font )
 void AlphaChooser::setRects()
 {
 	mAlphaRects.clear();
+    float totalWidth = 0.0f;
 	for( int i=0; i<mAlphaString.length(); i++ ){
-		const float per = (float)i/27.0f;
-		const float angle = per * TWO_PI - M_PI_2;
-		const float w = mAlphaTextures[i].getWidth()/2.0f;
-		const float h = mAlphaTextures[i].getHeight()/2.0f;
-        const float scale = ( mWheelOverlay->getRadius() - 10.0f );
-		Vec2f pos( cos( angle ) * scale, sin( angle ) * scale );
-		Rectf r = Rectf( pos.x - w, pos.y - h, pos.x + w, pos.y + h );
-		mAlphaRects.push_back( r );
+        totalWidth += mAlphaTextures[i].getWidth();
+    }    
+    float x = -totalWidth / 2.0f;
+	for( int i=0; i<mAlphaString.length(); i++ ){
+		const float w = mAlphaTextures[i].getWidth();
+		const float h = mAlphaTextures[i].getHeight();
+		mAlphaRects.push_back( Rectf( x, 0.0f, x + w,  h ) );
+        x += w;
 	}
 }
 
@@ -66,18 +61,9 @@ bool AlphaChooser::touchBegan( TouchEvent::Touch touch )
 {
     if (!mWheelOverlay->getShowWheel()) return false;
     
-    if (selectWheelItem( touch.getPos(), false )) {
-        // this means we'll follow the last touch that starts on a wheel item
-        mLastTouchPos = touch.getPos();
-        mActiveTouchId = touch.getId();
-        return true;
-    }
-    else {
-        // capture all touches inside wheel so we can dismiss a tap inside the world
-        Vec2f dir = globalToLocal( touch.getPos() );
-		float distToCenter = dir.length();
-        float maxDiam = mWheelOverlay->getRadius() + 25.0f;        
-		if( distToCenter < maxDiam ){
+    Vec2f pos = globalToLocal( touch.getPos() );
+    for (int i = 0; i < mAlphaRects.size(); i++) {
+        if ( mAlphaRects[i].contains( pos ) ) {
             return true;
         }
     }
@@ -85,63 +71,24 @@ bool AlphaChooser::touchBegan( TouchEvent::Touch touch )
 	return false;
 }
 
-bool AlphaChooser::touchMoved( TouchEvent::Touch touch )
-{
-    if (mWheelOverlay->getShowWheel()) {
-        // only follow the last valid touch we received
-        if (touch.getId() == mActiveTouchId) {
-            mLastTouchPos = touch.getPos();
-            return selectWheelItem( mLastTouchPos, false );
-        }
-    }
-	return false;
-}
-
 bool AlphaChooser::touchEnded( TouchEvent::Touch touch )
 {	
-	std::cout << "AlphaChooser touchEnded" << std::endl;
-	
-    if (!mWheelOverlay->getShowWheel()) return false;
-    
-    mLastTouchPos = touch.getPos();
-    return selectWheelItem( mLastTouchPos, true );
-}
-
-
-bool AlphaChooser::selectWheelItem( const Vec2f &pos, bool closeWheel )
-{
     if (!mWheelOverlay->getShowWheel()) return false;
 
-	float minDiam = mWheelOverlay->getRadius() - 25.0f;
-	float maxDiam = minDiam + 50.0f;
-	
-	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
-	if( timeSincePinchEnded > 0.5f ){ 
-        Vec2f dir = globalToLocal(pos);
-		float distToCenter = dir.length();
-		if( distToCenter > minDiam && distToCenter < maxDiam ){
-			float touchAngle	= atan2( dir.y, dir.x ) + M_PI;				// RANGE 0 -> TWO_PI
-			float anglePer		= ( touchAngle + 0.11365f + M_PI*1.5f )/TWO_PI;
-			mAlphaIndex			= (int)( anglePer * 27 )%27;
-			mPrevAlphaChar		= mAlphaChar;
-			mAlphaChar			= mAlphaString.at( mAlphaIndex % mAlphaString.size() );
-			if( mPrevAlphaChar != mAlphaChar || closeWheel ){
-				mCallbacksAlphaCharSelected.call( mAlphaChar );
-			}
-		}
-		
-		if( closeWheel ){ // && distToCenter < maxDiam ){
-            mWheelOverlay->setShowWheel(false);
-		}
+    Vec2f pos = globalToLocal( touch.getPos() );
+    for (int i = 0; i < mAlphaRects.size(); i++) {
+        if ( mAlphaRects[i].contains( pos ) ) {
+            mAlphaIndex = i;
+			if( mAlphaChar != mAlphaString[i] ){            
+                mAlphaChar = mAlphaString[i];
+                mCallbacksAlphaCharSelected.call( mAlphaChar );
+                mWheelOverlay->setShowWheel(false);
+            }
+            return true;
+        }
+    }
 
-        return distToCenter > minDiam && distToCenter < maxDiam;
-	}
     return false;
-}
-
-void AlphaChooser::setTimePinchEnded( float timePinchEnded )
-{
-	mTimePinchEnded = timePinchEnded;	
 }
 
 void AlphaChooser::setNumberAlphaPerChar( float *numberAlphaPerChar )
@@ -155,6 +102,11 @@ void AlphaChooser::update( )
     if (mInterfaceSize != interfaceSize) {
         mInterfaceSize = interfaceSize;
         setRects();
+        
+        // wheel is already centered, so we'll just move down half the window height
+        Matrix44f mat;
+        mat.translate( Vec3f( 0, -200.0f + mInterfaceSize.y/2.0f, 0) );
+        setTransform( mat );
     }
 }
 

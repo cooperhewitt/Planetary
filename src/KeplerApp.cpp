@@ -796,7 +796,6 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	mPinchRotation	+= event.getRotationDelta();
 
 	mTimePinchEnded = getElapsedSeconds();
-	mAlphaChooser.setTimePinchEnded( mTimePinchEnded );
 	
     return false;
 }
@@ -814,7 +813,6 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 	}
 	
 	mTimePinchEnded = getElapsedSeconds();
-	mAlphaChooser.setTimePinchEnded( mTimePinchEnded );
 	
     mPinchRays.clear();
 	mIsPinching = false;
