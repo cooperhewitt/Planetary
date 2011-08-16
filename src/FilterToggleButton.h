@@ -13,7 +13,8 @@
 #include "State.h" // for FilterMode
 #include "cinder/app/AppCocoaTouch.h"
 #include "BloomNode.h"
-
+#include "UiLayer.h"
+#include "WheelOverlay.h"
 
 class FilterToggleButton : public BloomNode {
 
@@ -21,7 +22,7 @@ public:
     
     FilterToggleButton() { setVisible(false); }
     
-    void setup( const State::FilterMode &filterMode, const ci::Font &font, const gl::Texture &tex );
+    void setup( const State::FilterMode &filterMode, const ci::Font &font, const gl::Texture &tex, UiLayerRef uiLayer, WheelOverlayRef wheelOverlay );
 	void update();
     void setFilterMode(const State::FilterMode &filterMode);
 
@@ -43,6 +44,9 @@ private:
     Rectf mAlphaRect;
     Rectf mPlaylistRect;
 	Rectf mRect;
+    
+    UiLayerRef mUiLayer;
+    WheelOverlayRef mWheelOverlay;
     
     State::FilterMode mFilterMode;
     ci::gl::Texture mTex;

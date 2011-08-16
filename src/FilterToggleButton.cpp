@@ -17,9 +17,11 @@
 using namespace ci;
 using namespace ci::app;
 
-void FilterToggleButton::setup( const State::FilterMode &filterMode, const Font &font, const gl::Texture &tex )
+void FilterToggleButton::setup( const State::FilterMode &filterMode, const Font &font, const gl::Texture &tex, UiLayerRef uiLayer, WheelOverlayRef wheelOverlay )
 {    
     mTex = tex;
+    mUiLayer = uiLayer;
+    mWheelOverlay = wheelOverlay;
 
 	mRect	= Rectf( 0.0f, 0.0f, mTex.getWidth(), mTex.getHeight()/2 );    
 	mAlphaRect		= Rectf( 0.0f, 0.0f, 127.0f, mRect.getHeight() ); 
@@ -57,31 +59,31 @@ void FilterToggleButton::setFilterMode(const State::FilterMode &filterMode)
 
 void FilterToggleButton::update()
 {
-	Vec2f interfaceSize = getRoot()->getInterfaceSize();
-	if( mInterfaceSize != interfaceSize ){
-		mInterfaceSize = interfaceSize;
-		
-		float y = 30.0f;
-		if( mInterfaceSize.x < mInterfaceSize.y ) {
-            // portrait mode
-            float amount = (mInterfaceSize.y-mInterfaceSize.x) / (1024-768);
-			y += 90.0f * amount;
-        }
-		
-		Matrix44f mat;
-		mat.translate( Vec3f( mInterfaceSize.x/2.0f - mAlphaRect.getWidth(), y, 0.0f ) );
-		setTransform( mat );
-	}
+	mInterfaceSize = getRoot()->getInterfaceSize();
+    
+    // we're a child of WheelOverlay, which is centered already...
+    float hPadding = 0.0f;
+    float x = hPadding - (mInterfaceSize.x / 2.0f);
+    float y = mUiLayer->getPanelYPos() - (mInterfaceSize.y / 2.0f) - 50.0f;
+    
+    Matrix44f mat;
+    mat.translate( Vec3f( x, y, 0.0f ) );
+    setTransform( mat );    
 }
 
 void FilterToggleButton::draw()
 {   
-	bloom::gl::beginBatch();
-	if( mFilterMode == State::FilterModeAlphaChar ){
-		bloom::gl::batchRect( mTex, Rectf(0.0f, 0.0f, 1.0f, 0.5f), mRect );
-	} else {
-		bloom::gl::batchRect( mTex, Rectf(0.0f, 0.5f, 1.0f, 1.0f), mRect );
-	}
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );    
-    bloom::gl::endBatch();   
+	if( mWheelOverlay->getWheelScale() < 1.95f ){
+        
+        float alpha = constrain(2.0f - mWheelOverlay->getWheelScale(), 0.0f, 1.0f);
+    
+        bloom::gl::beginBatch();
+        if( mFilterMode == State::FilterModeAlphaChar ){
+            bloom::gl::batchRect( mTex, Rectf(0.0f, 0.0f, 1.0f, 0.5f), mRect );
+        } else {
+            bloom::gl::batchRect( mTex, Rectf(0.0f, 0.5f, 1.0f, 1.0f), mRect );
+        }
+        gl::color( ColorA( alpha, alpha, alpha, alpha ) );    
+        bloom::gl::endBatch();   
+    }
 }

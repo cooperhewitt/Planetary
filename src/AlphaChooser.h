@@ -17,6 +17,7 @@
 #include "Orientation.h"
 #include "OrientationEvent.h"
 #include "WheelOverlay.h"
+#include "UiLayer.h"
 #include "cinder/Function.h"
 #include "BloomNode.h"
 
@@ -27,11 +28,12 @@ public:
 	AlphaChooser() {};
 	~AlphaChooser() {};
 		
-	void	setup( const ci::Font &font, WheelOverlayRef wheelOverlay );    
+	void	setup( const ci::Font &font, UiLayerRef uiLayer, WheelOverlayRef wheelOverlay );    
 	void	update();
 	void	draw();
     
 	bool	touchBegan( ci::app::TouchEvent::Touch touch );
+	bool	touchMoved( ci::app::TouchEvent::Touch touch );
 	bool	touchEnded( ci::app::TouchEvent::Touch touch );
     
     void    setNumberAlphaPerChar( float *numAlphaPerChar );
@@ -49,7 +51,8 @@ private:
 	void	setRects();    
     
     WheelOverlayRef mWheelOverlay;
-	
+	UiLayerRef mUiLayer;
+    
     float           *mNumberAlphaPerChar;
 
 	std::string		mAlphaString;
@@ -60,7 +63,8 @@ private:
     
 	std::vector<ci::gl::Texture> mAlphaTextures;
 	std::vector<ci::Rectf>       mAlphaRects;
-	
+    ci::Rectf mFullRect;
+    
 	ci::CallbackMgr<bool(char)> mCallbacksAlphaCharSelected;    
 };
 

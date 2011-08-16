@@ -557,8 +557,15 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	mWheelOverlay->registerWheelToggled( this, &KeplerApp::onWheelToggled );    
     mMainBloomNodeRef->addChild( mWheelOverlay );
     
+    // UI LAYER
+	mUiLayer.setup( mTextures[UI_SMALL_BUTTONS_TEX], 
+                   mTextures[SETTINGS_BG_TEX], 
+                   G_SHOW_SETTINGS, 
+                   mBloomSceneRef->getInterfaceSize() );
+    UiLayerRef uiLayerRef = UiLayerRef(&mUiLayer);
+    
 	// ALPHA CHOOSER
-	mAlphaChooser.setup( mFontBig, mWheelOverlay );
+	mAlphaChooser.setup( mFontBig, uiLayerRef, mWheelOverlay );
 	mAlphaChooser.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
     mWheelOverlay->addChild( BloomNodeRef(&mAlphaChooser) );
 	
@@ -568,12 +575,8 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     mPlaylistChooser.registerPlaylistTouched( this, &KeplerApp::onPlaylistChooserTouched );
 	mWheelOverlay->addChild( BloomNodeRef(&mPlaylistChooser) );
 	
-	// UILAYER
-	mUiLayer.setup( mTextures[UI_SMALL_BUTTONS_TEX], 
-                    mTextures[SETTINGS_BG_TEX], 
-                    G_SHOW_SETTINGS, 
-                    mBloomSceneRef->getInterfaceSize() );
-    mMainBloomNodeRef->addChild( BloomNodeRef(&mUiLayer) );
+	// UILAYER ADD
+    mMainBloomNodeRef->addChild( uiLayerRef );
     
 	// PLAY CONTROLS
 	mPlayControls.setup( mBloomSceneRef->getInterfaceSize(), 
@@ -594,9 +597,11 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     // FILTER TOGGLE
     mFilterToggleButton.setup( mState.getFilterMode(), 
                                mFontMedium, 
-                               mTextures[FILTER_TOGGLE_BUTTON_TEX] );
+                               mTextures[FILTER_TOGGLE_BUTTON_TEX],
+                               uiLayerRef,      // FIXME: probably should be a weak ref
+                               mWheelOverlay ); // FIXME: probably should be a weak ref
     mFilterToggleButton.registerFilterModeSelected( this, &KeplerApp::onFilterModeToggled );
-    mMainBloomNodeRef->addChild( BloomNodeRef(&mFilterToggleButton) );
+    mWheelOverlay->addChild( BloomNodeRef(&mFilterToggleButton) );
 	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
