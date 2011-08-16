@@ -14,23 +14,26 @@
 #include "cinder/Area.h"
 #include "BloomNode.h"
 
-using namespace std;
-using namespace ci;
-using namespace ci::app;
-
 class NotificationOverlay : public BloomNode {
   
 public:
     
+    struct Notification {
+        ci::gl::Texture texture; 
+        ci::Area srcRect;
+        std::string message;
+    };
+    
     NotificationOverlay();    
     ~NotificationOverlay();
     
-    void setup( const Font &font );
+    void setup( const ci::Font &font );
     void update();
     void draw();
     
-    void show(const gl::Texture &texture, const Area &srcRect, const string &message);
-	void showLetter( const char c, const string &message, const Font &hugeFont );
+    void show( const ci::gl::Texture &texture, const ci::Area &srcRect, const std::string &message );
+    void show( const Notification &notification ) { show( notification.texture, notification.srcRect, notification.message ); }
+	void showLetter( const char &c, const std::string &message, const ci::Font &hugeFont );
     void hide();
     
 private:
@@ -38,12 +41,12 @@ private:
     bool mSetup;
     bool mActive;
     float mFadeDelay, mFadeDuration, mLastShowTime;
-    gl::Texture mCurrentTexture;
-    Area mCurrentSrcArea;
-    string mCurrentMessage;
-	Rectf mMessageRect, mIconRect;
+    ci::gl::Texture mCurrentTexture;
+    ci::Area mCurrentSrcArea;
+    std::string mCurrentMessage;
+    ci::Rectf mMessageRect, mIconRect;
     float mAlpha;
-	Font mFont;
-	gl::Texture mMessageTexture;
+    ci::Font mFont;
+    ci::gl::Texture mMessageTexture;
     
 };

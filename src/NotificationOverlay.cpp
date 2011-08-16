@@ -16,7 +16,7 @@
 #include "BloomScene.h"
 #include "cinder/app/AppCocoaTouch.h" // FIXME: just for time
 
-using std::stringstream;
+using namespace std;
 using namespace ci;
 using namespace ci::app;
 
@@ -101,7 +101,7 @@ void NotificationOverlay::show(const gl::Texture &texture, const Area &srcArea, 
     mLastShowTime = app::getElapsedSeconds();
 }
 
-void NotificationOverlay::showLetter( const char c, const string &message, const Font &hugeFont )
+void NotificationOverlay::showLetter( const char &c, const string &message, const Font &hugeFont )
 {
     if (!mSetup) return;
 
