@@ -1584,13 +1584,11 @@ void KeplerApp::update()
 		}
 		        
         if (mState.getFilterMode() == State::FilterModeAlphaChar) {
-            // FIXME: set visibility based on wheel radius
-            mAlphaChooser.setVisible( mWheelOverlay->getShowWheel() );
+            mAlphaChooser.setVisible( mWheelOverlay->getWheelScale() < 1.95f );
             mPlaylistChooser.setVisible( false );
         }
         else if (mState.getFilterMode() == State::FilterModePlaylist) {
-            // FIXME: set visibility based on wheel radius            
-            mPlaylistChooser.setVisible( mWheelOverlay->getShowWheel() );
+            mPlaylistChooser.setVisible( mWheelOverlay->getWheelScale() < 1.95f );
             mAlphaChooser.setVisible( false );
         }	        
         
@@ -1892,7 +1890,7 @@ void KeplerApp::drawScene()
 // GALAXY
     mGalaxy.drawLightMatter();	
     mGalaxy.drawSpiralPlanes();    
-	mGalaxy.drawCenter();	
+    mGalaxy.drawCenter();
 	
 // STARS
 	gl::enableAdditiveBlending();

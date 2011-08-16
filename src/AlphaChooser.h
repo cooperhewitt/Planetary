@@ -63,6 +63,7 @@ private:
     
 	std::vector<ci::gl::Texture> mAlphaTextures;
 	std::vector<ci::Rectf>       mAlphaRects;
+	std::vector<ci::Rectf>       mAlphaHitRects;
     ci::Rectf mFullRect;
     
 	ci::CallbackMgr<bool(char)> mCallbacksAlphaCharSelected;    

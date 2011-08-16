@@ -21,7 +21,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void PlaylistChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
+void PlaylistChooser::setup( const Font &font, UiLayerRef uiLayer, WheelOverlayRef wheelOverlay )
 {
     mFont					= font;
 
@@ -47,6 +47,7 @@ void PlaylistChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
 	mCurrentIndex			= 0;
 	
 	mWheelOverlay = wheelOverlay;
+    mUiLayer = uiLayer;
 }
 
 bool PlaylistChooser::touchBegan( ci::app::TouchEvent::Touch touch )
@@ -140,7 +141,8 @@ void PlaylistChooser::update()
     
     mInterfaceSize  = getRoot()->getInterfaceSize();
 
-    mStartY			= mWheelOverlay->getRadius() - 10.0f;
+    // wheel is already centered, so we have to subtract half of interface height    
+    mStartY	=  = mUiLayer->getPanelYPos() - (mInterfaceSize.y / 2.0f) - 100.0f;
         
     float maxOffsetX = (mPlaylistSize.x * (mNumPlaylists+0.5f)) + (mSpacerWidth * (mNumPlaylists-1));
     float minOffsetX = -mPlaylistSize.x * 0.5f;

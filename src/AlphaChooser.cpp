@@ -45,6 +45,7 @@ void AlphaChooser::setup( const Font &font, UiLayerRef uiLayer, WheelOverlayRef 
 void AlphaChooser::setRects()
 {
 	mAlphaRects.clear();
+    mAlphaHitRects.clear();
     float totalWidth = 0.0f;
     float totalHeight = 0.0f;
 	for( int i=0; i<mAlphaString.length(); i++ ){
@@ -52,22 +53,24 @@ void AlphaChooser::setRects()
         totalHeight = max( totalHeight, (float)mAlphaTextures[i].getHeight() );
     }    
     const float hPadding = 20.0f;
-    const float spacing = (mInterfaceSize.x - totalWidth - hPadding*2.0f) / 26.0f;
+    const float vHitPadding = 10.0f;
+    const float spacing = (mInterfaceSize.x - totalWidth - (hPadding * 2.0f)) / 26.0f;
     float x = hPadding - (mInterfaceSize.x / 2.0f);
-	for( int i=0; i<mAlphaString.length(); i++ ){
+	for( int i = 0; i < mAlphaString.length(); i++ ){
 		const float w = mAlphaTextures[i].getWidth();
 		const float h = mAlphaTextures[i].getHeight();
 		mAlphaRects.push_back( Rectf( x, 0.0f, x + w,  h ) );
+		mAlphaHitRects.push_back( Rectf( x - spacing/2.0f, -vHitPadding, x + w + spacing/2.0f, h + vHitPadding ) );
         x += w + spacing;
 	}
-    mFullRect.set( hPadding - mInterfaceSize.x / 2.0f, 0.0f, (mInterfaceSize.x / 2.0f) - hPadding, totalHeight );
+    mFullRect.set( -mInterfaceSize.x / 2.0f, -vHitPadding, (mInterfaceSize.x / 2.0f), totalHeight + vHitPadding );
 }
 
 bool AlphaChooser::touchBegan( TouchEvent::Touch touch )
 {
     if (!mWheelOverlay->getShowWheel()) return false;    
     Vec2f pos = globalToLocal( touch.getPos() );
-    // TODO: make a vertical padded hitrect
+    // TODO: make a padded hitrect
     return mFullRect.contains( pos );
 }
 
@@ -77,8 +80,7 @@ bool AlphaChooser::touchMoved( TouchEvent::Touch touch )
     
     Vec2f pos = globalToLocal( touch.getPos() );
     for (int i = 0; i < mAlphaRects.size(); i++) {
-        // TODO: make a vertical padded hitrect
-        if ( mAlphaRects[i].contains( pos ) ) {
+        if ( mAlphaHitRects[i].contains( pos ) ) {
             mAlphaIndex = i;
 			if( mAlphaChar != mAlphaString[i] ){            
                 mAlphaChar = mAlphaString[i];
@@ -97,8 +99,7 @@ bool AlphaChooser::touchEnded( TouchEvent::Touch touch )
 
     Vec2f pos = globalToLocal( touch.getPos() );
     for (int i = 0; i < mAlphaRects.size(); i++) {
-        // TODO: make a vertical padded hitrect
-        if ( mAlphaRects[i].contains( pos ) ) {
+        if ( mAlphaHitRects[i].contains( pos ) ) {
             mAlphaIndex = i;
 			if( mAlphaChar != mAlphaString[i] ){            
                 mAlphaChar = mAlphaString[i];
@@ -142,20 +143,12 @@ void AlphaChooser::draw()
         float b = BRIGHT_BLUE.b;
         float alpha = constrain(2.0f - mWheelOverlay->getWheelScale(), 0.0f, 1.0f);
 
-        // make a rect without hPadding (see setRects) and a bit more vPadding:
-        float vPadding = 10.0f;
-        Rectf bgRect = mFullRect;
-        bgRect.x1 = -mInterfaceSize.x / 2.0f;
-        bgRect.x2 = mInterfaceSize.x / 2.0f;
-        bgRect.y1 -= vPadding;
-        bgRect.y2 += vPadding;
-        
         // draw background:
         gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
-        gl::drawSolidRect( bgRect ); // TODO: slight transparency?
+        gl::drawSolidRect( mFullRect ); // TODO: slight transparency?
         gl::color( ColorA( r, g, b, alpha * 0.25f ) );
-        gl::drawLine( bgRect.getUpperLeft(), bgRect.getUpperRight() );
-        gl::drawLine( bgRect.getLowerLeft(), bgRect.getLowerRight() );
+        gl::drawLine( mFullRect.getUpperLeft(), mFullRect.getUpperRight() );
+        gl::drawLine( mFullRect.getLowerLeft(), mFullRect.getLowerRight() );
                 
 		for( int i=0; i<27; i++ ){
 			float c = mNumberAlphaPerChar[i];
@@ -170,6 +163,7 @@ void AlphaChooser::draw()
 			mAlphaTextures[i].enableAndBind();
 			gl::drawSolidRect( mAlphaRects[i] );
 			mAlphaTextures[i].disable();            
+//			gl::drawStrokedRect( mAlphaHitRects[i] );
 		}
 		
 	}
