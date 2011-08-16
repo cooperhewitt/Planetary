@@ -267,7 +267,7 @@ class KeplerApp : public AppCocoaTouch {
         TRACK_ORIGIN_TEX,
         SETTINGS_BG_TEX,
         FILTER_TOGGLE_BUTTON_TEX,
-        WHEEL_OVERLAY_TEX,
+		GRADIENT_OVERLAY_TEX,
         TOTAL_TEXTURE_COUNT
     };
     
@@ -467,7 +467,7 @@ void KeplerApp::initTextures()
     mTextures.addRequest( TRACK_ORIGIN_TEX,         "origin.png",            mipFmt );
     mTextures.addRequest( SETTINGS_BG_TEX,          "settingsBg.png" );
     mTextures.addRequest( FILTER_TOGGLE_BUTTON_TEX, "filterToggleButton.png" );
-    mTextures.addRequest( WHEEL_OVERLAY_TEX,        "alphaWheelMask.png" );
+	mTextures.addRequest( GRADIENT_OVERLAY_TEX,		"gradientLarge.png" );
     
     mTextures.registerComplete( this, &KeplerApp::onTextureLoaderComplete );
     mTextures.start();    
@@ -553,7 +553,7 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 
     // WHEEL OVERLAY
     mWheelOverlay = WheelOverlayRef( new WheelOverlay() );
-    mWheelOverlay->setup( mTextures[WHEEL_OVERLAY_TEX] );    
+    mWheelOverlay->setup( mTextures[GRADIENT_OVERLAY_TEX] ); 
 	mWheelOverlay->registerWheelToggled( this, &KeplerApp::onWheelToggled );    
     mMainBloomNodeRef->addChild( mWheelOverlay );
     
