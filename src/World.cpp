@@ -83,18 +83,15 @@ void World::setFilter(FilterRef filterRef)
 {
     mFilterRef = filterRef;
     
-    // deselect all nodes first
-	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->mIsHighlighted = false;
-		(*it)->mIsSelected = false; // FIXME: should really be deselect, but how to guarantee useful nodes aren't deleted?
-	}
-	
     mFilteredNodes.clear();
     
 	for(vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it){
         if ( mFilterRef->testArtist( (*it)->getPlaylist() ) ) {
             (*it)->mIsHighlighted = true;
             mFilteredNodes.push_back(*it);
+        }
+        else {
+            (*it)->mIsHighlighted = false;
         }
 	}
 	
