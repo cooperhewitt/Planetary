@@ -879,9 +879,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1D6058900D05DD3D006BFB54 /* Kepler */ = {
+		1D6058900D05DD3D006BFB54 /* PlanetaryDev */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Kepler" */;
+			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "PlanetaryDev" */;
 			buildPhases = (
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
@@ -891,7 +891,7 @@
 			);
 			dependencies = (
 			);
-			name = Kepler;
+			name = PlanetaryDev;
 			productName = Kepler;
 			productReference = 1D6058910D05DD3D006BFB54 /* PlanetaryDev.app */;
 			productType = "com.apple.product-type.application";
@@ -902,7 +902,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0410;
+				LastUpgradeCheck = 0420;
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Kepler" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -918,7 +918,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1D6058900D05DD3D006BFB54 /* Kepler */,
+				1D6058900D05DD3D006BFB54 /* PlanetaryDev */,
 			);
 		};
 /* End PBXProject section */
@@ -1067,8 +1067,9 @@
 				GCC_THUMB_SUPPORT = NO;
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GENERATE_PROFILING_CODE = YES;
 				INFOPLIST_FILE = "Kepler-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../blocks/CinderFlurry/lib/FlurryLib\"",
@@ -1107,8 +1108,9 @@
 				GCC_THUMB_SUPPORT = NO;
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GENERATE_PROFILING_CODE = YES;
 				INFOPLIST_FILE = "Kepler-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../blocks/CinderFlurry/lib/FlurryLib\"",
@@ -1233,8 +1235,9 @@
 				GCC_THUMB_SUPPORT = NO;
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GENERATE_PROFILING_CODE = NO;
 				INFOPLIST_FILE = "Kepler-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../blocks/CinderFlurry/lib/FlurryLib\"",
@@ -1260,7 +1263,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Kepler" */ = {
+		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "PlanetaryDev" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
