@@ -37,7 +37,6 @@ private:
         // NSAutoreleasePool *autoreleasepool = [[NSAutoreleasePool alloc] init];
         
         // do the work:
-        std::cout << "calling queued background task..." << std::endl;        
         f();
         
         // cleanup (now handled by ThreadSetup):
@@ -67,7 +66,6 @@ public:
                 std::function<void(void)> f = mFunctions[0];
                 mFunctions.erase( mFunctions.begin() );
                 mFunctionsMutex.unlock(); // unlock first so that tasks can queue other tasks
-                std::cout << "calling queued UI task..." << std::endl;
                 f();
             }
             else {
