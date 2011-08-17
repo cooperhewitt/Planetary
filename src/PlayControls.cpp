@@ -425,7 +425,7 @@ void PlayControls::enablePlayerControls( bool enable )
     mNextTrackButton->setVisible(enable);    
 }
 
-void PlayControls::privateDraw()
+void PlayControls::deepDraw()
 {
     if (mVisible) {
         glPushMatrix();
@@ -433,7 +433,7 @@ void PlayControls::privateDraw()
         bloom::gl::beginBatch();
         // draw children
         BOOST_FOREACH(BloomNodeRef child, mChildren) {        
-            child->draw();
+            child->deepDraw();
         }
         bloom::gl::endBatch();
         glPopMatrix();

@@ -105,10 +105,8 @@ public:
     bool addedToScene(); // from BloomNode
     bool removedFromScene(); // from BloomNode
     
-protected:
-    
     // override so we can batch geometry
-    virtual void privateDraw();
+    virtual void deepDraw();
     
 private:
 					  
