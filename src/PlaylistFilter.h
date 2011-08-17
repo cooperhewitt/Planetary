@@ -3,7 +3,7 @@
 //  Kepler
 //
 //  Created by Tom Carden on 6/4/11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Bloom Studio, Inc.. All rights reserved.
 //
 
 #pragma once

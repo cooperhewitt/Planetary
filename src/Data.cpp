@@ -3,7 +3,7 @@
  *  Kepler
  *
  *  Created by Robert Hodgin on 2/25/11.
- *  Copyright 2011 __MyCompanyName__. All rights reserved.
+ *  Copyright 2011 Bloom Studio, Inc.. All rights reserved.
  *
  */
 
@@ -37,7 +37,11 @@ void Data::setup()
 
 void Data::backgroundInit()
 {
-	NSAutoreleasePool *autoreleasepool = [[NSAutoreleasePool alloc] init];
+    // Cinder's ThreadSetup class ensures that the OS know's what's up
+    // (creates and drains an autorelease pool, etc)
+    ThreadSetup threadSetup;
+    
+//	NSAutoreleasePool *autoreleasepool = [[NSAutoreleasePool alloc] init];
 	
 	Flurry::getInstrumentation()->startTimeEvent("Music Loading");
 
@@ -91,7 +95,8 @@ void Data::backgroundInit()
 
 // END ALPHAWHEEL QUICK FIX
 	
-    [autoreleasepool release];	
+// http://stackoverflow.com/questions/797419/whats-the-difference-between-sending-release-or-drain-to-an-autorelease-pool
+//    [autoreleasepool release];	
     
     mState = LoadStatePending;
 }
