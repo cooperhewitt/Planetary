@@ -21,7 +21,7 @@ void ScrollingLabel::setText(string text)
 		mIsScrolling = false;
         mText = text; 
         updateTexture(); 
-        mLastTrackChangeTime = app::getElapsedSeconds();
+        mLastChangeTime = app::getElapsedSeconds();
     }
 }
 
@@ -52,10 +52,10 @@ void ScrollingLabel::update()
         // if the texture is too wide, animate the u coords...        
         float elapsedSeconds = ci::app::getElapsedSeconds();
         float x1;
-        if( elapsedSeconds - mLastTrackChangeTime > 5.0f ) { 
+        if( elapsedSeconds - mLastChangeTime > 5.0f ) { 
             // but wait 5 seconds first
             mIsScrolling = true;
-            x1 = fmodf( ( elapsedSeconds - ( mLastTrackChangeTime + 5.0f ) ) * 20.0f, ctTexWidth + 10.0f ) - ctTexWidth-10.0f;
+            x1 = fmodf( ( elapsedSeconds - ( mLastChangeTime + 5.0f ) ) * 20.0f, ctTexWidth + 10.0f ) - ctTexWidth-10.0f;
         } else {
             x1 = -ctTexWidth-10.0f;
         }
