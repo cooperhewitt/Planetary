@@ -41,7 +41,6 @@ class Node {
 	
 	// METHODS
 	void			setSphereData( BloomSphere *hiSphere, BloomSphere *mdSphere, BloomSphere *loSphere, BloomSphere *tySphere );
-	void			createNameTexture();
 	virtual void	update( float param1, float param2 );
 	virtual void	updateGraphics( const ci::CameraPersp &cam, const ci::Vec2f &center, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp, const float &w, const float &h );
 	virtual void	drawEclipseGlow();
@@ -173,6 +172,11 @@ protected:
 	bool				mIsDying;
 	bool				mIsDead;
 	
+    bool                mNameTextureRequested;
+	void                createNameSurface();
+	void                createNameTexture( ci::Surface8u nameSurface );
+    
+    
 // SPHERE DATA (owned by World)
     BloomSphere *mHiSphere;
     BloomSphere *mMdSphere;

@@ -7,7 +7,7 @@
 //
 
 #pragma once
-#include <set>
+#include <boost/unordered_set.hpp>
 #include "Filter.h"
 #include "CinderIPod.h"
 
@@ -19,7 +19,7 @@ class PlaylistFilter : public Filter {
     bool testTrack( ci::ipod::TrackRef track ) const;
   private:
     PlaylistFilter(ci::ipod::PlaylistRef playlist);
-    std::set<uint64_t> mArtistSet;    
-    std::set<uint64_t> mAlbumSet;    
-    std::set<uint64_t> mTrackSet;    
+    boost::unordered_set<uint64_t> mArtistSet;    
+    boost::unordered_set<uint64_t> mAlbumSet;    
+    boost::unordered_set<uint64_t> mTrackSet;    
 };

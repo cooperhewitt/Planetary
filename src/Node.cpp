@@ -14,6 +14,7 @@
 #include "cinder/Utilities.h"
 #include "Globals.h"
 #include "Node.h"
+#include "TaskQueue.h"
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
 
@@ -91,7 +92,8 @@ void Node::setSphereData( BloomSphere *hiSphere, BloomSphere *mdSphere, BloomSph
     mTySphere = tySphere;
 }
 
-void Node::createNameTexture()
+// should be called in the background (or once per frame)
+void Node::createNameSurface()
 {
 	TextLayout layout;
 	
@@ -160,8 +162,14 @@ void Node::createNameTexture()
 		}
 		layout.addLine( yearStr );
 	}
-	Surface8u nameSurface	= Surface8u( layout.render( true, false ) );
-	mNameTex				= gl::Texture( nameSurface );
+	Surface8u nameSurface = Surface8u( layout.render( true, false ) );
+    UiTaskQueue::pushTask( std::bind( std::mem_fun( &Node::createNameTexture ), this, nameSurface ) );
+}
+
+// must be on UI thread
+void Node::createNameTexture( Surface8u nameSurface )
+{
+	mNameTex = gl::Texture( nameSurface );
 }
 
 void Node::update( float param1, float param2 )
@@ -288,61 +296,68 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			Vec2f offset0, offset1, offset2;
 			
 			if (mNameTex == NULL) {
-                createNameTexture();
+                if (!mNameTextureRequested) {
+                    mNameTextureRequested = true;
+                    // do the TextLayout and surface bit one per frame
+                    UiTaskQueue::pushTask( std::bind( std::mem_fun( &Node::createNameSurface ), this ) );
+                }
 			}
+            else {
 
-            offset0 = Vec2f( mSphereScreenRadius, mSphereScreenRadius ) * 0.75f;
-            offset0.rotate( angle );
-            pos1 = mScreenPos + offset0;
-            
-            offset1 = Vec2f( 5.0f, 5.0f ) * ( ( G_TRACK_LEVEL + 1.0f ) - mGen );
-            offset1.rotate( angle );
-            pos2 = pos1 + offset1;
-            offset2 = Vec2f( 2.0f, -8.0f );
-            offset2.rotate( angle );
+                offset0 = Vec2f( mSphereScreenRadius, mSphereScreenRadius ) * 0.75f;
+                offset0.rotate( angle );
+                pos1 = mScreenPos + offset0;
+                
+                offset1 = Vec2f( 5.0f, 5.0f ) * ( ( G_TRACK_LEVEL + 1.0f ) - mGen );
+                offset1.rotate( angle );
+                pos2 = pos1 + offset1;
+                offset2 = Vec2f( 2.0f, -8.0f );
+                offset2.rotate( angle );
 
-            Vec2f texCorner = mNameTex.getSize();
-            
-            glPushMatrix();
-            gl::translate( pos2 + offset2 );
-            if (angle != 0) {
-                gl::rotate( angle * 180.0f/M_PI );
-                texCorner.rotate( angle );
+                Vec2f texCorner = mNameTex.getSize();
+                
+                glPushMatrix();
+                gl::translate( pos2 + offset2 );
+                if (angle != 0) {
+                    gl::rotate( angle * 180.0f/M_PI );
+                    texCorner.rotate( angle );
+                }
+                if( mIsPlaying ){
+                    float s = (mZoomPer * 0.25f) + 1.0f;
+                    gl::scale( Vec3f( s, s, 1.0f ) );
+                    texCorner *= s;
+                }
+                
+            // DRAW DROP SHADOW
+                if( mIsPlaying ){ 
+                    gl::enableAlphaBlending();
+                    gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha * 0.35f ) );
+                    gl::draw( mNameTex, Vec2f( 1.0f, 1.0f ) );
+                    gl::enableAdditiveBlending();
+                }
+                
+                gl::color( col );
+                gl::draw( mNameTex, Vec2f::zero() );
+                
+                glPopMatrix();
+                
+                mHitArea = Rectf( pos2 + offset2, pos2 + offset2 + texCorner);
+                mHitArea.canonicalize();        
+                const float inflate = 5.0f;
+                // TODO: add .inflate to ci::Rectf
+                mHitArea.x1 -= inflate;
+                mHitArea.x2 += inflate;
+                mHitArea.y1 -= inflate;
+                mHitArea.y2 += inflate;
+                
+                // TODO: this is a lot of state changes per frame. Switch to drawing
+                // all names first, then all lines?
+                glDisable( GL_TEXTURE_2D );
+                
+                gl::color( ColorA( BRIGHT_BLUE, alpha * 0.5f ) );
+                gl::drawLine( pos1, pos2 );
+                
             }
-            if( mIsPlaying ){
-                float s = (mZoomPer * 0.25f) + 1.0f;
-                gl::scale( Vec3f( s, s, 1.0f ) );
-                texCorner *= s;
-            }
-            
-        // DRAW DROP SHADOW
-            if( mIsPlaying ){ 
-                gl::enableAlphaBlending();
-                gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha * 0.35f ) );
-                gl::draw( mNameTex, Vec2f( 1.0f, 1.0f ) );
-                gl::enableAdditiveBlending();
-            }
-            
-            gl::color( col );
-            gl::draw( mNameTex, Vec2f::zero() );
-            
-            glPopMatrix();
-            
-            mHitArea = Rectf( pos2 + offset2, pos2 + offset2 + texCorner);
-            mHitArea.canonicalize();        
-            const float inflate = 5.0f;
-            // TODO: add .inflate to ci::Rectf
-            mHitArea.x1 -= inflate;
-            mHitArea.x2 += inflate;
-            mHitArea.y1 -= inflate;
-            mHitArea.y2 += inflate;
-            
-            // TODO: this is a lot of state changes per frame. Switch to drawing
-            // all names first, then all lines?
-            glDisable( GL_TEXTURE_2D );
-            
-            gl::color( ColorA( BRIGHT_BLUE, alpha * 0.5f ) );
-            gl::drawLine( pos1, pos2 );
             
 		} else {
 			mHitArea = Rectf( -10000.0f, -10000.0f, -9999.0f, -9999.0f );

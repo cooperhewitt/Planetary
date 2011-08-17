@@ -7,7 +7,7 @@
  *
  */
 
-
+#include <boost/foreach.hpp>
 #include <deque>
 #include "World.h"
 #include "NodeArtist.h"
@@ -65,8 +65,7 @@ void World::initNodes( const vector<PlaylistRef> &artists, const Font &font, con
     mNodesById.clear();
     
 	int i=0;
-	for(vector<PlaylistRef>::const_iterator it = artists.begin(); it != artists.end(); ++it){
-        PlaylistRef artistPlaylist = *it;
+    BOOST_FOREACH(PlaylistRef artistPlaylist, artists) {
 		NodeArtist *newNode = new NodeArtist( i++, font, smallFont, highResSurfaces, lowResSurfaces, noAlbumArt );
 		newNode->setData( artistPlaylist );
         newNode->setSphereData( &mHiSphere, &mMdSphere, &mLoSphere, &mTySphere );
@@ -81,38 +80,38 @@ void World::initNodes( const vector<PlaylistRef> &artists, const Font &font, con
 
 void World::setFilter(FilterRef filterRef)
 {
+    float t = app::getElapsedSeconds();
+    
     mFilterRef = filterRef;
     
     mFilteredNodes.clear();
     
-	for(vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it){
-        if ( mFilterRef->testArtist( (*it)->getPlaylist() ) ) {
-            (*it)->mIsHighlighted = true;
-            mFilteredNodes.push_back(*it);
+    BOOST_FOREACH(NodeArtist* nodeArtist, mNodes) {
+        if ( mFilterRef->testArtist( nodeArtist->getPlaylist() ) ) {
+            nodeArtist->mIsHighlighted = true;
+            mFilteredNodes.push_back(nodeArtist);
         }
         else {
-            (*it)->mIsHighlighted = false;
+            nodeArtist->mIsHighlighted = false;
         }
 	}
 	
 	if( mFilteredNodes.size() > 1 ){
 		mConstellation.setup( mFilteredNodes );
 	}
+    
+    std::cout << app::getElapsedFrames() << " " << (app::getElapsedSeconds() - t) << " seconds to filter" << std::endl;
 }
 
 void World::updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId )
 {
 	mPlayingTrackNode = NULL;
 	
-    // TODO: proper iterators I suppose?
-    for (int i = 0; i < mNodes.size(); i++) {
-        NodeArtist* artistNode = mNodes[i];
+    BOOST_FOREACH(NodeArtist* artistNode, mNodes) {        
         artistNode->mIsPlaying = artistNode->getId() == artistId;
-        for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-            Node* albumNode = artistNode->mChildNodes[j];
+        BOOST_FOREACH(Node* albumNode, artistNode->mChildNodes) {        
             albumNode->mIsPlaying = albumNode->getId() == albumId;
-            for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-                Node *trackNode = albumNode->mChildNodes[k];
+            BOOST_FOREACH(Node *trackNode, albumNode->mChildNodes) {        
                 bool wasPlaying = trackNode->mIsPlaying;
                 trackNode->mIsPlaying = trackNode->getId() == trackId;
 				if( trackNode->mIsPlaying && !trackNode->isDying() ){
@@ -128,17 +127,13 @@ void World::updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t track
 
 void World::selectHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId )
 {
-    // TODO: proper iterators I suppose?    
-    for (int i = 0; i < mNodes.size(); i++) {
-        NodeArtist* artistNode = mNodes[i];
+    BOOST_FOREACH(NodeArtist* artistNode, mNodes) {        
         if (artistNode->getId() == artistId) {
             artistNode->select();
-            for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-                Node* albumNode = artistNode->mChildNodes[j];
+            BOOST_FOREACH(Node* albumNode, artistNode->mChildNodes) {        
                 if (albumNode->getId() == albumId) {
                     albumNode->select();
-                    for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-                        Node *trackNode = albumNode->mChildNodes[k];
+                    BOOST_FOREACH(Node *trackNode, albumNode->mChildNodes) {        
                         if (trackNode->getId() == trackId) {
                             trackNode->select();
                         }
@@ -161,14 +156,11 @@ void World::selectHierarchy( uint64_t artistId, uint64_t albumId, uint64_t track
 NodeTrack* World::getTrackNodeById( uint64_t artistId, uint64_t albumId, uint64_t trackId )
 {
     // NB:- artist and album must be selected, otherwise track node won't exist
-    // TODO: proper iterators I suppose?        
     NodeArtist* artistNode = getArtistNodeById(artistId);
     if (artistNode->getId() == artistId) {
-        for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-            Node* albumNode = artistNode->mChildNodes[j];
+        BOOST_FOREACH(Node* albumNode, artistNode->mChildNodes) {        
             if (albumNode->getId() == albumId) {
-                for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-                    Node *trackNode = albumNode->mChildNodes[k];
+                BOOST_FOREACH(Node *trackNode, albumNode->mChildNodes) {        
                     if (trackNode->getId() == trackId) {
                         return static_cast<NodeTrack*>(trackNode);
                     }
@@ -183,11 +175,10 @@ NodeTrack* World::getTrackNodeById( uint64_t artistId, uint64_t albumId, uint64_
 NodeAlbum* World::getAlbumNodeById( uint64_t artistId, uint64_t albumId )
 {
     // NB:- artist and album must be selected already
-    // TODO: proper iterators I suppose?        
     NodeArtist* artistNode = getArtistNodeById(artistId);
     if (artistNode->getId() == artistId) {
-        for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-            Node* albumNode = artistNode->mChildNodes[j];
+        // TODO: add a map childrenById to Node?
+        BOOST_FOREACH(Node* albumNode, artistNode->mChildNodes) {        
             if (albumNode->getId() == albumId) {
                 return static_cast<NodeAlbum*>(albumNode);
             }
@@ -198,30 +189,28 @@ NodeAlbum* World::getAlbumNodeById( uint64_t artistId, uint64_t albumId )
 
 void World::updateAgainstCurrentFilter()
 {
+    float t = app::getElapsedSeconds();
     if (mFilterRef) {
-        // TODO: proper iterators I suppose?
-        for (int i = 0; i < mNodes.size(); i++) {
-            NodeArtist* artistNode = mNodes[i];
+        BOOST_FOREACH(NodeArtist* artistNode, mNodes) {
             artistNode->mIsHighlighted = mFilterRef->testArtist(artistNode->getPlaylist());			
-            for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-                NodeAlbum* albumNode = static_cast<NodeAlbum*>(artistNode->mChildNodes[j]);
-                albumNode->mIsHighlighted = mFilterRef->testAlbum(albumNode->getPlaylist());
-                for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-                    NodeTrack *trackNode = static_cast<NodeTrack*>(albumNode->mChildNodes[k]);
-                    trackNode->mIsHighlighted = mFilterRef->testTrack(trackNode->mTrack);
-                }            
+            BOOST_FOREACH(Node* n1, artistNode->mChildNodes) {            
+                NodeAlbum* albumNode = static_cast<NodeAlbum*>(n1);                
+                albumNode->mIsHighlighted = artistNode->mIsHighlighted && mFilterRef->testAlbum(albumNode->getPlaylist());
+                BOOST_FOREACH(Node* n2, albumNode->mChildNodes) {            
+                    NodeTrack *trackNode = static_cast<NodeTrack*>(n2);
+                    trackNode->mIsHighlighted = albumNode->mIsHighlighted && mFilterRef->testTrack(trackNode->mTrack);
+                }
             }
-        }        
+        }
     }
+    std::cout << app::getElapsedFrames() << " " << (app::getElapsedSeconds() - t) << " seconds to update against current filter" << std::endl;
 }
 
 NodeTrack* World::selectPlayingHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId )
 {
     mPlayingTrackNode = NULL;
     
-    // TODO: proper iterators I suppose?    
-    for (int i = 0; i < mNodes.size(); i++) {        
-        NodeArtist* artistNode = mNodes[i];
+    BOOST_FOREACH(NodeArtist* artistNode, mNodes) {        
         artistNode->mIsPlaying = artistNode->getId() == artistId;
         if (artistNode->mIsPlaying) {
             artistNode->select();
@@ -229,17 +218,15 @@ NodeTrack* World::selectPlayingHierarchy( uint64_t artistId, uint64_t albumId, u
         else {
             artistNode->deselect();
         }
-        for (int j = 0; j < artistNode->mChildNodes.size(); j++) {					
-            Node* albumNode = artistNode->mChildNodes[j];
+        BOOST_FOREACH(Node* albumNode, artistNode->mChildNodes) {        
             albumNode->mIsPlaying = albumNode->getId() == albumId;
             if (albumNode->mIsPlaying) {
                 albumNode->select();
             }
             else {
                 albumNode->deselect();
-            }            
-            for (int k = 0; k < albumNode->mChildNodes.size(); k++) {
-                Node *trackNode = albumNode->mChildNodes[k];
+            }
+            BOOST_FOREACH(Node* trackNode, albumNode->mChildNodes) {        
                 bool wasPlaying = trackNode->mIsPlaying;
                 trackNode->mIsPlaying = trackNode->getId() == trackId;
                 if( trackNode->mIsPlaying && !trackNode->isDying() ){
@@ -263,9 +250,9 @@ NodeTrack* World::selectPlayingHierarchy( uint64_t artistId, uint64_t albumId, u
 
 void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-    for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); it++) {
-        if( (*it)->mIsHighlighted ) {
-            (*it)->checkForNameTouch( nodes, pos );
+    BOOST_FOREACH(NodeArtist* artistNode, mNodes) {        
+        if( artistNode->mIsHighlighted ) {
+            artistNode->checkForNameTouch( nodes, pos );
         }
     }
 }
@@ -275,8 +262,8 @@ void World::updateGraphics( const CameraPersp &cam, const Vec2f &center, const V
     const float w = app::getWindowWidth();
     const float h = app::getWindowHeight();
     
-	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->updateGraphics( cam, center, bbRight, bbUp, w, h );
+    BOOST_FOREACH(NodeArtist* artistNode, mNodes) {        
+		artistNode->updateGraphics( cam, center, bbRight, bbUp, w, h );
 	}
     
     if (mIsInitialized) {
@@ -310,8 +297,8 @@ void World::update( float param1, float param2 )
             mPlayingTrackNode = NULL;
         }   
 		
-		for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-			(*it)->update( param1, param2 );
+        BOOST_FOREACH(NodeArtist* artistNode, mNodes) {
+			artistNode->update( param1, param2 );
 		}        
 	}
 }
@@ -354,8 +341,8 @@ void World::drawStarGlowsVertexArray()
 
 void World::drawRings( const gl::Texture &tex, float camZPos )
 {
-	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawRings( tex, mPlanetRing, camZPos );
+    BOOST_FOREACH(NodeArtist* artistNode, mNodes) {        
+		artistNode->drawRings( tex, mPlanetRing, camZPos );
 	}
 }
 
@@ -364,9 +351,9 @@ void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset, float ang
     // FIXME: consider splitting Node::drawName into drawNameShadow and drawName and using
     // a single bloom::gl::begin/endBatch to reduce the number of state switches
     // needs to extend bloom::gl batching to support storing the current color as well as texture
-	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		if( (*it)->mIsHighlighted ){
-			(*it)->drawName( cam, pinchAlphaOffset, angle );
+    BOOST_FOREACH(NodeArtist* artistNode, mNodes) {    
+		if( artistNode->mIsHighlighted ){
+			artistNode->drawName( cam, pinchAlphaOffset, angle );
 		}
 	}
 }
@@ -374,15 +361,15 @@ void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset, float ang
 // assumes texture is already bound
 void World::drawOrbitRings( float pinchAlphaOffset, float camAlpha )
 {
-	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawOrbitRing( pinchAlphaOffset, camAlpha, mOrbitRing );
+    BOOST_FOREACH(NodeArtist* artistNode, mNodes) {
+		artistNode->drawOrbitRing( pinchAlphaOffset, camAlpha, mOrbitRing );
 	}
 }
 
 void World::drawTouchHighlights( float zoomAlpha )
 {
-	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
-		(*it)->drawTouchHighlight( zoomAlpha );
+    BOOST_FOREACH(NodeArtist* artistNode, mNodes) {
+		artistNode->drawTouchHighlight( zoomAlpha );
 	}
 }
 
