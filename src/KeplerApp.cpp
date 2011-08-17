@@ -43,7 +43,7 @@
 #include "HelpLayer.h"
 #include "NotificationOverlay.h"
 #include "Stats.h"
-#include "AlphaWheel.h"
+#include "AlphaChooser.h"
 #include "PlaylistChooser.h"
 #include "FilterToggleButton.h"
 #include "PinchRecognizer.h"
@@ -138,7 +138,7 @@ class KeplerApp : public AppCocoaTouch {
     NotificationOverlay mNotificationOverlay;
 
     WheelOverlayRef     mWheelOverlay;
-    AlphaWheel          mAlphaWheel;
+    AlphaChooser        mAlphaChooser;
     PlaylistChooser     mPlaylistChooser;
 
 // PERLIN BITS:
@@ -557,23 +557,26 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	mWheelOverlay->registerWheelToggled( this, &KeplerApp::onWheelToggled );    
     mMainBloomNodeRef->addChild( mWheelOverlay );
     
-	// ALPHA WHEEL
-	mAlphaWheel.setup( mFontBig, mWheelOverlay );
-	mAlphaWheel.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
-    mWheelOverlay->addChild( BloomNodeRef(&mAlphaWheel) );
+    // UI LAYER
+	mUiLayer.setup( mTextures[UI_SMALL_BUTTONS_TEX], 
+                   mTextures[SETTINGS_BG_TEX], 
+                   G_SHOW_SETTINGS, 
+                   mBloomSceneRef->getInterfaceSize() );
+    UiLayerRef uiLayerRef = UiLayerRef(&mUiLayer);
+    
+	// ALPHA CHOOSER
+	mAlphaChooser.setup( mFontBig, uiLayerRef, mWheelOverlay );
+	mAlphaChooser.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
+    mWheelOverlay->addChild( BloomNodeRef(&mAlphaChooser) );
 	
     // PLAYLIST CHOOSER
-    mPlaylistChooser.setup( mFontMedium, mWheelOverlay );
+    mPlaylistChooser.setup( mFontMedium, uiLayerRef, mWheelOverlay );
     mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
     mPlaylistChooser.registerPlaylistTouched( this, &KeplerApp::onPlaylistChooserTouched );
 	mWheelOverlay->addChild( BloomNodeRef(&mPlaylistChooser) );
 	
-	// UILAYER
-	mUiLayer.setup( mTextures[UI_SMALL_BUTTONS_TEX], 
-                    mTextures[SETTINGS_BG_TEX], 
-                    G_SHOW_SETTINGS, 
-                    mBloomSceneRef->getInterfaceSize() );
-    mMainBloomNodeRef->addChild( BloomNodeRef(&mUiLayer) );
+	// UILAYER ADD
+    mMainBloomNodeRef->addChild( uiLayerRef );
     
 	// PLAY CONTROLS
 	mPlayControls.setup( mBloomSceneRef->getInterfaceSize(), 
@@ -594,9 +597,11 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     // FILTER TOGGLE
     mFilterToggleButton.setup( mState.getFilterMode(), 
                                mFontMedium, 
-                               mTextures[FILTER_TOGGLE_BUTTON_TEX] );
+                               mTextures[FILTER_TOGGLE_BUTTON_TEX],
+                               uiLayerRef,      // FIXME: probably should be a weak ref
+                               mWheelOverlay ); // FIXME: probably should be a weak ref
     mFilterToggleButton.registerFilterModeSelected( this, &KeplerApp::onFilterModeToggled );
-    mMainBloomNodeRef->addChild( BloomNodeRef(&mFilterToggleButton) );
+    mWheelOverlay->addChild( BloomNodeRef(&mFilterToggleButton) );
 	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
@@ -796,7 +801,6 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 	mPinchRotation	+= event.getRotationDelta();
 
 	mTimePinchEnded = getElapsedSeconds();
-	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );
 	
     return false;
 }
@@ -814,7 +818,6 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 	}
 	
 	mTimePinchEnded = getElapsedSeconds();
-	mAlphaWheel.setTimePinchEnded( mTimePinchEnded );
 	
     mPinchRays.clear();
 	mIsPinching = false;
@@ -884,7 +887,7 @@ bool KeplerApp::onWheelToggled( bool on )
     if (mData.mPlaylists.size() > 0) {
         mFilterToggleButton.setVisible( on );
     }
-    mPlayControls.setAlphaWheelVisible( on );    
+    mPlayControls.setWheelVisible( on );    
 	return false;
 }
 
@@ -941,7 +944,7 @@ bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
 bool KeplerApp::onAlphaCharSelected( char c )
 {
     // FIXME: log params
-    logEvent("AlphaWheel Selected");        
+    logEvent("AlphaChooser Selected");        
     mState.setAlphaChar( c );        // triggersonAlphaCharStateChanged
     mState.setSelectedNode( NULL );  // zoom to galaxy level
 	return false;
@@ -1486,7 +1489,7 @@ void KeplerApp::update()
         // processes pending nodes
 		mWorld.initNodes( mData.mArtists, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
         
-        mAlphaWheel.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar );        
+        mAlphaChooser.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar );        
 		mLoadingScreen.setVisible( false ); // TODO: remove from scene graph, clean up textures
         mMainBloomNodeRef->setVisible( true );
 		mUiLayer.setIsPanelOpen( true );
@@ -1581,14 +1584,12 @@ void KeplerApp::update()
 		}
 		        
         if (mState.getFilterMode() == State::FilterModeAlphaChar) {
-            // FIXME: set visibility based on wheel radius
-            mAlphaWheel.setVisible( mWheelOverlay->getShowWheel() );
+            mAlphaChooser.setVisible( mWheelOverlay->getWheelScale() < 1.95f );
             mPlaylistChooser.setVisible( false );
         }
         else if (mState.getFilterMode() == State::FilterModePlaylist) {
-            // FIXME: set visibility based on wheel radius            
-            mPlaylistChooser.setVisible( mWheelOverlay->getShowWheel() );
-            mAlphaWheel.setVisible( false );
+            mPlaylistChooser.setVisible( mWheelOverlay->getWheelScale() < 1.95f );
+            mAlphaChooser.setVisible( false );
         }	        
         
         if (mPlayheadUpdateSeconds == elapsedSeconds) {
@@ -1669,8 +1670,7 @@ void KeplerApp::updateCamera()
 		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.1f;
 		mIsPastPinchThresh = false;
 		
-//        if( mAlphaWheel.getShowWheel() ){
-		if( mFilterToggleButton.isVisible() ){
+		if( mWheelOverlay->getShowWheel() ){
             mFovDest = G_MAX_FOV; // special FOV just for alpha wheel
         } else {
             mFovDest = G_DEFAULT_FOV;
@@ -1890,7 +1890,7 @@ void KeplerApp::drawScene()
 // GALAXY
     mGalaxy.drawLightMatter();	
     mGalaxy.drawSpiralPlanes();    
-	mGalaxy.drawCenter();	
+    mGalaxy.drawCenter();
 	
 // STARS
 	gl::enableAdditiveBlending();

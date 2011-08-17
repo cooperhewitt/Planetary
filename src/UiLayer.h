@@ -64,3 +64,5 @@ class UiLayer : public BloomNode {
     ci::Vec2f		mPanelTabTouchOffset;	// Remember the touch position value when dragging	
 };
 
+typedef std::shared_ptr<UiLayer> UiLayerRef;
+

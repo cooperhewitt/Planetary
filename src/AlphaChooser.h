@@ -1,5 +1,5 @@
 /*
- *  AlphaWheel.h
+ *  AlphaChooser.h
  *  Kepler
  *
  *  Created by Tom Carden on 3/14/11.
@@ -17,17 +17,18 @@
 #include "Orientation.h"
 #include "OrientationEvent.h"
 #include "WheelOverlay.h"
+#include "UiLayer.h"
 #include "cinder/Function.h"
 #include "BloomNode.h"
 
-class AlphaWheel : public BloomNode {
+class AlphaChooser : public BloomNode {
 
 public:
     
-	AlphaWheel() {};
-	~AlphaWheel() {};
+	AlphaChooser() {};
+	~AlphaChooser() {};
 		
-	void	setup( const ci::Font &font, WheelOverlayRef wheelOverlay );    
+	void	setup( const ci::Font &font, UiLayerRef uiLayer, WheelOverlayRef wheelOverlay );    
 	void	update();
 	void	draw();
     
@@ -36,7 +37,6 @@ public:
 	bool	touchEnded( ci::app::TouchEvent::Touch touch );
     
     void    setNumberAlphaPerChar( float *numAlphaPerChar );
-	void	setTimePinchEnded( float timePinchEnded );
         	
     void	setAlphaChar( char c ){ mAlphaChar = c; }
 	char	getAlphaChar(){ return mAlphaChar; }
@@ -49,27 +49,23 @@ public:
 private:
     
 	void	setRects();    
-	void	initAlphaTextures( const ci::Font &font );
     
-	bool	selectWheelItem( const ci::Vec2f &pos, bool closeWheel );
-    
-    uint32_t        mActiveTouchId;
-	ci::Vec2f		mLastTouchPos;
-
     WheelOverlayRef mWheelOverlay;
-	
-	float			mTimePinchEnded;
+	UiLayerRef mUiLayer;
+    
     float           *mNumberAlphaPerChar;
 
 	std::string		mAlphaString;
 	int				mAlphaIndex;
-	char			mAlphaChar, mPrevAlphaChar;
+	char			mAlphaChar;
 	
     ci::Vec2f       mInterfaceSize;
     
 	std::vector<ci::gl::Texture> mAlphaTextures;
 	std::vector<ci::Rectf>       mAlphaRects;
-	
+	std::vector<ci::Rectf>       mAlphaHitRects;
+    ci::Rectf mFullRect;
+    
 	ci::CallbackMgr<bool(char)> mCallbacksAlphaCharSelected;    
 };
 

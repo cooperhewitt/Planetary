@@ -85,7 +85,7 @@
 		E1FA27E11355790500169830 /* atmosphere.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FA27E01355790500169830 /* atmosphere.png */; };
 		E1FC7DA11337E4D9007F333C /* Dust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1FC7D9F1337E4D9007F333C /* Dust.cpp */; };
 		E1FC7DA313381853007F333C /* eclipseGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC7DA213381853007F333C /* eclipseGlow.png */; };
-		E2171061132ECF7300ADCC17 /* AlphaWheel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */; };
+		E2171061132ECF7300ADCC17 /* AlphaChooser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2171060132ECF7300ADCC17 /* AlphaChooser.cpp */; };
 		E219CEE713A5A615006C7F26 /* BloomSphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E219CEE513A5A615006C7F26 /* BloomSphere.cpp */; };
 		E219CEF213A6F354006C7F26 /* StarGlows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E219CEF013A6F354006C7F26 /* StarGlows.cpp */; };
 		E219CEF513A6F645006C7F26 /* Stars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E219CEF313A6F645006C7F26 /* Stars.cpp */; };
@@ -224,7 +224,7 @@
 		E1FC74B8130B256D007FE9D6 /* TapRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapRecognizer.h; sourceTree = "<group>"; };
 		E1FC7D9F1337E4D9007F333C /* Dust.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dust.cpp; path = ../src/Dust.cpp; sourceTree = "<group>"; };
 		E1FC7DA213381853007F333C /* eclipseGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = eclipseGlow.png; path = ../resources/eclipseGlow.png; sourceTree = "<group>"; };
-		E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AlphaWheel.cpp; path = ../src/AlphaWheel.cpp; sourceTree = SOURCE_ROOT; };
+		E2171060132ECF7300ADCC17 /* AlphaChooser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AlphaChooser.cpp; path = ../src/AlphaChooser.cpp; sourceTree = SOURCE_ROOT; };
 		E219CEE513A5A615006C7F26 /* BloomSphere.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BloomSphere.cpp; path = ../src/BloomSphere.cpp; sourceTree = "<group>"; };
 		E219CEE613A5A615006C7F26 /* BloomSphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BloomSphere.h; path = ../src/BloomSphere.h; sourceTree = "<group>"; };
 		E219CEF013A6F354006C7F26 /* StarGlows.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StarGlows.cpp; path = ../src/StarGlows.cpp; sourceTree = "<group>"; };
@@ -237,7 +237,7 @@
 		E219CEFA13A7D7CD006C7F26 /* PlanetRing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlanetRing.h; path = ../src/PlanetRing.h; sourceTree = "<group>"; };
 		E219CEFC13A7DAFA006C7F26 /* Constellation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Constellation.cpp; path = ../src/Constellation.cpp; sourceTree = "<group>"; };
 		E219CEFD13A7DAFC006C7F26 /* Constellation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Constellation.h; path = ../src/Constellation.h; sourceTree = "<group>"; };
-		E227B204138EFDC500AAAC7B /* TextLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextLabel.cpp; path = ../src/TextLabel.cpp; sourceTree = "<group>"; };
+		E227B204138EFDC500AAAC7B /* TextLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextLabel.cpp; path = ../../../src/TextLabel.cpp; sourceTree = "<group>"; };
 		E22998C61332AD080043CDCA /* GestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureRecognizer.h; sourceTree = "<group>"; };
 		E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoadingScreen.cpp; path = ../src/LoadingScreen.cpp; sourceTree = "<group>"; };
 		E22D983913B6A2B600F9DB06 /* Shadow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Shadow.cpp; path = ../src/Shadow.cpp; sourceTree = "<group>"; };
@@ -251,15 +251,15 @@
 		E23C29F813B1A6D60038F3F4 /* skydomeFull.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = skydomeFull.png; path = ../skydomeFull.png; sourceTree = "<group>"; };
 		E23C29FB13B1A9710038F3F4 /* galaxyCropped.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = galaxyCropped.jpg; path = ../galaxyCropped.jpg; sourceTree = "<group>"; };
 		E23C29FC13B1A9710038F3F4 /* galaxyCropped.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = galaxyCropped.pvr; path = ../galaxyCropped.pvr; sourceTree = "<group>"; };
-		E2576E4013D4C8D500EC82EF /* TextureRect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextureRect.cpp; path = ../src/TextureRect.cpp; sourceTree = "<group>"; };
-		E2576E4113D4C8D600EC82EF /* TextureRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureRect.h; sourceTree = "<group>"; };
+		E2576E4013D4C8D500EC82EF /* TextureRect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextureRect.cpp; path = ../../../src/TextureRect.cpp; sourceTree = "<group>"; };
+		E2576E4113D4C8D600EC82EF /* TextureRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextureRect.h; path = ../../../src/TextureRect.h; sourceTree = "<group>"; };
 		E25C872D131F1420000780A3 /* NodeArtist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeArtist.cpp; path = ../src/NodeArtist.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8742131F14B3000780A3 /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8743131F14B3000780A3 /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
-		E2730444138DA83800A2A65B /* TimeLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeLabel.cpp; path = ../src/TimeLabel.cpp; sourceTree = "<group>"; };
-		E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScrollingLabel.cpp; path = ../src/ScrollingLabel.cpp; sourceTree = "<group>"; };
-		E278F90713830E7E00738472 /* Buttons.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Buttons.cpp; path = ../src/Buttons.cpp; sourceTree = "<group>"; };
-		E278F90D138333FB00738472 /* Slider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Slider.cpp; path = ../src/Slider.cpp; sourceTree = "<group>"; };
+		E2730444138DA83800A2A65B /* TimeLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeLabel.cpp; path = ../../../src/TimeLabel.cpp; sourceTree = "<group>"; };
+		E2730449138DAA6400A2A65B /* ScrollingLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScrollingLabel.cpp; path = ../../../src/ScrollingLabel.cpp; sourceTree = "<group>"; };
+		E278F90713830E7E00738472 /* Buttons.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Buttons.cpp; path = ../../../src/Buttons.cpp; sourceTree = "<group>"; };
+		E278F90D138333FB00738472 /* Slider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Slider.cpp; path = ../../../src/Slider.cpp; sourceTree = "<group>"; };
 		E27A27E413DDDF8500B957EC /* TextureLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextureLoader.cpp; path = ../src/TextureLoader.cpp; sourceTree = "<group>"; };
 		E27A27E513DDDF8500B957EC /* TextureLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextureLoader.h; path = ../src/TextureLoader.h; sourceTree = "<group>"; };
 		E28177EC139AFA8500049D69 /* PlaylistFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlaylistFilter.cpp; path = ../src/PlaylistFilter.cpp; sourceTree = "<group>"; };
@@ -275,9 +275,9 @@
 		E2CD4B9F13CA70F60047AF5F /* FilterToggleButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FilterToggleButton.h; path = ../src/FilterToggleButton.h; sourceTree = "<group>"; };
 		E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NotificationOverlay.cpp; path = ../src/NotificationOverlay.cpp; sourceTree = "<group>"; };
 		E2E21CB213A14A3700A476A2 /* Galaxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Galaxy.cpp; path = ../src/Galaxy.cpp; sourceTree = "<group>"; };
-		E2E21CB613A177E200A476A2 /* AlphaWheel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlphaWheel.h; path = ../src/AlphaWheel.h; sourceTree = "<group>"; };
+		E2E21CB613A177E200A476A2 /* AlphaChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlphaChooser.h; path = ../src/AlphaChooser.h; sourceTree = "<group>"; };
 		E2E21CB713A177E200A476A2 /* BloomGl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BloomGl.h; path = ../src/BloomGl.h; sourceTree = "<group>"; };
-		E2E21CB813A177E300A476A2 /* Buttons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Buttons.h; sourceTree = "<group>"; };
+		E2E21CB813A177E300A476A2 /* Buttons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Buttons.h; path = ../../../src/Buttons.h; sourceTree = "<group>"; };
 		E2E21CB913A177E300A476A2 /* Data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Data.h; path = ../src/Data.h; sourceTree = "<group>"; };
 		E2E21CBA13A177E400A476A2 /* Dust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Dust.h; path = ../src/Dust.h; sourceTree = "<group>"; };
 		E2E21CBC13A177E400A476A2 /* Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Filter.h; path = ../src/Filter.h; sourceTree = "<group>"; };
@@ -295,11 +295,11 @@
 		E2E21CC813A177EA00A476A2 /* ParticleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParticleController.h; path = ../src/ParticleController.h; sourceTree = "<group>"; };
 		E2E21CC913A177EA00A476A2 /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../src/PlayControls.h; sourceTree = "<group>"; };
 		E2E21CCA13A177EB00A476A2 /* PlaylistFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistFilter.h; path = ../src/PlaylistFilter.h; sourceTree = "<group>"; };
-		E2E21CCB13A177EB00A476A2 /* ScrollingLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScrollingLabel.h; sourceTree = "<group>"; };
-		E2E21CCC13A177EB00A476A2 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Slider.h; sourceTree = "<group>"; };
+		E2E21CCB13A177EB00A476A2 /* ScrollingLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScrollingLabel.h; path = ../../../src/ScrollingLabel.h; sourceTree = "<group>"; };
+		E2E21CCC13A177EB00A476A2 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Slider.h; path = ../../../src/Slider.h; sourceTree = "<group>"; };
 		E2E21CCD13A177EC00A476A2 /* State.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../src/State.h; sourceTree = "<group>"; };
-		E2E21CCE13A177EC00A476A2 /* TextLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextLabel.h; sourceTree = "<group>"; };
-		E2E21CCF13A177ED00A476A2 /* TimeLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeLabel.h; sourceTree = "<group>"; };
+		E2E21CCE13A177EC00A476A2 /* TextLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextLabel.h; path = ../../../src/TextLabel.h; sourceTree = "<group>"; };
+		E2E21CCF13A177ED00A476A2 /* TimeLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeLabel.h; path = ../../../src/TimeLabel.h; sourceTree = "<group>"; };
 		E2E21CD113A177EE00A476A2 /* UiLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UiLayer.h; path = ../src/UiLayer.h; sourceTree = "<group>"; };
 		E2E21CD213A177EF00A476A2 /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = World.h; path = ../src/World.h; sourceTree = "<group>"; };
 		E2E21CD713A1821300A476A2 /* GyroHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GyroHelper.cpp; path = ../src/GyroHelper.cpp; sourceTree = "<group>"; };
@@ -670,9 +670,10 @@
 		E1C6023C131C4B0E0022246C /* Ui */ = {
 			isa = PBXGroup;
 			children = (
+				E25040BF1392E82200A8D673 /* Elements */,
 				E1D32DFE13D78E01002F33ED /* WheelOverlay.h */,
 				E2CD4B9F13CA70F60047AF5F /* FilterToggleButton.h */,
-				E2E21CB613A177E200A476A2 /* AlphaWheel.h */,
+				E2E21CB613A177E200A476A2 /* AlphaChooser.h */,
 				E2CD4B9C13CA6F350047AF5F /* PlaylistChooser.h */,
 				E2E21CBF13A177E600A476A2 /* HelpLayer.h */,
 				E2E21CC113A177E600A476A2 /* LoadingScreen.h */,
@@ -736,11 +737,12 @@
 		E2171053132ECE3900ADCC17 /* Ui */ = {
 			isa = PBXGroup;
 			children = (
+				E25040C01392E83E00A8D673 /* Elements */,
 				E2E21CDB13A2D70C00A476A2 /* Stats.cpp */,
 				E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */,
 				E1D32DFD13D78E01002F33ED /* WheelOverlay.cpp */,
 				E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */,
-				E2171060132ECF7300ADCC17 /* AlphaWheel.cpp */,
+				E2171060132ECF7300ADCC17 /* AlphaChooser.cpp */,
 				E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */,
 				E28FDA821339B782005EDBB4 /* PlayControls.cpp */,
 				E1B0DBB113510C890093EB9D /* HelpLayer.cpp */,
@@ -800,7 +802,6 @@
 		E22D4D3C13DC2A300019E529 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				E25040BF1392E82200A8D673 /* Elements */,
 				E2A868B213D3CA6F0024E4D0 /* BloomNode.h */,
 				E2A868B513D3D0940024E4D0 /* BloomScene.h */,
 				E2FADC1513DB740700C24F4D /* OrientationNode.h */,
@@ -812,7 +813,6 @@
 		E22D4D3D13DC2A360019E529 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				E25040C01392E83E00A8D673 /* Elements */,
 				E2A868B413D3D0940024E4D0 /* BloomScene.cpp */,
 				E2A868B113D3CA6F0024E4D0 /* BloomNode.cpp */,
 				E2FADC1413DB740700C24F4D /* OrientationNode.cpp */,
@@ -832,6 +832,7 @@
 				E2576E4113D4C8D600EC82EF /* TextureRect.h */,
 			);
 			name = Elements;
+			path = ../blocks/BloomScene/include;
 			sourceTree = "<group>";
 		};
 		E25040C01392E83E00A8D673 /* Elements */ = {
@@ -845,6 +846,7 @@
 				E278F90713830E7E00738472 /* Buttons.cpp */,
 			);
 			name = Elements;
+			path = ../blocks/BloomScene/src;
 			sourceTree = "<group>";
 		};
 		E28177EB139AFA6700049D69 /* Filters */ = {
@@ -1006,7 +1008,7 @@
 				E1276E7A132821AA00E1FC3F /* CinderIPod.mm in Sources */,
 				E1276E7B132821AA00E1FC3F /* CinderIPodPlayer.mm in Sources */,
 				E1276E7C132821AA00E1FC3F /* CinderIPodPlayerImpl.mm in Sources */,
-				E2171061132ECF7300ADCC17 /* AlphaWheel.cpp in Sources */,
+				E2171061132ECF7300ADCC17 /* AlphaChooser.cpp in Sources */,
 				E167C8D5132EAFBE00CB496E /* Particle.cpp in Sources */,
 				E167C8D6132EAFBE00CB496E /* ParticleController.cpp in Sources */,
 				E22998CC1332D62E0043CDCA /* LoadingScreen.cpp in Sources */,

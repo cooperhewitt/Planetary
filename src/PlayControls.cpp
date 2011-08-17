@@ -7,9 +7,10 @@
  *
  */
 
+#include <boost/foreach.hpp>
 #include "PlayControls.h"
 #include "Globals.h"
-#include "BloomGl.h"
+#include "BloomGl.h" // for batch drawing
 #include "BloomScene.h" // for mRoot
 
 using namespace ci;
@@ -31,7 +32,7 @@ void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font 
     setDebugVisible( G_DEBUG );	    
     setShuffleVisible( player->getShuffleMode() != ipod::Player::ShuffleModeOff );
     setRepeatMode( player->getRepeatMode() );    
-    setAlphaWheelVisible( false ); // this is the default in WheelOverlay::setup()
+    setWheelVisible( false ); // this is the default in WheelOverlay::setup()
     if( G_IS_IPAD2 ) {
         setGyroVisible( G_USE_GYRO );
     }
@@ -76,11 +77,11 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
                                          Area( uw*2, uh*3, uw*3, uh*4 ),  // on texture
                                          Area( uw*2, uh*2, uw*3, uh*3 ) );// off texture
 	
-    mAlphaWheelButton = new ToggleButton( SHOW_WHEEL,      // ID
-                                          false,           // initial toggle state
-                                          uiBigButtonsTex,
-                                          Area( uw*3, uh*3, uw*4, uh*4 ),  // on texture
-                                          Area( uw*3, uh*2, uw*4, uh*3 ) );// off texture    
+    mWheelButton = new ToggleButton( SHOW_WHEEL,      // ID
+                                     false,           // initial toggle state
+                                     uiBigButtonsTex,
+                                     Area( uw*3, uh*3, uw*4, uh*4 ),  // on texture
+                                     Area( uw*3, uh*2, uw*4, uh*3 ) );// off texture    
 
     
      
@@ -221,7 +222,7 @@ void PlayControls::addChildren()
     addChild( BloomNodeRef(mGalaxyButton) );
 	addChild( BloomNodeRef(mCurrentTrackButton) );
     addChild( BloomNodeRef(mShowSettingsButton) );
-	addChild( BloomNodeRef(mAlphaWheelButton) );
+	addChild( BloomNodeRef(mWheelButton) );
     addChild( BloomNodeRef(mPreviousTrackButton) );
     addChild( BloomNodeRef(mPlayPauseButton) );
     addChild( BloomNodeRef(mNextTrackButton) );
@@ -310,7 +311,7 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
 	// ALPHA WHEEL BUTTON
 	x1 -= bSize + buttonGap;
 	x2 = x1 + bSize;
-    mAlphaWheelButton->setRect( x1, y1, x2, y2 );
+    mWheelButton->setRect( x1, y1, x2, y2 );
 	
 	
 	
@@ -422,4 +423,19 @@ void PlayControls::enablePlayerControls( bool enable )
     mPreviousTrackButton->setVisible(enable);
     mPlayPauseButton->setVisible(enable);
     mNextTrackButton->setVisible(enable);    
+}
+
+void PlayControls::deepDraw()
+{
+    if (mVisible) {
+        glPushMatrix();
+        glMultMatrixf(mTransform); // FIXME only push/mult/pop if mTransform isn't identity
+        bloom::gl::beginBatch();
+        // draw children
+        BOOST_FOREACH(BloomNodeRef child, mChildren) {        
+            child->deepDraw();
+        }
+        bloom::gl::endBatch();
+        glPopMatrix();
+    }        
 }

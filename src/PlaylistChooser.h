@@ -20,6 +20,7 @@
 #include "Data.h"
 #include "World.h"
 #include "BloomNode.h"
+#include "UiLayer.h"
 #include "WheelOverlay.h"
 #include <map>
 
@@ -29,7 +30,7 @@ public:
     
     PlaylistChooser(): mData(NULL), mOffsetX(0.0f) {}
     
-    void setup( const ci::Font &font, WheelOverlayRef wheelOverlay );
+    void setup( const ci::Font &font, UiLayerRef uiLayer, WheelOverlayRef wheelOverlay );
 	void update();
     void draw();
 
@@ -89,6 +90,7 @@ private:
     ci::Vec2f		mInterfaceSize;
 		
 	WheelOverlayRef mWheelOverlay;
+    UiLayerRef mUiLayer;
 	
 	ci::CallbackMgr<bool(ci::ipod::PlaylistRef)> mCbPlaylistSelected, mCbPlaylistTouched;        
 };
