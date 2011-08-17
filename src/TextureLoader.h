@@ -3,7 +3,7 @@
 //  Kepler
 //
 //  Created by Tom Carden on 7/25/11.
-//  Copyright 2011 Bloom Studio, Inc.. All rights reserved.
+//  Copyright 2011 Bloom Studio, Inc. All rights reserved.
 //
 
 #pragma once
@@ -29,9 +29,7 @@ public:
     void addRequest( int texId, std::string fileName );
     void addRequest( int texId, std::string fileName, ci::gl::Texture::Format format );
     void addRequest( int texId, std::string compressedFileName, ci::Vec2i size );
-    
-    void update(); // call every frame or you won't get results!
-    
+        
     ci::gl::Texture operator[](const int &index){ return mTextures[index]; };
     
     template<typename T>
@@ -62,6 +60,7 @@ private:
     
     ci::CallbackMgr<void(TextureLoader*)> mCbComplete;        
 
-    void loadSurfaces();
+    void loadSurfaces(); // background thread
+    void surfaceLoaded(); // ui thread
 
 };

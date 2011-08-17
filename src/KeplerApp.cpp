@@ -49,6 +49,7 @@
 #include "PinchRecognizer.h"
 #include "ParticleController.h"
 #include "TextureLoader.h"
+#include "TaskQueue.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -1612,10 +1613,10 @@ void KeplerApp::update()
         if (getElapsedFrames() > 1) {
             remainingSetup();
         }        
-    }
+    }    
     
-    // transfer any completed Surfaces into Textures
-    mTextures.update();
+    // do UI thread things...
+    UiTaskQueue::popTask();
 }
 
 void KeplerApp::updateArcball()

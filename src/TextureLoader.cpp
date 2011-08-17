@@ -3,13 +3,13 @@
 //  Kepler
 //
 //  Created by Tom Carden on 7/25/11.
-//  Copyright 2011 Bloom Studio, Inc.. All rights reserved.
+//  Copyright 2011 Bloom Studio, Inc. All rights reserved.
 //
 
 #include "TextureLoader.h"
 #include "cinder/app/AppCocoaTouch.h" // for loadResource
-#include "cinder/Thread.h"
 #include "cinder/ImageIo.h"
+#include "TaskQueue.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -35,43 +35,51 @@ void TextureLoader::addRequest( int texId, std::string compressedFileName, ci::V
 
 void TextureLoader::start()
 {
-    std::thread loaderThread( &TextureLoader::loadSurfaces, this );  
-//    loadSurfaces();
+    TaskQueue::pushTask( std::bind( std::mem_fun( &TextureLoader::loadSurfaces ), this ) );    
 }
 
 void TextureLoader::loadSurfaces()
 {
-	NSAutoreleasePool *autoreleasepool = [[NSAutoreleasePool alloc] init];
-    
     for (int i = 0; i < mRequests.size(); i++) {
         Surface surface = loadImage( loadResource( mRequests[i].mFileName ) );
         mRequestsMutex.lock();
         mRequests[i].mSurface = loadImage( loadResource( mRequests[i].mFileName ) );
         mRequestsMutex.unlock();
         mRequestsComplete++;
-    }
-    
-    [autoreleasepool release];
+        // called on the UI thread...
+        UiTaskQueue::pushTask( std::bind( std::mem_fun( &TextureLoader::surfaceLoaded ), this ) );
+    }    
 }
 
-void TextureLoader::update()
+void TextureLoader::surfaceLoaded()
 {
+    std::cout << "TextureLoader::surfaceLoaded()" << std::endl;
+    
     if (mTextures.size() == mTotalRequests) {
         return;
     }
     
     // one texture per frame
     if (mTextures.size() < mRequestsComplete) {
-        // if mRequestsMutex isn't already locked (don't block)
+        std::cout << "TextureLoader::surfaceLoaded checking lock... ";
+
+        // if mRequestsMutex isn't already locked (don't block, we're on the UI thread)
         if (mRequestsMutex.try_lock()) {
+            std::cout << " got lock!" << std::endl;
             int index = mTextures.size();
             mTextures[ mRequests[index].mTexId ] = gl::Texture( mRequests[index].mSurface );
             mRequests[index].mSurface.reset();
             mRequestsMutex.unlock();
         }
+        else {
+            std::cout << " try again next time!" << std::endl;
+            // try again
+            UiTaskQueue::pushTask( std::bind( std::mem_fun( &TextureLoader::surfaceLoaded ), this ) );            
+        }
     }
     
     if (mTextures.size() == mTotalRequests) {
+        std::cout << "TextureLoader::surfaceLoaded complete!" << std::endl;        
         mRequests.clear();
         mCbComplete.call( this );
     }

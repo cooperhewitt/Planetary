@@ -3,7 +3,7 @@
 //  Kepler
 //
 //  Created by Tom Carden on 5/17/11.
-//  Copyright 2011 Bloom Studio, Inc.. All rights reserved.
+//  Copyright 2011 Bloom Studio, Inc. All rights reserved.
 //
 
 #include "Slider.h"

@@ -3,18 +3,14 @@
  *  Kepler
  *
  *  Created by Robert Hodgin on 2/25/11.
- *  Copyright 2011 Bloom Studio, Inc.. All rights reserved.
+ *  Copyright 2011 Bloom Studio, Inc. All rights reserved.
  *
  */
 
 #include "Data.h"
-#include "cinder/app/AppBasic.h"
-#include "cinder/gl/gl.h"
-#include "cinder/Rand.h"
-#include "cinder/Thread.h"
-#include "cinder/Text.h"
-#include "cinder/Utilities.h"
-#include "CinderFlurry.h"
+#include "cinder/Utilities.h" // for toString
+#include "CinderFlurry.h"     // for loggin
+#include "TaskQueue.h"        // for backgrounding tasks
 
 using namespace ci;
 using namespace ci::ipod;
@@ -30,19 +26,13 @@ void Data::setup()
     if (mState != LoadStateLoading) {
         mState = LoadStateLoading;
         mArtistProgress = 0.0f;
-        mPlaylistProgress = 0.0f;        
-        std::thread artistLoaderThread( &Data::backgroundInit, this );	
+        mPlaylistProgress = 0.0f;   
+        TaskQueue::pushTask( std::bind( std::mem_fun( &Data::backgroundInit ), this ) );
     }
 }
 
 void Data::backgroundInit()
 {
-    // Cinder's ThreadSetup class ensures that the OS know's what's up
-    // (creates and drains an autorelease pool, etc)
-    ThreadSetup threadSetup;
-    
-//	NSAutoreleasePool *autoreleasepool = [[NSAutoreleasePool alloc] init];
-	
 	Flurry::getInstrumentation()->startTimeEvent("Music Loading");
 
 	mPendingArtists = getArtists( std::bind1st( std::mem_fun(&Data::artistProgress), this ) );
@@ -94,10 +84,7 @@ void Data::backgroundInit()
 	}
 
 // END ALPHAWHEEL QUICK FIX
-	
-// http://stackoverflow.com/questions/797419/whats-the-difference-between-sending-release-or-drain-to-an-autorelease-pool
-//    [autoreleasepool release];	
-    
+	    
     mState = LoadStatePending;
 }
 

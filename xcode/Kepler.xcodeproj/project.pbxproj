@@ -121,6 +121,7 @@
 		E2CD4B9D13CA6F350047AF5F /* PlaylistChooser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */; };
 		E2CD4BA013CA70F60047AF5F /* FilterToggleButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */; };
 		E2DC1E0213984774000B1D11 /* NotificationOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */; };
+		E2DC801113FC7BB400CF1106 /* TaskQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DC801013FC7BB400CF1106 /* TaskQueue.cpp */; };
 		E2E21CB413A14A3800A476A2 /* Galaxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CB213A14A3700A476A2 /* Galaxy.cpp */; };
 		E2E21CD913A1821300A476A2 /* GyroHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CD713A1821300A476A2 /* GyroHelper.cpp */; };
 		E2E21CDD13A2D71300A476A2 /* Stats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CDB13A2D70C00A476A2 /* Stats.cpp */; };
@@ -274,6 +275,8 @@
 		E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FilterToggleButton.cpp; path = ../src/FilterToggleButton.cpp; sourceTree = "<group>"; };
 		E2CD4B9F13CA70F60047AF5F /* FilterToggleButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FilterToggleButton.h; path = ../src/FilterToggleButton.h; sourceTree = "<group>"; };
 		E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NotificationOverlay.cpp; path = ../src/NotificationOverlay.cpp; sourceTree = "<group>"; };
+		E2DC800C13FC6ED200CF1106 /* TaskQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TaskQueue.h; path = ../blocks/BloomTasks/src/TaskQueue.h; sourceTree = "<group>"; };
+		E2DC801013FC7BB400CF1106 /* TaskQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TaskQueue.cpp; path = ../blocks/BloomTasks/src/TaskQueue.cpp; sourceTree = "<group>"; };
 		E2E21CB213A14A3700A476A2 /* Galaxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Galaxy.cpp; path = ../src/Galaxy.cpp; sourceTree = "<group>"; };
 		E2E21CB613A177E200A476A2 /* AlphaChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlphaChooser.h; path = ../src/AlphaChooser.h; sourceTree = "<group>"; };
 		E2E21CB713A177E200A476A2 /* BloomGl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BloomGl.h; path = ../src/BloomGl.h; sourceTree = "<group>"; };
@@ -623,6 +626,7 @@
 		E1A332D9130105EC00CED126 /* Blocks */ = {
 			isa = PBXGroup;
 			children = (
+				E2DC800913FC6E8B00CF1106 /* BloomTasks */,
 				E22D4D3113DC25AD0019E529 /* BloomScene */,
 				E2D20EBF135CEEA900A29743 /* CinderOrientation */,
 				77B447EC133BCB3A00987E13 /* CinderFlurry */,
@@ -878,6 +882,15 @@
 			path = ../blocks/CinderOrientation;
 			sourceTree = "<group>";
 		};
+		E2DC800913FC6E8B00CF1106 /* BloomTasks */ = {
+			isa = PBXGroup;
+			children = (
+				E2DC800C13FC6ED200CF1106 /* TaskQueue.h */,
+				E2DC801013FC7BB400CF1106 /* TaskQueue.cpp */,
+			);
+			name = BloomTasks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1045,6 +1058,7 @@
 				E1D32DFF13D78E01002F33ED /* WheelOverlay.cpp in Sources */,
 				E2FADC1613DB740700C24F4D /* OrientationNode.cpp in Sources */,
 				E27A27E613DDDF8500B957EC /* TextureLoader.cpp in Sources */,
+				E2DC801113FC7BB400CF1106 /* TaskQueue.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

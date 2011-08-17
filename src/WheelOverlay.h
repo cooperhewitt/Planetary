@@ -3,7 +3,7 @@
 //  Kepler
 //
 //  Created by Robert Hodgin on 7/20/11.
-//  Copyright 2011 Bloom Studio, Inc.. All rights reserved.
+//  Copyright 2011 Bloom Studio, Inc. All rights reserved.
 //
 
 #pragma once

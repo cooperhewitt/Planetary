@@ -3,7 +3,7 @@
  *  Bloom
  *
  *  Created by Robert Hodgin on 1/20/11.
- *  Copyright 2011 Bloom Studio, Inc.. All rights reserved.
+ *  Copyright 2011 Bloom Studio, Inc. All rights reserved.
  *
  */
 
