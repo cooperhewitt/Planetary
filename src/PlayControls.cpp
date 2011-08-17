@@ -7,9 +7,10 @@
  *
  */
 
+#include <boost/foreach.hpp>
 #include "PlayControls.h"
 #include "Globals.h"
-#include "BloomGl.h"
+#include "BloomGl.h" // for batch drawing
 #include "BloomScene.h" // for mRoot
 
 using namespace ci;
@@ -422,4 +423,19 @@ void PlayControls::enablePlayerControls( bool enable )
     mPreviousTrackButton->setVisible(enable);
     mPlayPauseButton->setVisible(enable);
     mNextTrackButton->setVisible(enable);    
+}
+
+void PlayControls::privateDraw()
+{
+    if (mVisible) {
+        glPushMatrix();
+        glMultMatrixf(mTransform); // FIXME only push/mult/pop if mTransform isn't identity
+        bloom::gl::beginBatch();
+        // draw children
+        BOOST_FOREACH(BloomNodeRef child, mChildren) {        
+            child->draw();
+        }
+        bloom::gl::endBatch();
+        glPopMatrix();
+    }        
 }

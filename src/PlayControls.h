@@ -105,6 +105,11 @@ public:
     bool addedToScene(); // from BloomNode
     bool removedFromScene(); // from BloomNode
     
+protected:
+    
+    // override so we can batch geometry
+    virtual void privateDraw();
+    
 private:
 					  
     // instantiate and set fonts/areas/textures (called once)

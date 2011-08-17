@@ -9,6 +9,7 @@
 #include "TextLabel.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Text.h"
+#include "BloomGl.h"
 
 using namespace std;
 using namespace ci;
@@ -34,7 +35,7 @@ void TextLabel::updateTexture()
 void TextLabel::draw()
 {
     if (mTexture) {
-        gl::draw( mTexture, mRect.getUpperLeft() );
+        bloom::gl::batchRect( mTexture, mRect.getUpperLeft() );
     }
 }
 

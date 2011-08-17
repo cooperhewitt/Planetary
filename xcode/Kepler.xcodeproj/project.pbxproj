@@ -252,7 +252,7 @@
 		E23C29FB13B1A9710038F3F4 /* galaxyCropped.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = galaxyCropped.jpg; path = ../galaxyCropped.jpg; sourceTree = "<group>"; };
 		E23C29FC13B1A9710038F3F4 /* galaxyCropped.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = galaxyCropped.pvr; path = ../galaxyCropped.pvr; sourceTree = "<group>"; };
 		E2576E4013D4C8D500EC82EF /* TextureRect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextureRect.cpp; path = ../../../src/TextureRect.cpp; sourceTree = "<group>"; };
-		E2576E4113D4C8D600EC82EF /* TextureRect.h */ = {isa = PBXFileReference; fileEncoding = 4; name = TextureRect.h; path = ../../../src/TextureRect.h; sourceTree = "<group>"; };
+		E2576E4113D4C8D600EC82EF /* TextureRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextureRect.h; path = ../../../src/TextureRect.h; sourceTree = "<group>"; };
 		E25C872D131F1420000780A3 /* NodeArtist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeArtist.cpp; path = ../src/NodeArtist.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8742131F14B3000780A3 /* NodeAlbum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeAlbum.cpp; path = ../src/NodeAlbum.cpp; sourceTree = SOURCE_ROOT; };
 		E25C8743131F14B3000780A3 /* NodeTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeTrack.cpp; path = ../src/NodeTrack.cpp; sourceTree = SOURCE_ROOT; };
@@ -295,11 +295,11 @@
 		E2E21CC813A177EA00A476A2 /* ParticleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParticleController.h; path = ../src/ParticleController.h; sourceTree = "<group>"; };
 		E2E21CC913A177EA00A476A2 /* PlayControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayControls.h; path = ../src/PlayControls.h; sourceTree = "<group>"; };
 		E2E21CCA13A177EB00A476A2 /* PlaylistFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistFilter.h; path = ../src/PlaylistFilter.h; sourceTree = "<group>"; };
-		E2E21CCB13A177EB00A476A2 /* ScrollingLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; name = ScrollingLabel.h; path = ../../../src/ScrollingLabel.h; sourceTree = "<group>"; };
-		E2E21CCC13A177EB00A476A2 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; name = Slider.h; path = ../../../src/Slider.h; sourceTree = "<group>"; };
+		E2E21CCB13A177EB00A476A2 /* ScrollingLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScrollingLabel.h; path = ../../../src/ScrollingLabel.h; sourceTree = "<group>"; };
+		E2E21CCC13A177EB00A476A2 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Slider.h; path = ../../../src/Slider.h; sourceTree = "<group>"; };
 		E2E21CCD13A177EC00A476A2 /* State.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../src/State.h; sourceTree = "<group>"; };
-		E2E21CCE13A177EC00A476A2 /* TextLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; name = TextLabel.h; path = ../../../src/TextLabel.h; sourceTree = "<group>"; };
-		E2E21CCF13A177ED00A476A2 /* TimeLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; name = TimeLabel.h; path = ../../../src/TimeLabel.h; sourceTree = "<group>"; };
+		E2E21CCE13A177EC00A476A2 /* TextLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextLabel.h; path = ../../../src/TextLabel.h; sourceTree = "<group>"; };
+		E2E21CCF13A177ED00A476A2 /* TimeLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeLabel.h; path = ../../../src/TimeLabel.h; sourceTree = "<group>"; };
 		E2E21CD113A177EE00A476A2 /* UiLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UiLayer.h; path = ../src/UiLayer.h; sourceTree = "<group>"; };
 		E2E21CD213A177EF00A476A2 /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = World.h; path = ../src/World.h; sourceTree = "<group>"; };
 		E2E21CD713A1821300A476A2 /* GyroHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GyroHelper.cpp; path = ../src/GyroHelper.cpp; sourceTree = "<group>"; };

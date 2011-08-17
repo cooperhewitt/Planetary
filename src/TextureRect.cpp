@@ -8,10 +8,11 @@
 
 #include "TextureRect.h"
 #include "cinder/gl/gl.h"
+#include "BloomGl.h"
 
 using namespace ci;
 
 void TextureRect::draw()
 {
-    gl::draw( mTexture, mArea, mRect );
+    bloom::gl::batchRect( mTexture, mArea, mRect );
 }

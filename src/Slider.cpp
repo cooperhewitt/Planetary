@@ -8,6 +8,7 @@
 
 #include "Slider.h"
 #include "cinder/gl/gl.h"
+#include "BloomGl.h"
 
 using namespace ci;
 
@@ -45,11 +46,9 @@ void Slider::draw()
     
     Area thumbTexArea = mIsDragging ? mThumbDownTexArea : mThumbUpTexArea; 
     
-    gl::draw(mTexture, mBgTexArea, mRect);            
-    gl::draw(mTexture, mFgTexArea, fgRect);
-	
-    gl::draw(mTexture, thumbTexArea, thumbRect);
- 
+    bloom::gl::batchRect( mTexture, mBgTexArea, mRect );
+    bloom::gl::batchRect( mTexture, mFgTexArea, fgRect );
+    bloom::gl::batchRect( mTexture, thumbTexArea, thumbRect );
 }
 
 bool Slider::touchBegan(ci::app::TouchEvent::Touch touch)
