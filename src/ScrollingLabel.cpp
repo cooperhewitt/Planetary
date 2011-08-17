@@ -43,27 +43,30 @@ void ScrollingLabel::updateTexture()
 
 void ScrollingLabel::update()
 {    
-    float ctSpaceWidth = mRect.x2 - mRect.x1;
-    float ctTexWidth = mTexture.getWidth();
+    if (mTexture) {
     
-    if( ctTexWidth < ctSpaceWidth ){ 
-        mIsScrolling = false;
-    }
-    else {
-        // if the texture is too wide, animate the u coords...        
-        float elapsedSeconds = ci::app::getElapsedSeconds();
-        float x1;
-        if( elapsedSeconds - mLastChangeTime > 5.0f ) { 
-            // but wait 5 seconds first
-            mIsScrolling = true;
-            x1 = fmodf( ( elapsedSeconds - ( mLastChangeTime + 5.0f ) ) * 20.0f, ctTexWidth + 10.0f ) - ctTexWidth-10.0f;
-        } else {
-            x1 = -ctTexWidth-10.0f;
-        }
+        float ctSpaceWidth = mRect.x2 - mRect.x1;
+        float ctTexWidth = mTexture.getWidth();
         
-        mFirstArea = Area( x1, 0.0f, x1 + ctSpaceWidth, mTexture.getHeight() );
-        mSecondArea = Area( x1 + ctTexWidth + 10.0f, 0.0f, x1 + ctTexWidth + 10.0f + ctSpaceWidth, mTexture.getHeight() );
-    }    
+        if( ctTexWidth < ctSpaceWidth ){ 
+            mIsScrolling = false;
+        }
+        else {
+            // if the texture is too wide, animate the u coords...        
+            float elapsedSeconds = ci::app::getElapsedSeconds();
+            float x1;
+            if( elapsedSeconds - mLastChangeTime > 5.0f ) { 
+                // but wait 5 seconds first
+                mIsScrolling = true;
+                x1 = fmodf( ( elapsedSeconds - ( mLastChangeTime + 5.0f ) ) * 20.0f, ctTexWidth + 10.0f ) - ctTexWidth-10.0f;
+            } else {
+                x1 = -ctTexWidth-10.0f;
+            }
+            
+            mFirstArea = Area( x1, 0.0f, x1 + ctSpaceWidth, mTexture.getHeight() );
+            mSecondArea = Area( x1 + ctTexWidth + 10.0f, 0.0f, x1 + ctTexWidth + 10.0f + ctSpaceWidth, mTexture.getHeight() );
+        }    
+    }
 }
 
 void ScrollingLabel::draw()

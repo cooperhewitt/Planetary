@@ -425,7 +425,6 @@ void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 void Node::select()
 {
 	mIsSelected = true;
-    mAge = 0;
 	setIsDying( false );
 	
     vector<Node*>::iterator nodeIt;
