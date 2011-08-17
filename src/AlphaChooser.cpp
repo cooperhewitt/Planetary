@@ -127,7 +127,7 @@ void AlphaChooser::update( )
     }
     
     // wheel is already centered, so we have to subtract half of interface height
-    float y = mUiLayer->getPanelYPos() - (mInterfaceSize.y / 2.0f) - 100.0f;        
+    float y = mUiLayer->getPanelYPos() - (mInterfaceSize.y / 2.0f) - 50.0f - mFullRect.getHeight();        
     Matrix44f mat;
     mat.translate( Vec3f( 0, y, 0) );
     setTransform( mat );
