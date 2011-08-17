@@ -252,9 +252,11 @@ void NodeAlbum::update( float param1, float param2 )
 	mRelPos		= Vec3f( cos( mOrbitAngle ), 0.0f, sin( mOrbitAngle ) ) * mOrbitRadius;
 	mPos		= mParentNode->mPos + mRelPos;
 	
+	
+	
 /////////////////////////
 // CALCULATE ECLIPSE VARS
-    if( mParentNode->mDistFromCamZAxis > 0.0f && mDistFromCamZAxis > 0.0f ) //&& ( mIsSelected || mIsPlaying )
+    if( mParentNode->mDistFromCamZAxis > 0.0f && mDistFromCamZAxis > 0.0f && mIsHighlighted ) //&& ( mIsSelected || mIsPlaying )
 	{		
 		Vec2f p		= mScreenPos;
 		float r		= mSphereScreenRadius;

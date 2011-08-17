@@ -193,6 +193,9 @@ void Node::update( float param1, float param2 )
 	mAge ++;
 	
 	
+
+	
+	
 	bool clearChildNodes = false;
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		if( (*nodeIt)->mIsDead ){

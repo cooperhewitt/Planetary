@@ -77,11 +77,11 @@
 		E1D32DFA13D77525002F33ED /* settingsBg.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DF913D77525002F33ED /* settingsBg.png */; };
 		E1D32DFC13D77F12002F33ED /* filterToggleButton.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DFB13D77F12002F33ED /* filterToggleButton.png */; };
 		E1D32DFF13D78E01002F33ED /* WheelOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1D32DFD13D78E01002F33ED /* WheelOverlay.cpp */; };
-		E1D99A8E134AFF2F003FC316 /* alphaWheelMask.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */; };
 		E1D99A98134BD490003FC316 /* planet.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A96134BD490003FC316 /* planet.png */; };
 		E1D99A99134BD490003FC316 /* planetary.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A97134BD490003FC316 /* planetary.png */; };
 		E1D99A9B134BDBFE003FC316 /* background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A9A134BDBFE003FC316 /* background.jpg */; };
 		E1E663701317887F00E5E4B9 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E6636F1317887F00E5E4B9 /* State.cpp */; };
+		E1F642F513FB101D007E1183 /* gradientLarge.png in Resources */ = {isa = PBXBuildFile; fileRef = E1F642F413FB101D007E1183 /* gradientLarge.png */; };
 		E1FA27E11355790500169830 /* atmosphere.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FA27E01355790500169830 /* atmosphere.png */; };
 		E1FC7DA11337E4D9007F333C /* Dust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1FC7D9F1337E4D9007F333C /* Dust.cpp */; };
 		E1FC7DA313381853007F333C /* eclipseGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = E1FC7DA213381853007F333C /* eclipseGlow.png */; };
@@ -210,11 +210,11 @@
 		E1D32DFB13D77F12002F33ED /* filterToggleButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = filterToggleButton.png; path = ../resources/ui/filterToggleButton.png; sourceTree = "<group>"; };
 		E1D32DFD13D78E01002F33ED /* WheelOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WheelOverlay.cpp; path = ../src/WheelOverlay.cpp; sourceTree = "<group>"; };
 		E1D32DFE13D78E01002F33ED /* WheelOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WheelOverlay.h; path = ../src/WheelOverlay.h; sourceTree = "<group>"; };
-		E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = alphaWheelMask.png; path = ../resources/ui/alphaWheelMask.png; sourceTree = "<group>"; };
 		E1D99A96134BD490003FC316 /* planet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = planet.png; path = ../resources/loadscreen/planet.png; sourceTree = "<group>"; };
 		E1D99A97134BD490003FC316 /* planetary.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = planetary.png; path = ../resources/loadscreen/planetary.png; sourceTree = "<group>"; };
 		E1D99A9A134BDBFE003FC316 /* background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = background.jpg; path = ../resources/loadscreen/background.jpg; sourceTree = "<group>"; };
 		E1E6636F1317887F00E5E4B9 /* State.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = State.cpp; path = ../src/State.cpp; sourceTree = SOURCE_ROOT; };
+		E1F642F413FB101D007E1183 /* gradientLarge.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = gradientLarge.png; path = ../resources/ui/gradientLarge.png; sourceTree = "<group>"; };
 		E1FA27E01355790500169830 /* atmosphere.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = atmosphere.png; path = ../resources/planets/atmosphere.png; sourceTree = "<group>"; };
 		E1FC74B3130B256D007FE9D6 /* DoubleTapEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DoubleTapEvent.h; sourceTree = "<group>"; };
 		E1FC74B4130B256D007FE9D6 /* PhasedGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhasedGestureRecognizer.h; sourceTree = "<group>"; };
@@ -481,7 +481,7 @@
 				E128E33E1357B63E00707AA8 /* noArtists.png */,
 				E189F6751339A377009B2E23 /* playheadProgress.png */,
 				E10D86D51384FF8200346445 /* origin.png */,
-				E1D99A8D134AFF2F003FC316 /* alphaWheelMask.png */,
+				E1F642F413FB101D007E1183 /* gradientLarge.png */,
 			);
 			name = ui;
 			sourceTree = "<group>";
@@ -937,7 +937,6 @@
 				E17667DE13202FB7006A4C2E /* rings.png in Resources */,
 				E1FC7DA313381853007F333C /* eclipseGlow.png in Resources */,
 				E189F6761339A377009B2E23 /* playheadProgress.png in Resources */,
-				E1D99A8E134AFF2F003FC316 /* alphaWheelMask.png in Resources */,
 				E1D99A98134BD490003FC316 /* planet.png in Resources */,
 				E1D99A99134BD490003FC316 /* planetary.png in Resources */,
 				E1D99A9B134BDBFE003FC316 /* background.jpg in Resources */,
@@ -984,6 +983,7 @@
 				E1D32DEC13D6C2E2002F33ED /* playlistBg.png in Resources */,
 				E1D32DFA13D77525002F33ED /* settingsBg.png in Resources */,
 				E1D32DFC13D77F12002F33ED /* filterToggleButton.png in Resources */,
+				E1F642F513FB101D007E1183 /* gradientLarge.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
