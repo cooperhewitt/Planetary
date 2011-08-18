@@ -15,7 +15,6 @@
 #include "cinder/Color.h"
 #include "cinder/Font.h"
 #include "cinder/gl/Texture.h"
-#include "cinder/gl/Fbo.h"
 #include "cinder/Sphere.h"
 #include "cinder/Camera.h"
 #include "BloomSphere.h"
@@ -32,8 +31,8 @@ class Node {
     
 	virtual ~Node()
     { 
-        if (mNameTextureRequested) {
-            std::cout << "canceling request for name rendering " << mTaskId << std::endl;
+        if (!UiTaskQueue::isTaskComplete(mTaskId)) {
+            std::cout << "canceling request for name rendering #" << mTaskId << std::endl;
             UiTaskQueue::cancelTask(mTaskId);
         }
 		for( std::vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
@@ -41,8 +40,6 @@ class Node {
 		}
 		mChildNodes.clear();
 	}	
-	
-//	static void		initFbo();
 	
 	// METHODS
 	void			setSphereData( BloomSphere *hiSphere, BloomSphere *mdSphere, BloomSphere *loSphere, BloomSphere *tySphere );
@@ -188,6 +185,4 @@ protected:
     BloomSphere *mMdSphere;
     BloomSphere *mLoSphere; 
     BloomSphere *mTySphere;
-	
-//	static ci::gl::Fbo	mAlbumArtFbo;
 };

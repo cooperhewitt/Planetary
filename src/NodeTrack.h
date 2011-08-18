@@ -11,11 +11,21 @@
 
 #include "Node.h"
 #include "CinderIPod.h"
+#include "TaskQueue.h"
 
 class NodeTrack : public Node
 {
   public:
 	NodeTrack( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &hiResSurfaces, const ci::Surface &loResSurfaces, const ci::Surface &noAlbumArt );
+    
+    ~NodeTrack()
+    {
+        if (!UiTaskQueue::isTaskComplete(mTaskId)){
+            // cancel the album art rendering...
+            UiTaskQueue::cancelTask(mTaskId);
+        }
+    }
+    
 	void setData( ci::ipod::TrackRef track, ci::ipod::PlaylistRef album, const ci::Surface &albumArt );
     void initVertexArray();
 	void updateAudioData( double currentPlayheadTime );
@@ -68,7 +78,7 @@ private:
 	bool		mHasClouds;
 	bool		mIsMostPlayed;
 	bool		mHasAlbumArt;
-	bool		mHasCreatedAlbumArt;
+	bool		mHasRequestedAlbumArt;
 	ci::gl::Texture mAlbumArtTex;
 	ci::Surface	mAlbumArtSurface;
 	
@@ -86,4 +96,7 @@ private:
 	GLfloat		*mShadowTexCoords;
     
     uint64_t    mId;
+    
+    void createAlbumArt(); // on ui thread please!
+    uint64_t mTaskId;
 };

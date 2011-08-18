@@ -22,8 +22,8 @@ namespace bloom {
             glDeleteBuffers(1, &mVBO);
         }
         
-        mNumVerts		= segments * (segments/2) * 2 * 3;
-        mVerts			= new VertexData[ mNumVerts ];
+        mNumVerts = segments * (segments/2) * 2 * 3;
+        VertexData *verts = new VertexData[ mNumVerts ];
         
         const float TWO_PI = 2.0f * M_PI;
         
@@ -65,28 +65,28 @@ namespace bloom {
                 newv2			= Vec3f( cosTheta2 * cosTheta3, sinTheta2, cosTheta2 * sinTheta3 );
                 
                 if( i > 0 ){
-                    mVerts[vert].vertex = oldv1;
-                    mVerts[vert].texture = oldt1;
+                    verts[vert].vertex = oldv1;
+                    verts[vert].texture = oldt1;
                     vert++;
 
-                    mVerts[vert].vertex = oldv2;
-                    mVerts[vert].texture = oldt2;
+                    verts[vert].vertex = oldv2;
+                    verts[vert].texture = oldt2;
                     vert++;
                     
-                    mVerts[vert].vertex = newv1;
-                    mVerts[vert].texture = newt1;
+                    verts[vert].vertex = newv1;
+                    verts[vert].texture = newt1;
                     vert++;
 
-                    mVerts[vert].vertex = oldv2;
-                    mVerts[vert].texture = oldt2;
+                    verts[vert].vertex = oldv2;
+                    verts[vert].texture = oldt2;
                     vert++;
                     
-                    mVerts[vert].vertex = newv2;
-                    mVerts[vert].texture = newt2;
+                    verts[vert].vertex = newv2;
+                    verts[vert].texture = newt2;
                     vert++;
                     
-                    mVerts[vert].vertex = newv1;
-                    mVerts[vert].texture = newt1;
+                    verts[vert].vertex = newv1;
+                    verts[vert].texture = newt1;
                     vert++;
                 }
             }
@@ -96,10 +96,10 @@ namespace bloom {
         // (other things to try include VAOs, with glGenVertexArraysOES?)
         glGenBuffers(1, &mVBO);
         glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * mNumVerts, mVerts, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * mNumVerts, verts, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0); // Leave no VBO bound.        
 
-        delete[] mVerts;
+        delete[] verts;
         
         mInited = true;
     }

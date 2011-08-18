@@ -183,14 +183,14 @@ NodeAlbum* World::getAlbumNodeById( uint64_t artistId, uint64_t albumId )
     return NULL;
 }
 
+// check albums and artists (that may have been selected since the filter was set) and unhighlight them if needed
 void World::updateAgainstCurrentFilter()
 {
     if (mFilterRef) {
-        BOOST_FOREACH(NodeArtist* artistNode, mNodes) {
-            artistNode->mIsHighlighted = mFilterRef->testArtist(artistNode->getPlaylist());			
+        BOOST_FOREACH(NodeArtist* artistNode, mFilteredNodes) {
             BOOST_FOREACH(Node* n1, artistNode->mChildNodes) {            
                 NodeAlbum* albumNode = static_cast<NodeAlbum*>(n1);                
-                albumNode->mIsHighlighted = artistNode->mIsHighlighted && mFilterRef->testAlbum(albumNode->getPlaylist());
+                albumNode->mIsHighlighted = mFilterRef->testAlbum(albumNode->getPlaylist());
                 BOOST_FOREACH(Node* n2, albumNode->mChildNodes) {            
                     NodeTrack *trackNode = static_cast<NodeTrack*>(n2);
                     trackNode->mIsHighlighted = albumNode->mIsHighlighted && mFilterRef->testTrack(trackNode->mTrack);
@@ -244,10 +244,8 @@ NodeTrack* World::selectPlayingHierarchy( uint64_t artistId, uint64_t albumId, u
 
 void World::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 {
-    BOOST_FOREACH(NodeArtist* artistNode, mNodes) {        
-        if( artistNode->mIsHighlighted ) {
-            artistNode->checkForNameTouch( nodes, pos );
-        }
+    BOOST_FOREACH(NodeArtist* artistNode, mFilteredNodes) {        
+        artistNode->checkForNameTouch( nodes, pos );
     }
 }
 
@@ -345,10 +343,8 @@ void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset, float ang
     // FIXME: consider splitting Node::drawName into drawNameShadow and drawName and using
     // a single bloom::gl::begin/endBatch to reduce the number of state switches
     // needs to extend bloom::gl batching to support storing the current color as well as texture
-    BOOST_FOREACH(NodeArtist* artistNode, mNodes) {    
-		if( artistNode->mIsHighlighted ){
-			artistNode->drawName( cam, pinchAlphaOffset, angle );
-		}
+    BOOST_FOREACH(NodeArtist* artistNode, mFilteredNodes) {    
+        artistNode->drawName( cam, pinchAlphaOffset, angle );
 	}
 }
 

@@ -41,15 +41,6 @@ NodeAlbum::NodeAlbum( Node *parent, int index, const Font &font, const Font &sma
     mShadowTexCoords = NULL;
 }
 
-
-NodeAlbum::~NodeAlbum()
-{
-	if( mAlbumArtVbo != 0 ){
-		glDeleteBuffers( 1, &mAlbumArtVbo );
-	}
-}
-
-
 void NodeAlbum::setData( PlaylistRef album )
 {	
 	

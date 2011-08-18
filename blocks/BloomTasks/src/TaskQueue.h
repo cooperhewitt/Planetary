@@ -95,6 +95,7 @@ public:
                     std::set<uint64_t>::iterator iter = mCanceledIds.find( thisTaskId );
                     if ( iter == mCanceledIds.end() ) {
                         // if it's not canceled, do it
+                        std::cout << "performing task " << thisTaskId << std::endl;
                         f();
                     }
                     else {

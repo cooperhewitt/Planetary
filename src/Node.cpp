@@ -65,17 +65,6 @@ Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, co
 	mDeathPer			= 0.0f;
 }
 
-//gl::Fbo Node::mAlbumArtFbo;
-//
-//void Node::initFbo()
-//{
-//	int fboSize = 128;
-//	if( G_IS_IPAD2 ) fboSize = 256;
-//	
-//	if( !mAlbumArtFbo )
-//		mAlbumArtFbo = gl::Fbo( fboSize, fboSize );
-//}
-
 void Node::setIsDying( bool isDying )
 {
 	mIsDying = isDying;

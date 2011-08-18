@@ -4,7 +4,6 @@
 #include "cinder/app/Renderer.h"
 #include "cinder/Surface.h"
 #include "cinder/gl/Texture.h"
-#include "cinder/gl/Fbo.h"
 #include "cinder/Camera.h"
 #include "cinder/Font.h"
 #include "cinder/Arcball.h"
@@ -881,7 +880,7 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 
 bool KeplerApp::onWheelToggled( bool on )
 {
-	std::cout << "Wheel Toggled!" << std::endl;
+//	std::cout << "Wheel Toggled!" << std::endl;
 	if( !on ){
 		mPinchTotalDest = 1.0f;
 	}    
@@ -979,7 +978,7 @@ bool KeplerApp::onPlaylistStateChanged( ipod::PlaylistRef playlist )
 
     string playlistName = playlist->getPlaylistName();
     
-	std::cout << "playlist changed to " << playlistName << std::endl;
+//	std::cout << "playlist changed to " << playlistName << std::endl;
     
 // Commented out for now. Shouldn't notify if a playlist is being previewed. But once it is selected,
 // then it should notify.
@@ -1463,9 +1462,9 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
                     togglePlayPaused();
                 }
                 else {
-                    std::cout << "Artist Tapped - different to current track. Setting playlist..." << std::endl;
+//                    std::cout << "Artist Tapped - different to current track. Setting playlist..." << std::endl;
                     mIpodPlayer.play( ipod::getAlbumPlaylistWithArtistId(nodeArtist->getId()) );
-                    std::cout << "... done setting playlist." << std::endl;
+//                    std::cout << "... done setting playlist." << std::endl;
                     // FIXME: use artist name in overlay:
                     mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Artist" );
                 }
@@ -1497,13 +1496,13 @@ void KeplerApp::update()
 
         // and then make sure we know about the current track if there is one...
         if ( mIpodPlayer.hasPlayingTrack() ) {
-            std::cout << "Startup with Track Playing" << std::endl;
+//            std::cout << "Startup with Track Playing" << std::endl;
             logEvent("Startup with Track Playing");
             // update player info and then fly to current track
             onPlayerTrackChanged( &mIpodPlayer );
             flyToCurrentTrack();                
         } else {
-            std::cout << "Startup without Track Playing" << std::endl;
+//            std::cout << "Startup without Track Playing" << std::endl;
             logEvent("Startup without Track Playing");
             // show wheel (to invite filtering) and apply first filter
             mWheelOverlay->setShowWheel( true );
@@ -2144,10 +2143,10 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	   
     logEvent("Player Track Changed");
-    std::cout << "onPlayerTrackChanged" << std::endl;
+//    std::cout << "onPlayerTrackChanged" << std::endl;
 
     if (mPlayControls.playheadIsDragging()) {
-        std::cout << "canceling playhead drag" << std::endl;
+//        std::cout << "canceling playhead drag" << std::endl;
         mPlayControls.cancelPlayheadDrag();
         mPlayControls.setPlayheadProgress(0.0f);
         mIpodPlayer.setPlayheadTime( 0.0f );        
@@ -2169,7 +2168,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         
         if (previousTrack && previousTrack->getItemId() == trackId) {
             // skip spurious change event
-            std::cout << "skipping spurious change event" << std::endl;            
+//            std::cout << "skipping spurious change event" << std::endl;            
             return false;
         }
 
@@ -2224,11 +2223,11 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         
         if (!flyingAround) {
             
-            std::cout << "not flying around" << std::endl;                        
+//            std::cout << "not flying around" << std::endl;                        
             
             if( mState.getFilterMode() == State::FilterModePlaylist ) {
                 
-                std::cout << "checking playlist..." << std::endl;            
+//                std::cout << "checking playlist..." << std::endl;            
 
                 // let's see if we need to switch to alpha mode...
                 ipod::PlaylistRef playlist = mState.getPlaylist();                
@@ -2247,15 +2246,15 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                 
                 // if it's not we need to switch to alphabet mode...
                 if (!playingTrackIsInPlaylist) {
-                    std::cout << "new track isn't in the current playlist, setting to alpha mode..." << std::endl;            
+//                    std::cout << "new track isn't in the current playlist, setting to alpha mode..." << std::endl;            
                     // trigger hefty stuff in onFilterModeStateChanged:
                     mState.setFilterMode( State::FilterModeAlphaChar );            
                     // trigger hefty stuff in onAlphaCharStateChanged:
                     mState.setAlphaChar( artistName ); 
                 }
-                else {
-                    std::cout << "new track is in the current playlist, carry on!" << std::endl;            
-                }
+//                else {
+//                    std::cout << "new track is in the current playlist, carry on!" << std::endl;            
+//                }
             }
             
             // just sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
@@ -2325,12 +2324,12 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 void KeplerApp::logEvent(const string &event)
 {
     if (G_DEBUG) std::cout << "logging: " << event << std::endl;
-    Flurry::getInstrumentation()->logEvent(event);
+//    Flurry::getInstrumentation()->logEvent(event);
 }
 void KeplerApp::logEvent(const string &event, const map<string,string> &params)
 {
     if (G_DEBUG) std::cout << "logging: " << event << " with params..." << std::endl;
-    Flurry::getInstrumentation()->logEvent(event, params);
+//    Flurry::getInstrumentation()->logEvent(event, params);
 }
 
 void KeplerApp::makeNewCameraPath()

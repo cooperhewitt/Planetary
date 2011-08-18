@@ -41,9 +41,13 @@ void TextureLoader::start()
 void TextureLoader::loadSurfaces()
 {
     for (int i = 0; i < mRequests.size(); i++) {
-        Surface surface = loadImage( loadResource( mRequests[i].mFileName ) );
         mRequestsMutex.lock();
-        mRequests[i].mSurface = loadImage( loadResource( mRequests[i].mFileName ) );
+        std::string path = mRequests[i].mFileName;
+        mRequestsMutex.unlock();
+        // no lock for the long running part...
+        Surface surface = loadImage( loadResource( path ) );
+        mRequestsMutex.lock();
+        mRequests[i].mSurface = surface;
         mRequestsMutex.unlock();
         mRequestsComplete++;
         // called on the UI thread...
@@ -53,7 +57,7 @@ void TextureLoader::loadSurfaces()
 
 void TextureLoader::surfaceLoaded()
 {
-    std::cout << "TextureLoader::surfaceLoaded()" << std::endl;
+//    std::cout << "TextureLoader::surfaceLoaded()" << std::endl;
     
     if (mTextures.size() == mTotalRequests) {
         return;
@@ -61,25 +65,25 @@ void TextureLoader::surfaceLoaded()
     
     // one texture per frame
     if (mTextures.size() < mRequestsComplete) {
-        std::cout << "TextureLoader::surfaceLoaded checking lock... ";
+//        std::cout << "TextureLoader::surfaceLoaded checking lock... ";
 
         // if mRequestsMutex isn't already locked (don't block, we're on the UI thread)
         if (mRequestsMutex.try_lock()) {
-            std::cout << " got lock!" << std::endl;
+//            std::cout << " got lock!" << std::endl;
             int index = mTextures.size();
             mTextures[ mRequests[index].mTexId ] = gl::Texture( mRequests[index].mSurface );
             mRequests[index].mSurface.reset();
             mRequestsMutex.unlock();
         }
         else {
-            std::cout << " try again next time!" << std::endl;
+//            std::cout << " try again next time!" << std::endl;
             // try again
             UiTaskQueue::pushTask( std::bind( std::mem_fun( &TextureLoader::surfaceLoaded ), this ) );            
         }
     }
     
     if (mTextures.size() == mTotalRequests) {
-        std::cout << "TextureLoader::surfaceLoaded complete!" << std::endl;        
+//        std::cout << "TextureLoader::surfaceLoaded complete!" << std::endl;        
         mRequests.clear();
         mCbComplete.call( this );
     }

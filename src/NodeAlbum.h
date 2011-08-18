@@ -12,14 +12,12 @@
 #include "cinder/Vector.h"
 #include "Node.h"
 #include "OrbitRing.h"
-#include "cinder/gl/Fbo.h"
 //#include "Shadow.h"
 
 class NodeAlbum : public Node
 {
   public:
 	NodeAlbum( Node *parent, int index, const ci::Font &font, const ci::Font &smallFont, const ci::Surface &hiResSurfaces, const ci::Surface &loResSurfaces, const ci::Surface &noAlbumArt );
-	~NodeAlbum();
 	
 	void setData( ci::ipod::PlaylistRef album );
 	void update( float param1, float param2 );

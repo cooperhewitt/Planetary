@@ -11,7 +11,6 @@
 #include <vector>
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/gl/TextureFont.h"
-#include "cinder/gl/Fbo.h"
 #include "cinder/Font.h"
 #include "cinder/Color.h"
 #include "cinder/Camera.h"

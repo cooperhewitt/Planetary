@@ -16,6 +16,12 @@ namespace bloom {
     {
       public:
         
+        struct VertexData {
+            ci::Vec3f vertex;
+            // no normal, normal == vertex
+            ci::Vec2f texture;
+        };            
+        
         BloomSphere(): mInited(false) {}
         ~BloomSphere() {
             if (mInited) {
@@ -28,16 +34,9 @@ namespace bloom {
 
       private:
         
-        struct VertexData {
-            ci::Vec3f vertex;
-            // no normal, normal == vertex
-            ci::Vec2f texture;
-        };            
-        
         bool mInited;
         GLuint mVBO;
-        int mNumVerts;
-        VertexData *mVerts; 
+        int mNumVerts; 
         
     };
     
