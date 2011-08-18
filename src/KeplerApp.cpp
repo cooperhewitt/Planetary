@@ -1,4 +1,5 @@
 #include <vector>
+#include <cmath>
 
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/app/Renderer.h"
@@ -966,6 +967,8 @@ bool KeplerApp::onAlphaCharStateChanged( char c )
     params["Count"] = toString( mWorld.getNumFilteredNodes() );
     logEvent("Letter Selected" , params);
 
+    mAlphaChooser.setAlphaChar( c );
+    
 	return false;
 }
 
@@ -1790,6 +1793,7 @@ void KeplerApp::updateCamera()
     Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);
     mEye = mCenter - camOffset;
 
+    assert( !(isnan(mEye.x) || isnan(mEye.y) || isnan(mEye.z)) );  
 	
 // Bspline curve camera follow	
 //	if( G_AUTO_MOVE ){

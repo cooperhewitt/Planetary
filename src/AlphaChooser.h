@@ -45,7 +45,7 @@ public:
 	ci::CallbackId registerAlphaCharSelected( T *obj, bool ( T::*callback )( char ) ){
 		return mCallbacksAlphaCharSelected.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
-			
+
 private:
     
 	void	setRects();    
