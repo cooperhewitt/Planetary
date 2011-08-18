@@ -79,9 +79,7 @@ void World::initNodes( const vector<PlaylistRef> &artists, const Font &font, con
 }
 
 void World::setFilter(FilterRef filterRef)
-{
-    float t = app::getElapsedSeconds();
-    
+{    
     mFilterRef = filterRef;
     
     mFilteredNodes.clear();
@@ -98,9 +96,7 @@ void World::setFilter(FilterRef filterRef)
 	
 	if( mFilteredNodes.size() > 1 ){
 		mConstellation.setup( mFilteredNodes );
-	}
-    
-    std::cout << app::getElapsedFrames() << " " << (app::getElapsedSeconds() - t) << " seconds to filter" << std::endl;
+	}    
 }
 
 void World::updateIsPlaying( uint64_t artistId, uint64_t albumId, uint64_t trackId )
@@ -189,7 +185,6 @@ NodeAlbum* World::getAlbumNodeById( uint64_t artistId, uint64_t albumId )
 
 void World::updateAgainstCurrentFilter()
 {
-    float t = app::getElapsedSeconds();
     if (mFilterRef) {
         BOOST_FOREACH(NodeArtist* artistNode, mNodes) {
             artistNode->mIsHighlighted = mFilterRef->testArtist(artistNode->getPlaylist());			
@@ -203,7 +198,6 @@ void World::updateAgainstCurrentFilter()
             }
         }
     }
-    std::cout << app::getElapsedFrames() << " " << (app::getElapsedSeconds() - t) << " seconds to update against current filter" << std::endl;
 }
 
 NodeTrack* World::selectPlayingHierarchy( uint64_t artistId, uint64_t albumId, uint64_t trackId )
