@@ -92,15 +92,15 @@ public:
                     VoidFunc f = mFunctions.front(); // grab the next task
                     mFunctions.pop();                // remove it; there is no undo
                     mFunctionsMutex.unlock();        // unlock first so that tasks can queue other tasks
-                    std::set<uint64_t> iter = mCanceledIds.find( thisTaskId );
-                    if ( iter == mCanceledTasks.end() ) {
+                    std::set<uint64_t>::iterator iter = mCanceledIds.find( thisTaskId );
+                    if ( iter == mCanceledIds.end() ) {
                         // if it's not canceled, do it
                         f();
                     }
                     else {
                         std::cout << "skipping task " << thisTaskId << std::endl;
                         // otherwise remove it
-                        mCanceledTasks.erase( iter );
+                        mCanceledIds.erase( iter );
                     }
                 }
             }
