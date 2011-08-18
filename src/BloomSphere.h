@@ -14,13 +14,7 @@ namespace bloom {
 
     class BloomSphere
     {
-    public:
-        
-        struct VertexData {
-            ci::Vec3f vertex;
-            // no normal, normal == vertex
-            ci::Vec2f texture;
-        };            
+      public:
         
         BloomSphere(): mInited(false) {}
         ~BloomSphere() {
@@ -32,7 +26,13 @@ namespace bloom {
         void setup( int segments );
         void draw();
 
-    private:
+      private:
+        
+        struct VertexData {
+            ci::Vec3f vertex;
+            // no normal, normal == vertex
+            ci::Vec2f texture;
+        };            
         
         bool mInited;
         GLuint mVBO;
