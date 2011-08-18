@@ -32,8 +32,10 @@ class Node {
     
 	virtual ~Node()
     { 
-        std::cout << "canceling request for name rendering " << mTaskId << std::endl;
-        UiTaskQueue::cancelTask(mTaskId); // cancel name texture rendering if needed       
+        if (mNameTextureRequested) {
+            std::cout << "canceling request for name rendering " << mTaskId << std::endl;
+            UiTaskQueue::cancelTask(mTaskId);
+        }
 		for( std::vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 			delete (*nodeIt);
 		}

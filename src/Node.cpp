@@ -56,8 +56,10 @@ Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, co
 	mIsHighlighted		= false;
 	mIsDying			= false;
 	mIsDead				= false;
+    
     mNameTextureRequested = false;
-	
+	mTaskId             = 0;
+    
 	mDeathCount			= 0;
 	mDeathThresh		= 100;
 	mDeathPer			= 0.0f;
