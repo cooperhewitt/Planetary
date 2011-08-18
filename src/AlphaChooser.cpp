@@ -70,7 +70,6 @@ bool AlphaChooser::touchBegan( TouchEvent::Touch touch )
 {
     if (!mWheelOverlay->getShowWheel()) return false;    
     Vec2f pos = globalToLocal( touch.getPos() );
-    // TODO: make a padded hitrect
     return mFullRect.contains( pos );
 }
 
@@ -104,13 +103,13 @@ bool AlphaChooser::touchEnded( TouchEvent::Touch touch )
 			if( mAlphaChar != mAlphaString[i] ){            
                 mAlphaChar = mAlphaString[i];
                 mCallbacksAlphaCharSelected.call( mAlphaChar );
-                mWheelOverlay->setShowWheel(false);
             }
+            mWheelOverlay->setShowWheel(false);
             return true;
         }
     }
 
-    return false;
+    return mFullRect.contains( pos );
 }
 
 void AlphaChooser::setNumberAlphaPerChar( float *numberAlphaPerChar )

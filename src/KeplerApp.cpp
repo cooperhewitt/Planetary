@@ -1618,7 +1618,7 @@ void KeplerApp::update()
     }    
     
     // do UI thread things...
-    UiTaskQueue::popTask();
+    UiTaskQueue::update();
 }
 
 void KeplerApp::updateArcball()

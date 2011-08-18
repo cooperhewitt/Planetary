@@ -43,7 +43,7 @@ void OrbitRing::setup()
     glGenBuffers(1, &mLowResVBO);
     glBindBuffer(GL_ARRAY_BUFFER, mLowResVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * G_RING_LOW_RES, mVertsLowRes, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // Leave no VBO bound.        
 
     delete[] mVertsLowRes;
 
@@ -59,7 +59,7 @@ void OrbitRing::setup()
     glGenBuffers(1, &mHighResVBO);
     glBindBuffer(GL_ARRAY_BUFFER, mHighResVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * G_RING_HIGH_RES, mVertsHighRes, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER,0); // Leave no VBO bound.        
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // Leave no VBO bound.        
 
     delete[] mVertsHighRes;    
 }
