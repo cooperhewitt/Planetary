@@ -9,6 +9,7 @@
 #pragma once
 
 #include <queue>
+#include <set>
 #include "cinder/app/AppBasic.h"
 #include "cinder/Cinder.h"
 #include "cinder/Thread.h"
@@ -53,17 +54,30 @@ class UiTaskQueue {
     
 public:
     
-    static void pushTask( VoidFunc f )
+    static int pushTask( VoidFunc f )
     {
         mFunctionsMutex.lock();
         mFunctions.push( f );
         mFunctionsMutex.unlock();
+        return mTotalTasks++;
+    }
+    
+    static bool isTaskComplete( uint64_t taskId )
+    {
+        return mCompletedTasks > taskId;
+    }
+    
+    // only call from main thread, no canceling from background threads mmmkay?
+    static void cancelTask( uint64_t taskId )
+    {
+        if (!isTaskComplete(taskId)) {
+            mCanceledIds.insert(taskId);
+        }
     }
     
     // call this from the UI thread, or pain will occur
     static void popTask( )
     {
-        int tasksComplete = 0;
         float t = ci::app::getElapsedSeconds();
         do {
             // TODO: within a certain time limit, keep popping tasks
@@ -73,20 +87,32 @@ public:
                     break; // quit the do/while
                 }
                 else {
+                    uint64_t thisTaskId = mCompletedTasks++; // remember this id and increment too; 
+                    // (it's about to be gone from mFunctions so cancelTask won't work anyway)
                     VoidFunc f = mFunctions.front(); // grab the next task
                     mFunctions.pop();                // remove it; there is no undo
                     mFunctionsMutex.unlock();        // unlock first so that tasks can queue other tasks
-                    f(); // go!
+                    std::set<uint64_t> iter = mCanceledIds.find( thisTaskId );
+                    if ( iter == mCanceledTasks.end() ) {
+                        // if it's not canceled, do it
+                        f();
+                    }
+                    else {
+                        std::cout << "skipping task " << thisTaskId << std::endl;
+                        // otherwise remove it
+                        mCanceledTasks.erase( iter );
+                    }
                 }
-                tasksComplete++;
             }
         } while ( ci::app::getElapsedSeconds() - t < 0.005 ); // ~5ms budget (but always do at least one call)
-//        std::cout << "completed " << tasksComplete << " task" << (tasksComplete==1?"":"s") << " this frame" << std::endl;
     }
     
 private:
     
     static std::mutex mFunctionsMutex;
     static std::queue<VoidFunc> mFunctions;
+    static uint64_t mCompletedTasks;
+    static uint64_t mTotalTasks;
+    static std::set<uint64_t> mCanceledIds;
     
 };

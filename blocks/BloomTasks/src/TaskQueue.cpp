@@ -10,3 +10,6 @@
 
 std::mutex UiTaskQueue::mFunctionsMutex;
 std::queue<VoidFunc> UiTaskQueue::mFunctions;
+UiTaskQueue::uint64_t mCompletedTasks = 0;
+UiTaskQueue::uint64_t mTotalTasks = 0;
+std::set<uint64_t> UiTaskQueue::mCanceledIds;

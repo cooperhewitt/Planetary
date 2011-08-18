@@ -14,7 +14,6 @@
 #include "cinder/Utilities.h"
 #include "Globals.h"
 #include "Node.h"
-#include "TaskQueue.h"
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
 
@@ -164,7 +163,7 @@ void Node::createNameSurface()
 		layout.addLine( yearStr );
 	}
 	Surface8u nameSurface = Surface8u( layout.render( true, false ) );
-    UiTaskQueue::pushTask( std::bind( std::mem_fun( &Node::createNameTexture ), this, nameSurface ) );
+    mTaskId = UiTaskQueue::pushTask( std::bind( std::mem_fun( &Node::createNameTexture ), this, nameSurface ) );
 }
 
 // must be on UI thread
@@ -296,7 +295,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
                 if (!mNameTextureRequested) {
                     mNameTextureRequested = true;
                     // do the TextLayout and surface bit one per frame
-                    UiTaskQueue::pushTask( std::bind( std::mem_fun( &Node::createNameSurface ), this ) );
+                    mTaskId = UiTaskQueue::pushTask( std::bind( std::mem_fun( &Node::createNameSurface ), this ) );
                 }
 			}
             else {
