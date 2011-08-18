@@ -9,6 +9,7 @@
 
 #include <map>
 #include <deque>
+#include <boost/foreach.hpp>
 #include "cinder/app/AppBasic.h"
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
@@ -251,12 +252,11 @@ void NodeArtist::select()
             
 			int i=0;
 			int trackcount = 0;
-			for(vector<PlaylistRef>::iterator it = albums.begin(); it != albums.end(); ++it){
-				PlaylistRef album	= *it;
+            BOOST_FOREACH(PlaylistRef album, albums) {
 				NodeAlbum *newNode = new NodeAlbum( this, i, mFont, mSmallFont, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
                 newNode->setSphereData( mHiSphere, mMdSphere, mLoSphere, mTySphere );
 				mChildNodes.push_back( newNode );
-				trackcount += album->m_tracks.size();
+				trackcount += album->size();
 				newNode->setData( album );
 				i++;
 			}

@@ -57,6 +57,7 @@ Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, co
 	mIsHighlighted		= false;
 	mIsDying			= false;
 	mIsDead				= false;
+    mNameTextureRequested = false;
 	
 	mDeathCount			= 0;
 	mDeathThresh		= 100;
@@ -200,10 +201,6 @@ void Node::update( float param1, float param2 )
 	mDeathPer = 1.0f - (float)mDeathCount/(float)mDeathThresh;
 	mAge ++;
 	
-	
-
-	
-	
 	bool clearChildNodes = false;
 	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
 		if( (*nodeIt)->mIsDead ){
@@ -246,22 +243,22 @@ void Node::updateGraphics( const CameraPersp &cam, const Vec2f &center, const Ve
 
 void Node::drawEclipseGlow()
 {
-	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawEclipseGlow();
+    BOOST_FOREACH(Node* node, mChildNodes) {
+		node->drawEclipseGlow();
 	}
 }
 
 void Node::drawRings( const gl::Texture &tex, const PlanetRing &planetRing, float camZPos )
 {
-	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawRings( tex, planetRing, camZPos );
+    BOOST_FOREACH(Node* node, mChildNodes) {
+		node->drawRings( tex, planetRing, camZPos );
 	}
 }
 
 void Node::drawOrbitRing( float pinchAlphaOffset, float camAlpha, const OrbitRing &orbitRing )
 {
-	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		(*nodeIt)->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRing );
+    BOOST_FOREACH(Node* node, mChildNodes) {
+		node->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRing );
 	}
 }
 
@@ -384,9 +381,9 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 		 */
 	}
 	
-	for( vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-		if( (*nodeIt)->mIsHighlighted ){
-            (*nodeIt)->drawName( cam, pinchAlphaPer, angle );
+    BOOST_FOREACH(Node* node, mChildNodes) {
+		if( node->mIsHighlighted ){
+            node->drawName( cam, pinchAlphaPer, angle );
 		}
 	}
 }
@@ -431,9 +428,8 @@ void Node::checkForNameTouch( vector<Node*> &nodes, const Vec2f &pos )
 			nodes.push_back( this );
 		}
 	}
-    vector<Node*>::iterator nodeIt;
-    for( nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
-        (*nodeIt)->checkForNameTouch( nodes, pos );
+    BOOST_FOREACH(Node* node, mChildNodes) {
+        node->checkForNameTouch( nodes, pos );
     }
 }
 
