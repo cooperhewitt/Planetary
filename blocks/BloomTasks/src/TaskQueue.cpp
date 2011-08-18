@@ -9,5 +9,4 @@
 #include "TaskQueue.h"
 
 std::mutex UiTaskQueue::mFunctionsMutex;
-std::vector< std::function<void(void)> > UiTaskQueue::mFunctions;
-
+std::queue<VoidFunc> UiTaskQueue::mFunctions;

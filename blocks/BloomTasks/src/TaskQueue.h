@@ -8,16 +8,19 @@
 
 #pragma once
 
-#include <vector>
+#include <queue>
+#include "cinder/app/AppBasic.h"
 #include "cinder/Cinder.h"
 #include "cinder/Thread.h"
 #include "cinder/Function.h"
+
+typedef std::function<void(void)> VoidFunc;
 
 class TaskQueue {
   
 public:
     
-    static void pushTask( std::function<void(void)> f )
+    static void pushTask( VoidFunc f )
     {
         // TODO: later, use a single thread and queue the tasks 
         // e.g. http://www.justsoftwaresolutions.co.uk/threading/implementing-a-thread-safe-queue-using-condition-variables.html 
@@ -27,7 +30,7 @@ public:
     
 private:
     
-    static void doWork( std::function<void(void)> f )
+    static void doWork( VoidFunc f )
     {
         // Cinder's ThreadSetup class ensures that the OS know's what's up
         // (creates and drains an autorelease pool, etc)
@@ -50,33 +53,40 @@ class UiTaskQueue {
     
 public:
     
-    static void pushTask( std::function<void(void)> f )
+    static void pushTask( VoidFunc f )
     {
         mFunctionsMutex.lock();
-        mFunctions.push_back( f );
+        mFunctions.push( f );
         mFunctionsMutex.unlock();
     }
     
     // call this from the UI thread, or pain will occur
     static void popTask( )
     {
-        // TODO: within a certain time limit, keep popping tasks
-        if (mFunctionsMutex.try_lock()) {
-            if (mFunctions.size() > 0) {
-                std::function<void(void)> f = mFunctions[0];
-                mFunctions.erase( mFunctions.begin() );
-                mFunctionsMutex.unlock(); // unlock first so that tasks can queue other tasks
-                f();
+        int tasksComplete = 0;
+        float t = ci::app::getElapsedSeconds();
+        do {
+            // TODO: within a certain time limit, keep popping tasks
+            if (mFunctionsMutex.try_lock()) {
+                if (mFunctions.empty()) {                
+                    mFunctionsMutex.unlock();
+                    break; // quit the do/while
+                }
+                else {
+                    VoidFunc f = mFunctions.front(); // grab the next task
+                    mFunctions.pop();                // remove it; there is no undo
+                    mFunctionsMutex.unlock();        // unlock first so that tasks can queue other tasks
+                    f(); // go!
+                }
+                tasksComplete++;
             }
-            else {
-                mFunctionsMutex.unlock();
-            }
-        }
+        } while ( ci::app::getElapsedSeconds() - t < 0.005 ); // ~5ms budget (but always do at least one call)
+//        std::cout << "completed " << tasksComplete << " task" << (tasksComplete==1?"":"s") << " this frame" << std::endl;
     }
     
 private:
     
     static std::mutex mFunctionsMutex;
-    static std::vector< std::function<void(void)> > mFunctions;
+    static std::queue<VoidFunc> mFunctions;
     
 };
