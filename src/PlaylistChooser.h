@@ -50,6 +50,8 @@ public:
 	ci::CallbackId registerPlaylistTouched( T *obj, bool ( T::*callback )( ci::ipod::PlaylistRef ) ){
 		return mCbPlaylistTouched.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
+    
+    bool hitTest( ci::Vec2f globalPos ) { return mVisible && mFullRect.contains( globalToLocal( globalPos ) ); }
 
 private:
     
@@ -75,6 +77,8 @@ private:
 	float			mOffsetX;		// for scrolling
 	float			mOffsetXLocked; // for snap-to effect
 	float			mStartY;
+    
+    ci::Rectf       mFullRect;
     
     std::vector<ci::Rectf> mPlaylistRects;
 	

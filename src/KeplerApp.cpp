@@ -729,12 +729,12 @@ void KeplerApp::touchesEnded( TouchEvent event )
 	if( touches.size() == 1 && timeSincePinchEnded > 0.2f ){        
         Vec2f currentPos = touches.begin()->getPos();
         Vec2f prevPos = touches.begin()->getPrevPos();   
+        // if your touch isn't hitting the uiLayer panel and the Help panel isnt showing
         if (positionTouchesWorld(currentPos) && positionTouchesWorld(prevPos)) {
             mTouchPos = currentPos;
 			
-            // if the nav wheel isnt showing and you havent been dragging
-			// and your touch is above the uiLayer panel and the Help panel isnt showing
-            if( !(mWheelOverlay->getShowWheel() || mIsDragging) ){
+            // if you havent been dragging
+            if( !mIsDragging ){
                 float u			= mTouchPos.x / (float) getWindowWidth();
                 float v			= mTouchPos.y / (float) getWindowHeight();
                 Ray touchRay	= mCam.generateRay( u, 1.0f - v, mCam.getAspectRatio() );
@@ -832,11 +832,15 @@ bool KeplerApp::keepTouchForPinching( TouchEvent::Touch touch )
 
 bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
 {
-	const Vec2f worldPos = (mInverseOrientationMatrix * Vec3f(screenPos,0)).xy();
-    const bool aboveUI   = (worldPos.y < mUiLayer.getPanelYPos());
-    const bool inTab     = (mUiLayer.getPanelTabRect().contains(worldPos));
-    const bool onWheel   = (mWheelOverlay->isVisible() && mWheelOverlay->hitTest(worldPos));
-    return aboveUI && !inTab && !onWheel;
+    const bool inUi              = mUiLayer.hitTest(screenPos);
+    const bool inAlphaChooser    = mAlphaChooser.hitTest(screenPos);
+    const bool inFilterToggle    = mFilterToggleButton.hitTest(screenPos);
+    const bool inPlaylistChooser = mPlaylistChooser.hitTest(screenPos);
+    std::cout << "inUi: " << (inUi ? "true" : "false") << std::endl;
+    std::cout << "inAlphaChooser: " << (inAlphaChooser ? "true" : "false") << std::endl;
+    std::cout << "inFilterToggle: " << (inFilterToggle ? "true" : "false") << std::endl;
+    std::cout << "inPlaylistChooser: " << (inPlaylistChooser ? "true" : "false") << std::endl;
+    return !(inUi || inFilterToggle || inPlaylistChooser || inAlphaChooser);
 }
 
 

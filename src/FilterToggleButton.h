@@ -34,6 +34,8 @@ public:
 		return mCbFilterModeSelected.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
     
+    bool hitTest( ci::Vec2f globalPos );
+    
 private:
     
     bool touchBegan( ci::app::TouchEvent::Touch touch );

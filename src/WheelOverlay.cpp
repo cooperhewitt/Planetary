@@ -29,9 +29,8 @@ void WheelOverlay::setup( const gl::Texture &tex )
 {
     mWheelScale	= 2.25f;
 	mShowWheel  = false;    
-	mRadius     = -1.0f; // updated in update :)
-    mVerts      = NULL;
     mTex = tex;
+    updateVerts();
 }
 
 void WheelOverlay::update()
@@ -62,27 +61,13 @@ void WheelOverlay::update()
 
         mat.scale( Vec3f( mWheelScale, mWheelScale, 1.0f ) );
         setTransform(mat);        
-    }    
-    
-    float prevRadius = mRadius;
-
-	mRadius = 315.0f;
-	if( interfaceSize.x > interfaceSize.y ) {
-        // adjust for control panel in landscape
-        float amount = (interfaceSize.x - interfaceSize.y) / (1024-768);        
-		mRadius -= 30.0f * amount;
-    }
-    
-    if (mVerts == NULL || mRadius != prevRadius) {
-        updateVerts();
-    }
+    }        
 }
 
 void WheelOverlay::updateVerts()
 {	
 	mTotalVertices = 6;
-	delete[] mVerts; 
-	mVerts = NULL;
+
 	mVerts = new VertexData[mTotalVertices];
 	
 	float W	= 1280; // sqrt(1024 * 1024 + 768 * 768) (diagonal)
@@ -104,12 +89,13 @@ void WheelOverlay::updateVerts()
 	
 	int indices[6] = { 0, 1, 2, 1, 3, 2 };
 	
+    // FIXME: just use an indexed VBO for this now it's static
+    
 	int vIndex = 0;
-	for( int i=0; i<6; i++ ){
+	for( int i = 0; i < mTotalVertices; i++ ){
 		mVerts[vIndex].vertex	= positions[indices[i]];
 		mVerts[vIndex].texture	= textures[indices[i]];
-		
-		vIndex ++;
+		vIndex++;
 	}
 }
 
@@ -140,7 +126,3 @@ void WheelOverlay::setShowWheel( bool b )
     mCallbacksWheelToggled.call( b );
 }
 
-bool WheelOverlay::hitTest( const Vec2f &globalPoint )
-{
-    return globalToLocal( globalPoint ).distance( Vec2f::zero() ) > mRadius;
-}

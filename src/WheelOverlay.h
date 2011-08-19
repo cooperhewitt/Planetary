@@ -19,12 +19,10 @@
 class WheelOverlay : public BloomNode {
 public:
 	WheelOverlay() {}
-	~WheelOverlay() {}
-	
-	struct VertexData {
-        ci::Vec2f vertex;
-        ci::Vec2f texture;
-    };
+	~WheelOverlay() 
+    { 	
+        delete[] mVerts; 
+    }
 	
 	void	setup( const ci::gl::Texture &tex );
 	void	update();
@@ -33,10 +31,7 @@ public:
 	void	setShowWheel( bool b );
 	bool	getShowWheel(){ return mShowWheel; }
     
-	float getRadius() { return mRadius; }
-	float getWheelScale() { return mWheelScale; }
-    
-    bool    hitTest( const ci::Vec2f &point );
+	float   getWheelScale() { return mWheelScale; }
     
 	template<typename T>
 	ci::CallbackId registerWheelToggled( T *obj, bool ( T::*callback )( bool ) ){
@@ -44,12 +39,16 @@ public:
 	}
     
 private:
-    
+
+	struct VertexData {
+        ci::Vec2f vertex;
+        ci::Vec2f texture;
+    };
+	    
     void updateVerts();
     
 	ci::gl::Texture	mTex;
 
-	float mRadius;
 	float mWheelScale;
     
     bool mShowWheel;

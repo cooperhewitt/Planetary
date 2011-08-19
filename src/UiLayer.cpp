@@ -198,3 +198,12 @@ void UiLayer::draw()
     //mActive = (mInterfaceSize.y - y ) > 60.0f;
     
 }
+
+bool UiLayer::hitTest( Vec2f globalPos ) 
+{
+    if (mVisible) {
+        Vec2f pos = globalToLocal( globalPos );
+        return mPanelUpperRect.contains( pos ) || mPanelLowerRect.contains( pos ) || mPanelTabRect.contains( pos );
+    }
+    return false;
+}

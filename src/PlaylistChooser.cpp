@@ -70,12 +70,7 @@ bool PlaylistChooser::touchBegan( ci::app::TouchEvent::Touch touch )
 		}
 	}
 
-    // if we didn't already return...
-    // capture all touches inside wheel so we can dismiss a tap inside the world
-    Vec2f dir = globalToLocal( touch.getPos() );
-    float distToCenter = dir.length();
-    float maxDiam = mWheelOverlay->getRadius() + 25.0f;        
-    return distToCenter < maxDiam;
+    return false;
 }
 
 bool PlaylistChooser::touchMoved( ci::app::TouchEvent::Touch touch )
@@ -122,14 +117,8 @@ bool PlaylistChooser::touchEnded( ci::app::TouchEvent::Touch touch )
     }
     
     // if we didn't already return...
-    // so we can dismiss the wheel if we tapped inside the world
-    Vec2f dir = globalToLocal( touch.getPos() );
-    float distToCenter = dir.length();
-    float maxDiam = mWheelOverlay->getRadius() + 25.0f;        
-    if (distToCenter < maxDiam) {
-        mWheelOverlay->setShowWheel(false);
-        return true;
-    }
+    // we can dismiss the wheel since we must have tapped inside the world
+//    mWheelOverlay->setShowWheel(false);
     
     return false;
 }
@@ -195,6 +184,14 @@ void PlaylistChooser::update()
 		mOffsetXLocked = mOffsetX;
 	}
     
+    // calculate full rect for ignoring touches in main app
+    // this will be one frame out of date but that should be OK
+    if (mPlaylistRects.size() > 0) {
+        mFullRect = mPlaylistRects[0];
+        for (int i = 0; i < mPlaylistRects.size(); i++) {
+            mFullRect.include(mPlaylistRects[i]);
+        }
+    }
 }
 
 

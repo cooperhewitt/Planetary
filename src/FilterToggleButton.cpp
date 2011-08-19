@@ -87,3 +87,8 @@ void FilterToggleButton::draw()
         bloom::gl::endBatch();   
     }
 }
+
+bool FilterToggleButton::hitTest( Vec2f globalPos )
+{
+    return mVisible && mRect.contains( globalToLocal( globalPos ) );
+}
