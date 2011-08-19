@@ -24,7 +24,13 @@ public:
     
     int getTotal() { return mTotalRequests; }
     int getCount() { return mTextures.size(); }
-    float getProgress() { return (float)getCount() / (float)getTotal(); }
+    float getProgress()
+    { 
+        float count = (float)getCount();
+        float total = (float)getTotal();
+        if (total > 0) return count / total;
+        return 0;
+    }
 
     void addRequest( int texId, std::string fileName );
     void addRequest( int texId, std::string fileName, ci::gl::Texture::Format format );
