@@ -33,7 +33,7 @@ void LoadingScreen::setup( const ci::gl::Texture &planetaryTex, const ci::gl::Te
 
 void LoadingScreen::setTextureProgress( float prop )
 {
-//    std::cout << "LoadingScreen::setTextureProgress " << prop << std::endl;
+    std::cout << "LoadingScreen::setTextureProgress " << prop << std::endl;
     if (prop >= 0) {
         mTextureProgressDest = prop;
     }
@@ -185,9 +185,9 @@ void LoadingScreen::draw()
 
     // FIXME: better progress bar?
     gl::color( Color(1,1,0) );
-    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - 10.0f, mInterfaceSize.x * mTextureProgress, mInterfaceSize.y ) );
+    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - 30.0f, mInterfaceSize.x * mTextureProgress, mInterfaceSize.y - 20.0f ) );
     gl::color( Color(0,1,1) );
-    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - 10.0f, mInterfaceSize.x * mArtistProgress, mInterfaceSize.y ) );
+    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - 20.0f, mInterfaceSize.x * mArtistProgress, mInterfaceSize.y - 10.0f ) );
     gl::color( Color(1,0,1) );
     gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - 10.0f, mInterfaceSize.x * mPlaylistProgress, mInterfaceSize.y ) );
 }
