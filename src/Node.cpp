@@ -258,10 +258,10 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 		float alpha;
 		Color c;
 		
-		if( mIsSelected || ( G_CURRENT_LEVEL < mGen && mIsPlaying ) ){
+		if( mIsSelected || ( G_ZOOM < mGen && mIsPlaying ) ){
 			c = Color::white();
 			
-			if( G_CURRENT_LEVEL >= mGen - 2 )
+			if( G_ZOOM >= mGen - 2 )
 				alpha = mZoomPer * mDeathPer;
 			else
 				alpha = 0.0f;
@@ -269,7 +269,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 			
 		} else {
 			c = BRIGHT_BLUE;
-			if( G_CURRENT_LEVEL >= mGen - 1 )
+			if( G_ZOOM >= mGen - 1 )
 				alpha = 0.5f * pinchAlphaPer * mZoomPer * mDeathPer;
 			else
 				alpha = 0.0f;

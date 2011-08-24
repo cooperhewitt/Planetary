@@ -1918,23 +1918,23 @@ void KeplerApp::drawScene()
 
 	if( artistNode ){ // defined at top of method
 		artistNode->drawStarGlow( mEye - mCenterOffset, ( mEye - mCenter ).normalized(), mStarGlowTex );
+    }
 		
-		
-		Vec2f interfaceSize = getWindowSize();
-//		if ( isLandscapeOrientation( mInterfaceOrientation ) ) {
-//			interfaceSize = interfaceSize.yx(); // swizzle it!
-//		}
-		
-		//float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
-		mCamRingAlpha = constrain( abs( mEye.y - artistNode->mPos.y ), 0.0f, 1.0f ); // WAS 0.6f
+    Vec2f interfaceSize = getWindowSize();
+    
+    //float zoomOffset = constrain( 1.0f - ( G_ALBUM_LEVEL - G_ZOOM ), 0.0f, 1.0f );
+    if (artistNode) {
+        mCamRingAlpha = constrain( abs( mEye.y - artistNode->mPos.y ), 0.0f, 1.0f ); // WAS 0.6f
+    }
 
-		glEnable( GL_CULL_FACE );
-		glCullFace( GL_BACK );
-		glEnable( GL_COLOR_MATERIAL );
-		glEnable( GL_RESCALE_NORMAL );
-		glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT, ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
-		glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, ColorA( Color::white(), 1.0f ) );
+    glEnable( GL_CULL_FACE );
+    glCullFace( GL_BACK );
+    glEnable( GL_COLOR_MATERIAL );
+    glEnable( GL_RESCALE_NORMAL );
+    glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT, ColorA( 0.0f, 0.0f, 0.0f, 1.0f ) );
+    glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, ColorA( Color::white(), 1.0f ) );
 
+    if (artistNode) {
         // LIGHT FROM ARTIST
         glEnable( GL_LIGHT0 );
         glEnable( GL_LIGHT1 );
@@ -1944,48 +1944,49 @@ void KeplerApp::drawScene()
         glLightfv( GL_LIGHT0, GL_DIFFUSE, ColorA( artistNode->mColor, 1.0f ) );
         glLightfv( GL_LIGHT1, GL_POSITION, artistLight );
         glLightfv( GL_LIGHT1, GL_DIFFUSE, ColorA( BRIGHT_BLUE, 1.0f ) );
+    }
+    
+    for( int i = 0; i < sortedNodes.size(); i++ ){
         
-		for( int i = 0; i < sortedNodes.size(); i++ ){
-            
-			if( (G_IS_IPAD2 || G_DEBUG) && sortedNodes[i]->mGen == G_ALBUM_LEVEL ){ // JUST ALBUM LEVEL CAUSE ALBUM TELLS CHILDREN TO ALSO FIND SHADOWS
-				gl::enableAlphaBlending();
-				glDisable( GL_CULL_FACE );
-                mTextures[ECLIPSE_SHADOW_TEX].enableAndBind();
-				sortedNodes[i]->findShadows( pow( mCamRingAlpha, 1.2f ) );
-				glEnable( GL_CULL_FACE );
-				mTextures[ECLIPSE_SHADOW_TEX].disable();
-				//gl::enableDepthWrite();
-			}
-			
-			gl::enableDepthRead();
-			glEnable( GL_LIGHTING );
-
-			gl::disableAlphaBlending(); // dings additive blending            
-			gl::enableAlphaBlending();  // restores alpha blending
-
-			sortedNodes[i]->drawPlanet( mTextures[STAR_CORE_TEX] ); // star core tex for artistars, planets do their own thing
-			sortedNodes[i]->drawClouds( mCloudTextures );
-			
-			glDisable( GL_LIGHTING );
-			gl::disableDepthRead();
-			
-			gl::enableAdditiveBlending();
-			if( sortedNodes[i]->mGen == G_ARTIST_LEVEL ) {
-				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mTextures[ATMOSPHERE_SUN_TEX], mTextures[ATMOSPHERE_DIRECTIONAL_TEX], mPinchAlphaPer, 0.0f );
-			} else {
-				float scaleSliderOffset = mPlayControls.getParamSlider1Value() * 0.01f;
-				sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mTextures[ATMOSPHERE_TEX], mTextures[ATMOSPHERE_DIRECTIONAL_TEX], mPinchAlphaPer, scaleSliderOffset );
-            }
-		}
+        if( (G_IS_IPAD2 || G_DEBUG) && sortedNodes[i]->mGen == G_ALBUM_LEVEL ){ // JUST ALBUM LEVEL CAUSE ALBUM TELLS CHILDREN TO ALSO FIND SHADOWS
+            gl::enableAlphaBlending();
+            glDisable( GL_CULL_FACE );
+            mTextures[ECLIPSE_SHADOW_TEX].enableAndBind();
+            sortedNodes[i]->findShadows( pow( mCamRingAlpha, 1.2f ) );
+            glEnable( GL_CULL_FACE );
+            mTextures[ECLIPSE_SHADOW_TEX].disable();
+            //gl::enableDepthWrite();
+        }
         
-		glDisable( GL_CULL_FACE );
-		glDisable( GL_RESCALE_NORMAL );
-		
+        gl::enableDepthRead();
+        glEnable( GL_LIGHTING );
+
+        gl::disableAlphaBlending(); // dings additive blending            
+        gl::enableAlphaBlending();  // restores alpha blending
+
+        sortedNodes[i]->drawPlanet( mTextures[STAR_CORE_TEX] ); // star core tex for artistars, planets do their own thing
+        sortedNodes[i]->drawClouds( mCloudTextures );
+        
+        glDisable( GL_LIGHTING );
+        gl::disableDepthRead();
+        
+        gl::enableAdditiveBlending();
+        if( sortedNodes[i]->mGen == G_ARTIST_LEVEL ) {
+            sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mTextures[ATMOSPHERE_SUN_TEX], mTextures[ATMOSPHERE_DIRECTIONAL_TEX], mPinchAlphaPer, 0.0f );
+        } else {
+            float scaleSliderOffset = mPlayControls.getParamSlider1Value() * 0.01f;
+            sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mTextures[ATMOSPHERE_TEX], mTextures[ATMOSPHERE_DIRECTIONAL_TEX], mPinchAlphaPer, scaleSliderOffset );
+        }
+    }
+        
+    glDisable( GL_CULL_FACE );
+    glDisable( GL_RESCALE_NORMAL );
+
+    if (artistNode) {
 		gl::enableAdditiveBlending();
 		artistNode->drawExtraGlow( mEye - mCenterOffset, mStarGlowTex, mTextures[STAR_TEX] );
+        glDisable( GL_LIGHTING );
 	}
-
-	glDisable( GL_LIGHTING );
     
 	gl::enableDepthRead();	
 	gl::disableDepthWrite();
