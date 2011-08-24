@@ -34,7 +34,7 @@ public:
 
     void addRequest( int texId, std::string fileName );
     void addRequest( int texId, std::string fileName, ci::gl::Texture::Format format );
-    void addRequest( int texId, std::string compressedFileName, ci::Vec2i size );
+//    void addRequest( int texId, std::string compressedFileName, ci::Vec2i size );
         
     ci::gl::Texture operator[](const int &index){ return mTextures[index]; };
     

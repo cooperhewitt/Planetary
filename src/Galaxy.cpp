@@ -243,7 +243,7 @@ void Galaxy::initDarkMatterVertexArray()
 		Vec3f v3 = Vec3f( ca1,  h, sa1 );
 		Vec3f v4 = Vec3f( ca2,  h, sa2 );
 		
-        const float texRepeat = G_USE_COMPRESSED ? 2.0f : 1.0f;
+        const float texRepeat = 1.0f;
         
 		darkMatterVerts[vert].vertex = v1;
 		darkMatterVerts[vert].texture = Vec2f(per1 * texRepeat, 0.0f);

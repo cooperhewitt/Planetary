@@ -27,11 +27,28 @@ void TextureLoader::addRequest( int texId, std::string fileName, ci::gl::Texture
     mTotalRequests++;
 }
 
-void TextureLoader::addRequest( int texId, std::string compressedFileName, ci::Vec2i size )
-{
-    // FIXME
-//    mTotalRequests++;
-}
+//void TextureLoader::addRequest( int texId, std::string compressedFileName, ci::Vec2i size )
+//{
+//    // FIXME
+////    mTotalRequests++;
+//}
+
+//gl::Texture KeplerApp::loadCompressedTexture(const std::string &dataPath, const Vec2i &imageSize)
+//{
+//    // NB:- compressed textures *must* be square
+//    //      also, file sizes are actually larger than jpg 
+//    //      ... but it stays compressed on the GPU for more awesome
+//    gl::Texture::Format compressedFormat;
+//    compressedFormat.setInternalFormat(GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG);
+//    compressedFormat.enableMipmapping(false); // TODO: talk to Ryan about mipmapped compressed textures
+//    compressedFormat.setMagFilter( GL_LINEAR );
+//    compressedFormat.setMinFilter( GL_LINEAR );
+//    
+//    DataSourceRef dataSource = loadResource(dataPath);
+//    const size_t dataSize = dataSource->getBuffer().getDataSize();
+//    const uint8_t *data = static_cast<uint8_t*>(dataSource->getBuffer().getData());
+//    return gl::Texture::withCompressedData(data, imageSize.x, imageSize.y, dataSize, compressedFormat);    
+//}
 
 void TextureLoader::start()
 {

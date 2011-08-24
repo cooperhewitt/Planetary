@@ -96,14 +96,10 @@
 		E22998CC1332D62E0043CDCA /* LoadingScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */; };
 		E22D983B13B6A2B700F9DB06 /* Shadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E22D983913B6A2B600F9DB06 /* Shadow.cpp */; };
 		E23C29F013B1A4A50038F3F4 /* lightMatter.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E23C29ED13B1A4A50038F3F4 /* lightMatter.jpg */; };
-		E23C29F113B1A4A50038F3F4 /* lightMatter.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E23C29EE13B1A4A50038F3F4 /* lightMatter.pvr */; };
 		E23C29F213B1A4A50038F3F4 /* lightMatterFull.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E23C29EF13B1A4A50038F3F4 /* lightMatterFull.jpg */; };
-		E23C29F513B1A65D0038F3F4 /* darkMatter.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E23C29F313B1A65D0038F3F4 /* darkMatter.pvr */; };
 		E23C29F613B1A65D0038F3F4 /* darkMatterFull.png in Resources */ = {isa = PBXBuildFile; fileRef = E23C29F413B1A65D0038F3F4 /* darkMatterFull.png */; };
-		E23C29F913B1A6D60038F3F4 /* skydome.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E23C29F713B1A6D60038F3F4 /* skydome.pvr */; };
 		E23C29FA13B1A6D60038F3F4 /* skydomeFull.png in Resources */ = {isa = PBXBuildFile; fileRef = E23C29F813B1A6D60038F3F4 /* skydomeFull.png */; };
 		E23C29FD13B1A9710038F3F4 /* galaxyCropped.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E23C29FB13B1A9710038F3F4 /* galaxyCropped.jpg */; };
-		E23C29FE13B1A9710038F3F4 /* galaxyCropped.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E23C29FC13B1A9710038F3F4 /* galaxyCropped.pvr */; };
 		E2576E4213D4C8D600EC82EF /* TextureRect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2576E4013D4C8D500EC82EF /* TextureRect.cpp */; };
 		E25C872F131F1420000780A3 /* NodeArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C872D131F1420000780A3 /* NodeArtist.cpp */; };
 		E25C8744131F14B3000780A3 /* NodeAlbum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E25C8742131F14B3000780A3 /* NodeAlbum.cpp */; };
@@ -244,14 +240,10 @@
 		E22D983913B6A2B600F9DB06 /* Shadow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Shadow.cpp; path = ../src/Shadow.cpp; sourceTree = "<group>"; };
 		E22D983A13B6A2B600F9DB06 /* Shadow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Shadow.h; path = ../src/Shadow.h; sourceTree = "<group>"; };
 		E23C29ED13B1A4A50038F3F4 /* lightMatter.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = lightMatter.jpg; path = ../lightMatter.jpg; sourceTree = "<group>"; };
-		E23C29EE13B1A4A50038F3F4 /* lightMatter.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = lightMatter.pvr; path = ../lightMatter.pvr; sourceTree = "<group>"; };
 		E23C29EF13B1A4A50038F3F4 /* lightMatterFull.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = lightMatterFull.jpg; path = ../lightMatterFull.jpg; sourceTree = "<group>"; };
-		E23C29F313B1A65D0038F3F4 /* darkMatter.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = darkMatter.pvr; path = ../darkMatter.pvr; sourceTree = "<group>"; };
 		E23C29F413B1A65D0038F3F4 /* darkMatterFull.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = darkMatterFull.png; path = ../darkMatterFull.png; sourceTree = "<group>"; };
-		E23C29F713B1A6D60038F3F4 /* skydome.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = skydome.pvr; path = ../skydome.pvr; sourceTree = "<group>"; };
 		E23C29F813B1A6D60038F3F4 /* skydomeFull.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = skydomeFull.png; path = ../skydomeFull.png; sourceTree = "<group>"; };
 		E23C29FB13B1A9710038F3F4 /* galaxyCropped.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = galaxyCropped.jpg; path = ../galaxyCropped.jpg; sourceTree = "<group>"; };
-		E23C29FC13B1A9710038F3F4 /* galaxyCropped.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = galaxyCropped.pvr; path = ../galaxyCropped.pvr; sourceTree = "<group>"; };
 		E2576E4013D4C8D500EC82EF /* TextureRect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextureRect.cpp; path = ../../../src/TextureRect.cpp; sourceTree = "<group>"; };
 		E2576E4113D4C8D600EC82EF /* TextureRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextureRect.h; path = ../../../src/TextureRect.h; sourceTree = "<group>"; };
 		E25C872D131F1420000780A3 /* NodeArtist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeArtist.cpp; path = ../src/NodeArtist.cpp; sourceTree = SOURCE_ROOT; };
@@ -595,16 +587,12 @@
 			isa = PBXGroup;
 			children = (
 				E1729B221377F10C00C62C97 /* skydome.png */,
-				E23C29F713B1A6D60038F3F4 /* skydome.pvr */,
 				E23C29F813B1A6D60038F3F4 /* skydomeFull.png */,
 				E1C942C6137B9BD900F88EA2 /* darkMatter.png */,
-				E23C29F313B1A65D0038F3F4 /* darkMatter.pvr */,
 				E23C29F413B1A65D0038F3F4 /* darkMatterFull.png */,
 				E23C29ED13B1A4A50038F3F4 /* lightMatter.jpg */,
-				E23C29EE13B1A4A50038F3F4 /* lightMatter.pvr */,
 				E23C29EF13B1A4A50038F3F4 /* lightMatterFull.jpg */,
 				E23C29FB13B1A9710038F3F4 /* galaxyCropped.jpg */,
-				E23C29FC13B1A9710038F3F4 /* galaxyCropped.pvr */,
 				E10F84DE139856860062F73C /* eclipseShadow.png */,
 				E133FF84138C2FEA00A87B27 /* noAlbumArt.png */,
 			);
@@ -986,14 +974,10 @@
 				E10F84E3139899740062F73C /* overlayIcons.png in Resources */,
 				E154E58213996D8C002A3488 /* lensFlare.png in Resources */,
 				E23C29F013B1A4A50038F3F4 /* lightMatter.jpg in Resources */,
-				E23C29F113B1A4A50038F3F4 /* lightMatter.pvr in Resources */,
 				E23C29F213B1A4A50038F3F4 /* lightMatterFull.jpg in Resources */,
-				E23C29F513B1A65D0038F3F4 /* darkMatter.pvr in Resources */,
 				E23C29F613B1A65D0038F3F4 /* darkMatterFull.png in Resources */,
-				E23C29F913B1A6D60038F3F4 /* skydome.pvr in Resources */,
 				E23C29FA13B1A6D60038F3F4 /* skydomeFull.png in Resources */,
 				E23C29FD13B1A9710038F3F4 /* galaxyCropped.jpg in Resources */,
-				E23C29FE13B1A9710038F3F4 /* galaxyCropped.pvr in Resources */,
 				E1D32DDC13D67BE3002F33ED /* playlist.png in Resources */,
 				E1D32DEC13D6C2E2002F33ED /* playlistBg.png in Resources */,
 				E1D32DFA13D77525002F33ED /* settingsBg.png in Resources */,

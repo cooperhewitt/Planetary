@@ -65,7 +65,6 @@ bool G_SHOW_SETTINGS	= false;
 bool G_DRAW_RINGS		= true;
 bool G_DRAW_TEXT		= true;
 bool G_USE_GYRO			= false;
-bool G_USE_COMPRESSED   = false; // set to true to load compressed images (experimental)
 bool G_IS_IPAD2			= false;
 int G_NUM_PARTICLES		= 25;
 int G_NUM_DUSTS			= 250;
@@ -79,7 +78,6 @@ class KeplerApp : public AppCocoaTouch {
 	void			initLoadingTextures();
 	void			initTextures();
     void            onTextureLoaderComplete( TextureLoader* );
-    gl::Texture     loadCompressedTexture(const std::string &dataPath, const Vec2i &imageSize);
 
 	virtual void	touchesBegan( TouchEvent event );
 	virtual void	touchesMoved( TouchEvent event );
@@ -438,14 +436,8 @@ void KeplerApp::initTextures()
     mTextures.addRequest( ECLIPSE_GLOW_TEX,   "eclipseGlow.png",   mipFmt );
     mTextures.addRequest( LENS_FLARE_TEX,     "lensFlare.png",     mipFmt );
     mTextures.addRequest( ECLIPSE_SHADOW_TEX, "eclipseShadow.png", mipFmt );
-    if (G_USE_COMPRESSED) {
-        mTextures.addRequest( SKY_DOME_TEX,    "skydome.pvr",     Vec2i(1024,1024) );
-        mTextures.addRequest( GALAXY_DOME_TEX, "lightMatter.pvr", Vec2i(1024,1024) );
-    }
-    else {
-        mTextures.addRequest( SKY_DOME_TEX,    "skydomeFull.png",     mipFmt );
-        mTextures.addRequest( GALAXY_DOME_TEX, "lightMatterFull.jpg", mipFmt );      
-    }
+    mTextures.addRequest( SKY_DOME_TEX,    "skydomeFull.png",     mipFmt );
+    mTextures.addRequest( GALAXY_DOME_TEX, "lightMatterFull.jpg", mipFmt );      
     mTextures.addRequest( DOTTED_TEX,                 "dotted.png",           repeatMipFmt );
     mTextures.addRequest( PLAYHEAD_PROGRESS_TEX,      "playheadProgress.png", repeatMipFmt );
     mTextures.addRequest( RINGS_TEX,                  "rings.png" );
@@ -456,14 +448,8 @@ void KeplerApp::initTextures()
     mTextures.addRequest( ATMOSPHERE_DIRECTIONAL_TEX, "atmosphereDirectional.png", mipFmt );
     mTextures.addRequest( ATMOSPHERE_SUN_TEX,         "atmosphereSun.png",         mipFmt );
     mTextures.addRequest( PARTICLE_TEX,               "particle.png",              mipFmt );
-    if (G_USE_COMPRESSED) {
-        mTextures.addRequest( GALAXY_TEX,      "galaxyCropped.pvr", Vec2i(1024, 1024) );
-        mTextures.addRequest( DARK_MATTER_TEX, "darkMatter.pvr",    Vec2i(1024, 1024) );
-    }
-    else {
-        mTextures.addRequest( GALAXY_TEX,      "galaxyCropped.jpg", mipFmt );
-        mTextures.addRequest( DARK_MATTER_TEX, "darkMatterFull.png" );
-    }                              
+    mTextures.addRequest( GALAXY_TEX,      "galaxyCropped.jpg", mipFmt );
+    mTextures.addRequest( DARK_MATTER_TEX, "darkMatterFull.png" );
     mTextures.addRequest( ORBIT_RING_GRADIENT_TEX,  "orbitRingGradient.png", mipFmt );
     mTextures.addRequest( TRACK_ORIGIN_TEX,         "origin.png",            mipFmt );
     mTextures.addRequest( SETTINGS_BG_TEX,          "settingsBg.png" );
@@ -658,23 +644,6 @@ void KeplerApp::initLoadingTextures()
     mBackgroundTex	= gl::Texture( loadImage( loadResource( "background.jpg" ) )/*, fmt*/ );        
 	mStarGlowTex    = gl::Texture( loadImage( loadResource( "starGlow.png" ) ), fmt);
 }
-
-//gl::Texture KeplerApp::loadCompressedTexture(const std::string &dataPath, const Vec2i &imageSize)
-//{
-//    // NB:- compressed textures *must* be square
-//    //      also, file sizes are actually larger than jpg 
-//    //      ... but it stays compressed on the GPU for more awesome
-//    gl::Texture::Format compressedFormat;
-//    compressedFormat.setInternalFormat(GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG);
-//    compressedFormat.enableMipmapping(false); // TODO: talk to Ryan about mipmapped compressed textures
-//    compressedFormat.setMagFilter( GL_LINEAR );
-//    compressedFormat.setMinFilter( GL_LINEAR );
-//    
-//    DataSourceRef dataSource = loadResource(dataPath);
-//    const size_t dataSize = dataSource->getBuffer().getDataSize();
-//    const uint8_t *data = static_cast<uint8_t*>(dataSource->getBuffer().getData());
-//    return gl::Texture::withCompressedData(data, imageSize.x, imageSize.y, dataSize, compressedFormat);    
-//}
 
 void KeplerApp::touchesBegan( TouchEvent event )
 {	
