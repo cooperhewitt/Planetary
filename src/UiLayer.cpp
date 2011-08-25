@@ -148,7 +148,7 @@ void UiLayer::update()
     }
     
     float thingY = mPlayControls->getHeight();
-    if (isFilterVisible()) {
+    if (isShowingFilter()) {
         mPlaylistChooser->setTransform( Matrix44f::createTranslation( Vec3f(0, thingY, 0) ) );
         mAlphaChooser->setTransform( Matrix44f::createTranslation( Vec3f(0, thingY, 0) ) );
         thingY += max(mAlphaChooser->getHeight(), mPlaylistChooser->getHeight());

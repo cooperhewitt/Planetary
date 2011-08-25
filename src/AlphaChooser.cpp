@@ -43,10 +43,10 @@ void AlphaChooser::setRects()
 	mAlphaRects.clear();
     mAlphaHitRects.clear();
     float totalWidth = 0.0f;
-    float totalHeight = 0.0f;
+    float maxHeight = 0.0f;
 	for( int i=0; i<mAlphaString.length(); i++ ){
         totalWidth += mAlphaTextures[i].getWidth();
-        totalHeight = max( totalHeight, (float)mAlphaTextures[i].getHeight() );
+        maxHeight = max( maxHeight, (float)mAlphaTextures[i].getHeight() );
     }    
     const float hPadding = 20.0f;
     const float vHitPadding = 10.0f;
@@ -55,11 +55,11 @@ void AlphaChooser::setRects()
 	for( int i = 0; i < mAlphaString.length(); i++ ){
 		const float w = mAlphaTextures[i].getWidth();
 		const float h = mAlphaTextures[i].getHeight();
-		mAlphaRects.push_back( Rectf( x, 0.0f, x + w,  h ) );
-		mAlphaHitRects.push_back( Rectf( x - spacing/2.0f, -vHitPadding, x + w + spacing/2.0f, h + vHitPadding ) );
+		mAlphaRects.push_back( Rectf( x, vHitPadding, x + w, h + vHitPadding ) );
+		mAlphaHitRects.push_back( Rectf( x - spacing/2.0f, 0.0f, x + w + spacing/2.0f, h + vHitPadding + vHitPadding ) );
         x += w + spacing;
 	}
-    mFullRect.set( 0.0f, -vHitPadding, mInterfaceSize.x, totalHeight + vHitPadding );
+    mFullRect.set( 0.0f, 0.0f, mInterfaceSize.x, maxHeight + vHitPadding + vHitPadding );
 }
 
 bool AlphaChooser::touchBegan( TouchEvent::Touch touch )
