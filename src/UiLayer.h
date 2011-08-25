@@ -22,7 +22,14 @@ class UiLayer : public BloomNode {
     UiLayer(): BloomNode() {}; // get a default ID
 	~UiLayer() {};
     
-	void	setup( const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &settingsBgTex, const bool &showSettings, const ci::Vec2f interfaceSize );
+	void	setup( BloomNodeRef mPlaylistChooser, 
+                   BloomNodeRef mAlphaChooser, 
+                   BloomNodeRef mPlayControls, 
+                   BloomNodeRef mSettingsPanel,
+                   const ci::gl::Texture &uiButtonsTex, 
+                   const ci::gl::Texture &settingsBgTex, 
+                   const bool &showSettings, 
+                   const ci::Vec2f interfaceSize );
 	
     bool	touchBegan( ci::app::TouchEvent::Touch touch );
 	bool	touchMoved( ci::app::TouchEvent::Touch touch );
@@ -30,15 +37,22 @@ class UiLayer : public BloomNode {
 
     void    setShowSettings( bool visible );
     
-	void	     update();
-	virtual void draw();
+	void    update();
+	void    draw();
     
-	float	  getPanelYPos(){ return mPanelY; }	
+	float   getPanelYPos(){ return mPanelY; }	
 
 	bool	getIsPanelOpen() { return mIsPanelOpen; }
 	void	setIsPanelOpen( bool b ){ mIsPanelOpen = b; mHasPanelBeenDragged = false; }
 	
-    bool hitTest( ci::Vec2f globalPos );
+    bool    hitTest( ci::Vec2f globalPos );
+    
+    //// expand/collapse/query panels
+    void    setShowAlphaFilter(bool visible);
+    bool    isShowingAlphaFilter();
+    void    setShowPlaylistFilter(bool visible);
+    bool    isShowingPlaylistFilter();
+    bool    isShowingFilter();    
     
  private:
 
@@ -63,6 +77,8 @@ class UiLayer : public BloomNode {
 	bool			mIsPanelOpen;			// Is the Panel fully open
 	bool			mHasPanelBeenDragged;   // Are we dragging or just animating?
     ci::Vec2f		mPanelTabTouchOffset;	// Remember the touch position value when dragging	
+    
+    BloomNodeRef    mPlaylistChooser, mAlphaChooser, mPlayControls, mSettingsPanel;
 };
 
 typedef std::shared_ptr<UiLayer> UiLayerRef;

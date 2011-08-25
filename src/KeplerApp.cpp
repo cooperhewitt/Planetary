@@ -38,14 +38,15 @@
 #include "BloomScene.h"
 #include "OrientationNode.h"
 #include "LoadingScreen.h"
-#include "UiLayer.h"
-#include "PlayControls.h"
 #include "HelpLayer.h"
 #include "NotificationOverlay.h"
 #include "Stats.h"
+#include "UiLayer.h"
+#include "PlayControls.h"
+#include "SettingsPanel.h"
 #include "AlphaChooser.h"
+
 #include "PlaylistChooser.h"
-#include "FilterToggleButton.h"
 #include "PinchRecognizer.h"
 #include "ParticleController.h"
 #include "TextureLoader.h"
@@ -106,10 +107,10 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onAlphaCharSelected( char c );
 	bool			onWheelToggled( bool on );
     bool            onFilterModeStateChanged( State::FilterMode filterMode );
-    bool            onFilterModeToggled( State::FilterMode filterMode );
     bool            onPlaylistChooserSelected( ci::ipod::PlaylistRef );
     bool            onPlaylistChooserTouched( ci::ipod::PlaylistRef );
     
+	bool			onSettingsPanelButtonPressed ( SettingsPanel::ButtonId button );
 	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
     void            togglePlayPaused();
 	bool			onPlayControlsPlayheadMoved ( float amount );
@@ -130,9 +131,9 @@ class KeplerApp : public AppCocoaTouch {
     OrientationNodeRef  mOrientationNodeRef;
     LoadingScreen       mLoadingScreen;
     BloomNodeRef        mMainBloomNodeRef;
-    FilterToggleButton  mFilterToggleButton;
 	UiLayer             mUiLayer;
     PlayControls        mPlayControls;
+    SettingsPanel       mSettingsPanel;
 	HelpLayer		    mHelpLayer;
     NotificationOverlay mNotificationOverlay;
 
@@ -265,7 +266,6 @@ class KeplerApp : public AppCocoaTouch {
         ORBIT_RING_GRADIENT_TEX,
         TRACK_ORIGIN_TEX,
         SETTINGS_BG_TEX,
-        FILTER_TOGGLE_BUTTON_TEX,
 		GRADIENT_OVERLAY_TEX,
         TOTAL_TEXTURE_COUNT
     };
@@ -453,7 +453,6 @@ void KeplerApp::initTextures()
     mTextures.addRequest( ORBIT_RING_GRADIENT_TEX,  "orbitRingGradient.png", mipFmt );
     mTextures.addRequest( TRACK_ORIGIN_TEX,         "origin.png",            mipFmt );
     mTextures.addRequest( SETTINGS_BG_TEX,          "settingsBg.png" );
-    mTextures.addRequest( FILTER_TOGGLE_BUTTON_TEX, "filterToggleButton.png" );
 	mTextures.addRequest( GRADIENT_OVERLAY_TEX,		"gradientLarge.png" );
     
     mTextures.registerComplete( this, &KeplerApp::onTextureLoaderComplete );
@@ -544,27 +543,6 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	mWheelOverlay->registerWheelToggled( this, &KeplerApp::onWheelToggled );    
     mMainBloomNodeRef->addChild( mWheelOverlay );
     
-    // UI LAYER
-	mUiLayer.setup( mTextures[UI_SMALL_BUTTONS_TEX], 
-                   mTextures[SETTINGS_BG_TEX], 
-                   G_SHOW_SETTINGS, 
-                   mBloomSceneRef->getInterfaceSize() );
-    UiLayerRef uiLayerRef = UiLayerRef(&mUiLayer);
-    
-	// ALPHA CHOOSER
-	mAlphaChooser.setup( mFontBig, uiLayerRef, mWheelOverlay );
-	mAlphaChooser.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
-    mWheelOverlay->addChild( BloomNodeRef(&mAlphaChooser) );
-	
-    // PLAYLIST CHOOSER
-    mPlaylistChooser.setup( mFontMedium, uiLayerRef, mWheelOverlay );
-    mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
-    mPlaylistChooser.registerPlaylistTouched( this, &KeplerApp::onPlaylistChooserTouched );
-	mWheelOverlay->addChild( BloomNodeRef(&mPlaylistChooser) );
-	
-	// UILAYER ADD
-    mMainBloomNodeRef->addChild( uiLayerRef );
-    
 	// PLAY CONTROLS
 	mPlayControls.setup( mBloomSceneRef->getInterfaceSize(), 
                          &mIpodPlayer, 
@@ -573,23 +551,53 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
                          mTextures[UI_SMALL_BUTTONS_TEX] );
 	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
 	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
+
+	// SETTINGS PANEL
+	mSettingsPanel.setup( mBloomSceneRef->getInterfaceSize(), 
+                          &mIpodPlayer, 
+                          mFontMediSmall, 
+                          mTextures[UI_SMALL_BUTTONS_TEX] );
+	mSettingsPanel.registerButtonPressed( this, &KeplerApp::onSettingsPanelButtonPressed );
     // add as child of UILayer so it inherits the transform
-    mUiLayer.addChild( BloomNodeRef(&mPlayControls) );
+    
+	// ALPHA CHOOSER
+	mAlphaChooser.setup( mFontBig, mWheelOverlay );
+	mAlphaChooser.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
+	
+    // PLAYLIST CHOOSER
+    mPlaylistChooser.setup( mFontMedium, mWheelOverlay );
+    mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
+    mPlaylistChooser.registerPlaylistTouched( this, &KeplerApp::onPlaylistChooserTouched );
+    
+    
+    BloomNodeRef playlistChooserRef = BloomNodeRef(&mPlaylistChooser);
+    BloomNodeRef alphaChooserRef = BloomNodeRef(&mAlphaChooser);
+    BloomNodeRef playControlsRef = BloomNodeRef(&mPlayControls);
+    BloomNodeRef settingsPanelRef = BloomNodeRef(&mSettingsPanel);    
+    
+    // UI LAYER
+	mUiLayer.setup( playlistChooserRef, 
+                    alphaChooserRef, 
+                    playControlsRef, 
+                    settingsPanelRef,
+                    mTextures[UI_SMALL_BUTTONS_TEX], 
+                    mTextures[SETTINGS_BG_TEX], 
+                    G_SHOW_SETTINGS, 
+                    mBloomSceneRef->getInterfaceSize() );
+    // add uiLayer first
+    mMainBloomNodeRef->addChild( UiLayerRef(&mUiLayer) );
+    
+    // then children...
+    mUiLayer.addChild( playControlsRef );
+    mUiLayer.addChild( settingsPanelRef );    
+    mUiLayer.addChild( alphaChooserRef );
+	mUiLayer.addChild( playlistChooserRef );
     
 	// HELP LAYER
 	mHelpLayer.setup( mFontMediSmall, mFontMediBig, mFontUltraBig );
     mHelpLayer.hide( false ); // no animation
     mMainBloomNodeRef->addChild( BloomNodeRef(&mHelpLayer) );
-    
-    // FILTER TOGGLE
-    mFilterToggleButton.setup( mState.getFilterMode(), 
-                               mFontMedium, 
-                               mTextures[FILTER_TOGGLE_BUTTON_TEX],
-                               uiLayerRef,      // FIXME: probably should be a weak ref
-                               mWheelOverlay ); // FIXME: probably should be a weak ref
-    mFilterToggleButton.registerFilterModeSelected( this, &KeplerApp::onFilterModeToggled );
-    mWheelOverlay->addChild( BloomNodeRef(&mFilterToggleButton) );
-	
+    	
 	// STATE
 	mState.registerAlphaCharStateChanged( this, &KeplerApp::onAlphaCharStateChanged );
 	mState.registerNodeSelected( this, &KeplerApp::onSelectedNodeChanged );
@@ -803,13 +811,11 @@ bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
 {
     const bool inUi              = mUiLayer.hitTest(screenPos);
     const bool inAlphaChooser    = mAlphaChooser.hitTest(screenPos);
-    const bool inFilterToggle    = mFilterToggleButton.hitTest(screenPos);
     const bool inPlaylistChooser = mPlaylistChooser.hitTest(screenPos);
     std::cout << "inUi: " << (inUi ? "true" : "false") << std::endl;
     std::cout << "inAlphaChooser: " << (inAlphaChooser ? "true" : "false") << std::endl;
-    std::cout << "inFilterToggle: " << (inFilterToggle ? "true" : "false") << std::endl;
     std::cout << "inPlaylistChooser: " << (inPlaylistChooser ? "true" : "false") << std::endl;
-    return !(inUi || inFilterToggle || inPlaylistChooser || inAlphaChooser);
+    return !(inUi || inPlaylistChooser || inAlphaChooser);
 }
 
 
@@ -852,35 +858,22 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 //	else			   mUp = Vec3f::yAxis();
 }
 
+// FIXME: rename to vignette?
 bool KeplerApp::onWheelToggled( bool on )
 {
-//	std::cout << "Wheel Toggled!" << std::endl;
 	if( !on ){
 		mPinchTotalDest = 1.0f;
-	}    
-    if (mData.mPlaylists.size() > 0) {
-        mFilterToggleButton.setVisible( on );
-    }
-    mPlayControls.setWheelVisible( on );    
+	}
 	return false;
-}
-
-bool KeplerApp::onFilterModeToggled( State::FilterMode filterMode )
-{
-    mState.setFilterMode(filterMode);
-    // zoom to galaxy level whenever the filter toggle button is used:
-    mState.setSelectedNode( NULL );    
-    return false;
 }
 
 bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
 {    
-    // update the button...
-    mFilterToggleButton.setFilterMode( filterMode );
-
     // apply a new filter to world...
     if (filterMode == State::FilterModeAlphaChar) {
         mWorld.setFilter( LetterFilter::create( mState.getAlphaChar() ) );
+        mPlayControls.setAlphaOn( mWheelOverlay->getShowWheel() );
+        mPlayControls.setPlaylistOn( false );
     }
     else if (filterMode == State::FilterModePlaylist) {
         ipod::PlaylistRef playlist = mState.getPlaylist();
@@ -890,6 +883,8 @@ bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
         else {
             mWorld.setFilter( PlaylistFilter::create(playlist) );
         }
+        mPlayControls.setAlphaOn( false );
+        mPlayControls.setPlaylistOn( mWheelOverlay->getShowWheel() );        
     }
     
     // now make sure that everything is cool with the current filter
@@ -1065,6 +1060,128 @@ bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
     return false;
 }
 
+bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
+{
+    int uw = 128;
+	int uh = 128;
+
+    switch (button) {
+            
+		case SettingsPanel::SHUFFLE:
+			if( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff ){
+				mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeOff );
+				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*1, uw*2, uh*2 ), "SHUFFLE OFF" );
+			} else {
+				mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeSongs );
+				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*0, uw*2, uh*1 ), "SHUFFLE ON" );
+			}
+            mSettingsPanel.setShuffleOn( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff );
+            logEvent("Shuffle Button Selected");    
+            break;
+			
+		case SettingsPanel::REPEAT:
+            switch ( mIpodPlayer.getRepeatMode() ) {
+                case ipod::Player::RepeatModeNone:
+                    mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeAll );
+                    mSettingsPanel.setRepeatMode( ipod::Player::RepeatModeAll );    
+                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*2, uh*0, uw*3, uh*1 ), "REPEAT ALL" );
+                    break;
+                case ipod::Player::RepeatModeAll:
+                    mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeOne );
+                    mSettingsPanel.setRepeatMode( ipod::Player::RepeatModeOne );    
+                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*3, uh*0, uw*4, uh*1 ), "REPEAT ONE" );
+                    break;
+                case ipod::Player::RepeatModeOne:
+                case ipod::Player::RepeatModeDefault:
+                    // repeat mode is RepeatModeDefault when we start up and until 
+                    // our user chooses it, we can't know what the current state is                    
+                    mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeNone );
+                    mSettingsPanel.setRepeatMode( ipod::Player::RepeatModeNone );    
+                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*2, uh*1, uw*3, uh*2 ), "REPEAT NONE" );
+                    break;
+            }
+            logEvent("Repeat Button Selected");   
+            break;
+            
+        case SettingsPanel::HELP:
+            logEvent("Help Button Selected");            
+            mHelpLayer.toggle();
+            mSettingsPanel.setHelpOn( mHelpLayer.isShowing() );
+            break;
+            
+		case SettingsPanel::AUTO_MOVE:
+			if( G_SHOW_SETTINGS ){
+				logEvent("Automove Button Selected");            
+				G_AUTO_MOVE = !G_AUTO_MOVE;
+				if( G_AUTO_MOVE )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*4, uh*2, uw*5, uh*3 ), "ANIMATE CAMERA" );
+				else				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*4, uh*3, uw*5, uh*4 ), "ANIMATE CAMERA" );
+				
+                //				if( G_AUTO_MOVE ) makeNewCameraPath();
+			}
+            mSettingsPanel.setScreensaverOn( G_AUTO_MOVE );            
+            break;
+			
+        case SettingsPanel::DRAW_RINGS:
+			if( G_SHOW_SETTINGS ){
+				logEvent("Draw Rings Button Selected");            
+				G_DRAW_RINGS = !G_DRAW_RINGS;
+				if( G_DRAW_RINGS )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*0, uh*2, uw*1, uh*3 ), "ORBIT LINES" );
+				else				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*0, uh*3, uw*1, uh*4 ), "ORBIT LINES" );
+			}
+            mSettingsPanel.setOrbitsOn( G_DRAW_RINGS );            
+            break;
+            
+        case SettingsPanel::DRAW_TEXT:
+			if( G_SHOW_SETTINGS ){
+				logEvent("Draw Text Button Selected");            
+				G_DRAW_TEXT = !G_DRAW_TEXT;
+				if( G_DRAW_TEXT )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*2, uw*2, uh*3 ), "TEXT LABELS" );
+				else				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*3, uw*2, uh*4 ), "TEXT LABELS" );
+			}
+            mSettingsPanel.setLabelsOn( G_DRAW_TEXT );
+            break;
+            
+		case SettingsPanel::USE_GYRO:
+			if( G_SHOW_SETTINGS ){
+				logEvent("Use Gyro Button Selected");            
+				G_USE_GYRO = !G_USE_GYRO;
+				
+				if( !G_USE_GYRO ) {
+                    mUp = getUpVectorForOrientation( mInterfaceOrientation );
+                } else {
+                    mUp = Vec3f::yAxis();
+                }				
+				
+				if( G_USE_GYRO ) {
+                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*4, uh*0, uw*5, uh*1 ), "GYROSCOPE" );
+                } else {				
+                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*4, uh*1, uw*5, uh*2 ), "GYROSCOPE" );
+                }
+			}
+            mSettingsPanel.setGyroOn( G_USE_GYRO );
+            break;
+
+        case SettingsPanel::PARAMSLIDER1:
+        case SettingsPanel::PARAMSLIDER2:
+            // TODO: log?
+            break;
+            
+		case SettingsPanel::DEBUG_FEATURE:
+			G_DEBUG = !G_DEBUG;
+			if( G_DEBUG )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*2, uh*2, uw*3, uh*3 ), "DEBUG MODE" );
+			else			mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*2, uh*3, uw*3, uh*4 ), "DEBUG MODE" );
+            mSettingsPanel.setDebugOn( G_DEBUG );
+            break;
+			
+        case SettingsPanel::NO_BUTTON:
+            //console() << "unknown button pressed!" << std::endl;
+            break;
+            
+    } // switch
+    
+    return false;
+}
+
 bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 {
 	int uw = 128;
@@ -1109,98 +1226,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             logEvent("Next Track Button Selected");            
             mIpodPlayer.skipNext();	
             break;
-			
-		case PlayControls::SHUFFLE:
-			if( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff ){
-				mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeOff );
-				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*1, uw*2, uh*2 ), "SHUFFLE OFF" );
-			} else {
-				mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeSongs );
-				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*0, uw*2, uh*1 ), "SHUFFLE ON" );
-			}
-            mPlayControls.setShuffleVisible( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff );
-            logEvent("Shuffle Button Selected");    
-            break;
-			
-		case PlayControls::REPEAT:
-            switch ( mIpodPlayer.getRepeatMode() ) {
-                case ipod::Player::RepeatModeNone:
-                    mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeAll );
-                    mPlayControls.setRepeatMode( ipod::Player::RepeatModeAll );    
-                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*2, uh*0, uw*3, uh*1 ), "REPEAT ALL" );
-                    break;
-                case ipod::Player::RepeatModeAll:
-                    mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeOne );
-                    mPlayControls.setRepeatMode( ipod::Player::RepeatModeOne );    
-                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*3, uh*0, uw*4, uh*1 ), "REPEAT ONE" );
-                    break;
-                case ipod::Player::RepeatModeOne:
-                case ipod::Player::RepeatModeDefault:
-                    // repeat mode is RepeatModeDefault when we start up and until 
-                    // our user chooses it, we can't know what the current state is                    
-                    mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeNone );
-                    mPlayControls.setRepeatMode( ipod::Player::RepeatModeNone );    
-                    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*2, uh*1, uw*3, uh*2 ), "REPEAT NONE" );
-                    break;
-            }
-            logEvent("Repeat Button Selected");   
-            break;
-        
-        case PlayControls::HELP:
-            logEvent("Help Button Selected");            
-            mHelpLayer.toggle();
-            mPlayControls.setHelpVisible( mHelpLayer.isShowing() );
-            break;
-        
-		case PlayControls::AUTO_MOVE:
-			if( G_SHOW_SETTINGS ){
-				logEvent("Automove Button Selected");            
-				G_AUTO_MOVE = !G_AUTO_MOVE;
-				if( G_AUTO_MOVE )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*4, uh*2, uw*5, uh*3 ), "ANIMATE CAMERA" );
-				else				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*4, uh*3, uw*5, uh*4 ), "ANIMATE CAMERA" );
-				
-//				if( G_AUTO_MOVE ) makeNewCameraPath();
-			}
-            mPlayControls.setScreensaverVisible( G_AUTO_MOVE );            
-            break;
-			
-			
-        case PlayControls::DRAW_RINGS:
-			if( G_SHOW_SETTINGS ){
-				logEvent("Draw Rings Button Selected");            
-				G_DRAW_RINGS = !G_DRAW_RINGS;
-				if( G_DRAW_RINGS )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*0, uh*2, uw*1, uh*3 ), "ORBIT LINES" );
-				else				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*0, uh*3, uw*1, uh*4 ), "ORBIT LINES" );
-			}
-            mPlayControls.setOrbitsVisible( G_DRAW_RINGS );            
-            break;
-        
-        case PlayControls::DRAW_TEXT:
-			if( G_SHOW_SETTINGS ){
-				logEvent("Draw Text Button Selected");            
-				G_DRAW_TEXT = !G_DRAW_TEXT;
-				if( G_DRAW_TEXT )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*2, uw*2, uh*3 ), "TEXT LABELS" );
-				else				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*3, uw*2, uh*4 ), "TEXT LABELS" );
-			}
-            mPlayControls.setLabelsVisible( G_DRAW_TEXT );
-            break;
-        
-		case PlayControls::USE_GYRO:
-			
-			if( G_SHOW_SETTINGS ){
-				logEvent("Use Gyro Button Selected");            
-				G_USE_GYRO = !G_USE_GYRO;
-				
-				if( ! G_USE_GYRO ) mUp = getUpVectorForOrientation( mInterfaceOrientation );
-				else			   mUp = Vec3f::yAxis();
-				
-				
-				if( G_USE_GYRO )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*4, uh*0, uw*5, uh*1 ), "GYROSCOPE" );
-				else				mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*4, uh*1, uw*5, uh*2 ), "GYROSCOPE" );
-			}
-            mPlayControls.setGyroVisible( G_USE_GYRO );
-            break;
-			
+						
 		case PlayControls::GOTO_GALAXY:
             logEvent("Galaxy Button Selected");
 			mState.setSelectedNode( NULL );
@@ -1214,26 +1240,44 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 		case PlayControls::SETTINGS:
             logEvent("Settings Button Selected");            
             G_SHOW_SETTINGS = !G_SHOW_SETTINGS;
-            mPlayControls.setShowSettings( G_SHOW_SETTINGS );            
-            mUiLayer.setShowSettings( G_SHOW_SETTINGS );            
+            mPlayControls.setShowSettingsOn( G_SHOW_SETTINGS );
+            mSettingsPanel.setVisible( G_SHOW_SETTINGS ); // FIXME: animate
+            mUiLayer.setShowSettings( G_SHOW_SETTINGS );
             break;
 
         case PlayControls::SLIDER:
-        case PlayControls::PARAMSLIDER1:
-        case PlayControls::PARAMSLIDER2:
             // TODO: Flurry log?
             break;
         
-		case PlayControls::DEBUG_FEATURE:
-			G_DEBUG = !G_DEBUG;
-			if( G_DEBUG )	mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*2, uh*2, uw*3, uh*3 ), "DEBUG MODE" );
-			else			mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*2, uh*3, uw*3, uh*4 ), "DEBUG MODE" );
-            mPlayControls.setDebugVisible( G_DEBUG );
-            break;
-			
-		case PlayControls::SHOW_WHEEL:
-            mWheelOverlay->setShowWheel( !mWheelOverlay->getShowWheel() );
+		case PlayControls::SHOW_ALPHA_FILTER:
+            {
+                bool wasShowingFilter = mUiLayer.isShowingFilter();
+                mUiLayer.setShowAlphaFilter( !mUiLayer.isShowingAlphaFilter() );            
+                mWheelOverlay->setShowWheel( mUiLayer.isShowingFilter() );
+                if (mUiLayer.isShowingAlphaFilter()) {                
+                    if (!wasShowingFilter) {
+                        mState.setFilterMode( State::FilterModeAlphaChar );
+                        // zoom to galaxy level whenever the filter toggle button is used:
+                        mState.setSelectedNode( NULL );
+                    }
+                }
+            }
             break;	
+            
+        case PlayControls::SHOW_PLAYLIST_FILTER:
+            {
+                bool wasShowingFilter = mUiLayer.isShowingFilter();
+                mUiLayer.setShowPlaylistFilter( !mUiLayer.isShowingPlaylistFilter() );            
+                mWheelOverlay->setShowWheel( mUiLayer.isShowingFilter() );
+                if (mUiLayer.isShowingPlaylistFilter()) {                
+                    if (!wasShowingFilter) {
+                        mState.setFilterMode( State::FilterModePlaylist );
+                        // zoom to galaxy level whenever the filter toggle button is used:
+                        mState.setSelectedNode( NULL );
+                    }
+                }
+            }
+            break;
 			
         case PlayControls::NO_BUTTON:
             //console() << "unknown button pressed!" << std::endl;
@@ -1487,6 +1531,7 @@ void KeplerApp::update()
 		}
         
         if (mData.mPlaylists.size() > 0) {
+            // FIXME: also reveal playcontrols playlist button?
             mPlaylistChooser.setDataWorldCam( &mData, &mWorld, &mCam );
         }
 	}
@@ -1512,7 +1557,7 @@ void KeplerApp::update()
 		updateArcball();
 		
         // fake playhead time if we're dragging (so it looks really snappy)
-        if (mPlayControls.playheadIsDragging()) {
+        if (mPlayControls.isPlayheadDragging()) {
 //            std::cout << "updating current playhead time from slider" << std::endl;                
             mCurrentTrackPlayheadTime = mCurrentTrackLength * mPlayControls.getPlayheadValue();
             mPlayheadUpdateSeconds = elapsedSeconds;
@@ -1527,14 +1572,14 @@ void KeplerApp::update()
 		if( mPlayingTrack && mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
             const bool isPaused = (mCurrentPlayState == ipod::Player::StatePaused);
             const bool isStopped = (mCurrentPlayState == ipod::Player::StateStopped);
-            const bool isDragging = mPlayControls.playheadIsDragging();
+            const bool isDragging = mPlayControls.isPlayheadDragging();
             const bool skipCorrection = (isPaused || isStopped || isDragging);
             float correction = skipCorrection ? 0.0f : (elapsedSeconds - mPlayheadUpdateSeconds);
 			mWorld.mPlayingTrackNode->updateAudioData( mCurrentTrackPlayheadTime + correction );
 		}
 		
-		const float scaleSlider = mPlayControls.getParamSlider1Value();
-		const float speedSlider = mPlayControls.getParamSlider2Value();
+		const float scaleSlider = mSettingsPanel.getParamSlider1Value();
+		const float speedSlider = mSettingsPanel.getParamSlider2Value();
         mWorld.update( 0.25f + scaleSlider * 2.0f, pow( speedSlider, 3.0f ) * 0.1f );
 		
         updateCamera();
@@ -1573,8 +1618,8 @@ void KeplerApp::update()
             mPlayControls.setRemainingSeconds( -(int)(mCurrentTrackLength - mCurrentTrackPlayheadTime) );
         }
         
-        if (!mPlayControls.playheadIsDragging()) {
-            mPlayControls.setPlayheadProgress( constrain( mCurrentTrackPlayheadTime / mCurrentTrackLength, 0.0, 1.0 ) );
+        if (!mPlayControls.isPlayheadDragging()) {
+            mPlayControls.setPlayheadValue( constrain( mCurrentTrackPlayheadTime / mCurrentTrackLength, 0.0, 1.0 ) );
         }
                 
         if( /*G_DEBUG &&*/ elapsedFrames % 30 == 0 ){
@@ -1943,7 +1988,7 @@ void KeplerApp::drawScene()
         if( sortedNodes[i]->mGen == G_ARTIST_LEVEL ) {
             sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mTextures[ATMOSPHERE_SUN_TEX], mTextures[ATMOSPHERE_DIRECTIONAL_TEX], mPinchAlphaPer, 0.0f );
         } else {
-            float scaleSliderOffset = mPlayControls.getParamSlider1Value() * 0.01f;
+            float scaleSliderOffset = mSettingsPanel.getParamSlider1Value() * 0.01f;
             sortedNodes[i]->drawAtmosphere( mEye - mCenterOffset, interfaceSize * 0.5f, mTextures[ATMOSPHERE_TEX], mTextures[ATMOSPHERE_DIRECTIONAL_TEX], mPinchAlphaPer, scaleSliderOffset );
         }
     }
@@ -2123,10 +2168,10 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
     logEvent("Player Track Changed");
 //    std::cout << "onPlayerTrackChanged" << std::endl;
 
-    if (mPlayControls.playheadIsDragging()) {
+    if (mPlayControls.isPlayheadDragging()) {
 //        std::cout << "canceling playhead drag" << std::endl;
         mPlayControls.cancelPlayheadDrag();
-        mPlayControls.setPlayheadProgress(0.0f);
+        mPlayControls.setPlayheadValue(0.0f);
         mIpodPlayer.setPlayheadTime( 0.0f );        
     }
     
@@ -2278,7 +2323,7 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 
     // update UI:
     const bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
-    mPlayControls.setPlaying(isPlaying);
+    mPlayControls.setPlayingOn(isPlaying);
     
     // be sure the track moon and elapsed time things get an update:
     mPlayheadUpdateSeconds = -1;    

@@ -9,16 +9,13 @@
 
 #pragma once
 #include "cinder/Vector.h"
-#include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Rect.h"
 #include "cinder/Color.h"
 #include "cinder/Font.h"
-#include "Orientation.h"
-#include "OrientationEvent.h"
-#include "WheelOverlay.h"
-#include "UiLayer.h"
 #include "cinder/Function.h"
+
+#include "WheelOverlay.h"
 #include "BloomNode.h"
 
 class AlphaChooser : public BloomNode {
@@ -28,7 +25,7 @@ public:
 	AlphaChooser() {};
 	~AlphaChooser() {};
 		
-	void	setup( const ci::Font &font, UiLayerRef uiLayer, WheelOverlayRef wheelOverlay );    
+	void	setup( const ci::Font &font, WheelOverlayRef wheelOverlay );    
 	void	update();
 	void	draw();
     
@@ -53,7 +50,6 @@ private:
 	void	setRects();    
     
     WheelOverlayRef mWheelOverlay;
-	UiLayerRef mUiLayer;
     
     float           *mNumberAlphaPerChar;
 

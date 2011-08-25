@@ -20,8 +20,20 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void UiLayer::setup( const gl::Texture &uiButtonsTex, const gl::Texture &settingsBgTex, const bool &showSettings, const Vec2f interfaceSize )
+void UiLayer::setup( BloomNodeRef playlistChooser, 
+                     BloomNodeRef alphaChooser, 
+                     BloomNodeRef playControls, 
+                     BloomNodeRef settingsPanel, 
+                     const gl::Texture &uiButtonsTex, 
+                     const gl::Texture &settingsBgTex, 
+                     const bool &showSettings, 
+                     const Vec2f interfaceSize )
 {
+    mPlaylistChooser = playlistChooser;
+    mAlphaChooser = alphaChooser;
+    mPlayControls = playControls;
+    mSettingsPanel = settingsPanel;
+    
     mButtonsTex				= uiButtonsTex;
 	mSettingsBgTex			= settingsBgTex;
 	
@@ -206,4 +218,35 @@ bool UiLayer::hitTest( Vec2f globalPos )
         return mPanelUpperRect.contains( pos ) || mPanelLowerRect.contains( pos ) || mPanelTabRect.contains( pos );
     }
     return false;
+}
+
+void UiLayer::setShowAlphaFilter(bool visible)
+{
+    mAlphaChooser->setVisible(visible);
+    if (mAlphaChooser->isVisible()) {
+        mPlaylistChooser->setVisible(false);
+    }
+}
+
+bool UiLayer::isShowingAlphaFilter()
+{
+    return mAlphaChooser->isVisible();
+}
+
+void UiLayer::setShowPlaylistFilter(bool visible)
+{
+    mPlaylistChooser->setVisible(visible);
+    if (mPlaylistChooser->isVisible()) {
+        mAlphaChooser->setVisible(false);
+    }
+}
+
+bool UiLayer::isShowingPlaylistFilter()
+{
+    return mPlaylistChooser->isVisible();
+}
+
+bool UiLayer::isShowingFilter()
+{
+    return isShowingPlaylistFilter() || isShowingAlphaFilter();
 }

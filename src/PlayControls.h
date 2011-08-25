@@ -17,8 +17,6 @@
 #include "cinder/Text.h"
 #include "cinder/Utilities.h"
 
-#include "OrientationHelper.h"
-
 #include "BloomNode.h"
 #include "Buttons.h"
 #include "Slider.h"
@@ -32,11 +30,10 @@ class PlayControls : public BloomNode {
 public:
 
 	enum ButtonId { NO_BUTTON, 
-                    SHOW_WHEEL, GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, 
+                    SHOW_PLAYLIST_FILTER, SHOW_ALPHA_FILTER,
+                    GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, 
                     PREV_TRACK, PLAY_PAUSE, NEXT_TRACK, 
-                    SHUFFLE, REPEAT, 
-                    HELP, AUTO_MOVE, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE,
-                    SLIDER, PARAMSLIDER1, PARAMSLIDER2 };
+                    SLIDER };
 
     PlayControls() {};
     ~PlayControls() {};
@@ -50,44 +47,26 @@ public:
     
     void update();
         
-    // this one updates the drawable and interactive things too:
-    void setShowSettings(bool visible);
-    
     // State stuff, passed onto UI classes directly...
     // (not gettable, state lives elsewhere and UI changes are handled with callbacks)
     // (all these things should be called in App::update())
     // TODO: investigate doing this automagically with &references or *pointers?
 
-	void setPlaying(bool playing) { mPlayPauseButton->setOn(playing); }
-    void setWheelVisible(bool visible) { mWheelButton->setOn(visible); };
+    void setShowSettingsOn(bool on) { mShowSettingsButton->setOn(on); }
+	void setPlayingOn(bool on) { mPlayPauseButton->setOn(on); }
+    void setAlphaOn(bool on) { mAlphaButton->setOn(on); };
+    void setPlaylistOn(bool on) { mPlaylistButton->setOn(on); };
 
-    void setHelpVisible(bool visible) {		mHelpButton->setOn(visible); };
-	void setDebugVisible(bool visible) {	mDebugButton->setOn(visible); };
-	void setGyroVisible(bool visible) {		mGyroButton->setOn(visible); };
-    void setOrbitsVisible(bool visible) {	mOrbitsButton->setOn(visible); };
-    void setLabelsVisible(bool visible) {	mLabelsButton->setOn(visible); };	
-	void setShuffleVisible(bool visible) {	mShuffleButton->setOn(visible); };
-	void setScreensaverVisible( bool visible){ mScreensaverButton->setOn(visible); };
-	void setRepeatMode(ci::ipod::Player::RepeatMode state)
-    { 
-        int stateInt = state == ci::ipod::Player::RepeatModeNone ? 0 :
-        state == ci::ipod::Player::RepeatModeAll ? 1 :
-        state == ci::ipod::Player::RepeatModeOne ? 2 : 0; // 0 for RepeatModeDefault
-        mRepeatButton->setState(stateInt); 
-    };	
     void setElapsedSeconds(int elapsedTime) { mElapsedTimeLabel->setSeconds(elapsedTime); }
     void setRemainingSeconds(int remainingTime) { mRemainingTimeLabel->setSeconds(remainingTime); }
     void setCurrentTrack(std::string currentTrack) { mTrackInfoLabel->setText(currentTrack); }
-    void setPlayheadProgress(float value) { mPlayheadSlider->setValue(value); }
-    void cancelPlayheadDrag() { mPlayheadSlider->setIsDragging(false); }
     void enablePlayerControls( bool enable = true );            
     void disablePlayerControls() { enablePlayerControls(false); }
         
+    void setPlayheadValue(float value) { mPlayheadSlider->setValue(value); }
     float getPlayheadValue() { return mPlayheadSlider->getValue(); }
-	float getParamSlider1Value(){ return mParamSlider1->getValue(); }
-	float getParamSlider2Value(){ return mParamSlider2->getValue(); }
-
-    bool playheadIsDragging() { return mPlayheadSlider->isDragging(); }
+    bool isPlayheadDragging() { return mPlayheadSlider->isDragging(); }
+    void cancelPlayheadDrag() { mPlayheadSlider->setIsDragging(false); }
 
 	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
 	template<typename T>
@@ -159,27 +138,15 @@ private:
     Slider *mPlayheadSlider;
     TimeLabel *mRemainingTimeLabel;    
 
-    ToggleButton *mWheelButton;
+    // filters
+    ToggleButton *mAlphaButton;
+    ToggleButton *mPlaylistButton;
         
-    // settings...
-    BloomNodeRef mSettingsNodeRef;
+    // settings
     ToggleButton *mShowSettingsButton;
-        ToggleButton *mHelpButton;
-		ToggleButton *mScreensaverButton;
-        ToggleButton *mOrbitsButton;
-        ToggleButton *mLabelsButton;
-        ToggleButton *mDebugButton;
-        ToggleButton *mGyroButton;
-		ToggleButton *mShuffleButton;
-		ThreeStateButton *mRepeatButton;
     
- // track skip and play/pause controls
+    // track skip and play/pause controls
     SimpleButton *mPreviousTrackButton;
     TwoStateButton *mPlayPauseButton;
     SimpleButton *mNextTrackButton;
-	
-	TextLabel *mParamSlider1Label;
-    Slider *mParamSlider1;
-	TextLabel *mParamSlider2Label;
-    Slider *mParamSlider2;        
 };

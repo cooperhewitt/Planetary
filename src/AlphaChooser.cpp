@@ -9,13 +9,10 @@
 
 #include "AlphaChooser.h"
 #include "cinder/gl/gl.h"
-#include "cinder/Font.h"
 #include "cinder/Text.h"
-#include "cinder/ImageIo.h"
 #include "Globals.h"
 #include "BloomGl.h"
 #include "BloomScene.h"
-#include "cinder/app/AppCocoaTouch.h" // for loadResource, getElapsedSeconds
 #include "cinder/Utilities.h" // for toString
 #include <sstream>
 
@@ -23,14 +20,13 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void AlphaChooser::setup( const Font &font, UiLayerRef uiLayer, WheelOverlayRef wheelOverlay )
+void AlphaChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
 {	
 	// Textures
 	mAlphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
 	mAlphaIndex		= 0;
 	mAlphaChar		= 'A';
 
-    mUiLayer = uiLayer;
 	mWheelOverlay = wheelOverlay;
 	
 	for( int i=0; i<mAlphaString.length(); i++ ){
@@ -55,7 +51,7 @@ void AlphaChooser::setRects()
     const float hPadding = 20.0f;
     const float vHitPadding = 10.0f;
     const float spacing = (mInterfaceSize.x - totalWidth - (hPadding * 2.0f)) / 26.0f;
-    float x = hPadding - (mInterfaceSize.x / 2.0f);
+    float x = hPadding;
 	for( int i = 0; i < mAlphaString.length(); i++ ){
 		const float w = mAlphaTextures[i].getWidth();
 		const float h = mAlphaTextures[i].getHeight();
@@ -63,7 +59,7 @@ void AlphaChooser::setRects()
 		mAlphaHitRects.push_back( Rectf( x - spacing/2.0f, -vHitPadding, x + w + spacing/2.0f, h + vHitPadding ) );
         x += w + spacing;
 	}
-    mFullRect.set( -mInterfaceSize.x / 2.0f, -vHitPadding, (mInterfaceSize.x / 2.0f), totalHeight + vHitPadding );
+    mFullRect.set( 0.0f, -vHitPadding, mInterfaceSize.x, totalHeight + vHitPadding );
 }
 
 bool AlphaChooser::touchBegan( TouchEvent::Touch touch )
@@ -124,13 +120,6 @@ void AlphaChooser::update( )
         mInterfaceSize = interfaceSize;
         setRects();        
     }
-    
-    // wheel is already centered, so we have to subtract half of interface height
-    float y = mUiLayer->getPanelYPos() - (mInterfaceSize.y / 2.0f) - 50.0f - mFullRect.getHeight();        
-    Matrix44f mat;
-    mat.translate( Vec3f( 0, y, 0) );
-    setTransform( mat );
-    // FIXME: only do this if ypos changes?
 }
 
 void AlphaChooser::draw()
