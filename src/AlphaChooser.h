@@ -18,6 +18,9 @@
 #include "WheelOverlay.h"
 #include "BloomNode.h"
 
+class AlphaChooser;
+typedef std::shared_ptr<AlphaChooser> AlphaChooserRef;
+
 class AlphaChooser : public BloomNode {
 
 public:
@@ -44,6 +47,9 @@ public:
 	}
     
     bool hitTest( ci::Vec2f globalPos ) { return mVisible && mFullRect.contains( globalToLocal( globalPos ) ); }
+
+    // used in UiLayer layout...
+    float getHeight();
 
 private:
     

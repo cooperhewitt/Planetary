@@ -20,10 +20,10 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void UiLayer::setup( BloomNodeRef playlistChooser, 
-                     BloomNodeRef alphaChooser, 
-                     BloomNodeRef playControls, 
-                     BloomNodeRef settingsPanel, 
+void UiLayer::setup( PlaylistChooserRef playlistChooser, 
+                     AlphaChooserRef alphaChooser, 
+                     PlayControlsRef playControls, 
+                     SettingsPanelRef settingsPanel,
                      const gl::Texture &uiButtonsTex, 
                      const gl::Texture &settingsBgTex, 
                      const bool &showSettings, 
@@ -37,9 +37,6 @@ void UiLayer::setup( BloomNodeRef playlistChooser,
     mButtonsTex				= uiButtonsTex;
 	mSettingsBgTex			= settingsBgTex;
 	
-	mPanelOpenHeight		= 63.0f;
-	mPanelSettingsHeight	= 108.0f;    
-    
     mIsPanelOpen			= false;
 	mIsPanelTabTouched		= false;
 	mHasPanelBeenDragged	= false;
@@ -48,10 +45,7 @@ void UiLayer::setup( BloomNodeRef playlistChooser,
     mInterfaceSize = interfaceSize;
 
     // these rectangles are essentially constant (except for width), movement is handled by setTransform
-    mPanelRect      = Rectf(0, 0, interfaceSize.x, interfaceSize.y + mPanelSettingsHeight);
-	mPanelUpperRect = Rectf(0, 0, interfaceSize.x, mPanelOpenHeight);
-	mPanelLowerRect = Rectf(0, mPanelOpenHeight, interfaceSize.x, mPanelSettingsHeight);
-    mPanelTabRect   = Rectf( interfaceSize.x - 179.0f, -42.0f, interfaceSize.x, 2.0f );
+    mPanelTabRect   = Rectf( interfaceSize.x - 200.0f, -42.0f, interfaceSize.x, 2.0f );
     
     // make sure we're showing enough, then update layout
     setShowSettings(showSettings);    
@@ -61,23 +55,15 @@ void UiLayer::setup( BloomNodeRef playlistChooser,
 
 void UiLayer::setShowSettings( bool visible ) 
 {
-	if( visible ){
-		mPanelHeight = mPanelSettingsHeight;
-	} else {
-		mPanelHeight = mPanelOpenHeight;
-	}    
-    mPanelOpenY	= mInterfaceSize.y - mPanelHeight;        
+    mPanelOpenY	= mInterfaceSize.y - getPanelHeight();        
 }
 
 void UiLayer::updateLayout( Vec2f interfaceSize )
 {    
-    mPanelRect.x2 = interfaceSize.x;
     mPanelTabRect.x1 = interfaceSize.x - 200.0f;
     mPanelTabRect.x2 = interfaceSize.x;    
-	mPanelUpperRect.x2 = interfaceSize.x;
-	mPanelLowerRect.x2 = interfaceSize.x;
     
-    mPanelOpenY		= interfaceSize.y - mPanelHeight;
+    mPanelOpenY		= interfaceSize.y - getPanelHeight();
     mPanelClosedY	= interfaceSize.y;
     
     // cancel interactions
@@ -122,9 +108,7 @@ bool UiLayer::touchMoved( TouchEvent::Touch touch )
         Vec2f newPos = touchPos + mPanelTabTouchOffset;
         mPanelY += newPos.y - mPanelTabRect.y1;
 		
-		float panelHeight = mPanelOpenHeight;
-		if( G_SHOW_SETTINGS ) panelHeight = mPanelSettingsHeight;
-		const float maxPanelY = mInterfaceSize.y - panelHeight;
+		const float maxPanelY = mInterfaceSize.y - getPanelHeight();
 		mPanelY = constrain( mPanelY, maxPanelY, mPanelClosedY );
 	}
 
@@ -136,7 +120,7 @@ bool UiLayer::touchEnded( TouchEvent::Touch touch )
     // decide if the open state should change:
 	if( mIsPanelTabTouched ){
 		if( mHasPanelBeenDragged ){
-            mIsPanelOpen = (mPanelY - mPanelOpenY) < mPanelHeight/2.0f;
+            mIsPanelOpen = fabs(mPanelY - mPanelOpenY) > fabs(mPanelY - mPanelClosedY);
 		} 
         else {
             mIsPanelOpen = !mIsPanelOpen;
@@ -172,10 +156,10 @@ void UiLayer::update()
             mPanelY += (mPanelClosedY - mPanelY) * 0.25f;
         }
     }
-    
-    // make sure the drag/ease hasn't messed anything up
-    // always use the tallest size for maxPanelY so we'll ease when closing settings...
-    const float maxPanelY = mInterfaceSize.y - mPanelSettingsHeight;
+
+    // don't use mPanelOpenY or current height as a constraint here, 
+    // use maximum value because we want things to ease closed
+    const float maxPanelY = mInterfaceSize.y - getMaxPanelHeight();
     mPanelY = constrain( mPanelY, maxPanelY, mPanelClosedY );
     
     Matrix44f transform;
@@ -186,16 +170,18 @@ void UiLayer::update()
 void UiLayer::draw()
 {	
     bloom::gl::beginBatch();
-    bloom::gl::batchRect( mButtonsTex, Rectf(0.01f, 0.91f, 0.09f, 0.99f), mPanelUpperRect);
-    bloom::gl::batchRect( mSettingsBgTex, Rectf(0.0f, 0.0f, 1.0f, 1.0f), mPanelLowerRect);
+    // TODO: make PlayControls, AlphaChooser/PlaylistChooser and Settings draw their own backgrounds
+//    bloom::gl::batchRect( mButtonsTex, Rectf(0.01f, 0.91f, 0.09f, 0.99f), mPanelUpperRect);
+//    bloom::gl::batchRect( mSettingsBgTex, Rectf(0.0f, 0.0f, 1.0f, 1.0f), mPanelLowerRect);
     bloom::gl::batchRect( mButtonsTex, Rectf(0.11f, 0.8f, 1.0f, 1.0f), mPanelTabRect);
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );    
     bloom::gl::endBatch();
 
-	const float dragAlphaPer = min( pow( ( mInterfaceSize.y - mPanelY ) / mPanelOpenHeight, 2.0f ), 1.0f ); 
+//	const float dragAlphaPer = min( pow( ( mInterfaceSize.y - mPanelY ) / mPanelOpenHeight, 2.0f ), 1.0f ); 
+    const float dragAlphaPer = 1.0f; // FIXME: restore tabby drag fade
 	// top highlight stroke
     gl::color( ColorA( BRIGHT_BLUE, 0.1f * dragAlphaPer + 0.1f ) );
-	gl::drawLine( Vec2f( mPanelRect.x1, 0.0f ), Vec2f( mPanelTabRect.x1, 0.0f ) );
+	gl::drawLine( Vec2f( 0.0f, 0.0f ), Vec2f( mPanelTabRect.x1, 0.0f ) );
 	
 	// settings highlight stroke
 //	gl::color( ColorA( BLUE, 0.2f ) );
@@ -215,7 +201,7 @@ bool UiLayer::hitTest( Vec2f globalPos )
 {
     if (mVisible) {
         Vec2f pos = globalToLocal( globalPos );
-        return mPanelUpperRect.contains( pos ) || mPanelLowerRect.contains( pos ) || mPanelTabRect.contains( pos );
+        return mPanelTabRect.contains(pos) || pos.y > mPanelTabRect.y2;
     }
     return false;
 }
@@ -249,4 +235,27 @@ bool UiLayer::isShowingPlaylistFilter()
 bool UiLayer::isShowingFilter()
 {
     return isShowingPlaylistFilter() || isShowingAlphaFilter();
+}
+
+float UiLayer::getPanelHeight()
+{
+    float panelHeight = mPlayControls->getHeight();
+    if (mPlaylistChooser->isVisible()) {
+        panelHeight += mPlaylistChooser->getHeight();
+    }
+    if (mAlphaChooser->isVisible()) {
+        panelHeight += mAlphaChooser->getHeight();
+    }
+    if (mSettingsPanel->isVisible()) {
+        panelHeight += mSettingsPanel->getHeight();
+    }
+    return panelHeight;
+}
+
+float UiLayer::getMaxPanelHeight()
+{
+    float panelHeight = mPlayControls->getHeight();
+    panelHeight += max( mPlaylistChooser->getHeight(), mAlphaChooser->getHeight() );
+    panelHeight += mSettingsPanel->getHeight();
+    return panelHeight;
 }

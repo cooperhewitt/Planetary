@@ -569,11 +569,11 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
     mPlaylistChooser.registerPlaylistTouched( this, &KeplerApp::onPlaylistChooserTouched );
     
-    
-    BloomNodeRef playlistChooserRef = BloomNodeRef(&mPlaylistChooser);
-    BloomNodeRef alphaChooserRef = BloomNodeRef(&mAlphaChooser);
-    BloomNodeRef playControlsRef = BloomNodeRef(&mPlayControls);
-    BloomNodeRef settingsPanelRef = BloomNodeRef(&mSettingsPanel);    
+    // refs!
+    PlaylistChooserRef playlistChooserRef = PlaylistChooserRef(&mPlaylistChooser);
+    AlphaChooserRef alphaChooserRef = AlphaChooserRef(&mAlphaChooser);
+    PlayControlsRef playControlsRef = PlayControlsRef(&mPlayControls);
+    SettingsPanelRef settingsPanelRef = SettingsPanelRef(&mSettingsPanel);    
     
     // UI LAYER
 	mUiLayer.setup( playlistChooserRef, 

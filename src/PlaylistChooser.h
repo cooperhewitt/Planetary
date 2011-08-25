@@ -24,6 +24,9 @@
 #include "BloomNode.h"
 #include "WheelOverlay.h"
 
+class PlaylistChooser;
+typedef std::shared_ptr<PlaylistChooser> PlaylistChooserRef;
+
 class PlaylistChooser : public BloomNode {
 
 public:    
@@ -53,6 +56,9 @@ public:
 	}
     
     bool hitTest( ci::Vec2f globalPos ) { return mVisible && mFullRect.contains( globalToLocal( globalPos ) ); }
+
+    // used in UiLayer layout...
+    float getHeight();
 
 private:
     

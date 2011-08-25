@@ -26,6 +26,9 @@
 #include "ScrollingLabel.h"
 #include "CinderIPodPlayer.h"
 
+class PlayControls;
+typedef std::shared_ptr<PlayControls> PlayControlsRef;
+
 class PlayControls : public BloomNode {
 public:
 
@@ -48,6 +51,9 @@ public:
     
     void update();
         
+    // used in UiLayer layout...
+    float getHeight();
+    
     // State stuff, passed onto UI classes directly...
     // (not gettable, state lives elsewhere and UI changes are handled with callbacks)
     // (all these things should be called in App::update())

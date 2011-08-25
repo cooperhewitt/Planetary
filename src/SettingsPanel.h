@@ -22,6 +22,9 @@
 #include "TextLabel.h"
 #include "CinderIPodPlayer.h"
 
+class SettingsPanel;
+typedef std::shared_ptr<SettingsPanel> SettingsPanelRef;
+
 class SettingsPanel : public BloomNode {
 public:
     
@@ -70,6 +73,9 @@ public:
     bool removedFromScene();
     void deepDraw();
         
+    // used in UiLayer layout...
+    float getHeight();
+    
 private:
     
     // instantiate and set fonts/areas/textures (called once)

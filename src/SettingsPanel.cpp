@@ -152,7 +152,7 @@ void SettingsPanel::setInterfaceSize( const Vec2f &interfaceSize )
 {
     mInterfaceSize = interfaceSize;
     
-	const float topBorder	 = 65.0f;
+	const float topBorder	 = 5.0f;
 	const float sideBorder	 = 10.0f;
     const float bSizeSmall	 = 40.0f;
     
@@ -206,16 +206,14 @@ void SettingsPanel::setInterfaceSize( const Vec2f &interfaceSize )
 	const float paramSliderWidth = landscape ? 250.0f : 150.0f;
 	const float slider1X         = 60.0f;
 	const float slider2X         = slider1X + paramSliderWidth + 75.0f;
-	const float sliderYOff       = 44.0f;
-    const float sliderHeight     = 20.0f;    
-    const float bgy1             = 32.0f;
-    const float bgy2             = bgy1 + sliderHeight;    
+	const float sliderYOff       = 16.0f;
+    const float sliderHeight     = 20.0f;
     
-    mParamSlider1->setRect( slider1X, bgy1 + sliderYOff, slider1X + paramSliderWidth, bgy2 + sliderYOff );
-    mParamSlider2->setRect( slider2X, bgy1 + sliderYOff, slider2X + paramSliderWidth, bgy2 + sliderYOff );
+    mParamSlider1->setRect( slider1X, sliderYOff, slider1X + paramSliderWidth, sliderYOff + sliderHeight );
+    mParamSlider2->setRect( slider2X, sliderYOff, slider2X + paramSliderWidth, sliderYOff + sliderHeight );
 	
-	mParamSlider1Label->setRect( slider1X - 40.0f, bgy1 + sliderYOff, slider1X, bgy2 + sliderYOff );
-	mParamSlider2Label->setRect( slider2X - 45.0f, bgy1 + sliderYOff, slider2X, bgy2 + sliderYOff );	
+	mParamSlider1Label->setRect( slider1X - 40.0f, sliderYOff, slider1X, sliderYOff + sliderHeight );
+	mParamSlider2Label->setRect( slider2X - 45.0f, sliderYOff, slider2X, sliderYOff + sliderHeight);	
 }
 
 void SettingsPanel::update()
@@ -247,5 +245,10 @@ bool SettingsPanel::onBloomNodeTouchEnded( BloomNodeRef nodeRef )
         mCallbacksButtonPressed.call(ButtonId(nodeRef->getId()));
     }
     return false;
+}
+
+float SettingsPanel::getHeight()
+{
+    return 50.0f;
 }
 
