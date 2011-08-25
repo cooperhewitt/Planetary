@@ -156,3 +156,9 @@ void AlphaChooser::draw()
 		
 	}
 }
+
+float AlphaChooser::getHeight()
+{
+    return mFullRect.getHeight();
+}
+

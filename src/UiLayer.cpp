@@ -147,6 +147,14 @@ void UiLayer::update()
         updateLayout( interfaceSize );
     }
     
+    float thingY = mPlayControls->getHeight();
+    if (isFilterVisible()) {
+        mPlaylistChooser->setTransform( Matrix44f::createTranslation( Vec3f(0, thingY, 0) ) );
+        mAlphaChooser->setTransform( Matrix44f::createTranslation( Vec3f(0, thingY, 0) ) );
+        thingY += max(mAlphaChooser->getHeight(), mPlaylistChooser->getHeight());
+    }
+    mSettingsPanel->setTransform( Matrix44f::createTranslation( Vec3f(0, thingY, 0) ) );
+    
     if ( !mHasPanelBeenDragged ) {
         // if we're not dragging, animate to current state
         if( mIsPanelOpen ){

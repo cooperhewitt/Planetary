@@ -336,3 +336,9 @@ void PlaylistChooser::setDataWorldCam( Data *data, World *world, CameraPersp *ca
 }
 
 
+float PlaylistChooser::getHeight()
+{
+    return mFullRect.getHeight();
+}
+
+

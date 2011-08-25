@@ -287,3 +287,8 @@ void PlayControls::deepDraw()
         glPopMatrix();
     }        
 }
+
+float PlayControls::getHeight()
+{
+    return 60.0f;
+}
