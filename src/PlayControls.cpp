@@ -165,7 +165,9 @@ bool PlayControls::onBloomNodeTouchEnded( BloomNodeRef nodeRef )
     if ( nodeRef->getId() == mPlayheadSlider->getId() ) {
         mCallbacksPlayheadMoved.call( mPlayheadSlider->getValue() );
     }
-    mCallbacksButtonPressed.call(ButtonId(nodeRef->getId()));
+    else if ( nodeRef->getId() > NO_BUTTON && nodeRef->getId() < LAST_BUTTON ) {
+        mCallbacksButtonPressed.call(ButtonId(nodeRef->getId()));
+    }
     return false;
 }
 

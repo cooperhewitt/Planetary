@@ -25,10 +25,11 @@
 class SettingsPanel : public BloomNode {
 public:
     
-	enum ButtonId { NO_BUTTON, 
+	enum ButtonId { NO_BUTTON = 2000, 
                     SHUFFLE, REPEAT, 
                     HELP, AUTO_MOVE, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE,
-                    PARAMSLIDER1, PARAMSLIDER2 };
+                    PARAMSLIDER1, PARAMSLIDER2,
+                    LAST_BUTTON };
     
     SettingsPanel() {};
     ~SettingsPanel() {};
@@ -66,6 +67,7 @@ public:
 	}
 	
     bool addedToScene(); // from BloomNode
+    bool removedFromScene();
     void deepDraw();
         
 private:
@@ -84,6 +86,12 @@ private:
     
 	// !!! EVENT STUFF (keep track of listeners)
 	ci::CallbackMgr<bool(ButtonId)> mCallbacksButtonPressed;
+    
+    // for listening to scene level button events
+    bool onBloomNodeTouchEnded( BloomNodeRef nodeRef );
+    
+    // for removing events when cleaning up
+    ci::CallbackId mCbTouchEnded;
     
     ///////////// UI Classes:
     

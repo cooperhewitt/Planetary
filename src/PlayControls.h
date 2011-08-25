@@ -29,11 +29,12 @@
 class PlayControls : public BloomNode {
 public:
 
-	enum ButtonId { NO_BUTTON, 
+	enum ButtonId { NO_BUTTON = 1000, 
                     SHOW_PLAYLIST_FILTER, SHOW_ALPHA_FILTER,
                     GOTO_GALAXY, GOTO_CURRENT_TRACK, SETTINGS, 
                     PREV_TRACK, PLAY_PAUSE, NEXT_TRACK, 
-                    SLIDER };
+                    SLIDER,
+                    LAST_BUTTON };
 
     PlayControls() {};
     ~PlayControls() {};
