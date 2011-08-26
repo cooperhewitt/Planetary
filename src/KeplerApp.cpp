@@ -1204,11 +1204,13 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 		case PlayControls::GOTO_GALAXY:
             logEvent("Galaxy Button Selected");
 			mState.setSelectedNode( NULL );
+			mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*1, uw*2, uh*2 ), "ZOOM TO GALAXY" ); // FIXME: Better copy?
             break;
 			
         case PlayControls::GOTO_CURRENT_TRACK:
             logEvent("Current Track Button Selected");            
             flyToCurrentTrack();
+			mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( uw*1, uh*1, uw*2, uh*2 ), "ZOOM TO CURRENT TRACK" ); // FIXME: Better copy?
             break;
 			
 		case PlayControls::SETTINGS:

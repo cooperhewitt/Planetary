@@ -12,6 +12,7 @@
 #include "cinder/ImageIo.h"
 #include "BloomScene.h"
 #include "cinder/app/AppCocoaTouch.h" // for loadResource
+#include "Globals.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -184,10 +185,11 @@ void LoadingScreen::draw()
 	mPlanetTex.disable();
 
     // FIXME: better progress bar?
-    gl::color( Color(1,1,0) );
-    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - 30.0f, mInterfaceSize.x * mTextureProgress, mInterfaceSize.y - 20.0f ) );
-    gl::color( Color(0,1,1) );
-    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - 20.0f, mInterfaceSize.x * mArtistProgress, mInterfaceSize.y - 10.0f ) );
-    gl::color( Color(1,0,1) );
-    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - 10.0f, mInterfaceSize.x * mPlaylistProgress, mInterfaceSize.y ) );
+	float barHeight = 4.0f;
+    gl::color( BRIGHT_BLUE );
+    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - barHeight * 3.0f, mInterfaceSize.x * mTextureProgress,  mInterfaceSize.y - barHeight * 2.0f ) );
+    gl::color( BLUE );
+    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - barHeight * 2.0f, mInterfaceSize.x * mArtistProgress,   mInterfaceSize.y - barHeight * 1.0f ) );
+    gl::color( BRIGHT_YELLOW );
+    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - barHeight * 1.0f, mInterfaceSize.x * mPlaylistProgress, mInterfaceSize.y - barHeight * 0.0f ) );
 }
