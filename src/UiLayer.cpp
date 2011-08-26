@@ -179,7 +179,12 @@ void UiLayer::draw()
     gl::draw( mButtonsTex, Area( 0, 456, 200, 500 ), mPanelTabRect);
 	
 
-	const float dragAlphaPer = min( pow( ( mPanelY - mPanelClosedY ) / mPanelOpenY, 2.0f ), 1.0f ); 
+    // fuck maths, just figure out which is bigger and smaller and stop pretending to know...
+    const float minY = min(mPanelClosedY, mPanelOpenY);
+    const float maxY = max(mPanelClosedY, mPanelOpenY);
+    const float per = ( mPanelY - minY ) / ( maxY - minY );
+    // invert (1-per) because higher Y should be darker and lower Y should be lighter
+	const float dragAlphaPer = min( pow( 1.0f - per, 2.0f ), 1.0f ); 
 
 	// top highlight stroke
     gl::color( ColorA( BRIGHT_BLUE, 0.1f * dragAlphaPer + 0.1f ) );
