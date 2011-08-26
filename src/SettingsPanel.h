@@ -40,8 +40,7 @@ public:
     void setup( const ci::Vec2f &interfaceSize, 
                 ci::ipod::Player *player,
                 const ci::Font &font, 
-                const ci::gl::Texture &smallButtonsTex,
-                const ci::gl::Texture &settingsBgTex );
+                const ci::gl::Texture &smallButtonsTex );
     
     void update();
     
@@ -99,10 +98,7 @@ private:
     
     // for removing events when cleaning up
     ci::CallbackId mCbTouchEnded;
-    
-    // for drawing background of settings panel
-    const ci::gl::Texture mSettingsBgTex;
-    
+        
     ///////////// UI Classes:
     
     // Remember:

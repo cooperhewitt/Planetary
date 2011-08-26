@@ -29,9 +29,6 @@ void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font 
     setAlphaOn( false ); // this is the default in WheelOverlay::setup()
     setPlaylistOn( false );
     setShowSettingsOn( G_SHOW_SETTINGS );
-    
-    // remember texture so we can draw background
-    mSmallButtonsTex = uiSmallButtonsTex;
 }
 
 void PlayControls::createChildren( const Font &font, const Font &fontSmall, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
@@ -284,12 +281,12 @@ void PlayControls::deepDraw()
         glPushMatrix();
         glMultMatrixf(mTransform); // FIXME only push/mult/pop if mTransform isn't identity
 
-        // convert Rect (which we have working) into Area for ci::gl::draw()
-        // FIXME: use pixel bounds here, or implement ci::gl::draw(tex,rect,rect) instead
-        Rectf rect = Rectf(0.01f, 0.91f, 0.09f, 0.99f);
-        Vec2i size = mSmallButtonsTex.getSize();
-        Area area = Area( rect.x1 * size.x, rect.y1 * size.y, rect.x2 * size.x, rect.y2 * size.y );
-        gl::draw( mSmallButtonsTex, area, Rectf(0,0,mInterfaceSize.x,getHeight()) );
+        // draw play controls panel background
+        gl::color( Color::black() );
+        gl::drawSolidRect( Rectf(0,0,mInterfaceSize.x,getHeight()) );
+        
+        // FIXME: pass on opacity from UiLayer
+        gl::color( Color::white() );
         
         bloom::gl::beginBatch();
         // draw children

@@ -118,9 +118,6 @@ private:
     // for removing events when cleaning up
     ci::CallbackId mCbTouchMoved, mCbTouchEnded;
 
-    // needed for drawing background of panel:
-    ci::gl::Texture mSmallButtonsTex;
-    
     ///////////// UI Classes:
     
     // Remember:
