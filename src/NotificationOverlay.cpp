@@ -66,17 +66,26 @@ void NotificationOverlay::draw()
     if (!mActive) return;
     gl::enableAdditiveBlending(); // as long as this is the last thing.
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, mAlpha ) );
-    // TODO: batch these calls, avoid cinder::gl::draw()
 	gl::draw( mMessageTexture, mMessageRect );
+    // TODO: batch these calls if using the same texture, avoid cinder::gl::draw() overhead?
     gl::draw( mCurrentTexture, mCurrentSrcArea, mIconRect );
+    if (mCurrentSecondSrcArea.getWidth() != 0) {
+        gl::draw( mCurrentTexture, mCurrentSecondSrcArea, mIconRect );        
+    }
 }
 
 void NotificationOverlay::show(const gl::Texture &texture, const Area &srcArea, const string &message)
 {
+    show(texture, srcArea, Area(0,0,0,0), message);
+}
+
+void NotificationOverlay::show( const ci::gl::Texture &texture, const ci::Area &srcArea1, const ci::Area &srcArea2, const std::string &message )
+{
     if (!mSetup) return;
     
     mCurrentTexture = texture;
-    mCurrentSrcArea = srcArea;
+    mCurrentSrcArea = srcArea1;
+    mCurrentSecondSrcArea = srcArea2;
     mCurrentMessage = message;
 	
 	TextLayout layout;	
@@ -88,7 +97,7 @@ void NotificationOverlay::show(const gl::Texture &texture, const Area &srcArea, 
         layout.addCenteredLine( results[i] );
     }
 	mMessageTexture = gl::Texture( layout.render( true, true ) );
-
+    
 	Vec2f iconSize = mCurrentSrcArea.getSize();
     mIconRect = Rectf( -iconSize/2.0f, iconSize/2.0f );
     
@@ -98,7 +107,7 @@ void NotificationOverlay::show(const gl::Texture &texture, const Area &srcArea, 
 	mMessageRect = Rectf( messageTopLeft, messageBottomRight );
 	
     mActive = true;
-    mLastShowTime = app::getElapsedSeconds();
+    mLastShowTime = app::getElapsedSeconds();    
 }
 
 void NotificationOverlay::showLetter( const char &c, const string &message, const Font &hugeFont )
@@ -111,32 +120,11 @@ void NotificationOverlay::showLetter( const char &c, const string &message, cons
 	string s = "";
 	s += c;
 	charLayout.addCenteredLine( s );
-	mCurrentTexture = gl::Texture( charLayout.render( true, true ) );    
-	mCurrentSrcArea = Area( 0, 0, mCurrentTexture.getWidth(), mCurrentTexture.getHeight() + 15.0f );
-    mCurrentMessage = message;
 	
-    // FIXME: at this point, just call show(...) with the right params and avoid mismatching functionality
-    
-	TextLayout layout;
-	layout.setFont( mFont );
-	layout.setColor( ColorA( BRIGHT_BLUE, 0.5f ) );
-    vector<string> results;
-    boost::split(results, message, boost::is_any_of("\n"));     
-    for (int i = 0; i < results.size(); i++) {
-        layout.addCenteredLine( results[i] );
-    }
-	mMessageTexture = gl::Texture( layout.render( true, true ) );
-
-	Vec2f iconSize = mCurrentSrcArea.getSize();
-    mIconRect = Rectf( -iconSize/2.0f, iconSize/2.0f );
-    
-	float halfWidth = mMessageTexture.getWidth() * 0.5f;
-	Vec2f messageTopLeft( -halfWidth, mIconRect.y2 - 10.0f );
-	Vec2f messageBottomRight( halfWidth, mIconRect.y2 + mMessageTexture.getHeight() - 10.0f );
-	mMessageRect = Rectf( messageTopLeft, messageBottomRight );	
-    
-    mActive = true;
-    mLastShowTime = app::getElapsedSeconds();
+    show( gl::Texture( charLayout.render( true, true ) ), 
+          Area( 0, 0, mCurrentTexture.getWidth(), mCurrentTexture.getHeight() + 15.0f ), 
+          Area( 0, 0, 0, 0 ),
+          message );
 }
 
 void NotificationOverlay::hide()
