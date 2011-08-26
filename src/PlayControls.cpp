@@ -131,12 +131,10 @@ bool PlayControls::removedFromScene()
 
 void PlayControls::addChildren()
 {
-    // bit of hack, these are first for batch reasons
-    // (we want the little fadey bits to be drawn on top)
+    // bit of hack, this is first for batch reasons
+    // (we want the little fadey bits to be drawn on top at the end)
     addChild( BloomNodeRef(mTrackInfoLabel) );
-    // shaded bits on top of scrolling mTrackInfoLabel
-    addChild( BloomNodeRef(mCoverLeftTextureRect) );
-    addChild( BloomNodeRef(mCoverRightTextureRect) );    
+
 	addChild( BloomNodeRef(mPlayheadSlider) );    
     addChild( BloomNodeRef(mElapsedTimeLabel) );
     addChild( BloomNodeRef(mRemainingTimeLabel) ); 
@@ -149,6 +147,10 @@ void PlayControls::addChildren()
     addChild( BloomNodeRef(mPreviousTrackButton) );
     addChild( BloomNodeRef(mPlayPauseButton) );
     addChild( BloomNodeRef(mNextTrackButton) );	
+    
+    // shaded bits on top of scrolling mTrackInfoLabel
+    addChild( BloomNodeRef(mCoverLeftTextureRect) );
+    addChild( BloomNodeRef(mCoverRightTextureRect) );    
 }
 
 

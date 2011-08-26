@@ -217,9 +217,10 @@ bool UiLayer::hitTest( Vec2f globalPos )
 void UiLayer::setShowAlphaFilter(bool visible)
 {
     mAlphaChooser->setVisible(visible);
-    if (mAlphaChooser->isVisible()) {
+    if (visible) {
         mPlaylistChooser->setVisible(false);
     }
+    mPanelOpenY	= mInterfaceSize.y - getPanelHeight();        
 }
 
 bool UiLayer::isShowingAlphaFilter()
@@ -230,9 +231,10 @@ bool UiLayer::isShowingAlphaFilter()
 void UiLayer::setShowPlaylistFilter(bool visible)
 {
     mPlaylistChooser->setVisible(visible);
-    if (mPlaylistChooser->isVisible()) {
+    if (visible) {
         mAlphaChooser->setVisible(false);
     }
+    mPanelOpenY	= mInterfaceSize.y - getPanelHeight();    
 }
 
 bool UiLayer::isShowingPlaylistFilter()

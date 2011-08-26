@@ -105,7 +105,7 @@ bool PlaylistChooser::touchEnded( ci::app::TouchEvent::Touch touch )
             mOffsetX = mTouchDragPlaylistIndex * ( mPlaylistSize.x + mSpacerWidth );
             mTouchDragId = 0;
             mTouchDragPlaylistIndex = -1;
-            mWheelOverlay->setShowWheel(false);
+//            mWheelOverlay->setShowWheel(false);
             return true;                
         }
         

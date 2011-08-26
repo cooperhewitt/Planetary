@@ -558,16 +558,19 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
                           mFontMediSmall, 
                           mTextures[UI_SMALL_BUTTONS_TEX] );
 	mSettingsPanel.registerButtonPressed( this, &KeplerApp::onSettingsPanelButtonPressed );
+    mSettingsPanel.setVisible( G_SHOW_SETTINGS );
     // add as child of UILayer so it inherits the transform
     
 	// ALPHA CHOOSER
 	mAlphaChooser.setup( mFontBig, mWheelOverlay );
 	mAlphaChooser.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
+    mAlphaChooser.setVisible(false);
 	
     // PLAYLIST CHOOSER
     mPlaylistChooser.setup( mFontMedium, mWheelOverlay );
     mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
     mPlaylistChooser.registerPlaylistTouched( this, &KeplerApp::onPlaylistChooserTouched );
+    mPlaylistChooser.setVisible(false);
     
     // refs!
     PlaylistChooserRef playlistChooserRef = PlaylistChooserRef(&mPlaylistChooser);
@@ -872,8 +875,13 @@ bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
     // apply a new filter to world...
     if (filterMode == State::FilterModeAlphaChar) {
         mWorld.setFilter( LetterFilter::create( mState.getAlphaChar() ) );
-        mPlayControls.setAlphaOn( mWheelOverlay->getShowWheel() );
-        mPlayControls.setPlaylistOn( false );
+        bool filtering = mUiLayer.isShowingFilter();
+        mUiLayer.setShowAlphaFilter( filtering );
+        if (!filtering) {
+            mUiLayer.setShowPlaylistFilter( false );
+        }
+        mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );
+        mPlayControls.setPlaylistOn( mUiLayer.isShowingPlaylistFilter() );
     }
     else if (filterMode == State::FilterModePlaylist) {
         ipod::PlaylistRef playlist = mState.getPlaylist();
@@ -883,8 +891,13 @@ bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
         else {
             mWorld.setFilter( PlaylistFilter::create(playlist) );
         }
-        mPlayControls.setAlphaOn( false );
-        mPlayControls.setPlaylistOn( mWheelOverlay->getShowWheel() );        
+        bool filtering = mUiLayer.isShowingFilter();
+        mUiLayer.setShowPlaylistFilter( filtering );
+        if (!filtering) {
+            mUiLayer.setShowAlphaFilter( false );
+        }        
+        mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );
+        mPlayControls.setPlaylistOn( mUiLayer.isShowingPlaylistFilter() );
     }
     
     // now make sure that everything is cool with the current filter
@@ -1254,6 +1267,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
                 bool wasShowingFilter = mUiLayer.isShowingFilter();
                 mUiLayer.setShowAlphaFilter( !mUiLayer.isShowingAlphaFilter() );            
                 mWheelOverlay->setShowWheel( mUiLayer.isShowingFilter() );
+                mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );
+                mPlayControls.setPlaylistOn( mUiLayer.isShowingPlaylistFilter() );
                 if (mUiLayer.isShowingAlphaFilter()) {                
                     if (!wasShowingFilter) {
                         mState.setFilterMode( State::FilterModeAlphaChar );
@@ -1269,6 +1284,8 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
                 bool wasShowingFilter = mUiLayer.isShowingFilter();
                 mUiLayer.setShowPlaylistFilter( !mUiLayer.isShowingPlaylistFilter() );            
                 mWheelOverlay->setShowWheel( mUiLayer.isShowingFilter() );
+                mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );
+                mPlayControls.setPlaylistOn( mUiLayer.isShowingPlaylistFilter() );
                 if (mUiLayer.isShowingPlaylistFilter()) {                
                     if (!wasShowingFilter) {
                         mState.setFilterMode( State::FilterModePlaylist );
@@ -1604,15 +1621,6 @@ void KeplerApp::update()
 			mParticleController.buildDustVertexArray( scaleSlider, selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
 		}
 		        
-        if (mState.getFilterMode() == State::FilterModeAlphaChar) {
-            mAlphaChooser.setVisible( mWheelOverlay->getWheelScale() < 1.95f );
-            mPlaylistChooser.setVisible( false );
-        }
-        else if (mState.getFilterMode() == State::FilterModePlaylist) {
-            mPlaylistChooser.setVisible( mWheelOverlay->getWheelScale() < 1.95f );
-            mAlphaChooser.setVisible( false );
-        }	        
-        
         if (mPlayheadUpdateSeconds == elapsedSeconds) {
             mPlayControls.setElapsedSeconds( (int)mCurrentTrackPlayheadTime );
             mPlayControls.setRemainingSeconds( -(int)(mCurrentTrackLength - mCurrentTrackPlayheadTime) );

@@ -100,7 +100,7 @@ bool AlphaChooser::touchEnded( TouchEvent::Touch touch )
                 mAlphaChar = mAlphaString[i];
                 mCallbacksAlphaCharSelected.call( mAlphaChar );
             }
-            mWheelOverlay->setShowWheel(false);
+//            mWheelOverlay->setShowWheel(false);
             return true;
         }
     }
