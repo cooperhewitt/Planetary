@@ -18,12 +18,6 @@ class NotificationOverlay : public BloomNode {
   
 public:
     
-    struct Notification {
-        ci::gl::Texture texture; 
-        ci::Area srcRect;
-        std::string message;
-    };
-    
     NotificationOverlay();    
     ~NotificationOverlay();
     
@@ -31,8 +25,8 @@ public:
     void update();
     void draw();
     
-    void show( const ci::gl::Texture &texture, const ci::Area &srcRect, const std::string &message );
-    void show( const Notification &notification ) { show( notification.texture, notification.srcRect, notification.message ); }
+    void show( const ci::gl::Texture &texture, const ci::Area &srcRect, const std::string &message );    
+    void show( const ci::gl::Texture &texture1, const ci::Area &srcRect1, const ci::Area &srcRect2, const std::string &message );
 	void showLetter( const char &c, const std::string &message, const ci::Font &hugeFont );
     void hide();
     
@@ -43,6 +37,7 @@ private:
     float mFadeDelay, mFadeDuration, mLastShowTime;
     ci::gl::Texture mCurrentTexture;
     ci::Area mCurrentSrcArea;
+    ci::Area mCurrentSecondSrcArea;
     std::string mCurrentMessage;
     ci::Rectf mMessageRect, mIconRect;
     float mAlpha;
