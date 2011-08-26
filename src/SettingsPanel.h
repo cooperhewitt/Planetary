@@ -34,7 +34,7 @@ public:
                     PARAMSLIDER1, PARAMSLIDER2,
                     LAST_BUTTON };
     
-    SettingsPanel() {};
+    SettingsPanel(): mOpacity(1.0f) {};
     ~SettingsPanel() {};
     
     void setup( const ci::Vec2f &interfaceSize, 
@@ -76,6 +76,8 @@ public:
     // used in UiLayer layout...
     float getHeight();
     
+    void setOpacity( float opacity ) { mOpacity = opacity; }
+    
 private:
     
     // instantiate and set fonts/areas/textures (called once)
@@ -99,6 +101,8 @@ private:
     // for removing events when cleaning up
     ci::CallbackId mCbTouchEnded;
         
+    float mOpacity;
+    
     ///////////// UI Classes:
     
     // Remember:
