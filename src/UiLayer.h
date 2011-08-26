@@ -15,6 +15,10 @@
 #include "cinder/Color.h"
 #include "cinder/Font.h"
 #include "BloomNode.h"
+#include "PlaylistChooser.h"
+#include "AlphaChooser.h"
+#include "PlayControls.h"
+#include "SettingsPanel.h"
 
 class UiLayer : public BloomNode {
  public:
@@ -22,7 +26,14 @@ class UiLayer : public BloomNode {
     UiLayer(): BloomNode() {}; // get a default ID
 	~UiLayer() {};
     
-	void	setup( const ci::gl::Texture &uiButtonsTex, const ci::gl::Texture &settingsBgTex, const bool &showSettings, const ci::Vec2f interfaceSize );
+	void	setup( PlaylistChooserRef playlistChooser, 
+                   AlphaChooserRef alphaChooser, 
+                   PlayControlsRef playControls, 
+                   SettingsPanelRef settingsPanel,
+                   const ci::gl::Texture &uiButtonsTex, 
+                   const ci::gl::Texture &settingsBgTex, 
+                   const bool &showSettings, 
+                   const ci::Vec2f interfaceSize );
 	
     bool	touchBegan( ci::app::TouchEvent::Touch touch );
 	bool	touchMoved( ci::app::TouchEvent::Touch touch );
@@ -30,15 +41,22 @@ class UiLayer : public BloomNode {
 
     void    setShowSettings( bool visible );
     
-	void	     update();
-	virtual void draw();
+	void    update();
+	void    draw();
     
-	float	  getPanelYPos(){ return mPanelY; }	
+	float   getPanelYPos(){ return mPanelY; }	
 
 	bool	getIsPanelOpen() { return mIsPanelOpen; }
 	void	setIsPanelOpen( bool b ){ mIsPanelOpen = b; mHasPanelBeenDragged = false; }
 	
-    bool hitTest( ci::Vec2f globalPos );
+    bool    hitTest( ci::Vec2f globalPos );
+    
+    //// expand/collapse/query panels
+    void    setShowAlphaFilter(bool visible);
+    bool    isShowingAlphaFilter();
+    void    setShowPlaylistFilter(bool visible);
+    bool    isShowingPlaylistFilter();
+    bool    isShowingFilter();    
     
  private:
 
@@ -49,20 +67,22 @@ class UiLayer : public BloomNode {
 	ci::gl::Texture	mSettingsBgTex;
     
     float           mPanelY;                // used in setTransform
-	float			mPanelOpenHeight;       // small height when settings closed
-	float			mPanelSettingsHeight;   // full height when settings open
-    float           mPanelHeight;           // varies depending on if settings are shown
     float           mPanelOpenY;            // updated in setShowSettings/updateLayout
     float           mPanelClosedY;          // updated in updateLayout
-	ci::Rectf		mPanelRect;				// Rect defining the panel width and height
 	ci::Rectf		mPanelTabRect;			// Rect defining the panel tab
-	ci::Rectf		mPanelUpperRect;		// Rect defining the upper half of the panel (used only when drawing panel)
-	ci::Rectf		mPanelLowerRect;		// Rect defining the lower half of the panel (used only when drawing panel)
     
 	bool			mIsPanelTabTouched;		// Is the Panel Tab currently being touched
 	bool			mIsPanelOpen;			// Is the Panel fully open
 	bool			mHasPanelBeenDragged;   // Are we dragging or just animating?
     ci::Vec2f		mPanelTabTouchOffset;	// Remember the touch position value when dragging	
+    
+    float           getPanelHeight();
+    float           getMaxPanelHeight();
+    
+    PlaylistChooserRef mPlaylistChooser;
+    AlphaChooserRef    mAlphaChooser;
+    PlayControlsRef    mPlayControls;
+    SettingsPanelRef   mSettingsPanel;
 };
 
 typedef std::shared_ptr<UiLayer> UiLayerRef;

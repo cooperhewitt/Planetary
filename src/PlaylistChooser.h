@@ -9,19 +9,23 @@
 #pragma once
 
 #include <vector>
+#include <map>
+
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/gl/TextureFont.h"
 #include "cinder/Font.h"
 #include "cinder/Color.h"
 #include "cinder/Camera.h"
+
 #include "CinderIPod.h"
-#include "OrientationHelper.h"
+
 #include "Data.h"
 #include "World.h"
 #include "BloomNode.h"
-#include "UiLayer.h"
 #include "WheelOverlay.h"
-#include <map>
+
+class PlaylistChooser;
+typedef std::shared_ptr<PlaylistChooser> PlaylistChooserRef;
 
 class PlaylistChooser : public BloomNode {
 
@@ -29,7 +33,7 @@ public:
     
     PlaylistChooser(): mData(NULL), mOffsetX(0.0f) {}
     
-    void setup( const ci::Font &font, UiLayerRef uiLayer, WheelOverlayRef wheelOverlay );
+    void setup( const ci::Font &font, WheelOverlayRef wheelOverlay );
 	void update();
     void draw();
 
@@ -52,6 +56,9 @@ public:
 	}
     
     bool hitTest( ci::Vec2f globalPos ) { return mVisible && mFullRect.contains( globalToLocal( globalPos ) ); }
+
+    // used in UiLayer layout...
+    float getHeight();
 
 private:
     
@@ -93,7 +100,6 @@ private:
     ci::Vec2f		mInterfaceSize;
 		
 	WheelOverlayRef mWheelOverlay;
-    UiLayerRef mUiLayer;
 	
 	ci::CallbackMgr<bool(ci::ipod::PlaylistRef)> mCbPlaylistSelected, mCbPlaylistTouched;        
 };

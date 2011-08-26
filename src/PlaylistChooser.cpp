@@ -21,7 +21,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void PlaylistChooser::setup( const Font &font, UiLayerRef uiLayer, WheelOverlayRef wheelOverlay )
+void PlaylistChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
 {
     mFont					= font;
 
@@ -41,13 +41,12 @@ void PlaylistChooser::setup( const Font &font, UiLayerRef uiLayer, WheelOverlayR
 	
 	mPlaylistSize			= Vec2f( 120.f, 30.0f );
 	mSpacerWidth			= 30.0f;
-	mStartY					= 350.0f;
+	mStartY					= 0.0f;
 
 	mPrevIndex				= -1;
 	mCurrentIndex			= 0;
 	
 	mWheelOverlay = wheelOverlay;
-    mUiLayer = uiLayer;
 }
 
 bool PlaylistChooser::touchBegan( ci::app::TouchEvent::Touch touch )
@@ -106,7 +105,7 @@ bool PlaylistChooser::touchEnded( ci::app::TouchEvent::Touch touch )
             mOffsetX = mTouchDragPlaylistIndex * ( mPlaylistSize.x + mSpacerWidth );
             mTouchDragId = 0;
             mTouchDragPlaylistIndex = -1;
-            mWheelOverlay->setShowWheel(false);
+//            mWheelOverlay->setShowWheel(false);
             return true;                
         }
         
@@ -129,9 +128,6 @@ void PlaylistChooser::update()
     if (mData == NULL) return;
     
     mInterfaceSize  = getRoot()->getInterfaceSize();
-
-    // wheel is already centered, so we have to subtract half of interface height    
-    mStartY	= mUiLayer->getPanelYPos() - (mInterfaceSize.y / 2.0f) - 100.0f;
         
     float maxOffsetX = (mPlaylistSize.x * (mNumPlaylists+0.5f)) + (mSpacerWidth * (mNumPlaylists-1));
     float minOffsetX = -mPlaylistSize.x * 0.5f;
@@ -208,8 +204,8 @@ void PlaylistChooser::draw()
     mPlaylistRects.clear();
 
     float border = mPlaylistSize.x * 0.5f;
-    float startX = -mInterfaceSize.x / 2.0 + border;
-    float endX = mInterfaceSize.x / 2.0 - border;    
+    float startX = border;
+    float endX = mInterfaceSize.x - border;    
 	
     Vec2f pos( -mOffsetXLocked, mStartY );
 	    
@@ -264,25 +260,24 @@ void PlaylistChooser::draw()
         }
     }
 
-    // highlight the region things will settle into...
-    float w = mPlaylistSize.x/2.0;
-    Path2d path;
-    path.moveTo( -w, mStartY - 8.0f);
-    path.curveTo( Vec2f( -w * 0.8f, mStartY - 14.0f), 
-                  Vec2f( -w * 0.1f, mStartY - 16.0f), 
-                  Vec2f( 0.0f, mStartY - 20.0f) );
-    path.curveTo( Vec2f( w * 0.1f, mStartY - 16.0f), 
-                  Vec2f( w * 0.8f, mStartY - 14.0f), 
-                  Vec2f( w, mStartY - 8.0f) );
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
-    gl::draw(path);
-//    gl::drawStrokedRect( Rectf( -w, mStartY, w, mStartY + h ) );    
+//    // highlight the region things will settle into...
+//    float w = mPlaylistSize.x/2.0;
+//    Path2d path;
+//    path.moveTo( -w, mStartY - 8.0f);
+//    path.curveTo( Vec2f( -w * 0.8f, mStartY - 14.0f), 
+//                  Vec2f( -w * 0.1f, mStartY - 16.0f), 
+//                  Vec2f( 0.0f, mStartY - 20.0f) );
+//    path.curveTo( Vec2f( w * 0.1f, mStartY - 16.0f), 
+//                  Vec2f( w * 0.8f, mStartY - 14.0f), 
+//                  Vec2f( w, mStartY - 8.0f) );
+//	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
+//    gl::draw(path);
+////    gl::drawStrokedRect( Rectf( -w, mStartY, w, mStartY + h ) );    
     
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
 	gl::enableAlphaBlending();
-    
 }
 
 void PlaylistChooser::makeTexture( int index, ipod::PlaylistRef playlist )
@@ -301,7 +296,7 @@ void PlaylistChooser::makeTexture( int index, ipod::PlaylistRef playlist )
 
 float PlaylistChooser::getAlpha( float x )
 {
-	float per		= (x + mInterfaceSize.x/2.0f) / mInterfaceSize.x;
+	float per		= x / mInterfaceSize.x;
 	float invCos	= ( 1.0f - (float)cos( per * M_PI * 2.0f ) ) * 0.5f;
 	float cosPer	= pow( invCos, 0.5f );
 	return cosPer;
@@ -309,7 +304,7 @@ float PlaylistChooser::getAlpha( float x )
 
 float PlaylistChooser::getScale( float x )
 {
-	float per		= (x + mInterfaceSize.x/2.0f) / mInterfaceSize.x;
+	float per		= x / mInterfaceSize.x;
 	float invCos	= ( 1.0f - (float)cos( per * M_PI * 2.0f ) ) * 0.5f;
 	float cosPer	= max( pow( invCos, 3.5f ) + 0.4f, 0.5f );
 	return cosPer;
@@ -317,7 +312,7 @@ float PlaylistChooser::getScale( float x )
 
 float PlaylistChooser::getNewX( float x )
 {
-	float per		= (x + mInterfaceSize.x/2.0f) / mInterfaceSize.x;
+	float per		= x / mInterfaceSize.x;
     per *= 0.7f;
     per += 0.15f;
 	float cosPer	= ( 1.0f - cos( per * M_PI ) ) * 0.5f;
@@ -326,7 +321,7 @@ float PlaylistChooser::getNewX( float x )
 
 float PlaylistChooser::getNewY( float x )
 {
-	float per		= (x + mInterfaceSize.x/2.0f) / mInterfaceSize.x;
+	float per		= x / mInterfaceSize.x;
 	float sinPer	= sin( per * M_PI );
 	return sinPer;
 }
@@ -338,6 +333,12 @@ void PlaylistChooser::setDataWorldCam( Data *data, World *world, CameraPersp *ca
     mCam			= cam;
 	mNumPlaylists	= mData->mPlaylists.size();
     mTextures.resize(mNumPlaylists);
+}
+
+
+float PlaylistChooser::getHeight()
+{
+    return mFullRect.getHeight();
 }
 
 

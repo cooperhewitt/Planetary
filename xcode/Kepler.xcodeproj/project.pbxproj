@@ -75,7 +75,6 @@
 		E1D32DDC13D67BE3002F33ED /* playlist.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DDB13D67BE3002F33ED /* playlist.png */; };
 		E1D32DEC13D6C2E2002F33ED /* playlistBg.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DEB13D6C2E2002F33ED /* playlistBg.png */; };
 		E1D32DFA13D77525002F33ED /* settingsBg.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DF913D77525002F33ED /* settingsBg.png */; };
-		E1D32DFC13D77F12002F33ED /* filterToggleButton.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DFB13D77F12002F33ED /* filterToggleButton.png */; };
 		E1D32DFF13D78E01002F33ED /* WheelOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1D32DFD13D78E01002F33ED /* WheelOverlay.cpp */; };
 		E1D99A98134BD490003FC316 /* planet.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A96134BD490003FC316 /* planet.png */; };
 		E1D99A99134BD490003FC316 /* planetary.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A97134BD490003FC316 /* planetary.png */; };
@@ -115,12 +114,12 @@
 		E2A868B313D3CA6F0024E4D0 /* BloomNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2A868B113D3CA6F0024E4D0 /* BloomNode.cpp */; };
 		E2A868B613D3D0950024E4D0 /* BloomScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2A868B413D3D0940024E4D0 /* BloomScene.cpp */; };
 		E2CD4B9D13CA6F350047AF5F /* PlaylistChooser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */; };
-		E2CD4BA013CA70F60047AF5F /* FilterToggleButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */; };
 		E2DC1E0213984774000B1D11 /* NotificationOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */; };
 		E2DC801113FC7BB400CF1106 /* TaskQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DC801013FC7BB400CF1106 /* TaskQueue.cpp */; };
 		E2E21CB413A14A3800A476A2 /* Galaxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CB213A14A3700A476A2 /* Galaxy.cpp */; };
 		E2E21CD913A1821300A476A2 /* GyroHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CD713A1821300A476A2 /* GyroHelper.cpp */; };
 		E2E21CDD13A2D71300A476A2 /* Stats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CDB13A2D70C00A476A2 /* Stats.cpp */; };
+		E2E8787A1406DD8B00508783 /* SettingsPanel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E878791406DD8B00508783 /* SettingsPanel.cpp */; };
 		E2FADC1613DB740700C24F4D /* OrientationNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2FADC1413DB740700C24F4D /* OrientationNode.cpp */; };
 /* End PBXBuildFile section */
 
@@ -204,7 +203,6 @@
 		E1D32DDB13D67BE3002F33ED /* playlist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playlist.png; path = ../resources/playlist.png; sourceTree = "<group>"; };
 		E1D32DEB13D6C2E2002F33ED /* playlistBg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playlistBg.png; path = ../resources/playlistBg.png; sourceTree = "<group>"; };
 		E1D32DF913D77525002F33ED /* settingsBg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = settingsBg.png; path = ../resources/ui/settingsBg.png; sourceTree = "<group>"; };
-		E1D32DFB13D77F12002F33ED /* filterToggleButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = filterToggleButton.png; path = ../resources/ui/filterToggleButton.png; sourceTree = "<group>"; };
 		E1D32DFD13D78E01002F33ED /* WheelOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WheelOverlay.cpp; path = ../src/WheelOverlay.cpp; sourceTree = "<group>"; };
 		E1D32DFE13D78E01002F33ED /* WheelOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WheelOverlay.h; path = ../src/WheelOverlay.h; sourceTree = "<group>"; };
 		E1D99A96134BD490003FC316 /* planet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = planet.png; path = ../resources/loadscreen/planet.png; sourceTree = "<group>"; };
@@ -264,8 +262,6 @@
 		E2A868B513D3D0940024E4D0 /* BloomScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BloomScene.h; sourceTree = "<group>"; };
 		E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlaylistChooser.cpp; path = ../src/PlaylistChooser.cpp; sourceTree = "<group>"; };
 		E2CD4B9C13CA6F350047AF5F /* PlaylistChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistChooser.h; path = ../src/PlaylistChooser.h; sourceTree = "<group>"; };
-		E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FilterToggleButton.cpp; path = ../src/FilterToggleButton.cpp; sourceTree = "<group>"; };
-		E2CD4B9F13CA70F60047AF5F /* FilterToggleButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FilterToggleButton.h; path = ../src/FilterToggleButton.h; sourceTree = "<group>"; };
 		E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NotificationOverlay.cpp; path = ../src/NotificationOverlay.cpp; sourceTree = "<group>"; };
 		E2DC800C13FC6ED200CF1106 /* TaskQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TaskQueue.h; path = ../blocks/BloomTasks/src/TaskQueue.h; sourceTree = "<group>"; };
 		E2DC801013FC7BB400CF1106 /* TaskQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TaskQueue.cpp; path = ../blocks/BloomTasks/src/TaskQueue.cpp; sourceTree = "<group>"; };
@@ -302,6 +298,8 @@
 		E2E21CDA13A1870E00A476A2 /* Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Device.h; path = ../src/Device.h; sourceTree = "<group>"; };
 		E2E21CDB13A2D70C00A476A2 /* Stats.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Stats.cpp; path = ../src/Stats.cpp; sourceTree = "<group>"; };
 		E2E21CDC13A2D70E00A476A2 /* Stats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Stats.h; path = ../src/Stats.h; sourceTree = "<group>"; };
+		E2E878791406DD8B00508783 /* SettingsPanel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SettingsPanel.cpp; path = ../src/SettingsPanel.cpp; sourceTree = "<group>"; };
+		E2E8787B1406DE0500508783 /* SettingsPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SettingsPanel.h; path = ../src/SettingsPanel.h; sourceTree = "<group>"; };
 		E2FADC1413DB740700C24F4D /* OrientationNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OrientationNode.cpp; path = ../src/OrientationNode.cpp; sourceTree = "<group>"; };
 		E2FADC1513DB740700C24F4D /* OrientationNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrientationNode.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -463,7 +461,6 @@
 		E12766401325E28900E1FC3F /* ui */ = {
 			isa = PBXGroup;
 			children = (
-				E1D32DFB13D77F12002F33ED /* filterToggleButton.png */,
 				E1D32DF913D77525002F33ED /* settingsBg.png */,
 				E1D32DEB13D6C2E2002F33ED /* playlistBg.png */,
 				E1D32DDB13D67BE3002F33ED /* playlist.png */,
@@ -664,7 +661,6 @@
 			children = (
 				E25040BF1392E82200A8D673 /* Elements */,
 				E1D32DFE13D78E01002F33ED /* WheelOverlay.h */,
-				E2CD4B9F13CA70F60047AF5F /* FilterToggleButton.h */,
 				E2E21CB613A177E200A476A2 /* AlphaChooser.h */,
 				E2CD4B9C13CA6F350047AF5F /* PlaylistChooser.h */,
 				E2E21CBF13A177E600A476A2 /* HelpLayer.h */,
@@ -673,6 +669,7 @@
 				E2E21CC913A177EA00A476A2 /* PlayControls.h */,
 				E2E21CDC13A2D70E00A476A2 /* Stats.h */,
 				E2E21CD113A177EE00A476A2 /* UiLayer.h */,
+				E2E8787B1406DE0500508783 /* SettingsPanel.h */,
 			);
 			name = Ui;
 			sourceTree = "<group>";
@@ -733,13 +730,13 @@
 				E2E21CDB13A2D70C00A476A2 /* Stats.cpp */,
 				E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */,
 				E1D32DFD13D78E01002F33ED /* WheelOverlay.cpp */,
-				E2CD4B9E13CA70F60047AF5F /* FilterToggleButton.cpp */,
 				E2171060132ECF7300ADCC17 /* AlphaChooser.cpp */,
 				E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */,
 				E28FDA821339B782005EDBB4 /* PlayControls.cpp */,
 				E1B0DBB113510C890093EB9D /* HelpLayer.cpp */,
 				E15C90B61300B2F900FB8389 /* UiLayer.cpp */,
 				E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */,
+				E2E878791406DD8B00508783 /* SettingsPanel.cpp */,
 			);
 			name = Ui;
 			sourceTree = "<group>";
@@ -981,7 +978,6 @@
 				E1D32DDC13D67BE3002F33ED /* playlist.png in Resources */,
 				E1D32DEC13D6C2E2002F33ED /* playlistBg.png in Resources */,
 				E1D32DFA13D77525002F33ED /* settingsBg.png in Resources */,
-				E1D32DFC13D77F12002F33ED /* filterToggleButton.png in Resources */,
 				E1F642F513FB101D007E1183 /* gradientLarge.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1035,7 +1031,6 @@
 				E219CEFE13A7DAFD006C7F26 /* Constellation.cpp in Sources */,
 				E22D983B13B6A2B700F9DB06 /* Shadow.cpp in Sources */,
 				E2CD4B9D13CA6F350047AF5F /* PlaylistChooser.cpp in Sources */,
-				E2CD4BA013CA70F60047AF5F /* FilterToggleButton.cpp in Sources */,
 				E2A868B313D3CA6F0024E4D0 /* BloomNode.cpp in Sources */,
 				E2A868B613D3D0950024E4D0 /* BloomScene.cpp in Sources */,
 				E2576E4213D4C8D600EC82EF /* TextureRect.cpp in Sources */,
@@ -1043,6 +1038,7 @@
 				E2FADC1613DB740700C24F4D /* OrientationNode.cpp in Sources */,
 				E27A27E613DDDF8500B957EC /* TextureLoader.cpp in Sources */,
 				E2DC801113FC7BB400CF1106 /* TaskQueue.cpp in Sources */,
+				E2E8787A1406DD8B00508783 /* SettingsPanel.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
