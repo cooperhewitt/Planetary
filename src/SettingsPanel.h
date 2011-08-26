@@ -98,7 +98,7 @@ private:
     
     // for removing events when cleaning up
     ci::CallbackId mCbTouchEnded;
-    
+        
     ///////////// UI Classes:
     
     // Remember:

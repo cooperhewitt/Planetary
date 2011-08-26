@@ -248,6 +248,9 @@ void SettingsPanel::deepDraw()
     if (mVisible) {
         glPushMatrix();
         glMultMatrixf(mTransform); // FIXME only push/mult/pop if mTransform isn't identity
+        gl::color( Color::black() );
+        gl::drawSolidRect( Rectf(0,0,mInterfaceSize.x,getHeight()) );
+        gl::color( Color::white() ); // FIXME: set alpha from UiLayer?
         bloom::gl::beginBatch();
         // draw children
         BOOST_FOREACH(BloomNodeRef child, mChildren) {        
