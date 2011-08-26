@@ -183,7 +183,7 @@ void UiLayer::draw()
 
 	// top highlight stroke
     gl::color( ColorA( BRIGHT_BLUE, 0.1f * dragAlphaPer + 0.1f ) );
-	gl::drawLine( Vec2f( 0.0f, 0.0f ), Vec2f( mPanelTabRect.x1, 0.0f ) );
+	gl::drawLine( Vec2f( 0.0f, 0.0f ), Vec2f( mPanelTabRect.x1 + 22.0f, 0.0f ) );
 	
     // apply alpha to children
     mPlayControls->setOpacity( dragAlphaPer );
