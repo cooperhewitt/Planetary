@@ -64,12 +64,22 @@ void NotificationOverlay::update()
 void NotificationOverlay::draw()
 {
     if (!mActive) return;
+
     gl::enableAdditiveBlending(); // as long as this is the last thing.
 	gl::color( ColorA( 1.0f, 1.0f, 1.0f, mAlpha ) );
 	gl::draw( mMessageTexture, mMessageRect );
+    
+    bool hasOverGraphic = mCurrentSecondSrcArea.getWidth() != 0;
+    if (hasOverGraphic) {
+        // under graphic should be dimmer
+        gl::color( ColorA( 1.0f, 1.0f, 1.0f, mAlpha * 0.25f ) );
+    }
     // TODO: batch these calls if using the same texture, avoid cinder::gl::draw() overhead?
     gl::draw( mCurrentTexture, mCurrentSrcArea, mIconRect );
-    if (mCurrentSecondSrcArea.getWidth() != 0) {
+    
+    if (hasOverGraphic) {
+        // overgraphic should be same alpha as text?
+        gl::color( ColorA( 1.0f, 1.0f, 1.0f, mAlpha ) );
         gl::draw( mCurrentTexture, mCurrentSecondSrcArea, mIconRect );        
     }
 }
