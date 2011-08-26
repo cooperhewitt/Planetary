@@ -94,7 +94,7 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
     mPlayheadSlider = new Slider( SLIDER,          // ID
                                   uiButtonsTex,
 								  Area( 351, 460, 359, 500 ),  // bg texture
-								  Area( 361, 460, 369, 500 ),  // fg texture
+								  Area( 362, 460, 369, 500 ),  // fg texture
                                   Area( 390, 460, 430, 500 ),  // thumb on texture
                                   Area( 430, 460, 470, 500 ) ); // thumb off texture
 

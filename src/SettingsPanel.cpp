@@ -115,7 +115,7 @@ void SettingsPanel::createChildren( const Font &font, const gl::Texture &uiSmall
 	mParamSlider1 = new Slider(				PARAMSLIDER1,          // ID
 											uiSmallButtonsTex,
 											Area( 351, 460, 359, 500 ),  // bg texture
-											Area( 361, 460, 369, 500 ),  // fg texture
+											Area( 362, 460, 369, 500 ),  // fg texture
 											Area( 390, 460, 430, 500 ),  // thumb on texture
 											Area( 430, 460, 470, 500 ) ); // thumb off texture
 	
@@ -126,7 +126,7 @@ void SettingsPanel::createChildren( const Font &font, const gl::Texture &uiSmall
 	mParamSlider2 = new Slider(				PARAMSLIDER2,          // ID
 											uiSmallButtonsTex,
 											Area( 351, 460, 359, 500 ),  // bg texture
-											Area( 361, 460, 369, 500 ),  // fg texture
+											Area( 362, 460, 369, 500 ),  // fg texture
 											Area( 390, 460, 430, 500 ),  // thumb on texture
 											Area( 430, 460, 470, 500 ) ); // thumb off texture
     
