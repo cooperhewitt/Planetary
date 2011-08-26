@@ -16,7 +16,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void SettingsPanel::setup( const Vec2f &interfaceSize, ipod::Player *player, const Font &font, const gl::Texture &uiSmallButtonsTex )
+void SettingsPanel::setup( const Vec2f &interfaceSize, ipod::Player *player, const Font &font, const gl::Texture &uiSmallButtonsTex, const gl::Texture &settingsBgTex )
 {   
     // create, add, and position everything...
     createChildren( font, uiSmallButtonsTex );
@@ -33,6 +33,8 @@ void SettingsPanel::setup( const Vec2f &interfaceSize, ipod::Player *player, con
     if( G_IS_IPAD2 ) {
         setGyroOn( G_USE_GYRO );
     }
+    
+    mSettingsBgTex = settingsBgTex;
 }
 
 void SettingsPanel::createChildren( const Font &font, const gl::Texture &uiSmallButtonsTex )
@@ -229,6 +231,7 @@ void SettingsPanel::deepDraw()
     if (mVisible) {
         glPushMatrix();
         glMultMatrixf(mTransform); // FIXME only push/mult/pop if mTransform isn't identity
+        gl::draw( mSettingsBgTex, Rectf(0.0f, 0.0f, 1.0f, 1.0f), Rectf(0,0,mInterfaceSize.x,getHeight()) );
         bloom::gl::beginBatch();
         // draw children
         BOOST_FOREACH(BloomNodeRef child, mChildren) {        

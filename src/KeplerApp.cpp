@@ -556,7 +556,8 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	mSettingsPanel.setup( mBloomSceneRef->getInterfaceSize(), 
                           &mIpodPlayer, 
                           mFontMediSmall, 
-                          mTextures[UI_SMALL_BUTTONS_TEX] );
+                          mTextures[UI_SMALL_BUTTONS_TEX],
+                          mTextures[SETTINGS_BG_TEX] );
 	mSettingsPanel.registerButtonPressed( this, &KeplerApp::onSettingsPanelButtonPressed );
     mSettingsPanel.setVisible( G_SHOW_SETTINGS );
     // add as child of UILayer so it inherits the transform
