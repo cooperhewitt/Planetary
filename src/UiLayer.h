@@ -31,7 +31,6 @@ class UiLayer : public BloomNode {
                    PlayControlsRef playControls, 
                    SettingsPanelRef settingsPanel,
                    const ci::gl::Texture &uiButtonsTex, 
-                   const ci::gl::Texture &settingsBgTex, 
                    const bool &showSettings, 
                    const ci::Vec2f interfaceSize );
 	
@@ -64,7 +63,6 @@ class UiLayer : public BloomNode {
     
     ci::Vec2f       mInterfaceSize; // for detecting orientation changes    
     ci::gl::Texture mButtonsTex;
-	ci::gl::Texture	mSettingsBgTex;
     
     float           mPanelY;                // used in setTransform
     float           mPanelOpenY;            // updated in setShowSettings/updateLayout

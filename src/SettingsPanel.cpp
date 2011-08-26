@@ -38,46 +38,57 @@ void SettingsPanel::setup( const Vec2f &interfaceSize, ipod::Player *player, con
 void SettingsPanel::createChildren( const Font &font, const gl::Texture &uiSmallButtonsTex )
 {
     // !!! SMALL BUTTONS !!!
-    float uw = 40.0f;
-	float uh = 40.0f;
+	float x0 = 350.0f;
+	float x1 = 390.0f;
+	float x2 = 430.0f;
+	float x3 = 470.0f;
+	float x4 = 510.0f;
+
+	float y0 = 300.0f;
+	float y1 = 340.0f;
+	float y2 = 380.0f;
+	float y3 = 420.0f;
+	float y4 = 460.0f;
+	float y5 = 500.0f;
+
     
     mHelpButton = new ToggleButton(			HELP, 
 											false, 
 											uiSmallButtonsTex,
-											Area( uw*0, uh*1, uw*1, uh*2 ),  // on texture
-											Area( uw*0, uh*0, uw*1, uh*1 ) ); // off texture
+											Area( x0, y1, x1, y2 ),  // on texture
+											Area( x0, y0, x1, y1 ) ); // off texture
     
     if( G_IS_IPAD2 ){
         mGyroButton = new ToggleButton(		USE_GYRO, 
 											false, 
 											uiSmallButtonsTex,
-											Area( uw*1, uh*1, uw*2, uh*2 ),  // on texture
-											Area( uw*1, uh*0, uw*2, uh*1 ) ); // off texture
+											Area( x1, y1, x2, y2 ),  // on texture
+											Area( x1, y0, x2, y1 ) ); // off texture
     }
 	
 	mOrbitsButton = new ToggleButton(		DRAW_RINGS, 
 											false, 
 											uiSmallButtonsTex,
-											Area( uw*2, uh*1, uw*3, uh*2 ),  // on texture
-											Area( uw*2, uh*0, uw*3, uh*1 ) ); // off texture
+											Area( x2, y1, x3, y2 ),  // on texture
+											Area( x2, y0, x3, y1 ) ); // off texture
 	
 	mLabelsButton = new ToggleButton(		DRAW_TEXT, 
 											false, 
 											uiSmallButtonsTex,
-											Area( uw*3, uh*1, uw*4, uh*2 ),  // on texture
-											Area( uw*3, uh*0, uw*4, uh*1 ) ); // off texture
+											Area( x3, y1, x4, y2 ),  // on texture
+											Area( x3, y0, x4, y1 ) ); // off texture
 	
 	mDebugButton = new ToggleButton(		DEBUG_FEATURE, 
 											false, 
 											uiSmallButtonsTex,
-											Area( uw*4, uh*1, uw*5, uh*2 ),  // on texture
-											Area( uw*4, uh*0, uw*5, uh*1 ) ); // off texture
+											Area( x0, y3, x1, y4 ),  // on texture
+											Area( x0, y2, x1, y3 ) ); // off texture
 	
     mScreensaverButton = new ToggleButton(	AUTO_MOVE,
 											false,
 											uiSmallButtonsTex,
-											Area( uw*5, uh*1, uw*6, uh*2 ),
-											Area( uw*5, uh*0, uw*6, uh*1 ) );
+											Area( x1, y3, x2, y4 ),
+											Area( x1, y2, x2, y3 ) );
     
 
     
@@ -89,24 +100,24 @@ void SettingsPanel::createChildren( const Font &font, const gl::Texture &uiSmall
     mShuffleButton = new ToggleButton(		SHUFFLE, 
 											false, 
 											uiSmallButtonsTex,
-											Area( uw*0, uh*3, uw*1, uh*4 ),  // on texture
-											Area( uw*0, uh*2, uw*1, uh*3 ) ); // off texture
+											Area( x2, y3, x3, y4 ),  // on texture
+											Area( x2, y2, x3, y3 ) ); // off texture
     
     mRepeatButton = new ThreeStateButton(	REPEAT, 
 											0, 
 											uiSmallButtonsTex,
-											Area( uw*1, uh*2, uw*2, uh*3 ),   // first texture  (off)
-											Area( uw*1, uh*3, uw*2, uh*4 ),   // second texture (repeat all)
-											Area( uw*2, uh*2, uw*3, uh*3 ) ); // third texture  (repeat one)
+											Area( x3, y2, x4, y3 ),   // first texture  (off)
+											Area( x3, y3, x4, y4 ),   // second texture (repeat all)
+											Area( x3, y4, x4, y5 ) ); // third texture  (repeat one)
     
     ///////
 	// TODO: add initial value
 	mParamSlider1 = new Slider(				PARAMSLIDER1,          // ID
 											uiSmallButtonsTex,
-											Area( uw*2.2f, uh*3, uw*2.3f, uh*4 ),  // bg texture
-											Area( uw*2.7f, uh*3, uw*2.8f, uh*4 ),  // fg texture
-											Area( uw*3, uh*3, uw*4, uh*4 ),  // thumb on texture
-											Area( uw*3, uh*2, uw*4, uh*3 )); // thumb off texture
+											Area( 351, 460, 359, 500 ),  // bg texture
+											Area( 361, 460, 369, 500 ),  // fg texture
+											Area( 390, 460, 430, 500 ),  // thumb on texture
+											Area( 430, 460, 470, 500 ) ); // thumb off texture
 	
 	mParamSlider1->setValue( 0.25f );
 	mParamSlider1Label = new TextLabel( NO_BUTTON, font, BRIGHT_BLUE );
@@ -114,10 +125,10 @@ void SettingsPanel::createChildren( const Font &font, const gl::Texture &uiSmall
 	
 	mParamSlider2 = new Slider(				PARAMSLIDER2,          // ID
 											uiSmallButtonsTex,
-											Area( uw*2.2f, uh*3, uw*2.3f, uh*4 ),  // bg texture
-											Area( uw*2.7f, uh*3, uw*2.8f, uh*4 ),  // fg texture
-											Area( uw*3, uh*3, uw*4, uh*4 ),  // thumb on texture
-											Area( uw*3, uh*2, uw*4, uh*3 )); // thumb off texture
+											Area( 351, 460, 359, 500 ),  // bg texture
+											Area( 361, 460, 369, 500 ),  // fg texture
+											Area( 390, 460, 430, 500 ),  // thumb on texture
+											Area( 430, 460, 470, 500 ) ); // thumb off texture
     
 	mParamSlider2->setValue( 0.15f );
 	mParamSlider2Label = new TextLabel( NO_BUTTON, font, BRIGHT_BLUE );

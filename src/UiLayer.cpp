@@ -25,7 +25,6 @@ void UiLayer::setup( PlaylistChooserRef playlistChooser,
                      PlayControlsRef playControls, 
                      SettingsPanelRef settingsPanel,
                      const gl::Texture &uiButtonsTex, 
-                     const gl::Texture &settingsBgTex, 
                      const bool &showSettings, 
                      const Vec2f interfaceSize )
 {
@@ -35,7 +34,6 @@ void UiLayer::setup( PlaylistChooserRef playlistChooser,
     mSettingsPanel = settingsPanel;
     
     mButtonsTex				= uiButtonsTex;
-	mSettingsBgTex			= settingsBgTex;
 	
     mIsPanelOpen			= false;
 	mIsPanelTabTouched		= false;
@@ -177,13 +175,9 @@ void UiLayer::update()
 
 void UiLayer::draw()
 {	
-    bloom::gl::beginBatch();
-    // TODO: make PlayControls, AlphaChooser/PlaylistChooser and Settings draw their own backgrounds
-//    bloom::gl::batchRect( mButtonsTex, Rectf(0.01f, 0.91f, 0.09f, 0.99f), mPanelUpperRect);
-//    bloom::gl::batchRect( mSettingsBgTex, Rectf(0.0f, 0.0f, 1.0f, 1.0f), mPanelLowerRect);
-    bloom::gl::batchRect( mButtonsTex, Rectf(0.11f, 0.8f, 1.0f, 1.0f), mPanelTabRect);
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );    
-    bloom::gl::endBatch();
+    gl::color( Color::white() );    
+    gl::draw( mButtonsTex, Area( 0, 456, 200, 500 ), mPanelTabRect);
+	
 
 //	const float dragAlphaPer = min( pow( ( mInterfaceSize.y - mPanelY ) / mPanelOpenHeight, 2.0f ), 1.0f ); 
     const float dragAlphaPer = 1.0f; // FIXME: restore tabby drag fade

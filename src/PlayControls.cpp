@@ -35,9 +35,10 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
 {
 	float uw = 50.0f;   // button tex width
 	float uh = 50.0f;	// button tex height
-	float y0 = uh * 8.0f;
-	float y1 = uh * 9.0f;
-	float y2 = uh * 10.0f;
+	float y0 = uh * 6.0f;
+	float y1 = uh * 7.0f;
+	float y2 = uh * 8.0f;
+	float y3 = uh * 9.0f;
 	
     mGalaxyButton = new SimpleButton(		GOTO_GALAXY,   // ID
 											uiButtonsTex,
@@ -76,15 +77,15 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
     mAlphaButton = new ToggleButton(		SHOW_ALPHA_FILTER,      // ID
 											false,           // initial toggle state
 											uiButtonsTex,
-											Area( uw*7, y1, uw*8, y2 ),  // on texture
-											Area( uw*7, y0, uw*8, y1 ) );// off texture    
+											Area( uw*2, y2, uw*3, y3 ),  // on texture
+											Area( uw*0, y2, uw*1, y3 ) );// off texture    
 
     // FIXME: need a new texture for playlist button :(
     mPlaylistButton = new ToggleButton(		SHOW_PLAYLIST_FILTER,      // ID
 											false,           // initial toggle state
 											uiButtonsTex,
-											Area( uw*8, y1, uw*9, y2 ),  // on texture
-											Area( uw*8, y0, uw*9, y1 ) );// off texture         
+											Area( uw*3, y2, uw*4, y3 ),  // on texture
+											Area( uw*1, y2, uw*2, y3 ) );// off texture         
 
     // !!! SMALL BUTTONS !!!
     uw = 40.0f;
@@ -92,10 +93,10 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
     
     mPlayheadSlider = new Slider( SLIDER,          // ID
                                   uiButtonsTex,
-								  Area( uw*2.2f, uh*3, uw*2.3f, uh*4 ),  // bg texture
-								  Area( uw*2.7f, uh*3, uw*2.8f, uh*4 ),  // fg texture
-                                  Area( uw*3, uh*3, uw*4, uh*4 ),  // thumb on texture
-                                  Area( uw*3, uh*2, uw*4, uh*3 )); // thumb off texture
+								  Area( 351, 460, 359, 500 ),  // bg texture
+								  Area( 361, 460, 369, 500 ),  // fg texture
+                                  Area( 390, 460, 430, 500 ),  // thumb on texture
+                                  Area( 430, 460, 470, 500 ) ); // thumb off texture
 
     /////// no textures please, we're British...
     
@@ -106,7 +107,7 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
     mRemainingTimeLabel = new TimeLabel(NO_BUTTON, fontSmall, BRIGHT_BLUE);
     
     //////// little fady bits to cover the edges of scrolling bits:
-    Area aLeft = Area( 0, 160, 14, 170 ); // references the uiButtons image    
+    Area aLeft = Area( 380, 460, 390, 500 ); // references the uiButtons image    
     mCoverLeftTextureRect = new TextureRect( uiButtonsTex, aLeft );
     // NB:- when rect is set for the right side, x1 > x2 so it is flipped
     mCoverRightTextureRect = new TextureRect( uiButtonsTex, aLeft );    

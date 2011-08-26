@@ -263,7 +263,6 @@ class KeplerApp : public AppCocoaTouch {
         DARK_MATTER_TEX,
         ORBIT_RING_GRADIENT_TEX,
         TRACK_ORIGIN_TEX,
-        SETTINGS_BG_TEX,
 		GRADIENT_OVERLAY_TEX,
         TOTAL_TEXTURE_COUNT
     };
@@ -578,7 +577,6 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
                     playControlsRef, 
                     settingsPanelRef,
                     mTextures[UI_BUTTONS_TEX], 
-                    mTextures[SETTINGS_BG_TEX], 
                     G_SHOW_SETTINGS, 
                     mBloomSceneRef->getInterfaceSize() );
     // add uiLayer first
@@ -1079,10 +1077,10 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
 		case SettingsPanel::SHUFFLE:
 			if( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff ){
 				mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeOff );
-				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*1, uh*1, uw*2, uh*2 ), "SHUFFLE OFF" );
+				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*2, uh*0, uw*3, uh*1 ), offArea, "SHUFFLE OFF" );
 			} else {
 				mIpodPlayer.setShuffleMode( ipod::Player::ShuffleModeSongs );
-				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*1, uh*0, uw*2, uh*1 ), "SHUFFLE ON" );
+				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*2, uh*0, uw*3, uh*1 ), "SHUFFLE ON" );
 			}
             mSettingsPanel.setShuffleOn( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff );
             logEvent("Shuffle Button Selected");    
@@ -1093,12 +1091,12 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
                 case ipod::Player::RepeatModeNone:
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeAll );
                     mSettingsPanel.setRepeatMode( ipod::Player::RepeatModeAll );    
-                    mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*2, uh*0, uw*3, uh*1 ), "REPEAT ALL" );
+                    mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*0, uw*4, uh*1 ), "REPEAT ALL" );
                     break;
                 case ipod::Player::RepeatModeAll:
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeOne );
                     mSettingsPanel.setRepeatMode( ipod::Player::RepeatModeOne );    
-                    mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*0, uw*4, uh*1 ), "REPEAT ONE" );
+                    mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*4, uh*0, uw*5, uh*1 ), "REPEAT ONE" );
                     break;
                 case ipod::Player::RepeatModeOne:
                 case ipod::Player::RepeatModeDefault:
@@ -1106,7 +1104,7 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
                     // our user chooses it, we can't know what the current state is                    
                     mIpodPlayer.setRepeatMode( ipod::Player::RepeatModeNone );
                     mSettingsPanel.setRepeatMode( ipod::Player::RepeatModeNone );    
-                    mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*2, uh*1, uw*3, uh*2 ), "REPEAT NONE" );
+                    mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*0, uw*4, uh*1 ), offArea, "REPEAT NONE" );
                     break;
             }
             logEvent("Repeat Button Selected");   
@@ -1123,8 +1121,8 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				logEvent("Draw Text Button Selected");            
 				G_DRAW_TEXT = !G_DRAW_TEXT;
-				if( G_DRAW_TEXT )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*0, uh*2, uw*1, uh*3 ), "TEXT LABELS" );
-				else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*0, uh*3, uw*1, uh*4 ), "TEXT LABELS" );
+				if( G_DRAW_TEXT )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*2, uh*1, uw*3, uh*2 ), "TEXT LABELS" );
+				else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*2, uh*1, uw*3, uh*2 ), offArea, "TEXT LABELS" );
 			}
             mSettingsPanel.setLabelsOn( G_DRAW_TEXT );
             break;
@@ -1134,8 +1132,8 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				logEvent("Draw Rings Button Selected");            
 				G_DRAW_RINGS = !G_DRAW_RINGS;
-				if( G_DRAW_RINGS )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*1, uh*2, uw*2, uh*3 ), "ORBIT LINES" );
-				else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*1, uh*3, uw*2, uh*4 ), "ORBIT LINES" );
+				if( G_DRAW_RINGS )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*1, uw*4, uh*2 ), "ORBIT LINES" );
+				else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*1, uw*4, uh*2 ), offArea, "ORBIT LINES" );
 			}
             mSettingsPanel.setOrbitsOn( G_DRAW_RINGS );            
             break;
@@ -1153,8 +1151,8 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
                     mUp = Vec3f::yAxis();
                 }				
 				
-				if( G_USE_GYRO )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*2, uh*2, uw*3, uh*3 ), "GYROSCOPE" );
-                else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*2, uh*3, uw*3, uh*4 ), "GYROSCOPE" );
+				if( G_USE_GYRO )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*4, uh*1, uw*5, uh*2 ), "GYROSCOPE" );
+                else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*4, uh*1, uw*5, uh*2 ), offArea, "GYROSCOPE" );
                 
 			}
             mSettingsPanel.setGyroOn( G_USE_GYRO );
@@ -1162,8 +1160,8 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
             
 		case SettingsPanel::DEBUG_FEATURE:
 			G_DEBUG = !G_DEBUG;
-			if( G_DEBUG )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*2, uw*4, uh*3 ), "DEBUG MODE" );
-			else			mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*3, uw*4, uh*4 ), "DEBUG MODE" );
+			if( G_DEBUG )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*2, uh*2, uw*3, uh*3 ), "DEBUG MODE" );
+			else			mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*2, uh*2, uw*3, uh*3 ), offArea, "DEBUG MODE" );
             mSettingsPanel.setDebugOn( G_DEBUG );
             break;
 			
@@ -1171,8 +1169,8 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				logEvent("Automove Button Selected");            
 				G_AUTO_MOVE = !G_AUTO_MOVE;
-				if( G_AUTO_MOVE )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*4, uh*2, uw*5, uh*3 ), "ANIMATE CAMERA" );
-				else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*4, uh*3, uw*5, uh*4 ), "ANIMATE CAMERA" );
+				if( G_AUTO_MOVE )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*2, uw*4, uh*3 ), "ANIMATE CAMERA" );
+				else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*2, uw*4, uh*3 ), offArea, "ANIMATE CAMERA" );
 				
                 //				if( G_AUTO_MOVE ) makeNewCameraPath();
 			}
@@ -1242,13 +1240,13 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 		case PlayControls::GOTO_GALAXY:
             logEvent("Galaxy Button Selected");
 			mState.setSelectedNode( NULL );
-			mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*4, uh*0, uw*5, uh*1 ), "ZOOM TO GALAXY" ); // FIXME: Better copy?
+			mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*0, uh*1, uw*1, uh*2 ), "ZOOM TO GALAXY" ); // FIXME: Better copy?
             break;
 			
         case PlayControls::GOTO_CURRENT_TRACK:
             logEvent("Current Track Button Selected");            
             flyToCurrentTrack();
-			mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*4, uh*1, uw*5, uh*2 ), "ZOOM TO CURRENT TRACK" ); // FIXME: Better copy?
+			mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*1, uh*1, uw*2, uh*2 ), "ZOOM TO CURRENT TRACK" ); // FIXME: Better copy?
             break;
 			
 		case PlayControls::SETTINGS:
@@ -1439,7 +1437,7 @@ void KeplerApp::togglePlayPaused()
     const bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
     if ( isPlaying ) {
         mIpodPlayer.pause();
-        mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( 0.0f, 100.0f, 100.0f, 200.0f ), "PAUSED" );
+        mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( 100.0f, 0.0f, 200.0f, 100.0f ), "PAUSED" );
     }
     else {        
         mIpodPlayer.play();
@@ -1491,7 +1489,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
                 else {
                     mIpodPlayer.play( nodeAlbum->getPlaylist() );
                     // FIXME: use album name in overlay:
-                    mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Album" );                    
+                    mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( 0.0f, 0.0f, 100.0f, 100.0f ), "Playing Album" );                    
                 }
             }
             if ( highestGen == G_ARTIST_LEVEL ) {
@@ -1504,7 +1502,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
                     mIpodPlayer.play( ipod::getAlbumPlaylistWithArtistId(nodeArtist->getId()) );
 //                    std::cout << "... done setting playlist." << std::endl;
                     // FIXME: use artist name in overlay:
-                    mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( 0.0f, 0.0f, 128.0f, 128.0f ), "Playing Artist" );
+                    mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( 0.0f, 0.0f, 100.0f, 100.0f ), "Playing Artist" );
                 }
             }            
         }
