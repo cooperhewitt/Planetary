@@ -17,11 +17,11 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font &font, const Font &fontSmall, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
+void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex )
 {   
 
     // create, add, and position everything...
-    createChildren( font, fontSmall, uiBigButtonsTex, uiSmallButtonsTex );
+    createChildren( font, fontSmall, uiButtonsTex );
     setInterfaceSize( interfaceSize );
         
     // set initial state...
@@ -31,66 +31,69 @@ void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font 
     setShowSettingsOn( G_SHOW_SETTINGS );
 }
 
-void PlayControls::createChildren( const Font &font, const Font &fontSmall, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex )
+void PlayControls::createChildren( const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex )
 {
-	float uw = uiBigButtonsTex.getWidth() / 4.0f;   // button tex width
-	float uh = uiBigButtonsTex.getHeight() / 4.0f;	// button tex height
-
-    mGalaxyButton = new SimpleButton( GOTO_GALAXY,   // ID
-                                      uiBigButtonsTex,
-                                      Area( uw*0, uh*1, uw*1, uh*2 ),  // on texture
-                                      Area( uw*0, uh*0, uw*1, uh*1 ) );// off texture
+	float uw = 50.0f;   // button tex width
+	float uh = 50.0f;	// button tex height
+	float y0 = uh * 8.0f;
+	float y1 = uh * 9.0f;
+	float y2 = uh * 10.0f;
+	
+    mGalaxyButton = new SimpleButton(		GOTO_GALAXY,   // ID
+											uiButtonsTex,
+											Area( uw*0, y1, uw*1, y2 ),  // on texture
+											Area( uw*0, y0, uw*1, y1 ) );// off texture
     
     mCurrentTrackButton = new SimpleButton( GOTO_CURRENT_TRACK,   // ID
-                                            uiBigButtonsTex,
-                                            Area( uw*1, uh*1, uw*2, uh*2 ),  // on texture
-                                            Area( uw*1, uh*0, uw*2, uh*1 ) );// off texture
+                                            uiButtonsTex,
+                                            Area( uw*1, y1, uw*2, y2 ),  // on texture
+                                            Area( uw*1, y0, uw*2, y1 ) );// off texture
 
 	mShowSettingsButton = new ToggleButton( SETTINGS, 
                                             false, 
-                                            uiBigButtonsTex,
-                                            Area( uw*2, uh*1, uw*3, uh*2 ),  // on texture
-                                            Area( uw*2, uh*0, uw*3, uh*1 ) );// off texture   
+                                            uiButtonsTex,
+                                            Area( uw*2, y1, uw*3, y2 ),  // on texture
+                                            Area( uw*2, y0, uw*3, y1 ) );// off texture   
 
     mPreviousTrackButton = new SimpleButton( PREV_TRACK, 
-                                             uiBigButtonsTex,
-                                             Area( uw*3, uh*1, uw*4, uh*2 ),  // on texture
-                                             Area( uw*3, uh*0, uw*4, uh*1 ) );// off texture
+                                             uiButtonsTex,
+                                             Area( uw*3, y1, uw*4, y2 ),  // on texture
+                                             Area( uw*3, y0, uw*4, y1 ) );// off texture
 	
-    mPlayPauseButton = new TwoStateButton( PLAY_PAUSE, 
-                                           false, // initial state is updated in setup()
-                                           uiBigButtonsTex,
-                                           Area( uw*0, uh*3, uw*1, uh*4 ),  // offDown   
-                                           Area( uw*0, uh*2, uw*1, uh*3 ),  // offUp
-                                           Area( uw*1, uh*3, uw*2, uh*4 ),  // onDown
-                                           Area( uw*1, uh*2, uw*2, uh*3 ) );// onUp
+    mPlayPauseButton = new TwoStateButton(	PLAY_PAUSE, 
+											false, // initial state is updated in setup()
+											uiButtonsTex,
+											Area( uw*4, y1, uw*5, y2 ),  // offDown   
+											Area( uw*4, y0, uw*5, y1 ),  // offUp
+											Area( uw*5, y1, uw*6, y2 ),  // onDown
+											Area( uw*5, y0, uw*6, y1 ) );// onUp
 
-    mNextTrackButton = new SimpleButton( NEXT_TRACK, 
-                                         uiBigButtonsTex,
-                                         Area( uw*2, uh*3, uw*3, uh*4 ),  // on texture
-                                         Area( uw*2, uh*2, uw*3, uh*3 ) );// off texture
+    mNextTrackButton = new SimpleButton(	NEXT_TRACK, 
+											uiButtonsTex,
+											Area( uw*6, y1, uw*7, y2 ),  // on texture
+											Area( uw*6, y0, uw*7, y1 ) );// off texture
 	
-    mAlphaButton = new ToggleButton( SHOW_ALPHA_FILTER,      // ID
-                                     false,           // initial toggle state
-                                     uiBigButtonsTex,
-                                     Area( uw*3, uh*3, uw*4, uh*4 ),  // on texture
-                                     Area( uw*3, uh*2, uw*4, uh*3 ) );// off texture    
+    mAlphaButton = new ToggleButton(		SHOW_ALPHA_FILTER,      // ID
+											false,           // initial toggle state
+											uiButtonsTex,
+											Area( uw*7, y1, uw*8, y2 ),  // on texture
+											Area( uw*7, y0, uw*8, y1 ) );// off texture    
 
     // FIXME: need a new texture for playlist button :(
-    mPlaylistButton = new ToggleButton( SHOW_PLAYLIST_FILTER,      // ID
-                                        false,           // initial toggle state
-                                        uiBigButtonsTex,
-                                        Area( uw*3, uh*3, uw*4, uh*4 ),  // on texture
-                                        Area( uw*3, uh*2, uw*4, uh*3 ) );// off texture         
+    mPlaylistButton = new ToggleButton(		SHOW_PLAYLIST_FILTER,      // ID
+											false,           // initial toggle state
+											uiButtonsTex,
+											Area( uw*8, y1, uw*9, y2 ),  // on texture
+											Area( uw*8, y0, uw*9, y1 ) );// off texture         
 
     // !!! SMALL BUTTONS !!!
-    uw = uiSmallButtonsTex.getWidth() / 5.0f;
-	uh = uiSmallButtonsTex.getHeight() / 5.0f;
+    uw = 40.0f;
+	uh = 40.0f;
     
     mPlayheadSlider = new Slider( SLIDER,          // ID
-                                  uiSmallButtonsTex,
-								 Area( uw*2.2f, uh*3, uw*2.3f, uh*4 ),  // bg texture
-								 Area( uw*2.7f, uh*3, uw*2.8f, uh*4 ),  // fg texture
+                                  uiButtonsTex,
+								  Area( uw*2.2f, uh*3, uw*2.3f, uh*4 ),  // bg texture
+								  Area( uw*2.7f, uh*3, uw*2.8f, uh*4 ),  // fg texture
                                   Area( uw*3, uh*3, uw*4, uh*4 ),  // thumb on texture
                                   Area( uw*3, uh*2, uw*4, uh*3 )); // thumb off texture
 
@@ -104,9 +107,9 @@ void PlayControls::createChildren( const Font &font, const Font &fontSmall, cons
     
     //////// little fady bits to cover the edges of scrolling bits:
     Area aLeft = Area( 0, 160, 14, 170 ); // references the uiButtons image    
-    mCoverLeftTextureRect = new TextureRect( uiSmallButtonsTex, aLeft );
+    mCoverLeftTextureRect = new TextureRect( uiButtonsTex, aLeft );
     // NB:- when rect is set for the right side, x1 > x2 so it is flipped
-    mCoverRightTextureRect = new TextureRect( uiSmallButtonsTex, aLeft );    
+    mCoverRightTextureRect = new TextureRect( uiButtonsTex, aLeft );    
 }    
 
 bool PlayControls::addedToScene()
@@ -218,15 +221,17 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
 	x2 = x1 + bSize;    
     mShowSettingsButton->setRect( x1, y1, x2, y2 );
 
+    // PLAYLIST BUTTON
+	x1 -= bSize + buttonGap;
+	x2 = x1 + bSize;
+    mPlaylistButton->setRect( x1, y1, x2, y2 );	
+	
 	// ALPHA BUTTON
 	x1 -= bSize + buttonGap;
 	x2 = x1 + bSize;
     mAlphaButton->setRect( x1, y1, x2, y2 );
 
-    // PLAYLIST BUTTON
-	x1 -= bSize + buttonGap;
-	x2 = x1 + bSize;
-    mPlaylistButton->setRect( x1, y1, x2, y2 );	
+
 	
     const float bgx1 = sliderInset;
     const float bgx2 = bgx1 + sliderWidth;

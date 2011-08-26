@@ -46,8 +46,7 @@ public:
                 ci::ipod::Player *player,
                 const ci::Font &font, 
                 const ci::Font &fontSmall, 
-                const ci::gl::Texture &bigButtonsTex, 
-                const ci::gl::Texture &smallButtonsTex );
+                const ci::gl::Texture &buttonsTex );
     
     void update();
         
@@ -97,7 +96,7 @@ public:
 private:
 					  
     // instantiate and set fonts/areas/textures (called once)
-    void createChildren( const Font &font, const Font &fontSmall, const gl::Texture &uiBigButtonsTex, const gl::Texture &uiSmallButtonsTex );
+    void createChildren( const Font &font, const Font &fontSmall, const gl::Texture &uiButtonsTex );
     
     // add everything (called once)
     void addChildren();
