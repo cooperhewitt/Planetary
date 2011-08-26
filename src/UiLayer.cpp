@@ -179,24 +179,17 @@ void UiLayer::draw()
     gl::draw( mButtonsTex, Area( 0, 456, 200, 500 ), mPanelTabRect);
 	
 
-//	const float dragAlphaPer = min( pow( ( mInterfaceSize.y - mPanelY ) / mPanelOpenHeight, 2.0f ), 1.0f ); 
-    const float dragAlphaPer = 1.0f; // FIXME: restore tabby drag fade
+	const float dragAlphaPer = min( pow( ( mPanelY - mPanelClosedY ) / mPanelOpenY, 2.0f ), 1.0f ); 
+
 	// top highlight stroke
     gl::color( ColorA( BRIGHT_BLUE, 0.1f * dragAlphaPer + 0.1f ) );
 	gl::drawLine( Vec2f( 0.0f, 0.0f ), Vec2f( mPanelTabRect.x1, 0.0f ) );
 	
-	// settings highlight stroke
-//	gl::color( ColorA( BLUE, 0.2f ) );
-//	gl::drawLine( Vec2f( mPanelRect.x1, mPanelOpenHeight + 1.0f ), Vec2f( mPanelRect.x2, mPanelOpenHeight + 1.0f ) ); 
-    
-    // apply this alpha to all children
-    // FIXME: is there a more reliable way to do this, does BloomNode need more inheritable properties?
-       	
-    gl::color( ColorA( dragAlphaPer, dragAlphaPer, dragAlphaPer, 1.0f ) );
-    
-    // FIXME: make an mActive bool so we can skip interaction and drawing if the panel is hiding
-    //mActive = (mInterfaceSize.y - y ) > 60.0f;
-    
+    // apply alpha to children
+    mPlayControls->setOpacity( dragAlphaPer );
+    mPlaylistChooser->setOpacity( dragAlphaPer );
+    mAlphaChooser->setOpacity( dragAlphaPer );
+    mSettingsPanel->setOpacity( dragAlphaPer );    
 }
 
 bool UiLayer::hitTest( Vec2f globalPos ) 

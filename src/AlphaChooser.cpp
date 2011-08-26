@@ -126,14 +126,17 @@ void AlphaChooser::draw()
 {	
 	if( mWheelOverlay->getWheelScale() < 1.95f ){
 
+        // draw background:
+        gl::color( Color::black() );
+        gl::drawSolidRect( mFullRect );
+        
+        // we'll use the bright blue components to draw by frequency
         float r = BRIGHT_BLUE.r;
         float g = BRIGHT_BLUE.g;
         float b = BRIGHT_BLUE.b;
-        float alpha = constrain(2.0f - mWheelOverlay->getWheelScale(), 0.0f, 1.0f);
-
-        // draw background:
-        gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
-        gl::drawSolidRect( mFullRect ); // TODO: slight transparency?
+        // opacity is supplied by UiLayer::draw
+        float alpha = mOpacity * constrain(2.0f - mWheelOverlay->getWheelScale(), 0.0f, 1.0f);
+        
         gl::color( ColorA( r, g, b, alpha * 0.25f ) );
         gl::drawLine( mFullRect.getUpperLeft(), mFullRect.getUpperRight() );
         gl::drawLine( mFullRect.getLowerLeft(), mFullRect.getLowerRight() );
@@ -141,7 +144,7 @@ void AlphaChooser::draw()
 		for( int i=0; i<27; i++ ){
 			float c = mNumberAlphaPerChar[i];
             if ( mAlphaString[i] == mAlphaChar ) {
-                gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f * mOpacity ) );
             } else if( c > 0.0f ){
 				c += 0.3f;
 				gl::color( ColorA( r*c, g*c, b*c, alpha ) );

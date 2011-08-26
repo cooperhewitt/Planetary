@@ -31,7 +31,7 @@ class PlaylistChooser : public BloomNode {
 
 public:    
     
-    PlaylistChooser(): mData(NULL), mOffsetX(0.0f) {}
+    PlaylistChooser(): mData(NULL), mOffsetX(0.0f), mOpacity(1.0f) {}
     
     void setup( const ci::Font &font, WheelOverlayRef wheelOverlay );
 	void update();
@@ -59,6 +59,8 @@ public:
 
     // used in UiLayer layout...
     float getHeight();
+    
+    void setOpacity( float opacity ) { mOpacity = opacity; }
 
 private:
     
@@ -85,6 +87,8 @@ private:
 	float			mOffsetXLocked; // for snap-to effect
 	float			mStartY;
     
+    float           mOpacity;
+
     ci::Rectf       mFullRect;
     
     std::vector<ci::Rectf> mPlaylistRects;

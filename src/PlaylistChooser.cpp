@@ -199,8 +199,6 @@ void PlaylistChooser::draw()
 	gl::disableDepthWrite();
 	gl::enableAlphaBlending();
 
-	gl::color( Color::white() );
-		
     mPlaylistRects.clear();
 
     float border = mPlaylistSize.x * 0.5f;
@@ -218,7 +216,7 @@ void PlaylistChooser::draw()
         if( pos.x < endX && pos.x + mPlaylistSize.x > startX )
 		{
 			float x			= pos.x + mPlaylistSize.x * 0.5f; // x center of the rect
-			float alpha		= getAlpha( x );
+			float alpha		= mOpacity * getAlpha( x ); // opacity is set by UiLayer
 
 			if (!mTextures[i]) {
 				makeTexture( i, playlist );
@@ -259,22 +257,7 @@ void PlaylistChooser::draw()
             break;
         }
     }
-
-//    // highlight the region things will settle into...
-//    float w = mPlaylistSize.x/2.0;
-//    Path2d path;
-//    path.moveTo( -w, mStartY - 8.0f);
-//    path.curveTo( Vec2f( -w * 0.8f, mStartY - 14.0f), 
-//                  Vec2f( -w * 0.1f, mStartY - 16.0f), 
-//                  Vec2f( 0.0f, mStartY - 20.0f) );
-//    path.curveTo( Vec2f( w * 0.1f, mStartY - 16.0f), 
-//                  Vec2f( w * 0.8f, mStartY - 14.0f), 
-//                  Vec2f( w, mStartY - 8.0f) );
-//	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 0.2f ) );
-//    gl::draw(path);
-////    gl::drawStrokedRect( Rectf( -w, mStartY, w, mStartY + h ) );    
     
-	gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
 	gl::enableAlphaBlending();

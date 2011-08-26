@@ -25,7 +25,7 @@ class AlphaChooser : public BloomNode {
 
 public:
     
-	AlphaChooser() {};
+	AlphaChooser(): mOpacity(1.0f) {};
 	~AlphaChooser() {};
 		
 	void	setup( const ci::Font &font, WheelOverlayRef wheelOverlay );    
@@ -51,6 +51,8 @@ public:
     // used in UiLayer layout...
     float getHeight();
 
+    void setOpacity( float opacity ) { mOpacity = opacity; }
+    
 private:
     
 	void	setRects();    
@@ -63,6 +65,8 @@ private:
 	int				mAlphaIndex;
 	char			mAlphaChar;
 	
+    float           mOpacity;
+
     ci::Vec2f       mInterfaceSize;
     
 	std::vector<ci::gl::Texture> mAlphaTextures;

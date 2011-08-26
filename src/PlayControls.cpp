@@ -285,14 +285,14 @@ void PlayControls::deepDraw()
 {
     if (mVisible) {
         glPushMatrix();
-        glMultMatrixf(mTransform); // FIXME only push/mult/pop if mTransform isn't identity
+        glMultMatrixf(mTransform);
 
         // draw play controls panel background
         gl::color( Color::black() );
         gl::drawSolidRect( Rectf(0,0,mInterfaceSize.x,getHeight()) );
         
-        // FIXME: pass on opacity from UiLayer
-        gl::color( Color::white() );
+        // opacity is set by UiLayer...
+        gl::color( ColorA(1,1,1,mOpacity) );
         
         bloom::gl::beginBatch();
         // draw children

@@ -39,7 +39,7 @@ public:
                     SLIDER,
                     LAST_BUTTON };
 
-    PlayControls() {};
+    PlayControls(): mOpacity(1.0f) {};
     ~PlayControls() {};
     
     void setup( Vec2f interfaceSize, 
@@ -52,6 +52,8 @@ public:
         
     // used in UiLayer layout...
     float getHeight();
+    
+    void setOpacity( float opacity ) { mOpacity = opacity; }
     
     // State stuff, passed onto UI classes directly...
     // (not gettable, state lives elsewhere and UI changes are handled with callbacks)
@@ -116,6 +118,8 @@ private:
 
     // for removing events when cleaning up
     ci::CallbackId mCbTouchMoved, mCbTouchEnded;
+
+    float mOpacity;
 
     ///////////// UI Classes:
     
