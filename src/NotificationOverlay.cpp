@@ -121,8 +121,10 @@ void NotificationOverlay::showLetter( const char &c, const string &message, cons
 	s += c;
 	charLayout.addCenteredLine( s );
 	
-    show( gl::Texture( charLayout.render( true, true ) ), 
-          Area( 0, 0, mCurrentTexture.getWidth(), mCurrentTexture.getHeight() + 15.0f ), 
+    gl::Texture texture = gl::Texture( charLayout.render( true, true ) );
+    
+    show( texture, 
+          Area( 0, 0, texture.getWidth(), texture.getHeight() + 15.0f ), 
           Area( 0, 0, 0, 0 ),
           message );
 }
