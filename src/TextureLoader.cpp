@@ -88,7 +88,7 @@ void TextureLoader::surfaceLoaded()
         if (mRequestsMutex.try_lock()) {
 //            std::cout << " got lock!" << std::endl;
             int index = mTextures.size();
-            mTextures[ mRequests[index].mTexId ] = gl::Texture( mRequests[index].mSurface );
+            mTextures[ mRequests[index].mTexId ] = gl::Texture( mRequests[index].mSurface, mRequests[index].mFormat );
             mRequests[index].mSurface.reset();
             mRequestsMutex.unlock();
         }
