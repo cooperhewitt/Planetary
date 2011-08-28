@@ -22,7 +22,7 @@ void State::setup()
     mFilterMode = FilterModeAlphaChar;
 	mAlphaChar = 'A';
 	mSelectedNode = NULL;
-	mDistBetweenPrevAndCurrentNode = 1.0f;
+	mDistBetweenPrevAndCurrentNode = 20.0f;
 }
 
 void State::setAlphaChar( char c )
@@ -71,7 +71,7 @@ void State::setSelectedNode( Node* node )
 			selection = selection->mParentNode;
 		}
 		mSelectedNode = NULL;
-		mDistBetweenPrevAndCurrentNode = 20.0f;
+		mDistBetweenPrevAndCurrentNode = 10.0f;
 	}
 	else {
 		
@@ -110,9 +110,11 @@ void State::setSelectedNode( Node* node )
 		Node* prevSelectedNode = mSelectedNode;
 		mSelectedNode = node;
 		
-		if( prevSelectedNode && mSelectedNode ) {
+		if( prevSelectedNode && mSelectedNode && (prevSelectedNode != mSelectedNode) ) {
 			mDistBetweenPrevAndCurrentNode = prevSelectedNode->mPos.distance( mSelectedNode->mPos );
-        }
+        } else {
+			mDistBetweenPrevAndCurrentNode = 20.0f;
+		}
 				
 		// ensure everything in the next chain is selected
         for (int i = 0; i < nextChain.size(); i++) {

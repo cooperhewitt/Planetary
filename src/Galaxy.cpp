@@ -193,7 +193,9 @@ void Galaxy::initGalaxyVertexArray()
     
 	VertexData *galaxyVerts = new VertexData[6];
 
-	const float w = 350.0f;
+	float w = 200.0f;
+	if( G_IS_IPAD2 )
+		w = 350.0f;
 
     int vert = 0;
 

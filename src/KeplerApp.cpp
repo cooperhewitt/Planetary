@@ -1784,7 +1784,9 @@ void KeplerApp::updateCamera()
 	float distToTravel = mState.getDistBetweenNodes();
 	double duration = 2.5f;
 	if( distToTravel < 1.0f )		duration = 2.0;
-	else if( distToTravel < 5.0f )	duration = 2.75f;
+	else if( distToTravel < 15.0f )	duration = 2.75f;
+	else							duration = 4.0f;
+	
     double t		= constrain( getElapsedSeconds()-mSelectionTime, 0.0, duration );
 	double p        = easeInOutCubic( t / duration );
 
