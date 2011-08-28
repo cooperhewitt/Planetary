@@ -10,9 +10,11 @@
 
 #include <map>
 #include <vector>
+#include "cinder/Cinder.h"
 #include "cinder/Rect.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
+#include <boost/unordered_map.hpp>
 
 namespace bloom { namespace gl {
 
@@ -32,9 +34,10 @@ namespace bloom { namespace gl {
         std::vector<VertexData> vertices;
     };
     
-    typedef std::map<GLuint, Batch> BatchMap;
-
-    extern BatchMap batchMap;
+    typedef std::shared_ptr<Batch> BatchRef;
+    
+    extern boost::unordered_map<GLuint, BatchRef> batchByTex;
+    extern std::vector<BatchRef> batches;
     
     void beginBatch();
     void batchRect( const ci::gl::Texture &tex, const ci::Vec2f &pos );            

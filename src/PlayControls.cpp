@@ -135,26 +135,30 @@ bool PlayControls::removedFromScene()
 
 void PlayControls::addChildren()
 {
-    // bit of hack, this is first for batch reasons
+    // bit of hack, labels first for batch reasons because they all use unique text textures
     // (we want the little fadey bits to be drawn on top at the end)
     addChild( BloomNodeRef(mTrackInfoLabel) );
-
-	addChild( BloomNodeRef(mPlayheadSlider) );    
     addChild( BloomNodeRef(mElapsedTimeLabel) );
     addChild( BloomNodeRef(mRemainingTimeLabel) ); 
     
+    // and then shaded bits on top of scrolling mTrackInfoLabel
+    // (these use uiButtonsTex)
+    addChild( BloomNodeRef(mCoverLeftTextureRect) );
+    addChild( BloomNodeRef(mCoverRightTextureRect) );        
+    
+    // and then all the other things that use uiButtonsTex
+	addChild( BloomNodeRef(mPlayheadSlider) );
+    
     addChild( BloomNodeRef(mGalaxyButton) );
 	addChild( BloomNodeRef(mCurrentTrackButton) );
+    
     addChild( BloomNodeRef(mShowSettingsButton) );
 	addChild( BloomNodeRef(mAlphaButton) );
 	addChild( BloomNodeRef(mPlaylistButton) );
+    
     addChild( BloomNodeRef(mPreviousTrackButton) );
     addChild( BloomNodeRef(mPlayPauseButton) );
-    addChild( BloomNodeRef(mNextTrackButton) );	
-    
-    // shaded bits on top of scrolling mTrackInfoLabel
-    addChild( BloomNodeRef(mCoverLeftTextureRect) );
-    addChild( BloomNodeRef(mCoverRightTextureRect) );    
+    addChild( BloomNodeRef(mNextTrackButton) );	    
 }
 
 
@@ -300,6 +304,7 @@ void PlayControls::deepDraw()
             child->deepDraw();
         }
         bloom::gl::endBatch();
+        
         glPopMatrix();
     }        
 }

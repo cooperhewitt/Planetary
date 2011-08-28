@@ -177,7 +177,6 @@ void UiLayer::draw()
 {	
     gl::color( Color::white() );    
     gl::draw( mButtonsTex, Area( 0, 456, 200, 500 ), mPanelTabRect);
-	
 
     // fuck maths, just figure out which is bigger and smaller and stop pretending to know...
     const float minY = min(mPanelClosedY, mPanelOpenY);

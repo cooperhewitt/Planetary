@@ -2145,14 +2145,16 @@ void KeplerApp::drawScene()
 		gl::setMatrices( mCam );
 		gl::enableDepthRead();
 		gl::enableDepthWrite();
-		gl::enableAlphaBlending();    
+		gl::enableAlphaBlending(); 
         mGalaxy.drawDarkMatter( galaxyRotationMulti );
 		gl::disableDepthRead();
 		gl::disableDepthWrite();
 		gl::setMatricesWindow( getWindowSize() ); 
     }
 	
-	
+
+    gl::disableAlphaBlending(); // stops additive blending
+    gl::enableAlphaBlending();  // reinstates normal alpha blending
 	
     // UILayer and PlayControls draw here:
     mBloomSceneRef->draw();

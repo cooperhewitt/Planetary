@@ -6,6 +6,7 @@
 //  Copyright 2011 Bloom Studio, Inc. All rights reserved.
 //
 
+#include <boost/foreach.hpp>
 #include "BloomGl.h"
 #include "cinder/Quaternion.h"
 
@@ -185,21 +186,31 @@ namespace bloom { namespace gl {
     
     /////////////////////////////////////////////////////////
 
-    BatchMap batchMap;
+    // FIXME: whither ordered_map?
+    boost::unordered_map<GLuint, BatchRef> batchByTex;
+    std::vector<BatchRef> batches;
     
     void beginBatch()
     {
-        batchMap.clear();
+        batchByTex.clear();
+        batches.clear();
     }
     
     void batchRect( const ci::gl::Texture &texture, const ci::Rectf &srcRect, const ci::Rectf &dstRect )
     {
         GLuint texId = texture.getId();
-        Batch *batch = &batchMap[texId];
-        int verts = batch->vertices.size();
-        if (verts == 0) {
-            batch->texture = texture;
+        boost::unordered_map<GLuint, BatchRef>::iterator iter = batchByTex.find( texId );
+        BatchRef batch;
+        if (iter != batchByTex.end()) {
+            batch = iter->second;
         }
+        else {
+            batch = BatchRef(new Batch());
+            batch->texture = texture;
+            batches.push_back(batch);
+            batchByTex[texId] = batch;
+        }
+        int verts = batch->vertices.size();
         batch->vertices.resize(verts + 6);
         batch->vertices[verts].vertex  = ci::Vec2f(dstRect.x1, dstRect.y1);
         batch->vertices[verts].texture = ci::Vec2f(srcRect.x1, srcRect.y1);
@@ -235,8 +246,7 @@ namespace bloom { namespace gl {
     {
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        for (BatchMap::iterator it = batchMap.begin(); it != batchMap.end(); ++it) {
-            Batch *batch = &it->second;
+        BOOST_FOREACH(BatchRef batch, batches) {
             batch->texture.enableAndBind();
             glVertexPointer(2, GL_FLOAT, sizeof(VertexData), &batch->vertices[0].vertex);
             glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData), &batch->vertices[0].texture);
