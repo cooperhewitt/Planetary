@@ -175,6 +175,8 @@ protected:
 	bool				mIsDead;
 	
     bool                mNameTextureRequested;
+    float               mNameTexCreatedTime;
+    float               mLabelScale;
     uint64_t            mTaskId;
 	void                createNameSurface();
 	void                createNameTexture( ci::Surface8u nameSurface );

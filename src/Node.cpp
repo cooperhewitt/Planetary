@@ -58,6 +58,7 @@ Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, co
 	mIsDead				= false;
     
     mNameTextureRequested = false;
+    mLabelScale         = 1.0f;
 	mTaskId             = 0;
     
 	mDeathCount			= 0;
@@ -161,6 +162,7 @@ void Node::createNameSurface()
 void Node::createNameTexture( Surface8u nameSurface )
 {
 	mNameTex = gl::Texture( nameSurface );
+    mNameTexCreatedTime = app::getElapsedSeconds();
 }
 
 void Node::update( float param1, float param2 )
@@ -312,9 +314,15 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
                 }
                 if( mIsPlaying ){
                     float s = (mZoomPer * 0.25f) + 1.0f;
-                    gl::scale( Vec3f( s, s, 1.0f ) );
-                    texCorner *= s;
+                    mLabelScale += (s - mLabelScale) * 0.25f;
                 }
+                else {
+                    mLabelScale += (1.0f - mLabelScale) * 0.25f;
+                }
+                gl::scale( Vec3f( mLabelScale, mLabelScale, 1.0f ) );
+                texCorner *= mLabelScale;
+                
+//                std::cout << getName() << " " << mLabelScale << std::endl;
                 
             // DRAW DROP SHADOW
                 if( mIsPlaying ){ 
@@ -324,7 +332,10 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
                     gl::enableAdditiveBlending();
                 }
                 
-                gl::color( col );
+                // fade label in over 0.25s
+                float labelAlpha = constrain( app::getElapsedSeconds() - mNameTexCreatedTime, 0.0, 0.2 ) * 5.0f;
+                                
+                gl::color( ColorA( col, labelAlpha ) );
                 gl::draw( mNameTex, Vec2f::zero() );
                 
                 glPopMatrix();
@@ -342,7 +353,7 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
                 // all names first, then all lines?
                 glDisable( GL_TEXTURE_2D );
                 
-                gl::color( ColorA( BRIGHT_BLUE, alpha * 0.5f ) );
+                gl::color( ColorA( BRIGHT_BLUE, labelAlpha * alpha * 0.5f ) );
                 gl::drawLine( pos1, pos2 );
                 
             }
