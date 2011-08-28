@@ -36,7 +36,7 @@ Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, co
 	mOrbitStartAngle	= Rand::randFloat( TWO_PI );
 	mOrbitAngle			= mOrbitStartAngle;
 	mOrbitPeriod		= Rand::randFloat( 225.0f, 250.0f ); // TODO: move to NodeArtist and make non-random
-	mOrbitRadius		= 0.01f;
+	mOrbitRadius		= 0.0001f;
 	mAngularVelocity	= 0.0f;
 	mPercentPlayed		= 0.0f;
 	mDistFromCamZAxis	= 1000.0f;
