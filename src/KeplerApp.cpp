@@ -408,9 +408,6 @@ void KeplerApp::initTextures()
     repeatMipFmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );    
     repeatMipFmt.setMagFilter( GL_LINEAR ); // TODO: experiment with GL_NEAREST where appropriate
     repeatMipFmt.setWrap( GL_REPEAT, GL_REPEAT );    
-	
-	gl::Texture::Format repeatFmt;
-    repeatMipFmt.setWrap( GL_REPEAT, GL_REPEAT ); 
 
     
     mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "planetClouds1.png" ) ), mipFmt ) );
@@ -438,7 +435,7 @@ void KeplerApp::initTextures()
     mTextures.addRequest( LENS_FLARE_TEX,		"lensFlare.png",     mipFmt );
     mTextures.addRequest( ECLIPSE_SHADOW_TEX,	"eclipseShadow.png", mipFmt );
     mTextures.addRequest( SKY_DOME_TEX,			"skydomeFull.png",     mipFmt );
-    mTextures.addRequest( GALAXY_DOME_TEX,		"lightMatterFull.jpg", repeatFmt );      
+    mTextures.addRequest( GALAXY_DOME_TEX,		"lightMatterFull.jpg", repeatMipFmt );      
     mTextures.addRequest( DOTTED_TEX,                 "dotted.png",           repeatMipFmt );
     mTextures.addRequest( PLAYHEAD_PROGRESS_TEX,      "playheadProgress.png", repeatMipFmt );
     mTextures.addRequest( RINGS_TEX,                  "rings.png" );
@@ -448,9 +445,9 @@ void KeplerApp::initTextures()
     mTextures.addRequest( ATMOSPHERE_SUN_TEX,         "atmosphereSun.png",         mipFmt );
     mTextures.addRequest( PARTICLE_TEX,               "particle.png",              mipFmt );
     mTextures.addRequest( GALAXY_TEX,				"galaxyCropped.jpg", mipFmt );
-    mTextures.addRequest( DARK_MATTER_TEX,			"darkMatterFull.png", repeatFmt );
+    mTextures.addRequest( DARK_MATTER_TEX,			"darkMatterFull.png", repeatMipFmt );
     mTextures.addRequest( ORBIT_RING_GRADIENT_TEX,  "orbitRingGradient.png", mipFmt );
-    mTextures.addRequest( TRACK_ORIGIN_TEX,         "origin.png",            mipFmt );
+    mTextures.addRequest( TRACK_ORIGIN_TEX,         "origin.png" );
 	mTextures.addRequest( GRADIENT_OVERLAY_TEX,		"gradientLarge.png" );
     
     mTextures.registerComplete( this, &KeplerApp::onTextureLoaderComplete );
@@ -1724,33 +1721,34 @@ void KeplerApp::updateCamera()
     mFov -= ( mFov - mFovDest ) * 0.2f;    
 	
 	Node* selectedNode = mState.getSelectedNode();
-	if( selectedNode ){
+	if( selectedNode ){															// IF THERE IS A CURRENTLY SELECTED NODE...
 		mCamDistDest	= selectedNode->mIdealCameraDist * cameraDistMulti;
 		
-		if( G_AUTO_MOVE ){
-			// ROBERT: Fix this crap. needs to transition correctly
-			if( selectedNode->mParentNode ){
-				Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
-				float timeForAnim = getElapsedSeconds();;
+		if( G_AUTO_MOVE ){															// IF THE CAMERA IS SET TO MOVE AUTOMATICALLY...
+			if( selectedNode->mParentNode ){											// IF I HAVE A PARENT NODE
+																						// THEN LOOK BETWEEN ME AND MY PARENT.
+				float timeForAnim	= getElapsedSeconds();;
+				mPerlinForAutoMove	= mPerlin.fBm( timeForAnim * 0.01f );
 				
-				mPerlinForAutoMove = mPerlin.fBm( timeForAnim * 0.01f );
-				
-				float amt = 0.3f + sin( timeForAnim * 0.1f ) * 0.45f;
-				Vec3f lookToPos = dirToParent * amt;
+				Vec3f dirToParent	= selectedNode->mParentNode->mPos - selectedNode->mPos;
+				float amt			= 0.3f + sin( timeForAnim * 0.1f ) * 0.45f;
+				Vec3f lookToPos		= dirToParent * amt;
 				mCenterOffset -= ( mCenterOffset - lookToPos ) * 0.01f;
 				
 				mAutoMoveScale -= ( mAutoMoveScale - ( ( mPerlinForAutoMove + 1.0f ) * G_ZOOM ) ) * 0.01f;
 				
 			}
-		} else {
+		} else {																	// ELSE IF THE CAMERA IS NOT MOVING AUTOMATICALLY...
 			mPerlinForAutoMove -= ( mPerlinForAutoMove - 0.0f ) * 0.15f;
 			mAutoMoveScale -= ( mAutoMoveScale - 1.0f ) * 0.1f;
 			
-			if( selectedNode->mParentNode && mPinchPer > mPinchPerThresh ){
+			if( selectedNode->mParentNode && mPinchPer > mPinchPerThresh ){				// IF THERE IS A PARENT AND THE PINCH THRESH HAS BEEN PASSED...
+																						// LOOK BACK TOWARDS THE PARENT NODE
 				Vec3f dirToParent = selectedNode->mParentNode->mPos - selectedNode->mPos;
 				mCenterOffset -= ( mCenterOffset - ( dirToParent * ( mPinchPer - mPinchPerThresh ) * 2.5f ) ) * 0.2f;
-				//mCenterOffset = ( dirToParent * ( mPinchPer - mPinchPerThresh ) * 2.5f ); // Tom thinks things should be less swooshy
-			} else {
+				
+			} else {																	// ELSE DONT LOOK ANYWHERE SPECIAL... 
+																						// KEEP ON DOING WHAT YOU ARE DOING...
 				mCenterOffset -= ( mCenterOffset - Vec3f::zero() ) * 0.2f;
 			}
 		}
@@ -1760,7 +1758,7 @@ void KeplerApp::updateCamera()
 		mZoomDest		= selectedNode->mGen;
 		mCenterFrom		+= selectedNode->mVel;
 		
-	} else {
+	} else {																	// ELSE JUST SET CAMERA VARS TO DEFAULTS AND ZEROS
 		mCamDistDest	= G_INIT_CAM_DIST * cameraDistMulti;
 		mCenterDest		= Vec3f::zero();
         mZoomDest       = G_ALPHA_LEVEL;
@@ -1784,10 +1782,9 @@ void KeplerApp::updateCamera()
 	}
 
 	float distToTravel = mState.getDistBetweenNodes();
-	double duration = 3.0f;
+	double duration = 4.0f;
 	if( distToTravel < 1.0f )		duration = 2.0;
 	else if( distToTravel < 5.0f )	duration = 2.75f;
-//	double duration = 2.0f;
     double t		= constrain( getElapsedSeconds()-mSelectionTime, 0.0, duration );
 	double p        = easeInOutCubic( t / duration );
 
@@ -1802,25 +1799,11 @@ void KeplerApp::updateCamera()
 	mFadeInArtistToAlbum	= constrain( G_ZOOM - G_ARTIST_LEVEL, 0.0f, 1.0f );
 	mFadeInAlbumToTrack		= constrain( G_ZOOM - G_ALBUM_LEVEL, 0.0f, 1.0f );
 	
-	
-	
-// FAILED NEW GYRO + ARCBALL INTEGRATION	
-//	if( G_IS_IPAD2 && G_USE_GYRO ){
-//		Quatf currentGyro	= mGyroHelper.getQuat();
-//		Quatf gyroStep		= mPrevGyro.inverse() * currentGyro;
-//		mPrevGyro			= currentGyro;
-//		
-//		mArcball.setQuat( mArcball.getQuat() * gyroStep );
-//	}
-	
-	
-	
+
     // apply the Arcball to the camera eye/up vectors
     // (instead of to the whole scene)
     Quatf q = mArcball.getQuat();
     q.w *= -1.0; // reverse the angle, keep the axis
-	
-//	// TODO/FIXME/ROBERT: Robert test this?
 	if( G_IS_IPAD2 && G_USE_GYRO ){
 		q = mGyroHelper.getQuat();
 	}
@@ -1835,19 +1818,6 @@ void KeplerApp::updateCamera()
     mEye = mCenter - camOffset;
 
     assert( !(isnan(mEye.x) || isnan(mEye.y) || isnan(mEye.z)) );  
-	
-// Bspline curve camera follow	
-//	if( G_AUTO_MOVE ){
-//		mSplineValue += 0.002f;
-//
-//		mEye		= mSpline.getPosition( mSplineValue - 0.002f );
-//		mCenter		= mSpline.getPosition( mSplineValue );
-//		
-//		if( mSplineValue >= 0.675 ){
-//			makeNewCameraPath();
-//		}
-//	}
-	
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( mEye - mCenterOffset, mCenter, q * mUp );

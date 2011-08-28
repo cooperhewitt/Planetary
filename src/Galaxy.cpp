@@ -14,12 +14,12 @@ using namespace ci;
 void Galaxy::update(const Vec3f &eye, const float &fadeInAlphaToArtist, const float &elapsedSeconds, const Vec3f &bbRight, const Vec3f &bbUp)
 {
 	// For doing galaxy-axis fades
-	mZoomOff = 1.0f - fadeInAlphaToArtist;//constrain( ( G_ARTIST_LEVEL - G_ZOOM ), 0.0f, 1.0f );
-	mCamGalaxyAlpha = constrain( abs( eye.y ) * 0.005f, 0.0f, 1.0f );
-	mInvAlpha = pow( 1.0f - mCamGalaxyAlpha, 1.75f ) * mZoomOff;    
+	mZoomOff		= 1.0f - fadeInAlphaToArtist;
+	mCamGalaxyAlpha = constrain( abs( eye.y ) * 0.0045f, 0.0f, 1.0f );
+	mInvAlpha		= pow( 1.0f - mCamGalaxyAlpha, 1.75f ) * mZoomOff;    
     mElapsedSeconds = elapsedSeconds;
-    mBbRight = bbRight;
-    mBbUp = bbUp;
+    mBbRight		= bbRight;
+    mBbUp			= bbUp;
 }
 
 void Galaxy::setup(float initialCamDist, ci::Color lightMatterColor, ci::Color centerColor,
@@ -51,7 +51,6 @@ void Galaxy::drawLightMatter( float rotMulti )
 		const float radius = mLightMatterBaseRadius;
 		glPushMatrix();
         mGalaxyDome.enableAndBind();
-		mGalaxyDome.setWrap( GL_REPEAT, GL_REPEAT );
         glBindBuffer(GL_ARRAY_BUFFER, mDarkMatterVBO);
         glVertexPointer( 3, GL_FLOAT, sizeof(VertexData), 0 ); // last arg becomes an offset instead of an address
         glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), (void*)sizeof(Vec3f) ); // NB:- change if type of VertexData.vertex changes
@@ -154,7 +153,6 @@ void Galaxy::drawDarkMatter( float rotMulti )
         
 		glPushMatrix();
 		mDarkMatterTex.enableAndBind();
-		mDarkMatterTex.setWrap( GL_REPEAT, GL_REPEAT );
         
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -195,7 +193,7 @@ void Galaxy::initGalaxyVertexArray()
     
 	VertexData *galaxyVerts = new VertexData[6];
 
-	const float w = 200.0f;
+	const float w = 350.0f;
 
     int vert = 0;
 
