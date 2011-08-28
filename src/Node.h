@@ -53,7 +53,7 @@ class Node {
 	virtual void	drawAtmosphere( const ci::Vec3f &camEye, const ci::Vec2f &center, const ci::gl::Texture &tex, const ci::gl::Texture &directionalTex, float pinchAlphaPer, float scaleSliderOffset ) {};
 	virtual void	drawRings( const ci::gl::Texture &tex, const PlanetRing &planetRing, float camZPos );
 	virtual void	findShadows( float camAlpha ) {};
-	virtual void	drawOrbitRing( float pinchAlphaOffset, float camAlpha, const OrbitRing &orbitRing );
+	virtual void	drawOrbitRing( float pinchAlphaOffset, float camAlpha, const OrbitRing &orbitRing, float fadeInAlphaToArtist, float fadeInArtistToAlbum );
 
 	void			drawName( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
 	void			wasTapped(){ mIsTapped = true; mHighlightStrength = 1.0f; }

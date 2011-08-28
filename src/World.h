@@ -66,7 +66,7 @@ public:
 	void drawStarsVertexArray();
 	void drawStarGlowsVertexArray();
 	void drawNames( const ci::CameraPersp &cam, float pinchAlphaOffset, float angle );
-	void drawOrbitRings( float pinchAlphaOffset, float camAlpha );
+	void drawOrbitRings( float pinchAlphaOffset, float camAlpha, float fadeInAlphaToArtist, float fadeInArtistToAlbum );
 	void drawConstellation();
 	void drawTouchHighlights( float zoomAlpha );
 	void drawRings( const ci::gl::Texture &tex, float camZPos );

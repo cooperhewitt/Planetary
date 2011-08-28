@@ -2,6 +2,7 @@
 #include "cinder/Vector.h"
 #include "cinder/Color.h"
 #include "Node.h"
+#include "cinder/Quaternion.h"
 #include <vector>
 
 class Particle {
@@ -10,10 +11,9 @@ class Particle {
 	Particle( int index, ci::Vec3f pos, ci::Vec3f vel, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void setup( const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
 	void update( float radius, const ci::Vec3f &bbRight, const ci::Vec3f &bbUp );
-	void draw();
 	
 	int			mIndex;
-	ci::Vec3f	mPos, mPrevPos;
+	ci::Vec3f	mPos;
 	ci::Vec3f	mVel;
 	ci::Vec3f	mAcc;
 
@@ -26,4 +26,5 @@ class Particle {
 	float         mLifespan;
 	float		mAgePer;
 	bool		mIsDead;
+	ci::Quatf	mQuat;
 };

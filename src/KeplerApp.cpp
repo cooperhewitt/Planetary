@@ -322,8 +322,8 @@ void KeplerApp::setup()
     console() << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
 
 	if( G_IS_IPAD2 ){
-		G_NUM_PARTICLES = 30;
-		G_NUM_DUSTS = 2500;
+		G_NUM_PARTICLES = 80;
+		G_NUM_DUSTS = 5000;
         mGyroHelper.setup();
 	}
 	
@@ -1627,10 +1627,8 @@ void KeplerApp::update()
 		if( selectedArtistNode ){
 			mParticleController.update( mCenter, selectedArtistNode->mRadius * 0.15f, bbRight, bbUp );
 			float per = selectedArtistNode->mEclipseStrength * 0.5f + 0.25f;
-			mParticleController.buildParticleVertexArray( scaleSlider * 5.0f, 
-														  selectedArtistNode->mColor, 
-														  ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f );
-			mParticleController.buildDustVertexArray( scaleSlider, selectedArtistNode, mPinchAlphaPer, ( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
+			mParticleController.buildParticleVertexArray( 5.0f, selectedArtistNode->mColor, ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f );
+			mParticleController.buildDustVertexArray( scaleSlider, selectedArtistNode, mPinchAlphaPer, 0.1f );//( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
 		}
 		        
         if (mPlayheadUpdateSeconds == elapsedSeconds) {
@@ -1682,7 +1680,9 @@ void KeplerApp::updateCamera()
 	mPinchPer = ( mPinchTotal - mPinchScaleMin )/( mPinchScaleMax - mPinchScaleMin );
 	mPinchHighlightRadius -= ( mPinchHighlightRadius - 200.0f ) * 0.4f;
 	
-	float cameraDistMulti = mPinchPer * 2.0f + 0.5f;
+	
+	// multiplier is how far back, and addition is how close in.
+	float cameraDistMulti = mPinchPer * 2.0f + 0.35f;
 	
 // IF THE PINCH IS PAST THE POP THRESHOLD...
 	if( mPinchPer > mPinchPerThresh ){
@@ -1782,7 +1782,7 @@ void KeplerApp::updateCamera()
 	}
 
 	float distToTravel = mState.getDistBetweenNodes();
-	double duration = 4.0f;
+	double duration = 2.5f;
 	if( distToTravel < 1.0f )		duration = 2.0;
 	else if( distToTravel < 5.0f )	duration = 2.75f;
     double t		= constrain( getElapsedSeconds()-mSelectionTime, 0.0, duration );
@@ -2003,16 +2003,23 @@ void KeplerApp::drawScene()
 // ORBITS
 	if( G_DRAW_RINGS ){
         mTextures[ORBIT_RING_GRADIENT_TEX].enableAndBind();
-        mWorld.drawOrbitRings( mPinchAlphaPer, sqrt( mCamRingAlpha ) );
+        mWorld.drawOrbitRings( mPinchAlphaPer, sqrt( mCamRingAlpha ), mFadeInAlphaToArtist, mFadeInArtistToAlbum );
         mTextures[ORBIT_RING_GRADIENT_TEX].disable();
 	}
 	
 // PARTICLES
 	if( artistNode ){
         mTextures[PARTICLE_TEX].enableAndBind();
-		mParticleController.drawParticleVertexArray( artistNode );
+		mParticleController.drawParticleVertexArray( artistNode, 0.175f );
         mTextures[PARTICLE_TEX].disable();
 	}
+//	Node *albumNode = mState.getSelectedAlbumNode();
+//	if( albumNode ){
+//		mTextures[PARTICLE_TEX].enableAndBind();
+//		mParticleController.drawParticleVertexArray( albumNode, 50.0f );
+//        mTextures[PARTICLE_TEX].disable();
+//	}
+	
 	
 // RINGS
 	if( artistNode ){
@@ -2027,7 +2034,7 @@ void KeplerApp::drawScene()
 	
 // DUSTS
 	if( artistNode && (G_IS_IPAD2 || G_DEBUG) ){
-		mParticleController.drawDustVertexArray( artistNode );
+		mParticleController.drawDustVertexArray( artistNode, 0.175f );
 	}
 	
 // PLAYHEAD PROGRESS

@@ -144,7 +144,7 @@ void NodeArtist::drawStarGlow( const Vec3f &camEye, const Vec3f &camNormal, cons
 	gl::color( ColorA( c.r, c.g, c.b, alpha ) );
 	
 	tex.enableAndBind();
-	bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, mPos + camNormal, radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ) );
+	bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, Vec3f::zero(), radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ) );
 	tex.disable();
 }
 
@@ -237,7 +237,7 @@ void NodeArtist::drawExtraGlow( const Vec3f &camEye, const gl::Texture &texGlow,
 		texGlow.enableAndBind();
 		alpha = sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 0.4f + 0.2f );
 		gl::color( ColorA( Color::white(), alpha ) );
-		bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, mPos + Rand::randVec3f(), radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ) );
+		bloom::gl::drawSphericalRotatedBillboard( mPos, camEye, Vec3f::zero(), radius * sin( ( mEclipseStrength * 0.75f + 0.25f ) * M_PI ) * sin( mEclipseStrength * 1.0f + 0.4f ) );
 		texGlow.disable();
 	}
 	//}

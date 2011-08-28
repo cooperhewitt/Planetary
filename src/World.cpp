@@ -349,10 +349,10 @@ void World::drawNames( const CameraPersp &cam, float pinchAlphaOffset, float ang
 }
 
 // assumes texture is already bound
-void World::drawOrbitRings( float pinchAlphaOffset, float camAlpha )
+void World::drawOrbitRings( float pinchAlphaOffset, float camAlpha, float fadeInAlphaToArtist, float fadeInArtistToAlbum )
 {
     BOOST_FOREACH(NodeArtist* artistNode, mNodes) {
-		artistNode->drawOrbitRing( pinchAlphaOffset, camAlpha, mOrbitRing );
+		artistNode->drawOrbitRing( pinchAlphaOffset, camAlpha, mOrbitRing, fadeInAlphaToArtist, fadeInArtistToAlbum );
 	}
 }
 

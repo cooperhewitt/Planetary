@@ -169,6 +169,7 @@ void Node::update( float param1, float param2 )
 	mClosenessFadeAlpha = constrain( ( mDistFromCamZAxis - mRadius ) * mInvRadius, 0.0f, 1.0f );
 	
 	mOrbitRadius	-= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
+//	mOrbitRadius	= mOrbitRadiusDest;
     
 	mSphere.setCenter( mPos );
 
@@ -245,10 +246,10 @@ void Node::drawRings( const gl::Texture &tex, const PlanetRing &planetRing, floa
 	}
 }
 
-void Node::drawOrbitRing( float pinchAlphaOffset, float camAlpha, const OrbitRing &orbitRing )
+void Node::drawOrbitRing( float pinchAlphaOffset, float camAlpha, const OrbitRing &orbitRing, float fadeInAlphaToArtist, float fadeInArtistToAlbum )
 {
     BOOST_FOREACH(Node* node, mChildNodes) {
-		node->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRing );
+		node->drawOrbitRing( pinchAlphaOffset, camAlpha, orbitRing, fadeInAlphaToArtist, fadeInArtistToAlbum );
 	}
 }
 

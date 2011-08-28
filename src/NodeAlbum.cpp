@@ -438,10 +438,11 @@ void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 		float alpha = ( 1.0f - mScreenDistToCenterPer * 0.75f ) + mEclipseStrength;
 		alpha *= mDeathPer * mClosenessFadeAlpha * ( mBlockedBySunPer - 0.5f ) * 2.0f;
 		Vec2f radius( mRadius, mRadius );
-		radius *= ( 2.42f + scaleSliderOffset + max( ( mSphereScreenRadius - 160.0f ) * 0.001f, 0.0f ) );
+		radius *= ( 2.42f + scaleSliderOffset + max( ( mSphereScreenRadius - 160.0f ) * 0.001f, 0.0f ) ) * mDeathPer;
 		
+
 		if( mIsHighlighted ){
-			gl::color( ColorA( BRIGHT_BLUE, 1.0f + mEclipseStrength * 2.0f ) );
+			gl::color( ColorA( BRIGHT_BLUE, ( 1.0f + mEclipseStrength * 2.0f ) * mClosenessFadeAlpha ) );
 			tex.enableAndBind();
 			bloom::gl::drawSphericalBillboard( camEye, mPos, radius, 0.0f );
 			tex.disable();
@@ -458,7 +459,7 @@ void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 }
 
 
-void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const OrbitRing &orbitRing )
+void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const OrbitRing &orbitRing, float fadeInAlphaToArtist, float fadeInArtistToAlbum )
 {		
 	float newPinchAlphaPer = pinchAlphaPer;
 	if( G_ZOOM < G_ALBUM_LEVEL - 0.5f ){
@@ -468,12 +469,12 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const OrbitR
 	}
 	
 	if( mIsPlaying ){
-		gl::color( ColorA( BRIGHT_BLUE, 0.5f * camAlpha * mDeathPer ) );
+		gl::color( ColorA( BRIGHT_BLUE, 0.5f * camAlpha * fadeInAlphaToArtist ) );
 	} else {
 		if( mIsHighlighted ){
-			gl::color( ColorA( BLUE, 0.5f * camAlpha * mDeathPer ) );
+			gl::color( ColorA( BLUE, 0.5f * camAlpha * fadeInAlphaToArtist ) );
 		} else {
-			gl::color( ColorA( BLUE, 0.5f * camAlpha * mDeathPer * 0.3f ) );
+			gl::color( ColorA( BLUE, 0.5f * camAlpha * fadeInAlphaToArtist * 0.3f ) );
 		}
 	}
 	
@@ -484,7 +485,7 @@ void NodeAlbum::drawOrbitRing( float pinchAlphaPer, float camAlpha, const OrbitR
     orbitRing.drawHighRes();
 	glPopMatrix();
 	
-	Node::drawOrbitRing( pinchAlphaPer, camAlpha, orbitRing );
+	Node::drawOrbitRing( pinchAlphaPer, camAlpha, orbitRing, fadeInAlphaToArtist, fadeInArtistToAlbum );
 }
 
 

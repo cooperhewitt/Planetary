@@ -532,7 +532,7 @@ void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 	if( mClosenessFadeAlpha > 0.0f ){
 		float alpha = mNormPlayCount * mDeathPer * mClosenessFadeAlpha;
 		Vec2f radius( mRadius, mRadius );
-		radius *= ( 2.435f + scaleSliderOffset + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) );
+		radius *= ( 2.435f + scaleSliderOffset + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) ) * mDeathPer;
 
 		if( mIsHighlighted ){
 			gl::color( ColorA( BRIGHT_BLUE, alpha ) );
@@ -552,7 +552,7 @@ void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const 
 
 
 
-void NodeTrack::drawOrbitRing( float pinchAlphaPer, float camAlpha, const OrbitRing &orbitRing )
+void NodeTrack::drawOrbitRing( float pinchAlphaPer, float camAlpha, const OrbitRing &orbitRing, float fadeInAlphaToArtist, float fadeInArtistToAlbum )
 {	
 	float newPinchAlphaPer = pinchAlphaPer;
 	if( G_ZOOM < G_TRACK_LEVEL - 0.5f ){
@@ -562,9 +562,9 @@ void NodeTrack::drawOrbitRing( float pinchAlphaPer, float camAlpha, const OrbitR
 	}
 	
 	if( mIsHighlighted ){
-		gl::color( ColorA( BLUE, camAlpha * mDeathPer ) );		
+		gl::color( ColorA( BLUE, camAlpha * fadeInArtistToAlbum ) );		
 	} else {
-		gl::color( ColorA( BLUE, camAlpha * mDeathPer * 0.3f ) );
+		gl::color( ColorA( BLUE, camAlpha * fadeInArtistToAlbum * 0.3f ) );
 	}
 	
 	glPushMatrix();
