@@ -264,23 +264,23 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
 		if( mIsSelected || ( G_ZOOM < mGen && mIsPlaying ) ){
 			c = Color::white();
 			
-			if( G_ZOOM >= mGen - 2 )
+			if( G_ZOOM >= mGen - 2 ) {
 				alpha = mZoomPer * mDeathPer;
-			else
+            }
+			else {
 				alpha = 0.0f;
-			
+            }
 			
 		} else {
 			c = BRIGHT_BLUE;
-			if( G_ZOOM >= mGen - 1 )
+			if( G_ZOOM >= mGen - 1 ) {
 				alpha = 0.5f * pinchAlphaPer * mZoomPer * mDeathPer;
-			else
+            }
+			else {
 				alpha = 0.0f;
+            }
 		}
-		
-		ColorA col = ColorA( c, alpha );
-		
-		
+        
 		if( alpha > 0 ){
 			Vec2f pos1, pos2;
 			Vec2f offset0, offset1, offset2;
@@ -322,8 +322,6 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
                 gl::scale( Vec3f( mLabelScale, mLabelScale, 1.0f ) );
                 texCorner *= mLabelScale;
                 
-//                std::cout << getName() << " " << mLabelScale << std::endl;
-                
             // DRAW DROP SHADOW
                 if( mIsPlaying ){ 
                     gl::enableAlphaBlending();
@@ -334,8 +332,8 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
                 
                 // fade label in over 0.25s
                 float labelAlpha = constrain( app::getElapsedSeconds() - mNameTexCreatedTime, 0.0, 0.2 ) * 5.0f;
-                                
-                gl::color( ColorA( col, labelAlpha ) );
+
+                gl::color( ColorA( c, alpha * labelAlpha ) );
                 gl::draw( mNameTex, Vec2f::zero() );
                 
                 glPopMatrix();

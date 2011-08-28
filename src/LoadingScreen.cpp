@@ -34,7 +34,7 @@ void LoadingScreen::setup( const ci::gl::Texture &planetaryTex, const ci::gl::Te
 
 void LoadingScreen::setTextureProgress( float prop )
 {
-    std::cout << "LoadingScreen::setTextureProgress " << prop << std::endl;
+//    std::cout << "LoadingScreen::setTextureProgress " << prop << std::endl;
     if (prop >= 0) {
         mTextureProgressDest = prop;
     }
