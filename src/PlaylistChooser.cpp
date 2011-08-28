@@ -280,7 +280,7 @@ void PlaylistChooser::makeTexture( int index, ipod::PlaylistRef playlist )
 float PlaylistChooser::getAlpha( float x )
 {
 	float per		= x / mInterfaceSize.x;
-	float invCos	= ( 1.0f - (float)cos( per * M_PI * 2.0f ) ) * 0.5f;
+	float invCos	= ( 1.0f - (float)cos( per * TWO_PI ) ) * 0.5f;
 	float cosPer	= pow( invCos, 0.5f );
 	return cosPer;
 }
@@ -288,7 +288,7 @@ float PlaylistChooser::getAlpha( float x )
 float PlaylistChooser::getScale( float x )
 {
 	float per		= x / mInterfaceSize.x;
-	float invCos	= ( 1.0f - (float)cos( per * M_PI * 2.0f ) ) * 0.5f;
+	float invCos	= ( 1.0f - (float)cos( per * TWO_PI ) ) * 0.5f;
 	float cosPer	= max( pow( invCos, 3.5f ) + 0.4f, 0.5f );
 	return cosPer;
 }

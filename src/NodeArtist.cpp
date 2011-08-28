@@ -31,9 +31,14 @@ NodeArtist::NodeArtist( int index, const Font &font, const Font &smallFont, cons
 {
 	mGen			= G_ARTIST_LEVEL;
 	//mPosDest		= Rand::randVec3f() * Rand::randFloat( 40.0f, 75.0f ); // 40.0f, 200.0f
-	Vec2f randVec	= Rand::randVec2f();
-	randVec			*= Rand::randFloat( 30.0f, 65.0f );
-	mPosDest		= Vec3f( randVec.x, Rand::randFloat( -0.5f, 0.5f ), randVec.y );
+	
+	float angle		= (float)index * 0.618f;
+	float x			= cos( angle );
+	float y			= sin( angle );
+	
+	Vec2f v			= Vec2f( x, y );
+	v				*= Rand::randFloat( 10.0f, 100.0f );
+	mPosDest		= Vec3f( v.x, Rand::randFloat( -10.5f, 10.5f ), v.y );
 	mPos			= mPosDest;// + Rand::randVec3f() * 25.0f;
 	mAcc			= Vec3f::zero();
 	

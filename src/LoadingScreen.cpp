@@ -185,10 +185,10 @@ void LoadingScreen::draw()
 	mPlanetTex.disable();
 
     // FIXME: better progress bar?
-	float barHeight = 4.0f;
-    gl::color( BRIGHT_BLUE );
-    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - barHeight * 3.0f, mInterfaceSize.x * mTextureProgress,  mInterfaceSize.y - barHeight * 2.0f ) );
+	float barHeight = 2.0f;
     gl::color( BLUE );
+    gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - barHeight * 3.0f, mInterfaceSize.x * mTextureProgress,  mInterfaceSize.y - barHeight * 2.0f ) );
+    gl::color( BRIGHT_BLUE );
     gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - barHeight * 2.0f, mInterfaceSize.x * mArtistProgress,   mInterfaceSize.y - barHeight * 1.0f ) );
     gl::color( BRIGHT_YELLOW );
     gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - barHeight * 1.0f, mInterfaceSize.x * mPlaylistProgress, mInterfaceSize.y - barHeight * 0.0f ) );

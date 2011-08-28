@@ -114,7 +114,7 @@ void SettingsPanel::createChildren( const Font &font, const gl::Texture &uiSmall
 	// TODO: add initial value
 	mParamSlider1 = new Slider(				PARAMSLIDER1,          // ID
 											uiSmallButtonsTex,
-											Area( 351, 460, 359, 500 ),  // bg texture
+											Area( 351, 460, 358, 500 ),  // bg texture
 											Area( 362, 460, 369, 500 ),  // fg texture
 											Area( 390, 460, 430, 500 ),  // thumb on texture
 											Area( 430, 460, 470, 500 ) ); // thumb off texture
@@ -125,7 +125,7 @@ void SettingsPanel::createChildren( const Font &font, const gl::Texture &uiSmall
 	
 	mParamSlider2 = new Slider(				PARAMSLIDER2,          // ID
 											uiSmallButtonsTex,
-											Area( 351, 460, 359, 500 ),  // bg texture
+											Area( 351, 460, 358, 500 ),  // bg texture
 											Area( 362, 460, 369, 500 ),  // fg texture
 											Area( 390, 460, 430, 500 ),  // thumb on texture
 											Area( 430, 460, 470, 500 ) ); // thumb off texture
@@ -159,7 +159,7 @@ void SettingsPanel::addChildren()
     addChild( BloomNodeRef(mHelpButton) );
     addChild( BloomNodeRef(mOrbitsButton) );
     addChild( BloomNodeRef(mLabelsButton) );
-    addChild( BloomNodeRef(mDebugButton) );
+//    addChild( BloomNodeRef(mDebugButton) );
     if( G_IS_IPAD2 ) addChild( BloomNodeRef(mGyroButton) );
 	addChild( BloomNodeRef(mParamSlider1) );
 	addChild( BloomNodeRef(mParamSlider2) );
@@ -207,9 +207,9 @@ void SettingsPanel::setInterfaceSize( const Vec2f &interfaceSize )
 	}
 	
     // DEBUG TOGGLE BUTTON
-	x1 -= bSizeSmall;
-	x2 = x1 + bSizeSmall;
-    mDebugButton->setRect( x1, y1, x2, y2 );
+//	x1 -= bSizeSmall;
+//	x2 = x1 + bSizeSmall;
+//    mDebugButton->setRect( x1, y1, x2, y2 );
 	
     // SCREENSAVER TOGGLE BUTTON
 	x1 -= bSizeSmall;

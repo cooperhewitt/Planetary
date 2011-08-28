@@ -57,7 +57,7 @@ void NotificationOverlay::update()
     Vec2f interfaceSize = getRoot()->getInterfaceSize();
     
     Matrix44f mat;
-    mat.translate(Vec3f( interfaceSize.x * 0.5f, interfaceSize.y * 0.5f + 134.0f - mMessageTexture.getHeight(), 0.0f ));
+    mat.translate(Vec3f( interfaceSize.x * 0.5f, interfaceSize.y * 0.5f + 184.0f - mMessageTexture.getHeight(), 0.0f ));
     setTransform(mat);
 }
 

@@ -47,10 +47,10 @@ public:
                 const ci::Vec3f &bbRight, 
                 const ci::Vec3f &bbUp);
     
-    void drawLightMatter();
-    void drawSpiralPlanes();
-    void drawCenter();
-    void drawDarkMatter();
+    void drawLightMatter( float rotMulti );
+    void drawSpiralPlanes( float rotMulti );
+    void drawCenter( float rotMulti );
+    void drawDarkMatter( float rotMulti );
     
 private:
     
