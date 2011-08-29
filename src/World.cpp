@@ -95,7 +95,9 @@ void World::setFilter(FilterRef filterRef)
 	}
 	
 	if( mFilteredNodes.size() > 1 ){
-		mConstellation.setup( mFilteredNodes );
+		if( mAge == mEndRepulseAge + 150 ){        
+            mConstellation.setup( mFilteredNodes );
+        }
 	}    
 }
 
