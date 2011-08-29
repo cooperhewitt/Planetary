@@ -311,6 +311,8 @@ void KeplerApp::setup()
     mUiComplete = false;
 	mState.setup();
     
+    mState.setup();
+    
     G_IS_IPAD2 = bloom::isIpad2();
     console() << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
 
