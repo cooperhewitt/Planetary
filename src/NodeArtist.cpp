@@ -54,7 +54,6 @@ void NodeArtist::setData( PlaylistRef playlist )
 	std::size_t h	= string_hash( name );
 	
 	mHashPer		= (float)( h%9000L )/90.0f + 10.0f;
-	std::cout << mHashPer << std::endl;
 	
 	float angle		= (float)mIndex * 0.618f;
 	float x			= cos( angle );

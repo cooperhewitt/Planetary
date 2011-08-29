@@ -309,6 +309,7 @@ void KeplerApp::setup()
     
     mRemainingSetupCalled = false;
     mUiComplete = false;
+	mState.setup();
     
     G_IS_IPAD2 = bloom::isIpad2();
     console() << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
@@ -1826,8 +1827,9 @@ void KeplerApp::updateCamera()
 	float distToTravel = mState.getDistBetweenNodes();
 	double duration = 2.5f;
 	if( distToTravel < 1.0f )		duration = 2.0;
-	else if( distToTravel < 15.0f )	duration = 2.75f;
+	else if( distToTravel < 50.0f )	duration = 2.75f;
 	else							duration = 4.0f;
+
 	
     double t		= constrain( getElapsedSeconds()-mSelectionTime, 0.0, duration );
 	double p        = easeInOutCubic( t / duration );
