@@ -171,7 +171,6 @@ void Node::update( float param1, float param2 )
 	mClosenessFadeAlpha = constrain( ( mDistFromCamZAxis - mRadius ) * mInvRadius, 0.0f, 1.0f );
 	
 	mOrbitRadius	-= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;
-//	mOrbitRadius	= mOrbitRadiusDest;
     
 	mSphere.setCenter( mPos );
 

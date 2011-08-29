@@ -44,7 +44,7 @@ void Stats::draw(const Matrix44f &mtx)
     if (mParamsTex) {
         glPushMatrix();
         glMultMatrixf( mtx );
-        gl::color( ColorA( Color::white(), 0.3f ) );
+        gl::color( ColorA( Color::white(), 0.1f ) );
         gl::draw( mParamsTex, Vec2f( 23.0f, 15.0f ) );
         glPopMatrix();    
     }

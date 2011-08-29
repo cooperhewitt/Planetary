@@ -94,9 +94,6 @@ class KeplerApp : public AppCocoaTouch {
 	virtual void	draw();
 	void			drawNoArtists();
     void            drawScene();
-	
-	void			makeNewCameraPath();
-	void			createRandomBSpline( const vector<ci::Vec3f> &positions );
 
     // convenience methods for Flurry
     void            logEvent(const string &event);
@@ -192,11 +189,6 @@ class KeplerApp : public AppCocoaTouch {
 	float			mPerlinForAutoMove;
 	float			mAutoMoveScale;
 	
-// SPLINE
-	BSpline3f		mSpline;
-	vector<Vec3f>	mSplinePos;
-	float			mSplineValue;
-	double			mLastTime;
 	
 	float			mZoomFrom, mZoomDest;
 	Arcball			mArcball;
@@ -484,15 +476,6 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	mPinchRotation		= 0.0f;
 	mIsPastPinchThresh	= false;
 	mPerlinForAutoMove	= 0.0f;
-	
-// SPLINE
-	mSplinePos.push_back( Rand::randVec3f() * 4.0f );
-	mSplinePos.push_back( Rand::randVec3f() * 4.0f );
-	mSplinePos.push_back( Rand::randVec3f() * 4.0f );
-	mSplinePos.push_back( Rand::randVec3f() * 4.0f );
-	createRandomBSpline( mSplinePos );
-	mLastTime			= getElapsedSeconds();
-	
 
 	
 	mCamDistFrom		= mCamDist;
@@ -1172,8 +1155,6 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
 				G_AUTO_MOVE = !G_AUTO_MOVE;
 				if( G_AUTO_MOVE )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*2, uw*4, uh*3 ), "ANIMATE CAMERA" );
 				else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*2, uw*4, uh*3 ), offArea, "ANIMATE CAMERA" );
-				
-                //				if( G_AUTO_MOVE ) makeNewCameraPath();
 			}
             mSettingsPanel.setScreensaverOn( G_AUTO_MOVE );            
             break;
@@ -2375,44 +2356,6 @@ void KeplerApp::logEvent(const string &event, const map<string,string> &params)
 //    Flurry::getInstrumentation()->logEvent(event, params);
 }
 
-void KeplerApp::makeNewCameraPath()
-{
-	Node *artistNode = mState.getSelectedArtistNode();
-	Node *albumNode = mState.getSelectedAlbumNode();
-	Node *trackNode = mState.getSelectedTrackNode();
-	
-	vector<ci::Vec3f> positions;
-	if( artistNode ) positions.push_back( artistNode->mPos );
-	if( albumNode )  positions.push_back( albumNode->mPos );
-	if( trackNode )  positions.push_back( trackNode->mPos );
-	
-	createRandomBSpline( positions );
-}
-
-void KeplerApp::createRandomBSpline( const vector<ci::Vec3f> &positions )
-{
-	int numPoints = 4;
-	
-	int totalSplinePos = mSplinePos.size();
-	Vec3f anchor3 = mSplinePos[ totalSplinePos - 4 ];
-	Vec3f anchor2 = mSplinePos[ totalSplinePos - 3 ];
-	Vec3f anchor1 = mSplinePos[ totalSplinePos - 2 ];
-	Vec3f anchor0 = mSplinePos[ totalSplinePos - 1 ];
-	
-	mSplinePos.clear();
-	mSplinePos.push_back( anchor3 );
-	mSplinePos.push_back( anchor2 );
-	mSplinePos.push_back( anchor1 );
-	mSplinePos.push_back( anchor0 );
-	for( int p = 0; p < numPoints; ++p ){
-//		int i = Rand::randInt( numPositions );
-		mSplinePos.push_back( Rand::randVec3f() * 0.2f );
-	}
-	
-	mSpline = BSpline3f( mSplinePos, 2, false, false );
-	
-	mSplineValue = 0.008f;
-}
 
 
 CINDER_APP_COCOA_TOUCH( KeplerApp, RendererGl )

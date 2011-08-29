@@ -27,4 +27,6 @@ class Particle {
 	float		mAgePer;
 	bool		mIsDead;
 	ci::Quatf	mQuat;
+	
+	bool		mIsRetreatingFlare;
 };

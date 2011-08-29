@@ -245,8 +245,8 @@ void NodeAlbum::update( float param1, float param2 )
 	
 	
 	
-/////////////////////////
-// CALCULATE ECLIPSE VARS
+	/////////////////////////
+	// CALCULATE ECLIPSE VARS
     if( mParentNode->mDistFromCamZAxis > 0.0f && mDistFromCamZAxis > 0.0f && mIsHighlighted ) //&& ( mIsSelected || mIsPlaying )
 	{		
 		Vec2f p		= mScreenPos;
@@ -303,8 +303,8 @@ void NodeAlbum::update( float param1, float param2 )
 	}
 
 	mEclipseColor = ( mColor + Color::white() ) * 0.5f * ( 1.0f - mEclipseStrength * 0.5f );
-// END CALCULATE ECLIPSE VARS
-/////////////////////////////
+	// END CALCULATE ECLIPSE VARS
+	/////////////////////////////
 	
 	
 	
