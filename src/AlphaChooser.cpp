@@ -129,10 +129,6 @@ void AlphaChooser::update( )
 void AlphaChooser::draw()
 {	
 	if( mWheelOverlay->getWheelScale() < 1.95f ){
-
-        // draw background:
-        gl::color( Color::black() );
-        gl::drawSolidRect( mFullRect );
         
         // we'll use the bright blue components to draw by frequency
         float r = BRIGHT_BLUE.r;

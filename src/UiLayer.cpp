@@ -68,13 +68,22 @@ void UiLayer::updateLayout( Vec2f interfaceSize )
     mIsPanelTabTouched   = false;
     mHasPanelBeenDragged = false;
     
+    // set dests for sub-panels
+    mSettingsDestY = mPlayControls->getHeight();
+    mChooserDestY = mPlayControls->getHeight();
+    if ( isShowingFilter() ) {
+        mSettingsDestY += max(mAlphaChooser->getHeight(), mPlaylistChooser->getHeight());
+    }
+    
     // jump to end of animation
     if ( mIsPanelOpen ) {
         mPanelY = mPanelOpenY;        
+        mSettingsY = mSettingsDestY;
+        mChooserY = mChooserDestY;
     }
     else {
         mPanelY = mPanelClosedY;        
-    }       
+    }
     
     mInterfaceSize = interfaceSize;
 }
@@ -144,15 +153,7 @@ void UiLayer::update()
     if( interfaceSize != mInterfaceSize ){
         updateLayout( interfaceSize );
     }
-    
-    float thingY = mPlayControls->getHeight();
-    if (isShowingFilter()) {
-        mPlaylistChooser->setTransform( Matrix44f::createTranslation( Vec3f(0, thingY, 0) ) );
-        mAlphaChooser->setTransform( Matrix44f::createTranslation( Vec3f(0, thingY, 0) ) );
-        thingY += max(mAlphaChooser->getHeight(), mPlaylistChooser->getHeight());
-    }
-    mSettingsPanel->setTransform( Matrix44f::createTranslation( Vec3f(0, thingY, 0) ) );
-    
+
     if ( !mHasPanelBeenDragged ) {
         // if we're not dragging, animate to current state
         if( mIsPanelOpen ){
@@ -162,6 +163,13 @@ void UiLayer::update()
             mPanelY += (mPanelClosedY - mPanelY) * 0.25f;
         }
     }
+    
+    mChooserY += (mChooserDestY - mChooserY) * 0.25f;
+    mSettingsY += (mSettingsDestY - mSettingsY) * 0.25f;
+    
+    mPlaylistChooser->setTransform( Matrix44f::createTranslation( Vec3f(0, mChooserY, 0) ) );
+    mAlphaChooser->setTransform( Matrix44f::createTranslation( Vec3f(0, mChooserY, 0) ) );
+    mSettingsPanel->setTransform( Matrix44f::createTranslation( Vec3f(0, mSettingsY, 0) ) );        
 
     // don't use mPanelOpenY or current height as a constraint here, 
     // use maximum value because we want things to ease closed
@@ -178,6 +186,10 @@ void UiLayer::draw()
     gl::color( Color::white() );    
     gl::draw( mButtonsTex, Area( 0, 456, 200, 500 ), mPanelTabRect);
 
+    // draw background for all sub-panels
+    gl::color( Color::black() );    
+    gl::drawSolidRect( Rectf(0.0f, 0.0f, mInterfaceSize.x, getMaxPanelHeight()) );
+    
     // fuck maths, just figure out which is bigger and smaller and stop pretending to know...
     const float minY = min(mPanelClosedY, mPanelOpenY);
     const float maxY = max(mPanelClosedY, mPanelOpenY);
@@ -211,6 +223,12 @@ void UiLayer::setShowAlphaFilter(bool visible)
     if (visible) {
         mPlaylistChooser->setVisible(false);
     }
+    // set dests for sub-panels
+    mSettingsDestY = mPlayControls->getHeight();
+    mChooserDestY = mPlayControls->getHeight();
+    if ( isShowingFilter() ) {
+        mSettingsDestY += max(mAlphaChooser->getHeight(), mPlaylistChooser->getHeight());
+    }     
     mPanelOpenY	= mInterfaceSize.y - getPanelHeight();        
 }
 
@@ -225,6 +243,12 @@ void UiLayer::setShowPlaylistFilter(bool visible)
     if (visible) {
         mAlphaChooser->setVisible(false);
     }
+    // set dests for sub-panels
+    mSettingsDestY = mPlayControls->getHeight();
+    mChooserDestY = mPlayControls->getHeight();
+    if ( isShowingFilter() ) {
+        mSettingsDestY += max(mAlphaChooser->getHeight(), mPlaylistChooser->getHeight());
+    }    
     mPanelOpenY	= mInterfaceSize.y - getPanelHeight();    
 }
 

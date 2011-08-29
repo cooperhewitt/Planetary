@@ -23,7 +23,14 @@
 class UiLayer : public BloomNode {
  public:
 	
-    UiLayer(): BloomNode() {}; // get a default ID
+    UiLayer(): 
+        BloomNode(), // get a default ID
+        mChooserY(0.0f), 
+        mSettingsY(0.0f), 
+        mChooserDestY(0.0f), 
+        mSettingsDestY(0.0f) 
+    { }; 
+    
 	~UiLayer() {};
     
 	void	setup( PlaylistChooserRef playlistChooser, 
@@ -76,6 +83,9 @@ class UiLayer : public BloomNode {
     
     float           getPanelHeight();
     float           getMaxPanelHeight();
+    
+    float           mChooserY, mSettingsY;
+    float           mChooserDestY, mSettingsDestY;
     
     PlaylistChooserRef mPlaylistChooser;
     AlphaChooserRef    mAlphaChooser;

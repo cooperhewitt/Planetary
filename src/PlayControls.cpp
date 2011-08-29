@@ -290,10 +290,6 @@ void PlayControls::deepDraw()
     if (mVisible) {
         glPushMatrix();
         glMultMatrixf(mTransform);
-
-        // draw play controls panel background
-        gl::color( Color::black() );
-        gl::drawSolidRect( Rectf(0,0,mInterfaceSize.x,getHeight()) );
         
         // opacity is set by UiLayer...
         gl::color( ColorA(1,1,1,mOpacity) );

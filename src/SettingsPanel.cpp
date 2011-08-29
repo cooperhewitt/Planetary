@@ -248,8 +248,6 @@ void SettingsPanel::deepDraw()
     if (mVisible) {
         glPushMatrix();
         glMultMatrixf(mTransform);
-        gl::color( Color::black() );
-        gl::drawSolidRect( Rectf(0,0,mInterfaceSize.x,getHeight()) );
         gl::color( ColorA(1,1,1,mOpacity) ); // mOpacity comes from UiLayer
         bloom::gl::beginBatch();
         // draw children
