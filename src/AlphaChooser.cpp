@@ -20,7 +20,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void AlphaChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
+void AlphaChooser::setup( const Font &font, WheelOverlayRef wheelOverlay, const Vec2f &interfaceSize )
 {	
 	// Textures
 	mAlphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
@@ -36,6 +36,10 @@ void AlphaChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
 		layout.addCenteredLine( ci::toString(mAlphaString[i]) );
 		mAlphaTextures.push_back( gl::Texture( layout.render( true, false ) ) );
 	}
+    
+    mInterfaceSize = interfaceSize;
+    
+    setRects();
 }
 
 void AlphaChooser::setRects()

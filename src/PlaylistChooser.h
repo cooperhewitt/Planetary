@@ -33,7 +33,7 @@ public:
     
     PlaylistChooser(): mData(NULL), mOffsetX(0.0f), mOpacity(1.0f) {}
     
-    void setup( const ci::Font &font, WheelOverlayRef wheelOverlay );
+    void setup( const ci::Font &font, WheelOverlayRef wheelOverlay, const ci::Vec2f &interfaceSize );
 	void update();
     void draw();
 

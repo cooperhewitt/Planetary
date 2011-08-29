@@ -21,7 +21,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void PlaylistChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
+void PlaylistChooser::setup( const Font &font, WheelOverlayRef wheelOverlay, const Vec2f &interfaceSize )
 {
     mFont					= font;
 
@@ -46,7 +46,9 @@ void PlaylistChooser::setup( const Font &font, WheelOverlayRef wheelOverlay )
 	mPrevIndex				= -1;
 	mCurrentIndex			= 0;
 	
-	mWheelOverlay = wheelOverlay;
+	mWheelOverlay           = wheelOverlay;
+    
+    mInterfaceSize          = interfaceSize;
 }
 
 bool PlaylistChooser::touchBegan( ci::app::TouchEvent::Touch touch )

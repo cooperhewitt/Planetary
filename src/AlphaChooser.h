@@ -28,7 +28,7 @@ public:
 	AlphaChooser(): mOpacity(1.0f) {};
 	~AlphaChooser() {};
 		
-	void	setup( const ci::Font &font, WheelOverlayRef wheelOverlay );    
+	void	setup( const ci::Font &font, WheelOverlayRef wheelOverlay, const ci::Vec2f &interfaceSize );    
 	void	update();
 	void	draw();
     

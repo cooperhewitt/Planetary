@@ -539,12 +539,12 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     // add as child of UILayer so it inherits the transform
     
 	// ALPHA CHOOSER
-	mAlphaChooser.setup( mFontMedium, mWheelOverlay );
+	mAlphaChooser.setup( mFontMedium, mWheelOverlay, mBloomSceneRef->getInterfaceSize() );
 	mAlphaChooser.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
     mAlphaChooser.setVisible(false);
 	
     // PLAYLIST CHOOSER
-    mPlaylistChooser.setup( mFontMedium, mWheelOverlay );
+    mPlaylistChooser.setup( mFontMedium, mWheelOverlay, mBloomSceneRef->getInterfaceSize() );
     mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
     mPlaylistChooser.registerPlaylistTouched( this, &KeplerApp::onPlaylistChooserTouched );
     mPlaylistChooser.setVisible(false);
