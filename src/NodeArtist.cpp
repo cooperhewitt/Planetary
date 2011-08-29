@@ -301,7 +301,7 @@ void NodeArtist::setChildOrbitRadii()
 			(*it)->mOrbitRadiusDest = orbitOffset;
 			orbitOffset += amt;
 		}
-		mIdealCameraDist = orbitOffset * 2.5f;
+		mIdealCameraDist = orbitOffset * 2.6f;
 	}
 }
 

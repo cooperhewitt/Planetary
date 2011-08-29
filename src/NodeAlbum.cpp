@@ -369,7 +369,7 @@ void NodeAlbum::drawPlanet( const gl::Texture &tex )
 
 void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 {
-	if( mSphereScreenRadius > 5.0f && mDistFromCamZAxisPer > 0.0f ){		
+	if( mSphereScreenRadius > 5.0f && mDistFromCamZAxis > mRadius ){		
         
         // FIXME: by drawing this sphere twice, below, we bind and unbind the same vertex array - could be optimized? (maybe lodSphere->bind(), lodSphere->drawArrays(), lodSphere->unbind()?)
         BloomSphere *lodSphere = NULL;
@@ -434,7 +434,7 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 
 void NodeAlbum::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer, float scaleSliderOffset )
 {
-	if( mClosenessFadeAlpha > 0.0f ){		
+	if( mClosenessFadeAlpha > 0.0f && mDistFromCamZAxis > mRadius ){		
 		float alpha = ( 1.0f - mScreenDistToCenterPer * 0.75f ) + mEclipseStrength;
 		alpha *= mDeathPer * mClosenessFadeAlpha * ( mBlockedBySunPer - 0.5f ) * 2.0f;
 		Vec2f radius( mRadius, mRadius );
@@ -807,7 +807,7 @@ void NodeAlbum::setChildOrbitRadii()
 		orbitRadius += orbitOffset;
 	}
 	
-	mIdealCameraDist = orbitRadius * 2.5f;
+	mIdealCameraDist = orbitRadius * 2.0f;
 }
 
 float NodeAlbum::getReleaseYear()

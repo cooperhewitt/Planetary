@@ -43,14 +43,15 @@ public:
     
     void update(const ci::Vec3f &eye, 
                 const float &fadeInAlphaToArtist, 
-                const float &elapsedSeconds,
+                const float rotSpeed,
+				const float eclipseAmt,
                 const ci::Vec3f &bbRight, 
                 const ci::Vec3f &bbUp);
     
-    void drawLightMatter( float rotMulti );
-    void drawSpiralPlanes( float rotMulti );
-    void drawCenter( float rotMulti );
-    void drawDarkMatter( float rotMulti );
+    void drawLightMatter( float fadeInAlphaToArtist );
+    void drawSpiralPlanes();
+    void drawCenter();
+    void drawDarkMatter();
     
 private:
     

@@ -737,7 +737,7 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
     mPinchRays = event.getTouchRays( mCam );
 	mPinchPositions.clear();
 	
-	mPinchTotalDest *= ( 1.0f + ( 1.0f - event.getScaleDelta() ) * 0.65f * mPinchScaleMax );
+	mPinchTotalDest *= ( 1.0f + ( 1.0f - event.getScaleDelta() ) * mPinchPerThresh * mPinchScaleMax );
 	mPinchTotalDest = constrain( mPinchTotalDest, mPinchScaleMin, mPinchScaleMax );
 	
 	vector<PinchEvent::Touch> touches = event.getTouches();
@@ -971,7 +971,16 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
 	mPinchTotalFrom	= mPinchTotal;
 	mZoomFrom		= G_ZOOM;
 	
+	
+	if( node ){
+		if( node->mGen == G_ALBUM_LEVEL ){
+			mPinchPerInit = 0.35f;
+		} else {
+			mPinchPerInit = 0.2f;
+		}
+	}
 	mPinchPer		= mPinchPerInit;
+	mPinchTotalInit	= ( mPinchScaleMax - mPinchScaleMin ) * mPinchPerInit + mPinchScaleMin;
 	mPinchTotalDest = mPinchTotalInit;
 
 	if( node && node->mGen > G_ZOOM ){
@@ -1153,8 +1162,19 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
 			if( G_SHOW_SETTINGS ){
 				logEvent("Automove Button Selected");            
 				G_AUTO_MOVE = !G_AUTO_MOVE;
-				if( G_AUTO_MOVE )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*2, uw*4, uh*3 ), "ANIMATE CAMERA" );
-				else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*2, uw*4, uh*3 ), offArea, "ANIMATE CAMERA" );
+				if( G_AUTO_MOVE ){
+					if( isLandscapeOrientation( mInterfaceOrientation ) ){
+						mTouchPos = getWindowCenter();
+						mTouchVel = Vec2f( Rand::randFloat( -0.2f, 0.2f ), Rand::randPosNegFloat( 0.5f, 1.0f ) );
+					} else {
+						mTouchPos = getWindowCenter();
+						mTouchVel = Vec2f( Rand::randPosNegFloat( 0.5f, 1.0f ), Rand::randFloat( -0.2f, 0.2f ) );
+					}
+					
+					mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*2, uw*4, uh*3 ), "ANIMATE CAMERA" );
+				} else {
+					mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*2, uw*4, uh*3 ), offArea, "ANIMATE CAMERA" );
+				}
 			}
             mSettingsPanel.setScreensaverOn( G_AUTO_MOVE );            
             break;
@@ -1601,8 +1621,6 @@ void KeplerApp::update()
         // the labels and interactions are rotated for landscape left/right and upside-down modes
 		Vec2f interfaceSize = getWindowSize();
         mWorld.updateGraphics( mCam, interfaceSize * 0.5f, bbRight, bbUp, mFadeInAlphaToArtist );
-
-        mGalaxy.update( mEye, mFadeInAlphaToArtist, elapsedSeconds, bbRight, bbUp );
 		
 		Node *selectedArtistNode = mState.getSelectedArtistNode();
 		if( selectedArtistNode ){
@@ -1611,6 +1629,12 @@ void KeplerApp::update()
 			mParticleController.buildParticleVertexArray( 5.0f, selectedArtistNode->mColor, ( sin( per * M_PI ) * sin( per * 0.25f ) * 0.75f ) + 0.25f );
 			mParticleController.buildDustVertexArray( scaleSlider, selectedArtistNode, mPinchAlphaPer, 0.1f );//( 1.0f - mCamRingAlpha ) * 0.15f * mFadeInArtistToAlbum );
 		}
+		
+		float eclipseAmt = 0.0f;
+		if( selectedArtistNode )
+			eclipseAmt = selectedArtistNode->mEclipseStrength * 0.2f;
+		mGalaxy.update( mEye, mFadeInAlphaToArtist, ( 1.0f - mFadeInAlphaToArtist ) * 0.1f, eclipseAmt, bbRight, bbUp );
+		   
 		        
         if (mPlayheadUpdateSeconds == elapsedSeconds) {
             mPlayControls.setElapsedSeconds( (int)mCurrentTrackPlayheadTime );
@@ -1622,7 +1646,13 @@ void KeplerApp::update()
         }
                 
         if( /*G_DEBUG &&*/ elapsedFrames % 30 == 0 ){
-            mStats.update(getAverageFps(), mCurrentTrackPlayheadTime, mFov, G_CURRENT_LEVEL, G_ZOOM);
+            mStats.update(	getAverageFps(), 
+							mCurrentTrackPlayheadTime, 
+							mFov, 
+							mCamDist, 
+							mPinchTotalDest, 
+							G_CURRENT_LEVEL, 
+							G_ZOOM);
         }
         
     }
@@ -1640,30 +1670,43 @@ void KeplerApp::update()
 
 void KeplerApp::updateArcball()
 {	
-	if( mTouchVel.length() > 2.0f && !mIsDragging ){
-		Vec3f downPos;
-		if( G_USE_GYRO )	downPos = ( Vec3f(mTouchPos,0) );
-		else				downPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos,0) );
-		mArcball.mouseDown( Vec2i(downPos.x, downPos.y) );
-		
-		Vec3f dragPos;
-		if( G_USE_GYRO )	dragPos = ( Vec3f(mTouchPos + mTouchVel,0) );
-		else				dragPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos + mTouchVel,0) );
-		mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
+	if( !G_AUTO_MOVE ){
+		if( mTouchVel.length() > 2.0f && !mIsDragging ){
+			Vec3f downPos;
+			if( G_USE_GYRO )	downPos = ( Vec3f(mTouchPos,0) );
+			else				downPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos,0) );
+			mArcball.mouseDown( Vec2i(downPos.x, downPos.y) );
+			
+			Vec3f dragPos;
+			if( G_USE_GYRO )	dragPos = ( Vec3f(mTouchPos + mTouchVel,0) );
+			else				dragPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos + mTouchVel,0) );
+			mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
+		}
+	} else {
+		if( !mIsDragging ){
+			Vec3f downPos;
+			if( G_USE_GYRO )	downPos = ( Vec3f(mTouchPos,0) );
+			else				downPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos,0) );
+			mArcball.mouseDown( Vec2i(downPos.x, downPos.y) );
+			
+			Vec3f dragPos;
+			if( G_USE_GYRO )	dragPos = ( Vec3f(mTouchPos + mTouchVel,0) );
+			else				dragPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos + mTouchVel,0) );
+			mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
+		}
 	}
 }
 
 
 void KeplerApp::updateCamera()
 {	
+
 	mPinchTotal -= ( mPinchTotal - mPinchTotalDest ) * 0.4f;
     //mPinchTotal = mPinchTotalDest; // Tom thinks things should be less swooshy
 	mPinchPer = ( mPinchTotal - mPinchScaleMin )/( mPinchScaleMax - mPinchScaleMin );
 	mPinchHighlightRadius -= ( mPinchHighlightRadius - 200.0f ) * 0.4f;
 	
-	
-	// multiplier is how far back, and addition is how close in.
-	float cameraDistMulti = mPinchPer * 2.0f + 0.35f;
+
 	
 // IF THE PINCH IS PAST THE POP THRESHOLD...
 	if( mPinchPer > mPinchPerThresh ){
@@ -1679,9 +1722,9 @@ void KeplerApp::updateCamera()
 		mIsPastPinchThresh = true;
 		
 		if( G_CURRENT_LEVEL == G_TRACK_LEVEL )			mFovDest = 70.0f; // FIXME: G_TRACK_FOV?
-		else if( G_CURRENT_LEVEL == G_ALBUM_LEVEL )		mFovDest = 85.0f; // FIXME: G_ALBUM_FOV?
+		else if( G_CURRENT_LEVEL == G_ALBUM_LEVEL )		mFovDest = 70.0f; // FIXME: G_ALBUM_FOV?
 		else if( G_CURRENT_LEVEL == G_ARTIST_LEVEL )	mFovDest = 85.0f; // FIXME: G_ARTIST_FOV?
-		else											mFovDest = G_MAX_FOV;
+//		else											mFovDest = G_MAX_FOV;
 			
 // OTHERWISE...
 	} else {
@@ -1700,6 +1743,24 @@ void KeplerApp::updateCamera()
 	}
 
     mFov -= ( mFov - mFovDest ) * 0.2f;    
+	
+	// multiplier is how far back, and addition is how close in.
+	float cameraDistMulti = mPinchPer * 2.0f + 0.5f;
+	if( G_CURRENT_LEVEL == G_TRACK_LEVEL ){
+		cameraDistMulti = mPinchPer * 2.0f + 0.5f;
+		
+	} else if( G_CURRENT_LEVEL == G_ALBUM_LEVEL ){
+		cameraDistMulti = mPinchPer * 2.5f + 0.25f;
+		
+	} else if( G_CURRENT_LEVEL == G_ARTIST_LEVEL ){
+		cameraDistMulti = mPinchPer * 2.0f + 0.25f;
+		
+	} else {
+		cameraDistMulti = mPinchPer * 3.6f + 0.75f;
+		
+	}
+	
+	
 	
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){															// IF THERE IS A CURRENTLY SELECTED NODE...
@@ -1773,7 +1834,7 @@ void KeplerApp::updateCamera()
 
 	mCenter			= lerp( mCenterFrom, (mCenterDest + mCenterOffset), p );
 	mCamDist		= lerp( mCamDistFrom, mCamDistDest, p );
-	mCamDist		= min( mCamDist, G_INIT_CAM_DIST );
+	mCamDist		= min( mCamDist, G_INIT_CAM_DIST * 1.3f );
 
 	G_ZOOM			= lerp( mZoomFrom, mZoomDest, p );
 
@@ -1886,10 +1947,9 @@ void KeplerApp::drawScene()
     glDisable(GL_CULL_FACE);
     
 // GALAXY
-	float galaxyRotationMulti = 1.0f + mFadeInAlphaToArtist * 0.15f;
-    mGalaxy.drawLightMatter( galaxyRotationMulti );	
-    mGalaxy.drawSpiralPlanes( galaxyRotationMulti );    
-    mGalaxy.drawCenter( galaxyRotationMulti );
+    mGalaxy.drawLightMatter( mFadeInAlphaToArtist );	
+    mGalaxy.drawSpiralPlanes();    
+    mGalaxy.drawCenter();
 	
 // STARS
 	gl::enableAdditiveBlending();
@@ -2126,7 +2186,7 @@ void KeplerApp::drawScene()
 		gl::setMatrices( mCam );
 		gl::enableDepthRead();
 		gl::enableDepthWrite();
-        mGalaxy.drawDarkMatter( galaxyRotationMulti );
+        mGalaxy.drawDarkMatter();
 		gl::disableDepthRead();
 		gl::disableDepthWrite();
     }

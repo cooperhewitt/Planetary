@@ -11,26 +11,16 @@
 
 using namespace ci;
 
-void Galaxy::update(const Vec3f &eye, const float &fadeInAlphaToArtist, const float &elapsedSeconds, const Vec3f &bbRight, const Vec3f &bbUp)
-{
-	// For doing galaxy-axis fades
-	mZoomOff		= 1.0f - fadeInAlphaToArtist;
-	mCamGalaxyAlpha = constrain( abs( eye.y ) * 0.0045f, 0.0f, 1.0f );
-	mInvAlpha		= pow( 1.0f - mCamGalaxyAlpha, 1.75f ) * mZoomOff;    
-    mElapsedSeconds = elapsedSeconds;
-    mBbRight		= bbRight;
-    mBbUp			= bbUp;
-}
 
 void Galaxy::setup(float initialCamDist, ci::Color lightMatterColor, ci::Color centerColor,
-ci::gl::Texture galaxyDome, ci::gl::Texture galaxyTex, ci::gl::Texture darkMatterTex, ci::gl::Texture starGlowTex)
+				   ci::gl::Texture galaxyDome, ci::gl::Texture galaxyTex, ci::gl::Texture darkMatterTex, ci::gl::Texture starGlowTex)
 {
 	mDarkMatterCylinderRes = 48;    
     initGalaxyVertexArray();
     initDarkMatterVertexArray();    
    	mLightMatterBaseRadius = initialCamDist * 0.6075f;
 	mDarkMatterBaseRadius = initialCamDist * 0.6375f;
-
+	
     mLightMatterColor = lightMatterColor;
     mCenterColor = centerColor;
     
@@ -38,9 +28,22 @@ ci::gl::Texture galaxyDome, ci::gl::Texture galaxyTex, ci::gl::Texture darkMatte
     mGalaxyTex = galaxyTex;
     mDarkMatterTex = darkMatterTex;
     mStarGlowTex = starGlowTex;
+	mElapsedSeconds = 0.0f;
 }
 
-void Galaxy::drawLightMatter( float rotMulti )
+void Galaxy::update(const Vec3f &eye, const float &fadeInAlphaToArtist, const float rotSpeed, const float eclipseAmt, const Vec3f &bbRight, const Vec3f &bbUp)
+{
+	// For doing galaxy-axis fades
+	mZoomOff		= ( 1.0f - fadeInAlphaToArtist ) * 0.9f + 0.1f;
+	mCamGalaxyAlpha = constrain( abs( eye.y ) * 0.0045f, 0.0f, 1.0f );
+	mInvAlpha		= pow( 1.0f - mCamGalaxyAlpha, 1.75f ) * ( mZoomOff + eclipseAmt );    
+    mElapsedSeconds += rotSpeed;
+    mBbRight		= bbRight;
+    mBbUp			= bbUp;
+}
+
+
+void Galaxy::drawLightMatter( float fadeInAlphaToArtist )
 {
 	gl::enableAdditiveBlending();
 	
@@ -60,17 +63,18 @@ void Galaxy::drawLightMatter( float rotMulti )
         glEnableClientState( GL_TEXTURE_COORD_ARRAY );
         
 		
-		float rotationSpeed = -2.0f * mElapsedSeconds;// * rotMulti;
+		float rotationSpeed = -mElapsedSeconds;
         gl::scale( Vec3f( radius, radius, radius ) );
         gl::rotate( Vec3f( 0.0f, rotationSpeed, 0.0f ) );
         glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
 		
 		if( G_IS_IPAD2 ){
-			gl::scale( Vec3f( 1.15f, 0.75f, 1.15f ) );
+			gl::color( ColorA( mLightMatterColor, mInvAlpha * ( 1.0f - fadeInAlphaToArtist ) ) );
+			gl::scale( Vec3f( 1.15f, 1.15f, 1.15f ) );
 			gl::rotate( Vec3f( 0.0f, 50.0f, 0.0f ) );
 			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
 			
-			gl::scale( Vec3f( 1.15f, 0.9f, 1.15f ) );
+			gl::scale( Vec3f( 1.15f, 1.15f, 1.15f ) );
 			gl::rotate( Vec3f( 0.0f, 50.0f, 0.0f ) );
 			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
 		}
@@ -82,7 +86,7 @@ void Galaxy::drawLightMatter( float rotMulti )
 	}
 }
 
-void Galaxy::drawSpiralPlanes( float rotMulti )
+void Galaxy::drawSpiralPlanes()
 {	
     // GALAXY SPIRAL PLANES
 	const float alpha = mInvAlpha * mZoomOff;//( 1.25f - mCamGalaxyAlpha ) * mZoomOff;//sqrt(camGalaxyAlpha) * zoomOff;
@@ -102,19 +106,19 @@ void Galaxy::drawSpiralPlanes( float rotMulti )
 		
 		if( G_IS_IPAD2 ){
 			gl::translate( Vec3f( 0.0f, 3.5f, 0.0f ) );
-			gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -4.0f, 0.0f ) );
+			gl::rotate( Vec3f( 0.0f, -mElapsedSeconds, 0.0f ) );
 			glDrawArrays( GL_TRIANGLES, 0, 6 );
 			
 			gl::translate( Vec3f( 0.0f, -7.0f, 0.0f ) );
-			gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -2.0f, 0.0f ) );
+			gl::rotate( Vec3f( 0.0f, -mElapsedSeconds, 0.0f ) );
 			glDrawArrays( GL_TRIANGLES, 0, 6 );
 			
 			gl::translate( Vec3f( 0.0f, 3.5f, 0.0f ) );
 			gl::scale( Vec3f( 0.5f, 0.5f, 0.5f ) );
-			gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -15.0f, 0.0f ) );
+			gl::rotate( Vec3f( 0.0f, -mElapsedSeconds * 1.5f, 0.0f ) );
 			glDrawArrays( GL_TRIANGLES, 0, 6 );
 		} else {
-			gl::rotate( Vec3f( 0.0f, mElapsedSeconds * -4.0f, 0.0f ) );
+			gl::rotate( Vec3f( 0.0f, -mElapsedSeconds, 0.0f ) );
 			glDrawArrays( GL_TRIANGLES, 0, 6 );
 		}
 		
@@ -125,7 +129,7 @@ void Galaxy::drawSpiralPlanes( float rotMulti )
 	}
 }
 
-void Galaxy::drawCenter( float rotMulti )
+void Galaxy::drawCenter()
 {
     // CENTER OF GALAXY
 	const float alpha = mInvAlpha * mZoomOff;//( 1.25f - mCamGalaxyAlpha ) * mZoomOff;
@@ -140,7 +144,7 @@ void Galaxy::drawCenter( float rotMulti )
 	}
 }
 
-void Galaxy::drawDarkMatter( float rotMulti )
+void Galaxy::drawDarkMatter()
 {
     // DARKMATTER //////////////////////////////////////////////////////////////////////////////////////////
 	if( mInvAlpha > 0.01f ){
@@ -164,7 +168,7 @@ void Galaxy::drawDarkMatter( float rotMulti )
         
 		gl::color( ColorA( BRIGHT_BLUE, mInvAlpha ) );
 		
-		float rotationSpeed = mElapsedSeconds * -2.0f;// * rotMulti;
+		float rotationSpeed = -mElapsedSeconds;
 		gl::rotate( Vec3f( 0.0f, rotationSpeed, 0.0f ) );
 		gl::scale( Vec3f( radius, radius * 0.75f, radius ) );
         glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );

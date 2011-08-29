@@ -20,7 +20,9 @@ public:
     void setup(const ci::Font &font, const ci::Color &fpsColor, const ci::Color &color);
     void update(const float &fps, 
                 const float &playheadTime, 
-                const float &fov, 
+                const float &fov,
+				const float &camDist,
+				const float &pinchPer,
                 const float &currentLevel, 
                 const float &zoom);
     void draw(const ci::Matrix44f &orientationMatrix);

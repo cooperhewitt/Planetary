@@ -23,7 +23,9 @@ void Stats::setup(const Font &font, const Color &fpsColor, const Color &color)
 
 void Stats::update(const float &fps, 
                    const float &playheadTime, 
-                   const float &fov, 
+                   const float &fov,
+				   const float &camDist,
+				   const float &pinchPer,
                    const float &currentLevel, 
                    const float &zoom)
 {
@@ -35,6 +37,18 @@ void Stats::update(const float &fps,
 	s.str("");
 	s << "FPS: " << fps;
 	layout.addLine( s.str() );
+	
+//	s.str("");
+//	s << "FOV: " << fov;
+//	layout.addLine( s.str() );
+//	
+//	s.str("");
+//	s << "mCamDist: " << camDist;
+//	layout.addLine( s.str() );
+//	
+//	s.str("");
+//	s << "mPinchTotalDest: " << pinchPer;
+//	layout.addLine( s.str() );
 	
 	mParamsTex = gl::Texture( layout.render( true, false ) );    
 }
