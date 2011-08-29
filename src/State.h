@@ -91,7 +91,6 @@ private:
 	Node *mSelectedNode;	
 	float mDistBetweenPrevAndCurrentNode;  // used to control duration of the tween
     
-	bool mIsInitialSelection;
     FilterMode mFilterMode;
 	char mAlphaChar;
 	ci::ipod::PlaylistRef mCurrentPlaylist;

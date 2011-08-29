@@ -22,7 +22,6 @@ void State::setup()
     mFilterMode		= FilterModeAlphaChar;
 	mAlphaChar		= 'A';
 	mSelectedNode	= NULL;
-	mIsInitialSelection = true;
 	mDistBetweenPrevAndCurrentNode = 50.0f;
 }
 
@@ -111,15 +110,8 @@ void State::setSelectedNode( Node* node )
 		Node* prevSelectedNode = mSelectedNode;
 		mSelectedNode = node;
 		
-		if( mIsInitialSelection ){
-			mDistBetweenPrevAndCurrentNode = 50.0f;
-			mIsInitialSelection = false;
-			std::cout << "initial mDistBetweenPrevAndCurrentNode = " << mDistBetweenPrevAndCurrentNode << std::endl;
-		} else {
-			if( prevSelectedNode && mSelectedNode && (prevSelectedNode != mSelectedNode) ) {
-				mDistBetweenPrevAndCurrentNode = prevSelectedNode->mPos.distance( mSelectedNode->mPos );
-			}
-			std::cout << "mDistBetweenPrevAndCurrentNode = " << mDistBetweenPrevAndCurrentNode << std::endl;
+		if( prevSelectedNode && mSelectedNode && (prevSelectedNode != mSelectedNode) ) {
+			mDistBetweenPrevAndCurrentNode = prevSelectedNode->mPos.distance( mSelectedNode->mPos );
 		}
 				
 		// ensure everything in the next chain is selected
