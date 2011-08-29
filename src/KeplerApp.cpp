@@ -1756,7 +1756,7 @@ void KeplerApp::updateCamera()
 		cameraDistMulti = mPinchPer * 2.0f + 0.25f;
 		
 	} else {
-		cameraDistMulti = mPinchPer * 3.6f + 0.75f;
+		cameraDistMulti = mPinchPer * 2.0f + 0.5f;
 		
 	}
 	
@@ -1834,7 +1834,7 @@ void KeplerApp::updateCamera()
 
 	mCenter			= lerp( mCenterFrom, (mCenterDest + mCenterOffset), p );
 	mCamDist		= lerp( mCamDistFrom, mCamDistDest, p );
-	mCamDist		= min( mCamDist, G_INIT_CAM_DIST * 1.3f );
+	mCamDist		= min( mCamDist, G_INIT_CAM_DIST );
 
 	G_ZOOM			= lerp( mZoomFrom, mZoomDest, p );
 
