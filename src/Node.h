@@ -137,6 +137,7 @@ class Node {
 	// NAME
 	ci::Font			mFont, mSmallFont;
 	ci::gl::Texture		mNameTex;			// Texture of the name
+	float				mHashPer;			// Unique 0.0 to 1.0 from artist name
 	ci::Surface			mHighResSurfaces;	// Images for Track moon surface
 	ci::Surface			mLowResSurfaces;	// Images for Track moon surface
 	ci::Surface			mNoAlbumArtSurface;
