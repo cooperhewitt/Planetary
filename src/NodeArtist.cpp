@@ -10,6 +10,7 @@
 #include <map>
 #include <deque>
 #include <boost/foreach.hpp>
+#include <boost/functional/hash.hpp>
 #include "cinder/app/AppBasic.h"
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
@@ -30,16 +31,6 @@ NodeArtist::NodeArtist( int index, const Font &font, const Font &smallFont, cons
 	: Node( NULL, index, font, smallFont, hiResSurfaces, loResSurfaces, noAlbumArt )
 {
 	mGen			= G_ARTIST_LEVEL;
-	//mPosDest		= Rand::randVec3f() * Rand::randFloat( 40.0f, 75.0f ); // 40.0f, 200.0f
-	
-	float angle		= (float)index * 0.618f;
-	float x			= cos( angle );
-	float y			= sin( angle );
-	
-	Vec2f v			= Vec2f( x, y );
-	v				*= Rand::randFloat( 10.0f, 100.0f );
-	mPosDest		= Vec3f( v.x, Rand::randFloat( -10.5f, 10.5f ), v.y );
-	mPos			= mPosDest;// + Rand::randVec3f() * 25.0f;
 	mAcc			= Vec3f::zero();
 	
 	mAge			= 0.0f;
@@ -58,6 +49,24 @@ void NodeArtist::setData( PlaylistRef playlist )
     mId = mPlaylist->getArtistId();
     
 	string name		= getName();
+
+	boost::hash<std::string> string_hash;
+	std::size_t h	= string_hash( name );
+	
+	mHashPer		= (float)( h%9000L )/90.0f + 10.0f;
+	std::cout << mHashPer << std::endl;
+	
+	float angle		= (float)mIndex * 0.618f;
+	float x			= cos( angle );
+	float y			= sin( angle );
+	Vec2f v			= Vec2f( x, y );
+	v				*= mHashPer;
+	float height	= mHashPer * 0.2f - 10.0f;
+	mPosDest		= Vec3f( v.x, height, v.y );
+	mPos			= mPosDest;// + Rand::randVec3f() * 25.0f;
+	
+	
+	
 	char c1			= ' ';
 	char c2			= ' ';
 	if( name.length() >= 3 ){
