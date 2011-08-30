@@ -186,16 +186,16 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
     mInterfaceSize = interfaceSize;
     
 	const float topBorder	 = 5.0f;
-	const float sideBorder	 = 10.0f;
+	const float sideBorder	 = 5.0f;
     
     const float bSize		 = 50.0f;
-	const float buttonGap	 = 1.0f;
 
 	const float timeTexWidth = 60.0f;
     const float sliderHeight = 20.0f;
-    const float sliderInset  = bSize * 2.0f + sideBorder + timeTexWidth;
+    const float sliderInset  = bSize * 2.0f + timeTexWidth;
     const bool  landscape    = interfaceSize.x > interfaceSize.y;
-    const float sliderWidth  = landscape ? 328.0f : 201.0f;
+    const float sliderWidth  = landscape ? 328.0f : 170.0f;
+	const float buttonGap	 = landscape ? bSize*2.0f : bSize*1.5f;
     
     // FLY TO CURRENT TRACK-MOON BUTTON
 	float y1 = topBorder;
@@ -204,7 +204,7 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
 	float x2 = x1 + bSize;        
     mGalaxyButton->setRect( x1, y1, x2, y2 );
     
-	x1 += bSize + buttonGap;
+	x1 += bSize;
 	x2 = x1 + bSize;
     mCurrentTrackButton->setRect( x1, y1, x2, y2 );
 
@@ -213,26 +213,26 @@ void PlayControls::setInterfaceSize( Vec2f interfaceSize )
 	x2 = x1 + bSize;
     mNextTrackButton->setRect( x1, y1, x2, y2 );
 
-    x1 -= bSize + buttonGap;
+    x1 -= bSize;
 	x2 = x1 + bSize;
     mPlayPauseButton->setRect( x1, y1, x2, y2 );
     
-	x1 -= bSize + buttonGap;
+	x1 -= bSize;
 	x2 = x1 + bSize;    
     mPreviousTrackButton->setRect( x1, y1, x2, y2 );
 
     // SETTINGS BUTTON
-	x1 -= ( bSize + buttonGap ) * 1.333f;
+	x1 -= buttonGap;
 	x2 = x1 + bSize;    
     mShowSettingsButton->setRect( x1, y1, x2, y2 );
 
     // PLAYLIST BUTTON
-	x1 -= bSize + buttonGap;
+	x1 -= buttonGap;
 	x2 = x1 + bSize;
     mPlaylistButton->setRect( x1, y1, x2, y2 );	
 	
 	// ALPHA BUTTON
-	x1 -= bSize + buttonGap;
+	x1 -= bSize;
 	x2 = x1 + bSize;
     mAlphaButton->setRect( x1, y1, x2, y2 );
 

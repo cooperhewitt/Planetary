@@ -10,6 +10,7 @@
 
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/Camera.h"
 
 class Galaxy {
 public:
@@ -72,5 +73,7 @@ private:
 
 	int	  mDarkMatterCylinderRes;
 	float mLightMatterBaseRadius;
-	float mDarkMatterBaseRadius;     
+	float mDarkMatterBaseRadius; 
+    
+	float mDistFromCamZAxis;
 };

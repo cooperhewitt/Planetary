@@ -167,7 +167,7 @@ void Node::createNameTexture( Surface8u nameSurface )
 
 void Node::update( float param1, float param2 )
 {	
-	mInvRadius			= ( 1.0f/mRadius );
+	mInvRadius			= ( 1.0f/(mRadius*0.2f) );
 	mClosenessFadeAlpha = constrain( ( mDistFromCamZAxis - mRadius ) * mInvRadius, 0.0f, 1.0f );
 	
 	mOrbitRadius	-= ( mOrbitRadius - mOrbitRadiusDest ) * 0.1f;

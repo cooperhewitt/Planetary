@@ -27,7 +27,6 @@
 		E10D86E01386428500346445 /* particle.png in Resources */ = {isa = PBXBuildFile; fileRef = E10D86DF1386428500346445 /* particle.png */; };
 		E10F84DF139856860062F73C /* eclipseShadow.png in Resources */ = {isa = PBXBuildFile; fileRef = E10F84DE139856860062F73C /* eclipseShadow.png */; };
 		E10F84E1139893320062F73C /* AauxPro-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E10F84E0139893320062F73C /* AauxPro-Black.ttf */; };
-		E10F84E3139899740062F73C /* overlayIcons.png in Resources */ = {isa = PBXBuildFile; fileRef = E10F84E2139899740062F73C /* overlayIcons.png */; };
 		E11BA85F140855590020DD9C /* uiButtons.png in Resources */ = {isa = PBXBuildFile; fileRef = E11BA85E140855580020DD9C /* uiButtons.png */; };
 		E1276E7A132821AA00E1FC3F /* CinderIPod.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1276E5B132821AA00E1FC3F /* CinderIPod.mm */; };
 		E1276E7B132821AA00E1FC3F /* CinderIPodPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1276E5C132821AA00E1FC3F /* CinderIPodPlayer.mm */; };
@@ -147,7 +146,6 @@
 		E10D86DF1386428500346445 /* particle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = particle.png; path = ../resources/particle.png; sourceTree = "<group>"; };
 		E10F84DE139856860062F73C /* eclipseShadow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = eclipseShadow.png; path = ../eclipseShadow.png; sourceTree = "<group>"; };
 		E10F84E0139893320062F73C /* AauxPro-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "AauxPro-Black.ttf"; path = "../resources/AauxPro-Black.ttf"; sourceTree = "<group>"; };
-		E10F84E2139899740062F73C /* overlayIcons.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = overlayIcons.png; path = ../resources/overlayIcons.png; sourceTree = "<group>"; };
 		E11BA85E140855580020DD9C /* uiButtons.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = uiButtons.png; path = ../resources/ui/uiButtons.png; sourceTree = "<group>"; };
 		E1276E49132821AA00E1FC3F /* CinderIPod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPod.h; sourceTree = "<group>"; };
 		E1276E4A132821AA00E1FC3F /* CinderIPodPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderIPodPlayer.h; sourceTree = "<group>"; };
@@ -459,7 +457,6 @@
 			children = (
 				E1D32DEB13D6C2E2002F33ED /* playlistBg.png */,
 				E1D32DDB13D67BE3002F33ED /* playlist.png */,
-				E10F84E2139899740062F73C /* overlayIcons.png */,
 				E1555CA4131EEBEB0079B05A /* dotted.png */,
 				E11BA85E140855580020DD9C /* uiButtons.png */,
 				E1B0DBC1135124130093EB9D /* helpPanel.png */,
@@ -960,7 +957,6 @@
 				E16E3A471397364900C07B97 /* atmosphereSun.png in Resources */,
 				E10F84DF139856860062F73C /* eclipseShadow.png in Resources */,
 				E10F84E1139893320062F73C /* AauxPro-Black.ttf in Resources */,
-				E10F84E3139899740062F73C /* overlayIcons.png in Resources */,
 				E154E58213996D8C002A3488 /* lensFlare.png in Resources */,
 				E23C29F013B1A4A50038F3F4 /* lightMatter.jpg in Resources */,
 				E23C29F213B1A4A50038F3F4 /* lightMatterFull.jpg in Resources */,

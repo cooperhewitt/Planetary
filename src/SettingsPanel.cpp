@@ -174,7 +174,7 @@ void SettingsPanel::setInterfaceSize( const Vec2f &interfaceSize )
 	const float topBorder	 = 5.0f;
 	const float sideBorder	 = 10.0f;
     const float bSizeSmall	 = 40.0f;
-    
+	const bool  landscape    = interfaceSize.x > interfaceSize.y;   
 	float y1 = topBorder;
     float y2 = y1 + bSizeSmall;
 	
@@ -189,7 +189,7 @@ void SettingsPanel::setInterfaceSize( const Vec2f &interfaceSize )
     mRepeatButton->setRect( x1, y1, x2, y2 );
 	
     // TEXT LABELS TOGGLE BUTTON
-	float gap = 25.0f;
+	float gap = landscape ? 110.0f : 35.0f;
 	x1 -= bSizeSmall + gap;
 	x2 = x1 + bSizeSmall;
     mLabelsButton->setRect( x1, y1, x2, y2 );
@@ -221,8 +221,8 @@ void SettingsPanel::setInterfaceSize( const Vec2f &interfaceSize )
 	x2 = x1 + bSizeSmall;
     mHelpButton->setRect( x1, y1, x2, y2 );
 	
-    const bool  landscape        = interfaceSize.x > interfaceSize.y;
-	const float paramSliderWidth = landscape ? 250.0f : 150.0f;
+
+	const float paramSliderWidth = landscape ? 200.0f : 120.0f;
 	const float slider1X         = 60.0f;
 	const float slider2X         = slider1X + paramSliderWidth + 75.0f;
 	const float sliderYOff       = 16.0f;

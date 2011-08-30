@@ -1636,7 +1636,7 @@ void KeplerApp::update()
 		float eclipseAmt = 0.0f;
 		if( selectedArtistNode )
 			eclipseAmt = selectedArtistNode->mEclipseStrength * 0.2f;
-		mGalaxy.update( mEye, mFadeInAlphaToArtist, ( 1.0f - mFadeInAlphaToArtist ) * 0.1f, eclipseAmt, bbRight, bbUp );
+		mGalaxy.update( mEye - mCenterOffset, mFadeInAlphaToArtist, ( 1.0f - mFadeInAlphaToArtist ) * 0.1f, eclipseAmt, bbRight, bbUp );
 		   
 		        
         if (mPlayheadUpdateSeconds == elapsedSeconds) {
@@ -1759,7 +1759,7 @@ void KeplerApp::updateCamera()
 		cameraDistMulti = mPinchPer * 2.0f + 0.25f;
 		
 	} else {
-		cameraDistMulti = mPinchPer * 2.0f + 0.5f;
+		cameraDistMulti = mPinchPer * 2.0f + 0.675f;
 		
 	}
 	

@@ -431,7 +431,7 @@ void NodeTrack::drawEclipseGlow()
 
 void NodeTrack::drawPlanet( const gl::Texture &tex )
 {	
-	if( mSphereScreenRadius > 0.5f && mClosenessFadeAlpha > 0.0f )
+	if( mSphereScreenRadius > 0.5f && mDistFromCamZAxis > mRadius )
 	{
         // ROBERT: this was crashing so I put a check for texture existence first
         if (mHasAlbumArt) {
@@ -487,7 +487,7 @@ void NodeTrack::drawPlanet( const gl::Texture &tex )
 
 void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 {
-	if( mSphereScreenRadius > 2.0f && mDistFromCamZAxisPer > 0.0f ){
+	if( mSphereScreenRadius > 2.0f && mDistFromCamZAxis > mRadius ){
 		if( mIsMostPlayed ){
 
 			glPushMatrix();
@@ -529,7 +529,7 @@ void NodeTrack::drawClouds( const vector<gl::Texture> &clouds )
 
 void NodeTrack::drawAtmosphere( const Vec3f &camEye, const Vec2f &center, const gl::Texture &tex, const gl::Texture &directionalTex, float pinchAlphaPer, float scaleSliderOffset )
 {
-	if( mClosenessFadeAlpha > 0.0f ){
+	if( mClosenessFadeAlpha > 0.0f && mDistFromCamZAxis > mRadius ){
 		float alpha = mNormPlayCount * mDeathPer * mClosenessFadeAlpha;
 		Vec2f radius( mRadius, mRadius );
 		radius *= ( 2.435f + scaleSliderOffset + max( ( mSphereScreenRadius - 175.0f ) * 0.001f, 0.0f ) ) * mDeathPer;

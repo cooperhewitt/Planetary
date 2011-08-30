@@ -29,9 +29,10 @@ void Galaxy::setup(float initialCamDist, ci::Color lightMatterColor, ci::Color c
     mDarkMatterTex = darkMatterTex;
     mStarGlowTex = starGlowTex;
 	mElapsedSeconds = 0.0f;
+	mDistFromCamZAxis = 1000.0f;
 }
 
-void Galaxy::update(const Vec3f &eye, const float &fadeInAlphaToArtist, const float rotSpeed, const float eclipseAmt, const Vec3f &bbRight, const Vec3f &bbUp)
+void Galaxy::update( const Vec3f &eye, const float &fadeInAlphaToArtist, const float rotSpeed, const float eclipseAmt, const Vec3f &bbRight, const Vec3f &bbUp)
 {
 	// For doing galaxy-axis fades
 	mZoomOff		= ( 1.0f - fadeInAlphaToArtist ) * 0.9f + 0.1f;
@@ -40,6 +41,8 @@ void Galaxy::update(const Vec3f &eye, const float &fadeInAlphaToArtist, const fl
     mElapsedSeconds += rotSpeed;
     mBbRight		= bbRight;
     mBbUp			= bbUp;
+	
+	mDistFromCamZAxis	= eye.length();//-cam.worldToEyeDepth( Vec3f::zero() );
 }
 
 
@@ -47,11 +50,12 @@ void Galaxy::drawLightMatter( float fadeInAlphaToArtist )
 {
 	gl::enableAdditiveBlending();
 	
+
     // LIGHTMATTER
 	if( mInvAlpha > 0.01f ){
 		gl::color( ColorA( mLightMatterColor, mInvAlpha ) );
         
-		const float radius = mLightMatterBaseRadius;
+		float radius = mLightMatterBaseRadius;
 		glPushMatrix();
         mGalaxyDome.enableAndBind();
         glBindBuffer(GL_ARRAY_BUFFER, mDarkMatterVBO);
@@ -63,7 +67,7 @@ void Galaxy::drawLightMatter( float fadeInAlphaToArtist )
         glEnableClientState( GL_TEXTURE_COORD_ARRAY );
         
 		
-		float rotationSpeed = -mElapsedSeconds;
+		float rotationSpeed = -mElapsedSeconds * 0.2f;
         gl::scale( Vec3f( radius, radius, radius ) );
         gl::rotate( Vec3f( 0.0f, rotationSpeed, 0.0f ) );
         glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
@@ -106,19 +110,19 @@ void Galaxy::drawSpiralPlanes()
 		
 		if( G_IS_IPAD2 ){
 			gl::translate( Vec3f( 0.0f, 3.5f, 0.0f ) );
-			gl::rotate( Vec3f( 0.0f, -mElapsedSeconds, 0.0f ) );
+			gl::rotate( Vec3f( 0.0f, -mElapsedSeconds * 0.2f, 0.0f ) );
 			glDrawArrays( GL_TRIANGLES, 0, 6 );
 			
 			gl::translate( Vec3f( 0.0f, -7.0f, 0.0f ) );
-			gl::rotate( Vec3f( 0.0f, -mElapsedSeconds, 0.0f ) );
+			gl::rotate( Vec3f( 0.0f, -mElapsedSeconds * 0.2f, 0.0f ) );
 			glDrawArrays( GL_TRIANGLES, 0, 6 );
 			
 			gl::translate( Vec3f( 0.0f, 3.5f, 0.0f ) );
 			gl::scale( Vec3f( 0.5f, 0.5f, 0.5f ) );
-			gl::rotate( Vec3f( 0.0f, -mElapsedSeconds * 1.5f, 0.0f ) );
+			gl::rotate( Vec3f( 0.0f, -mElapsedSeconds * 0.2f, 0.0f ) );
 			glDrawArrays( GL_TRIANGLES, 0, 6 );
 		} else {
-			gl::rotate( Vec3f( 0.0f, -mElapsedSeconds, 0.0f ) );
+			gl::rotate( Vec3f( 0.0f, -mElapsedSeconds * 0.2f, 0.0f ) );
 			glDrawArrays( GL_TRIANGLES, 0, 6 );
 		}
 		
@@ -146,15 +150,13 @@ void Galaxy::drawCenter()
 
 void Galaxy::drawDarkMatter()
 {
+	float radius	= mDarkMatterBaseRadius;
+	float multi		= 1.15f;
     // DARKMATTER //////////////////////////////////////////////////////////////////////////////////////////
 	if( mInvAlpha > 0.01f ){
 		glEnable( GL_CULL_FACE ); 
 		glCullFace( GL_FRONT ); 
-		
-        //float alpha = pow( 1.0f - camGalaxyAlpha, 8.0f ) * zoomOff;
-		
-		const float radius = mDarkMatterBaseRadius;
-        
+
 		glPushMatrix();
 		mDarkMatterTex.enableAndBind();
         
@@ -166,21 +168,38 @@ void Galaxy::drawDarkMatter()
         glTexCoordPointer( 2, GL_FLOAT, sizeof(VertexData), (void*)sizeof(Vec3f) ); // NB:- change if type of VertexData.vertex changes
         glBindBuffer(GL_ARRAY_BUFFER, 0); // Leave no VBO bound.                
         
-		gl::color( ColorA( BRIGHT_BLUE, mInvAlpha ) );
+		float rotationSpeed = -mElapsedSeconds * 0.2f;
 		
-		float rotationSpeed = -mElapsedSeconds;
-		gl::rotate( Vec3f( 0.0f, rotationSpeed, 0.0f ) );
-		gl::scale( Vec3f( radius, radius * 0.75f, radius ) );
-        glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+		float delta		= constrain( ( mDistFromCamZAxis - radius ) * 0.02f - 0.01f, 0.0f, 1.0f );
+		float alpha		= mInvAlpha * delta;
+		if( alpha > 0.0f ){
+			gl::color( ColorA( BRIGHT_BLUE, alpha ) );
+			gl::rotate( Vec3f( 0.0f, rotationSpeed, 0.0f ) );
+			gl::scale( Vec3f( radius, radius * 0.75f, radius ) );
+			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+		}
 		
 		if( G_IS_IPAD2 ){
-			gl::rotate( Vec3f( 0.0f, 50.0f, 0.0f ) );
-			gl::scale( Vec3f( 1.15f, 1.15f, 1.15f ) );
-			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+//			radius *= multi;
+//			delta		= constrain( ( mDistFromCamZAxis - radius ) * 0.03f - 0.01f, 0.0f, 1.0f );
+//			alpha		= mInvAlpha * delta;
+//			if( alpha > 0.0f ){
+//				gl::color( ColorA( BRIGHT_BLUE, alpha ) );
+//				gl::rotate( Vec3f( 0.0f, 50.0f, 0.0f ) );
+//				gl::scale( Vec3f( multi, multi, multi ) );
+//				glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+//			}
 			
-			gl::rotate( Vec3f( 0.0f, 50.0f, 0.0f ) );
-			gl::scale( Vec3f( 1.15f, 1.15f, 1.15f ) );
-			glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+			
+			radius *= multi;
+			delta		= constrain( ( mDistFromCamZAxis - radius ) * 0.02f - 0.01f, 0.0f, 1.0f );
+			alpha		= mInvAlpha * delta;
+			if( alpha > 0.0f ){
+				gl::color( ColorA( BRIGHT_BLUE, alpha ) );
+				gl::rotate( Vec3f( 0.0f, 50.0f, 0.0f ) );
+				gl::scale( Vec3f( multi, multi, multi ) );
+				glDrawArrays( GL_TRIANGLES, 0, 6 * mDarkMatterCylinderRes );
+			}
 		}
         
 		glDisableClientState( GL_VERTEX_ARRAY );
