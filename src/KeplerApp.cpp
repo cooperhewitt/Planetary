@@ -1726,8 +1726,8 @@ void KeplerApp::updateCamera()
 		
 		if( G_CURRENT_LEVEL == G_TRACK_LEVEL )			mFovDest = 70.0f; // FIXME: G_TRACK_FOV?
 		else if( G_CURRENT_LEVEL == G_ALBUM_LEVEL )		mFovDest = 70.0f; // FIXME: G_ALBUM_FOV?
-		else if( G_CURRENT_LEVEL == G_ARTIST_LEVEL )	mFovDest = 85.0f; // FIXME: G_ARTIST_FOV?
-//		else											mFovDest = G_MAX_FOV;
+		else if( G_CURRENT_LEVEL == G_ARTIST_LEVEL )	mFovDest = 70.0f; // FIXME: G_ARTIST_FOV?
+		else											mFovDest = G_MAX_FOV;
 			
 // OTHERWISE...
 	} else {
