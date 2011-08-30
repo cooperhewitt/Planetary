@@ -137,9 +137,9 @@ void AlphaChooser::draw()
         // opacity is supplied by UiLayer::draw
         float alpha = mOpacity * constrain(2.0f - mWheelOverlay->getWheelScale(), 0.0f, 1.0f);
         
-        gl::color( ColorA( r, g, b, alpha * 0.25f ) );
+        gl::color( ColorA( r, g, b, alpha * 0.125f ) );
         gl::drawLine( mFullRect.getUpperLeft(), mFullRect.getUpperRight() );
-        gl::drawLine( mFullRect.getLowerLeft(), mFullRect.getLowerRight() );
+//        gl::drawLine( mFullRect.getLowerLeft(), mFullRect.getLowerRight() );
                 
 		for( int i=0; i<27; i++ ){
 			float c = mNumberAlphaPerChar[i];

@@ -248,7 +248,13 @@ void SettingsPanel::deepDraw()
     if (mVisible) {
         glPushMatrix();
         glMultMatrixf(mTransform);
-        gl::color( ColorA(1,1,1,mOpacity) ); // mOpacity comes from UiLayer
+       
+		
+		gl::color( ColorA( BRIGHT_BLUE, 0.125f ) );
+        gl::drawLine( Vec2f( 0.0f, 0.0f ), Vec2f( mInterfaceSize.x, 0.0f ) );
+		
+		gl::color( ColorA( 1, 1, 1, mOpacity ) ); // mOpacity comes from UiLayer
+		
         bloom::gl::beginBatch();
         // draw children
         BOOST_FOREACH(BloomNodeRef child, mChildren) {        
