@@ -338,13 +338,8 @@ void Node::drawName( const CameraPersp &cam, float pinchAlphaPer, float angle )
                 glPopMatrix();
                 
                 mHitArea = Rectf( pos2 + offset2, pos2 + offset2 + texCorner);
-                mHitArea.canonicalize();        
-                const float inflate = 5.0f;
-                // TODO: add .inflate to ci::Rectf
-                mHitArea.x1 -= inflate;
-                mHitArea.x2 += inflate;
-                mHitArea.y1 -= inflate;
-                mHitArea.y2 += inflate;
+                mHitArea.canonicalize();
+                mHitArea.inflate( Vec2f( 5.0f, 5.0f ) );        
                 
                 // TODO: this is a lot of state changes per frame. Switch to drawing
                 // all names first, then all lines?

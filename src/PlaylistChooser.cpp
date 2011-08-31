@@ -60,8 +60,10 @@ bool PlaylistChooser::touchBegan( ci::app::TouchEvent::Touch touch )
 	mTouchPos		= globalToLocal( touch.getPos() );
 	mTouchVel		= 0.0f;
 	
+    Vec2f padding	= Vec2f( 10.0f, 10.0f );
+    
 	for( int i = 0; i < mPlaylistRects.size(); i++ ){
-		if( mPlaylistRects[i].contains( mTouchPos ) ){
+		if( mPlaylistRects[i].inflated( padding ).contains( mTouchPos ) ){
 			// remember the id and dispatch this event on touchesEnded if it hasn't moved much (otherwise just drag)
 			mTouchDragId			= touch.getId();
 			mTouchDragStartPos		= mTouchPos;
@@ -182,11 +184,47 @@ void PlaylistChooser::update()
 		mOffsetXLocked = mOffsetX;
 	}
     
+    mPlaylistRects.clear();
+    
+    float startX = 0.0f;
+    float endX = mInterfaceSize.x;    
+	
+    Vec2f pos( -mOffsetXLocked, mStartY );
+    
+    for( int i = 0; i < mNumPlaylists; i++ )
+	{	
+		ipod::PlaylistRef playlist = mData->mPlaylists[i];
+		
+        if( pos.x < endX && pos.x + mPlaylistSize.x > startX )
+		{
+			float x			= pos.x + mPlaylistSize.x * 0.5f; // x center of the rect
+            
+			if (!mTextures[i]) {
+				makeTexture( i, playlist );
+            }
+			
+			float w			= mTextures[i].getWidth() * 0.5f;
+			float h			= mFont.getAscent() + mFont.getDescent();
+			mPlaylistRects.push_back( Rectf( x - w, mStartY, x + w, mStartY + h ) );
+            
+        } else {
+			// STUPID FIX:
+			// Making sure all rects are made, even ones that are offscreen.
+			mPlaylistRects.push_back( Rectf( Vec2f( -500.0f, 0.0f ), Vec2f( -400.0f, 0.0f ) ) );
+		}
+		
+        pos.x += mSpacerWidth + mPlaylistSize.x;
+        
+        if( pos.x > endX ){
+            break;
+        }
+    }    
+    
     // calculate full rect for ignoring touches in main app
     // this will be one frame out of date but that should be OK
     if (mPlaylistRects.size() > 0) {
         mFullRect = mPlaylistRects[0];
-        for (int i = 0; i < mPlaylistRects.size(); i++) {
+        for (int i = 1; i < mPlaylistRects.size(); i++) {
             mFullRect.include(mPlaylistRects[i]);
         }
     }
@@ -200,26 +238,18 @@ void PlaylistChooser::draw()
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
 	gl::enableAlphaBlending();
-
-    mPlaylistRects.clear();
-
-    float border = mPlaylistSize.x * 0.5f;
-    float startX = border;
-    float endX = mInterfaceSize.x - border;    
-	
-    Vec2f pos( -mOffsetXLocked, mStartY );
-	    
 	gl::enableAdditiveBlending();
 
     for( int i = 0; i < mNumPlaylists; i++ )
 	{	
 		ipod::PlaylistRef playlist = mData->mPlaylists[i];
+        Rectf rect = mPlaylistRects[i];
 		
-        if( pos.x < endX && pos.x + mPlaylistSize.x > startX )
+        if( rect.x1 < mInterfaceSize.x && rect.x2 > 0.0f )
 		{
-			float x			= pos.x + mPlaylistSize.x * 0.5f; // x center of the rect
+			float x			= (rect.x1 + rect.x2) * 0.5f; // x center of the rect
 			float alpha		= mOpacity * getAlpha( x ); // opacity is set by UiLayer
-
+            
 			if (!mTextures[i]) {
 				makeTexture( i, playlist );
             }
@@ -233,30 +263,7 @@ void PlaylistChooser::draw()
             else {
                 gl::color( ColorA( BLUE, alpha ) );
             }
-			
-			float w			= mTextures[i].getWidth() * 0.5f;
-			float h			= mFont.getAscent() + mFont.getDescent();
-			float padding	= 10.0f;
-			Rectf rect		= Rectf( x - w - padding, mStartY - padding, 
-                                     x + w + padding, mStartY + h + padding );
-			mPlaylistRects.push_back( rect );
-			gl::draw( mTextures[i], Vec2f( x - w, mStartY ) );
-
-            // debuggenrectankles
-//            gl::drawStrokedRect( rect );
-//            gl::drawStrokedRect( Rectf( x - w, mStartY, x + w, mStartY + h ) );
-//            gl::drawStrokedRect( Rectf( x - mPlaylistSize.x/2.0, mStartY, x + mPlaylistSize.x/2.0, mStartY + h ) );
-
-        } else {
-			// STUPID FIX:
-			// Making sure all rects are made, even ones that are offscreen.
-			mPlaylistRects.push_back( Rectf( Vec2f( -500.0f, 0.0f ), Vec2f( -400.0f, 0.0f ) ) );
-		}
-		
-        pos.x += mSpacerWidth + mPlaylistSize.x;
-        
-        if( pos.x > endX ){
-            break;
+			gl::draw( mTextures[i], rect.getUpperLeft() );
         }
     }
     
@@ -285,30 +292,6 @@ float PlaylistChooser::getAlpha( float x )
 	float invCos	= ( 1.0f - (float)cos( per * TWO_PI ) ) * 0.5f;
 	float cosPer	= pow( invCos, 0.5f );
 	return cosPer;
-}
-
-float PlaylistChooser::getScale( float x )
-{
-	float per		= x / mInterfaceSize.x;
-	float invCos	= ( 1.0f - (float)cos( per * TWO_PI ) ) * 0.5f;
-	float cosPer	= max( pow( invCos, 3.5f ) + 0.4f, 0.5f );
-	return cosPer;
-}
-
-float PlaylistChooser::getNewX( float x )
-{
-	float per		= x / mInterfaceSize.x;
-    per *= 0.7f;
-    per += 0.15f;
-	float cosPer	= ( 1.0f - cos( per * M_PI ) ) * 0.5f;
-	return cosPer * mInterfaceSize.x;
-}
-
-float PlaylistChooser::getNewY( float x )
-{
-	float per		= x / mInterfaceSize.x;
-	float sinPer	= sin( per * M_PI );
-	return sinPer;
 }
 
 void PlaylistChooser::setDataWorldCam( Data *data, World *world, CameraPersp *cam )

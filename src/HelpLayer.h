@@ -41,9 +41,6 @@ class HelpLayer : public BloomNode {
     
     void updateRect( ci::Rectf *rect, const std::wstring &fullStr, const std::wstring &rectStr, const std::vector<std::pair<uint16_t,ci::Vec2f> > &glyphPositions );
     
-    // TODO: add this as a ci::Rect method and issue pull request
-    void inflate( ci::Rectf *rect, const ci::Vec2f &amount );
-    
     // control visibility, animation
     bool mShowing, mAnimating;
     float mCurrentY, mTargetY;

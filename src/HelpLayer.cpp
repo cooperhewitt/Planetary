@@ -115,19 +115,10 @@ void HelpLayer::setup( const ci::Font &smallFont, const ci::Font &bigFont, const
     mWebRect.offset( mBodyPos );
     mEmailRect.offset( mBodyPos );
     
-//    const Vec2f linkPadding(5,5);
-//    inflate( &mCinderRect, linkPadding );
-//    inflate( &mWebRect, linkPadding );
-//    inflate( &mEmailRect, linkPadding );
-}
-
-void HelpLayer::inflate( ci::Rectf *rect, const ci::Vec2f &amount )
-{
-    rect->canonicalize();
-    rect->x1 -= amount.x;
-    rect->x2 += amount.x;
-    rect->y1 -= amount.y;
-    rect->y2 += amount.y;
+    const Vec2f linkPadding(5,5);
+    mCinderRect.inflate( linkPadding );
+    mWebRect.inflate( linkPadding );
+    mEmailRect.inflate( linkPadding );
 }
 
 void HelpLayer::updateRect( Rectf *rect, const std::wstring &fullStr, const std::wstring &rectStr, const std::vector<std::pair<uint16_t,Vec2f> > &glyphPositions )
@@ -246,10 +237,10 @@ void HelpLayer::draw()
     gl::color( ColorA(BRIGHT_BLUE, 0.15f * dragAlphaPer) );
     gl::drawLine( mBgRect.getLowerLeft(), mBgRect.getLowerRight() );
 
-//    gl::color( Color::white() );
-//    gl::drawStrokedRect( mCinderRect );
-//    gl::drawStrokedRect( mWebRect );
-//    gl::drawStrokedRect( mEmailRect );
+    gl::color( Color::white() );
+    gl::drawStrokedRect( mCinderRect );
+    gl::drawStrokedRect( mWebRect );
+    gl::drawStrokedRect( mEmailRect );
 
     glPushMatrix();
     gl::translate( Vec2f(0, 2.0f) );

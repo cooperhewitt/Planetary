@@ -23,6 +23,7 @@ class LoadingScreen : public BloomNode {
     void setTextureProgress( float prop );
     void setArtistProgress( float prop );
     void setPlaylistProgress( float prop );
+    bool isComplete(); // returns true if all the progress bars are done animating to their dests
   private:
     float mTextureProgress, mTextureProgressDest;
     float mArtistProgress, mArtistProgressDest;

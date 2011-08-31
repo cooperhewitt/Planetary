@@ -41,8 +41,6 @@ public:
     bool touchMoved( ci::app::TouchEvent::Touch touch );
     bool touchEnded( ci::app::TouchEvent::Touch touch );
     
-	void makeTexture( int index, ci::ipod::PlaylistRef playlist );
-	
     void setDataWorldCam(Data *data, World *world, ci::CameraPersp *cam);
 
     template<typename T>
@@ -64,10 +62,9 @@ public:
 
 private:
     
-	float			getNewX( float x );
-	float			getNewY( float x );
-	float			getScale( float x );
 	float			getAlpha( float x );
+	void            makeTexture( int index, ci::ipod::PlaylistRef playlist );
+	
 	
 	int				mNumPlaylists;	
 	int				mCurrentIndex;

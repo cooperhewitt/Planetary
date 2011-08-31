@@ -1536,7 +1536,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 
 void KeplerApp::update()
 {
-    if ( mUiComplete && (mData.getState() == Data::LoadStatePending)) {
+    if ( mUiComplete && (mData.getState() == Data::LoadStatePending) && mLoadingScreen.isComplete() ) {
         mData.update();
 
         // processes pending nodes

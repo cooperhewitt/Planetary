@@ -72,9 +72,26 @@ void LoadingScreen::setPlaylistProgress( float prop )
 void LoadingScreen::update()
 {
     mTextureProgress += (mTextureProgressDest - mTextureProgress) * 0.2f;
+    if ( fabs(mTextureProgress - mTextureProgressDest) < 0.01f ) {
+        mTextureProgress = mTextureProgressDest;
+    }
     mArtistProgress += (mArtistProgressDest - mArtistProgress) * 0.2f;
+    if ( fabs(mArtistProgress - mArtistProgressDest) < 0.01f ) {
+        mArtistProgress = mArtistProgressDest;
+    }
     mPlaylistProgress += (mPlaylistProgressDest - mPlaylistProgress) * 0.2f;
+    if ( fabs(mPlaylistProgress - mPlaylistProgressDest) < 0.01f ) {
+        mPlaylistProgress = mPlaylistProgressDest;
+    }
     mInterfaceSize = getRoot()->getInterfaceSize();
+}
+
+bool LoadingScreen::isComplete() 
+{
+    bool textureProgressComplete = fabs(mTextureProgress - mTextureProgressDest) < 0.01f;
+    bool artistProgressComplete = fabs(mArtistProgress - mArtistProgressDest) < 0.01f;
+    bool playlistProgressComplete = fabs(mPlaylistProgress - mPlaylistProgressDest) < 0.01f;
+    return textureProgressComplete && artistProgressComplete && playlistProgressComplete;
 }
 
 void LoadingScreen::draw()
@@ -184,7 +201,6 @@ void LoadingScreen::draw()
 	*/
 	mPlanetTex.disable();
 
-    // FIXME: better progress bar?
 	float barHeight = 2.0f;
     gl::color( BLUE );
     gl::drawSolidRect( Rectf( 0, mInterfaceSize.y - barHeight * 3.0f, mInterfaceSize.x * mTextureProgress,  mInterfaceSize.y - barHeight * 2.0f ) );
