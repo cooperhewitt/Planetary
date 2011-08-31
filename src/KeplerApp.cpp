@@ -629,10 +629,10 @@ void KeplerApp::initLoadingTextures()
     fmt.enableMipmapping( true );
     fmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );    
     fmt.setMagFilter( GL_LINEAR ); // TODO: experiment with GL_NEAREST where appropriate
-    mPlanetaryTex	= gl::Texture( loadImage( loadResource( "planetary.png" ) )/*, fmt*/ );
-    mPlanetTex		= gl::Texture( loadImage( loadResource( "planet.png" ) ), fmt );
     mBackgroundTex	= gl::Texture( loadImage( loadResource( "background.jpg" ) )/*, fmt*/ );        
+    mPlanetTex		= gl::Texture( loadImage( loadResource( "planet.png" ) ), fmt );
 	mStarGlowTex    = gl::Texture( loadImage( loadResource( "starGlow.png" ) ), fmt);
+    mPlanetaryTex	= gl::Texture( loadImage( loadResource( "planetary.png" ) )/*, fmt*/ );
 }
 
 void KeplerApp::touchesBegan( TouchEvent event )

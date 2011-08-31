@@ -72,15 +72,15 @@ void LoadingScreen::setPlaylistProgress( float prop )
 void LoadingScreen::update()
 {
     mTextureProgress += (mTextureProgressDest - mTextureProgress) * 0.2f;
-    if ( fabs(mTextureProgress - mTextureProgressDest) < 0.01f ) {
+    if ( fabs(mTextureProgress - mTextureProgressDest) < 0.001f ) {
         mTextureProgress = mTextureProgressDest;
     }
     mArtistProgress += (mArtistProgressDest - mArtistProgress) * 0.2f;
-    if ( fabs(mArtistProgress - mArtistProgressDest) < 0.01f ) {
+    if ( fabs(mArtistProgress - mArtistProgressDest) < 0.001f ) {
         mArtistProgress = mArtistProgressDest;
     }
     mPlaylistProgress += (mPlaylistProgressDest - mPlaylistProgress) * 0.2f;
-    if ( fabs(mPlaylistProgress - mPlaylistProgressDest) < 0.01f ) {
+    if ( fabs(mPlaylistProgress - mPlaylistProgressDest) < 0.001f ) {
         mPlaylistProgress = mPlaylistProgressDest;
     }
     mInterfaceSize = getRoot()->getInterfaceSize();
