@@ -7,8 +7,6 @@
  *
  */
 
-
-#include <boost/lexical_cast.hpp>
 #include "HelpLayer.h"
 #include "cinder/Text.h"
 #include "cinder/gl/gl.h"
@@ -17,6 +15,7 @@
 #include "CinderFlurry.h"     // for logging
 #include "Globals.h"          // for color constants
 #include "BloomScene.h"       // for getRoot() functionality (FIXME)
+#include "StringHelpers.h"    // for string/wstring UTF8/UTF32 conversion
 
 using namespace pollen::flurry;
 using namespace ci;
@@ -84,16 +83,12 @@ void HelpLayer::setup( const ci::Font &smallFont, const ci::Font &bigFont, const
     
     // use TextBox to measure glyphs and generate hit areas...
     
-    // make a normal string to pass to cinder text routines
-    string strBodyText = "© 2011 Bloom Studio, Inc. All Rights Reserved. Made with Cinder. Questions? Comments? Visit the website or send us an email.";
-
     // make a wide string for counting characters (because © is double-wide)
     wstring bodyText = L"© 2011 Bloom Studio, Inc. All Rights Reserved. Made with Cinder. Questions? Comments? Visit the website or send us an email.";
     
-    // TODO: one day, use these?
-//    wstring bodyText = ci::toUtf16( strBodyText ); 
-//    string strBodyText = ci::toUtf8( bodyText );
-    
+    // make a normal string to pass to cinder text routines
+    string strBodyText = bloom::wstringToUtf8( bodyText );
+        
     // TODO: use some sort of markup so that text doesn't have to be repeated
     // and then we can generate hit rects lazily on demand
     

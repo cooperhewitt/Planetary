@@ -36,7 +36,7 @@ class HelpLayer : public BloomNode {
     bool    isShowing() { return mShowing; }
     
     float   getHeight() { return mBgRect.getHeight() + mCurrentY; }
-    
+        
  private:
     
     void updateRect( ci::Rectf *rect, const std::wstring &fullStr, const std::wstring &rectStr, const std::vector<std::pair<uint16_t,ci::Vec2f> > &glyphPositions );
