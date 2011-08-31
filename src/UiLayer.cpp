@@ -127,7 +127,7 @@ bool UiLayer::touchEnded( TouchEvent::Touch touch )
     // decide if the open state should change:
 	if( mIsPanelTabTouched ){
 		if( mHasPanelBeenDragged ){
-            mIsPanelOpen = fabs(mPanelY - mPanelOpenY) > fabs(mPanelY - mPanelClosedY);
+            mIsPanelOpen = fabs(mPanelY - mPanelOpenY) < fabs(mPanelY - mPanelClosedY);
 		} 
         else {
             mIsPanelOpen = !mIsPanelOpen;
