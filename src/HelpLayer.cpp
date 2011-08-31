@@ -84,15 +84,15 @@ void HelpLayer::setup( const ci::Font &smallFont, const ci::Font &bigFont, const
     
     // use TextBox to measure glyphs and generate hit areas...
     
+    // make a normal string to pass to cinder text routines
+    string strBodyText = "© 2011 Bloom Studio, Inc. All Rights Reserved. Made with Cinder. Questions? Comments? Visit the website or send us an email.";
+
     // make a wide string for counting characters (because © is double-wide)
     wstring bodyText = L"© 2011 Bloom Studio, Inc. All Rights Reserved. Made with Cinder. Questions? Comments? Visit the website or send us an email.";
     
-    // make a normal string to pass to cinder
-    // TODO: find a reliable way to convert this automatically, the std::copy routine below is screwy
-    string strBodyText = "© 2011 Bloom Studio, Inc. All Rights Reserved. Made with Cinder. Questions? Comments? Visit the website or send us an email.";
-//    std::copy(bodyText.begin(), bodyText.end(), std::back_inserter(strBodyText));
-    // FIXME: maybe http://www.gamedeception.net/archive/index.php?t-18510.html&s=ef7697f2589b9887ce45cb3018db3907 can help?
-//    string strBodyText = boost::lexical_cast<string, wstring>(bodyText);
+    // TODO: one day, use these?
+//    wstring bodyText = ci::toUtf16( strBodyText ); 
+//    string strBodyText = ci::toUtf8( bodyText );
     
     // TODO: use some sort of markup so that text doesn't have to be repeated
     // and then we can generate hit rects lazily on demand
@@ -102,10 +102,11 @@ void HelpLayer::setup( const ci::Font &smallFont, const ci::Font &bigFont, const
     box.setText( strBodyText );
 
     std::vector<std::pair<uint16_t,Vec2f> > glyphPositions = box.measureGlyphs();
-    
-//    cout << glyphPositions.size() << " glyph positions available" << endl;
-//    cout << bodyText.size() << " characters in bodyText" << endl;
-//    cout << strBodyText.size() << " characters in strBodyText" << endl;
+
+    cout << strBodyText << endl;
+    cout << glyphPositions.size() << " glyph positions available" << endl;
+    cout << bodyText.size() << " characters in bodyText" << endl;
+    cout << strBodyText.size() << " characters in strBodyText" << endl;
     
     updateRect( &mCinderRect, bodyText, L"Cinder", glyphPositions );
     updateRect( &mWebRect, bodyText, L"Visit the website", glyphPositions );
@@ -113,12 +114,7 @@ void HelpLayer::setup( const ci::Font &smallFont, const ci::Font &bigFont, const
     
     mCinderRect.offset( mBodyPos );
     mWebRect.offset( mBodyPos );
-    mEmailRect.offset( mBodyPos );
-    
-    const Vec2f linkPadding(5,5);
-    mCinderRect.inflate( linkPadding );
-    mWebRect.inflate( linkPadding );
-    mEmailRect.inflate( linkPadding );
+    mEmailRect.offset( mBodyPos );    
 }
 
 void HelpLayer::updateRect( Rectf *rect, const std::wstring &fullStr, const std::wstring &rectStr, const std::vector<std::pair<uint16_t,Vec2f> > &glyphPositions )
@@ -166,18 +162,20 @@ bool HelpLayer::touchEnded( TouchEvent::Touch touch )
 //    Url bloomWebsite( "http://bloom.io" );
     Url cinderWebsite( "http://libcinder.org" );
     
-    if( mEmailRect.contains( pos ) ){
+    const Vec2f linkPadding(5,5);
+    
+    if( mEmailRect.inflated( linkPadding ).contains( pos ) ){
         Flurry::getInstrumentation()->logEvent("Email Link Selected");            
         launchWebBrowser( mailToLink );
-    } else if( mWebRect.contains( pos ) ){
+    } else if( mWebRect.inflated( linkPadding ).contains( pos ) ){
         Flurry::getInstrumentation()->logEvent("Planetary Link Selected");            
         launchWebBrowser( planetaryWebsite );
         
-//    } else if( mBloomButton.contains( pos ) ){
+//    } else if( mBloomButton.inflated( linkPadding ).contains( pos ) ){
 //        Flurry::getInstrumentation()->logEvent("Bloom Link Selected");            
 //        launchWebBrowser( bloomWebsite );
 //        
-    } else if( mCinderRect.contains( pos ) ){
+    } else if( mCinderRect.inflated( linkPadding ).contains( pos ) ){
         Flurry::getInstrumentation()->logEvent("Cinder Link Selected");            
         launchWebBrowser( cinderWebsite );
     }
@@ -237,10 +235,10 @@ void HelpLayer::draw()
     gl::color( ColorA(BRIGHT_BLUE, 0.15f * dragAlphaPer) );
     gl::drawLine( mBgRect.getLowerLeft(), mBgRect.getLowerRight() );
 
-    gl::color( Color::white() );
-    gl::drawStrokedRect( mCinderRect );
-    gl::drawStrokedRect( mWebRect );
-    gl::drawStrokedRect( mEmailRect );
+//    gl::color( Color::white() );
+//    gl::drawStrokedRect( mCinderRect );
+//    gl::drawStrokedRect( mWebRect );
+//    gl::drawStrokedRect( mEmailRect );
 
     glPushMatrix();
     gl::translate( Vec2f(0, 2.0f) );
