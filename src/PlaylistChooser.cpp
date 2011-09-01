@@ -257,7 +257,7 @@ void PlaylistChooser::draw()
         if( rect && rect->x1 < mInterfaceSize.x && rect->x2 > 0.0f )
         {
             float x	= (rect->x1 + rect->x2) * 0.5f; // x center of the rect
-            float textAlpha = mOpacity * getAlpha( x ); // opacity is set by UiLayer
+            float textAlpha = mOpacity;// * getAlpha( x ); // opacity is set by UiLayer
             
             if ( i == mCurrentIndex ) {
                 gl::color( ColorA( 1, 1, 1, textAlpha ) );
@@ -273,15 +273,15 @@ void PlaylistChooser::draw()
         }
     }
     
-    Rectf center( (mInterfaceSize.x - mPlaylistSize.x) / 2.0f, 0.0f, 
-                  (mInterfaceSize.x + mPlaylistSize.x) / 2.0f, mFullRect.getHeight() );
-
-    gl::color( ColorA( BRIGHT_BLUE, alpha * 0.15f ) );
-    gl::drawSolidRect( center );
-    
-    gl::color( ColorA( BRIGHT_BLUE, alpha * 0.5f ) );
-    gl::drawSolidRect( Rectf( center.x1, center.y1 + 0.0f, center.x2, center.y1 + 3.0f ) );
-    gl::drawSolidRect( Rectf( center.x1, center.y2 - 3.0f, center.x2, center.y2 - 0.0f ) );
+//    Rectf center( (mInterfaceSize.x - mPlaylistSize.x) / 2.0f, 0.0f, 
+//                  (mInterfaceSize.x + mPlaylistSize.x) / 2.0f, mFullRect.getHeight() );
+//
+//    gl::color( ColorA( BRIGHT_BLUE, alpha * 0.15f ) );
+//    gl::drawSolidRect( center );
+//    
+//    gl::color( ColorA( BRIGHT_BLUE, alpha * 0.5f ) );
+//    gl::drawSolidRect( Rectf( center.x1, center.y1 + 0.0f, center.x2, center.y1 + 3.0f ) );
+//    gl::drawSolidRect( Rectf( center.x1, center.y2 - 3.0f, center.x2, center.y2 - 0.0f ) );
     
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
