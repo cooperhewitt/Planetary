@@ -89,7 +89,7 @@ bool AlphaChooser::touchMoved( TouchEvent::Touch touch )
         }
     }
     
-    return false;
+    return mFullRect.contains( pos );
 }
 
 bool AlphaChooser::touchEnded( TouchEvent::Touch touch )
@@ -100,11 +100,8 @@ bool AlphaChooser::touchEnded( TouchEvent::Touch touch )
     for (int i = 0; i < mAlphaRects.size(); i++) {
         if ( mAlphaHitRects[i].contains( pos ) ) {
             mAlphaIndex = i;
-			if( mAlphaChar != mAlphaString[i] ){            
-                mAlphaChar = mAlphaString[i];
-                mCallbacksAlphaCharSelected.call( mAlphaChar );
-            }
-//            mWheelOverlay->setShowWheel(false);
+            mAlphaChar = mAlphaString[i];
+            mCallbacksAlphaCharSelected.call( mAlphaChar );
             return true;
         }
     }
@@ -139,7 +136,6 @@ void AlphaChooser::draw()
         
         gl::color( ColorA( r, g, b, alpha * 0.125f ) );
         gl::drawLine( mFullRect.getUpperLeft(), mFullRect.getUpperRight() );
-//        gl::drawLine( mFullRect.getLowerLeft(), mFullRect.getLowerRight() );
                 
 		for( int i=0; i<27; i++ ){
 			float c = mNumberAlphaPerChar[i];
@@ -154,7 +150,6 @@ void AlphaChooser::draw()
 			mAlphaTextures[i].enableAndBind();
 			gl::drawSolidRect( mAlphaRects[i] );
 			mAlphaTextures[i].disable();            
-//			gl::drawStrokedRect( mAlphaHitRects[i] );
 		}
 		
 	}

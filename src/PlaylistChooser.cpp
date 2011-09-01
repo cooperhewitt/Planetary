@@ -256,8 +256,7 @@ void PlaylistChooser::draw()
         RectRef rect = mPlaylistRects[i];
         if( rect && rect->x1 < mInterfaceSize.x && rect->x2 > 0.0f )
         {
-            float x	= (rect->x1 + rect->x2) * 0.5f; // x center of the rect
-            float textAlpha = mOpacity;// * getAlpha( x ); // opacity is set by UiLayer
+            float textAlpha = mOpacity; // opacity is set by UiLayer
             
             if ( i == mCurrentIndex ) {
                 gl::color( ColorA( 1, 1, 1, textAlpha ) );
@@ -298,7 +297,7 @@ void PlaylistChooser::makeTexture( int index, ipod::PlaylistRef playlist )
 	}
 	TextLayout layout;
 	layout.setFont( mFont );
-	layout.setColor( BRIGHT_BLUE );
+	layout.setColor( Color::white() );
 	layout.addLine( name );
 	mTextures[index] = gl::Texture( layout.render( true, false ) );
 }

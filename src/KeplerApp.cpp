@@ -897,6 +897,7 @@ bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
 {
     // FIXME: log params?
     logEvent("PlaylistChooser Selected");        
+    mState.setFilterMode( State::FilterModePlaylist );
     mState.setPlaylist( playlist ); // triggers onPlaylistStateChanged
     mState.setSelectedNode( NULL ); // zoom to galaxy level
     return false;
@@ -905,8 +906,9 @@ bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
 bool KeplerApp::onAlphaCharSelected( char c )
 {
     // FIXME: log params
-    logEvent("AlphaChooser Selected");        
-    mState.setAlphaChar( c );        // triggersonAlphaCharStateChanged
+    logEvent("AlphaChooser Selected");
+    mState.setFilterMode( State::FilterModeAlphaChar );    
+    mState.setAlphaChar( c );        // triggers onAlphaCharStateChanged
     mState.setSelectedNode( NULL );  // zoom to galaxy level
 	return false;
 }
@@ -1270,45 +1272,32 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
         
 		case PlayControls::SHOW_ALPHA_FILTER:
             {
-                bool wasShowingFilter = mUiLayer.isShowingFilter();
                 mUiLayer.setShowAlphaFilter( !mUiLayer.isShowingAlphaFilter() );            
                 mWheelOverlay->setShowWheel( mUiLayer.isShowingFilter() );
                 mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );
                 mPlayControls.setPlaylistOn( mUiLayer.isShowingPlaylistFilter() );
-                if (mUiLayer.isShowingAlphaFilter()) {                
-                    if (!wasShowingFilter) {
-                        mState.setFilterMode( State::FilterModeAlphaChar );
-                        // zoom to galaxy level whenever the filter toggle button is used:
-                        mState.setSelectedNode( NULL );
-                    }
-                }
-				if( mUiLayer.isShowingAlphaFilter() )
+				if( mUiLayer.isShowingAlphaFilter() ) {
 					mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*0, uh*2, uw*1, uh*3 ), "FILTER BY ALPHABET" ); // FIXME: Better copy?
-				else
+                }
+				else {
 					mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*0, uh*2, uw*1, uh*3 ), offArea, "FILTER BY ALPHABET" ); // FIXME: Better copy?
+                }
             }
             break;	
             
         case PlayControls::SHOW_PLAYLIST_FILTER:
             {
-                bool wasShowingFilter = mUiLayer.isShowingFilter();
                 mUiLayer.setShowPlaylistFilter( !mUiLayer.isShowingPlaylistFilter() );            
                 mWheelOverlay->setShowWheel( mUiLayer.isShowingFilter() );
                 mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );
                 mPlayControls.setPlaylistOn( mUiLayer.isShowingPlaylistFilter() );
-                if (mUiLayer.isShowingPlaylistFilter()) {                
-                    if (!wasShowingFilter) {
-                        mState.setFilterMode( State::FilterModePlaylist );
-                        // zoom to galaxy level whenever the filter toggle button is used:
-                        mState.setSelectedNode( NULL );
-                    }
-                }
 				
-				if( mUiLayer.isShowingPlaylistFilter() )
+				if( mUiLayer.isShowingPlaylistFilter() ) {
 					mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*1, uh*2, uw*2, uh*3 ), "FILTER BY PLAYLIST" ); // FIXME: Better copy?
-				else
+                }
+				else {
 					mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*1, uh*2, uw*2, uh*3 ), offArea, "FILTER BY PLAYLIST" ); // FIXME: Better copy?
-				
+                }
             }
             break;
 			
