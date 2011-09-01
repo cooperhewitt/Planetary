@@ -570,10 +570,10 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     mMainBloomNodeRef->addChild( UiLayerRef(&mUiLayer) );
     
     // then children...
-    mUiLayer.addChild( playControlsRef );
-    mUiLayer.addChild( settingsPanelRef );    
     mUiLayer.addChild( alphaChooserRef );
 	mUiLayer.addChild( playlistChooserRef );
+    mUiLayer.addChild( settingsPanelRef );    
+    mUiLayer.addChild( playControlsRef );
     
 	// HELP LAYER
 	mHelpLayer.setup( mFontMediSmall, mFontMediBig, mFontUltraBig );
@@ -1865,7 +1865,13 @@ void KeplerApp::updateCamera()
     Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);
     mEye = mCenter - camOffset;
 
-    assert( !(isnan(mEye.x) || isnan(mEye.y) || isnan(mEye.z)) );  
+    if( (isnan(mEye.x) || isnan(mEye.y) || isnan(mEye.z)) ) {
+        std::cout << mEye << std::endl;
+        std::cout << camOffset << std::endl;
+        std::cout << q << std::endl;
+        std::cout << mCamDist << std::endl;
+        std::cout << mCenter << std::endl;        
+    }
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( mEye - mCenterOffset, mCenter, q * mUp );

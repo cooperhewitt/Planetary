@@ -27,6 +27,8 @@
 class PlaylistChooser;
 typedef std::shared_ptr<PlaylistChooser> PlaylistChooserRef;
 
+typedef std::shared_ptr<ci::Rectf> RectRef;
+
 class PlaylistChooser : public BloomNode {
 
 public:    
@@ -65,7 +67,6 @@ private:
 	float			getAlpha( float x );
 	void            makeTexture( int index, ci::ipod::PlaylistRef playlist );
 	
-	
 	int				mNumPlaylists;	
 	int				mCurrentIndex;
 	int				mPrevIndex;
@@ -88,7 +89,7 @@ private:
 
     ci::Rectf       mFullRect;
     
-    std::vector<ci::Rectf> mPlaylistRects;
+    std::vector<RectRef> mPlaylistRects;
 	
 	std::vector<ci::gl::Texture> mTextures;
         
@@ -97,6 +98,7 @@ private:
     ci::CameraPersp *mCam;   // for projecting to screen
 
     ci::Font		mFont;
+    float           mFontHeight;
     
     ci::Vec2f		mInterfaceSize;
 		

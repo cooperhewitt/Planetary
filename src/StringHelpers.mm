@@ -12,6 +12,9 @@ using namespace std;
 
 namespace bloom {
 
+    // with thanks to Arial Malka
+    // http://forum.libcinder.org/#Topic/23286000000959252
+    
     string wstringToUtf8(const wstring &s)
     {
         NSString *utf32NS = [[NSString alloc] initWithBytes: s.data() 

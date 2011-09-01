@@ -265,11 +265,8 @@ bool UiLayer::isShowingFilter()
 float UiLayer::getPanelHeight()
 {
     float panelHeight = mPlayControls->getHeight();
-    if (mPlaylistChooser->isVisible()) {
-        panelHeight += mPlaylistChooser->getHeight();
-    }
-    if (mAlphaChooser->isVisible()) {
-        panelHeight += mAlphaChooser->getHeight();
+    if ( isShowingFilter() ) {
+        panelHeight += max( mPlaylistChooser->getHeight(), mAlphaChooser->getHeight() );
     }
     if (mSettingsPanel->isVisible()) {
         panelHeight += mSettingsPanel->getHeight();
