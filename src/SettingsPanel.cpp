@@ -251,7 +251,7 @@ void SettingsPanel::deepDraw()
 
         // draw background so we can't see alpha/playlist chooser behind us in transitions
 		gl::color( Color::black() );
-        gl::drawSolidRect( Vec2f( 0.0f, 0.0f ), Vec2f( mInterfaceSize.x, getHeight() ) );
+        gl::drawSolidRect( Rectf( Vec2f( 0.0f, 0.0f ), Vec2f( mInterfaceSize.x, getHeight() ) ) );
        
         // draw line at the top (as for each ui panel)
 		gl::color( ColorA( BRIGHT_BLUE, 0.125f ) );
