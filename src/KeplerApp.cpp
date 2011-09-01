@@ -230,7 +230,7 @@ class KeplerApp : public AppCocoaTouch {
     ParticleController mParticleController;
 
 // STATS
-    Stats mStats;
+//    Stats mStats;
     
 // TEXTURES
     
@@ -498,7 +498,7 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	mFadeInAlbumToTrack = 0.0f;
 	
 // STATS
-    mStats.setup( mFont, BRIGHT_BLUE, BRIGHT_BLUE );
+//    mStats.setup( mFont, BRIGHT_BLUE, BRIGHT_BLUE );
 	
 // TOUCH VARS
 	mTouchPos			= getWindowCenter();
@@ -851,16 +851,15 @@ bool KeplerApp::onWheelToggled( bool on )
 
 bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
 {    
+    bool filtering = mUiLayer.isShowingFilter();
+    
     // apply a new filter to world...
     if (filterMode == State::FilterModeAlphaChar) {
         mWorld.setFilter( LetterFilter::create( mState.getAlphaChar() ) );
-        bool filtering = mUiLayer.isShowingFilter();
         mUiLayer.setShowAlphaFilter( filtering );
         if (!filtering) {
             mUiLayer.setShowPlaylistFilter( false );
         }
-        mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );
-        mPlayControls.setPlaylistOn( mUiLayer.isShowingPlaylistFilter() );
     }
     else if (filterMode == State::FilterModePlaylist) {
         ipod::PlaylistRef playlist = mState.getPlaylist();
@@ -870,14 +869,14 @@ bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
         else {
             mWorld.setFilter( PlaylistFilter::create(playlist) );
         }
-        bool filtering = mUiLayer.isShowingFilter();
         mUiLayer.setShowPlaylistFilter( filtering );
         if (!filtering) {
             mUiLayer.setShowAlphaFilter( false );
         }        
-        mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );
-        mPlayControls.setPlaylistOn( mUiLayer.isShowingPlaylistFilter() );
     }
+
+    mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );
+    mPlayControls.setPlaylistOn( mUiLayer.isShowingPlaylistFilter() );
     
     // now make sure that everything is cool with the current filter
     mWorld.updateAgainstCurrentFilter();
@@ -1581,12 +1580,10 @@ void KeplerApp::update()
 		
         // fake playhead time if we're dragging (so it looks really snappy)
         if (mPlayControls.isPlayheadDragging()) {
-//            std::cout << "updating current playhead time from slider" << std::endl;                
             mCurrentTrackPlayheadTime = mCurrentTrackLength * mPlayControls.getPlayheadValue();
             mPlayheadUpdateSeconds = elapsedSeconds;
         }
         else if (elapsedSeconds - mPlayheadUpdateSeconds > 1) {
-//            std::cout << "updating current playhead time from ipod player" << std::endl;                
             // mCurrentTrackPlayheadTime is set to 0 if the track changes
             mCurrentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
             mPlayheadUpdateSeconds = elapsedSeconds;
@@ -1638,15 +1635,15 @@ void KeplerApp::update()
             mPlayControls.setPlayheadValue( constrain( mCurrentTrackPlayheadTime / mCurrentTrackLength, 0.0, 1.0 ) );
         }
                 
-        if( /*G_DEBUG &&*/ elapsedFrames % 30 == 0 ){
-            mStats.update(	getAverageFps(), 
-							mCurrentTrackPlayheadTime, 
-							mFov, 
-							mCamDist, 
-							mPinchTotalDest, 
-							G_CURRENT_LEVEL, 
-							G_ZOOM);
-        }
+//        if( /*G_DEBUG &&*/ elapsedFrames % 30 == 0 ){
+//            mStats.update(	getAverageFps(), 
+//							mCurrentTrackPlayheadTime, 
+//							mFov, 
+//							mCamDist, 
+//							mPinchTotalDest, 
+//							G_CURRENT_LEVEL, 
+//							G_ZOOM);
+//        }
         
     }
     
@@ -2197,17 +2194,6 @@ void KeplerApp::drawScene()
 	
     // UILayer and PlayControls draw here:
     mBloomSceneRef->draw();
-
-//	if( G_DEBUG ){
-        Matrix44f mat = mOrientationMatrix;
-        if ( mHelpLayer.isVisible() ) {
-            mat.translate( Vec3f(0, mHelpLayer.getHeight(), 0) );
-        }
-		gl::enableAdditiveBlending();
-        mStats.draw( mat );
-		gl::disableAlphaBlending(); // stops additive blending
-		gl::enableAlphaBlending();  // reinstates normal alpha blending
-//	}
 }
 
 bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
@@ -2227,10 +2213,8 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	   
     logEvent("Player Track Changed");
-//    std::cout << "onPlayerTrackChanged" << std::endl;
 
     if (mPlayControls.isPlayheadDragging()) {
-//        std::cout << "canceling playhead drag" << std::endl;
         mPlayControls.cancelPlayheadDrag();
         mPlayControls.setPlayheadValue(0.0f);
         mIpodPlayer.setPlayheadTime( 0.0f );        
@@ -2252,7 +2236,6 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         
         if (previousTrack && previousTrack->getItemId() == trackId) {
             // skip spurious change event
-//            std::cout << "skipping spurious change event" << std::endl;            
             return false;
         }
 
@@ -2282,7 +2265,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
             if (prevSelectedNode->mGen == G_TRACK_LEVEL) {
                 if (previousTrack->getItemId() == prevSelectedNode->getId()) {
                     if (prevSelectedNode->getId() != trackId) {
-                        flyToCurrentTrack(); // FIXME: might be able to speed this up, see below
+                        flyToCurrentTrack();
                         flyingAround = true;
                     }
                 }
@@ -2307,11 +2290,7 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
         
         if (!flyingAround) {
             
-//            std::cout << "not flying around" << std::endl;                        
-            
             if( mState.getFilterMode() == State::FilterModePlaylist ) {
-                
-//                std::cout << "checking playlist..." << std::endl;            
 
                 // let's see if we need to switch to alpha mode...
                 ipod::PlaylistRef playlist = mState.getPlaylist();                
@@ -2330,15 +2309,11 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
                 
                 // if it's not we need to switch to alphabet mode...
                 if (!playingTrackIsInPlaylist) {
-//                    std::cout << "new track isn't in the current playlist, setting to alpha mode..." << std::endl;            
                     // trigger hefty stuff in onFilterModeStateChanged:
                     mState.setFilterMode( State::FilterModeAlphaChar );            
                     // trigger hefty stuff in onAlphaCharStateChanged:
                     mState.setAlphaChar( artistName ); 
                 }
-//                else {
-//                    std::cout << "new track is in the current playlist, carry on!" << std::endl;            
-//                }
             }
             
             // just sync the mIsPlaying state for all nodes and update mWorld.mPlayingTrackNode...
