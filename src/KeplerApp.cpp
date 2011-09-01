@@ -908,8 +908,8 @@ bool KeplerApp::onAlphaCharSelected( char c )
     // FIXME: log params
     logEvent("AlphaChooser Selected");
     mState.setFilterMode( State::FilterModeAlphaChar );    
-    mState.setAlphaChar( c );        // triggers onAlphaCharStateChanged
-    mState.setSelectedNode( NULL );  // zoom to galaxy level
+    mState.setAlphaChar( c );       // triggers onAlphaCharStateChanged
+    mState.setSelectedNode( NULL ); // zoom to galaxy level
 	return false;
 }
 
@@ -929,6 +929,7 @@ bool KeplerApp::onAlphaCharStateChanged( char c )
     params["Count"] = toString( mWorld.getNumFilteredNodes() );
     logEvent("Letter Selected" , params);
 
+    // sync (this is harmless and doesn't trigger any hard work)
     mAlphaChooser.setAlphaChar( c );
     
 	return false;

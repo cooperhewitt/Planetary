@@ -27,11 +27,8 @@ void State::setup()
 
 void State::setAlphaChar( char c )
 {
-	if (mAlphaChar != c) {
-//        std::cout << "State::setAlphaChar " << c << std::endl;
-		mAlphaChar = c;
-		mCallbacksAlphaCharStateChanged.call( mAlphaChar );
-	}
+    mAlphaChar = c;
+    mCallbacksAlphaCharStateChanged.call( mAlphaChar );
 }
 
 void State::setAlphaChar( const string &name )
