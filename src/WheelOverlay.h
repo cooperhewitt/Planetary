@@ -60,6 +60,3 @@ private:
     
 	ci::CallbackMgr<bool(bool)> mCallbacksWheelToggled;    
 };
-
-typedef std::shared_ptr<WheelOverlay> WheelOverlayRef;
-

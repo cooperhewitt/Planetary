@@ -40,6 +40,7 @@
 #include "LoadingScreen.h"
 #include "HelpLayer.h"
 #include "NotificationOverlay.h"
+#include "WheelOverlay.h"
 #include "Stats.h"
 #include "UiLayer.h"
 #include "PlayControls.h"
@@ -134,7 +135,7 @@ class KeplerApp : public AppCocoaTouch {
 	HelpLayer		    mHelpLayer;
     NotificationOverlay mNotificationOverlay;
 
-    WheelOverlayRef     mWheelOverlay;
+    WheelOverlay        mWheelOverlay;
     AlphaChooser        mAlphaChooser;
     PlaylistChooser     mPlaylistChooser;
 
@@ -519,10 +520,9 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	mParticleController.addDusts( G_NUM_DUSTS );
 
     // WHEEL OVERLAY
-    mWheelOverlay = WheelOverlayRef( new WheelOverlay() );
-    mWheelOverlay->setup( mTextures[GRADIENT_OVERLAY_TEX] ); 
-	mWheelOverlay->registerWheelToggled( this, &KeplerApp::onWheelToggled );    
-    mMainBloomNodeRef->addChild( mWheelOverlay );
+    mWheelOverlay.setup( mTextures[GRADIENT_OVERLAY_TEX] ); 
+	mWheelOverlay.registerWheelToggled( this, &KeplerApp::onWheelToggled );    
+    mMainBloomNodeRef->addChild( BloomNodeRef(&mWheelOverlay) );
     
 	// PLAY CONTROLS
 	mPlayControls.setup( mBloomSceneRef->getInterfaceSize(), 
@@ -542,12 +542,12 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     // add as child of UILayer so it inherits the transform
     
 	// ALPHA CHOOSER
-	mAlphaChooser.setup( mFontMedium, mWheelOverlay, mBloomSceneRef->getInterfaceSize() );
+	mAlphaChooser.setup( mFontMedium, mBloomSceneRef->getInterfaceSize() );
 	mAlphaChooser.registerAlphaCharSelected( this, &KeplerApp::onAlphaCharSelected );
     mAlphaChooser.setVisible(false);
 	
     // PLAYLIST CHOOSER
-    mPlaylistChooser.setup( mFontMedium, mWheelOverlay, mBloomSceneRef->getInterfaceSize() );
+    mPlaylistChooser.setup( mFontMedium, mBloomSceneRef->getInterfaceSize() );
     mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
     mPlaylistChooser.registerPlaylistTouched( this, &KeplerApp::onPlaylistChooserTouched );
     mPlaylistChooser.setVisible(false);
@@ -1273,7 +1273,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 		case PlayControls::SHOW_ALPHA_FILTER:
             {
                 mUiLayer.setShowAlphaFilter( !mUiLayer.isShowingAlphaFilter() );            
-                mWheelOverlay->setShowWheel( mUiLayer.isShowingFilter() );
+                mWheelOverlay.setShowWheel( mUiLayer.isShowingFilter() );
                 mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );
                 mPlayControls.setPlaylistOn( mUiLayer.isShowingPlaylistFilter() );
 				if( mUiLayer.isShowingAlphaFilter() ) {
@@ -1288,7 +1288,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
         case PlayControls::SHOW_PLAYLIST_FILTER:
             {
                 mUiLayer.setShowPlaylistFilter( !mUiLayer.isShowingPlaylistFilter() );            
-                mWheelOverlay->setShowWheel( mUiLayer.isShowingFilter() );
+                mWheelOverlay.setShowWheel( mUiLayer.isShowingFilter() );
                 mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );
                 mPlayControls.setPlaylistOn( mUiLayer.isShowingPlaylistFilter() );
 				
@@ -1547,7 +1547,7 @@ void KeplerApp::update()
 //            std::cout << "Startup without Track Playing" << std::endl;
             logEvent("Startup without Track Playing");
             // show wheel (to invite filtering) and apply first filter
-            mWheelOverlay->setShowWheel( true );
+            mWheelOverlay.setShowWheel( true );
             mWorld.setFilter( LetterFilter::create( mState.getAlphaChar() ) );
             mState.setSelectedNode( NULL ); // trigger zoom to galaxy            
 		}
@@ -1700,14 +1700,16 @@ void KeplerApp::updateCamera()
 	
 // IF THE PINCH IS PAST THE POP THRESHOLD...
 	if( mPinchPer > mPinchPerThresh ){
-//        std::cout << "mPinchTotalDest = " << mPinchTotalDest << std::endl;  
         
-		if( ! mIsPastPinchThresh ) mPinchHighlightRadius = 650.0f;
-		if( G_CURRENT_LEVEL < G_ARTIST_LEVEL )
+		if( ! mIsPastPinchThresh ) {
+            mPinchHighlightRadius = 650.0f;
+        }
+		if( G_CURRENT_LEVEL < G_ARTIST_LEVEL ) {
 			mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.1f;
-		else
+        }
+		else {
 			mPinchAlphaPer -= ( mPinchAlphaPer ) * 0.1f;
-		
+        }
 		
 		mIsPastPinchThresh = true;
 		
@@ -1725,7 +1727,7 @@ void KeplerApp::updateCamera()
 		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.1f;
 		mIsPastPinchThresh = false;
 		
-		if( mWheelOverlay->getShowWheel() ){
+		if( mWheelOverlay.getShowWheel() ){
             mFovDest = G_MAX_FOV; // special FOV just for alpha wheel
         } else {
             mFovDest = G_DEFAULT_FOV;
@@ -1799,19 +1801,19 @@ void KeplerApp::updateCamera()
 	
 	G_CURRENT_LEVEL = mZoomDest;
 	
-	if( mIsPinching && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
-		if( mPinchPer > mPinchPerThresh ){
-            if (!mWheelOverlay->getShowWheel()) {
-                mWheelOverlay->setShowWheel( true );
-            }
-//            std::cout << "updateCamera opened filter GUI" << std::endl;			
-		} else if( mPinchPer <= mPinchPerThresh ){
-            if (mWheelOverlay->getShowWheel()) {
-                mWheelOverlay->setShowWheel( false );
-            }
-//            std::cout << "updateCamera closed filter GUI" << std::endl;			
-		}
-	}
+//	if( mIsPinching && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
+//		if( mPinchPer > mPinchPerThresh ){
+//            if (!mWheelOverlay.getShowWheel()) {
+//                mWheelOverlay.setShowWheel( true );
+//            }
+////            std::cout << "updateCamera opened filter GUI" << std::endl;			
+//		} else if( mPinchPer <= mPinchPerThresh ){
+//            if (mWheelOverlay.getShowWheel()) {
+//                mWheelOverlay.setShowWheel( false );
+//            }
+////            std::cout << "updateCamera closed filter GUI" << std::endl;			
+//		}
+//	}
 
 	float distToTravel = mState.getDistBetweenNodes();
 	double duration = 2.5f;

@@ -20,15 +20,13 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void AlphaChooser::setup( const Font &font, WheelOverlayRef wheelOverlay, const Vec2f &interfaceSize )
+void AlphaChooser::setup( const Font &font, const Vec2f &interfaceSize )
 {	
 	// Textures
 	mAlphaString	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
 	mAlphaIndex		= 0;
 	mAlphaChar		= 'A';
 
-	mWheelOverlay = wheelOverlay;
-	
 	for( int i=0; i<mAlphaString.length(); i++ ){
 		TextLayout layout;	
 		layout.setFont( font );
@@ -68,14 +66,14 @@ void AlphaChooser::setRects()
 
 bool AlphaChooser::touchBegan( TouchEvent::Touch touch )
 {
-    if (!mWheelOverlay->getShowWheel()) return false;    
+    if (!isVisible()) return false;    
     Vec2f pos = globalToLocal( touch.getPos() );
     return mFullRect.contains( pos );
 }
 
 bool AlphaChooser::touchMoved( TouchEvent::Touch touch )
 {	
-    if (!mWheelOverlay->getShowWheel()) return false;
+    if (!isVisible()) return false;
     
     Vec2f pos = globalToLocal( touch.getPos() );
     for (int i = 0; i < mAlphaRects.size(); i++) {
@@ -94,7 +92,7 @@ bool AlphaChooser::touchMoved( TouchEvent::Touch touch )
 
 bool AlphaChooser::touchEnded( TouchEvent::Touch touch )
 {	
-    if (!mWheelOverlay->getShowWheel()) return false;
+    if (!isVisible()) return false;
 
     Vec2f pos = globalToLocal( touch.getPos() );
     for (int i = 0; i < mAlphaRects.size(); i++) {
@@ -124,35 +122,29 @@ void AlphaChooser::update( )
 }
 
 void AlphaChooser::draw()
-{	
-	if( mWheelOverlay->getWheelScale() < 1.95f ){
-        
-        // we'll use the bright blue components to draw by frequency
-        float r = BRIGHT_BLUE.r;
-        float g = BRIGHT_BLUE.g;
-        float b = BRIGHT_BLUE.b;
-        // opacity is supplied by UiLayer::draw
-        float alpha = mOpacity * constrain(2.0f - mWheelOverlay->getWheelScale(), 0.0f, 1.0f);
-        
-        gl::color( ColorA( r, g, b, alpha * 0.125f ) );
-        gl::drawLine( mFullRect.getUpperLeft(), mFullRect.getUpperRight() );
-                
-		for( int i=0; i<27; i++ ){
-			float c = mNumberAlphaPerChar[i];
-            if ( mAlphaString[i] == mAlphaChar ) {
-                gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f * mOpacity ) );
-            } else if( c > 0.0f ){
-				c += 0.3f;
-				gl::color( ColorA( r*c, g*c, b*c, alpha ) );
-			} else {
-				gl::color( ColorA( 0.3f, 0.0f, 0.0f, alpha ) );
-			}
-			mAlphaTextures[i].enableAndBind();
-			gl::drawSolidRect( mAlphaRects[i] );
-			mAlphaTextures[i].disable();            
-		}
-		
-	}
+{	        
+    // we'll use the bright blue components to draw by frequency
+    float r = BRIGHT_BLUE.r;
+    float g = BRIGHT_BLUE.g;
+    float b = BRIGHT_BLUE.b;
+
+    gl::color( ColorA( r, g, b, mOpacity * 0.125f ) );
+    gl::drawLine( mFullRect.getUpperLeft(), mFullRect.getUpperRight() );
+            
+    for( int i=0; i<27; i++ ){
+        float c = mNumberAlphaPerChar[i];
+        if ( mAlphaString[i] == mAlphaChar ) {
+            gl::color( ColorA( 1.0f, 1.0f, 1.0f, 1.0f * mOpacity ) );
+        } else if( c > 0.0f ){
+            c += 0.3f;
+            gl::color( ColorA( r*c, g*c, b*c, mOpacity ) );
+        } else {
+            gl::color( ColorA( 0.3f, 0.0f, 0.0f, mOpacity ) );
+        }
+        mAlphaTextures[i].enableAndBind();
+        gl::drawSolidRect( mAlphaRects[i] );
+        mAlphaTextures[i].disable();            
+    }
 }
 
 float AlphaChooser::getHeight()

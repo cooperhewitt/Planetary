@@ -15,7 +15,6 @@
 #include "cinder/Font.h"
 #include "cinder/Function.h"
 
-#include "WheelOverlay.h"
 #include "BloomNode.h"
 
 class AlphaChooser;
@@ -28,7 +27,7 @@ public:
 	AlphaChooser(): mOpacity(1.0f) {};
 	~AlphaChooser() {};
 		
-	void	setup( const ci::Font &font, WheelOverlayRef wheelOverlay, const ci::Vec2f &interfaceSize );    
+	void	setup( const ci::Font &font, const ci::Vec2f &interfaceSize );    
 	void	update();
 	void	draw();
     
@@ -56,8 +55,6 @@ public:
 private:
     
 	void	setRects();    
-    
-    WheelOverlayRef mWheelOverlay;
     
     float           *mNumberAlphaPerChar;
 

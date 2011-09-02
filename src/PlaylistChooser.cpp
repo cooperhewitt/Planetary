@@ -21,7 +21,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void PlaylistChooser::setup( const Font &font, WheelOverlayRef wheelOverlay, const Vec2f &interfaceSize )
+void PlaylistChooser::setup( const Font &font, const Vec2f &interfaceSize )
 {
     mFont					= font;
     mFontHeight             = mFont.getAscent() + mFont.getDescent();
@@ -48,8 +48,6 @@ void PlaylistChooser::setup( const Font &font, WheelOverlayRef wheelOverlay, con
 	mPrevIndex				= -1;
 	mCurrentIndex			= 0;
 	
-	mWheelOverlay           = wheelOverlay;
-    
     mInterfaceSize          = interfaceSize;
     
     mFullRect.set( 0, 0, mInterfaceSize.x, mStartY + mFontHeight + mStartY );
@@ -246,26 +244,23 @@ void PlaylistChooser::draw()
     float g = BRIGHT_BLUE.g;
     float b = BRIGHT_BLUE.b;
     // opacity is supplied by UiLayer::draw
-    float alpha = mOpacity * constrain(2.0f - mWheelOverlay->getWheelScale(), 0.0f, 1.0f);
     
-    gl::color( ColorA( r, g, b, alpha * 0.125f ) );
+    gl::color( ColorA( r, g, b, mOpacity * 0.125f ) );
     gl::drawLine( Vec2f(0,0), Vec2f(mInterfaceSize.x,0) );
 
     for( int i = 0; i < mNumPlaylists; i++ )
 	{	
         RectRef rect = mPlaylistRects[i];
         if( rect && rect->x1 < mInterfaceSize.x && rect->x2 > 0.0f )
-        {
-            float textAlpha = mOpacity; // opacity is set by UiLayer
-            
+        {            
             if ( i == mCurrentIndex ) {
-                gl::color( ColorA( 1, 1, 1, textAlpha ) );
+                gl::color( ColorA( 1, 1, 1, mOpacity ) );
             } 
             else if ( i == mTouchDragPlaylistIndex ) {
-                gl::color( ColorA( BRIGHT_BLUE, textAlpha ) );
+                gl::color( ColorA( BRIGHT_BLUE, mOpacity ) );
             } 
             else {
-                gl::color( ColorA( BLUE, textAlpha ) );
+                gl::color( ColorA( BLUE, mOpacity ) );
             }
                         
             gl::draw( mTextures[i], rect->getUpperLeft() );

@@ -22,7 +22,6 @@
 #include "Data.h"
 #include "World.h"
 #include "BloomNode.h"
-#include "WheelOverlay.h"
 
 class PlaylistChooser;
 typedef std::shared_ptr<PlaylistChooser> PlaylistChooserRef;
@@ -35,7 +34,7 @@ public:
     
     PlaylistChooser(): mData(NULL), mOffsetX(0.0f), mOpacity(1.0f) {}
     
-    void setup( const ci::Font &font, WheelOverlayRef wheelOverlay, const ci::Vec2f &interfaceSize );
+    void setup( const ci::Font &font, const ci::Vec2f &interfaceSize );
 	void update();
     void draw();
 
@@ -101,8 +100,6 @@ private:
     float           mFontHeight;
     
     ci::Vec2f		mInterfaceSize;
-		
-	WheelOverlayRef mWheelOverlay;
-	
+			
 	ci::CallbackMgr<bool(ci::ipod::PlaylistRef)> mCbPlaylistSelected, mCbPlaylistTouched;        
 };
