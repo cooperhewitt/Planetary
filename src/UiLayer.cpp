@@ -131,11 +131,11 @@ bool UiLayer::touchEnded( TouchEvent::Touch touch )
 		} 
         else {
             mIsPanelOpen = !mIsPanelOpen;
-            if (mIsPanelOpen) {
-                Flurry::getInstrumentation()->logEvent("UIPanel Opened");
-            } else {
-                Flurry::getInstrumentation()->logEvent("UIPanel Closed");
-            }
+//            if (mIsPanelOpen) {
+//                Flurry::getInstrumentation()->logEvent("UIPanel Opened");
+//            } else {
+//                Flurry::getInstrumentation()->logEvent("UIPanel Closed");
+//            }
 		}
 	}
 

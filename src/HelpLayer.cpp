@@ -160,10 +160,10 @@ bool HelpLayer::touchEnded( TouchEvent::Touch touch )
     const Vec2f linkPadding(5,5);
     
     if( mEmailRect.inflated( linkPadding ).contains( pos ) ){
-        Flurry::getInstrumentation()->logEvent("Email Link Selected");            
+//        Flurry::getInstrumentation()->logEvent("Email Link Selected");             
         launchWebBrowser( mailToLink );
     } else if( mWebRect.inflated( linkPadding ).contains( pos ) ){
-        Flurry::getInstrumentation()->logEvent("Planetary Link Selected");            
+//        Flurry::getInstrumentation()->logEvent("Planetary Link Selected");            
         launchWebBrowser( planetaryWebsite );
         
 //    } else if( mBloomButton.inflated( linkPadding ).contains( pos ) ){
@@ -171,7 +171,7 @@ bool HelpLayer::touchEnded( TouchEvent::Touch touch )
 //        launchWebBrowser( bloomWebsite );
 //        
     } else if( mCinderRect.inflated( linkPadding ).contains( pos ) ){
-        Flurry::getInstrumentation()->logEvent("Cinder Link Selected");            
+//        Flurry::getInstrumentation()->logEvent("Cinder Link Selected");            
         launchWebBrowser( cinderWebsite );
     }
 	

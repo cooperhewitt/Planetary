@@ -835,11 +835,11 @@ bool KeplerApp::orientationChanged( OrientationEvent event )
 		// ... end heinous trickery
 	}
 
-    if (prevOrientation != orientation) {
-        std::map<string, string> params;
-        params["Device Orientation"] = getOrientationString(event.getDeviceOrientation());
-        logEvent("Orientation Changed", params);    
-    }
+//    if (prevOrientation != orientation) {
+//        std::map<string, string> params;
+//        params["Device Orientation"] = getOrientationString(event.getDeviceOrientation());
+//        logEvent("Orientation Changed", params);    
+//    }
 
     return false;
 }
@@ -928,7 +928,7 @@ bool KeplerApp::onPlaylistChooserTouched( ci::ipod::PlaylistRef playlist )
 bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
 {
     // FIXME: log params?
-    logEvent("PlaylistChooser Selected");        
+//    logEvent("PlaylistChooser Selected");        
     mState.setFilterMode( State::FilterModePlaylist );
     mState.setPlaylist( playlist ); // triggers onPlaylistStateChanged
     mState.setSelectedNode( NULL ); // zoom to galaxy level
@@ -938,7 +938,7 @@ bool KeplerApp::onPlaylistChooserSelected( ci::ipod::PlaylistRef playlist )
 bool KeplerApp::onAlphaCharSelected( char c )
 {
     // FIXME: log params
-    logEvent("AlphaChooser Selected");
+//    logEvent("AlphaChooser Selected");
     mState.setFilterMode( State::FilterModeAlphaChar );    
     mState.setAlphaChar( c );       // triggers onAlphaCharStateChanged
     mState.setSelectedNode( NULL ); // zoom to galaxy level
@@ -956,10 +956,10 @@ bool KeplerApp::onAlphaCharStateChanged( char c )
     mNotificationOverlay.showLetter( mState.getAlphaChar(), s.str(), mFontHuge );
     
     // log:
-    std::map<string, string> params;
-    params["Letter"] = toString( mState.getAlphaChar() );
-    params["Count"] = toString( mWorld.getNumFilteredNodes() );
-    logEvent("Letter Selected" , params);
+//    std::map<string, string> params;
+//    params["Letter"] = toString( mState.getAlphaChar() );
+//    params["Count"] = toString( mWorld.getNumFilteredNodes() );
+//    logEvent("Letter Selected" , params);
 
     // sync (this is harmless and doesn't trigger any hard work)
     mAlphaChooser.setAlphaChar( c );
@@ -974,13 +974,13 @@ bool KeplerApp::onPlaylistStateChanged( ipod::PlaylistRef playlist )
 
     /////// notifications...
 
-    string playlistName = playlist->getPlaylistName();
+//    string playlistName = playlist->getPlaylistName();
     	
     // log:
-    std::map<string, string> parameters;
-    parameters["Playlist"] = mState.getPlaylist()->getPlaylistName();
-    parameters["Count"] = toString( mWorld.getNumFilteredNodes() );    
-    logEvent("Playlist Selected" , parameters);	
+//    std::map<string, string> parameters;
+//    parameters["Playlist"] = mState.getPlaylist()->getPlaylistName();
+//    parameters["Count"] = toString( mWorld.getNumFilteredNodes() );    
+//    logEvent("Playlist Selected" , parameters);	
     
 	return false;
 }
@@ -1035,18 +1035,18 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
                     }
                 }
             }
-            logEvent("Track Selected");            
+//            logEvent("Track Selected");            
         } 
-        else if (node->mGen == G_ARTIST_LEVEL) {
-            logEvent("Artist Selected");
-        } 
-        else if (node->mGen == G_ALBUM_LEVEL) {
-            logEvent("Album Selected");
-        }
+//        else if (node->mGen == G_ARTIST_LEVEL) {
+//            logEvent("Artist Selected");
+//        } 
+//        else if (node->mGen == G_ALBUM_LEVEL) {
+//            logEvent("Album Selected");
+//        }
 	}
-    else {
-        logEvent("Selection Cleared");        
-    }
+//    else {
+//        logEvent("Selection Cleared");        
+//    }
 
     // highlight currently playing items
     if (mPlayingTrack) {
@@ -1099,7 +1099,7 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
 				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*2, uh*0, uw*3, uh*1 ), "SHUFFLE ON" );
 			}
             mSettingsPanel.setShuffleOn( mIpodPlayer.getShuffleMode() != ipod::Player::ShuffleModeOff );
-            logEvent("Shuffle Button Selected");    
+//            logEvent("Shuffle Button Selected");    
             break;
 			
 		case SettingsPanel::REPEAT:
@@ -1123,7 +1123,7 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
                     mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*0, uw*4, uh*1 ), offArea, "REPEAT NONE" );
                     break;
             }
-            logEvent("Repeat Button Selected");   
+//            logEvent("Repeat Button Selected");   
             break;
             
         case SettingsPanel::HELP:
@@ -1135,7 +1135,7 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
 		
 		case SettingsPanel::DRAW_TEXT:
 			if( G_SHOW_SETTINGS ){
-				logEvent("Draw Text Button Selected");            
+//				logEvent("Draw Text Button Selected");            
 				G_DRAW_TEXT = !G_DRAW_TEXT;
 				if( G_DRAW_TEXT )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*2, uh*1, uw*3, uh*2 ), "TEXT LABELS" );
 				else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*2, uh*1, uw*3, uh*2 ), offArea, "TEXT LABELS" );
@@ -1146,7 +1146,7 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
 			
         case SettingsPanel::DRAW_RINGS:
 			if( G_SHOW_SETTINGS ){
-				logEvent("Draw Rings Button Selected");            
+//				logEvent("Draw Rings Button Selected");            
 				G_DRAW_RINGS = !G_DRAW_RINGS;
 				if( G_DRAW_RINGS )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*1, uw*4, uh*2 ), "ORBIT LINES" );
 				else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*1, uw*4, uh*2 ), offArea, "ORBIT LINES" );
@@ -1158,7 +1158,7 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
             
 		case SettingsPanel::USE_GYRO:
 			if( G_SHOW_SETTINGS ){
-				logEvent("Use Gyro Button Selected");            
+//				logEvent("Use Gyro Button Selected");            
 				G_USE_GYRO = !G_USE_GYRO;
 				
 				if( !G_USE_GYRO ) {
@@ -1227,13 +1227,13 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
     switch( button ) {
         
         case PlayControls::PREV_TRACK:
-            logEvent("Previous Track Button Selected");            
+//            logEvent("Previous Track Button Selected");            
             mIpodPlayer.skipPrev();
             break;
         
         case PlayControls::PLAY_PAUSE:
             {
-                logEvent("Play/Pause Button Selected");            
+//                logEvent("Play/Pause Button Selected");            
                 if (mIpodPlayer.hasPlayingTrack()) {
                     togglePlayPaused();
                 }
@@ -1260,7 +1260,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
             break;
         
         case PlayControls::NEXT_TRACK:
-            logEvent("Next Track Button Selected");            
+//            logEvent("Next Track Button Selected");            
             mIpodPlayer.skipNext();	
             break;
 						
@@ -1502,7 +1502,7 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
                 if ( isPlayingNode ) {
                     // if this is already the selected node, just toggle the play state
                     togglePlayPaused();
-                    logEvent( "Playing Track Node Touched" );
+//                    logEvent( "Playing Track Node Touched" );
                 }
             }     
             else if ( highestGen == G_ALBUM_LEVEL ) {
@@ -1533,11 +1533,11 @@ void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
         
         ////// logging for interaction tracking...
         
-        switch ( highestGen ) {
-            case G_ARTIST_LEVEL: logEvent( "Artist Node Touched" ); break;
-            case G_ALBUM_LEVEL:  logEvent( "Album Node Touched" );  break;
-            case G_TRACK_LEVEL:  logEvent( "Track Node Touched" );  break;
-        } 
+//        switch ( highestGen ) {
+//            case G_ARTIST_LEVEL: logEvent( "Artist Node Touched" ); break;
+//            case G_ALBUM_LEVEL:  logEvent( "Album Node Touched" );  break;
+//            case G_TRACK_LEVEL:  logEvent( "Track Node Touched" );  break;
+//        } 
 	}
 }
 
@@ -2240,7 +2240,7 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
 
 bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 {	   
-    logEvent("Player Track Changed");
+//    logEvent("Player Track Changed");
 
     if (mPlayControls.isPlayheadDragging()) {
         mPlayControls.cancelPlayheadDrag();
@@ -2399,9 +2399,9 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
     }
     
     // do stats:
-    std::map<string, string> params;
-    params["State"] = mIpodPlayer.getPlayStateString();
-    logEvent("Player State Changed", params);
+//    std::map<string, string> params;
+//    params["State"] = mIpodPlayer.getPlayStateString();
+//    logEvent("Player State Changed", params);
     
     firstRun = false;
     
