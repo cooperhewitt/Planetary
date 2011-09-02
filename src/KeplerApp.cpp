@@ -268,8 +268,8 @@ class KeplerApp : public AppCocoaTouch {
     // manages threaded texture loading by ID (above)
     TextureLoader mTextures;
     
-    // FIXME: do this with TextureLoader as well
-	vector<gl::Texture> mCloudTextures;
+    // groups cloud textures together
+    vector<gl::Texture> mCloudTextures;
 	
     // needed for load screen:
     gl::Texture mPlanetaryTex, mPlanetTex, mBackgroundTex, mStarGlowTex;
@@ -277,7 +277,7 @@ class KeplerApp : public AppCocoaTouch {
     // loaded on demand for empty music libraries
 	gl::Texture		mNoArtistsTex;    
     
-    // FIXME: load these with TextureLoader as well
+    // FIXME: load these in a thread sometime
 	Surface			mHighResSurfaces;
 	Surface			mLowResSurfaces;
 	Surface			mNoAlbumArtSurface;
@@ -505,8 +505,6 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	mCenterDest			= mCenter;
 	mCenterFrom			= mCenter;
 	mCenterOffset		= mCenter;
-    // FIXME: let's put this setup stuff back in setup()
-    // this was overriding the (correct) value which is now always set by setInterfaceOrientation
 	mUp					= Vec3f::yAxis();
 	mFov				= G_DEFAULT_FOV;
 	mFovDest			= G_DEFAULT_FOV;
@@ -904,6 +902,12 @@ bool KeplerApp::onPlaylistChooserTouched( ci::ipod::PlaylistRef playlist )
 {
     // must have already called onPlaylistChooserSelected, so it's a "simple" matter of triggering play:
     mIpodPlayer.play( playlist, 0 );
+    
+    // let my people know
+    int uw = 100;
+	int uh = 100;
+    mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*1, uh*2, uw*2, uh*3 ), "PLAYING: " + playlist->getPlaylistName() );
+    
     // RIGHT? SIMPLE? RIGHT?!
     return false;
 }
