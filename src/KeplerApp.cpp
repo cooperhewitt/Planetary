@@ -262,11 +262,11 @@ class KeplerApp : public AppCocoaTouch {
         P_CLOUDS_3,
         P_CLOUDS_4,
         P_CLOUDS_5,
-        C_CLOUDS_1,
-        C_CLOUDS_2,
-        C_CLOUDS_3,
-        C_CLOUDS_4,
-        C_CLOUDS_5,
+        M_CLOUDS_1,
+        M_CLOUDS_2,
+        M_CLOUDS_3,
+        M_CLOUDS_4,
+        M_CLOUDS_5,
         TOTAL_TEXTURE_COUNT // must be last :)
     };
     
