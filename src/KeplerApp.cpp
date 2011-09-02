@@ -309,7 +309,7 @@ void KeplerApp::prepareSettings(Settings *settings)
 
 void KeplerApp::setup()
 {
-    float t = getElapsedSeconds();
+//    float t = getElapsedSeconds();
     
 	Flurry::getInstrumentation()->startTimeEvent("Setup");
     
@@ -320,7 +320,7 @@ void KeplerApp::setup()
     mState.setup();
     
     G_IS_IPAD2 = bloom::isIpad2();
-    console() << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
+//    console() << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
 
 	if( G_IS_IPAD2 ){
 		G_NUM_PARTICLES = 80;
@@ -352,7 +352,7 @@ void KeplerApp::setup()
     
     Flurry::getInstrumentation()->stopTimeEvent("Setup");
     
-    std::cout << (getElapsedSeconds() - t) << " seconds to setup()" << std::endl;
+//    std::cout << (getElapsedSeconds() - t) << " seconds to setup()" << std::endl;
 }
 
 void KeplerApp::remainingSetup()
@@ -361,7 +361,7 @@ void KeplerApp::remainingSetup()
     
     mRemainingSetupCalled = true;
 
-    float t = getElapsedSeconds();
+//    float t = getElapsedSeconds();
     
     Flurry::getInstrumentation()->startTimeEvent("Remaining Setup");
 
@@ -373,7 +373,7 @@ void KeplerApp::remainingSetup()
     // TEXTURES ... also mostly asynchronous
     initTextures();
     
-    std::cout << (getElapsedSeconds() - t) << " seconds to remainingSetup()" << std::endl;
+//    std::cout << (getElapsedSeconds() - t) << " seconds to remainingSetup()" << std::endl;
 }
 
 void KeplerApp::initTextures()
@@ -457,7 +457,7 @@ void KeplerApp::initTextures()
 
 void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 {
-    float t = getElapsedSeconds();
+//    float t = getElapsedSeconds();
     
     Flurry::getInstrumentation()->stopTimeEvent("Load Textures and Fonts");        
 	
@@ -635,7 +635,7 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 
     mUiComplete = true;
     
-    std::cout << (getElapsedSeconds() - t) << " seconds to onTextureLoaderComplete()" << std::endl;
+//    std::cout << (getElapsedSeconds() - t) << " seconds to onTextureLoaderComplete()" << std::endl;
 }
 
 void KeplerApp::initLoadingTextures()
@@ -717,9 +717,9 @@ void KeplerApp::touchesEnded( TouchEvent event )
         }
 	}
 	if (getActiveTouches().size() != 1) {
-        if (mIsDragging) {
-            logEvent("Camera Moved");
-        }
+//        if (mIsDragging) {
+//            logEvent("Camera Moved");
+//        }
 		mIsDragging = false;
         mIsTouching = false;
 	}
@@ -782,12 +782,12 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
-    logEvent("Pinch Ended");
+//    logEvent("Pinch Ended");
 
 	if( mPinchPer > mPinchPerThresh ){
 		Node *selected = mState.getSelectedNode();
 		if( selected ){
-            console() << "backing out using pinch!" << std::endl;
+//            console() << "backing out using pinch!" << std::endl;
 			mState.setSelectedNode( selected->mParentNode );
 		}
 	}
@@ -809,9 +809,9 @@ bool KeplerApp::positionTouchesWorld( Vec2f screenPos )
     const bool inUi              = mUiLayer.hitTest(screenPos);
     const bool inAlphaChooser    = mAlphaChooser.hitTest(screenPos);
     const bool inPlaylistChooser = mPlaylistChooser.hitTest(screenPos);
-    std::cout << "inUi: " << (inUi ? "true" : "false") << std::endl;
-    std::cout << "inAlphaChooser: " << (inAlphaChooser ? "true" : "false") << std::endl;
-    std::cout << "inPlaylistChooser: " << (inPlaylistChooser ? "true" : "false") << std::endl;
+//    std::cout << "inUi: " << (inUi ? "true" : "false") << std::endl;
+//    std::cout << "inAlphaChooser: " << (inAlphaChooser ? "true" : "false") << std::endl;
+//    std::cout << "inPlaylistChooser: " << (inPlaylistChooser ? "true" : "false") << std::endl;
     return !(inUi || inPlaylistChooser || inAlphaChooser);
 }
 
@@ -870,6 +870,7 @@ bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
     // apply a new filter to world...
     if (filterMode == State::FilterModeAlphaChar) {
         mWorld.setFilter( LetterFilter::create( mState.getAlphaChar() ) );
+        mAlphaChooser.setAlphaChar( mState.getAlphaChar() );
         mUiLayer.setShowAlphaFilter( filtering );
         if (!filtering) {
             mUiLayer.setShowPlaylistFilter( false );
@@ -877,6 +878,7 @@ bool KeplerApp::onFilterModeStateChanged( State::FilterMode filterMode )
     }
     else if (filterMode == State::FilterModePlaylist) {
         ipod::PlaylistRef playlist = mState.getPlaylist();
+        mAlphaChooser.setAlphaChar( ' ' );
         if (!playlist) {
             mState.setPlaylist( mData.mPlaylists[0] ); // triggers onPlaylistStateChanged
         }
@@ -904,9 +906,20 @@ bool KeplerApp::onPlaylistChooserTouched( ci::ipod::PlaylistRef playlist )
     mIpodPlayer.play( playlist, 0 );
     
     // let my people know
+    string playlistName = playlist->getPlaylistName();
+    string br = " "; // break with spaces
+    if (playlistName.size() > 20) {
+        br = "\n"; // break with newline instead
+        if (playlistName.size() > 40) {
+            playlistName = playlistName.substr(0, 35) + "..."; // ellipsis for long long playlist names
+        }
+    }
+    stringstream s;
+    s << "STARTING PLAYLIST" << br << "“" << playlistName << "”";
     int uw = 100;
 	int uh = 100;
-    mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*1, uh*2, uw*2, uh*3 ), "PLAYING: " + playlist->getPlaylistName() );
+    mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*1, uh*2, uw*2, uh*3 ), s.str() );            
+    
     
     // RIGHT? SIMPLE? RIGHT?!
     return false;
@@ -962,22 +975,7 @@ bool KeplerApp::onPlaylistStateChanged( ipod::PlaylistRef playlist )
     /////// notifications...
 
     string playlistName = playlist->getPlaylistName();
-    
-//	std::cout << "playlist changed to " << playlistName << std::endl;
-    
-// Commented out for now. Shouldn't notify if a playlist is being previewed. But once it is selected,
-// then it should notify.
-//    string br = " "; // break with spaces
-//    if (playlistName.size() > 20) {
-//        br = "\n"; // break with newline instead
-//        if (playlistName.size() > 40) {
-//            playlistName = playlistName.substr(0, 35) + "..."; // ellipsis for long long playlist names
-//        }
-//    }
-//    stringstream s;
-//    s << "SHOWING ARTISTS FROM" << br << "'" << playlistName << "'";
-//    mNotificationOverlay.show( mTextures[OVERLAY_ICONS_TEX], Area( 1024.0f, 0.0f, 1152.0f, 128.0f ), s.str() );            
-	
+    	
     // log:
     std::map<string, string> parameters;
     parameters["Playlist"] = mState.getPlaylist()->getPlaylistName();
@@ -1551,7 +1549,7 @@ void KeplerApp::update()
         // processes pending nodes
 		mWorld.initNodes( mData.mArtists, mFontMedi, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
         
-        mAlphaChooser.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar );        
+        mAlphaChooser.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar );
 		mLoadingScreen.setVisible( false ); // TODO: remove from scene graph, clean up textures
         mMainBloomNodeRef->setVisible( true );
 		mUiLayer.setIsPanelOpen( true );
@@ -1880,13 +1878,14 @@ void KeplerApp::updateCamera()
     Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);
     mEye = mCenter - camOffset;
 
-    if( (isnan(mEye.x) || isnan(mEye.y) || isnan(mEye.z)) ) {
-        std::cout << mEye << std::endl;
-        std::cout << camOffset << std::endl;
-        std::cout << q << std::endl;
-        std::cout << mCamDist << std::endl;
-        std::cout << mCenter << std::endl;        
-    }
+    // FIXME: what causes camera to sometimes destroy itself?
+//    if( (isnan(mEye.x) || isnan(mEye.y) || isnan(mEye.z)) ) {
+//        std::cout << mEye << std::endl;
+//        std::cout << camOffset << std::endl;
+//        std::cout << q << std::endl;
+//        std::cout << mCamDist << std::endl;
+//        std::cout << mCenter << std::endl;        
+//    }
 
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( mEye - mCenterOffset, mCenter, q * mUp );
@@ -2411,13 +2410,13 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 
 void KeplerApp::logEvent(const string &event)
 {
-    if (G_DEBUG) std::cout << "logging: " << event << std::endl;
-//    Flurry::getInstrumentation()->logEvent(event);
+//    if (G_DEBUG) std::cout << "logging: " << event << std::endl;
+    Flurry::getInstrumentation()->logEvent(event);
 }
 void KeplerApp::logEvent(const string &event, const map<string,string> &params)
 {
-    if (G_DEBUG) std::cout << "logging: " << event << " with params..." << std::endl;
-//    Flurry::getInstrumentation()->logEvent(event, params);
+//    if (G_DEBUG) std::cout << "logging: " << event << " with params..." << std::endl;
+    Flurry::getInstrumentation()->logEvent(event, params);
 }
 
 

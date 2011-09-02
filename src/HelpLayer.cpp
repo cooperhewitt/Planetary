@@ -98,10 +98,10 @@ void HelpLayer::setup( const ci::Font &smallFont, const ci::Font &bigFont, const
 
     std::vector<std::pair<uint16_t,Vec2f> > glyphPositions = box.measureGlyphs();
 
-    cout << strBodyText << endl;
-    cout << glyphPositions.size() << " glyph positions available" << endl;
-    cout << bodyText.size() << " characters in bodyText" << endl;
-    cout << strBodyText.size() << " characters in strBodyText" << endl;
+//    cout << strBodyText << endl;
+//    cout << glyphPositions.size() << " glyph positions available" << endl;
+//    cout << bodyText.size() << " characters in bodyText" << endl;
+//    cout << strBodyText.size() << " characters in strBodyText" << endl;
     
     updateRect( &mCinderRect, bodyText, L"Cinder", glyphPositions );
     updateRect( &mWebRect, bodyText, L"Visit the website", glyphPositions );

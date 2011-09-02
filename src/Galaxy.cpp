@@ -212,8 +212,6 @@ void Galaxy::drawDarkMatter()
 
 void Galaxy::initGalaxyVertexArray()
 {
-	std::cout << "initializing Galaxy Vertex Array" << std::endl;
-    
 	VertexData *galaxyVerts = new VertexData[6];
 
 	float w = 200.0f;
@@ -257,7 +255,6 @@ void Galaxy::initGalaxyVertexArray()
 
 void Galaxy::initDarkMatterVertexArray()
 {
-	std::cout << "initializing Dark Matter Vertex Array" << std::endl;
 	VertexData *darkMatterVerts = new VertexData[ mDarkMatterCylinderRes * 6 ]; // cylinderRes * two-triangles
 
     const float TWO_PI = 2.0f * M_PI;

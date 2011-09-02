@@ -55,7 +55,7 @@ void World::setup()
 
 void World::initNodes( const vector<PlaylistRef> &artists, const Font &font, const Font &smallFont, const Surface &highResSurfaces, const Surface &lowResSurfaces, const Surface &noAlbumArt )
 {
-	float t = App::get()->getElapsedSeconds();
+//	float t = App::get()->getElapsedSeconds();
 
 	for( vector<NodeArtist*>::iterator it = mNodes.begin(); it != mNodes.end(); ++it ){
         NodeArtist* node = *it;
@@ -73,7 +73,7 @@ void World::initNodes( const vector<PlaylistRef> &artists, const Font &font, con
         mNodesById[newNode->getId()] = newNode;
 	}
 
-	cout << (App::get()->getElapsedSeconds() - t) << " seconds to World::initNodes" << endl;
+//	cout << (App::get()->getElapsedSeconds() - t) << " seconds to World::initNodes" << endl;
     
 	mIsInitialized = true;
 }

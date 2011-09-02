@@ -133,15 +133,15 @@ void NodeTrack::setStartAngle()
 	float timeOffset	= (float)mMyTime/mOrbitPeriod;
 	mOrbitStartAngle	= timeOffset * TWO_PI;
 	
-    if (G_DEBUG) {
-        float angle	= atan2( mPos.z - mParentNode->mPos.z, mPos.x - mParentNode->mPos.x );
-        std::cout << "Start Angle set in NodeTrack: " << mOrbitStartAngle << std::endl;
-        std::cout << "mPercentPlayed: " << mPercentPlayed << std::endl;
-        std::cout << "timeOffset: " << timeOffset << std::endl;
-        std::cout << "mMyTime: " << mMyTime << std::endl;
-        std::cout << "angle: " << angle << std::endl;
-        std::cout << " ================= " << std::endl;
-    }
+//    if (G_DEBUG) {
+//        float angle	= atan2( mPos.z - mParentNode->mPos.z, mPos.x - mParentNode->mPos.x );
+////        std::cout << "Start Angle set in NodeTrack: " << mOrbitStartAngle << std::endl;
+////        std::cout << "mPercentPlayed: " << mPercentPlayed << std::endl;
+////        std::cout << "timeOffset: " << timeOffset << std::endl;
+////        std::cout << "mMyTime: " << mMyTime << std::endl;
+////        std::cout << "angle: " << angle << std::endl;
+////        std::cout << " ================= " << std::endl;
+//    }
 }
 
 

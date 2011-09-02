@@ -32,7 +32,7 @@ class Node {
 	virtual ~Node()
     { 
         if (!UiTaskQueue::isTaskComplete(mTaskId)) {
-            std::cout << "canceling request for name rendering #" << mTaskId << std::endl;
+//            std::cout << "canceling request for name rendering #" << mTaskId << std::endl;
             UiTaskQueue::cancelTask(mTaskId);
         }
 		for( std::vector<Node*>::iterator nodeIt = mChildNodes.begin(); nodeIt != mChildNodes.end(); ++nodeIt ){
