@@ -200,14 +200,9 @@ class KeplerApp : public AppCocoaTouch {
 	float			mFadeInAlbumToTrack;
 	
 // FONTS
-	Font			mFontHuge;
-	Font			mFont;
-	Font			mFontBig;
-	Font			mFontMedium;
-	Font			mFontMediSmall;
-	Font			mFontMediTiny;
-    Font            mFontMediBig;
-    Font            mFontUltraBig;
+	Font			mFontMedium, mFontBig, mFontHuge, mFontSmall; // Aaux
+	Font			mFontMedi, mFontMediSmall, mFontMediTiny, mFontMediBig; // Unit Medi
+    Font            mFontUltraBig; // Unit Ultra
 	
 // MULTITOUCH
 	Vec2f			mTouchPos;
@@ -390,11 +385,12 @@ void KeplerApp::initTextures()
     //   ...it's Font() that's slow (~50ms per font?)
     DataSourceRef aux   = loadResource( "AauxPro-Black.ttf");
 	mFontHuge			= Font( aux, 100 );
-	mFontBig			= Font( aux, 24 );
+	mFontSmall			= Font( aux, 16 );
 	mFontMedium			= Font( aux, 18 );
+	mFontBig            = Font( aux, 24 );
 
     DataSourceRef medi  = loadResource( "UnitRoundedOT-Medi.otf" );
-	mFont               = Font( medi, 14 );
+	mFontMedi           = Font( medi, 14 );
 	mFontMediSmall		= Font( medi, 13 );
 	mFontMediTiny		= Font( medi, 11 );
     mFontMediBig        = Font( medi, 24 );
@@ -520,7 +516,7 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	mFadeInAlbumToTrack = 0.0f;
 	
 // STATS
-//    mStats.setup( mFont, BRIGHT_BLUE, BRIGHT_BLUE );
+//    mStats.setup( mFontMedi, BRIGHT_BLUE, BRIGHT_BLUE );
 	
 // TOUCH VARS
 	mTouchPos			= getWindowCenter();
@@ -568,7 +564,7 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     mAlphaChooser.setVisible(false);
 	
     // PLAYLIST CHOOSER
-    mPlaylistChooser.setup( mFontMedium, mBloomSceneRef->getInterfaceSize() );
+    mPlaylistChooser.setup( mFontSmall, mBloomSceneRef->getInterfaceSize() );
     mPlaylistChooser.registerPlaylistSelected( this, &KeplerApp::onPlaylistChooserSelected );
     mPlaylistChooser.registerPlaylistTouched( this, &KeplerApp::onPlaylistChooserTouched );
     mPlaylistChooser.setVisible(false);
@@ -1549,7 +1545,7 @@ void KeplerApp::update()
         mData.update();
 
         // processes pending nodes
-		mWorld.initNodes( mData.mArtists, mFont, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
+		mWorld.initNodes( mData.mArtists, mFontMedi, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
         
         mAlphaChooser.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar );        
 		mLoadingScreen.setVisible( false ); // TODO: remove from scene graph, clean up textures

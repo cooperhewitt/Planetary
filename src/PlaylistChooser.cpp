@@ -36,14 +36,13 @@ void PlaylistChooser::setup( const Font &font, const Vec2f &interfaceSize )
 	mTouchPrevPos			= Vec2i( 0, 0 );
     
     mOffsetX				= 0.0f;
-	mOffsetXLocked			= 0.0f;
 	
 	mNumPlaylists			= 0;
 	mIsDragging				= false;
 	
-	mPlaylistSize			= Vec2f( 120.f, 30.0f );
-	mSpacerWidth			= 30.0f;
-	mStartY					= 10.0f;
+	mPlaylistSize			= Vec2f( 150.f, 30.0f );
+	mSpacerWidth			= 15.0f;
+	mStartY					= 11.0f;
 
 	mPrevIndex				= -1;
 	mCurrentIndex			= 0;
@@ -138,11 +137,15 @@ void PlaylistChooser::update()
     mFullRect.set( 0, 0, mInterfaceSize.x, mStartY + mFontHeight + mStartY );
 
     // total size of all playlist labels + spaces
-    float totalWidth = (mPlaylistSize.x * mNumPlaylists) + (mSpacerWidth * (mNumPlaylists-1));
+    float totalWidth = (mPlaylistSize.x * mNumPlaylists) + (mSpacerWidth * (mNumPlaylists+1));
+    totalWidth = max( totalWidth, mInterfaceSize.x );
     
-    // min/max drag positions
-    float maxOffsetX = (mInterfaceSize.x / 2.0f) - (mPlaylistSize.x / 2.0f);              // when dragging right
-    float minOffsetX = (mPlaylistSize.x / 2.0f) + (mInterfaceSize.x / 2.0f) - totalWidth; // when dragging left
+    // min/max drag positions to leave things in the center
+//    float maxOffsetX = (mInterfaceSize.x / 2.0f) - (mPlaylistSize.x / 2.0f);              // when dragging right
+//    float minOffsetX = (mPlaylistSize.x / 2.0f) + (mInterfaceSize.x / 2.0f) - totalWidth; // when dragging left
+    // min/max drag positions to keep things on screen
+    float maxOffsetX = 0.0f;  // when dragging right
+    float minOffsetX = mPlaylistSize.x - totalWidth; // when dragging left
     
     /////////////
     
@@ -168,65 +171,35 @@ void PlaylistChooser::update()
             // otherwise we're slow enough to think again
             // so cancel momentum completely:
 			mTouchVel		 = 0.0f;
-
-            // find the rect that covers the centerRect
-/*            Rectf centerRect( (mInterfaceSize.x - mPlaylistSize.x) / 2.0f, 0.0f, 
-                              (mInterfaceSize.x + mPlaylistSize.x) / 2.0f, mFullRect.getHeight() );
-            RectRef match;
-            int chosenIndex = -1;
-            for( int i = 0; i < mPlaylistRects.size(); i++ ){
-                RectRef rect = mPlaylistRects[i];
-                if (rect && rect->x1 >= centerRect.x1 && rect->x2 <= centerRect.x2) {
-                    match = rect;
-                    chosenIndex = i;
-                    break;
-                }
-            }
-            
-            if (match) {
-                // ease to exact position (centered)
-                float matchCenter = (match->x1 + match->x2) / 2.0f;                
-                mOffsetX = mOffsetX + (matchCenter - mInterfaceSize.x);
-            }
-            
-			mOffsetXLocked -= ( mOffsetXLocked - mOffsetX ) * 0.2f;
-						
-            // if we're done easing, check if we settled on a new selection
-			if( chosenIndex >= 0 && abs( mOffsetXLocked - mOffsetX ) < 1.0f ){
-				mPrevIndex			= mCurrentIndex;
-				mCurrentIndex		= chosenIndex;
-//				if( mPrevIndex != mCurrentIndex ){
-//					mCbPlaylistSelected.call( mData->mPlaylists[mCurrentIndex] );
-//				}	
-			} */
-			
 		}
 	}
     
     ////////// update placement rects
     
     mPlaylistRects.clear();
-    
-//    Vec2f pos( -mOffsetXLocked, mStartY );
-    Vec2f pos( mOffsetX, mStartY );
+
+    const float y  = mStartY;
+    const float h  = mFontHeight;
+
+    float xPos = mOffsetX + mSpacerWidth;
     
     for( int i = 0; i < mNumPlaylists; i++ )
 	{	
-        if( pos.x < mInterfaceSize.x && pos.x + mPlaylistSize.x > 0.0f )
+        if( xPos < mInterfaceSize.x && xPos + mPlaylistSize.x > 0.0f )
 		{    
 			if (!mTextures[i]) {
 				makeTexture( i, mData->mPlaylists[i] );
             }            
             // put texture rect at center of playlist rect
-			float x = pos.x + mPlaylistSize.x * 0.5f;
-			float w	= mTextures[i].getWidth() * 0.5f;
-			mPlaylistRects.push_back( RectRef( new Rectf( x - w, mStartY, x + w, mStartY + mFontHeight ) ) );
+			const float cx = xPos + mPlaylistSize.x * 0.5f;
+			const float w2 = mTextures[i].getWidth() * 0.5f;
+			mPlaylistRects.push_back( RectRef( new Rectf( cx - w2, y, cx + w2, y + h ) ) );
         } 
         else {
 			mPlaylistRects.push_back( RectRef() );
 		}
 		
-        pos.x += mSpacerWidth + mPlaylistSize.x;
+        xPos += mSpacerWidth + mPlaylistSize.x;
     }    
 }
 
@@ -248,23 +221,33 @@ void PlaylistChooser::draw()
     gl::color( ColorA( r, g, b, mOpacity * 0.125f ) );
     gl::drawLine( Vec2f(0,0), Vec2f(mInterfaceSize.x,0) );
 
+//    float xPos = mOffsetX + mSpacerWidth;
+    
     for( int i = 0; i < mNumPlaylists; i++ )
 	{	
         RectRef rect = mPlaylistRects[i];
         if( rect && rect->x1 < mInterfaceSize.x && rect->x2 > 0.0f )
         {            
             if ( i == mCurrentIndex ) {
-                gl::color( ColorA( 1, 1, 1, mOpacity ) );
+                gl::color( ColorA( BRIGHT_BLUE, mOpacity ) );
             } 
             else if ( i == mTouchDragPlaylistIndex ) {
-                gl::color( ColorA( BRIGHT_BLUE, mOpacity ) );
+                gl::color( ColorA( 1, 1, 1, mOpacity ) );
             } 
             else {
                 gl::color( ColorA( BLUE, mOpacity ) );
             }
                         
             gl::draw( mTextures[i], rect->getUpperLeft() );
+            
+//            gl::color( Color::white() );
+//            gl::drawStrokedRect( *rect );            
         }
+        
+//        gl::color( Color::white() );
+//        gl::drawStrokedRect( Rectf( xPos, mStartY, xPos + mPlaylistSize.x, mStartY + mFontHeight ) );            
+//
+//        xPos += mPlaylistSize.x + mSpacerWidth;
     }
     
 //    Rectf center( (mInterfaceSize.x - mPlaylistSize.x) / 2.0f, 0.0f, 
@@ -286,8 +269,8 @@ void PlaylistChooser::makeTexture( int index, ipod::PlaylistRef playlist )
 {
     // FIXME: measure the texture and shorten the name if needed
 	string name = playlist->getPlaylistName();
-	if( name.length() > 20 ){
-		name = name.substr( 0, 20 );
+	if( name.length() > 19 ){
+		name = name.substr( 0, 18 );
 		name += "...";
 	}
 	TextLayout layout;

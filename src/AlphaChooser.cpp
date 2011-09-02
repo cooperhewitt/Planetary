@@ -51,17 +51,18 @@ void AlphaChooser::setRects()
         maxHeight = max( maxHeight, (float)mAlphaTextures[i].getHeight() );
     }    
     const float hPadding = 20.0f;
-    const float vHitPadding = 10.0f;
+    const float vTopPadding = 11.0f;
+    const float vBottomPadding = 9.0f;
     const float spacing = (mInterfaceSize.x - totalWidth - (hPadding * 2.0f)) / 26.0f;
     float x = hPadding;
 	for( int i = 0; i < mAlphaString.length(); i++ ){
 		const float w = mAlphaTextures[i].getWidth();
 		const float h = mAlphaTextures[i].getHeight();
-		mAlphaRects.push_back( Rectf( x, vHitPadding, x + w, h + vHitPadding ) );
-		mAlphaHitRects.push_back( Rectf( x - spacing/2.0f, 0.0f, x + w + spacing/2.0f, h + vHitPadding + vHitPadding ) );
+		mAlphaRects.push_back( Rectf( x, vTopPadding, x + w, h + vTopPadding ) );
+		mAlphaHitRects.push_back( Rectf( x - spacing/2.0f, 0.0f, x + w + spacing/2.0f, h + vTopPadding + vBottomPadding ) );
         x += w + spacing;
 	}
-    mFullRect.set( 0.0f, 0.0f, mInterfaceSize.x, maxHeight + vHitPadding + vHitPadding );
+    mFullRect.set( 0.0f, 0.0f, mInterfaceSize.x, maxHeight + vTopPadding + vBottomPadding );
 }
 
 bool AlphaChooser::touchBegan( TouchEvent::Touch touch )

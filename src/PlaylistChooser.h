@@ -83,7 +83,6 @@ private:
 	ci::Vec2f		mPlaylistSize;
 	float			mSpacerWidth;
 	float			mOffsetX;		// for scrolling
-	float			mOffsetXLocked; // for snap-to effect
 	float			mStartY;
     
     float           mOpacity;
