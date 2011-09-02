@@ -282,4 +282,3 @@ float SettingsPanel::getHeight()
 {
     return 50.0f;
 }
-

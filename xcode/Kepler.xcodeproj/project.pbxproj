@@ -72,7 +72,7 @@
 		E1C942C7137B9BD900F88EA2 /* darkMatter.png in Resources */ = {isa = PBXBuildFile; fileRef = E1C942C6137B9BD900F88EA2 /* darkMatter.png */; };
 		E1D32DDC13D67BE3002F33ED /* playlist.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DDB13D67BE3002F33ED /* playlist.png */; };
 		E1D32DEC13D6C2E2002F33ED /* playlistBg.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D32DEB13D6C2E2002F33ED /* playlistBg.png */; };
-		E1D32DFF13D78E01002F33ED /* WheelOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1D32DFD13D78E01002F33ED /* WheelOverlay.cpp */; };
+		E1D32DFF13D78E01002F33ED /* Vignette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1D32DFD13D78E01002F33ED /* Vignette.cpp */; };
 		E1D99A98134BD490003FC316 /* planet.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A96134BD490003FC316 /* planet.png */; };
 		E1D99A99134BD490003FC316 /* planetary.png in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A97134BD490003FC316 /* planetary.png */; };
 		E1D99A9B134BDBFE003FC316 /* background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1D99A9A134BDBFE003FC316 /* background.jpg */; };
@@ -198,8 +198,8 @@
 		E1C942C6137B9BD900F88EA2 /* darkMatter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = darkMatter.png; path = ../darkMatter.png; sourceTree = "<group>"; };
 		E1D32DDB13D67BE3002F33ED /* playlist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playlist.png; path = ../resources/playlist.png; sourceTree = "<group>"; };
 		E1D32DEB13D6C2E2002F33ED /* playlistBg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playlistBg.png; path = ../resources/playlistBg.png; sourceTree = "<group>"; };
-		E1D32DFD13D78E01002F33ED /* WheelOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WheelOverlay.cpp; path = ../src/WheelOverlay.cpp; sourceTree = "<group>"; };
-		E1D32DFE13D78E01002F33ED /* WheelOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WheelOverlay.h; path = ../src/WheelOverlay.h; sourceTree = "<group>"; };
+		E1D32DFD13D78E01002F33ED /* Vignette.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vignette.cpp; path = ../src/Vignette.cpp; sourceTree = "<group>"; };
+		E1D32DFE13D78E01002F33ED /* Vignette.h */ = {isa = PBXFileReference; fileEncoding = 4; name = Vignette.h; path = ../src/Vignette.h; sourceTree = "<group>"; };
 		E1D99A96134BD490003FC316 /* planet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = planet.png; path = ../resources/loadscreen/planet.png; sourceTree = "<group>"; };
 		E1D99A97134BD490003FC316 /* planetary.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = planetary.png; path = ../resources/loadscreen/planetary.png; sourceTree = "<group>"; };
 		E1D99A9A134BDBFE003FC316 /* background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = background.jpg; path = ../resources/loadscreen/background.jpg; sourceTree = "<group>"; };
@@ -656,7 +656,7 @@
 			isa = PBXGroup;
 			children = (
 				E25040BF1392E82200A8D673 /* Elements */,
-				E1D32DFE13D78E01002F33ED /* WheelOverlay.h */,
+				E1D32DFE13D78E01002F33ED /* Vignette.h */,
 				E2E21CB613A177E200A476A2 /* AlphaChooser.h */,
 				E2CD4B9C13CA6F350047AF5F /* PlaylistChooser.h */,
 				E2E21CBF13A177E600A476A2 /* HelpLayer.h */,
@@ -725,7 +725,7 @@
 				E25040C01392E83E00A8D673 /* Elements */,
 				E2E21CDB13A2D70C00A476A2 /* Stats.cpp */,
 				E22998CB1332D62E0043CDCA /* LoadingScreen.cpp */,
-				E1D32DFD13D78E01002F33ED /* WheelOverlay.cpp */,
+				E1D32DFD13D78E01002F33ED /* Vignette.cpp */,
 				E2171060132ECF7300ADCC17 /* AlphaChooser.cpp */,
 				E2CD4B9B13CA6F350047AF5F /* PlaylistChooser.cpp */,
 				E28FDA821339B782005EDBB4 /* PlayControls.cpp */,
@@ -1027,7 +1027,7 @@
 				E2A868B313D3CA6F0024E4D0 /* BloomNode.cpp in Sources */,
 				E2A868B613D3D0950024E4D0 /* BloomScene.cpp in Sources */,
 				E2576E4213D4C8D600EC82EF /* TextureRect.cpp in Sources */,
-				E1D32DFF13D78E01002F33ED /* WheelOverlay.cpp in Sources */,
+				E1D32DFF13D78E01002F33ED /* Vignette.cpp in Sources */,
 				E2FADC1613DB740700C24F4D /* OrientationNode.cpp in Sources */,
 				E27A27E613DDDF8500B957EC /* TextureLoader.cpp in Sources */,
 				E2DC801113FC7BB400CF1106 /* TaskQueue.cpp in Sources */,

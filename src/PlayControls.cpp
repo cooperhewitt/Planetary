@@ -26,7 +26,7 @@ void PlayControls::setup( Vec2f interfaceSize, ipod::Player *player, const Font 
         
     // set initial state...
     setPlayingOn( player->getPlayState() == ipod::Player::StatePlaying );    
-    setAlphaOn( false ); // this is the default in WheelOverlay::setup()
+    setAlphaOn( false ); // this is the default in Vignette::setup()
     setPlaylistOn( false );
     setShowSettingsOn( G_SHOW_SETTINGS );
 }
@@ -308,4 +308,9 @@ void PlayControls::deepDraw()
 float PlayControls::getHeight()
 {
     return 60.0f;
+}
+
+void PlayControls::setPlaylistButtonVisible( bool visible )
+{
+    mPlaylistButton->setVisible( false );
 }

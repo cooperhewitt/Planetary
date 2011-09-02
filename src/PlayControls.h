@@ -55,6 +55,8 @@ public:
     
     void setOpacity( float opacity ) { mOpacity = opacity; }
     
+    void setPlaylistButtonVisible( bool visible );
+    
     // State stuff, passed onto UI classes directly...
     // (not gettable, state lives elsewhere and UI changes are handled with callbacks)
     // (all these things should be called in App::update())

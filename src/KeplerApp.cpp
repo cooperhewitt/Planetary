@@ -40,7 +40,7 @@
 #include "LoadingScreen.h"
 #include "HelpLayer.h"
 #include "NotificationOverlay.h"
-#include "WheelOverlay.h"
+#include "Vignette.h"
 #include "Stats.h"
 #include "UiLayer.h"
 #include "PlayControls.h"
@@ -103,7 +103,7 @@ class KeplerApp : public AppCocoaTouch {
 	bool			onAlphaCharStateChanged( char c );
 	bool			onPlaylistStateChanged( ipod::PlaylistRef playlist );
 	bool			onAlphaCharSelected( char c );
-	bool			onWheelToggled( bool on );
+	bool			onVignetteToggled( bool on );
     bool            onFilterModeStateChanged( State::FilterMode filterMode );
     bool            onPlaylistChooserSelected( ci::ipod::PlaylistRef );
     bool            onPlaylistChooserTouched( ci::ipod::PlaylistRef );
@@ -135,7 +135,7 @@ class KeplerApp : public AppCocoaTouch {
 	HelpLayer		    mHelpLayer;
     NotificationOverlay mNotificationOverlay;
 
-    WheelOverlay        mWheelOverlay;
+    Vignette            mVignette;
     AlphaChooser        mAlphaChooser;
     PlaylistChooser     mPlaylistChooser;
 
@@ -519,10 +519,10 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     mParticleController.addParticles( G_NUM_PARTICLES );
 	mParticleController.addDusts( G_NUM_DUSTS );
 
-    // WHEEL OVERLAY
-    mWheelOverlay.setup( mTextures[GRADIENT_OVERLAY_TEX] ); 
-	mWheelOverlay.registerWheelToggled( this, &KeplerApp::onWheelToggled );    
-    mMainBloomNodeRef->addChild( BloomNodeRef(&mWheelOverlay) );
+    // VIGNETTE
+    mVignette.setup( mTextures[GRADIENT_OVERLAY_TEX] ); 
+	mVignette.registerToggled( this, &KeplerApp::onVignetteToggled );    
+    mMainBloomNodeRef->addChild( BloomNodeRef( &mVignette ) );
     
 	// PLAY CONTROLS
 	mPlayControls.setup( mBloomSceneRef->getInterfaceSize(), 
@@ -840,8 +840,7 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 //	else			   mUp = Vec3f::yAxis();
 }
 
-// FIXME: rename to vignette?
-bool KeplerApp::onWheelToggled( bool on )
+bool KeplerApp::onVignetteToggled( bool on )
 {
 	if( !on ){
 		mPinchTotalDest = 1.0f;
@@ -1273,7 +1272,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
 		case PlayControls::SHOW_ALPHA_FILTER:
             {
                 mUiLayer.setShowAlphaFilter( !mUiLayer.isShowingAlphaFilter() );            
-                mWheelOverlay.setShowWheel( mUiLayer.isShowingFilter() );
+                mVignette.setShowing( mUiLayer.isShowingFilter() );
                 mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );
                 mPlayControls.setPlaylistOn( mUiLayer.isShowingPlaylistFilter() );
 				if( mUiLayer.isShowingAlphaFilter() ) {
@@ -1288,7 +1287,7 @@ bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
         case PlayControls::SHOW_PLAYLIST_FILTER:
             {
                 mUiLayer.setShowPlaylistFilter( !mUiLayer.isShowingPlaylistFilter() );            
-                mWheelOverlay.setShowWheel( mUiLayer.isShowingFilter() );
+                mVignette.setShowing( mUiLayer.isShowingFilter() );
                 mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );
                 mPlayControls.setPlaylistOn( mUiLayer.isShowingPlaylistFilter() );
 				
@@ -1538,23 +1537,25 @@ void KeplerApp::update()
 
         // and then make sure we know about the current track if there is one...
         if ( mIpodPlayer.hasPlayingTrack() ) {
-//            std::cout << "Startup with Track Playing" << std::endl;
             logEvent("Startup with Track Playing");
             // update player info and then fly to current track
             onPlayerTrackChanged( &mIpodPlayer );
             flyToCurrentTrack();                
         } else {
-//            std::cout << "Startup without Track Playing" << std::endl;
             logEvent("Startup without Track Playing");
-            // show wheel (to invite filtering) and apply first filter
-            mWheelOverlay.setShowWheel( true );
+            // show vignette (to invite filtering) and apply first filter
+            mUiLayer.setShowAlphaFilter( true );
+            mVignette.setShowing( true );
             mWorld.setFilter( LetterFilter::create( mState.getAlphaChar() ) );
             mState.setSelectedNode( NULL ); // trigger zoom to galaxy            
 		}
         
         if (mData.mPlaylists.size() > 0) {
-            // FIXME: also reveal playcontrols playlist button?
+            mPlayControls.setPlaylistButtonVisible( true );
             mPlaylistChooser.setDataWorldCam( &mData, &mWorld, &mCam );
+        }
+        else {
+            mPlayControls.setPlaylistButtonVisible( false );            
         }
 	}
     
@@ -1573,7 +1574,7 @@ void KeplerApp::update()
 			mGyroHelper.update();
         }
 
-        const int elapsedFrames = getElapsedFrames();
+//        const int elapsedFrames = getElapsedFrames();
         const float elapsedSeconds = getElapsedSeconds();
 
 		updateArcball();
@@ -1727,7 +1728,7 @@ void KeplerApp::updateCamera()
 		mPinchAlphaPer -= ( mPinchAlphaPer - 1.0f ) * 0.1f;
 		mIsPastPinchThresh = false;
 		
-		if( mWheelOverlay.getShowWheel() ){
+		if( mVignette.isShowing() ){
             mFovDest = G_MAX_FOV; // special FOV just for alpha wheel
         } else {
             mFovDest = G_DEFAULT_FOV;
@@ -1803,13 +1804,13 @@ void KeplerApp::updateCamera()
 	
 //	if( mIsPinching && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
 //		if( mPinchPer > mPinchPerThresh ){
-//            if (!mWheelOverlay.getShowWheel()) {
-//                mWheelOverlay.setShowWheel( true );
+//            if (!mVignette.isShowing()) {
+//                mVignette.setShowing( true );
 //            }
 ////            std::cout << "updateCamera opened filter GUI" << std::endl;			
 //		} else if( mPinchPer <= mPinchPerThresh ){
-//            if (mWheelOverlay.getShowWheel()) {
-//                mWheelOverlay.setShowWheel( false );
+//            if (mVignette.isShowing()) {
+//                mVignette.setShowing( false );
 //            }
 ////            std::cout << "updateCamera closed filter GUI" << std::endl;			
 //		}

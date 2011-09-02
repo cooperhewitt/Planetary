@@ -1,5 +1,5 @@
 //
-//  WheelOverlay.h
+//  Vignette.h
 //  Kepler
 //
 //  Created by Robert Hodgin on 7/20/11.
@@ -7,6 +7,7 @@
 //
 
 #pragma once
+
 #include "cinder/app/AppCocoaTouch.h"
 #include "cinder/Function.h"
 #include "cinder/Vector.h"
@@ -16,10 +17,10 @@
 #include "cinder/Color.h"
 #include "BloomNode.h"
 
-class WheelOverlay : public BloomNode {
+class Vignette : public BloomNode {
 public:
-	WheelOverlay() {}
-	~WheelOverlay() 
+	Vignette() {}
+	~Vignette() 
     { 	
         delete[] mVerts; 
     }
@@ -28,14 +29,14 @@ public:
 	void	update();
 	void	draw();
 
-	void	setShowWheel( bool b );
-	bool	getShowWheel(){ return mShowWheel; }
+	void	setShowing( bool b );
+	bool	isShowing(){ return mShowing; }
     
-	float   getWheelScale() { return mWheelScale; }
+	float   getScale() { return mScale; }
     
 	template<typename T>
-	ci::CallbackId registerWheelToggled( T *obj, bool ( T::*callback )( bool ) ){
-		return mCallbacksWheelToggled.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
+	ci::CallbackId registerToggled( T *obj, bool ( T::*callback )( bool ) ){
+		return mCallbacksToggled.registerCb(std::bind1st( std::mem_fun( callback ), obj ) );
 	}
     
 private:
@@ -49,14 +50,14 @@ private:
     
 	ci::gl::Texture	mTex;
 
-	float mWheelScale;
+	float mScale;
     
-    bool mShowWheel;
+    bool mShowing;
     
 	int mTotalVertices;
 	VertexData *mVerts;
     
     ci::Vec2f mInterfaceSize, mInterfaceCenter;
     
-	ci::CallbackMgr<bool(bool)> mCallbacksWheelToggled;    
+	ci::CallbackMgr<bool(bool)> mCallbacksToggled;    
 };

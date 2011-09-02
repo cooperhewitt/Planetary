@@ -1,12 +1,12 @@
 //
-//  WheelOverlay.cpp
+//  Vignette.cpp
 //  Kepler
 //
 //  Created by Robert Hodgin on 7/20/11.
 //  Copyright 2011 Bloom Studio, Inc. All rights reserved.
 //
 
-#include "WheelOverlay.h"
+#include "Vignette.h"
 
 #include <sstream>
 
@@ -19,33 +19,32 @@
 #include "BloomGl.h"
 #include "BloomScene.h"
 
-
 using std::stringstream;
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void WheelOverlay::setup( const gl::Texture &tex )
+void Vignette::setup( const gl::Texture &tex )
 {
-    mWheelScale	= 2.25f;
-	mShowWheel  = false;    
+    mScale = 2.25f;
+	mShowing = false;    
     mTex = tex;
     updateVerts();
 }
 
-void WheelOverlay::update()
+void Vignette::update()
 {
-    float prevWheelScale = mWheelScale;
+    float prevScale = mScale;
     
-	if( getShowWheel() ){
-		mWheelScale -= ( mWheelScale - 1.0f ) * 0.2f;
+	if( mShowing ){
+		mScale -= ( mScale - 1.0f ) * 0.2f;
 	} else {
-		mWheelScale -= ( mWheelScale - 2.25f ) * 0.2f;	
+		mScale -= ( mScale - 2.25f ) * 0.2f;	
 	}    
         
     const Vec2f interfaceSize = getRoot()->getInterfaceSize();
     
-    if (mInterfaceSize != interfaceSize || mWheelScale != prevWheelScale) {
+    if (mInterfaceSize != interfaceSize || mScale != prevScale) {
         
         mInterfaceSize = interfaceSize;
         mInterfaceCenter = mInterfaceSize * 0.5f;        
@@ -59,12 +58,12 @@ void WheelOverlay::update()
             mat.translate( Vec3f(0, -15.0f * amount, 0) );
         }
 
-        mat.scale( Vec3f( mWheelScale, mWheelScale, 1.0f ) );
+        mat.scale( Vec3f( mScale, mScale, 1.0f ) );
         setTransform(mat);        
     }        
 }
 
-void WheelOverlay::updateVerts()
+void Vignette::updateVerts()
 {	
 	mTotalVertices = 6;
 
@@ -99,11 +98,11 @@ void WheelOverlay::updateVerts()
 	}
 }
 
-void WheelOverlay::draw()
+void Vignette::draw()
 {	
-    if ( mWheelScale < 2.24f ) {    
+    if ( mScale < 2.24f ) {    
         
-        gl::color( ColorA( 1.0f, 1.0f, 1.0f, constrain(2.0f - mWheelScale, 0.0f, 1.0f) ) );
+        gl::color( ColorA( 1.0f, 1.0f, 1.0f, constrain(2.0f - mScale, 0.0f, 1.0f) ) );
         
         mTex.enableAndBind();
         glEnableClientState( GL_VERTEX_ARRAY );
@@ -120,9 +119,9 @@ void WheelOverlay::draw()
     }
 }
 
-void WheelOverlay::setShowWheel( bool b )
+void Vignette::setShowing( bool b )
 {
-    mShowWheel = b; 
-    mCallbacksWheelToggled.call( b );
+    mShowing = b; 
+    mCallbacksToggled.call( b );
 }
 
