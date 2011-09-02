@@ -138,15 +138,16 @@ void PlaylistChooser::update()
 
     // total size of all playlist labels + spaces
     float totalWidth = (mPlaylistSize.x * mNumPlaylists) + (mSpacerWidth * (mNumPlaylists+1));
-    totalWidth = max( totalWidth, mInterfaceSize.x );
+    float maxOffsetX = 0.0f;
+    float minOffsetX = 0.0f;
     
-    // min/max drag positions to leave things in the center
-//    float maxOffsetX = (mInterfaceSize.x / 2.0f) - (mPlaylistSize.x / 2.0f);              // when dragging right
-//    float minOffsetX = (mPlaylistSize.x / 2.0f) + (mInterfaceSize.x / 2.0f) - totalWidth; // when dragging left
-    // min/max drag positions to keep things on screen
-    float maxOffsetX = 0.0f;  // when dragging right
-    float minOffsetX = mPlaylistSize.x - totalWidth; // when dragging left
-    
+    if ( totalWidth < mInterfaceSize.x) {
+        maxOffsetX = mInterfaceSize.x - totalWidth;
+    }
+    else {
+        minOffsetX = mInterfaceSize.x - totalWidth;
+    }
+        
     /////////////
     
 	if( !mIsDragging ){
