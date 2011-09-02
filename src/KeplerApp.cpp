@@ -1545,6 +1545,7 @@ void KeplerApp::update()
             logEvent("Startup without Track Playing");
             // show vignette (to invite filtering) and apply first filter
             mUiLayer.setShowAlphaFilter( true );
+            mPlayControls.setAlphaOn( mUiLayer.isShowingAlphaFilter() );            
             mVignette.setShowing( true );
             mWorld.setFilter( LetterFilter::create( mState.getAlphaChar() ) );
             mState.setSelectedNode( NULL ); // trigger zoom to galaxy            
