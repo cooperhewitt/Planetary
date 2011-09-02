@@ -77,13 +77,15 @@ bool AlphaChooser::touchMoved( TouchEvent::Touch touch )
     
     Vec2f pos = globalToLocal( touch.getPos() );
     for (int i = 0; i < mAlphaRects.size(); i++) {
-        if ( mAlphaHitRects[i].contains( pos ) ) {
-            mAlphaIndex = i;
-			if( mAlphaChar != mAlphaString[i] ){            
-                mAlphaChar = mAlphaString[i];
-                mCallbacksAlphaCharSelected.call( mAlphaChar );
+        if ( mNumberAlphaPerChar[i] ) {                        
+            if ( mAlphaHitRects[i].contains( pos ) ) {
+                mAlphaIndex = i;
+                if( mAlphaChar != mAlphaString[i] ){            
+                    mAlphaChar = mAlphaString[i];
+                    mCallbacksAlphaCharSelected.call( mAlphaChar );
+                }
+                return true;
             }
-            return true;
         }
     }
     
@@ -96,11 +98,13 @@ bool AlphaChooser::touchEnded( TouchEvent::Touch touch )
 
     Vec2f pos = globalToLocal( touch.getPos() );
     for (int i = 0; i < mAlphaRects.size(); i++) {
-        if ( mAlphaHitRects[i].contains( pos ) ) {
-            mAlphaIndex = i;
-            mAlphaChar = mAlphaString[i];
-            mCallbacksAlphaCharSelected.call( mAlphaChar );
-            return true;
+        if ( mNumberAlphaPerChar[i] ) {            
+            if ( mAlphaHitRects[i].contains( pos ) ) {
+                mAlphaIndex = i;
+                mAlphaChar = mAlphaString[i];
+                mCallbacksAlphaCharSelected.call( mAlphaChar );
+                return true;
+            }
         }
     }
 
@@ -139,7 +143,7 @@ void AlphaChooser::draw()
             c += 0.3f;
             gl::color( ColorA( r*c, g*c, b*c, mOpacity ) );
         } else {
-            gl::color( ColorA( 0.3f, 0.0f, 0.0f, mOpacity ) );
+            gl::color( ColorA( 0.1f, 0.1f, 0.15f, mOpacity ) );
         }
         mAlphaTextures[i].enableAndBind();
         gl::drawSolidRect( mAlphaRects[i] );

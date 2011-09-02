@@ -1803,19 +1803,17 @@ void KeplerApp::updateCamera()
 	
 	G_CURRENT_LEVEL = mZoomDest;
 	
-//	if( mIsPinching && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
-//		if( mPinchPer > mPinchPerThresh ){
-//            if (!mVignette.isShowing()) {
-//                mVignette.setShowing( true );
-//            }
-////            std::cout << "updateCamera opened filter GUI" << std::endl;			
-//		} else if( mPinchPer <= mPinchPerThresh ){
-//            if (mVignette.isShowing()) {
-//                mVignette.setShowing( false );
-//            }
-////            std::cout << "updateCamera closed filter GUI" << std::endl;			
-//		}
-//	}
+	if( mIsPinching && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
+		if( mPinchPer > mPinchPerThresh ){
+            if (!mVignette.isShowing()) {
+                mVignette.setShowing( true );
+            }
+		} else if( mPinchPer <= mPinchPerThresh ){
+            if (mVignette.isShowing()) {
+                mVignette.setShowing( false );
+            }
+		}
+	}
 
 	float distToTravel = mState.getDistBetweenNodes();
 	double duration = 2.5f;
@@ -2205,6 +2203,7 @@ bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )
     // RESET:
 	mLoadingScreen.setVisible( true ); // TODO: reload textures, add back to mBloomSceneRef
     mMainBloomNodeRef->setVisible( false );    
+    mPlaylistChooser.clearTextures();
     mState.setup();
     mLoadingScreen.setArtistProgress( -1 );
     mLoadingScreen.setPlaylistProgress( -1 );    

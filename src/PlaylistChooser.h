@@ -61,6 +61,8 @@ public:
     
     void setOpacity( float opacity ) { mOpacity = opacity; }
 
+    void clearTextures() { mTextures.clear(); }
+    
 private:
     
 	float			getAlpha( float x );
