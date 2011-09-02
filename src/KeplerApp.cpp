@@ -257,7 +257,17 @@ class KeplerApp : public AppCocoaTouch {
         ORBIT_RING_GRADIENT_TEX,
         TRACK_ORIGIN_TEX,
 		GRADIENT_OVERLAY_TEX,
-        TOTAL_TEXTURE_COUNT
+        P_CLOUDS_1,
+        P_CLOUDS_2,
+        P_CLOUDS_3,
+        P_CLOUDS_4,
+        P_CLOUDS_5,
+        C_CLOUDS_1,
+        C_CLOUDS_2,
+        C_CLOUDS_3,
+        C_CLOUDS_4,
+        C_CLOUDS_5,
+        TOTAL_TEXTURE_COUNT // must be last :)
     };
     
     // manages threaded texture loading by ID (above)
@@ -405,26 +415,25 @@ void KeplerApp::initTextures()
     repeatMipFmt.setMagFilter( GL_LINEAR ); // TODO: experiment with GL_NEAREST where appropriate
     repeatMipFmt.setWrap( GL_REPEAT, GL_REPEAT );    
 
-    
-    mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "planetClouds1.png" ) ), mipFmt ) );
-	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "planetClouds2.png" ) ), mipFmt ) );
-	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "planetClouds3.png" ) ), mipFmt ) );
-	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "planetClouds4.png" ) ), mipFmt ) );
-	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "planetClouds5.png" ) ), mipFmt ) );
-	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "moonClouds1.png" ) ), mipFmt ) );
-	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "moonClouds2.png" ) ), mipFmt ) );
-	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "moonClouds3.png" ) ), mipFmt ) );
-	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "moonClouds4.png" ) ), mipFmt ) );
-	mCloudTextures.push_back( gl::Texture( loadImage( loadResource( "moonClouds5.png" ) ), mipFmt ) );
-	
     //////////
     
+    // TODO: can we load these on a thread some day?
     mHighResSurfaces   = Surface( loadImage( loadResource( "surfacesHighRes.png" ) ) );
 	mLowResSurfaces	   = Surface( loadImage( loadResource( "surfacesLowRes.png" ) ) );
     mNoAlbumArtSurface = Surface( loadImage( loadResource( "noAlbumArt.png" ) ) );
     
     //////////
     
+	mTextures.addRequest( P_CLOUDS_1, "planetClouds1.png" );    
+	mTextures.addRequest( P_CLOUDS_2, "planetClouds2.png" );    
+	mTextures.addRequest( P_CLOUDS_3, "planetClouds3.png" );    
+	mTextures.addRequest( P_CLOUDS_4, "planetClouds4.png" );    
+	mTextures.addRequest( P_CLOUDS_5, "planetClouds5.png" );    
+	mTextures.addRequest( M_CLOUDS_1, "moonClouds1.png" );    
+	mTextures.addRequest( M_CLOUDS_2, "moonClouds2.png" );    
+	mTextures.addRequest( M_CLOUDS_3, "moonClouds3.png" );    
+	mTextures.addRequest( M_CLOUDS_4, "moonClouds4.png" );    
+	mTextures.addRequest( M_CLOUDS_5, "moonClouds5.png" );    
     mTextures.addRequest( STAR_TEX,				"star.png",          mipFmt );
     mTextures.addRequest( STAR_CORE_TEX,		"starCore.png",      mipFmt );
     mTextures.addRequest( ECLIPSE_GLOW_TEX,		"eclipseGlow.png",   mipFmt );
@@ -456,6 +465,18 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
     
     Flurry::getInstrumentation()->stopTimeEvent("Load Textures and Fonts");        
 	
+    // CLOUD TEXTURE VECTOR
+	mCloudTextures.push_back( mTextures[P_CLOUDS_1] );
+    mCloudTextures.push_back( mTextures[P_CLOUDS_2] );
+	mCloudTextures.push_back( mTextures[P_CLOUDS_3] );
+	mCloudTextures.push_back( mTextures[P_CLOUDS_4] );
+	mCloudTextures.push_back( mTextures[P_CLOUDS_5] );
+	mCloudTextures.push_back( mTextures[M_CLOUDS_1] );
+	mCloudTextures.push_back( mTextures[M_CLOUDS_2] );
+	mCloudTextures.push_back( mTextures[M_CLOUDS_3] );
+	mCloudTextures.push_back( mTextures[M_CLOUDS_4] );
+	mCloudTextures.push_back( mTextures[M_CLOUDS_5] );
+    
 	// ARCBALL
 	mArcball.setWindowSize( getWindowSize() );
 	mArcball.setCenter( getWindowCenter() );
