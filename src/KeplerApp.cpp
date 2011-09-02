@@ -1805,15 +1805,20 @@ void KeplerApp::updateCamera()
 	
 	if( mIsPinching && G_CURRENT_LEVEL <= G_ALPHA_LEVEL ){
 		if( mPinchPer > mPinchPerThresh ){
-            if (!mVignette.isShowing()) {
+            if ( !mVignette.isShowing() ) {
                 mVignette.setShowing( true );
             }
 		} else if( mPinchPer <= mPinchPerThresh ){
-            if (mVignette.isShowing()) {
+            if ( mVignette.isShowing() ) {
                 mVignette.setShowing( false );
             }
 		}
 	}
+    else if ( !mUiLayer.isShowingFilter() ) {
+        if ( mVignette.isShowing() ) {
+            mVignette.setShowing( false );
+        }
+    }
 
 	float distToTravel = mState.getDistBetweenNodes();
 	double duration = 2.5f;
