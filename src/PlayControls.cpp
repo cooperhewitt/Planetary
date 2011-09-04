@@ -117,19 +117,6 @@ bool PlayControls::addedToScene()
 {
     // now mRoot is valid we can add children
     addChildren(); // FIXME: make it so you can add children even if mRoot is invalid
-    // add listeners to relay callbacks...
-//    std::cout << "registering callbacks in PlayControls" << std::endl;
-    mCbTouchMoved = getRoot()->registerBloomNodeTouchMoved( this, &PlayControls::onBloomNodeTouchMoved );
-    mCbTouchEnded = getRoot()->registerBloomNodeTouchEnded( this, &PlayControls::onBloomNodeTouchEnded );    
-    return false;
-}
-
-bool PlayControls::removedFromScene()
-{
-    // remove listeners...
-    // FIXME: this should also be done in destructor (?)
-    getRoot()->unregisterBloomNodeTouchMoved( mCbTouchMoved );
-    getRoot()->unregisterBloomNodeTouchEnded( mCbTouchEnded );    
     return false;
 }
 
@@ -162,24 +149,24 @@ void PlayControls::addChildren()
 }
 
 
-bool PlayControls::onBloomNodeTouchMoved( BloomNodeRef nodeRef )
-{
-    if ( nodeRef->getId() == mPlayheadSlider->getId() ) {
-        mCallbacksPlayheadMoved.call( mPlayheadSlider->getValue() );
-    }
-    return false;
-}
-
-bool PlayControls::onBloomNodeTouchEnded( BloomNodeRef nodeRef )
-{
-    if ( nodeRef->getId() == mPlayheadSlider->getId() ) {
-        mCallbacksPlayheadMoved.call( mPlayheadSlider->getValue() );
-    }
-    else if ( nodeRef->getId() > NO_BUTTON && nodeRef->getId() < LAST_BUTTON ) {
-        mCallbacksButtonPressed.call(ButtonId(nodeRef->getId()));
-    }
-    return false;
-}
+//bool PlayControls::onBloomNodeTouchMoved( BloomNodeRef nodeRef )
+//{
+//    if ( nodeRef->getId() == mPlayheadSlider->getId() ) {
+//        mCallbacksPlayheadMoved.call( mPlayheadSlider->getValue() );
+//    }
+//    return false;
+//}
+//
+//bool PlayControls::onBloomNodeTouchEnded( BloomNodeRef nodeRef )
+//{
+//    if ( nodeRef->getId() == mPlayheadSlider->getId() ) {
+//        mCallbacksPlayheadMoved.call( mPlayheadSlider->getValue() );
+//    }
+//    else if ( nodeRef->getId() > NO_BUTTON && nodeRef->getId() < LAST_BUTTON ) {
+//        mCallbacksButtonPressed.call(ButtonId(nodeRef->getId()));
+//    }
+//    return false;
+//}
 
 void PlayControls::setInterfaceSize( Vec2f interfaceSize )
 {

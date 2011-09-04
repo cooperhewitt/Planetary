@@ -108,10 +108,10 @@ class KeplerApp : public AppCocoaTouch {
     bool            onPlaylistChooserSelected( ci::ipod::PlaylistRef );
     bool            onPlaylistChooserTouched( ci::ipod::PlaylistRef );
     
-	bool			onSettingsPanelButtonPressed ( SettingsPanel::ButtonId button );
-	bool			onPlayControlsButtonPressed ( PlayControls::ButtonId button );
+	bool			onSettingsPanelButtonPressed ( BloomSceneEventRef event );
+	bool			onPlayControlsButtonPressed ( BloomSceneEventRef event );
     void            togglePlayPaused();
-	bool			onPlayControlsPlayheadMoved ( float amount );
+	bool			onPlayControlsPlayheadMoved ( BloomSceneEventRef event );
     void            flyToCurrentTrack();
     void            flyToCurrentAlbum();
     void            flyToCurrentArtist();
@@ -544,15 +544,15 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
                          &mIpodPlayer, 
                          mFontMediSmall, mFontMediTiny, 
                          mTextures[UI_BUTTONS_TEX] );
-	mPlayControls.registerButtonPressed( this, &KeplerApp::onPlayControlsButtonPressed );
-	mPlayControls.registerPlayheadMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
+	mPlayControls.registerTouchEnded( this, &KeplerApp::onPlayControlsButtonPressed );
+	mPlayControls.registerTouchMoved( this, &KeplerApp::onPlayControlsPlayheadMoved );
 
 	// SETTINGS PANEL
 	mSettingsPanel.setup( mBloomSceneRef->getInterfaceSize(), 
                           &mIpodPlayer, 
                           mFontMediSmall, 
                           mTextures[UI_BUTTONS_TEX] );
-	mSettingsPanel.registerButtonPressed( this, &KeplerApp::onSettingsPanelButtonPressed );
+	mSettingsPanel.registerTouchEnded( this, &KeplerApp::onSettingsPanelButtonPressed );
     mSettingsPanel.setVisible( G_SHOW_SETTINGS );
     // add as child of UILayer so it inherits the transform
     
@@ -1071,18 +1071,23 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
 	return false;
 }
 
-bool KeplerApp::onPlayControlsPlayheadMoved( float dragPer )
+bool KeplerApp::onPlayControlsPlayheadMoved( BloomSceneEventRef event )
 {
-	if ( mIpodPlayer.hasPlayingTrack() ) {
-        mCurrentTrackPlayheadTime = mCurrentTrackLength * dragPer;
-        mPlayheadUpdateSeconds = getElapsedSeconds();        
-        mIpodPlayer.setPlayheadTime( mCurrentTrackPlayheadTime );
+    if ( event->getNodeRef()->getId() == PlayControls::SLIDER ) {
+        if ( mIpodPlayer.hasPlayingTrack() ) {
+            float dragPer = mPlayControls.getPlayheadValue();
+            mCurrentTrackPlayheadTime = mCurrentTrackLength * dragPer;
+            mPlayheadUpdateSeconds = getElapsedSeconds();        
+            mIpodPlayer.setPlayheadTime( mCurrentTrackPlayheadTime );
+        }
     }
     return false;
 }
 
-bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
+bool KeplerApp::onSettingsPanelButtonPressed( BloomSceneEventRef event )
 {
+    SettingsPanel::ButtonId button = SettingsPanel::ButtonId( event->getNodeRef()->getId() );
+    
     int uw = 100;
 	int uh = 100;
 	
@@ -1217,8 +1222,10 @@ bool KeplerApp::onSettingsPanelButtonPressed( SettingsPanel::ButtonId button )
     return false;
 }
 
-bool KeplerApp::onPlayControlsButtonPressed( PlayControls::ButtonId button )
+bool KeplerApp::onPlayControlsButtonPressed( BloomSceneEventRef event )
 {
+    PlayControls::ButtonId button = PlayControls::ButtonId( event->getNodeRef()->getId() );
+    
 	int uw = 100;
 	int uh = 100;
 	
@@ -1586,7 +1593,7 @@ void KeplerApp::update()
     }
     
     // update UiLayer, PlayControls etc.
-    mBloomSceneRef->update();    
+    mBloomSceneRef->deepUpdate();    
     
     if ( mUiComplete && (mData.getState() == Data::LoadStateComplete) )
 	{
@@ -1896,7 +1903,7 @@ void KeplerApp::draw()
 	gl::clear( Color( 0, 0, 0 ), true );
 	if( mData.getState() != Data::LoadStateComplete ){
         // just for loading sc
-		mBloomSceneRef->draw();
+		mBloomSceneRef->deepDraw();
 	} else if( mData.mArtists.size() == 0 ){
 		drawNoArtists();
 	} else {
@@ -2220,7 +2227,7 @@ void KeplerApp::drawScene()
     }
 	
     // UILayer and PlayControls draw here:
-    mBloomSceneRef->draw();
+    mBloomSceneRef->deepDraw();
 }
 
 bool KeplerApp::onPlayerLibraryChanged( ipod::Player *player )

@@ -78,21 +78,7 @@ public:
     bool isPlayheadDragging() { return mPlayheadSlider->isDragging(); }
     void cancelPlayheadDrag() { mPlayheadSlider->setIsDragging(false); }
 
-	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
-	template<typename T>
-    ci::CallbackId registerButtonPressed( T *obj, bool (T::*callback)(ButtonId) )
-	{
-		return mCallbacksButtonPressed.registerCb(std::bind1st(std::mem_fun(callback), obj));
-	}
-	
-	template<typename T>
-	ci::CallbackId registerPlayheadMoved( T *obj, bool (T::*callback)(float) )
-	{
-		return mCallbacksPlayheadMoved.registerCb(std::bind1st(std::mem_fun(callback), obj));
-	}	
-	
     bool addedToScene(); // from BloomNode
-    bool removedFromScene(); // from BloomNode
     
     // override so we can batch geometry
     virtual void deepDraw();
@@ -109,17 +95,6 @@ private:
     void setInterfaceSize( ci::Vec2f interfaceSize );
     
     ci::Vec2f mInterfaceSize; // for detecting orientation change, updating layout
-        
-	// !!! EVENT STUFF (keep track of listeners)
-	ci::CallbackMgr<bool(ButtonId)> mCallbacksButtonPressed;
-	ci::CallbackMgr<bool(float)> mCallbacksPlayheadMoved;
-	    
-    // relay events from mBloomScene
-    bool onBloomNodeTouchMoved( BloomNodeRef nodeRef );    
-    bool onBloomNodeTouchEnded( BloomNodeRef nodeRef );
-
-    // for removing events when cleaning up
-    ci::CallbackId mCbTouchMoved, mCbTouchEnded;
 
     float mOpacity;
 

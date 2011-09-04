@@ -62,15 +62,7 @@ public:
 	float getParamSlider1Value(){ return mParamSlider1->getValue(); }
 	float getParamSlider2Value(){ return mParamSlider2->getValue(); }
     
-	// !!! EVENT STUFF (slightly nicer interface for adding listeners)
-	template<typename T>
-    ci::CallbackId registerButtonPressed( T *obj, bool (T::*callback)(ButtonId) )
-	{
-		return mCallbacksButtonPressed.registerCb(std::bind1st(std::mem_fun(callback), obj));
-	}
-	
     bool addedToScene(); // from BloomNode
-    bool removedFromScene();
     void deepDraw();
         
     // used in UiLayer layout...
@@ -92,15 +84,6 @@ private:
     // for detecting orientation change, updating layout    
     ci::Vec2f mInterfaceSize;
     
-	// !!! EVENT STUFF (keep track of listeners)
-	ci::CallbackMgr<bool(ButtonId)> mCallbacksButtonPressed;
-    
-    // for listening to scene level button events
-    bool onBloomNodeTouchEnded( BloomNodeRef nodeRef );
-    
-    // for removing events when cleaning up
-    ci::CallbackId mCbTouchEnded;
-        
     float mOpacity;
     
     ///////////// UI Classes:

@@ -139,15 +139,6 @@ bool SettingsPanel::addedToScene()
 {
     // now mRoot is valid we can add children
     addChildren(); // FIXME: make it so you can add children even if mRoot is invalid
-    mCbTouchEnded = getRoot()->registerBloomNodeTouchEnded( this, &SettingsPanel::onBloomNodeTouchEnded );    
-    return false;
-}
-
-bool SettingsPanel::removedFromScene()
-{
-    // remove listeners...
-    // FIXME: this should also be done in destructor (?)
-    getRoot()->unregisterBloomNodeTouchEnded( mCbTouchEnded );    
     return false;
 }
 
@@ -270,13 +261,13 @@ void SettingsPanel::deepDraw()
     }        
 }
 
-bool SettingsPanel::onBloomNodeTouchEnded( BloomNodeRef nodeRef )
-{
-    if ( nodeRef->getId() > NO_BUTTON && nodeRef->getId() < LAST_BUTTON ) {
-        mCallbacksButtonPressed.call(ButtonId(nodeRef->getId()));
-    }
-    return false;
-}
+//bool SettingsPanel::onBloomNodeTouchEnded( BloomNodeRef nodeRef )
+//{
+//    if ( nodeRef->getId() > NO_BUTTON && nodeRef->getId() < LAST_BUTTON ) {
+//        mCallbacksButtonPressed.call(ButtonId(nodeRef->getId()));
+//    }
+//    return false;
+//}
 
 float SettingsPanel::getHeight()
 {
