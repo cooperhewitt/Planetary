@@ -123,7 +123,7 @@ class KeplerApp : public AppCocoaTouch {
     bool			onPlayerStateChanged( ipod::Player *player );
     bool			onPlayerTrackChanged( ipod::Player *player );
     bool			onPlayerLibraryChanged( ipod::Player *player );
-	
+
 // UI BITS:
     BloomSceneRef       mBloomSceneRef;
     OrientationNodeRef  mOrientationNodeRef;
@@ -1565,7 +1565,7 @@ void KeplerApp::update()
         if ( mIpodPlayer.hasPlayingTrack() ) {
             logEvent("Startup with Track Playing");
             // update player info and then fly to current track
-            onPlayerTrackChanged( &mIpodPlayer );
+            onPlayerTrackChanged( NULL );
             flyToCurrentTrack();                
         } else {
             logEvent("Startup without Track Playing");
@@ -1610,11 +1610,24 @@ void KeplerApp::update()
         if (mPlayControls.isPlayheadDragging()) {
             mCurrentTrackPlayheadTime = mCurrentTrackLength * mPlayControls.getPlayheadValue();
             mPlayheadUpdateSeconds = elapsedSeconds;
+            std::cout << "dragging mCurrentTrackPlayheadTime" << std::endl;            
+            std::cout << mCurrentTrackPlayheadTime << std::endl;            
         }
         else if (elapsedSeconds - mPlayheadUpdateSeconds > 1) {
-            // mCurrentTrackPlayheadTime is set to 0 if the track changes
+            // mPlayheadUpdateSeconds is set to -1 if the track changes
+            std::cout << "updating mCurrentTrackPlayheadTime" << std::endl;            
+            std::cout << elapsedSeconds << std::endl;            
+            std::cout << mPlayheadUpdateSeconds << std::endl;            
+            mCurrentPlayState = mIpodPlayer.getPlayState(); // !!! slow on iOS 4, is it OK on iOS 5?
             mCurrentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
             mPlayheadUpdateSeconds = elapsedSeconds;
+            std::cout << mCurrentTrackPlayheadTime << std::endl; 
+            std::cout << "isPaused = " << (mCurrentPlayState == ipod::Player::StatePaused) << std::endl;
+        }
+        
+        if (isnan(mCurrentTrackPlayheadTime)) {
+            std::cout << mCurrentTrackPlayheadTime << std::endl;
+            std::cout << "agh" << std::endl;
         }
 
 		if( mPlayingTrack && mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
@@ -1780,12 +1793,15 @@ void KeplerApp::updateCamera()
 		
 	}
 	
-	
-	
 	Node* selectedNode = mState.getSelectedNode();
 	if( selectedNode ){															// IF THERE IS A CURRENTLY SELECTED NODE...
 		mCamDistDest	= selectedNode->mIdealCameraDist * cameraDistMulti;
 		
+//        std::cout << selectedNode->mPos << std::endl;
+//        std::cout << selectedNode->mGen << std::endl;
+//        std::cout << selectedNode->mVel << std::endl;
+//        std::cout << "yay?" << std::endl;
+        
 		if( G_AUTO_MOVE ){															// IF THE CAMERA IS SET TO MOVE AUTOMATICALLY...
 			if( selectedNode->mParentNode ){											// IF I HAVE A PARENT NODE
 																						// THEN LOOK BETWEEN ME AND MY PARENT.
@@ -1819,6 +1835,13 @@ void KeplerApp::updateCamera()
 		mCenterDest		= selectedNode->mPos;
 		mZoomDest		= selectedNode->mGen;
 		mCenterFrom		+= selectedNode->mVel;
+        
+        if( (isnan(mCenterDest.x) || isnan(mCenterDest.y) || isnan(mCenterDest.z)) ) {
+            std::cout << selectedNode->mPos << std::endl;
+            std::cout << selectedNode->mGen << std::endl;
+            std::cout << selectedNode->mVel << std::endl;
+            std::cout << "agh" << std::endl;
+        }
 		
 	} else {																	// ELSE JUST SET CAMERA VARS TO DEFAULTS AND ZEROS
 		mCamDistDest	= G_INIT_CAM_DIST * cameraDistMulti;
@@ -1886,14 +1909,15 @@ void KeplerApp::updateCamera()
     mEye = mCenter - camOffset;
 
     // FIXME: what causes camera to sometimes destroy itself?
-//    if( (isnan(mEye.x) || isnan(mEye.y) || isnan(mEye.z)) ) {
-//        std::cout << mEye << std::endl;
-//        std::cout << camOffset << std::endl;
-//        std::cout << q << std::endl;
-//        std::cout << mCamDist << std::endl;
-//        std::cout << mCenter << std::endl;        
-//    }
-
+    if( (isnan(mEye.x) || isnan(mEye.y) || isnan(mEye.z)) ) {
+        std::cout << mEye << std::endl;
+        std::cout << camOffset << std::endl;
+        std::cout << q << std::endl;
+        std::cout << mCamDist << std::endl;
+        std::cout << mCenter << std::endl;        
+        std::cout << "----" << std::endl;        
+    }
+    
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( mEye - mCenterOffset, mCenter, q * mUp );
 }
@@ -2251,8 +2275,18 @@ bool KeplerApp::onPlayerTrackChanged( ipod::Player *player )
 
     if (mPlayControls.isPlayheadDragging()) {
         mPlayControls.cancelPlayheadDrag();
-        mPlayControls.setPlayheadValue(0.0f);
+        mPlayControls.setPlayheadValue( 0.0f );
         mIpodPlayer.setPlayheadTime( 0.0f );        
+    }
+    
+    // iOS 5 seems finicky about when it will call this
+    // call it here to be sure:
+    if ( player != NULL ) {
+        // cool, this even was from CinderIPod
+        // we'll call this again but with NULL
+        // so it won't call us back :)
+        // -- jeez this is a terrible way to alter function behavior, sorry
+        onPlayerStateChanged( NULL );
     }
     
 	if (mIpodPlayer.hasPlayingTrack()) {
@@ -2402,7 +2436,10 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
     // make sure mCurrentTrack and mWorld.mPlayingTrackNode are taken care of,
     // unless we're just continuing to play a track we're already aware of
     if ((!wasPaused && isPlaying) || firstRun) {
-        onPlayerTrackChanged( player );
+        // make sure this event came from the system and not from us
+        if ( player != NULL) {
+            onPlayerTrackChanged( NULL );
+        }
     }
     
     // do stats:

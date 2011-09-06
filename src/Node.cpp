@@ -32,6 +32,7 @@ Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, co
 	mEclipseAngle		= 0.0f;
 	mEclipseDirBasedAlpha = 0.0f;
 	mVel                = Vec3f::zero();
+    mPos                = Vec3f::zero();
 	
 	mOrbitStartAngle	= Rand::randFloat( TWO_PI );
 	mOrbitAngle			= mOrbitStartAngle;

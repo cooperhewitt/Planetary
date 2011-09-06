@@ -45,6 +45,9 @@ NodeTrack::NodeTrack( Node *parent, int index, const Font &font, const Font &sma
 	mShadowTexCoords	= NULL;
 	
 	mMyTime				= Rand::randFloat( 250.0 );
+	mPrevTime           = 0.0f;
+    mCurrentTime        = 0.0f;
+    mPercentPlayed		= 0.0;
 }
 
 void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &albumArt )
@@ -130,7 +133,7 @@ void NodeTrack::setData( TrackRef track, PlaylistRef album, const Surface &album
 void NodeTrack::setStartAngle()
 {
 	mPercentPlayed		= 0.0f;
-	float timeOffset	= (float)mMyTime/mOrbitPeriod;
+	float timeOffset	= (float)(mMyTime / mOrbitPeriod);
 	mOrbitStartAngle	= timeOffset * TWO_PI;
 	
 //    if (G_DEBUG) {
@@ -149,9 +152,17 @@ void NodeTrack::updateAudioData( double currentPlayheadTime )
 {
 	if( mIsPlaying ){
 		//std::cout << "NodeTrack::updateAudioData()" << std::endl;
-		mPercentPlayed		= currentPlayheadTime/mTrackLength;
+		mPercentPlayed		= currentPlayheadTime / mTrackLength;
 		mOrbitAngle			= mPercentPlayed * TWO_PI + mOrbitStartAngle;
 		
+        if (isnan(mPercentPlayed)) {
+            std::cout << "agh" << std::endl;
+            std::cout << mPercentPlayed << std::endl;
+            std::cout << currentPlayheadTime << std::endl;
+            std::cout << mTrackLength << std::endl;
+            std::cout << "agh" << std::endl;
+        }
+        
 //		std::cout << "CurrentPlayheadTime = " << currentPlayheadTime << std::endl;
 		
 		// TODO: Find a better way to do this without clearing mOrbitPath every frame.
@@ -236,12 +247,12 @@ void NodeTrack::update( float param1, float param2 )
 	mPrevTime		= mCurrentTime;
 	mCurrentTime	= (float)app::getElapsedSeconds();
 	
-	if( !mIsPlaying ){
+	if( !mIsPlaying && mPrevTime > 0.0 ){
 		mMyTime			+= mCurrentTime - mPrevTime;
 		mMyTime += param2 * 50.0f;
 	}
 	
-	float timeOffset	= mMyTime/mOrbitPeriod;
+	float timeOffset	= mMyTime / mOrbitPeriod;
 	if( !mIsPlaying ){
 		//mOrbitAngle	+= param2;
 		mAxialRot.y -= mAxialVel * ( param2 * 15.0f );
@@ -262,7 +273,22 @@ void NodeTrack::update( float param1, float param2 )
     
 	mRelPos				= Vec3f( cos( mOrbitAngle ), 0.0f, sin( mOrbitAngle ) ) * mOrbitRadius;
 	mPos				= mParentNode->mPos + mRelPos;
-	
+
+    if( (isnan(mPos.x) || isnan(mPos.y) || isnan(mPos.z)) ) {
+        std::cout << "agh" << std::endl;
+        std::cout << mMyTime << std::endl;
+        std::cout << mOrbitPeriod << std::endl;
+        std::cout << timeOffset << std::endl;
+        std::cout << mRelPos << std::endl;
+        std::cout << mOrbitAngle << std::endl;
+        std::cout << mPercentPlayed << std::endl;
+        std::cout << mPos << std::endl;
+        std::cout << mGen << std::endl;
+        std::cout << mVel << std::endl;
+        std::cout << mTrackLength << std::endl;
+        std::cout << "agh" << std::endl;
+    }	
+    
 	if( mIsPlaying ){
 		mStartRelPos	= Vec3f( cos( mOrbitStartAngle ), 0.0f, sin( mOrbitStartAngle ) ) * mOrbitRadius;
 		mTransStartPos	= mParentNode->mPos + mStartRelPos;
