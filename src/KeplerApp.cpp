@@ -1926,7 +1926,8 @@ void KeplerApp::draw()
 {
 	gl::clear( Color( 0, 0, 0 ), true );
 	if( mData.getState() != Data::LoadStateComplete ){
-        // just for loading sc
+		// just for loading sc
+		gl::setMatricesWindow( getWindowSize() );
 		mBloomSceneRef->deepDraw();
 	} else if( mData.mArtists.size() == 0 ){
 		drawNoArtists();
@@ -2251,6 +2252,7 @@ void KeplerApp::drawScene()
     }
 	
     // UILayer and PlayControls draw here:
+    gl::setMatricesWindow( getWindowSize() );
     mBloomSceneRef->deepDraw();
 }
 
