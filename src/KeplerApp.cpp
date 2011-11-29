@@ -312,6 +312,13 @@ void KeplerApp::setup()
 //    float t = getElapsedSeconds();
     
 	Flurry::getInstrumentation()->startTimeEvent("Setup");
+
+//    assert(ipod::Player::StateStopped         == MPMusicPlaybackStateStopped);
+//    assert(ipod::Player::StatePlaying         == MPMusicPlaybackStatePlaying);
+//    assert(ipod::Player::StatePaused          == MPMusicPlaybackStatePaused);
+//    assert(ipod::Player::StateInterrupted     == MPMusicPlaybackStateInterrupted);
+//    assert(ipod::Player::StateSeekingForward  == MPMusicPlaybackStateSeekingForward);
+//    assert(ipod::Player::StateSeekingBackward == MPMusicPlaybackStateSeekingBackward);
     
     mRemainingSetupCalled = false;
     mUiComplete = false;
@@ -1475,7 +1482,7 @@ void KeplerApp::togglePlayPaused()
         mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( 0.0f, 0.0f, 100.0f, 100.0f ), "PLAY" );
     }    
 }
- 
+
 void KeplerApp::checkForNodeTouch( const Ray &ray, const Vec2f &pos )
 {
 	vector<Node*> nodes;
@@ -1615,14 +1622,15 @@ void KeplerApp::update()
         }
         else if (elapsedSeconds - mPlayheadUpdateSeconds > 1) {
             // mPlayheadUpdateSeconds is set to -1 if the track changes
-            std::cout << "updating mCurrentTrackPlayheadTime" << std::endl;            
-            std::cout << elapsedSeconds << std::endl;            
-            std::cout << mPlayheadUpdateSeconds << std::endl;            
+            //std::cout << "updating mCurrentTrackPlayheadTime" << std::endl;            
+            //std::cout << elapsedSeconds << std::endl;            
+            //std::cout << mPlayheadUpdateSeconds << std::endl;            
             mCurrentPlayState = mIpodPlayer.getPlayState(); // !!! slow on iOS 4, is it OK on iOS 5?
             mCurrentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
             mPlayheadUpdateSeconds = elapsedSeconds;
-            std::cout << mCurrentTrackPlayheadTime << std::endl; 
+            //std::cout << mCurrentTrackPlayheadTime << std::endl; 
             std::cout << "isPaused = " << (mCurrentPlayState == ipod::Player::StatePaused) << std::endl;
+            std::cout << "isPlaying = " << (mCurrentPlayState == ipod::Player::StatePlaying) << std::endl;
         }
         
         if (isnan(mCurrentTrackPlayheadTime)) {
@@ -2427,7 +2435,18 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
     // this should be the only call to getPlayState() apart from during setup()
     // TODO: modify CinderIPod library to pass the new play state directly
     mCurrentPlayState = mIpodPlayer.getPlayState();
+        
+    std::cout << "onPlayerStateChanged" << std::endl;
+    std::cout << "prevPlayState = " << prevPlayState << std::endl;
+    std::cout << "mCurrentPlayState = " << mCurrentPlayState << std::endl;
+    std::cout << std::endl;
 
+    // double-down?
+//    if (mCurrentPlayState == ipod::Player::StateStopped) {
+//        std::cout << "enforcing stop" << std::endl;
+//        mIpodPlayer.stop();
+//    }
+    
     // update UI:
     const bool isPlaying = (mCurrentPlayState == ipod::Player::StatePlaying);
     mPlayControls.setPlayingOn(isPlaying);
