@@ -343,7 +343,7 @@ void KeplerApp::setup()
     // this will receive touch events before anything else (so it can cancel them before they hit the world)
     mBloomSceneRef = BloomScene::create( this );
     
-    mOrientationNodeRef = OrientationNode::create( &mOrientationHelper );
+    mOrientationNodeRef = OrientationNode::create();
     mBloomSceneRef->addChild( mOrientationNodeRef );
 
     // load textures (synchronously) for LoadingScreen
@@ -1085,7 +1085,7 @@ bool KeplerApp::onSelectedNodeChanged( Node *node )
 
 bool KeplerApp::onPlayControlsPlayheadMoved( BloomSceneEventRef event )
 {
-    if ( event->getNodeRef()->getId() == PlayControls::SLIDER ) {
+    if ( event->getTargetRef()->getId() == PlayControls::SLIDER ) {
         if ( mIpodPlayer.hasPlayingTrack() ) {
             float dragPer = mPlayControls.getPlayheadValue();
             mCurrentTrackPlayheadTime = mCurrentTrackLength * dragPer;
@@ -1098,7 +1098,7 @@ bool KeplerApp::onPlayControlsPlayheadMoved( BloomSceneEventRef event )
 
 bool KeplerApp::onSettingsPanelButtonPressed( BloomSceneEventRef event )
 {
-    SettingsPanel::ButtonId button = SettingsPanel::ButtonId( event->getNodeRef()->getId() );
+    SettingsPanel::ButtonId button = SettingsPanel::ButtonId( event->getTargetRef()->getId() );
     
     int uw = 100;
 	int uh = 100;
@@ -1236,7 +1236,7 @@ bool KeplerApp::onSettingsPanelButtonPressed( BloomSceneEventRef event )
 
 bool KeplerApp::onPlayControlsButtonPressed( BloomSceneEventRef event )
 {
-    PlayControls::ButtonId button = PlayControls::ButtonId( event->getNodeRef()->getId() );
+    PlayControls::ButtonId button = PlayControls::ButtonId( event->getTargetRef()->getId() );
     
 	int uw = 100;
 	int uh = 100;

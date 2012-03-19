@@ -253,6 +253,7 @@
 		E2DC800C13FC6ED200CF1106 /* TaskQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TaskQueue.h; path = ../blocks/BloomTasks/src/TaskQueue.h; sourceTree = "<group>"; };
 		E2DC801013FC7BB400CF1106 /* TaskQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TaskQueue.cpp; path = ../blocks/BloomTasks/src/TaskQueue.cpp; sourceTree = "<group>"; };
 		E2E1E7061516EF98000FDED5 /* OrientationNode.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OrientationNode.mm; sourceTree = "<group>"; };
+		E2E1E70815170CB5000FDED5 /* Planetary.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Planetary.entitlements; sourceTree = "<group>"; };
 		E2E21CB213A14A3700A476A2 /* Galaxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Galaxy.cpp; path = ../src/Galaxy.cpp; sourceTree = "<group>"; };
 		E2E21CB613A177E200A476A2 /* AlphaChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlphaChooser.h; path = ../src/AlphaChooser.h; sourceTree = "<group>"; };
 		E2E21CB713A177E200A476A2 /* BloomGl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BloomGl.h; path = ../src/BloomGl.h; sourceTree = "<group>"; };
@@ -353,6 +354,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				E2E1E70815170CB5000FDED5 /* Planetary.entitlements */,
 				E1A332D9130105EC00CED126 /* Blocks */,
 				00CFDFB81138492F0091E310 /* Headers */,
 				00CFDFA7113848F40091E310 /* Source */,
@@ -1022,6 +1024,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CINDER_PATH_jandersen = /Users/jandersen/libs/Cinder;
+				CODE_SIGN_ENTITLEMENTS = Planetary.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -1063,6 +1066,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_ENTITLEMENTS = Planetary.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1191,6 +1195,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_ENTITLEMENTS = Planetary.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
