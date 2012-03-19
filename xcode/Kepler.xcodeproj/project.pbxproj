@@ -110,6 +110,7 @@
 		E2DC1E0213984774000B1D11 /* NotificationOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DC1E0113984774000B1D11 /* NotificationOverlay.cpp */; };
 		E2DC801113FC7BB400CF1106 /* TaskQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DC801013FC7BB400CF1106 /* TaskQueue.cpp */; };
 		E2E1E7071516EF99000FDED5 /* OrientationNode.mm in Sources */ = {isa = PBXBuildFile; fileRef = E2E1E7061516EF98000FDED5 /* OrientationNode.mm */; };
+		E2E1E70E15171104000FDED5 /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = E2E1E70D15171104000FDED5 /* Entitlements.plist */; };
 		E2E21CB413A14A3800A476A2 /* Galaxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CB213A14A3700A476A2 /* Galaxy.cpp */; };
 		E2E21CD913A1821300A476A2 /* GyroHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CD713A1821300A476A2 /* GyroHelper.cpp */; };
 		E2E21CDD13A2D71300A476A2 /* Stats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2E21CDB13A2D70C00A476A2 /* Stats.cpp */; };
@@ -253,7 +254,7 @@
 		E2DC800C13FC6ED200CF1106 /* TaskQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TaskQueue.h; path = ../blocks/BloomTasks/src/TaskQueue.h; sourceTree = "<group>"; };
 		E2DC801013FC7BB400CF1106 /* TaskQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TaskQueue.cpp; path = ../blocks/BloomTasks/src/TaskQueue.cpp; sourceTree = "<group>"; };
 		E2E1E7061516EF98000FDED5 /* OrientationNode.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OrientationNode.mm; sourceTree = "<group>"; };
-		E2E1E70815170CB5000FDED5 /* Planetary.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Planetary.entitlements; sourceTree = "<group>"; };
+		E2E1E70D15171104000FDED5 /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
 		E2E21CB213A14A3700A476A2 /* Galaxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Galaxy.cpp; path = ../src/Galaxy.cpp; sourceTree = "<group>"; };
 		E2E21CB613A177E200A476A2 /* AlphaChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlphaChooser.h; path = ../src/AlphaChooser.h; sourceTree = "<group>"; };
 		E2E21CB713A177E200A476A2 /* BloomGl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BloomGl.h; path = ../src/BloomGl.h; sourceTree = "<group>"; };
@@ -354,7 +355,6 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				E2E1E70815170CB5000FDED5 /* Planetary.entitlements */,
 				E1A332D9130105EC00CED126 /* Blocks */,
 				00CFDFB81138492F0091E310 /* Headers */,
 				00CFDFA7113848F40091E310 /* Source */,
@@ -380,6 +380,7 @@
 				E1555CA3131EEBD50079B05A /* Fonts */,
 				E1555CA2131EEBD10079B05A /* Images */,
 				8D1107310486CEB800E47090 /* Kepler-Info.plist */,
+				E2E1E70D15171104000FDED5 /* Entitlements.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -951,6 +952,7 @@
 				E1F642F513FB101D007E1183 /* gradientLarge.png in Resources */,
 				E11BA85F140855590020DD9C /* uiButtons.png in Resources */,
 				E2310D50141127B10031AA63 /* Icon@2x.png in Resources */,
+				E2E1E70E15171104000FDED5 /* Entitlements.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1024,7 +1026,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CINDER_PATH_jandersen = /Users/jandersen/libs/Cinder;
-				CODE_SIGN_ENTITLEMENTS = Planetary.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -1066,7 +1067,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CODE_SIGN_ENTITLEMENTS = Planetary.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1195,7 +1195,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CODE_SIGN_ENTITLEMENTS = Planetary.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Entitlements.plist;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";

@@ -1622,8 +1622,8 @@ void KeplerApp::update()
         if (mPlayControls.isPlayheadDragging()) {
             mCurrentTrackPlayheadTime = mCurrentTrackLength * mPlayControls.getPlayheadValue();
             mPlayheadUpdateSeconds = elapsedSeconds;
-            std::cout << "dragging mCurrentTrackPlayheadTime" << std::endl;            
-            std::cout << mCurrentTrackPlayheadTime << std::endl;            
+//            std::cout << "dragging mCurrentTrackPlayheadTime" << std::endl;            
+//            std::cout << mCurrentTrackPlayheadTime << std::endl;            
         }
         else if (elapsedSeconds - mPlayheadUpdateSeconds > 1) {
             // mPlayheadUpdateSeconds is set to -1 if the track changes
@@ -1634,14 +1634,14 @@ void KeplerApp::update()
             mCurrentTrackPlayheadTime = mIpodPlayer.getPlayheadTime();
             mPlayheadUpdateSeconds = elapsedSeconds;
             //std::cout << mCurrentTrackPlayheadTime << std::endl; 
-            std::cout << "isPaused = " << (mCurrentPlayState == ipod::Player::StatePaused) << std::endl;
-            std::cout << "isPlaying = " << (mCurrentPlayState == ipod::Player::StatePlaying) << std::endl;
+//            std::cout << "isPaused = " << (mCurrentPlayState == ipod::Player::StatePaused) << std::endl;
+//            std::cout << "isPlaying = " << (mCurrentPlayState == ipod::Player::StatePlaying) << std::endl;
         }
         
-        if (isnan(mCurrentTrackPlayheadTime)) {
-            std::cout << mCurrentTrackPlayheadTime << std::endl;
-            std::cout << "agh" << std::endl;
-        }
+//        if (isnan(mCurrentTrackPlayheadTime)) {
+//            std::cout << mCurrentTrackPlayheadTime << std::endl;
+//            std::cout << "agh" << std::endl;
+//        }
 
 		if( mPlayingTrack && mWorld.mPlayingTrackNode && G_ZOOM > G_ARTIST_LEVEL ){
             const bool isPaused = (mCurrentPlayState == ipod::Player::StatePaused);
@@ -1849,12 +1849,12 @@ void KeplerApp::updateCamera()
 		mZoomDest		= selectedNode->mGen;
 		mCenterFrom		+= selectedNode->mVel;
         
-        if( (isnan(mCenterDest.x) || isnan(mCenterDest.y) || isnan(mCenterDest.z)) ) {
-            std::cout << selectedNode->mPos << std::endl;
-            std::cout << selectedNode->mGen << std::endl;
-            std::cout << selectedNode->mVel << std::endl;
-            std::cout << "agh" << std::endl;
-        }
+//        if( (isnan(mCenterDest.x) || isnan(mCenterDest.y) || isnan(mCenterDest.z)) ) {
+//            std::cout << selectedNode->mPos << std::endl;
+//            std::cout << selectedNode->mGen << std::endl;
+//            std::cout << selectedNode->mVel << std::endl;
+//            std::cout << "agh" << std::endl;
+//        }
 		
 	} else {																	// ELSE JUST SET CAMERA VARS TO DEFAULTS AND ZEROS
 		mCamDistDest	= G_INIT_CAM_DIST * cameraDistMulti;
@@ -1922,14 +1922,14 @@ void KeplerApp::updateCamera()
     mEye = mCenter - camOffset;
 
     // FIXME: what causes camera to sometimes destroy itself?
-    if( (isnan(mEye.x) || isnan(mEye.y) || isnan(mEye.z)) ) {
-        std::cout << mEye << std::endl;
-        std::cout << camOffset << std::endl;
-        std::cout << q << std::endl;
-        std::cout << mCamDist << std::endl;
-        std::cout << mCenter << std::endl;        
-        std::cout << "----" << std::endl;        
-    }
+//    if( (isnan(mEye.x) || isnan(mEye.y) || isnan(mEye.z)) ) {
+//        std::cout << mEye << std::endl;
+//        std::cout << camOffset << std::endl;
+//        std::cout << q << std::endl;
+//        std::cout << mCamDist << std::endl;
+//        std::cout << mCenter << std::endl;        
+//        std::cout << "----" << std::endl;        
+//    }
     
 	mCam.setPerspective( mFov, getWindowAspectRatio(), 0.001f, 2000.0f );
 	mCam.lookAt( mEye - mCenterOffset, mCenter, q * mUp );
@@ -2441,10 +2441,10 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
     // TODO: modify CinderIPod library to pass the new play state directly
     mCurrentPlayState = mIpodPlayer.getPlayState();
         
-    std::cout << "onPlayerStateChanged" << std::endl;
-    std::cout << "prevPlayState = " << prevPlayState << std::endl;
-    std::cout << "mCurrentPlayState = " << mCurrentPlayState << std::endl;
-    std::cout << std::endl;
+//    std::cout << "onPlayerStateChanged" << std::endl;
+//    std::cout << "prevPlayState = " << prevPlayState << std::endl;
+//    std::cout << "mCurrentPlayState = " << mCurrentPlayState << std::endl;
+//    std::cout << std::endl;
 
     // double-down?
 //    if (mCurrentPlayState == ipod::Player::StateStopped) {
