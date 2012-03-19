@@ -24,12 +24,31 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void Vignette::setup( const gl::Texture &tex )
+void Vignette::setup( const gl::Texture &tex, const ci::Vec2f &interfaceSize )
 {
-    mScale = 2.25f;
 	mShowing = false;    
     mTex = tex;
+    mScale = 2.25f;
+    mInterfaceSize = interfaceSize;
+    updateTransform();
     updateVerts();
+}
+
+void Vignette::updateTransform()
+{
+    Vec2f interfaceCenter = mInterfaceSize * 0.5f;        
+    
+    Matrix44f mat;
+    mat.translate( Vec3f(interfaceCenter, 0) );
+    
+    if ( mInterfaceSize.x > mInterfaceSize.y ) {
+        // adjust for control panel in landscape
+        float amount = (mInterfaceSize.x - mInterfaceSize.y) / (1024-768);            
+        mat.translate( Vec3f(0, -15.0f * amount, 0) );
+    }
+    
+    mat.scale( Vec3f( mScale, mScale, 1.0f ) );
+    setTransform(mat);     
 }
 
 void Vignette::update()
@@ -45,22 +64,9 @@ void Vignette::update()
     const Vec2f interfaceSize = getRoot()->getInterfaceSize();
     
     if (mInterfaceSize != interfaceSize || mScale != prevScale) {
-        
         mInterfaceSize = interfaceSize;
-        mInterfaceCenter = mInterfaceSize * 0.5f;        
-
-        Matrix44f mat;
-        mat.translate( Vec3f(mInterfaceCenter, 0) );
-        
-        if ( mInterfaceSize.x > mInterfaceSize.y ) {
-            // adjust for control panel in landscape
-            float amount = (mInterfaceSize.x - mInterfaceSize.y) / (1024-768);            
-            mat.translate( Vec3f(0, -15.0f * amount, 0) );
-        }
-
-        mat.scale( Vec3f( mScale, mScale, 1.0f ) );
-        setTransform(mat);        
-    }        
+        updateTransform();
+    }
 }
 
 void Vignette::updateVerts()
@@ -69,8 +75,8 @@ void Vignette::updateVerts()
 
 	mVerts = new VertexData[mTotalVertices];
 	
-	float W	= 1280; // sqrt(1024 * 1024 + 768 * 768) (diagonal)
-	float H = W;    // squared off for orientation animation
+	float W	= mInterfaceSize.length(); // (diagonal)
+	float H = W;                       // squared off for orientation animation
 	float CW = W/2;
 	float CH = H/2;
 		

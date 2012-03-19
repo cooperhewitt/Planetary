@@ -25,7 +25,7 @@ public:
         delete[] mVerts; 
     }
 	
-	void	setup( const ci::gl::Texture &tex );
+	void	setup( const ci::gl::Texture &tex, const ci::Vec2f &interfaceSize );
 	void	update();
 	void	draw();
 
@@ -45,7 +45,8 @@ private:
         ci::Vec2f vertex;
         ci::Vec2f texture;
     };
-	    
+    
+    void updateTransform();
     void updateVerts();
     
 	ci::gl::Texture	mTex;
@@ -57,7 +58,7 @@ private:
 	int mTotalVertices;
 	VertexData *mVerts;
     
-    ci::Vec2f mInterfaceSize, mInterfaceCenter;
+    ci::Vec2f mInterfaceSize;
     
 	ci::CallbackMgr<bool(bool)> mCallbacksToggled;    
 };

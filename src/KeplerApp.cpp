@@ -202,6 +202,7 @@ class KeplerApp : public AppCocoaTouch {
 // FONTS
 	Font			mFontMedium, mFontBig, mFontHuge, mFontSmall; // Aaux
 	Font			mFontMedi, mFontMediSmall, mFontMediTiny, mFontMediBig; // Unit Medi
+    Font            mNodeFont, mNodeFontSmall; // Unit Medi, for world space things
     Font            mFontUltraBig; // Unit Ultra
 	
 // MULTITOUCH
@@ -389,7 +390,7 @@ void KeplerApp::initTextures()
     
     // FONTS
     //   Note to would-be optimizers: loadResource is fairly fast (~7ms for 5 fonts)
-    //   ...it's Font() that's slow (~50ms per font?)
+    //   ...it's Font() that's slow (~50ms per font?)    
     DataSourceRef aux   = loadResource( "AauxPro-Black.ttf");
 	mFontHuge			= Font( aux, 100 );
 	mFontSmall			= Font( aux, 16 );
@@ -401,7 +402,11 @@ void KeplerApp::initTextures()
 	mFontMediSmall		= Font( medi, 13 );
 	mFontMediTiny		= Font( medi, 11 );
     mFontMediBig        = Font( medi, 24 );
-                               
+
+    const float contentScaleFactor = getContentScaleFactor();
+    mNodeFont           = Font( medi, 14 * contentScaleFactor ); // node label font, doubled because it's not drawn by bloomscene
+    mNodeFontSmall		= Font( medi, 11 * contentScaleFactor ); // node label font, doubled because it's not drawn by bloomscene
+    
     DataSourceRef ultra = loadResource( "UnitRoundedOT-Ultra.otf" );                               
     mFontUltraBig       = Font( ultra, 24 );
 
@@ -542,7 +547,7 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	mParticleController.addDusts( G_NUM_DUSTS );
 
     // VIGNETTE
-    mVignette.setup( mTextures[GRADIENT_OVERLAY_TEX] ); 
+    mVignette.setup( mTextures[GRADIENT_OVERLAY_TEX], mBloomSceneRef->getInterfaceSize() ); 
 	mVignette.registerToggled( this, &KeplerApp::onVignetteToggled );    
     mMainBloomNodeRef->addChild( BloomNodeRef( &mVignette ) );
     
@@ -1561,7 +1566,7 @@ void KeplerApp::update()
         mData.update();
 
         // processes pending nodes
-		mWorld.initNodes( mData.mArtists, mFontMedi, mFontMediTiny, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
+		mWorld.initNodes( mData.mArtists, mNodeFont, mNodeFontSmall, mHighResSurfaces, mLowResSurfaces, mNoAlbumArtSurface );
         
         mAlphaChooser.setNumberAlphaPerChar( mData.mNormalizedArtistsPerChar );
 		mLoadingScreen.setVisible( false ); // TODO: remove from scene graph, clean up textures
