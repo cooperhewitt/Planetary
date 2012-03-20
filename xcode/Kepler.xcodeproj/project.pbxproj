@@ -1025,7 +1025,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CINDER_PATH_jandersen = /Users/jandersen/libs/Cinder;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -1108,9 +1107,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CINDER_PATH = "$(CINDER_PATH_$(USER))";
-				CINDER_PATH_robert = ../../../../cinder_master;
-				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
+				CINDER_PATH = ../cinder;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
@@ -1136,9 +1133,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CINDER_PATH = "$(CINDER_PATH_$(USER))";
-				CINDER_PATH_robert = ../../../../cinder_master;
-				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
+				CINDER_PATH = ../cinder;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1165,9 +1160,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CINDER_PATH = "$(CINDER_PATH_$(USER))";
-				CINDER_PATH_robert = ../../../../cinder_master;
-				CINDER_PATH_tom = /Users/tom/Documents/Code/Cinder/Cinder;
+				CINDER_PATH = ../cinder;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
