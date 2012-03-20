@@ -13,3 +13,6 @@
 [submodule "blocks/BloomScene"]
 	path = blocks/BloomScene
 	url = git@github.com:bloomtime/BloomScene.git
+[submodule "cinder"]
+	path = cinder
+	url = git@github.com:bloomtime/Cinder.git
