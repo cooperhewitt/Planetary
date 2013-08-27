@@ -1,7 +1,0 @@
-For a fresh checkout, do:
-
-`git submodule init`
-`git submodule update`
-
-And set a `CINDER_PATH_username` variable in the Build Settings corresponding to wherever you have installed Cinder.
-
