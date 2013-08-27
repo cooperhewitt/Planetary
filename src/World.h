@@ -3,7 +3,7 @@
  *  Kepler
  *
  *  Created by Robert Hodgin on 2/25/11.
- *  Copyright 2013 Smithsonian Instituion. All rights reserved.
+ *  Copyright 2013 Smithsonian Institution. All rights reserved.
  *
  */
 

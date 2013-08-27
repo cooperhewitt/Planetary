@@ -3,7 +3,7 @@
 //  Kepler
 //
 //  Created by Tom Carden on 6/13/11.
-//  Copyright 2013 Smithsonian Instituion. All rights reserved.
+//  Copyright 2013 Smithsonian Institution. All rights reserved.
 //
 
 #include "Stars.h"
