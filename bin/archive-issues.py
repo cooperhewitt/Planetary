@@ -46,6 +46,8 @@ if __name__ == '__main__':
                     except Exception, e:
                         print "failed to include %s because %s" % (url, e)
                         
+                    sleep(2)
+
             fname = "%s.json" % i['id']
             path = os.path.join(issues, fname)
 
@@ -55,4 +57,4 @@ if __name__ == '__main__':
             json.dump(i, fh, indent=2)
             fh.close()
 
-            time.sleep(2)
+            time.sleep(5)
