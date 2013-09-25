@@ -1,0 +1,42 @@
+{
+  "body": "Do playlists in playlist chooser update correctly?\r\n\r\nWhat if we were playing the playlist that was removed? Keep queue but go back to alpha?", 
+  "labels": [], 
+  "title": "test removing playlist in sync", 
+  "url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/206", 
+  "labels_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/206/labels{/name}", 
+  "created_at": "2011-08-29T22:33:25Z", 
+  "events_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/206/events", 
+  "comments_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/206/comments", 
+  "html_url": "https://github.com/cooperhewitt/Planetary/issues/206", 
+  "comments": 1, 
+  "number": 206, 
+  "updated_at": "2013-08-01T19:52:31Z", 
+  "assignee": null, 
+  "state": "closed", 
+  "user": {
+    "following_url": "https://api.github.com/users/RandomEtc/following{/other_user}", 
+    "events_url": "https://api.github.com/users/RandomEtc/events{/privacy}", 
+    "organizations_url": "https://api.github.com/users/RandomEtc/orgs", 
+    "url": "https://api.github.com/users/RandomEtc", 
+    "gists_url": "https://api.github.com/users/RandomEtc/gists{/gist_id}", 
+    "html_url": "https://github.com/RandomEtc", 
+    "subscriptions_url": "https://api.github.com/users/RandomEtc/subscriptions", 
+    "avatar_url": "https://0.gravatar.com/avatar/8eb29630732aecd29eb0d4de23023e12?d=https%3A%2F%2Fidenticons.github.com%2F6a8c083c3f7029f6c4d81d0c22a5f106.png", 
+    "repos_url": "https://api.github.com/users/RandomEtc/repos", 
+    "received_events_url": "https://api.github.com/users/RandomEtc/received_events", 
+    "gravatar_id": "8eb29630732aecd29eb0d4de23023e12", 
+    "starred_url": "https://api.github.com/users/RandomEtc/starred{/owner}{/repo}", 
+    "login": "RandomEtc", 
+    "type": "User", 
+    "id": 39635, 
+    "followers_url": "https://api.github.com/users/RandomEtc/followers"
+  }, 
+  "milestone": null, 
+  "closed_at": "2011-09-02T01:39:03Z", 
+  "pull_request": {
+    "diff_url": null, 
+    "html_url": null, 
+    "patch_url": null
+  }, 
+  "id": 1514813
+}

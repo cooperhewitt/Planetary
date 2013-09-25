@@ -1,0 +1,42 @@
+{
+  "body": "When app launches, the time it takes to go from galaxy view to selected track view should be 4 or 5 seconds. From that point on, the duration should be more like 2 seconds. I haven't figured out a consistent way to make this happen. Initializing mDistBetweenPrevAndCurrentNode = 50.0f; in State doesn't work because setSelectedNode resets this value.", 
+  "labels": [], 
+  "title": "Initial travel duration", 
+  "url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/214", 
+  "labels_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/214/labels{/name}", 
+  "created_at": "2011-08-29T22:37:38Z", 
+  "events_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/214/events", 
+  "comments_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/214/comments", 
+  "html_url": "https://github.com/cooperhewitt/Planetary/issues/214", 
+  "comments": 1, 
+  "number": 214, 
+  "updated_at": "2011-09-06T19:38:56Z", 
+  "assignee": null, 
+  "state": "closed", 
+  "user": {
+    "following_url": "https://api.github.com/users/flight404/following{/other_user}", 
+    "events_url": "https://api.github.com/users/flight404/events{/privacy}", 
+    "organizations_url": "https://api.github.com/users/flight404/orgs", 
+    "url": "https://api.github.com/users/flight404", 
+    "gists_url": "https://api.github.com/users/flight404/gists{/gist_id}", 
+    "html_url": "https://github.com/flight404", 
+    "subscriptions_url": "https://api.github.com/users/flight404/subscriptions", 
+    "avatar_url": "https://2.gravatar.com/avatar/90c65f9eadb6ec82fdcc5ae8a421fd5b?d=https%3A%2F%2Fidenticons.github.com%2F9a9fd9a9f6f52c0f886a2b2f12fbe450.png", 
+    "repos_url": "https://api.github.com/users/flight404/repos", 
+    "received_events_url": "https://api.github.com/users/flight404/received_events", 
+    "gravatar_id": "90c65f9eadb6ec82fdcc5ae8a421fd5b", 
+    "starred_url": "https://api.github.com/users/flight404/starred{/owner}{/repo}", 
+    "login": "flight404", 
+    "type": "User", 
+    "id": 236391, 
+    "followers_url": "https://api.github.com/users/flight404/followers"
+  }, 
+  "milestone": null, 
+  "closed_at": "2011-08-30T00:26:58Z", 
+  "pull_request": {
+    "diff_url": null, 
+    "html_url": null, 
+    "patch_url": null
+  }, 
+  "id": 1514845
+}

@@ -1,0 +1,42 @@
+{
+  "body": "When I pinch at galaxy level, it triggers the FOV pop but no vignette appears. This means the edges of the galaxy can be seen. Maybe just kill the fov pinch at galaxy level if it isnt also going to trigger a filter?", 
+  "labels": [], 
+  "title": "Galaxy level pinch", 
+  "url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/227", 
+  "labels_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/227/labels{/name}", 
+  "created_at": "2011-09-02T01:03:03Z", 
+  "events_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/227/events", 
+  "comments_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/227/comments", 
+  "html_url": "https://github.com/cooperhewitt/Planetary/issues/227", 
+  "comments": 3, 
+  "number": 227, 
+  "updated_at": "2011-09-02T02:36:25Z", 
+  "assignee": null, 
+  "state": "closed", 
+  "user": {
+    "following_url": "https://api.github.com/users/flight404/following{/other_user}", 
+    "events_url": "https://api.github.com/users/flight404/events{/privacy}", 
+    "organizations_url": "https://api.github.com/users/flight404/orgs", 
+    "url": "https://api.github.com/users/flight404", 
+    "gists_url": "https://api.github.com/users/flight404/gists{/gist_id}", 
+    "html_url": "https://github.com/flight404", 
+    "subscriptions_url": "https://api.github.com/users/flight404/subscriptions", 
+    "avatar_url": "https://2.gravatar.com/avatar/90c65f9eadb6ec82fdcc5ae8a421fd5b?d=https%3A%2F%2Fidenticons.github.com%2F9a9fd9a9f6f52c0f886a2b2f12fbe450.png", 
+    "repos_url": "https://api.github.com/users/flight404/repos", 
+    "received_events_url": "https://api.github.com/users/flight404/received_events", 
+    "gravatar_id": "90c65f9eadb6ec82fdcc5ae8a421fd5b", 
+    "starred_url": "https://api.github.com/users/flight404/starred{/owner}{/repo}", 
+    "login": "flight404", 
+    "type": "User", 
+    "id": 236391, 
+    "followers_url": "https://api.github.com/users/flight404/followers"
+  }, 
+  "milestone": null, 
+  "closed_at": "2011-09-02T02:36:25Z", 
+  "pull_request": {
+    "diff_url": null, 
+    "html_url": null, 
+    "patch_url": null
+  }, 
+  "id": 1547355
+}

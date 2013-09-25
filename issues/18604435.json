@@ -1,0 +1,42 @@
+{
+  "body": "Make it so!", 
+  "labels": [], 
+  "title": "CH release", 
+  "url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/231", 
+  "labels_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/231/labels{/name}", 
+  "created_at": "2013-08-27T12:45:56Z", 
+  "events_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/231/events", 
+  "comments_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/231/comments", 
+  "html_url": "https://github.com/cooperhewitt/Planetary/pull/231", 
+  "comments": 0, 
+  "number": 231, 
+  "updated_at": "2013-08-27T12:46:11Z", 
+  "assignee": null, 
+  "state": "closed", 
+  "user": {
+    "following_url": "https://api.github.com/users/straup/following{/other_user}", 
+    "events_url": "https://api.github.com/users/straup/events{/privacy}", 
+    "organizations_url": "https://api.github.com/users/straup/orgs", 
+    "url": "https://api.github.com/users/straup", 
+    "gists_url": "https://api.github.com/users/straup/gists{/gist_id}", 
+    "html_url": "https://github.com/straup", 
+    "subscriptions_url": "https://api.github.com/users/straup/subscriptions", 
+    "avatar_url": "https://1.gravatar.com/avatar/07e62c1b087303ddb458ac6ed57d72ea?d=https%3A%2F%2Fidenticons.github.com%2F644b29afecb6f48a9d630c3195dedff8.png", 
+    "repos_url": "https://api.github.com/users/straup/repos", 
+    "received_events_url": "https://api.github.com/users/straup/received_events", 
+    "gravatar_id": "07e62c1b087303ddb458ac6ed57d72ea", 
+    "starred_url": "https://api.github.com/users/straup/starred{/owner}{/repo}", 
+    "login": "straup", 
+    "type": "User", 
+    "id": 54840, 
+    "followers_url": "https://api.github.com/users/straup/followers"
+  }, 
+  "milestone": null, 
+  "closed_at": "2013-08-27T12:46:11Z", 
+  "pull_request": {
+    "diff_url": "https://github.com/cooperhewitt/Planetary/pull/231.diff", 
+    "html_url": "https://github.com/cooperhewitt/Planetary/pull/231", 
+    "patch_url": "https://github.com/cooperhewitt/Planetary/pull/231.patch"
+  }, 
+  "id": 18604435
+}

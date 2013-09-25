@@ -1,0 +1,42 @@
+{
+  "body": "Thank you very much for your efforts to publish, extend and maintain the source code of Planetary.\r\n\r\nFor a start, what Xcode, iOS SDK, architecture and Cinder version is required to successfully build and run Planetary?\r\n\r\nI'm having issues to build Planetary with Xcode 4.6.3, iOS 6.1, armv7 armv7s and Cinder 0.8.5. I also tried Cinder 0.8.4 and 0.8.3. In the end I always get a link error \"Undefined symbols for architecture armv7\" or \"Undefined symbols for architecture armv7s\". For example the Flurry lib is missing armv7s support. See screenshot attached.\r\n![link_error](https://f.cloud.github.com/assets/1117200/1038324/19858cd8-0f62-11e3-9ed4-6ba31687d1fa.png)\r\n", 
+  "labels": [], 
+  "title": "build issues", 
+  "url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/232", 
+  "labels_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/232/labels{/name}", 
+  "created_at": "2013-08-27T21:42:10Z", 
+  "events_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/232/events", 
+  "comments_url": "https://api.github.com/repos/cooperhewitt/Planetary/issues/232/comments", 
+  "html_url": "https://github.com/cooperhewitt/Planetary/issues/232", 
+  "comments": 5, 
+  "number": 232, 
+  "updated_at": "2013-09-18T19:22:26Z", 
+  "assignee": null, 
+  "state": "open", 
+  "user": {
+    "following_url": "https://api.github.com/users/burkhardm/following{/other_user}", 
+    "events_url": "https://api.github.com/users/burkhardm/events{/privacy}", 
+    "organizations_url": "https://api.github.com/users/burkhardm/orgs", 
+    "url": "https://api.github.com/users/burkhardm", 
+    "gists_url": "https://api.github.com/users/burkhardm/gists{/gist_id}", 
+    "html_url": "https://github.com/burkhardm", 
+    "subscriptions_url": "https://api.github.com/users/burkhardm/subscriptions", 
+    "avatar_url": "https://1.gravatar.com/avatar/404fa0583b0a70b3c978ba0b83c90c7d?d=https%3A%2F%2Fidenticons.github.com%2F0760275d3a2303df582c5748363caff4.png", 
+    "repos_url": "https://api.github.com/users/burkhardm/repos", 
+    "received_events_url": "https://api.github.com/users/burkhardm/received_events", 
+    "gravatar_id": "404fa0583b0a70b3c978ba0b83c90c7d", 
+    "starred_url": "https://api.github.com/users/burkhardm/starred{/owner}{/repo}", 
+    "login": "burkhardm", 
+    "type": "User", 
+    "id": 1117200, 
+    "followers_url": "https://api.github.com/users/burkhardm/followers"
+  }, 
+  "milestone": null, 
+  "closed_at": null, 
+  "pull_request": {
+    "diff_url": null, 
+    "html_url": null, 
+    "patch_url": null
+  }, 
+  "id": 18635972
+}
