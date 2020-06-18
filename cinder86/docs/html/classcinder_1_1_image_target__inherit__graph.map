@@ -1,0 +1,7 @@
+<map id="cinder::ImageTarget" name="cinder::ImageTarget">
+<area shape="rect" id="node3" href="$classcinder_1_1cocoa_1_1_image_target_cg_image.html" title="cinder::cocoa::ImageTarget\lCgImage" alt="" coords="390,6,572,50"/>
+<area shape="rect" id="node8" href="$classcinder_1_1_image_target_file_wic.html" title="cinder::ImageTargetFileWic" alt="" coords="390,230,573,258"/>
+<area shape="rect" id="node10" href="$classcinder_1_1qtime_1_1_image_target_cv_pixel_buffer.html" title="cinder::qtime::ImageTarget\lCvPixelBuffer" alt="" coords="392,334,571,378"/>
+<area shape="rect" id="node2" href="$classcinder_1_1_image_io.html" title="cinder::ImageIo" alt="" coords="6,178,119,206"/>
+<area shape="rect" id="node4" href="$classcinder_1_1_image_target_file_quartz.html" title="cinder::ImageTargetFileQuartz" alt="" coords="657,14,858,42"/>
+</map>

@@ -1,0 +1,18 @@
+<map id="include/cinder/ImageSourceFileWic.h" name="include/cinder/ImageSourceFileWic.h">
+<area shape="rect" id="node2" href="$_cinder_8h.html" title="cinder/Cinder.h" alt="" coords="866,563,976,591"/>
+<area shape="rect" id="node6" href="$_image_io_8h.html" title="cinder/ImageIO.h" alt="" coords="1250,99,1373,127"/>
+<area shape="rect" id="node11" href="$_exception_8h.html" title="cinder/Exception.h" alt="" coords="2220,486,2351,514"/>
+<area shape="rect" id="node7" href="$_data_source_8h.html" title="cinder/DataSource.h" alt="" coords="1410,254,1552,282"/>
+<area shape="rect" id="node20" href="$_data_target_8h.html" title="cinder/DataTarget.h" alt="" coords="1218,254,1355,282"/>
+<area shape="rect" id="node21" href="$_surface_8h.html" title="cinder/Surface.h" alt="" coords="789,177,907,205"/>
+<area shape="rect" id="node8" href="$_url_8h.html" title="cinder/Url.h" alt="" coords="1181,331,1269,359"/>
+<area shape="rect" id="node10" href="$_buffer_8h.html" title="cinder/Buffer.h" alt="" coords="1161,486,1268,514"/>
+<area shape="rect" id="node9" href="$_stream_8h.html" title="cinder/Stream.h" alt="" coords="1549,409,1664,437"/>
+<area shape="rect" id="node14" href="$_filesystem_8h.html" title="cinder/Filesystem.h" alt="" coords="1959,486,2095,514"/>
+<area shape="rect" id="node22" href="$_area_8h.html" title="cinder/Area.h" alt="" coords="866,331,965,359"/>
+<area shape="rect" id="node33" href="$_channel_8h.html" title="cinder/Channel.h" alt="" coords="707,254,828,282"/>
+<area shape="rect" id="node34" href="$_chan_traits_8h.html" title="cinder/ChanTraits.h" alt="" coords="601,409,737,437"/>
+<area shape="rect" id="node35" href="$_color_8h.html" title="cinder/Color.h" alt="" coords="470,331,572,359"/>
+<area shape="rect" id="node23" href="$_vector_8h.html" title="cinder/Vector.h" alt="" coords="467,409,576,437"/>
+<area shape="rect" id="node28" href="$_cinder_math_8h.html" title="cinder/CinderMath.h" alt="" coords="43,486,184,514"/>
+</map>

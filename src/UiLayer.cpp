@@ -10,12 +10,10 @@
 
 #include "cinder/gl/gl.h"
 #include "UiLayer.h"
-#include "CinderFlurry.h"
 #include "Globals.h"
 #include "BloomGl.h"
 #include "BloomScene.h"
 
-using namespace pollen::flurry;
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -158,6 +156,9 @@ void UiLayer::update()
         // if we're not dragging, animate to current state
         if( mIsPanelOpen ){
             mPanelY += (mPanelOpenY - mPanelY) * 0.25f;
+            if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+                mPanelY -= 2;
+            }
         }
         else {
             mPanelY += (mPanelClosedY - mPanelY) * 0.25f;

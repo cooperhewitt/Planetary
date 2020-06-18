@@ -1,0 +1,7 @@
+<map id="cinder::TimelineItem" name="cinder::TimelineItem">
+<area shape="rect" id="node3" href="$classcinder_1_1_cue.html" title="cinder::Cue" alt="" coords="5,177,93,205"/>
+<area shape="rect" id="node4" href="$classcinder_1_1_timeline.html" title="cinder::Timeline" alt="" coords="119,177,233,205"/>
+<area shape="rect" id="node5" href="$classcinder_1_1_tween_base.html" title="cinder::TweenBase" alt="" coords="258,177,392,205"/>
+<area shape="rect" id="node6" href="$classcinder_1_1_tween.html" title="cinder::Tween\&lt; T \&gt;" alt="" coords="258,254,392,282"/>
+<area shape="rect" id="node7" href="$classcinder_1_1_fn_tween.html" title="cinder::FnTween\&lt; T \&gt;" alt="" coords="250,331,400,359"/>
+</map>

@@ -1,0 +1,83 @@
+/*! \page helloOpenCVChapter2 Chapter 2: Image Transformations
+\section Introduction Introduction
+In the previous section we looked at manipulating the pixels of an image by operations like blurring or edge detection. Now let's take a look at warping images using transformations. These processes don't modify the content of images, but instead deform them geometrically. OpenCV has a number of functions which do this. First we'll examine the sample which demonstrates the <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#warpAffine">cv::warpAffine()</a> function. Open up the CinderBlock sample located at <i>blocks/openCV/samples/ocvWarp</i> and run it. You will see a rotated and scaled version of the input image, which is <a href="http://www.flickr.com/photos/stuckincustoms/3899587834">a photograph by Trey Ratcliff</a>.\n\n
+\image html warp_warp.jpg
+\n
+\n
+\section AffineWarp Affine Warping
+Cool - let's explore how this thing works. We'll start with setup:\n\n
+\code
+void ocvWarpApp::setup()
+{		
+	mInputImage = ci::Surface8u( loadImage( loadResource( RES_IMAGE ) ) );
+
+	mRotationCenter = mInputImage.getSize() * 0.5f;
+	mRotationAngle = 31.2f;
+	mScale = 0.77f;
+	
+	mParams = params::InterfaceGl( "Parameters", Vec2i( 200, 400 ) );
+	mParams.addParam( "Rotation Center X", &mRotationCenter.x );
+	mParams.addParam( "Rotation Center Y", &mRotationCenter.y );
+	mParams.addParam( "Rotation Angle", &mRotationAngle );
+	mParams.addParam( "Scale", &mScale, "step=0.1" );
+
+	updateImage();
+}
+\endcode
+\n
+This should all be familiar. We load our image from a resource and put it in \a mInputImage. Then we initialize some member variables which are the parameters of our warp: a \a mRotationCenter that is the center of the image, \a mRotationAngle of \c 31.2 degrees, and a \a mScale of \c 0.77. Then we build a \ref cinder::params::InterfaceGl "params::InterfaceGl" to create a GUI for these parameters. Last, we call updateImage(), which is where the interesting OpenCV work happens:\n\n
+\code
+void ocvWarpApp::updateImage()
+{
+	cv::Mat input( toOcv( mInputImage ) );
+	cv::Mat output;
+
+	cv::Mat warpMatrix = cv::getRotationMatrix2D( toOcv( mRotationCenter ), mRotationAngle, mScale );
+	cv::warpAffine( input, output, warpMatrix, toOcv( getWindowSize() ), cv::INTER_CUBIC );
+
+	mTexture = gl::Texture( fromOcv( output ) );
+}
+\endcode
+\n
+The first two lines here also are familiar - we're just creating a cv::Mat called \a input which contains our \a mInputImage and then an empty cv::Mat to hold our \a output. The next line is new though. It creates a cv::Mat as well, not for holding an image, but the mathematical transform we want to apply to each pixel's position. As you may know, matrices are often used to express a series of geometric transformations. <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#cv-getrotationmatrix2d">cv::getRotationMatrix2D()</a> is a convenience method which creates the correct transformation matrix to achieve a rotation of degrees \a mRotationAngle around the point \a mRotationCenter, all preceeded by a scale of magnitude \a mScale.\n
+\n
+In the next line, we make use of this matrix in our call to <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#warpAffine">cv::warpAffine()</a>. You can think of this routine as applying the matrix \a warpMatrix to each pixel in the input image, assigning it a new position in the output image. In reality, the exact inverse is what happens in order to prevent holes in the output image. OpenCV looks at each pixel in the output image and applies the inverse transformation to identify the source pixel in the input image. If this doesn't quite make sense yet, don't get too caught up in the details - just trust that taking the result of <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#cv-getrotationmatrix2d">cv::getRotationMatrix2D()</a> lets us build a cv::Mat we can use to warp the image using <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#warpAffine">cv::warpAffine()</a>. Note the final parameter for <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#warpAffine">cv::warpAffine()</a>, which is set to <tt>cv::INTER_CUBIC</tt> in the example above. This is the interpolation parameter, which (simplifying a bit) tells OpenCV how many surrounding pixels to consider when it calculates each output pixel. Other common values include <tt>cv::INTER_NEAREST</tt>, <tt>cv::INTER_LINEAR</tt> and <tt>cv::INTER_LANCZOS4</tt>. In general using more samples looks nicer (particularly when increasing the size of the image), but is slower. The zoomed screenshots below depict some of the interpolation modes:\n\n
+\image html warp_interp.png
+\n
+\section PerspectiveWarp Perspective Warping
+\n
+Let's pause and consider the <em>affine</em> part of cv::warpAffine()'s name. An affine transformation is one made up of rotation, translation and scale (and technically shear, though that is less commonly used). Another way to think of this is that an affine transformation can transform a rectangle into any parallelogram. But what about less rigid transformations? For example, what if I wanted to "pull" the corner of a rectangle somewhere, but leave the other three corners in place? An affine transformation can't create this warp - we need a <em>perspective</em> transformation. Let's take a look at how to achieve this using OpenCV. Open up the CinderBlock sample located at <i>blocks/openCV/samples/ocvPerspective</i>. Go ahead and run the sample - you should see an image about like this one:\n
+\n
+\image html warp_persp.jpg
+\n
+In the screenshot above we can see a perspective transformation in action, applied to a <a href="http://www.flickr.com/photos/pedrosz/3411746271/">photograph by Pedro Szekely</a>. Let's take a look at the source. Much of it is devoted to interacting with the mouse, allowing you to drag the corners around the window. It maintains an internal array of the four corners, called \a mPoints. The interesting bit is in ocvPerspectiveApp::updateImage():
+\code
+void ocvPerspectiveApp::updateImage()
+{
+	cv::Mat input( toOcv( mInputImage ) ), output;
+
+	cv::Point2f src[4];
+	src[0] = cv::Point2f( 0, 0 );
+	src[1] = cv::Point2f( mInputImage.getWidth(), 0 );
+	src[2] = cv::Point2f( mInputImage.getWidth(), mInputImage.getHeight() );
+	src[3] = cv::Point2f( 0, mInputImage.getHeight() );
+	
+	cv::Point2f dst[4];
+	for( int i = 0; i < 4; ++i )
+		dst[i] = toOcv( mPoints[i] );
+	
+	cv::Mat warpMatrix = cv::getPerspectiveTransform( src, dst );
+	cv::warpPerspective( input, output, warpMatrix, toOcv( getWindowSize() ), cv::INTER_CUBIC );
+
+	mTexture = gl::Texture( fromOcv( output ) );
+}
+\endcode
+\n
+Just as <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#cv-getrotationmatrix2d">cv::getRotationMatrix2D()</a> generates the right matrix for <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#warpAffine">cv::warpAffine()</a>, for perspective transforms we use <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#cv-getperspectivetransform">cv::getPerspectiveTransform()</a> to generate a cv::Mat for <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#cv-warpperspective">cv::warpPerspective()</a>. This function takes a two arrays of 4 <tt>cv::Point2f</tt>'s as input. The first represents the original positions of four corners. In our case, these original points are the corners of our image, which we prepare in the \a src array, ordered in clockwise order starting with the upper-left corner (0,0). Next, we prepare the \a dst array, which stores the warped positions of the corresponding four corners. The sample allows users to drag these four corners around with the mouse (represented with the orange dots), so we simply convert these <tt>ci::Vec2f</tt>'s into <tt>cv::Point2f</tt>'s using ci::toOcv(). The call to <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#cv-getperspectivetransform">cv::getPerspectiveTransform()</a> returns the 3x3 matrix which warps \a src into \a dst. We then pass this matrix as input to <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#cv-warpperspective">cv::warpPerspective()</a>, whose parameters are identical to those of <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#warpAffine">cv::warpAffine()</a>. Keep in mind that the resulting cv::Mat is still just a rectangular image, but filled with black everywhere that is outside of the warped input image.
+
+<h2>Exercises</h2>
+1. Checkout the <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#cv-resize">cv::resize()</a> routine. How does its performance compare to <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#warpAffine">cv::warpAffine()</a>?\n
+2. How does <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#cv-warpperspective">cv::warpPerspective()</a> compare to the texture mapping in OpenGL? Build an app that matches as closely as possible - you can use \ref cinder::CameraPersp::worldToScreen "CameraPersp::worldToScreen()" to determine the coordinates for <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#cv-getperspectivetransform">cv::getPerspectiveTransform()</a>.\n
+\n
+	
+*/

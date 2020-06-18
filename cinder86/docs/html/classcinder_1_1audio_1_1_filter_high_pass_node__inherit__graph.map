@@ -1,0 +1,4 @@
+<map id="cinder::audio::FilterHighPassNode" name="cinder::audio::FilterHighPassNode">
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_filter_biquad_node.html" title="General class for filtering nodes based on a biquad (two pole, two zero) filter. " alt="" coords="40,177,248,205"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_node.html" title="Fundamental building block for creating an audio processing graph. " alt="" coords="76,99,212,127"/>
+</map>

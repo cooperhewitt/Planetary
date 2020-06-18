@@ -1,0 +1,12 @@
+<map id="cinder::ImageIoException" name="cinder::ImageIoException">
+<area shape="rect" id="node4" href="$classcinder_1_1_image_io_exception_failed_load.html" title="cinder::ImageIoException\lFailedLoad" alt="" coords="555,5,727,49"/>
+<area shape="rect" id="node5" href="$classcinder_1_1_image_io_exception_failed_write.html" title="cinder::ImageIoException\lFailedWrite" alt="" coords="555,73,727,117"/>
+<area shape="rect" id="node6" href="$classcinder_1_1_image_io_exception_illegal_channel_order.html" title="cinder::ImageIoException\lIllegalChannelOrder" alt="" coords="555,141,727,185"/>
+<area shape="rect" id="node7" href="$classcinder_1_1_image_io_exception_illegal_color_model.html" title="cinder::ImageIoException\lIllegalColorModel" alt="" coords="555,209,727,253"/>
+<area shape="rect" id="node8" href="$classcinder_1_1_image_io_exception_illegal_data_type.html" title="cinder::ImageIoException\lIllegalDataType" alt="" coords="555,277,727,321"/>
+<area shape="rect" id="node9" href="$classcinder_1_1_image_io_exception_unknown_extension.html" title="cinder::ImageIoException\lUnknownExtension" alt="" coords="555,345,727,389"/>
+<area shape="rect" id="node10" href="$classcinder_1_1_image_source_file_quartz_exception_unsupported_data.html" title="cinder::ImageSourceFileQuartz\lExceptionUnsupportedData" alt="" coords="538,413,744,457"/>
+<area shape="rect" id="node11" href="$classcinder_1_1_image_source_file_wic_exception_unsupported_data.html" title="cinder::ImageSourceFileWic\lExceptionUnsupportedData" alt="" coords="547,481,735,525"/>
+<area shape="rect" id="node12" href="$classcinder_1_1_image_source_png_exception.html" title="cinder::ImageSourcePngException" alt="" coords="528,549,755,577"/>
+<area shape="rect" id="node2" href="$classcinder_1_1_exception.html" title="cinder::Exception" alt="" coords="134,285,258,313"/>
+</map>

@@ -1,0 +1,26 @@
+/**
+\page helloOpenCV Hello, OpenCV
+\n
+\n
+\htmlonly <table width="100%" border="0"><tr><td style="vertical-align:middle;padding:20px"> \endhtmlonly
+This guide will walk you through a few of the many features of OpenCV, as well as the techniques for integrating Cinder and OpenCV. You don't need any prior experience working with OpenCV, but we'll assume you're already familiar with Cinder. If that's not the case, we'd recommend you begin with the <a href="http://libcinder.org/docs/hello_cinder.html">Hello, Cinder</a> tutorial instead. Also, while this guide makes a good starting point in your journey with OpenCV, to truly master the library we recommend the book <a href="http://oreilly.com/catalog/9780596516130"><i>Learning OpenCV</i></a> by Gary Bradski & Adrian Kaehler, published by O'Reilly Media.
+\n
+<H2>Chapters</H2>
+\ref helloOpenCVChapter1 "Chapter 1: Getting Started"\n
+An introduction to basic image processing with OpenCV + Cinder\n
+\n
+\ref helloOpenCVChapter2 "Chapter 2: Transformations"\n
+Geometric transformations using affine and perspective warps\n
+\n
+\ref helloOpenCVChapter3 "Chapter 3: Face Detection"\n
+The age-old OpenCV rite of passage, a face + eye detector\n
+\n
+\ref helloOpenCVChapter4 "Chapter 4: Statistics"\n
+Using OpenCV's powerful k-means module to perform color quanitization\n
+\n
+\n
+\htmlonly </td><td> \endhtmlonly
+\htmlonly <a href="http://oreilly.com/catalog/9780596516130"> \endhtmlonly
+\image html learning_opencv.gif
+\htmlonly </a></td></tr></table> \endhtmlonly
+*/

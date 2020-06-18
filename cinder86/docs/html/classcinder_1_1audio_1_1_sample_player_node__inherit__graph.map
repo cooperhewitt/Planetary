@@ -1,0 +1,6 @@
+<map id="cinder::audio::SamplePlayerNode" name="cinder::audio::SamplePlayerNode">
+<area shape="rect" id="node6" href="$classcinder_1_1audio_1_1_buffer_player_node.html" title="Buffer&#45;based SamplePlayerNode, where all samples are loaded into memory before playback. " alt="" coords="4,331,213,359"/>
+<area shape="rect" id="node7" href="$classcinder_1_1audio_1_1_file_player_node.html" title="File&#45;based SamplePlayerNode, where samples are constantly streamed from file. Suitable for large audi..." alt="" coords="238,331,433,359"/>
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_input_node.html" title="InputNode is the base class for Node&#39;s that produce audio. It cannot have any inputs. " alt="" coords="139,177,305,205"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_node.html" title="Fundamental building block for creating an audio processing graph. " alt="" coords="154,99,291,127"/>
+</map>

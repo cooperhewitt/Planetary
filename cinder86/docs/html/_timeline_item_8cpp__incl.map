@@ -1,0 +1,17 @@
+<map id="src/cinder/TimelineItem.cpp" name="src/cinder/TimelineItem.cpp">
+<area shape="rect" id="node2" href="$_timeline_item_8h.html" title="cinder/TimelineItem.h" alt="" coords="1087,238,1235,266"/>
+<area shape="rect" id="node7" href="$_timeline_8h.html" title="cinder/Timeline.h" alt="" coords="816,83,937,111"/>
+<area shape="rect" id="node9" href="$_cinder_math_8h.html" title="cinder/CinderMath.h" alt="" coords="241,702,383,730"/>
+<area shape="rect" id="node3" href="$_cinder_8h.html" title="cinder/Cinder.h" alt="" coords="938,779,1048,807"/>
+<area shape="rect" id="node8" href="$_easing_8h.html" title="cinder/Easing.h" alt="" coords="42,238,155,266"/>
+<area shape="rect" id="node14" href="$_tween_8h.html" title="cinder/Tween.h" alt="" coords="637,161,748,189"/>
+<area shape="rect" id="node15" href="$_function_8h.html" title="cinder/Function.h" alt="" coords="889,238,1012,266"/>
+<area shape="rect" id="node20" href="$_quaternion_8h.html" title="cinder/Quaternion.h" alt="" coords="613,238,751,266"/>
+<area shape="rect" id="node21" href="$_vector_8h.html" title="cinder/Vector.h" alt="" coords="753,625,863,653"/>
+<area shape="rect" id="node26" href="$_matrix_8h.html" title="cinder/Matrix.h" alt="" coords="642,315,749,343"/>
+<area shape="rect" id="node27" href="$_matrix22_8h.html" title="cinder/Matrix22.h" alt="" coords="610,547,733,575"/>
+<area shape="rect" id="node29" href="$_matrix_affine2_8h.html" title="cinder/MatrixAffine2.h" alt="" coords="436,547,585,575"/>
+<area shape="rect" id="node30" href="$_matrix33_8h.html" title="cinder/Matrix33.h" alt="" coords="858,547,981,575"/>
+<area shape="rect" id="node31" href="$_matrix44_8h.html" title="cinder/Matrix44.h" alt="" coords="709,470,832,498"/>
+<area shape="rect" id="node32" href="$_matrix_algo_8h.html" title="cinder/MatrixAlgo.h" alt="" coords="644,393,779,421"/>
+</map>

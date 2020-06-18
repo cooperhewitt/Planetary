@@ -1,0 +1,22 @@
+<map id="include/cinder/audio/Debug.h" name="include/cinder/audio/Debug.h">
+<area shape="rect" id="node2" href="$_cinder_core_audio_8cpp.html" title="src/cinder/audio/cocoa\l/CinderCoreAudio.cpp" alt="" coords="5,99,160,143"/>
+<area shape="rect" id="node3" href="$_context_audio_unit_8cpp.html" title="src/cinder/audio/cocoa\l/ContextAudioUnit.cpp" alt="" coords="184,99,339,143"/>
+<area shape="rect" id="node4" href="$_device_manager_audio_session_8mm.html" title="src/cinder/audio/cocoa\l/DeviceManagerAudioSession.mm" alt="" coords="363,99,588,143"/>
+<area shape="rect" id="node5" href="$_device_manager_core_audio_8cpp.html" title="src/cinder/audio/cocoa\l/DeviceManagerCoreAudio.cpp" alt="" coords="613,99,819,143"/>
+<area shape="rect" id="node6" href="$_file_core_audio_8cpp.html" title="src/cinder/audio/cocoa\l/FileCoreAudio.cpp" alt="" coords="844,99,999,143"/>
+<area shape="rect" id="node7" href="$_context_8cpp.html" title="src/cinder/audio/Context.cpp" alt="" coords="1022,107,1212,135"/>
+<area shape="rect" id="node8" href="$_delay_node_8cpp.html" title="src/cinder/audio/DelayNode.cpp" alt="" coords="1236,107,1445,135"/>
+<area shape="rect" id="node9" href="$_device_8cpp.html" title="src/cinder/audio/Device.cpp" alt="" coords="1470,107,1655,135"/>
+<area shape="rect" id="node10" href="$_converter_r8brain_8cpp.html" title="src/cinder/audio/dsp\l/ConverterR8brain.cpp" alt="" coords="1680,99,1835,143"/>
+<area shape="rect" id="node11" href="$_file_ogg_vorbis_8cpp.html" title="src/cinder/audio/FileOgg\lVorbis.cpp" alt="" coords="1858,99,2024,143"/>
+<area shape="rect" id="node12" href="$_gen_node_8cpp.html" title="src/cinder/audio/GenNode.cpp" alt="" coords="2049,107,2249,135"/>
+<area shape="rect" id="node13" href="$_monitor_node_8cpp.html" title="src/cinder/audio/Monitor\lNode.cpp" alt="" coords="2274,99,2437,143"/>
+<area shape="rect" id="node14" href="$_node_8cpp.html" title="src/cinder/audio/Node.cpp" alt="" coords="2461,107,2637,135"/>
+<area shape="rect" id="node15" href="$_output_node_8cpp.html" title="src/cinder/audio/OutputNode.cpp" alt="" coords="2661,107,2877,135"/>
+<area shape="rect" id="node16" href="$_param_8cpp.html" title="src/cinder/audio/Param.cpp" alt="" coords="2902,107,3084,135"/>
+<area shape="rect" id="node17" href="$_sample_player_node_8cpp.html" title="src/cinder/audio/SamplePlayer\lNode.cpp" alt="" coords="3110,99,3311,143"/>
+<area shape="rect" id="node18" href="$_sample_recorder_node_8cpp.html" title="src/cinder/audio/SampleRecorder\lNode.cpp" alt="" coords="3336,99,3555,143"/>
+<area shape="rect" id="node19" href="$_source_8cpp.html" title="src/cinder/audio/Source.cpp" alt="" coords="3579,107,3764,135"/>
+<area shape="rect" id="node20" href="$_voice_8cpp.html" title="src/cinder/audio/Voice.cpp" alt="" coords="3789,107,3965,135"/>
+<area shape="rect" id="node21" href="$_wave_table_8cpp.html" title="src/cinder/audio/WaveTable.cpp" alt="" coords="3990,107,4199,135"/>
+</map>

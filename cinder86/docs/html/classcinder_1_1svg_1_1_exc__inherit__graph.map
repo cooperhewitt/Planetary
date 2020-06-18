@@ -1,0 +1,8 @@
+<map id="cinder::svg::Exc" name="cinder::svg::Exc">
+<area shape="rect" id="node4" href="$classcinder_1_1svg_1_1_exc_child_not_found.html" title="cinder::svg::ExcChildNot\lFound" alt="" coords="494,5,661,49"/>
+<area shape="rect" id="node5" href="$classcinder_1_1svg_1_1_float_parse_exc.html" title="cinder::svg::FloatParseExc" alt="" coords="487,73,667,101"/>
+<area shape="rect" id="node6" href="$classcinder_1_1svg_1_1_path_parse_exc.html" title="cinder::svg::PathParseExc" alt="" coords="488,125,666,153"/>
+<area shape="rect" id="node7" href="$classcinder_1_1svg_1_1_transform_parse_exc.html" title="cinder::svg::TransformParseExc" alt="" coords="472,177,683,205"/>
+<area shape="rect" id="node8" href="$classcinder_1_1svg_1_1_value_exc.html" title="cinder::svg::ValueExc" alt="" coords="503,229,652,257"/>
+<area shape="rect" id="node2" href="$classcinder_1_1_exception.html" title="cinder::Exception" alt="" coords="134,125,258,153"/>
+</map>

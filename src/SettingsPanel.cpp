@@ -29,10 +29,6 @@ void SettingsPanel::setup( const Vec2f &interfaceSize, ipod::Player *player, con
     setDebugOn( G_DEBUG );	    
     setShuffleOn( player->getShuffleMode() != ipod::Player::ShuffleModeOff );
     setRepeatMode( player->getRepeatMode() );    
-
-    if( G_IS_IPAD2 ) {
-        setGyroOn( G_USE_GYRO );
-    }
 }
 
 void SettingsPanel::createChildren( const Font &font, const gl::Texture &uiSmallButtonsTex )
@@ -57,15 +53,7 @@ void SettingsPanel::createChildren( const Font &font, const gl::Texture &uiSmall
 											uiSmallButtonsTex,
 											Area( x0, y1, x1, y2 ),  // on texture
 											Area( x0, y0, x1, y1 ) ); // off texture
-    
-    if( G_IS_IPAD2 ){
-        mGyroButton = new ToggleButton(		USE_GYRO, 
-											false, 
-											uiSmallButtonsTex,
-											Area( x1, y1, x2, y2 ),  // on texture
-											Area( x1, y0, x2, y1 ) ); // off texture
-    }
-	
+
 	mOrbitsButton = new ToggleButton(		DRAW_RINGS, 
 											false, 
 											uiSmallButtonsTex,
@@ -151,7 +139,6 @@ void SettingsPanel::addChildren()
     addChild( BloomNodeRef(mOrbitsButton) );
     addChild( BloomNodeRef(mLabelsButton) );
 //    addChild( BloomNodeRef(mDebugButton) );
-    if( G_IS_IPAD2 ) addChild( BloomNodeRef(mGyroButton) );
 	addChild( BloomNodeRef(mParamSlider1) );
 	addChild( BloomNodeRef(mParamSlider2) );
 	addChild( BloomNodeRef(mParamSlider1Label) );
@@ -189,14 +176,7 @@ void SettingsPanel::setInterfaceSize( const Vec2f &interfaceSize )
 	x1 -= bSizeSmall;
 	x2 = x1 + bSizeSmall;
     mOrbitsButton->setRect( x1, y1, x2, y2 );
-	
-    // GYRO TOGGLE BUTTON
-	if( G_IS_IPAD2 ){
-		x1 -= bSizeSmall;
-		x2 = x1 + bSizeSmall;
-		mGyroButton->setRect( x1, y1, x2, y2 );
-	}
-	
+
     // DEBUG TOGGLE BUTTON
 //	x1 -= bSizeSmall;
 //	x2 = x1 + bSizeSmall;

@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classcinder_1_1audio_1_1dsp_1_1_converter.html" title="A platform&#45;specific converter that supports samplerate and channel conversion. " alt="" coords="6,39,133,83"/>
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1cocoa_1_1_converter_impl_core_audio.html" title="cinder::audio::cocoa\l::ConverterImplCoreAudio" alt="" coords="182,5,357,49"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1dsp_1_1_converter_impl_r8brain.html" title="Converter implementation using the r8brain samplerate conversion library by designed by Aleksey Vanee..." alt="" coords="190,73,349,117"/>
+</map>

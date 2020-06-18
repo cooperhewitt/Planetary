@@ -1,0 +1,18 @@
+<map id="cinder::svg::Node" name="cinder::svg::Node">
+<area shape="rect" id="node2" href="$classcinder_1_1svg_1_1_circle.html" title="SVG Circle element: http://www.w3.org/TR/SVG/shapes.html#CircleElement. " alt="" coords="190,5,317,33"/>
+<area shape="rect" id="node3" href="$classcinder_1_1svg_1_1_ellipse.html" title="SVG Ellipse element: http://www.w3.org/TR/SVG/shapes.html#EllipseElement. " alt="" coords="187,57,320,85"/>
+<area shape="rect" id="node4" href="$classcinder_1_1svg_1_1_gradient.html" title="Base class for SVG Gradients. See SVG Gradients: http://www.w3.org/TR/SVG/pservers.html#Gradients. " alt="" coords="181,109,326,137"/>
+<area shape="rect" id="node7" href="$classcinder_1_1svg_1_1_group.html" title="Represents a group of SVG elements. http://www.w3.org/TR/SVG/struct.html#Groups. " alt="" coords="188,161,318,189"/>
+<area shape="rect" id="node9" href="$classcinder_1_1svg_1_1_image.html" title="SVG Image Element. Represents an unpremultiplied bitmap. http://www.w3.org/TR/SVG/struct.html#ImageElement. " alt="" coords="188,213,318,241"/>
+<area shape="rect" id="node10" href="$classcinder_1_1svg_1_1_line.html" title="SVG Line element: http://www.w3.org/TR/SVG/shapes.html#LineElement. " alt="" coords="194,265,313,293"/>
+<area shape="rect" id="node11" href="$classcinder_1_1svg_1_1_path.html" title="SVG Path element: http://www.w3.org/TR/SVG/paths.html#PathElement. " alt="" coords="193,317,314,345"/>
+<area shape="rect" id="node12" href="$classcinder_1_1svg_1_1_polygon.html" title="SVG Polygon Element: http://www.w3.org/TR/SVG/shapes.html#PolygonElement. " alt="" coords="183,369,324,397"/>
+<area shape="rect" id="node13" href="$classcinder_1_1svg_1_1_polyline.html" title="SVG Polyline Element: http://www.w3.org/TR/SVG/shapes.html#PolylineElement. " alt="" coords="183,421,323,449"/>
+<area shape="rect" id="node14" href="$classcinder_1_1svg_1_1_rect.html" title="SVG Rect element: http://www.w3.org/TR/SVG/shapes.html#RectElement. " alt="" coords="193,473,314,501"/>
+<area shape="rect" id="node15" href="$classcinder_1_1svg_1_1_text.html" title="SVG Text element. http://www.w3.org/TR/SVG/text.html#TextElement. " alt="" coords="194,525,312,553"/>
+<area shape="rect" id="node16" href="$classcinder_1_1svg_1_1_text_span.html" title="SVG tspan Element. Generally owned by a svg::Text Node. http://www.w3.org/TR/SVG/text.html#TSpanElement. " alt="" coords="179,577,328,605"/>
+<area shape="rect" id="node17" href="$classcinder_1_1svg_1_1_use.html" title="SVG Use Element, which instantiates a different element: http://www.w3.org/TR/SVG/struct.html#UseElement. " alt="" coords="195,629,312,657"/>
+<area shape="rect" id="node5" href="$classcinder_1_1svg_1_1_linear_gradient.html" title="SVG Linear gradient. " alt="" coords="377,57,559,85"/>
+<area shape="rect" id="node6" href="$classcinder_1_1svg_1_1_radial_gradient.html" title="SVG Radial gradient. " alt="" coords="377,109,559,137"/>
+<area shape="rect" id="node8" href="$classcinder_1_1svg_1_1_doc.html" title="Represents an SVG Document. See SVG Document Structure http://www.w3.org/TR/SVG/struct.html. " alt="" coords="410,161,526,189"/>
+</map>

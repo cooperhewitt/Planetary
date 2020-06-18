@@ -1,0 +1,12 @@
+<map id="include/cinder/audio/Source.h" name="include/cinder/audio/Source.h">
+<area shape="rect" id="node2" href="$audio_2_buffer_8h.html" title="cinder/audio/Buffer.h" alt="" coords="1331,99,1473,127"/>
+<area shape="rect" id="node10" href="$_data_source_8h.html" title="cinder/DataSource.h" alt="" coords="293,99,435,127"/>
+<area shape="rect" id="node3" href="$_cinder_assert_8h.html" title="cinder/CinderAssert.h" alt="" coords="1601,177,1751,205"/>
+<area shape="rect" id="node4" href="$_current_function_8h.html" title="cinder/CurrentFunction.h" alt="" coords="1521,254,1689,282"/>
+<area shape="rect" id="node11" href="$_cinder_8h.html" title="cinder/Cinder.h" alt="" coords="262,409,372,437"/>
+<area shape="rect" id="node15" href="$_url_8h.html" title="cinder/Url.h" alt="" coords="371,177,460,205"/>
+<area shape="rect" id="node17" href="$_buffer_8h.html" title="cinder/Buffer.h" alt="" coords="218,331,325,359"/>
+<area shape="rect" id="node16" href="$_stream_8h.html" title="cinder/Stream.h" alt="" coords="530,254,645,282"/>
+<area shape="rect" id="node20" href="$_filesystem_8h.html" title="cinder/Filesystem.h" alt="" coords="8,331,144,359"/>
+<area shape="rect" id="node18" href="$_exception_8h.html" title="cinder/Exception.h" alt="" coords="934,331,1065,359"/>
+</map>

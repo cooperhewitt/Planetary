@@ -1,0 +1,9 @@
+<map id="include/cinder/app/CinderView.h" name="include/cinder/app/CinderView.h">
+<area shape="rect" id="node2" href="$_app_impl_cocoa_basic_8h.html" title="include/cinder/app\l/AppImplCocoaBasic.h" alt="" coords="29,99,184,143"/>
+<area shape="rect" id="node4" href="$_app_impl_cocoa_screen_saver_8h.html" title="include/cinder/app\l/AppImplCocoaScreenSaver.h" alt="" coords="217,99,416,143"/>
+<area shape="rect" id="node6" href="$_app_cocoa_view_8mm.html" title="src/cinder/app/AppCocoaView.mm" alt="" coords="441,107,665,135"/>
+<area shape="rect" id="node7" href="$_app_impl_cocoa_renderer_gl_8mm.html" title="src/cinder/app/AppImplCocoa\lRendererGl.mm" alt="" coords="690,99,885,143"/>
+<area shape="rect" id="node8" href="$_cinder_view_8mm.html" title="src/cinder/app/CinderView.mm" alt="" coords="910,107,1111,135"/>
+<area shape="rect" id="node3" href="$_app_impl_cocoa_basic_8mm.html" title="src/cinder/app/AppImplCocoa\lBasic.mm" alt="" coords="5,193,200,237"/>
+<area shape="rect" id="node5" href="$_app_impl_cocoa_screen_saver_8mm.html" title="src/cinder/app/AppImplCocoa\lScreenSaver.mm" alt="" coords="225,193,420,237"/>
+</map>

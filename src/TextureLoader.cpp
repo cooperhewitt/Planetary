@@ -52,12 +52,15 @@ void TextureLoader::addRequest( int texId, std::string fileName, ci::gl::Texture
 
 void TextureLoader::start()
 {
-    TaskQueue::pushTask( std::bind( std::mem_fun( &TextureLoader::loadSurfaces ), this ) );    
+    mTotalRequests = mRequests.size();
+    loadSurfaces();
+//    TaskQueue::pushTask( std::bind( std::mem_fun( &TextureLoader::loadSurfaces ), this ) );
 }
 
 void TextureLoader::loadSurfaces()
 {
     for (int i = 0; i < mRequests.size(); i++) {
+ 
         mRequestsMutex.lock();
         std::string path = mRequests[i].mFileName;
         mRequestsMutex.unlock();
@@ -68,8 +71,10 @@ void TextureLoader::loadSurfaces()
         mRequestsMutex.unlock();
         mRequestsComplete++;
         // called on the UI thread...
+//        surfaceLoaded();
         UiTaskQueue::pushTask( std::bind( std::mem_fun( &TextureLoader::surfaceLoaded ), this ) );
-    }    
+        
+    }
 }
 
 void TextureLoader::surfaceLoaded()
@@ -95,13 +100,17 @@ void TextureLoader::surfaceLoaded()
         else {
 //            std::cout << " try again next time!" << std::endl;
             // try again
-            UiTaskQueue::pushTask( std::bind( std::mem_fun( &TextureLoader::surfaceLoaded ), this ) );            
+            this -> surfaceLoaded();
+//            UiTaskQueue::pushTask( std::bind( std::mem_fun( &TextureLoader::surfaceLoaded ), this ) );
         }
     }
+    
+    
     
     if (mTextures.size() == mTotalRequests) {
 //        std::cout << "TextureLoader::surfaceLoaded complete!" << std::endl;        
         mRequests.clear();
+        sleep(2);
         mCbComplete.call( this );
     }
 }

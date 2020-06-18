@@ -1,0 +1,11 @@
+<map id="cinder::StreamBase" name="cinder::StreamBase">
+<area shape="rect" id="node3" href="$classcinder_1_1_i_stream_cinder.html" title="cinder::IStreamCinder" alt="" coords="339,109,490,137"/>
+<area shape="rect" id="node9" href="$classcinder_1_1_o_stream.html" title="cinder::OStream" alt="" coords="355,187,474,215"/>
+<area shape="rect" id="node4" href="$classcinder_1_1_io_stream.html" title="cinder::IoStream" alt="" coords="554,161,673,189"/>
+<area shape="rect" id="node6" href="$classcinder_1_1_i_stream_file.html" title="cinder::IStreamFile" alt="" coords="547,5,680,33"/>
+<area shape="rect" id="node7" href="$classcinder_1_1_i_stream_mem.html" title="cinder::IStreamMem" alt="" coords="543,57,684,85"/>
+<area shape="rect" id="node8" href="$classcinder_1_1_i_stream_url.html" title="cinder::IStreamUrl" alt="" coords="549,109,678,137"/>
+<area shape="rect" id="node5" href="$classcinder_1_1_io_stream_file.html" title="cinder::IoStreamFile" alt="" coords="736,161,877,189"/>
+<area shape="rect" id="node10" href="$classcinder_1_1_o_stream_file.html" title="cinder::OStreamFile" alt="" coords="543,213,683,241"/>
+<area shape="rect" id="node11" href="$classcinder_1_1_o_stream_mem.html" title="cinder::OStreamMem" alt="" coords="539,265,687,293"/>
+</map>

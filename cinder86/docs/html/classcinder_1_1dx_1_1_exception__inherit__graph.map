@@ -1,0 +1,7 @@
+<map id="cinder::dx::Exception" name="cinder::dx::Exception">
+<area shape="rect" id="node4" href="$classcinder_1_1dx_1_1_drawing_too_many_vertices_exception.html" title="cinder::dx::DrawingTooMany\lVerticesException" alt="" coords="508,5,697,49"/>
+<area shape="rect" id="node5" href="$classcinder_1_1dx_1_1_exception_unknown_target.html" title="cinder::dx::ExceptionUnknown\lTarget" alt="" coords="502,73,703,117"/>
+<area shape="rect" id="node6" href="$classcinder_1_1dx_1_1_render_target_exception.html" title="cinder::dx::RenderTarget\lException" alt="" coords="519,141,686,185"/>
+<area shape="rect" id="node2" href="$classcinder_1_1_exception.html" title="cinder::Exception" alt="" coords="134,81,258,109"/>
+<area shape="rect" id="node7" href="$classcinder_1_1dx_1_1_render_target_exception_invalid_specification.html" title="cinder::dx::RenderTarget\lExceptionInvalidSpecification" alt="" coords="752,141,946,185"/>
+</map>

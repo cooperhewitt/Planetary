@@ -1,0 +1,11 @@
+<map id="cinder::audio::GenNode" name="cinder::audio::GenNode">
+<area shape="rect" id="node6" href="$classcinder_1_1audio_1_1_gen_noise_node.html" title="Noise generator. " alt="" coords="813,5,1009,33"/>
+<area shape="rect" id="node7" href="$classcinder_1_1audio_1_1_gen_osc_node.html" title="General purpose, band&#45;limited oscillator using wavetable lookup. " alt="" coords="818,57,1004,85"/>
+<area shape="rect" id="node8" href="$classcinder_1_1audio_1_1_gen_phasor_node.html" title="Phase generator, i.e. ramping waveform that runs from 0 to 1. " alt="" coords="808,109,1013,137"/>
+<area shape="rect" id="node9" href="$classcinder_1_1audio_1_1_gen_pulse_node.html" title="Pulse waveform generator with variable pulse width. Based on wavetable lookup of two band&#45;limited saw..." alt="" coords="813,161,1008,189"/>
+<area shape="rect" id="node10" href="$classcinder_1_1audio_1_1_gen_sine_node.html" title="Sine waveform generator. " alt="" coords="816,213,1005,241"/>
+<area shape="rect" id="node11" href="$classcinder_1_1audio_1_1_gen_table_node.html" title="Basic table&#45;lookup oscillator. " alt="" coords="814,265,1008,293"/>
+<area shape="rect" id="node12" href="$classcinder_1_1audio_1_1_gen_triangle_node.html" title="Triangle waveform generator. " alt="" coords="806,317,1016,345"/>
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_input_node.html" title="InputNode is the base class for Node&#39;s that produce audio. It cannot have any inputs. " alt="" coords="379,161,546,189"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_node.html" title="Fundamental building block for creating an audio processing graph. " alt="" coords="193,161,330,189"/>
+</map>

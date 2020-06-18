@@ -1,0 +1,6 @@
+<map id="cinder::audio::FilterBiquadNode" name="cinder::audio::FilterBiquadNode">
+<area shape="rect" id="node5" href="$classcinder_1_1audio_1_1_filter_band_pass_node.html" title="A band&#45;pass filtering Node. This is a subclass of FilterBiquadNode and manages its configuration appr..." alt="" coords="634,5,800,49"/>
+<area shape="rect" id="node6" href="$classcinder_1_1audio_1_1_filter_high_pass_node.html" title="A high&#45;pass filtering Node. This is a subclass of FilterBiquadNode and manages its configuration appr..." alt="" coords="636,73,798,117"/>
+<area shape="rect" id="node7" href="$classcinder_1_1audio_1_1_filter_low_pass_node.html" title="A low&#45;pass filtering Node. This is a subclass of FilterBiquadNode and manages its configuration appro..." alt="" coords="638,141,797,185"/>
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_node.html" title="Fundamental building block for creating an audio processing graph. " alt="" coords="193,81,330,109"/>
+</map>
