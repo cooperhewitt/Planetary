@@ -1,0 +1,7 @@
+<map id="include/cinder/app/AppScreenSaver.h" name="include/cinder/app/AppScreenSaver.h">
+<area shape="rect" id="node2" href="$_app_impl_cocoa_screen_saver_8h.html" title="include/cinder/app\l/AppImplCocoaScreenSaver.h" alt="" coords="4,99,203,143"/>
+<area shape="rect" id="node4" href="$_app_impl_msw_screen_saver_8h.html" title="include/cinder/app\l/AppImplMswScreenSaver.h" alt="" coords="228,99,416,143"/>
+<area shape="rect" id="node6" href="$_app_screen_saver_8cpp.html" title="src/cinder/app/AppScreen\lSaver.cpp" alt="" coords="441,99,615,143"/>
+<area shape="rect" id="node3" href="$_app_impl_cocoa_screen_saver_8mm.html" title="src/cinder/app/AppImplCocoa\lScreenSaver.mm" alt="" coords="6,193,201,237"/>
+<area shape="rect" id="node5" href="$_app_impl_msw_screen_saver_8cpp.html" title="src/cinder/app/AppImplMsw\lScreenSaver.cpp" alt="" coords="230,193,415,237"/>
+</map>

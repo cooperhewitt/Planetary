@@ -1,0 +1,4 @@
+<map id="cinder::audio::BufferSpectralT&lt; T &gt;" name="cinder::audio::BufferSpectralT&lt; T &gt;">
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_buffer_t.html" title="Audio buffer that stores its channels of type T contiguously (ie. the first sample of channel 1 is di..." alt="" coords="10,99,189,127"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_buffer_base_t.html" title="Base class for the various Buffer classes. The template parameter T defined the sample type (precisio..." alt="" coords="15,6,185,50"/>
+</map>

@@ -1,0 +1,18 @@
+<map id="src/cinder/audio/ChannelRouterNode.cpp" name="src/cinder/audio/ChannelRouterNode.cpp">
+<area shape="rect" id="node2" href="$_channel_router_node_8h.html" title="cinder/audio/ChannelRouter\lNode.h" alt="" coords="373,177,560,221"/>
+<area shape="rect" id="node24" href="$_context_8h.html" title="cinder/audio/Context.h" alt="" coords="603,99,757,127"/>
+<area shape="rect" id="node34" href="$_dsp_8h.html" title="cinder/audio/dsp/Dsp.h" alt="" coords="5,347,163,375"/>
+<area shape="rect" id="node36" href="$_cinder_math_8h.html" title="cinder/CinderMath.h" alt="" coords="1641,347,1783,375"/>
+<area shape="rect" id="node3" href="$_node_8h.html" title="cinder/audio/Node.h" alt="" coords="587,270,727,298"/>
+<area shape="rect" id="node4" href="$audio_2_buffer_8h.html" title="cinder/audio/Buffer.h" alt="" coords="782,347,924,375"/>
+<area shape="rect" id="node12" href="$audio_2_exception_8h.html" title="cinder/audio/Exception.h" alt="" coords="312,347,479,375"/>
+<area shape="rect" id="node5" href="$_cinder_assert_8h.html" title="cinder/CinderAssert.h" alt="" coords="207,425,356,453"/>
+<area shape="rect" id="node6" href="$_current_function_8h.html" title="cinder/CurrentFunction.h" alt="" coords="336,502,504,530"/>
+<area shape="rect" id="node13" href="$_exception_8h.html" title="cinder/Exception.h" alt="" coords="490,425,621,453"/>
+<area shape="rect" id="node14" href="$_cinder_8h.html" title="cinder/Cinder.h" alt="" coords="1198,502,1308,530"/>
+<area shape="rect" id="node25" href="$_input_node_8h.html" title="cinder/audio/InputNode.h" alt="" coords="718,185,887,213"/>
+<area shape="rect" id="node32" href="$_output_node_8h.html" title="cinder/audio/OutputNode.h" alt="" coords="912,185,1092,213"/>
+<area shape="rect" id="node26" href="$_param_8h.html" title="cinder/audio/Param.h" alt="" coords="751,270,899,298"/>
+<area shape="rect" id="node28" href="$_device_8h.html" title="cinder/audio/Device.h" alt="" coords="1064,270,1213,298"/>
+<area shape="rect" id="node29" href="$_function_8h.html" title="cinder/Function.h" alt="" coords="1336,347,1459,375"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classcinder_1_1_surface_constraints.html" title="Base class for defining the properties of a Surface necessary to be interoperable with different APIs..." alt="" coords="5,81,184,109"/>
+<area shape="rect" id="node2" href="$classcinder_1_1dx_1_1_surface_constraints_g_l_texture.html" title="cinder::dx::SurfaceConstraints\lGLTexture" alt="" coords="232,5,432,49"/>
+<area shape="rect" id="node3" href="$classcinder_1_1gl_1_1_surface_constraints_g_l_texture.html" title="cinder::gl::SurfaceConstraints\lGLTexture" alt="" coords="234,73,430,117"/>
+<area shape="rect" id="node4" href="$classcinder_1_1_surface_constraints_default.html" title="cinder::SurfaceConstraints\lDefault" alt="" coords="243,141,421,185"/>
+</map>

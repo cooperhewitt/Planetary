@@ -1,0 +1,17 @@
+<map id="include/cinder/audio/Context.h" name="include/cinder/audio/Context.h">
+<area shape="rect" id="node2" href="$_context_audio_unit_8h.html" title="include/cinder/audio\l/cocoa/ContextAudioUnit.h" alt="" coords="5,99,184,143"/>
+<area shape="rect" id="node4" href="$_monitor_node_8h.html" title="include/cinder/audio\l/MonitorNode.h" alt="" coords="209,99,348,143"/>
+<area shape="rect" id="node6" href="$_channel_router_node_8cpp.html" title="src/cinder/audio/Channel\lRouterNode.cpp" alt="" coords="373,99,541,143"/>
+<area shape="rect" id="node7" href="$_context_8cpp.html" title="src/cinder/audio/Context.cpp" alt="" coords="566,107,756,135"/>
+<area shape="rect" id="node8" href="$_device_8cpp.html" title="src/cinder/audio/Device.cpp" alt="" coords="781,107,965,135"/>
+<area shape="rect" id="node9" href="$_gen_node_8cpp.html" title="src/cinder/audio/GenNode.cpp" alt="" coords="990,107,1191,135"/>
+<area shape="rect" id="node10" href="$_input_node_8cpp.html" title="src/cinder/audio/InputNode.cpp" alt="" coords="1216,107,1421,135"/>
+<area shape="rect" id="node11" href="$_node_8cpp.html" title="src/cinder/audio/Node.cpp" alt="" coords="1445,107,1621,135"/>
+<area shape="rect" id="node12" href="$_output_node_8cpp.html" title="src/cinder/audio/OutputNode.cpp" alt="" coords="1645,107,1861,135"/>
+<area shape="rect" id="node13" href="$_param_8cpp.html" title="src/cinder/audio/Param.cpp" alt="" coords="1886,107,2068,135"/>
+<area shape="rect" id="node14" href="$_sample_player_node_8cpp.html" title="src/cinder/audio/SamplePlayer\lNode.cpp" alt="" coords="2094,99,2295,143"/>
+<area shape="rect" id="node15" href="$_sample_recorder_node_8cpp.html" title="src/cinder/audio/SampleRecorder\lNode.cpp" alt="" coords="2320,99,2539,143"/>
+<area shape="rect" id="node16" href="$_voice_8cpp.html" title="src/cinder/audio/Voice.cpp" alt="" coords="2564,107,2740,135"/>
+<area shape="rect" id="node3" href="$_context_audio_unit_8cpp.html" title="src/cinder/audio/cocoa\l/ContextAudioUnit.cpp" alt="" coords="17,193,172,237"/>
+<area shape="rect" id="node5" href="$_monitor_node_8cpp.html" title="src/cinder/audio/Monitor\lNode.cpp" alt="" coords="197,193,360,237"/>
+</map>

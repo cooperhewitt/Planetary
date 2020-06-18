@@ -1,0 +1,27 @@
+<map id="include/cinder/svg/Svg.h" name="include/cinder/svg/Svg.h">
+<area shape="rect" id="node2" href="$_cinder_8h.html" title="cinder/Cinder.h" alt="" coords="1567,641,1677,669"/>
+<area shape="rect" id="node6" href="$_xml_8h.html" title="cinder/Xml.h" alt="" coords="1011,99,1105,127"/>
+<area shape="rect" id="node23" href="$_vector_8h.html" title="cinder/Vector.h" alt="" coords="2491,486,2600,514"/>
+<area shape="rect" id="node32" href="$_color_8h.html" title="cinder/Color.h" alt="" coords="3150,409,3252,437"/>
+<area shape="rect" id="node34" href="$_shape2d_8h.html" title="cinder/Shape2d.h" alt="" coords="2253,177,2379,205"/>
+<area shape="rect" id="node42" href="$_poly_line_8h.html" title="cinder/PolyLine.h" alt="" coords="2157,409,2280,437"/>
+<area shape="rect" id="node9" href="$_exception_8h.html" title="cinder/Exception.h" alt="" coords="1557,486,1688,514"/>
+<area shape="rect" id="node40" href="$_matrix_affine2_8h.html" title="cinder/MatrixAffine2.h" alt="" coords="2477,331,2627,359"/>
+<area shape="rect" id="node43" href="$_surface_8h.html" title="cinder/Surface.h" alt="" coords="2803,254,2921,282"/>
+<area shape="rect" id="node46" href="$_font_8h.html" title="cinder/Font.h" alt="" coords="1574,99,1673,127"/>
+<area shape="rect" id="node47" href="$_function_8h.html" title="cinder/Function.h" alt="" coords="3352,486,3475,514"/>
+<area shape="rect" id="node7" href="$_stream_8h.html" title="cinder/Stream.h" alt="" coords="870,409,985,437"/>
+<area shape="rect" id="node17" href="$_data_source_8h.html" title="cinder/DataSource.h" alt="" coords="1139,254,1281,282"/>
+<area shape="rect" id="node20" href="$_data_target_8h.html" title="cinder/DataTarget.h" alt="" coords="195,254,332,282"/>
+<area shape="rect" id="node21" href="$_utilities_8h.html" title="cinder/Utilities.h" alt="" coords="1001,177,1116,205"/>
+<area shape="rect" id="node8" href="$_buffer_8h.html" title="cinder/Buffer.h" alt="" coords="1064,486,1171,514"/>
+<area shape="rect" id="node12" href="$_filesystem_8h.html" title="cinder/Filesystem.h" alt="" coords="1195,486,1331,514"/>
+<area shape="rect" id="node18" href="$_url_8h.html" title="cinder/Url.h" alt="" coords="973,331,1061,359"/>
+<area shape="rect" id="node28" href="$_cinder_math_8h.html" title="cinder/CinderMath.h" alt="" coords="3307,563,3448,591"/>
+<area shape="rect" id="node33" href="$_chan_traits_8h.html" title="cinder/ChanTraits.h" alt="" coords="2978,486,3115,514"/>
+<area shape="rect" id="node35" href="$_rect_8h.html" title="cinder/Rect.h" alt="" coords="2353,331,2452,359"/>
+<area shape="rect" id="node38" href="$_path2d_8h.html" title="cinder/Path2d.h" alt="" coords="2164,254,2279,282"/>
+<area shape="rect" id="node36" href="$_area_8h.html" title="cinder/Area.h" alt="" coords="2702,409,2801,437"/>
+<area shape="rect" id="node39" href="$_b_spline_8h.html" title="cinder/BSpline.h" alt="" coords="1965,409,2083,437"/>
+<area shape="rect" id="node44" href="$_channel_8h.html" title="cinder/Channel.h" alt="" coords="2752,331,2873,359"/>
+</map>

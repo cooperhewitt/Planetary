@@ -1,0 +1,4 @@
+<map id="cinder::audio::cocoa::EffectAudioUnitNode" name="cinder::audio::cocoa::EffectAudioUnitNode">
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_node.html" title="Fundamental building block for creating an audio processing graph. " alt="" coords="76,107,212,135"/>
+<area shape="rect" id="node5" href="$classcinder_1_1audio_1_1cocoa_1_1_node_audio_unit.html" title="cinder::audio::cocoa\l::NodeAudioUnit" alt="" coords="236,99,376,143"/>
+</map>

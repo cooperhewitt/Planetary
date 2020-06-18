@@ -1,0 +1,4 @@
+<map id="cinder::svg::Doc" name="cinder::svg::Doc">
+<area shape="rect" id="node2" href="$classcinder_1_1svg_1_1_group.html" title="Represents a group of SVG elements. http://www.w3.org/TR/SVG/struct.html#Groups. " alt="" coords="79,83,208,111"/>
+<area shape="rect" id="node3" href="$classcinder_1_1svg_1_1_node.html" title="Base class for an element of an SVG Document. " alt="" coords="4,6,128,34"/>
+</map>

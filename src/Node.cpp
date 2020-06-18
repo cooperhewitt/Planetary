@@ -41,7 +41,7 @@ Node::Node( Node *parent, int index, const Font &font, const Font &smallFont, co
 	mPercentPlayed		= 0.0f;
 	mDistFromCamZAxis	= 1000.0f;
 	mDistFromCamZAxisPer = 1.0f;
-	mPlanetTexIndex		= 0;
+	mPlanetTexIndex		= 0; 
 	mScreenDirToCenter	= Vec2f::zero();
 	mScreenDistToCenterPer = 0.0f;
 	

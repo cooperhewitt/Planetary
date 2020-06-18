@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classcinder_1_1app_1_1_app.html" title="cinder::app::App" alt="" coords="6,83,125,111"/>
+<area shape="rect" id="node2" href="$classcinder_1_1app_1_1_app_basic.html" title="cinder::app::AppBasic" alt="" coords="196,5,348,33"/>
+<area shape="rect" id="node3" href="$classcinder_1_1app_1_1_app_cocoa_touch.html" title="cinder::app::AppCocoaTouch" alt="" coords="176,57,368,85"/>
+<area shape="rect" id="node4" href="$classcinder_1_1app_1_1_app_cocoa_view.html" title="cinder::app::AppCocoaView" alt="" coords="179,109,365,137"/>
+<area shape="rect" id="node5" href="$classcinder_1_1app_1_1_app_screen_saver.html" title="cinder::app::AppScreenSaver" alt="" coords="174,161,370,189"/>
+</map>

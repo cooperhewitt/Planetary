@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classcinder_1_1app_1_1_window_impl_msw.html" title="cinder::app::WindowImplMsw" alt="" coords="5,47,200,75"/>
+<area shape="rect" id="node2" href="$classcinder_1_1app_1_1_window_impl_msw_basic.html" title="cinder::app::WindowImplMsw\lBasic" alt="" coords="248,5,443,49"/>
+<area shape="rect" id="node3" href="$classcinder_1_1app_1_1_window_impl_msw_screen_saver.html" title="cinder::app::WindowImplMsw\lScreenSaver" alt="" coords="248,73,443,117"/>
+</map>

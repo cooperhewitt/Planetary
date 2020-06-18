@@ -1,0 +1,8 @@
+<map id="cinder::audio::AudioExc" name="cinder::audio::AudioExc">
+<area shape="rect" id="node4" href="$classcinder_1_1audio_1_1_audio_context_exc.html" title="Audio exception originating from within the Context. " alt="" coords="518,5,725,33"/>
+<area shape="rect" id="node5" href="$classcinder_1_1audio_1_1_audio_device_exc.html" title="Audio exception related to Device management. " alt="" coords="520,57,722,85"/>
+<area shape="rect" id="node6" href="$classcinder_1_1audio_1_1_audio_file_exc.html" title="Audio exception related to file i/o. " alt="" coords="530,109,713,137"/>
+<area shape="rect" id="node7" href="$classcinder_1_1audio_1_1_audio_format_exc.html" title="Audio exception that occurs when the format of a Node leads to an irrecoverable error. " alt="" coords="520,161,723,189"/>
+<area shape="rect" id="node8" href="$classcinder_1_1audio_1_1_node_cycle_exc.html" title="cinder::audio::NodeCycleExc" alt="" coords="525,213,718,241"/>
+<area shape="rect" id="node2" href="$classcinder_1_1_exception.html" title="cinder::Exception" alt="" coords="134,109,258,137"/>
+</map>

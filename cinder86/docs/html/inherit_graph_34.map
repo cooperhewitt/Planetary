@@ -1,0 +1,86 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$classcinder_1_1app_1_1_window.html" title="cinder::app::Window" alt="" coords="256,309,398,337"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_context.html" title="Manages the creation, connections, and lifecycle of audio::Node&#39;s. " alt="" coords="251,361,402,389"/>
+<area shape="rect" id="node5" href="$classcinder_1_1audio_1_1_device.html" title="Object representing a hardware audio device. There is only ever one device per hardware device report..." alt="" coords="254,867,400,895"/>
+<area shape="rect" id="node6" href="$classcinder_1_1audio_1_1_node.html" title="Fundamental building block for creating an audio processing graph. " alt="" coords="258,585,395,613"/>
+<area shape="rect" id="node44" href="$classcinder_1_1_timeline_item.html" title="Base interface for anything that can go on a Timeline. " alt="" coords="256,83,397,111"/>
+<area shape="rect" id="node4" href="$classcinder_1_1audio_1_1cocoa_1_1_context_audio_unit.html" title="cinder::audio::cocoa\l::ContextAudioUnit" alt="" coords="518,161,658,205"/>
+<area shape="rect" id="node7" href="$classcinder_1_1audio_1_1_channel_router_node.html" title="Node for mapping input channels to output channels. " alt="" coords="475,229,701,257"/>
+<area shape="rect" id="node8" href="$classcinder_1_1audio_1_1cocoa_1_1_effect_audio_unit_node.html" title="cinder::audio::cocoa\l::EffectAudioUnitNode" alt="" coords="1085,205,1237,249"/>
+<area shape="rect" id="node9" href="$classcinder_1_1audio_1_1_delay_node.html" title="General purpose delay line, supporting variable delay with linear interpolation. " alt="" coords="502,585,674,613"/>
+<area shape="rect" id="node10" href="$classcinder_1_1audio_1_1_filter_biquad_node.html" title="General class for filtering nodes based on a biquad (two pole, two zero) filter. " alt="" coords="484,674,692,702"/>
+<area shape="rect" id="node14" href="$classcinder_1_1audio_1_1_input_node.html" title="InputNode is the base class for Node&#39;s that produce audio. It cannot have any inputs. " alt="" coords="505,513,671,541"/>
+<area shape="rect" id="node29" href="$classcinder_1_1audio_1_1_math_node.html" title="Base class for an arithmetic based Node. " alt="" coords="505,873,671,901"/>
+<area shape="rect" id="node35" href="$classcinder_1_1audio_1_1_node_auto_pullable.html" title="a Node that can be pulled without being connected to any outputs. " alt="" coords="482,934,694,962"/>
+<area shape="rect" id="node40" href="$classcinder_1_1audio_1_1_output_node.html" title="Base class for Node&#39;s that consume an audio signal, for example speakers. It cannot have any outputs..." alt="" coords="500,397,676,425"/>
+<area shape="rect" id="node43" href="$classcinder_1_1audio_1_1_pan2d_node.html" title="Simple stereo panning using an equal power cross&#45;fade. The panning position is specified by a single ..." alt="" coords="500,986,676,1014"/>
+<area shape="rect" id="node11" href="$classcinder_1_1audio_1_1_filter_band_pass_node.html" title="A band&#45;pass filtering Node. This is a subclass of FilterBiquadNode and manages its configuration appr..." alt="" coords="790,617,956,661"/>
+<area shape="rect" id="node12" href="$classcinder_1_1audio_1_1_filter_high_pass_node.html" title="A high&#45;pass filtering Node. This is a subclass of FilterBiquadNode and manages its configuration appr..." alt="" coords="792,685,954,729"/>
+<area shape="rect" id="node13" href="$classcinder_1_1audio_1_1_filter_low_pass_node.html" title="A low&#45;pass filtering Node. This is a subclass of FilterBiquadNode and manages its configuration appro..." alt="" coords="794,753,953,797"/>
+<area shape="rect" id="node15" href="$classcinder_1_1audio_1_1_callback_processor_node.html" title="InputNode that processes audio with a std::function callback. " alt="" coords="749,461,997,489"/>
+<area shape="rect" id="node16" href="$classcinder_1_1audio_1_1_gen_node.html" title="Base class for InputNode&#39;s that generate audio samples. Gen&#39;s are always mono channel. " alt="" coords="792,513,954,541"/>
+<area shape="rect" id="node24" href="$classcinder_1_1audio_1_1_input_device_node.html" title="Interface representing a Node that communicates with a hardware input device. This is typically a mic..." alt="" coords="770,409,977,437"/>
+<area shape="rect" id="node26" href="$classcinder_1_1audio_1_1_sample_player_node.html" title="Base Node class for sampled audio playback. Can do operations like seek and loop. ..." alt="" coords="763,565,983,593"/>
+<area shape="rect" id="node17" href="$classcinder_1_1audio_1_1_gen_noise_node.html" title="Noise generator. " alt="" coords="1063,461,1259,489"/>
+<area shape="rect" id="node18" href="$classcinder_1_1audio_1_1_gen_osc_node.html" title="General purpose, band&#45;limited oscillator using wavetable lookup. " alt="" coords="1068,513,1254,541"/>
+<area shape="rect" id="node19" href="$classcinder_1_1audio_1_1_gen_phasor_node.html" title="Phase generator, i.e. ramping waveform that runs from 0 to 1. " alt="" coords="1059,565,1264,593"/>
+<area shape="rect" id="node20" href="$classcinder_1_1audio_1_1_gen_pulse_node.html" title="Pulse waveform generator with variable pulse width. Based on wavetable lookup of two band&#45;limited saw..." alt="" coords="1064,617,1259,645"/>
+<area shape="rect" id="node21" href="$classcinder_1_1audio_1_1_gen_sine_node.html" title="Sine waveform generator. " alt="" coords="1067,669,1256,697"/>
+<area shape="rect" id="node22" href="$classcinder_1_1audio_1_1_gen_table_node.html" title="Basic table&#45;lookup oscillator. " alt="" coords="1064,721,1258,749"/>
+<area shape="rect" id="node23" href="$classcinder_1_1audio_1_1_gen_triangle_node.html" title="Triangle waveform generator. " alt="" coords="1056,409,1266,437"/>
+<area shape="rect" id="node25" href="$classcinder_1_1audio_1_1cocoa_1_1_input_device_node_audio_unit.html" title="cinder::audio::cocoa\l::InputDeviceNodeAudioUnit" alt="" coords="1067,341,1256,385"/>
+<area shape="rect" id="node27" href="$classcinder_1_1audio_1_1_buffer_player_node.html" title="Buffer&#45;based SamplePlayerNode, where all samples are loaded into memory before playback. " alt="" coords="1056,825,1266,853"/>
+<area shape="rect" id="node28" href="$classcinder_1_1audio_1_1_file_player_node.html" title="File&#45;based SamplePlayerNode, where samples are constantly streamed from file. Suitable for large audi..." alt="" coords="1063,773,1259,801"/>
+<area shape="rect" id="node30" href="$classcinder_1_1audio_1_1_add_node.html" title="Node for performing an addition operation on its input. " alt="" coords="793,821,954,849"/>
+<area shape="rect" id="node31" href="$classcinder_1_1audio_1_1_divide_node.html" title="Node for performing a division operation on its input. " alt="" coords="786,873,960,901"/>
+<area shape="rect" id="node32" href="$classcinder_1_1audio_1_1_multiply_node.html" title="Node for performing a mulitplication operation on its input. " alt="" coords="782,925,964,953"/>
+<area shape="rect" id="node34" href="$classcinder_1_1audio_1_1_subtract_node.html" title="Node for performing a subtration operation on its input. " alt="" coords="780,977,967,1005"/>
+<area shape="rect" id="node33" href="$classcinder_1_1audio_1_1_gain_node.html" title="Node for changing the gain, or amplitude, of a signal. " alt="" coords="1079,925,1244,953"/>
+<area shape="rect" id="node36" href="$classcinder_1_1audio_1_1_monitor_node.html" title="Node for retrieving time&#45;domain audio PCM samples. " alt="" coords="783,1029,964,1057"/>
+<area shape="rect" id="node38" href="$classcinder_1_1audio_1_1_sample_recorder_node.html" title="Base Node class for recording audio samples. Inherits from NodeAudioPullable, and therefore does not ..." alt="" coords="755,1081,992,1109"/>
+<area shape="rect" id="node37" href="$classcinder_1_1audio_1_1_monitor_spectral_node.html" title="A Scope that performs spectral (Fourier) analysis. " alt="" coords="1046,1029,1277,1057"/>
+<area shape="rect" id="node39" href="$classcinder_1_1audio_1_1_buffer_recorder_node.html" title="Records its inputs to a Buffer. The Buffer record size should be specified by the user (the default s..." alt="" coords="1048,1081,1275,1109"/>
+<area shape="rect" id="node41" href="$classcinder_1_1audio_1_1_output_device_node.html" title="Interface representing a Node that communicates with a hardware output device. This is typically spea..." alt="" coords="764,289,982,317"/>
+<area shape="rect" id="node42" href="$classcinder_1_1audio_1_1cocoa_1_1_output_device_node_audio_unit.html" title="cinder::audio::cocoa\l::OutputDeviceNodeAudioUnit" alt="" coords="1062,273,1261,317"/>
+<area shape="rect" id="node45" href="$classcinder_1_1_cue.html" title="cinder::Cue" alt="" coords="543,5,633,33"/>
+<area shape="rect" id="node46" href="$classcinder_1_1_timeline.html" title="cinder::Timeline" alt="" coords="531,57,645,85"/>
+<area shape="rect" id="node47" href="$classcinder_1_1_tween_base.html" title="cinder::TweenBase" alt="" coords="521,109,655,137"/>
+<area shape="rect" id="node48" href="$classcinder_1_1_tween.html" title="cinder::Tween\&lt; T \&gt;" alt="" coords="806,109,941,137"/>
+<area shape="rect" id="node49" href="$classcinder_1_1_fn_tween.html" title="cinder::FnTween\&lt; T \&gt;" alt="" coords="1086,109,1237,137"/>
+<area shape="rect" id="node50" href="$classcinder_1_1svg_1_1_node.html" title="Base class for an element of an SVG Document. " alt="" coords="29,1755,155,1783"/>
+<area shape="rect" id="node51" href="$classcinder_1_1svg_1_1_circle.html" title="SVG Circle element: http://www.w3.org/TR/SVG/shapes.html#CircleElement. " alt="" coords="263,1963,390,1991"/>
+<area shape="rect" id="node52" href="$classcinder_1_1svg_1_1_ellipse.html" title="SVG Ellipse element: http://www.w3.org/TR/SVG/shapes.html#EllipseElement. " alt="" coords="260,2015,393,2043"/>
+<area shape="rect" id="node53" href="$classcinder_1_1svg_1_1_gradient.html" title="Base class for SVG Gradients. See SVG Gradients: http://www.w3.org/TR/SVG/pservers.html#Gradients. " alt="" coords="254,2067,399,2095"/>
+<area shape="rect" id="node56" href="$classcinder_1_1svg_1_1_group.html" title="Represents a group of SVG elements. http://www.w3.org/TR/SVG/struct.html#Groups. " alt="" coords="262,1443,392,1471"/>
+<area shape="rect" id="node58" href="$classcinder_1_1svg_1_1_image.html" title="SVG Image Element. Represents an unpremultiplied bitmap. http://www.w3.org/TR/SVG/struct.html#ImageElement. " alt="" coords="262,1547,392,1575"/>
+<area shape="rect" id="node59" href="$classcinder_1_1svg_1_1_line.html" title="SVG Line element: http://www.w3.org/TR/SVG/shapes.html#LineElement. " alt="" coords="267,1599,386,1627"/>
+<area shape="rect" id="node60" href="$classcinder_1_1svg_1_1_path.html" title="SVG Path element: http://www.w3.org/TR/SVG/paths.html#PathElement. " alt="" coords="266,1651,387,1679"/>
+<area shape="rect" id="node61" href="$classcinder_1_1svg_1_1_polygon.html" title="SVG Polygon Element: http://www.w3.org/TR/SVG/shapes.html#PolygonElement. " alt="" coords="256,1703,397,1731"/>
+<area shape="rect" id="node62" href="$classcinder_1_1svg_1_1_polyline.html" title="SVG Polyline Element: http://www.w3.org/TR/SVG/shapes.html#PolylineElement. " alt="" coords="257,1755,397,1783"/>
+<area shape="rect" id="node63" href="$classcinder_1_1svg_1_1_rect.html" title="SVG Rect element: http://www.w3.org/TR/SVG/shapes.html#RectElement. " alt="" coords="266,1807,387,1835"/>
+<area shape="rect" id="node64" href="$classcinder_1_1svg_1_1_text.html" title="SVG Text element. http://www.w3.org/TR/SVG/text.html#TextElement. " alt="" coords="268,1859,386,1887"/>
+<area shape="rect" id="node65" href="$classcinder_1_1svg_1_1_text_span.html" title="SVG tspan Element. Generally owned by a svg::Text Node. http://www.w3.org/TR/SVG/text.html#TSpanElement. " alt="" coords="252,1911,401,1939"/>
+<area shape="rect" id="node66" href="$classcinder_1_1svg_1_1_use.html" title="SVG Use Element, which instantiates a different element: http://www.w3.org/TR/SVG/struct.html#UseElement. " alt="" coords="268,1495,385,1523"/>
+<area shape="rect" id="node54" href="$classcinder_1_1svg_1_1_linear_gradient.html" title="SVG Linear gradient. " alt="" coords="497,2041,679,2069"/>
+<area shape="rect" id="node55" href="$classcinder_1_1svg_1_1_radial_gradient.html" title="SVG Radial gradient. " alt="" coords="497,2093,679,2121"/>
+<area shape="rect" id="node57" href="$classcinder_1_1svg_1_1_doc.html" title="Represents an SVG Document. See SVG Document Structure http://www.w3.org/TR/SVG/struct.html. " alt="" coords="530,1474,646,1502"/>
+<area shape="rect" id="node67" href="$classcinder_1_1audio_1_1cocoa_1_1_node_audio_unit.html" title="cinder::audio::cocoa\l::NodeAudioUnit" alt="" coords="803,341,944,385"/>
+<area shape="rect" id="node69" href="$classcinder_1_1audio_1_1_device_manager.html" title="Platform&#45;specific Singleton for managing hardware devices. Applications normally should not need to u..." alt="" coords="227,1150,426,1178"/>
+<area shape="rect" id="node72" href="$classcinder_1_1audio_1_1_source.html" title="Base class that is used to load and read from an audio source. " alt="" coords="253,1262,400,1290"/>
+<area shape="rect" id="node76" href="$classcinder_1_1_concurrent_circular_buffer.html" title="cinder::ConcurrentCircular\lBuffer\&lt; T \&gt;" alt="" coords="238,1314,415,1358"/>
+<area shape="rect" id="node77" href="$classcinder_1_1_stream_base.html" title="cinder::StreamBase" alt="" coords="257,1210,396,1238"/>
+<area shape="rect" id="node70" href="$classcinder_1_1audio_1_1cocoa_1_1_device_manager_audio_session.html" title="cinder::audio::cocoa\l::DeviceManagerAudioSession" alt="" coords="486,1142,690,1186"/>
+<area shape="rect" id="node71" href="$classcinder_1_1audio_1_1cocoa_1_1_device_manager_core_audio.html" title="cinder::audio::cocoa\l::DeviceManagerCoreAudio" alt="" coords="495,1074,681,1118"/>
+<area shape="rect" id="node73" href="$classcinder_1_1audio_1_1_source_file.html" title="Loads and reads from an audio file source. " alt="" coords="504,1422,672,1450"/>
+<area shape="rect" id="node74" href="$classcinder_1_1audio_1_1cocoa_1_1_source_file_core_audio.html" title="cinder::audio::cocoa\l::SourceFileCoreAudio" alt="" coords="796,1445,951,1489"/>
+<area shape="rect" id="node75" href="$classcinder_1_1audio_1_1_source_file_ogg_vorbis.html" title="SourceFile implementation for decoding ogg vorbis files. " alt="" coords="789,1513,958,1557"/>
+<area shape="rect" id="node78" href="$classcinder_1_1_i_stream_cinder.html" title="cinder::IStreamCinder" alt="" coords="512,1289,664,1317"/>
+<area shape="rect" id="node84" href="$classcinder_1_1_o_stream.html" title="cinder::OStream" alt="" coords="529,1210,647,1238"/>
+<area shape="rect" id="node79" href="$classcinder_1_1_io_stream.html" title="cinder::IoStream" alt="" coords="814,1237,933,1265"/>
+<area shape="rect" id="node81" href="$classcinder_1_1_i_stream_file.html" title="cinder::IStreamFile" alt="" coords="807,1289,940,1317"/>
+<area shape="rect" id="node82" href="$classcinder_1_1_i_stream_mem.html" title="cinder::IStreamMem" alt="" coords="803,1341,944,1369"/>
+<area shape="rect" id="node83" href="$classcinder_1_1_i_stream_url.html" title="cinder::IStreamUrl" alt="" coords="809,1393,938,1421"/>
+<area shape="rect" id="node80" href="$classcinder_1_1_io_stream_file.html" title="cinder::IoStreamFile" alt="" coords="1091,1237,1232,1265"/>
+<area shape="rect" id="node85" href="$classcinder_1_1_o_stream_file.html" title="cinder::OStreamFile" alt="" coords="803,1133,943,1161"/>
+<area shape="rect" id="node86" href="$classcinder_1_1_o_stream_mem.html" title="cinder::OStreamMem" alt="" coords="799,1185,947,1213"/>
+</map>

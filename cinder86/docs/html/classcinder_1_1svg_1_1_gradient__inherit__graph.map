@@ -1,0 +1,5 @@
+<map id="cinder::svg::Gradient" name="cinder::svg::Gradient">
+<area shape="rect" id="node3" href="$classcinder_1_1svg_1_1_linear_gradient.html" title="SVG Linear gradient. " alt="" coords="5,161,187,189"/>
+<area shape="rect" id="node4" href="$classcinder_1_1svg_1_1_radial_gradient.html" title="SVG Radial gradient. " alt="" coords="210,161,392,189"/>
+<area shape="rect" id="node2" href="$classcinder_1_1svg_1_1_node.html" title="Base class for an element of an SVG Document. " alt="" coords="136,6,260,34"/>
+</map>

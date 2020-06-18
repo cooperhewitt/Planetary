@@ -1,0 +1,120 @@
+/*! \page helloOpenCVChapter1 Chapter 1: Basic Image Processing
+\section Introduction Introduction
+If you're like me, you prefer to learn by example, so let's jump right into looking at some code. We'll begin by walking through a sample included with the OpenCV CinderBlock, located at <em>blocks/opencv/samples/ocvBasic</em>. This sample loads an image as a resource, and then performs some basic image processing and displays the results. Let's examine the code in detail:\n
+\code
+#include "CinderOpenCV.h"
+\endcode
+Here's the first interesting line. We're just including the OpenCV CinderBlock's header file. This file contains the glue between Cinder and OpenCV, and it in turn includes the relevant headers from OpenCV itself. Next let's look at the setup() method:
+\code
+void ocvBasicApp::setup()
+{
+	ci::Surface8u surface( loadImage( loadResource( RES_IMAGE ) ) );
+	cv::Mat input( toOcv( surface ) );
+	cv::Mat output;
+	cv::medianBlur( input, output, 11 );
+	...
+	mTexture = gl::Texture( fromOcv( output ) );
+}	 
+\endcode
+\n
+The first line should be familiar. We're just creating a \ref cinder::SurfaceT "ci::Surface" by loading an image from a resource. Next, we dive right into some proper OpenCV code. We create two instances OpenCV's cv::Mat class. This class is very similar to Cinder's \ref cinder::SurfaceT "Surface", and can be used to represent an image. More on this important class later. Notice the constructor parameter for \a input - the result of a call to \ref cinder::toOcv "toOcv()" with the \a surface we loaded earlier. This is our first exposure to the CinderBlock layer. This function simply translates a Cinder class into a form that is usable directly with OpenCV - in this case a ci::Surface into something suitable to construct a cv::Mat with. We'll get deeper into how the OpenCV CinderBlock works in a bit. The second portion of the line constructs an empy cv::Mat called \a output.\n
+\n
+Next, we get into some actual image processing. In this case, we are using OpenCV's medianBlur() function, which smooths an image using a median filter. The first parameter is the source cv::Mat, \a input in our case. The second parameter is the cv::Mat which will hold the result. OpenCV automatically creates a cv::Mat which is of the appropriate size and depth, and in our case will put this result into \a output. The final parameter is how large a window is examined for computing the median of each pixel - we've selected a kernel size of \c 11.\n
+\n
+The last line of setup() creates an OpenGL texture used later in draw(). It makes use of the CinderBlock's fromOcv() function, which behaves just like toOcv() does but in the other direction, converting OpenCV's data structures into Cinder's equivalents. Running the sample gives us a smoothed version of our input image, which is <a href="http://www.flickr.com/photos/stuckincustoms/4045813826/">a photograph by Trey Ratcliff</a>.\n\n
+\image html ch1_median.jpg
+\n
+\n
+Nice. So let's try tweaking this code a bit. Try changing the kernel size from \c 11 to something like say, \c 21. Just make sure it's odd and bigger than \c 1. How do I know that? Well, the OpenCV docs told me. Now's a good time to get familiar with what they look like - checkout the <a href="http://opencv.willowgarage.com/documentation/cpp/image_filtering.html#medianBlur">description of medianBlur()</a>. As you learn OpenCV, you'll want to familiarize yourself with these docs, but for now let's keep moving.\n
+\n
+<h2>Sobel</h2>
+Let's experiment with a different image processing operator. First, comment out the line in setup() which calls cv::medianBlur(), and replace it with a call to the Sobel edge detection operator:
+\code
+//	cv::medianBlur( input, output, 11 );
+cv::Sobel( input, output, CV_8U, 0, 1 ); 
+\endcode
+The first two parameters to cv::Sobel should be familiar - they're the same as cv::medianBlur(). The third parameter is a little different though. Instead of automatically deriving what kind of cv::Mat the output should be from the input, cv::Sobel() wants us to tell it what kind of image we want. By passing \c CV_8U we have asked for an 8-bit unsigned image, which is normal for most image processing. If we wanted say, a floating point image, we could pass \c CV_32F instead. The fourth and fifth parameters, which are \a xOrder and \a yOrder respectively, allow us to select between horizontal and vertical edges. By passing \c 0 and \c 1, we have selected the vertical edges. Run this, and you should see a result about like this:\n\n
+\image html ch1_sobel_vert.jpg
+\n
+There are additional optional parameters to cv::Sobel(). Checkout its <a href="http://opencv.willowgarage.com/documentation/cpp/image_filtering.html#Sobel">documentation here</a>. How do the horizontal edges compare? Try swapping the \c 0 and \c 1, or experiment with the kernel size parameter the docs mention.\n
+\n
+<h2>Threshold</h2>
+And now we'll experiment with a final image processing operator, <a href="http://opencv.willowgarage.com/documentation/cpp/miscellaneous_image_transformations.html#cv-threshold">cv::threshold()</a>. The first and second parameters are consistent with cv::Sobel() and cv::medianBlur() - just the input and output image represented as cv::Mat's. The third parameter specifies what value defines \a above and \a below, and the fourth is the maximum value. Since we're working on 8-bit unsigned images, we'll pass \c 128 and \c 255 for these two values.
+\code
+cv::threshold( input, output, 128, 255, CV_8U );
+\endcode
+\n
+\image html ch1_threshold.jpg
+\n
+<h2>More on cv::Mat</h2>
+The cv::Mat class provides a representation of an image, much like Cinder's \ref cinder::SurfaceT "Surface" or \ref cinder::ChannelT "Channel" classes. To determine the size of a cv::Mat, use code like this:
+\code
+cv::Mat myMat( ... );
+console() << "myMat is " << myMat.size().width << " x " << myMat.size().height << " pixels." << std::endl;
+\endcode
+The design of cv::Mat is also quite similar to \ref cinder::SurfaceT "ci::Surface" or \ref cinder::ChannelT "ci::Channel" with respect to memory management. Like these Cinder classes, cv::Mat maintains a reference count, automatically freeing the associated memory when the refence count drops to zero. Furthermore, assigning one cv::Mat to another is fast, since no image data is copied - just pointers to image data. This means you're safe passing cv::Mat's by value (again, just like \ref cinder::SurfaceT "ci::Surface" or \ref cinder::ChannelT "ci::Channel").
+\code
+cv::Mat matA( toOcv( "C:\\imageA.png" ) );
+cv::Mat matB = matA; // matB and matA both reference the same image
+cv::Mat matC( toOcv( "C:\\imageC.png" ) );
+matC = matA; // the image matC was constructed with gets freed automatically here
+\endcode
+
+Also just like Cinder's equivalent classes, you can allocate a cv::Mat which is empy - the equivalent of a null pointer. To test for null with \ref cinder::SurfaceT "ci::Surface", we write something about like
+\code
+Surface mySurface( ... );
+if( mySurface )
+	... do something with non-null mySurface ...
+\endcode
+To perform the equivalent null-test with cv::Mat, use code like this:
+\code
+cv::Mat myMat( ... );
+if( myMat.data() )
+	... do something with non-null myMat ...
+\endcode
+\n
+A key difference between cv::Mat and \ref cinder::SurfaceT "Surface" or \ref cinder::ChannelT "Channel" is that a cv::Mat can contain an image of many different varieties. While say, Cinder's \ref cinder::Surface8u "Surface8u" class always represents an RGB(A) 8-bit image, a cv::Mat might represent a 32-bit floating point RGB image, or an 8-bit grayscale image, or perhaps a 16-bit YUV image. To determine what sort of data the cv::Mat contains, use <a href="http://opencv.willowgarage.com/documentation/cpp/basic_structures.html#cv-mat-type">cv::Mat::type()</a>. This will return a value we can compare against constants like \c CV_8U3, which implies an 8-bit unsigned, 3-color image (corresponding to a \ref cinder::SurfaceT "ci::Surface8u" with no alpha channel), or say, \c CV_32F1, which corresponds to a \ref cinder::ChannelT "ci::Channel32f". These constants take the form <tt>CV_</tt><bit-depth>{\c U | \c S | \c F }<number-of-channels>, and are discussed in <a href="http://opencv.willowgarage.com/documentation/cpp/basic_structures.html#datatype">detail here</a>.
+\code
+if( input.type() == CV_8U3 )
+	... do something with a 3 channel, 8-bit image ...
+else if( input.type() == CV_32F3 )
+	... do something with a 3 channel, 32-bit float image ...
+else
+	... fail gracefully ...
+\endcode
+\n
+<h2>The OpenCV CinderBlock</h2>
+The OpenCV CinderBlock has been designed to offer a combination of performance, flexibility and convenience. Rather than imposing an additional API users must learn and which must be maintained as OpenCV itself evolves, the CinderBlock consists of essentially just two overloaded functions, ci::toOcv(), and ci::fromOcv(). Armed with these, you can easily exchange data structures between OpenCV and Cinder. We have seen both used in the example code above:
+\code
+ci::Surface8u surface( loadImage( loadResource( RES_IMAGE ) ) );
+cv::Mat input( toOcv( surface ) ), output;
+...
+mTexture = gl::Texture( fromOcv( output ) );
+\endcode
+Note that the first two lines could be condensed into one:
+\code
+cv::Mat input( toOcv( loadImage( loadResource( RES_IMAGE ) ) ) ), output;
+\endcode
+Note also that we can pass the result of ci::fromOcv(cv::Mat) to functions like writeImage directly:
+\code
+#include "cinder/ImageIo.h"
+writeImage( "openCV_output.png", fromOcv( output ) );
+\endcode
+\n
+<h2>The OpenCV C++ API</h2>
+If you've worked with OpenCV in the past, particularly older versions, you may be familiar with its procedural API. In more recent releases, OpenCV has introduced an object-oriented C++ API which allows greater brevity and is type-safe. The OpenCV CinderBlock is based upon this more modern API. However if you are working with legacy code, or you simply prefer it, you can still call the procedural API, passing cv::Mat instances in place of \c IplImages or \c Arr*. For example, the two calls below are equivalent:
+\code
+cv::Mat input( ... ), output;
+cvLaplace( input, output, CV_8U ); // call the C function
+cv::Laplacian( input, output, CV_8U ); // call the C++ function
+\endcode
+A helpful introduction to the C++ API <a href="http://opencv.willowgarage.com/documentation/cpp/introduction.html">is available here</a>.
+\n
+
+<h2>Exercises</h2>
+1. Experiment with combining these basic OpenCV operators. How does the order of operations affect things? What happens if you run a threshold operator on top of a Sobel operator? What about a Sobel operator on top of a threshold operator?\n
+2. Try making one of the image processing parameters (like the value parameter for cv::Threshold) user-controllable using \ref cinder::params::InterfaceGl "params::InterfaceGl". If you've never made use of this feature of Cinder, start with the sample in <em>cinder/samples/paramsBasic</em>.\n
+3. Adapt this sample to work based on the real-time input of a webcam using \ref cinder::Capture "Capture", or the frames of a QuickTime movie using \ref cinder::qtime::MovieSurface "qtime::MovieSurface".
+\n
+
+*/

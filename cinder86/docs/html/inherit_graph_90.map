@@ -1,0 +1,91 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$classcinder_1_1dx_1_1_hlsl_duplicate_c_buffer_exc.html" title="cinder::dx::HlslDuplicate\lCBufferExc" alt="" coords="155,1131,320,1175"/>
+<area shape="rect" id="node3" href="$classcinder_1_1dx_1_1_hlsl_null_program_exc.html" title="cinder::dx::HlslNullProgramExc" alt="" coords="135,1199,340,1227"/>
+<area shape="rect" id="node4" href="$classcinder_1_1dx_1_1_hlsl_prog_compile_exc.html" title="cinder::dx::HlslProgCompileExc" alt="" coords="133,1251,341,1279"/>
+<area shape="rect" id="node5" href="$classcinder_1_1dx_1_1_texture_data_exc.html" title="cinder::dx::TextureDataExc" alt="" coords="147,1303,328,1331"/>
+<area shape="rect" id="node6" href="$classcinder_1_1dx_1_1_vbo_exc.html" title="cinder::dx::VboExc" alt="" coords="171,1355,304,1383"/>
+<area shape="rect" id="node10" href="$classcinder_1_1_exception.html" title="cinder::Exception" alt="" coords="176,1407,299,1435"/>
+<area shape="rect" id="node73" href="$classcinder_1_1gl_1_1_glsl_null_program_exc.html" title="cinder::gl::GlslNullProgramExc" alt="" coords="136,1459,338,1487"/>
+<area shape="rect" id="node74" href="$classcinder_1_1gl_1_1_glsl_prog_compile_exc.html" title="cinder::gl::GlslProgCompileExc" alt="" coords="135,1511,340,1539"/>
+<area shape="rect" id="node75" href="$classcinder_1_1gl_1_1_texture_data_exc.html" title="cinder::gl::TextureDataExc" alt="" coords="149,1563,326,1591"/>
+<area shape="rect" id="node76" href="$classcinder_1_1gl_1_1_vbo_exc.html" title="cinder::gl::VboExc" alt="" coords="173,2117,302,2145"/>
+<area shape="rect" id="node80" href="$classcinder_1_1_plane_exc.html" title="cinder::PlaneExc" alt="" coords="177,2169,298,2197"/>
+<area shape="rect" id="node81" href="$classcinder_1_1qtime_1_1_quick_time_exc.html" title="cinder::qtime::QuickTimeExc" alt="" coords="142,2375,333,2403"/>
+<area shape="rect" id="node87" href="$classcinder_1_1_surface_exc.html" title="cinder::SurfaceExc" alt="" coords="171,2481,304,2509"/>
+<area shape="rect" id="node89" href="$classcinder_1_1_system_exc.html" title="cinder::SystemExc" alt="" coords="171,2638,303,2666"/>
+<area shape="rect" id="node7" href="$classcinder_1_1dx_1_1_vbo_failed_map_exc.html" title="cinder::dx::VboFailedMapExc" alt="" coords="399,113,593,141"/>
+<area shape="rect" id="node8" href="$classcinder_1_1dx_1_1_vbo_failed_unmap_exc.html" title="cinder::dx::VboFailedUnmapExc" alt="" coords="390,165,602,193"/>
+<area shape="rect" id="node9" href="$classcinder_1_1dx_1_1_vbo_invalid_target_exc.html" title="cinder::dx::VboInvalidTargetExc" alt="" coords="392,217,600,245"/>
+<area shape="rect" id="node11" href="$classcinder_1_1app_1_1_asset_load_exc.html" title="Exception for failed asset loading. " alt="" coords="406,269,586,297"/>
+<area shape="rect" id="node12" href="$classcinder_1_1app_1_1_exc_invalid_window.html" title="Thrown when an operation is performed on a WindowRef which refers to an invalid Window. " alt="" coords="395,321,597,349"/>
+<area shape="rect" id="node13" href="$classcinder_1_1app_1_1_resource_load_exc.html" title="Exception for failed resource loading. " alt="" coords="394,373,598,401"/>
+<area shape="rect" id="node14" href="$classcinder_1_1audio_1_1_audio_exc.html" title="General Audio exception. " alt="" coords="415,425,577,453"/>
+<area shape="rect" id="node20" href="$classcinder_1_1_capture_exc.html" title="cinder::CaptureExc" alt="" coords="429,477,563,505"/>
+<area shape="rect" id="node23" href="$classcinder_1_1dx_1_1_exception.html" title="cinder::dx::Exception" alt="" coords="423,529,569,557"/>
+<area shape="rect" id="node28" href="$classcinder_1_1_font_glyph_failure_exc.html" title="cinder::FontGlyphFailureExc" alt="" coords="401,901,591,929"/>
+<area shape="rect" id="node29" href="$classcinder_1_1_font_invalid_name_exc.html" title="cinder::FontInvalidNameExc" alt="" coords="402,953,590,981"/>
+<area shape="rect" id="node30" href="$classcinder_1_1gl_1_1_exception.html" title="cinder::gl::Exception" alt="" coords="425,1005,567,1033"/>
+<area shape="rect" id="node34" href="$classcinder_1_1_image_io_exception.html" title="cinder::ImageIoException" alt="" coords="410,1057,582,1085"/>
+<area shape="rect" id="node44" href="$classcinder_1_1_json_tree_1_1_exception.html" title="Base class for JsonTree exceptions. " alt="" coords="403,1381,589,1409"/>
+<area shape="rect" id="node48" href="$classcinder_1_1_path2d_exc.html" title="cinder::Path2dExc" alt="" coords="431,1433,561,1461"/>
+<area shape="rect" id="node49" href="$classcinder_1_1qtime_1_1_movie_writer_exc.html" title="cinder::qtime::MovieWriterExc" alt="" coords="397,1550,595,1578"/>
+<area shape="rect" id="node53" href="$classcinder_1_1_serial_exc.html" title="cinder::SerialExc" alt="" coords="435,1721,557,1749"/>
+<area shape="rect" id="node59" href="$classcinder_1_1_stream_exc.html" title="cinder::StreamExc" alt="" coords="431,1773,561,1801"/>
+<area shape="rect" id="node61" href="$classcinder_1_1svg_1_1_exc.html" title="SVG Exception base&#45;class. " alt="" coords="438,1825,554,1853"/>
+<area shape="rect" id="node67" href="$classcinder_1_1_triangulator_1_1_exception.html" title="cinder::Triangulator\l::Exception" alt="" coords="428,1877,564,1921"/>
+<area shape="rect" id="node68" href="$classcinder_1_1_url_load_exc.html" title="Exception for failed Url loading. " alt="" coords="429,1945,563,1973"/>
+<area shape="rect" id="node69" href="$classcinder_1_1_xml_tree_1_1_exception.html" title="Base class for XmlTree exceptions. " alt="" coords="406,1997,586,2025"/>
+<area shape="rect" id="node72" href="$classcinder_1_1_xml_tree_1_1_exc_unknown_node_type.html" title="Exception implying an XML node of an unknown type. Implies a low&#45;level problem communicating with Rap..." alt="" coords="396,2049,596,2093"/>
+<area shape="rect" id="node15" href="$classcinder_1_1audio_1_1_audio_context_exc.html" title="Audio exception originating from within the Context. " alt="" coords="666,5,873,33"/>
+<area shape="rect" id="node16" href="$classcinder_1_1audio_1_1_audio_device_exc.html" title="Audio exception related to Device management. " alt="" coords="668,57,870,85"/>
+<area shape="rect" id="node17" href="$classcinder_1_1audio_1_1_audio_file_exc.html" title="Audio exception related to file i/o. " alt="" coords="678,109,861,137"/>
+<area shape="rect" id="node18" href="$classcinder_1_1audio_1_1_audio_format_exc.html" title="Audio exception that occurs when the format of a Node leads to an irrecoverable error. " alt="" coords="668,161,871,189"/>
+<area shape="rect" id="node19" href="$classcinder_1_1audio_1_1_node_cycle_exc.html" title="cinder::audio::NodeCycleExc" alt="" coords="673,213,866,241"/>
+<area shape="rect" id="node21" href="$classcinder_1_1_capture_exc_init_fail.html" title="cinder::CaptureExcInitFail" alt="" coords="682,265,856,293"/>
+<area shape="rect" id="node22" href="$classcinder_1_1_capture_exc_invalid_channel_order.html" title="cinder::CaptureExcInvalid\lChannelOrder" alt="" coords="683,317,856,361"/>
+<area shape="rect" id="node24" href="$classcinder_1_1dx_1_1_drawing_too_many_vertices_exception.html" title="cinder::dx::DrawingTooMany\lVerticesException" alt="" coords="675,385,864,429"/>
+<area shape="rect" id="node25" href="$classcinder_1_1dx_1_1_exception_unknown_target.html" title="cinder::dx::ExceptionUnknown\lTarget" alt="" coords="669,453,870,497"/>
+<area shape="rect" id="node26" href="$classcinder_1_1dx_1_1_render_target_exception.html" title="cinder::dx::RenderTarget\lException" alt="" coords="686,521,853,565"/>
+<area shape="rect" id="node27" href="$classcinder_1_1dx_1_1_render_target_exception_invalid_specification.html" title="cinder::dx::RenderTarget\lExceptionInvalidSpecification" alt="" coords="936,521,1130,565"/>
+<area shape="rect" id="node31" href="$classcinder_1_1gl_1_1_exception_unknown_target.html" title="cinder::gl::ExceptionUnknown\lTarget" alt="" coords="671,589,868,633"/>
+<area shape="rect" id="node32" href="$classcinder_1_1gl_1_1_fbo_exception.html" title="cinder::gl::FboException" alt="" coords="687,657,852,685"/>
+<area shape="rect" id="node33" href="$classcinder_1_1gl_1_1_fbo_exception_invalid_specification.html" title="cinder::gl::FboException\lInvalidSpecification" alt="" coords="951,649,1116,693"/>
+<area shape="rect" id="node35" href="$classcinder_1_1_image_io_exception_failed_load.html" title="cinder::ImageIoException\lFailedLoad" alt="" coords="683,709,855,753"/>
+<area shape="rect" id="node36" href="$classcinder_1_1_image_io_exception_failed_write.html" title="cinder::ImageIoException\lFailedWrite" alt="" coords="683,777,855,821"/>
+<area shape="rect" id="node37" href="$classcinder_1_1_image_io_exception_illegal_channel_order.html" title="cinder::ImageIoException\lIllegalChannelOrder" alt="" coords="683,845,855,889"/>
+<area shape="rect" id="node38" href="$classcinder_1_1_image_io_exception_illegal_color_model.html" title="cinder::ImageIoException\lIllegalColorModel" alt="" coords="683,913,855,957"/>
+<area shape="rect" id="node39" href="$classcinder_1_1_image_io_exception_illegal_data_type.html" title="cinder::ImageIoException\lIllegalDataType" alt="" coords="683,981,855,1025"/>
+<area shape="rect" id="node40" href="$classcinder_1_1_image_io_exception_unknown_extension.html" title="cinder::ImageIoException\lUnknownExtension" alt="" coords="683,1049,855,1093"/>
+<area shape="rect" id="node41" href="$classcinder_1_1_image_source_file_quartz_exception_unsupported_data.html" title="cinder::ImageSourceFileQuartz\lExceptionUnsupportedData" alt="" coords="666,1117,872,1161"/>
+<area shape="rect" id="node42" href="$classcinder_1_1_image_source_file_wic_exception_unsupported_data.html" title="cinder::ImageSourceFileWic\lExceptionUnsupportedData" alt="" coords="675,1185,863,1229"/>
+<area shape="rect" id="node43" href="$classcinder_1_1_image_source_png_exception.html" title="cinder::ImageSourcePngException" alt="" coords="656,1253,883,1281"/>
+<area shape="rect" id="node45" href="$classcinder_1_1_json_tree_1_1_exc_child_not_found.html" title="Exception expressing the absence of an expected child node. " alt="" coords="679,1305,859,1349"/>
+<area shape="rect" id="node46" href="$classcinder_1_1_json_tree_1_1_exc_json_parser_error.html" title="Exception expressing the existence of errors when serializing or deserializing JSON. " alt="" coords="680,1373,858,1417"/>
+<area shape="rect" id="node47" href="$classcinder_1_1_json_tree_1_1_exc_non_convertible.html" title="Exception expressing the inability to convert a node&#39;s value to a requested type. ..." alt="" coords="682,1441,856,1485"/>
+<area shape="rect" id="node50" href="$classcinder_1_1qtime_1_1_movie_writer_exc_already_finished.html" title="cinder::qtime::MovieWriter\lExcAlreadyFinished" alt="" coords="681,1509,857,1553"/>
+<area shape="rect" id="node51" href="$classcinder_1_1qtime_1_1_movie_writer_exc_frame_encode.html" title="cinder::qtime::MovieWriter\lExcFrameEncode" alt="" coords="681,1577,857,1621"/>
+<area shape="rect" id="node52" href="$classcinder_1_1qtime_1_1_movie_writer_exc_invalid_path.html" title="cinder::qtime::MovieWriter\lExcInvalidPath" alt="" coords="681,1645,857,1689"/>
+<area shape="rect" id="node54" href="$classcinder_1_1_serial_exc_device_enumeration_failed.html" title="cinder::SerialExcDeviceEnumeration\lFailed" alt="" coords="650,1713,888,1757"/>
+<area shape="rect" id="node55" href="$classcinder_1_1_serial_exc_open_failed.html" title="cinder::SerialExcOpenFailed" alt="" coords="674,1781,864,1809"/>
+<area shape="rect" id="node56" href="$classcinder_1_1_serial_exc_read_failure.html" title="cinder::SerialExcReadFailure" alt="" coords="672,1833,866,1861"/>
+<area shape="rect" id="node57" href="$classcinder_1_1_serial_exc_write_failure.html" title="cinder::SerialExcWriteFailure" alt="" coords="673,1885,866,1913"/>
+<area shape="rect" id="node58" href="$classcinder_1_1_serial_timeout_exc.html" title="cinder::SerialTimeoutExc" alt="" coords="685,1937,854,1965"/>
+<area shape="rect" id="node60" href="$classcinder_1_1_stream_exc_out_of_memory.html" title="cinder::StreamExcOutOfMemory" alt="" coords="662,1989,876,2017"/>
+<area shape="rect" id="node62" href="$classcinder_1_1svg_1_1_exc_child_not_found.html" title="cinder::svg::ExcChildNot\lFound" alt="" coords="686,2041,853,2085"/>
+<area shape="rect" id="node63" href="$classcinder_1_1svg_1_1_float_parse_exc.html" title="cinder::svg::FloatParseExc" alt="" coords="679,2109,859,2137"/>
+<area shape="rect" id="node64" href="$classcinder_1_1svg_1_1_path_parse_exc.html" title="cinder::svg::PathParseExc" alt="" coords="680,2161,858,2189"/>
+<area shape="rect" id="node65" href="$classcinder_1_1svg_1_1_transform_parse_exc.html" title="cinder::svg::TransformParseExc" alt="" coords="664,2213,875,2241"/>
+<area shape="rect" id="node66" href="$classcinder_1_1svg_1_1_value_exc.html" title="cinder::svg::ValueExc" alt="" coords="695,2265,844,2293"/>
+<area shape="rect" id="node70" href="$classcinder_1_1_xml_tree_1_1_exc_attr_not_found.html" title="Exception expressing the absence of an expected attribute. " alt="" coords="687,2317,852,2361"/>
+<area shape="rect" id="node71" href="$classcinder_1_1_xml_tree_1_1_exc_child_not_found.html" title="Exception expressing the absence of an expected child node. " alt="" coords="682,2385,857,2429"/>
+<area shape="rect" id="node77" href="$classcinder_1_1gl_1_1_vbo_failed_map_exc.html" title="cinder::gl::VboFailedMapExc" alt="" coords="400,2117,592,2145"/>
+<area shape="rect" id="node78" href="$classcinder_1_1gl_1_1_vbo_failed_unmap_exc.html" title="cinder::gl::VboFailedUnmapExc" alt="" coords="392,2169,600,2197"/>
+<area shape="rect" id="node79" href="$classcinder_1_1gl_1_1_vbo_invalid_target_exc.html" title="cinder::gl::VboInvalidTargetExc" alt="" coords="394,2221,598,2249"/>
+<area shape="rect" id="node82" href="$classcinder_1_1qtime_1_1_quick_time_error_loading_exc.html" title="cinder::qtime::QuickTime\lErrorLoadingExc" alt="" coords="412,2273,580,2317"/>
+<area shape="rect" id="node83" href="$classcinder_1_1qtime_1_1_quick_time_exc_fft.html" title="cinder::qtime::QuickTime\lExcFft" alt="" coords="412,2341,580,2385"/>
+<area shape="rect" id="node84" href="$classcinder_1_1qtime_1_1_quick_time_exc_url_invalid.html" title="cinder::qtime::QuickTime\lExcUrlInvalid" alt="" coords="412,2409,580,2453"/>
+<area shape="rect" id="node85" href="$classcinder_1_1qtime_1_1_quick_time_file_invalid_exc.html" title="cinder::qtime::QuickTime\lFileInvalidExc" alt="" coords="412,2477,580,2521"/>
+<area shape="rect" id="node86" href="$classcinder_1_1qtime_1_1_quick_time_path_invalid_exc.html" title="cinder::qtime::QuickTime\lPathInvalidExc" alt="" coords="412,2545,580,2589"/>
+<area shape="rect" id="node88" href="$classcinder_1_1_surface_constraints_exc.html" title="cinder::SurfaceConstraintsExc" alt="" coords="396,2613,596,2641"/>
+<area shape="rect" id="node90" href="$classcinder_1_1_system_exc_failed_query.html" title="cinder::SystemExcFailedQuery" alt="" coords="394,2665,598,2693"/>
+</map>

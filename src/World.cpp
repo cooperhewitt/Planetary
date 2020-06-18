@@ -31,17 +31,12 @@ void World::setup()
 {
 	if( !mSpheresInitialized ){
 		// VERTEX ARRAY SPHERE      
-		if ( G_IS_IPAD2 ) {
-            mHiSphere.setup(32);
-            mMdSphere.setup(20);
-            mLoSphere.setup(16);
-            mTySphere.setup(10);
-		} else {
-            mHiSphere.setup(32);
-            mMdSphere.setup(16);
-            mLoSphere.setup(12);
-            mTySphere.setup(8);
-		}
+		
+            mHiSphere.setup(128);
+            mMdSphere.setup(64);
+            mLoSphere.setup(32);
+            mTySphere.setup(16);
+		
         mOrbitRing.setup();
         mPlanetRing.setup();
         mSpheresInitialized = true;

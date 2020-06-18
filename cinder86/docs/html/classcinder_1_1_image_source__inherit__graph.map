@@ -1,0 +1,7 @@
+<map id="cinder::ImageSource" name="cinder::ImageSource">
+<area shape="rect" id="node3" href="$classcinder_1_1cocoa_1_1_image_source_cg_image.html" title="cinder::cocoa::ImageSource\lCgImage" alt="" coords="372,6,559,50"/>
+<area shape="rect" id="node8" href="$classcinder_1_1_image_source_file_wic.html" title="cinder::ImageSourceFileWic" alt="" coords="371,230,559,258"/>
+<area shape="rect" id="node9" href="$classcinder_1_1_image_source_png.html" title="cinder::ImageSourcePng" alt="" coords="381,282,549,310"/>
+<area shape="rect" id="node2" href="$classcinder_1_1_image_io.html" title="cinder::ImageIo" alt="" coords="6,178,119,206"/>
+<area shape="rect" id="node4" href="$classcinder_1_1_image_source_file_quartz.html" title="cinder::ImageSourceFileQuartz" alt="" coords="618,14,824,42"/>
+</map>

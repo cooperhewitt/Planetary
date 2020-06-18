@@ -1,0 +1,5 @@
+<map id="cinder::audio::BufferBaseT&lt; T &gt;" name="cinder::audio::BufferBaseT&lt; T &gt;">
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_buffer_interleaved_t.html" title="Audio buffer that stores its channels of type T in one interleaved array (ie. the first sample of cha..." alt="" coords="5,99,211,143"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_buffer_t.html" title="Audio buffer that stores its channels of type T contiguously (ie. the first sample of channel 1 is di..." alt="" coords="236,107,415,135"/>
+<area shape="rect" id="node4" href="$classcinder_1_1audio_1_1_buffer_spectral_t.html" title="A buffer that contains frequency domain audio data. " alt="" coords="231,193,420,237"/>
+</map>

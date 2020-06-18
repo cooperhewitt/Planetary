@@ -1,0 +1,9 @@
+/**
+\mainpage Cinder-OpenCV Documentation
+\section introduction Introduction
+Welcome to the documentation for the OpenCV CinderBlock. If you're just getting started with OpenCV & Cinder, you should start with the \ref helloOpenCV "Hello, OpenCV guide"\n Or you can jump straight to the reference via the <a href="namespaces.html">Namespace list</a>.
+
+\section sections Sections
+\ref helloOpenCV "Hello, OpenCV" \n
+<a href="namespaces.html">Namespace list</a>
+*/

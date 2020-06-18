@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classcinder_1_1audio_1_1_buffer_base_t.html" title="Base class for the various Buffer classes. The template parameter T defined the sample type (precisio..." alt="" coords="5,35,176,79"/>
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_buffer_interleaved_t.html" title="Audio buffer that stores its channels of type T in one interleaved array (ie. the first sample of cha..." alt="" coords="225,5,431,49"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_buffer_t.html" title="Audio buffer that stores its channels of type T contiguously (ie. the first sample of channel 1 is di..." alt="" coords="238,73,418,101"/>
+<area shape="rect" id="node4" href="$classcinder_1_1audio_1_1_buffer_spectral_t.html" title="A buffer that contains frequency domain audio data. " alt="" coords="480,65,669,109"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classcinder_1_1audio_1_1_wave_table.html" title="Manages a table that is used for wavetable synthesis. Supports table lookup with linear interpolation..." alt="" coords="5,5,176,33"/>
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_wave_table2d.html" title="Manages an array of tables that is used for bandlimited wavetable synthesis. Supports table lookup wi..." alt="" coords="225,5,410,33"/>
+</map>

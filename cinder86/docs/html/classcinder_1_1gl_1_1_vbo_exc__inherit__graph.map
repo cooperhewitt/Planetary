@@ -1,0 +1,5 @@
+<map id="cinder::gl::VboExc" name="cinder::gl::VboExc">
+<area shape="rect" id="node3" href="$classcinder_1_1gl_1_1_vbo_failed_map_exc.html" title="cinder::gl::VboFailedMapExc" alt="" coords="320,5,512,33"/>
+<area shape="rect" id="node4" href="$classcinder_1_1gl_1_1_vbo_failed_unmap_exc.html" title="cinder::gl::VboFailedUnmapExc" alt="" coords="312,57,520,85"/>
+<area shape="rect" id="node5" href="$classcinder_1_1gl_1_1_vbo_invalid_target_exc.html" title="cinder::gl::VboInvalidTargetExc" alt="" coords="314,109,518,137"/>
+</map>

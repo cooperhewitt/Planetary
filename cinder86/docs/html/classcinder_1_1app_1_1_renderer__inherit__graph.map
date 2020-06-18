@@ -1,0 +1,4 @@
+<map id="cinder::app::Renderer" name="cinder::app::Renderer">
+<area shape="rect" id="node2" href="$classcinder_1_1app_1_1_renderer_dx.html" title="cinder::app::RendererDx" alt="" coords="5,83,171,111"/>
+<area shape="rect" id="node3" href="$classcinder_1_1app_1_1_renderer_gl.html" title="cinder::app::RendererGl" alt="" coords="196,83,359,111"/>
+</map>

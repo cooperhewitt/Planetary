@@ -1,0 +1,5 @@
+<map id="cinder::audio::cocoa::NodeAudioUnit" name="cinder::audio::cocoa::NodeAudioUnit">
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1cocoa_1_1_effect_audio_unit_node.html" title="cinder::audio::cocoa\l::EffectAudioUnitNode" alt="" coords="219,5,371,49"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1cocoa_1_1_input_device_node_audio_unit.html" title="cinder::audio::cocoa\l::InputDeviceNodeAudioUnit" alt="" coords="200,73,389,117"/>
+<area shape="rect" id="node4" href="$classcinder_1_1audio_1_1cocoa_1_1_output_device_node_audio_unit.html" title="cinder::audio::cocoa\l::OutputDeviceNodeAudioUnit" alt="" coords="195,141,394,185"/>
+</map>
