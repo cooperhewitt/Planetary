@@ -1951,7 +1951,7 @@ void KeplerApp::drawScene()
     mGalaxy.drawSpiralPlanes();    
     mGalaxy.drawCenter();
 	
-    return;
+   
     
 // STARS
 	gl::enableAdditiveBlending();
