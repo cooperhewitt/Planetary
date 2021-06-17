@@ -1,0 +1,8 @@
+<map id="cinder::SerialExc" name="cinder::SerialExc">
+<area shape="rect" id="node4" href="$classcinder_1_1_serial_exc_device_enumeration_failed.html" title="cinder::SerialExcDeviceEnumeration\lFailed" alt="" coords="477,5,715,49"/>
+<area shape="rect" id="node5" href="$classcinder_1_1_serial_exc_open_failed.html" title="cinder::SerialExcOpenFailed" alt="" coords="501,73,691,101"/>
+<area shape="rect" id="node6" href="$classcinder_1_1_serial_exc_read_failure.html" title="cinder::SerialExcReadFailure" alt="" coords="499,125,693,153"/>
+<area shape="rect" id="node7" href="$classcinder_1_1_serial_exc_write_failure.html" title="cinder::SerialExcWriteFailure" alt="" coords="500,177,693,205"/>
+<area shape="rect" id="node8" href="$classcinder_1_1_serial_timeout_exc.html" title="cinder::SerialTimeoutExc" alt="" coords="511,229,681,257"/>
+<area shape="rect" id="node2" href="$classcinder_1_1_exception.html" title="cinder::Exception" alt="" coords="134,125,258,153"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="cinder::audio::OutputDeviceNode" name="cinder::audio::OutputDeviceNode">
+<area shape="rect" id="node6" href="$classcinder_1_1audio_1_1cocoa_1_1_output_device_node_audio_unit.html" title="cinder::audio::cocoa\l::OutputDeviceNodeAudioUnit" alt="" coords="44,331,243,375"/>
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_output_node.html" title="Base class for Node&#39;s that consume an audio signal, for example speakers. It cannot have any outputs..." alt="" coords="56,177,232,205"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_node.html" title="Fundamental building block for creating an audio processing graph. " alt="" coords="76,99,212,127"/>
+</map>

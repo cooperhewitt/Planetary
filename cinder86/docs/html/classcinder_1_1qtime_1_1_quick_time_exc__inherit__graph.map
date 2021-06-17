@@ -1,0 +1,7 @@
+<map id="cinder::qtime::QuickTimeExc" name="cinder::qtime::QuickTimeExc">
+<area shape="rect" id="node3" href="$classcinder_1_1qtime_1_1_quick_time_error_loading_exc.html" title="cinder::qtime::QuickTime\lErrorLoadingExc" alt="" coords="373,5,541,49"/>
+<area shape="rect" id="node4" href="$classcinder_1_1qtime_1_1_quick_time_exc_fft.html" title="cinder::qtime::QuickTime\lExcFft" alt="" coords="373,73,541,117"/>
+<area shape="rect" id="node5" href="$classcinder_1_1qtime_1_1_quick_time_exc_url_invalid.html" title="cinder::qtime::QuickTime\lExcUrlInvalid" alt="" coords="373,141,541,185"/>
+<area shape="rect" id="node6" href="$classcinder_1_1qtime_1_1_quick_time_file_invalid_exc.html" title="cinder::qtime::QuickTime\lFileInvalidExc" alt="" coords="373,209,541,253"/>
+<area shape="rect" id="node7" href="$classcinder_1_1qtime_1_1_quick_time_path_invalid_exc.html" title="cinder::qtime::QuickTime\lPathInvalidExc" alt="" coords="373,277,541,321"/>
+</map>

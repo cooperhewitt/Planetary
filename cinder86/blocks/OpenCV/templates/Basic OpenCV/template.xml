@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<cinder>
+<template name="OpenCV: Basic" parent="org.libcinder.apptemplates.basicopengl">
+	<requires>org.libcinder.opencv</requires>
+	<source replaceContents="true" replaceName="true">src/_TBOX_PREFIX_App.cpp</source>
+	<asset>assets/dfw.jpg</asset>
+</template>
+</cinder>

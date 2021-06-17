@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$structcinder_1_1audio_1_1_node_1_1_format.html" title="cinder::audio::Node\l::Format" alt="" coords="6,5,143,49"/>
+<area shape="rect" id="node2" href="$structcinder_1_1audio_1_1_monitor_node_1_1_format.html" title="cinder::audio::MonitorNode\l::Format" alt="" coords="192,5,373,49"/>
+<area shape="rect" id="node3" href="$structcinder_1_1audio_1_1_monitor_spectral_node_1_1_format.html" title="cinder::audio::MonitorSpectral\lNode::Format" alt="" coords="422,5,621,49"/>
+</map>

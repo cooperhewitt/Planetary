@@ -12,12 +12,10 @@
 #include "cinder/gl/gl.h"
 #include "cinder/Color.h"
 #include "cinder/Utilities.h" // for launchWebBrowser()
-#include "CinderFlurry.h"     // for logging
 #include "Globals.h"          // for color constants
 #include "BloomScene.h"       // for getRoot() functionality (FIXME)
 #include "StringHelpers.h"    // for string/wstring UTF8/UTF32 conversion
 
-using namespace pollen::flurry;
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -36,27 +34,23 @@ void HelpLayer::setup( const ci::Font &smallFont, const ci::Font &bigFont, const
     TextLayout layout;	
     layout.setColor( Color::white() );
     layout.setFont( mBigBoldFont );
-    layout.addLine( "Planetary" );
+    layout.addLine( "Planetary " );
     layout.setFont( mBigFont );
-    layout.append( " by " );
-    layout.setFont( mBigBoldFont );
-    layout.append( "bloom." );
+    layout.append( "Remastered" );
     mHeadingTex = layout.render( true, false );    
     
     layout = TextLayout();	
     layout.setColor( BRIGHT_BLUE );
     layout.setFont( mSmallFont );
-    layout.addLine( "© 2011 Bloom Studio, Inc. All Rights Reserved. Made with " );
-    layout.setColor( Color::white() );
-    layout.append("Cinder");
+    layout.append( "Original by Bloom Studio. Remastered in 2020 by @kemalenver. " );
     layout.setColor( BRIGHT_BLUE );
-    layout.append(". Questions? Comments? ");
+    layout.append("Get in touch: ");
     layout.setColor( Color::white() );
     layout.append("Visit the website");
     layout.setColor( BRIGHT_BLUE );
     layout.append(" or ");
     layout.setColor( Color::white() );
-    layout.append("send us an email");
+    layout.append("tweet @kemalenver");
     layout.setColor( BRIGHT_BLUE );
     layout.append("." );
     mBodyTex = layout.render( true, false ); 
@@ -84,7 +78,7 @@ void HelpLayer::setup( const ci::Font &smallFont, const ci::Font &bigFont, const
     // use TextBox to measure glyphs and generate hit areas...
     
     // make a wide string for counting characters (because © is double-wide)
-    wstring bodyText = L"© 2011 Bloom Studio, Inc. All Rights Reserved. Made with Cinder. Questions? Comments? Visit the website or send us an email.";
+    wstring bodyText = L"Original by Bloom Studio. Remastered in 2020 by @kemalenver. Get in touch: Visit the website or tweet @kemalenver.";
     
     // make a normal string to pass to cinder text routines
     string strBodyText = bloom::wstringToUtf8( bodyText );
@@ -97,17 +91,10 @@ void HelpLayer::setup( const ci::Font &smallFont, const ci::Font &bigFont, const
     box.setText( strBodyText );
 
     std::vector<std::pair<uint16_t,Vec2f> > glyphPositions = box.measureGlyphs();
-
-//    cout << strBodyText << endl;
-//    cout << glyphPositions.size() << " glyph positions available" << endl;
-//    cout << bodyText.size() << " characters in bodyText" << endl;
-//    cout << strBodyText.size() << " characters in strBodyText" << endl;
     
-    updateRect( &mCinderRect, bodyText, L"Cinder", glyphPositions );
     updateRect( &mWebRect, bodyText, L"Visit the website", glyphPositions );
-    updateRect( &mEmailRect, bodyText, L"send us an email", glyphPositions );
+    updateRect( &mEmailRect, bodyText, L"tweet @kemalenver", glyphPositions );
     
-    mCinderRect.offset( mBodyPos );
     mWebRect.offset( mBodyPos );
     mEmailRect.offset( mBodyPos );    
 }
@@ -152,27 +139,15 @@ bool HelpLayer::touchEnded( TouchEvent::Touch touch )
     
     // TODO: should we use a callback for these and handle the actions in the main app?
 	
-    Url mailToLink( "mailto:planetary@bloom.io?subject=Planetary feedback" );
-    Url planetaryWebsite( "http://planetary.bloom.io" );
-//    Url bloomWebsite( "http://bloom.io" );
-    Url cinderWebsite( "http://libcinder.org" );
+    Url mailToLink( "https://www.twitter.com/kemalenver" );
+    Url planetaryWebsite( "https://www.kemalenver.com" );
     
     const Vec2f linkPadding(5,5);
     
     if( mEmailRect.inflated( linkPadding ).contains( pos ) ){
-//        Flurry::getInstrumentation()->logEvent("Email Link Selected");             
         launchWebBrowser( mailToLink );
     } else if( mWebRect.inflated( linkPadding ).contains( pos ) ){
-//        Flurry::getInstrumentation()->logEvent("Planetary Link Selected");            
         launchWebBrowser( planetaryWebsite );
-        
-//    } else if( mBloomButton.inflated( linkPadding ).contains( pos ) ){
-//        Flurry::getInstrumentation()->logEvent("Bloom Link Selected");            
-//        launchWebBrowser( bloomWebsite );
-//        
-    } else if( mCinderRect.inflated( linkPadding ).contains( pos ) ){
-//        Flurry::getInstrumentation()->logEvent("Cinder Link Selected");            
-        launchWebBrowser( cinderWebsite );
     }
 	
 	return mBgRect.contains( pos );

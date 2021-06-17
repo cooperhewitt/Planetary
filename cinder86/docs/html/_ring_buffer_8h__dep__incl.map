@@ -1,0 +1,10 @@
+<map id="include/cinder/audio/dsp/RingBuffer.h" name="include/cinder/audio/dsp/RingBuffer.h">
+<area shape="rect" id="node2" href="$_context_audio_unit_8h.html" title="include/cinder/audio\l/cocoa/ContextAudioUnit.h" alt="" coords="5,99,184,143"/>
+<area shape="rect" id="node4" href="$_monitor_node_8h.html" title="include/cinder/audio\l/MonitorNode.h" alt="" coords="209,99,348,143"/>
+<area shape="rect" id="node6" href="$_sample_player_node_8h.html" title="include/cinder/audio\l/SamplePlayerNode.h" alt="" coords="423,99,573,143"/>
+<area shape="rect" id="node5" href="$_monitor_node_8cpp.html" title="src/cinder/audio/Monitor\lNode.cpp" alt="" coords="208,193,371,237"/>
+<area shape="rect" id="node3" href="$_context_audio_unit_8cpp.html" title="src/cinder/audio/cocoa\l/ContextAudioUnit.cpp" alt="" coords="17,193,172,237"/>
+<area shape="rect" id="node7" href="$_voice_8h.html" title="include/cinder/audio\l/Voice.h" alt="" coords="417,193,556,237"/>
+<area shape="rect" id="node9" href="$_sample_player_node_8cpp.html" title="src/cinder/audio/SamplePlayer\lNode.cpp" alt="" coords="580,193,781,237"/>
+<area shape="rect" id="node8" href="$_voice_8cpp.html" title="src/cinder/audio/Voice.cpp" alt="" coords="398,286,575,314"/>
+</map>

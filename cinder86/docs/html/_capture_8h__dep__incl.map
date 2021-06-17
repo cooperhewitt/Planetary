@@ -1,0 +1,11 @@
+<map id="include/cinder/Capture.h" name="include/cinder/Capture.h">
+<area shape="rect" id="node2" href="$_capture_impl_av_foundation_8h.html" title="include/cinder/CaptureImpl\lAvFoundation.h" alt="" coords="5,83,184,127"/>
+<area shape="rect" id="node4" href="$_capture_impl_cocoa_dummy_8h.html" title="include/cinder/CaptureImpl\lCocoaDummy.h" alt="" coords="213,83,392,127"/>
+<area shape="rect" id="node6" href="$_capture_impl_direct_show_8h.html" title="include/cinder/CaptureImpl\lDirectShow.h" alt="" coords="422,83,601,127"/>
+<area shape="rect" id="node8" href="$_capture_impl_qt_kit_8h.html" title="include/cinder/CaptureImpl\lQtKit.h" alt="" coords="626,83,805,127"/>
+<area shape="rect" id="node10" href="$_capture_8cpp.html" title="src/cinder/Capture.cpp" alt="" coords="830,91,985,119"/>
+<area shape="rect" id="node3" href="$_capture_impl_av_foundation_8mm.html" title="src/cinder/CaptureImplAv\lFoundation.mm" alt="" coords="8,177,179,221"/>
+<area shape="rect" id="node5" href="$_capture_impl_cocoa_dummy_8mm.html" title="src/cinder/CaptureImplCocoa\lDummy.mm" alt="" coords="203,177,396,221"/>
+<area shape="rect" id="node7" href="$_capture_impl_direct_show_8cpp.html" title="src/cinder/CaptureImplDirect\lShow.cpp" alt="" coords="421,177,611,221"/>
+<area shape="rect" id="node9" href="$_capture_impl_qt_kit_8mm.html" title="src/cinder/CaptureImplQt\lKit.mm" alt="" coords="635,177,804,221"/>
+</map>

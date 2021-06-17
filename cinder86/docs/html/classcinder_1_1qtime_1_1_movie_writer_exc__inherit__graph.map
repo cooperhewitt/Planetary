@@ -1,0 +1,6 @@
+<map id="cinder::qtime::MovieWriterExc" name="cinder::qtime::MovieWriterExc">
+<area shape="rect" id="node4" href="$classcinder_1_1qtime_1_1_movie_writer_exc_already_finished.html" title="cinder::qtime::MovieWriter\lExcAlreadyFinished" alt="" coords="555,5,731,49"/>
+<area shape="rect" id="node5" href="$classcinder_1_1qtime_1_1_movie_writer_exc_frame_encode.html" title="cinder::qtime::MovieWriter\lExcFrameEncode" alt="" coords="555,73,731,117"/>
+<area shape="rect" id="node6" href="$classcinder_1_1qtime_1_1_movie_writer_exc_invalid_path.html" title="cinder::qtime::MovieWriter\lExcInvalidPath" alt="" coords="555,141,731,185"/>
+<area shape="rect" id="node2" href="$classcinder_1_1_exception.html" title="cinder::Exception" alt="" coords="134,81,258,109"/>
+</map>

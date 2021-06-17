@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "26B44F49-AAF0-4E2D-B39E-1635482FCFC3"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D87C8B46-243F-4B3B-B087-076DE62358BC"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/LoadingScreen.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "194"
+            endingLineNumber = "194"
+            landmarkName = "LoadingScreen::draw()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "AEB21A45-4A48-4497-8E8C-E4E839F90992"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../blocks/BloomScene/src/BloomNode.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "188"
+            endingLineNumber = "188"
+            landmarkName = "BloomNode::deepHitTest(screenPos)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "589E82D9-B2F0-4C53-AE05-74790C3DF4EB"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../blocks/CinderGestures/include/TapRecognizer.h"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "49"
+            endingLineNumber = "49"
+            landmarkName = "update()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "659A47F1-12C9-4B68-A9B0-94F81AD2292B"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../blocks/CinderGestures/include/GestureRecognizer.h"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "64"
+            endingLineNumber = "64"
+            landmarkName = "privateTouchesMoved(event)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4B8921A2-401C-4CE1-A73D-B6C37AB8B34C"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../blocks/BloomScene/src/OrientationNode.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "135"
+            endingLineNumber = "135"
+            landmarkName = "OrientationNode::getOrientationAngle(orientation)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "BFAA51F7-9FE9-403E-90D6-78D6B54E73DE"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../blocks/BloomScene/src/OrientationNode.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "150"
+            endingLineNumber = "150"
+            landmarkName = "OrientationNode::getOrientationDescription(orientation)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8E93E3DB-C9BC-474A-910E-91FF6405E6D5"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/World.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "123"
+            endingLineNumber = "123"
+            landmarkName = "World::selectHierarchy(artistId, albumId, trackId)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "8E93E3DB-C9BC-474A-910E-91FF6405E6D5 - 91ae71583cdfc874"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "World::selectHierarchy(unsigned long long, unsigned long long, unsigned long long)"
+                  moduleName = "Planetary"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kemalenver/Work/planetary_reborn/src/World.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "123"
+                  endingLineNumber = "123"
+                  offsetFromSymbolStart = "36">
+               </Location>
+               <Location
+                  uuid = "8E93E3DB-C9BC-474A-910E-91FF6405E6D5 - 91ae71583cdfc874"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "World::selectHierarchy(unsigned long long, unsigned long long, unsigned long long)"
+                  moduleName = "Planetary"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kemalenver/Work/planetary_reborn/src/World.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "123"
+                  endingLineNumber = "123"
+                  offsetFromSymbolStart = "72">
+               </Location>
+               <Location
+                  uuid = "8E93E3DB-C9BC-474A-910E-91FF6405E6D5 - 91ae71583cdfc874"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "World::selectHierarchy(unsigned long long, unsigned long long, unsigned long long)"
+                  moduleName = "Planetary"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kemalenver/Work/planetary_reborn/src/World.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "123"
+                  endingLineNumber = "123"
+                  offsetFromSymbolStart = "80">
+               </Location>
+               <Location
+                  uuid = "8E93E3DB-C9BC-474A-910E-91FF6405E6D5 - 91ae71583cdfc874"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "World::selectHierarchy(unsigned long long, unsigned long long, unsigned long long)"
+                  moduleName = "Planetary"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kemalenver/Work/planetary_reborn/src/World.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "123"
+                  endingLineNumber = "123"
+                  offsetFromSymbolStart = "132">
+               </Location>
+               <Location
+                  uuid = "8E93E3DB-C9BC-474A-910E-91FF6405E6D5 - 91ae71583cdfc874"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "World::selectHierarchy(unsigned long long, unsigned long long, unsigned long long)"
+                  moduleName = "Planetary"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kemalenver/Work/planetary_reborn/src/World.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "123"
+                  endingLineNumber = "123"
+                  offsetFromSymbolStart = "184">
+               </Location>
+               <Location
+                  uuid = "8E93E3DB-C9BC-474A-910E-91FF6405E6D5 - 91ae71583cdfc874"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "World::selectHierarchy(unsigned long long, unsigned long long, unsigned long long)"
+                  moduleName = "Planetary"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kemalenver/Work/planetary_reborn/src/World.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "123"
+                  endingLineNumber = "123"
+                  offsetFromSymbolStart = "256">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8E52A33A-E9B6-4291-A027-AC182B816B71"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/KeplerApp.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "643"
+            endingLineNumber = "643"
+            landmarkName = "KeplerApp::touchesBegan(event)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "51DBDD28-46BD-4043-B0C8-DCBB1EDD8F03"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/KeplerApp.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "663"
+            endingLineNumber = "663"
+            landmarkName = "KeplerApp::touchesMoved(event)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

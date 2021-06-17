@@ -1,0 +1,4 @@
+<map id="cinder::audio::AddNode" name="cinder::audio::AddNode">
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_math_node.html" title="Base class for an arithmetic based Node. " alt="" coords="61,177,227,205"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_node.html" title="Fundamental building block for creating an audio processing graph. " alt="" coords="76,99,212,127"/>
+</map>

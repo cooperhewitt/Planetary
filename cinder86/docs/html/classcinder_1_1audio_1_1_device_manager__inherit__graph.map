@@ -1,0 +1,4 @@
+<map id="cinder::audio::DeviceManager" name="cinder::audio::DeviceManager">
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1cocoa_1_1_device_manager_audio_session.html" title="cinder::audio::cocoa\l::DeviceManagerAudioSession" alt="" coords="401,5,604,49"/>
+<area shape="rect" id="node4" href="$classcinder_1_1audio_1_1cocoa_1_1_device_manager_core_audio.html" title="cinder::audio::cocoa\l::DeviceManagerCoreAudio" alt="" coords="410,73,595,117"/>
+</map>

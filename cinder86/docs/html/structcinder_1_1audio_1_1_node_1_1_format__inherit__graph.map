@@ -1,0 +1,4 @@
+<map id="cinder::audio::Node::Format" name="cinder::audio::Node::Format">
+<area shape="rect" id="node2" href="$structcinder_1_1audio_1_1_monitor_node_1_1_format.html" title="cinder::audio::MonitorNode\l::Format" alt="" coords="13,99,195,143"/>
+<area shape="rect" id="node3" href="$structcinder_1_1audio_1_1_monitor_spectral_node_1_1_format.html" title="cinder::audio::MonitorSpectral\lNode::Format" alt="" coords="5,193,203,237"/>
+</map>

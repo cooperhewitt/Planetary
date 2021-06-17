@@ -1,0 +1,5 @@
+To add this to a git project do:
+
+git submodule add git@github.com:bloomtime/CinderGestures.git blocks/CinderGestures
+
+And then add the relevant folders (include) to your project. Don't add the samples folder (I just add everything and then remove the irrelevant bits).

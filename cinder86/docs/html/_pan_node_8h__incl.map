@@ -1,0 +1,10 @@
+<map id="include/cinder/audio/PanNode.h" name="include/cinder/audio/PanNode.h">
+<area shape="rect" id="node2" href="$_node_8h.html" title="cinder/audio/Node.h" alt="" coords="520,99,660,127"/>
+<area shape="rect" id="node22" href="$_param_8h.html" title="cinder/audio/Param.h" alt="" coords="167,99,315,127"/>
+<area shape="rect" id="node3" href="$audio_2_buffer_8h.html" title="cinder/audio/Buffer.h" alt="" coords="170,177,312,205"/>
+<area shape="rect" id="node11" href="$audio_2_exception_8h.html" title="cinder/audio/Exception.h" alt="" coords="894,177,1060,205"/>
+<area shape="rect" id="node4" href="$_cinder_assert_8h.html" title="cinder/CinderAssert.h" alt="" coords="167,254,316,282"/>
+<area shape="rect" id="node5" href="$_current_function_8h.html" title="cinder/CurrentFunction.h" alt="" coords="88,331,256,359"/>
+<area shape="rect" id="node12" href="$_exception_8h.html" title="cinder/Exception.h" alt="" coords="808,254,939,282"/>
+<area shape="rect" id="node13" href="$_cinder_8h.html" title="cinder/Cinder.h" alt="" coords="815,331,925,359"/>
+</map>

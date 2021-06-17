@@ -1,0 +1,5 @@
+A helper class to report device and interface orientation changes for Cinder and iOS.
+
+A proving ground for features before modifying AppCocoaTouch directly.
+
+Currently requires your Cinder/iOS project to be built as Objective-C++, sorry.

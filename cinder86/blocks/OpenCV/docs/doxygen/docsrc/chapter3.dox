@@ -1,0 +1,83 @@
+/*! \page helloOpenCVChapter3 Chapter 3: Face Detection
+\section Introduction Introduction
+One of the most well known features of OpenCV is its functionality for detecting faces. Let's look at how this works by launching the ocvFaceDetect sample located at <i>blocks/openCV/samples/ocvFaceDetect</i>. You should see an image in your webcam similar to the one below, assuming you are two young women standing underneath an umbrella in Amsterdam. I am not, so I used a <a href="http://www.flickr.com/photos/stuckincustoms/225004025/">photograph by Trey Ratcliff</a>.\n
+\n
+\image html ch3_result.jpg
+\n
+You'll note that the bounding rectangles of the two faces in the image are highlighted in yellow, and their eyes are marked with transparent blue circles. Let's take a look at how this is achieved, starting with the sample's setup() routine.\n
+\n
+\code
+void ocvFaceDetectApp::setup()
+{
+#if defined( CINDER_MAC )
+	mFaceCascade.load( getResourcePath( "haarcascade_frontalface_alt.xml" ) );
+	mEyeCascade.load( getResourcePath( "haarcascade_eye.xml" ) );	
+#else
+	mFaceCascade.load( getAppPath() + "../../resources/haarcascade_frontalface_alt.xml" );
+	mEyeCascade.load( getAppPath() + "../../resources/haarcascade_eye.xml" );	
+#endif
+	
+	mCapture = Capture( 640, 480 );
+	mCapture.start();
+}
+\endcode
+\n
+First, a bit of platform-specific code. In order to initialize our <a href="http://opencv.willowgarage.com/documentation/cpp/object_detection.html#cascadeclassifier"><tt>cv::CascadeClassifier</tt></a>s \a mFaceCascade and \a mEyeCascade, we need to pass a file path for the XML descriptors. The way Mac OS X uses resources makes this easy, since resources are simply files inside the application bundle. We just call \ref cinder::app::App::getResourcePath() "app::App::getResourcePath()". However resources under Windows work differently, as they are not individual files but instead are binary baked directly into the .exe itself. In the ocvFaceDetect sample we do not include these XML descriptors as true resources, but instead determine their file path relative to the application by using \ref cinder::app::getAppPath() "app::getAppPath()".\n
+\n
+Speaking of these XML descriptors, what exactly are they? Simply put, these are mathematical descriptions of what constitutes a feature of a certain variety - frontal faces in the first, and human eyes in the second. Both of these descriptors come with OpenCV, and it is also possible to create your own descriptors. If you are interested in knowing more of the specifics, you might read <a href="http://opencv.willowgarage.com/wiki/FaceDetection">Face Detection using OpenCV</a>, or the Wikipedia page on <a href="http://en.wikipedia.org/wiki/Viola-Jones_object_detection_framework">Viola-Jones object detection framework</a>. For now though we just need to understand that Haar Cascade Classifiers are created using a large database of images and can identify particular features.\n
+\n
+Following the initialization of these classifiers, we fire up the webcam. Now let's move on to the sample's most interesting section, the updateFaces() function.\n
+\n
+\code
+void ocvFaceDetectApp::updateFaces( Surface cameraImage )
+{
+	const int calcScale = 2; // calculate the image at half scale
+
+	// create a grayscale copy of the input image
+	cv::Mat grayCameraImage( toOcv( cameraImage, CV_8UC1 ) );
+
+	// scale it to half size, as dictated by the calcScale constant
+	int scaledWidth = cameraImage.getWidth() / calcScale;
+	int scaledHeight = cameraImage.getHeight() / calcScale; 
+	cv::Mat smallImg( scaledHeight, scaledWidth, CV_8UC1 );
+	cv::resize( grayCameraImage, smallImg, smallImg.size(), 0, 0, cv::INTER_LINEAR );
+	
+	// equalize the histogram
+	cv::equalizeHist( smallImg, smallImg );
+\endcode
+\n
+\a cameraImage enters the function as a full resolution, color image - a frame from our webcam. Next, we create a grayscale copy \a grayCameraImage. By using the optional argument to \ref cinder::toOcv "toOcv()", we can create an 8-bit single channel image. The Cinder OpenCV bridge automatically converts our color input image to a grayscale version. Next, we allocate a cv::Mat \a smallImg to hold a half-sized copy of the input image. By using this smaller image as input to the face detection algorithm, we can improve the performance of the app at a relatively minor cost in precision. This scale is achieved using the <a href="http://opencv.willowgarage.com/documentation/cpp/geometric_image_transformations.html#cv-resize">cv::resize()</a> routine. Last, we run a process called histogram equalization on the image using <a href="http://opencv.willowgarage.com/documentation/cpp/histograms.html#cv-equalizehist">cv::equalizeHist()</a>. This is a contrast enhancement technique that is designed to improve the accuracy of the feature detection.\n
+\n
+\image html ch3_process.jpg
+\n
+\code	
+	// clear out the previously deteced faces & eyes
+	mFaces.clear();
+	mEyes.clear();
+
+	// detect the faces and iterate them, appending them to mFaces
+	vector<cv::Rect> faces;
+	mFaceCascade.detectMultiScale( smallImg, faces );
+	for( vector<cv::Rect>::const_iterator faceIter = faces.begin(); faceIter != faces.end(); ++faceIter ) {
+		Rectf faceRect( fromOcv( *faceIter ) );
+		faceRect *= calcScale;
+		mFaces.push_back( faceRect );
+		
+		// detect eyes within this face and iterate them, appending them to mEyes
+		vector<cv::Rect> eyes;
+		mEyeCascade.detectMultiScale( smallImg( *faceIter ), eyes );
+		for( vector<cv::Rect>::const_iterator eyeIter = eyes.begin(); eyeIter != eyes.end(); ++eyeIter ) {
+			Rectf eyeRect( fromOcv( *eyeIter ) );
+			eyeRect = eyeRect * calcScale + faceRect.getUpperLeft();
+			mEyes.push_back( eyeRect );
+		}
+	}
+}
+\endcode
+\n
+In the second half of updateFaces(), we begin by clearing out our <tt>std::vector<></tt> of faces and eyes from the previous frame. We then allocate some temporary storage and make the sample's most important call, <a href="http://opencv.willowgarage.com/documentation/cpp/object_detection.html#cv-cascadeclassifier-detectmultiscale">cv::CascadeClassifier::detectMultiScale()</a>. This function takes a grayscale cv::Mat as input, \a smallImg in our case, followed by a <tt>vector<cv::Rect></tt> for storing the objects it detects. Any detected objects are stored in \a faces, which we iterate in the for-loop that follows. For each face we scale it back up by \a calcScale so that it's relative to our input image and append to our \a mFaces variable. Then, we iterate the bounding box of this face for any eyes it might contain, calling <a href="http://opencv.willowgarage.com/documentation/cpp/object_detection.html#cv-cascadeclassifier-detectmultiscale">detectMultiScale()</a> using our eye classifier this time. Notice the first parameter to this function, <tt>smallImg( *faceIter )</tt>. This makes use of the cv::Mat constructor which accepts a cv::Rect to create a sub-image of \a smallImg. This way we aren't searching the entire image for eyes - only the area of this particular face. Before we push each detected eye into our \a mEyes varaiable, we need to scale it up by \a calcScale, and since its location is relative to the face in \a faceIter, we'll need to offset it by the upper-left corner of the current face. That's all there is to it - you've mastered an age-old OpenCV rite of passage, coding a face detector.
+\n
+<h2>Exercises</h2>
+1. <a href="http://opencv.willowgarage.com/documentation/cpp/object_detection.html#cv-cascadeclassifier-detectmultiscale">cv::CascadeClassifier::detectMultiScale()</a> accepts several additional parameters for which we are using the defaults. Checkout the documentation for this function and experiment with these parameters. How do they affect the accuracy of the detector? What about performance?
+\n
+*/

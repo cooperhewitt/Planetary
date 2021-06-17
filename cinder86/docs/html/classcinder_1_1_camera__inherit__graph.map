@@ -1,0 +1,5 @@
+<map id="cinder::Camera" name="cinder::Camera">
+<area shape="rect" id="node2" href="$classcinder_1_1_camera_ortho.html" title="cinder::CameraOrtho" alt="" coords="4,83,149,111"/>
+<area shape="rect" id="node3" href="$classcinder_1_1_camera_persp.html" title="cinder::CameraPersp" alt="" coords="174,83,321,111"/>
+<area shape="rect" id="node4" href="$classcinder_1_1_camera_stereo.html" title="cinder::CameraStereo" alt="" coords="172,161,323,189"/>
+</map>

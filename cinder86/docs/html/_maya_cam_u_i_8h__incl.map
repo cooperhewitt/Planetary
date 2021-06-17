@@ -1,0 +1,14 @@
+<map id="include/cinder/MayaCamUI.h" name="include/cinder/MayaCamUI.h">
+<area shape="rect" id="node2" href="$_vector_8h.html" title="cinder/Vector.h" alt="" coords="179,547,288,575"/>
+<area shape="rect" id="node16" href="$_camera_8h.html" title="cinder/Camera.h" alt="" coords="164,83,283,111"/>
+<area shape="rect" id="node8" href="$_cinder_math_8h.html" title="cinder/CinderMath.h" alt="" coords="400,625,541,653"/>
+<area shape="rect" id="node9" href="$_cinder_8h.html" title="cinder/Cinder.h" alt="" coords="752,702,863,730"/>
+<area shape="rect" id="node17" href="$_matrix_8h.html" title="cinder/Matrix.h" alt="" coords="599,238,707,266"/>
+<area shape="rect" id="node24" href="$_quaternion_8h.html" title="cinder/Quaternion.h" alt="" coords="261,161,399,189"/>
+<area shape="rect" id="node25" href="$_ray_8h.html" title="cinder/Ray.h" alt="" coords="91,238,185,266"/>
+<area shape="rect" id="node18" href="$_matrix22_8h.html" title="cinder/Matrix22.h" alt="" coords="561,470,684,498"/>
+<area shape="rect" id="node20" href="$_matrix_affine2_8h.html" title="cinder/MatrixAffine2.h" alt="" coords="809,470,959,498"/>
+<area shape="rect" id="node21" href="$_matrix33_8h.html" title="cinder/Matrix33.h" alt="" coords="413,470,536,498"/>
+<area shape="rect" id="node22" href="$_matrix44_8h.html" title="cinder/Matrix44.h" alt="" coords="676,393,799,421"/>
+<area shape="rect" id="node23" href="$_matrix_algo_8h.html" title="cinder/MatrixAlgo.h" alt="" coords="480,315,615,343"/>
+</map>

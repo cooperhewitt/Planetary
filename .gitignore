@@ -1,25 +1,25 @@
-# Mac OS X cruft
-*.xcworkspace
-*xcuserdata
-*.perspectivev3
-*.pbxuser
-*.mode1v3
-*.mode2v3
-*.user
-.DS_Store
+# # Mac OS X cruft
+# *.xcworkspace
+# *xcuserdata
+# *.perspectivev3
+# *.pbxuser
+# *.mode1v3
+# *.mode2v3
+# *.user
+# .DS_Store
 
-build
+# # build
 
-# Windows cruft
-*.suo
-*.ncb
-*.sdf
-Debug/
-Release/
+# # Windows cruft
+# *.suo
+# *.ncb
+# *.sdf
+# Debug/
+# Release/
 
-# Python
-*.pyc
+# # Python
+# *.pyc
 
-/xcode/Kepler.xcodeproj/project.pbxproj.mergesave
+# /xcode/Kepler.xcodeproj/project.pbxproj.mergesave
 
-*~
+# *~

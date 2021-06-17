@@ -1,0 +1,11 @@
+<map id="cinder::FilterBase" name="cinder::FilterBase">
+<area shape="rect" id="node2" href="$classcinder_1_1_filter_bessel_blackman.html" title="cinder::FilterBesselBlackman" alt="" coords="179,5,373,33"/>
+<area shape="rect" id="node3" href="$classcinder_1_1_filter_box.html" title="cinder::FilterBox" alt="" coords="217,57,335,85"/>
+<area shape="rect" id="node4" href="$classcinder_1_1_filter_catmull_rom.html" title="cinder::FilterCatmullRom" alt="" coords="192,109,360,137"/>
+<area shape="rect" id="node5" href="$classcinder_1_1_filter_cubic.html" title="cinder::FilterCubic" alt="" coords="212,161,340,189"/>
+<area shape="rect" id="node6" href="$classcinder_1_1_filter_gaussian.html" title="cinder::FilterGaussian" alt="" coords="200,213,352,241"/>
+<area shape="rect" id="node7" href="$classcinder_1_1_filter_mitchell.html" title="cinder::FilterMitchell" alt="" coords="206,265,346,293"/>
+<area shape="rect" id="node8" href="$classcinder_1_1_filter_quadratic.html" title="cinder::FilterQuadratic" alt="" coords="200,317,352,345"/>
+<area shape="rect" id="node9" href="$classcinder_1_1_filter_sinc_blackman.html" title="cinder::FilterSincBlackman" alt="" coords="186,369,366,397"/>
+<area shape="rect" id="node10" href="$classcinder_1_1_filter_triangle.html" title="cinder::FilterTriangle" alt="" coords="205,421,347,449"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="cinder::audio::BufferT&lt; T &gt;" name="cinder::audio::BufferT&lt; T &gt;">
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_buffer_spectral_t.html" title="A buffer that contains frequency domain audio data. " alt="" coords="5,177,195,221"/>
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_buffer_base_t.html" title="Base class for the various Buffer classes. The template parameter T defined the sample type (precisio..." alt="" coords="15,6,185,50"/>
+</map>

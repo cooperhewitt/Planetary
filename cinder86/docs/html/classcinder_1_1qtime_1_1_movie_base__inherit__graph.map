@@ -1,0 +1,4 @@
+<map id="cinder::qtime::MovieBase" name="cinder::qtime::MovieBase">
+<area shape="rect" id="node2" href="$classcinder_1_1qtime_1_1_movie_gl.html" title="QuickTime movie playback as OpenGL textures Textures are always bound to the GL_TEXTURE_RECTANGLE_ARB..." alt="" coords="4,83,157,111"/>
+<area shape="rect" id="node3" href="$classcinder_1_1qtime_1_1_movie_surface.html" title="cinder::qtime::MovieSurface" alt="" coords="183,83,368,111"/>
+</map>

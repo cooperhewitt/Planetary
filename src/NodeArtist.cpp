@@ -15,14 +15,12 @@
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Utilities.h"
-#include "CinderFlurry.h"
 #include "NodeArtist.h"
 #include "NodeAlbum.h"
 #include "NodeTrack.h"
 #include "Globals.h"
 #include "BloomGl.h"
 
-using namespace pollen::flurry;
 using namespace ci;
 using namespace ci::ipod;
 using namespace std;
@@ -257,8 +255,6 @@ void NodeArtist::select()
 	if( !mIsSelected )
 	{
 		if( mChildNodes.size() == 0 ){
-
-            Flurry::getInstrumentation()->startTimeEvent("Albums loaded");
             
             vector<ipod::PlaylistRef> albums = getAlbumsWithArtistId( getId() );
             mNumAlbums = albums.size();
@@ -280,7 +276,7 @@ void NodeArtist::select()
 			params["Artist"] = mPlaylist->getArtistName();
 			params["NumAlbums"] = toString(mChildNodes.size());
 			params["NumTracks"] = toString(trackcount);
-			Flurry::getInstrumentation()->stopTimeEvent("Albums loaded", params);
+			
 			
 		} else {
 			for( vector<Node*>::iterator it = mChildNodes.begin(); it != mChildNodes.end(); ++it ){

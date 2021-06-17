@@ -1,0 +1,154 @@
+/*! \page helloOpenCVChapter4 Chapter 4: Statistics
+\section Introduction Introduction
+While OpenCV is obviously best known for its computer vision capabilities, it also contains plenty of functionality for things like pure mathematics and computational geometry. We'll take a look at one of these features, a technique called k-means clustering, and then apply it to the classic computer graphics problem of color reduction.\n
+\n
+Imagine you have a large number of points which are mostly random, but are distributed in a few regions. How do you identify these few regions where the points gather? In the image below, we have the positions of the 2,000 blue dots, but how do we calculate the best positions for the 7 green dots?\n
+\image html kmeans_2d_distro.png
+\n
+One family of techniques for tackling this problem is known as <i>clustering algorithms</i>. OpenCV ships with an implementation of a high quality clustering algorithm called <i>k-means clustering</i>. Let's imagine that we have a <tt>vector<ci::Vec2f></tt> of known positions and we'd like to write a function which finds the ideal \c k clusters. Our function signature might look about like this:
+\code
+vector<Vec2f> calculateClusters( const vector<Vec2f> &input, int k );
+\endcode
+\n
+Let's take a look at how we can use OpenCV's k-means implementation to write the body of this function. The heart of this code will be the function <a href="http://opencv.willowgarage.com/documentation/cpp/clustering_and_search_in_multi-dimensional_spaces.html#cv-kmeans">cv::kmeans</a>.
+\n
+\code
+vector<Vec2f> calculateClusters( const vector<Vec2f> &input, int k )
+{
+	cv::Mat inputMat( input.size(), 1, CV_32FC2 );
+	for( size_t i = 0; i < input.size(); ++i )
+		inputMat.at<cv::Vec2f>(i,0) = toOcv( input[i] );
+
+	cv::Mat labels, clusters;
+	cv::kmeans( inputMat, k, labels, cv::TermCriteria( cv::TermCriteria::COUNT, 10, 0 ),
+		12, cv::KMEANS_RANDOM_CENTERS, clusters );
+
+	vector<Vec2f> result;
+	for( size_t i = 0; i < k; ++i )
+		result.push_back( fromOcv( clusters.at<cv::Vec2f>(i,0) ) );
+
+	return result;
+}
+\endcode
+\n
+Let's go through this code line by line.\n
+\n
+\code
+	cv::Mat inputMat( input.size(), 1, CV_32FC2 );
+	for( size_t i = 0; i < input.size(); ++i )
+		inputMat.at<cv::Vec2f>(i,0) = toOcv( input[i] );
+\endcode
+\n
+The first line allocates a cv::Mat \a inputMat that is <tt>input.size()</tt> rows tall, and \c 1 column wide. Additionally, the \c CV_32FC2 constant requests storage for holding 32-bit floating point values (\c 32F), \c 2 channels per "pixel" (the \c C2). The cv::kmeans function wants to receive samples (the blue dots in our case) in this form - a cv::Mat that is one column wide and has as many rows as there are samples. The for-loop that follows sets each row of this cv::Mat to the samples we received from the \a input parameter. Notice the <tt>at<cv::Vec2f>()</tt> function. This returns a reference to a particular pixel or sample in our case. So <tt>inputMat.at<cv::Vec2f>(i,0)</tt> returns a reference to the first (and only) "pixel" in the \a i-th row, and then we set this to each value of our \a input vector.\n
+\n
+\code
+cv::Mat labels, clusters;
+\endcode
+\n
+Here we are simply declaring some empty <tt>cv::Mat</tt>s which will store our results. We will ignore \a labels in this example, but \a clusters will hold the result we are interested in - the green dots.\n
+\code
+	cv::kmeans( inputMat, k, labels, cv::TermCriteria( cv::TermCriteria::COUNT, 10, 0 ),
+		12, cv::KMEANS_RANDOM_CENTERS, clusters );
+\endcode
+\n
+Next is the heavy lifting, where we call <a href="http://opencv.willowgarage.com/documentation/cpp/clustering_and_search_in_multi-dimensional_spaces.html#cv-kmeans">cv::kmeans</a> itself. First we pass the input samples array \a inputMat, followed by the number of clusters we are looking for - our \a k parameter. Next we give the function somewhere to put its output labels - something we are not interested in yet but will use in a later example. The fourth parameter is a cv::TermCriteria or termination criteria. This is a class which allows us to tell OpenCV when its calculation is good enough. The example above tells OpenCV to refine its results \c 10 times and call it good. More refinements can result in a more precise result but also take longer. Next is a parameter which tells OpenCV how many times to attempt the algorithm, which we've selected \c 12 for. Don't confuse this parameter with the refinement parameter of the cv::TermCriteria. The way the k-means algorithm works involves an initial random distribution of cluster centers which are refined according to the cv::TermCriteria. This \a attempts parameter tells OpenCV how many times to start over with different random distributions. It will automatically select the best result from each of these attempts. The next parameter, for which we have selected \c cv::KMEANS_RANDOM_CENTERS, tells OpenCV how to do its initial random distribution, and can generally be the constant we are passing here. Finally, we give OpenCV the address of a cv::Mat where it can put its results, \a &clusters.\n
+\n
+\code
+	vector<Vec2f> result;
+	for( size_t i = 0; i < k; ++i )
+		result.push_back( fromOcv( clusters.at<cv::Vec2f>(i,0) ) );
+
+	return result;
+\endcode
+\n
+After the cv::kmeans call, the function's results are stored in \a clusters. This cv::Mat will be shaped the same way \a inputMat was - a one column wide "image" which contains one row per sample. The result image will be \a k rows tall since that is the number of clusters we've requested. Here we are doing the reverse operation from the one we did to prepare \a inputMat - pulling out the value of each of the "pixels" in \a clusters and putting them into a <tt>vector<ci::Vec2f></tt>, which we return as the result of the function. Pass these Vec2f's to a series of \ref cinder::gl::drawSolidCircle "gl::drawSolidCircle()" calls and you'll have the image above.
+\n
+<h2>Putting k-means to work</h2>
+OK - this is obviously a powerful technique, but what's an example of something visual we might do with it? The algorithm is good at taking a large sample set, and distilling it down into an ideal smaller sample set. Let's apply that to one of the classic computer graphics problems, color reduction.\n
+\n
+These days, it's not uncommon to distribute images in full 24-bit color. But it's still a standard technique to reduce the number of colors in an image in order to minimize file size through compression. For example, the popular file format PNG supports special modes that are based on a predetermined color palette. Without getting too deep into the particulars, imagine the advantages of a fixed color palette of say, 16 entries, instead of 24-bit color. We can use 4 bits to encode each pixel (capable of expressing one of our 16 possibilities) instead of 24 bits to express "true color". The question is \em which 16 colors should we choose? Obviously, the best choices will be different for any given image. Below is an example (created using an <a href="http://www.flickr.com/photos/jaewalk/3133924813/">image from Flickr user <i>jaewalk</i></a>).\n
+\n
+\image html kmeans_paletted.png
+\n
+Is there a way we can use k-means to solve this problem? What if we treat each color in the image as a three dimensional sample (red, green & blue) - we can ask k-means for the 16 best samples to represent all of them, creating the ideal color palette for the image. Put another way, think of the color of each pixel in the image as being one of the blue dots from our example above, and the entries of our ideal color palette as being the green dots. Of course this will require us to run the k-means algorithm in 3D instead of 2D, but that's no problem since OpenCV's k-means function can run in any dimension.\n
+\n
+Let's walk through an implementation of this idea. Open up the CinderBlock sample located at <i>blocks/openCV/samples/ocvColorQuantize</i>. We'll examine this code in detail to understand exactly how the algorithm works.\n
+\n
+The <tt>ocvColorQuantizeApp::setup()</tt> and <tt>ocvColorQuantizeApp::draw()</tt> functions are likely familiar to you, so we'll skip those. The interesting function for our purposes is <tt>ocvColorQuantizeApp::updateImage()</tt>. Let's take that one from the top.\n
+\n
+\code
+void ocvColorQuantizeApp::updateImage()
+{
+	const int colorCount = 32;
+	const int sampleCount = mInputImage.getHeight() * mInputImage.getWidth();
+	cv::Mat colorSamples( sampleCount, 1, CV_32FC3 );
+\endcode
+\n
+The first line just declares a constant, which is the size of our color palette. Here we've hardcoded it to look for the \c 32 ideal colors. Next, we determine how many samples we'll have (the number of blue pixels in our earlier example) which is the total number of pixels. Next we allocate our cv::Mat which will contain these samples, just as we did in the earlier example. Notice though that we use the \c CV_32FC3 constant. We're asking for a 3D floating point sample, since we'll be passing 3D (red, green & blue) data to k-means.\n
+\n
+\code
+Surface::ConstIter imageIt = mInputImage.getIter();
+cv::MatIterator_<cv::Vec3f> sampleIt = colorSamples.begin<cv::Vec3f>();
+while( imageIt.line() )
+	while( imageIt.pixel() )
+		*sampleIt++ = cv::Vec3f( imageIt.r(), imageIt.g(), imageIt.b() );
+\endcode
+\n
+This code is a bit fancier than the 2D example. First we allocate a \ref cinder::Surface::ConstIter "Surface::ConstIter" which we'll use to walk the pixels of our input ci::Surface. Next we allocate a similar iterator for our cv::Mat. You may not have encountered this begin() function before, but it behaves just like \ref cinder::Surface::getIter "Surface::getIter()" does, the difference being the template parameter which tells it what sort of data is contained in the cv::Mat - cv::Vec3f being what's in ours. Next comes the nested while-loops which are standard for iterating pixels in Cinder. The interesting line assigns to our cv::MatIterator a cv::Vec3f we build out of each pixel of the input image.\n
+\n
+If this seems confusing, you might refer back to the analogous lines in the sample code above. Again, we're just building a cv::Mat which is one pixel wide and is as tall as the number of samples we want to pass to cv::kmeans - how many blue dots we have. Our "blue dots" are the colors of the input image, which we're treating as 3D data, pretending red-green-blue are x-y-z.\n
+\n
+\code
+cv::Mat labels, clusters;
+cv::kmeans( colorSamples, colorCount, labels, cv::TermCriteria( cv::TermCriteria::COUNT, 8, 0 ), 
+		2, cv::KMEANS_RANDOM_CENTERS, &clusters );
+\endcode
+\n
+Next we allocate some space for cv::kmeans to put its results and our "labels", which we'll come to in a few lines, and then we call the function. Refer to the earlier code or its documentation if you've forgotten the meaning of the parameters to <a href="http://opencv.willowgarage.com/documentation/cpp/clustering_and_search_in_multi-dimensional_spaces.html#cv-kmeans">cv::kmeans</a>.\n
+\n
+\code
+Color8u clusterColors[colorCount];
+for( int i = 0; i < colorCount; ++i )
+	clusterColors[i] = Color8u( clusters.at<cv::Vec3f>(i,0)[0],
+		clusters.at<cv::Vec3f>(i,0)[1], clusters.at<cv::Vec3f>(i,0)[2] );
+\endcode
+\n
+Here we walk the values of the \a clusters cv::Mat and convert each of its 3D x-y-z values into the r-g-b they were all along. We use the cv::Mat::at() function. Recall that \a clusters is where cv::kmeans has put its results, and that it is a cv::Mat that is one sample wide, and is \a colorCount rows tall. At the end of the for-loop \a clusterColors contains our resulting color palette, and if that's all we wanted, we could stop here.\n
+\n
+\code
+Surface result( mInputImage.getWidth(), mInputImage.getHeight(), false );
+Surface::Iter resultIt = result.getIter();
+cv::MatIterator_<int> labelIt = labels.begin<int>();
+while( resultIt.line() ) {
+	while( resultIt.pixel() ) {
+		resultIt.r() = clusterColors[*labelIt].r;
+		resultIt.g() = clusterColors[*labelIt].g;
+		resultIt.b() = clusterColors[*labelIt].b;
+		++labelIt;
+	}
+}
+\endcode
+\n
+Our function is designed to create a new image from the input Surface \a ocvColorQuantizeApp::mInputImage having reassigned each pixel to one of the values in our color palette \a clusterColors. The first line in this block allocates a new ci::Surface \a result for this purpose, and creates a Surface::Iter \a resultIt so that we can assign each pixel one-by-one. Next it creates an iterator to walk the values of \a labels, a cv::Mat we ignored until this point. Notice that \a labels was passed to cv::kmeans earlier (and in fact it was in our 2D example, but we never made use of it). This is yet another cv::Mat which is one "pixel" wide and in our case, \a colorSamples tall. Its storage is allocated by cv::kmeans itself, and it corresponds to the values we passed in \a colorSamples, except each value in the cv::Mat is an index into \a clusters. Let's unpack that statement using an example. Imagine that the tenth value we passed into \a colorSamples, being the sample at row 9, column 0 was a nice purple, say RGB(212, 0, 225). And let's imagine that the closest value in our resulting color palette \a clusters was the 6th entry, since clusters[5] = RGB(201, 14, 212). In this case, the matching tenth value in \a labels (the one at row 9, column 0) will be \c 5 - the appropriate index into \a clusters to find our best fit color.\n
+\n
+Knowing that about the value of \a labels, the rest is straightforward. We use the standard Surface::Iter nested while-loop to walk across the pixels of \a result, assigning each one the RGB values of \a clusterColors based on the index we receive from our \a labels iterator.\n
+\n
+\code
+const int swatchSize = 12;
+for( int i = 0; i < colorCount; ++i )
+	ip::fill( &result, clusterColors[i], Area( i * swatchSize, result.getHeight() - swatchSize,
+			( i + 1 ) * swatchSize, result.getHeight() ) );	
+
+mTexture = gl::Texture( result );
+\endcode
+\n
+As a finishing touch, we use the ip::fill routine to draw a little series of swatch squares which depict our color palette in the lower left corner of the image. Finally, we create a gl::Texture \a mTexture out of our \a result Surface.\n
+\n
+\image html kmeans_result.png
+\n
+<h2>Exercises</h2>
+1. Consider experimenting with the parameters of the call to cv::kmeans. For example, how much does the palette change or improve to pass a higher count to the cv::TermCriteria. What about a larger number of attempts?\n
+2. Try designing a version of the ocvColorQuantize sample which can process an entire video clip, and select the ideal palette for a sequence of images.\n
+3. Advanced: Read up on dithering algorithms if you aren't familiar. The <a href="http://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering">Floyd-Steinberg algorithm</a> is a classic. Look at implementing this algorithm or a similar one to improve the output of ocvColorQuantize.\n
+
+*/

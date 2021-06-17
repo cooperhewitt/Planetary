@@ -1,0 +1,4 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classcinder_1_1audio_1_1_target_file.html" title="Base class that is used to create and write to an audio destination. Currently only supports ..." alt="" coords="6,13,170,41"/>
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1cocoa_1_1_target_file_core_audio.html" title="cinder::audio::cocoa\l::TargetFileCoreAudio" alt="" coords="220,5,370,49"/>
+</map>

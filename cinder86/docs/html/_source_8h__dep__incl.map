@@ -1,0 +1,11 @@
+<map id="include/cinder/audio/Source.h" name="include/cinder/audio/Source.h">
+<area shape="rect" id="node2" href="$_file_core_audio_8h.html" title="include/cinder/audio\l/cocoa/FileCoreAudio.h" alt="" coords="60,99,219,143"/>
+<area shape="rect" id="node4" href="$_file_ogg_vorbis_8h.html" title="include/cinder/audio\l/FileOggVorbis.h" alt="" coords="295,99,435,143"/>
+<area shape="rect" id="node7" href="$_sample_player_node_8h.html" title="include/cinder/audio\l/SamplePlayerNode.h" alt="" coords="578,99,728,143"/>
+<area shape="rect" id="node8" href="$_voice_8h.html" title="include/cinder/audio\l/Voice.h" alt="" coords="583,193,723,237"/>
+<area shape="rect" id="node6" href="$_source_8cpp.html" title="src/cinder/audio/Source.cpp" alt="" coords="373,201,559,229"/>
+<area shape="rect" id="node3" href="$_file_core_audio_8cpp.html" title="src/cinder/audio/cocoa\l/FileCoreAudio.cpp" alt="" coords="5,193,160,237"/>
+<area shape="rect" id="node5" href="$_file_ogg_vorbis_8cpp.html" title="src/cinder/audio/FileOgg\lVorbis.cpp" alt="" coords="184,193,349,237"/>
+<area shape="rect" id="node10" href="$_sample_player_node_8cpp.html" title="src/cinder/audio/SamplePlayer\lNode.cpp" alt="" coords="747,193,948,237"/>
+<area shape="rect" id="node9" href="$_voice_8cpp.html" title="src/cinder/audio/Voice.cpp" alt="" coords="565,286,741,314"/>
+</map>

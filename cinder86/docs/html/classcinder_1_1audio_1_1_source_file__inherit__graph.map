@@ -1,0 +1,5 @@
+<map id="cinder::audio::SourceFile" name="cinder::audio::SourceFile">
+<area shape="rect" id="node4" href="$classcinder_1_1audio_1_1cocoa_1_1_source_file_core_audio.html" title="cinder::audio::cocoa\l::SourceFileCoreAudio" alt="" coords="5,238,160,282"/>
+<area shape="rect" id="node5" href="$classcinder_1_1audio_1_1_source_file_ogg_vorbis.html" title="SourceFile implementation for decoding ogg vorbis files. " alt="" coords="185,238,353,282"/>
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_source.html" title="Base class that is used to load and read from an audio source. " alt="" coords="102,83,249,111"/>
+</map>

@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ocvOpticalFlow", "ocvOpticalFlow.vcxproj", "{EAAA5EB5-A78F-4ECC-9E12-A810BFEDF7AE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EAAA5EB5-A78F-4ECC-9E12-A810BFEDF7AE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EAAA5EB5-A78F-4ECC-9E12-A810BFEDF7AE}.Debug|Win32.Build.0 = Debug|Win32
+		{EAAA5EB5-A78F-4ECC-9E12-A810BFEDF7AE}.Release|Win32.ActiveCfg = Release|Win32
+		{EAAA5EB5-A78F-4ECC-9E12-A810BFEDF7AE}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

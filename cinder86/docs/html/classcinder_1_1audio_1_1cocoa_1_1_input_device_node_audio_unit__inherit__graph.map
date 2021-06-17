@@ -1,0 +1,6 @@
+<map id="cinder::audio::cocoa::InputDeviceNodeAudioUnit" name="cinder::audio::cocoa::InputDeviceNodeAudioUnit">
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_input_device_node.html" title="Interface representing a Node that communicates with a hardware input device. This is typically a mic..." alt="" coords="40,262,247,290"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_input_node.html" title="InputNode is the base class for Node&#39;s that produce audio. It cannot have any inputs. " alt="" coords="61,177,227,205"/>
+<area shape="rect" id="node4" href="$classcinder_1_1audio_1_1_node.html" title="Fundamental building block for creating an audio processing graph. " alt="" coords="76,99,212,127"/>
+<area shape="rect" id="node7" href="$classcinder_1_1audio_1_1cocoa_1_1_node_audio_unit.html" title="cinder::audio::cocoa\l::NodeAudioUnit" alt="" coords="272,254,412,298"/>
+</map>

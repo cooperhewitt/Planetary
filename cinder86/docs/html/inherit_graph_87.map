@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classcinder_1_1_data_source.html" title="cinder::DataSource" alt="" coords="6,57,141,85"/>
+<area shape="rect" id="node2" href="$classcinder_1_1_data_source_buffer.html" title="cinder::DataSourceBuffer" alt="" coords="189,5,360,33"/>
+<area shape="rect" id="node3" href="$classcinder_1_1_data_source_path.html" title="cinder::DataSourcePath" alt="" coords="193,57,356,85"/>
+<area shape="rect" id="node4" href="$classcinder_1_1_data_source_url.html" title="cinder::DataSourceUrl" alt="" coords="198,109,351,137"/>
+</map>

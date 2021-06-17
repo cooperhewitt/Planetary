@@ -1,0 +1,13 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classcinder_1_1_image_io.html" title="cinder::ImageIo" alt="" coords="6,143,119,171"/>
+<area shape="rect" id="node2" href="$classcinder_1_1_image_source.html" title="cinder::ImageSource" alt="" coords="168,99,312,127"/>
+<area shape="rect" id="node7" href="$classcinder_1_1_image_target.html" title="cinder::ImageTarget" alt="" coords="170,215,310,243"/>
+<area shape="rect" id="node3" href="$classcinder_1_1cocoa_1_1_image_source_cg_image.html" title="cinder::cocoa::ImageSource\lCgImage" alt="" coords="361,5,548,49"/>
+<area shape="rect" id="node5" href="$classcinder_1_1_image_source_file_wic.html" title="cinder::ImageSourceFileWic" alt="" coords="361,73,549,101"/>
+<area shape="rect" id="node6" href="$classcinder_1_1_image_source_png.html" title="cinder::ImageSourcePng" alt="" coords="371,125,539,153"/>
+<area shape="rect" id="node4" href="$classcinder_1_1_image_source_file_quartz.html" title="cinder::ImageSourceFileQuartz" alt="" coords="597,13,803,41"/>
+<area shape="rect" id="node8" href="$classcinder_1_1cocoa_1_1_image_target_cg_image.html" title="cinder::cocoa::ImageTarget\lCgImage" alt="" coords="364,177,546,221"/>
+<area shape="rect" id="node10" href="$classcinder_1_1_image_target_file_wic.html" title="cinder::ImageTargetFileWic" alt="" coords="363,245,546,273"/>
+<area shape="rect" id="node11" href="$classcinder_1_1qtime_1_1_image_target_cv_pixel_buffer.html" title="cinder::qtime::ImageTarget\lCvPixelBuffer" alt="" coords="365,297,544,341"/>
+<area shape="rect" id="node9" href="$classcinder_1_1_image_target_file_quartz.html" title="cinder::ImageTargetFileQuartz" alt="" coords="600,185,800,213"/>
+</map>

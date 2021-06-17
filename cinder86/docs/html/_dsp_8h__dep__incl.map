@@ -1,0 +1,20 @@
+<map id="include/cinder/audio/dsp/Dsp.h" name="include/cinder/audio/dsp/Dsp.h">
+<area shape="rect" id="node2" href="$_biquad_8h.html" title="include/cinder/audio\l/dsp/Biquad.h" alt="" coords="267,99,407,143"/>
+<area shape="rect" id="node7" href="$_fft_8h.html" title="include/cinder/audio\l/dsp/Fft.h" alt="" coords="437,99,576,143"/>
+<area shape="rect" id="node10" href="$_monitor_node_8h.html" title="include/cinder/audio\l/MonitorNode.h" alt="" coords="601,99,740,143"/>
+<area shape="rect" id="node11" href="$_channel_router_node_8cpp.html" title="src/cinder/audio/Channel\lRouterNode.cpp" alt="" coords="765,99,933,143"/>
+<area shape="rect" id="node12" href="$_converter_8cpp.html" title="src/cinder/audio/dsp\l/Converter.cpp" alt="" coords="958,99,1097,143"/>
+<area shape="rect" id="node13" href="$_dsp_8cpp.html" title="src/cinder/audio/dsp\l/Dsp.cpp" alt="" coords="1122,99,1261,143"/>
+<area shape="rect" id="node14" href="$_gen_node_8cpp.html" title="src/cinder/audio/GenNode.cpp" alt="" coords="1286,107,1487,135"/>
+<area shape="rect" id="node15" href="$_node_8cpp.html" title="src/cinder/audio/Node.cpp" alt="" coords="1512,107,1688,135"/>
+<area shape="rect" id="node16" href="$_node_math_8cpp.html" title="src/cinder/audio/NodeMath.cpp" alt="" coords="1712,107,1917,135"/>
+<area shape="rect" id="node17" href="$_pan_node_8cpp.html" title="src/cinder/audio/PanNode.cpp" alt="" coords="1941,107,2140,135"/>
+<area shape="rect" id="node18" href="$_param_8cpp.html" title="src/cinder/audio/Param.cpp" alt="" coords="2166,107,2348,135"/>
+<area shape="rect" id="node19" href="$_wave_table_8cpp.html" title="src/cinder/audio/WaveTable.cpp" alt="" coords="2374,107,2583,135"/>
+<area shape="rect" id="node3" href="$_filter_node_8h.html" title="include/cinder/audio\l/FilterNode.h" alt="" coords="103,193,243,237"/>
+<area shape="rect" id="node6" href="$_biquad_8cpp.html" title="src/cinder/audio/dsp\l/Biquad.cpp" alt="" coords="267,193,407,237"/>
+<area shape="rect" id="node4" href="$_node_effects_8h.html" title="include/cinder/audio\l/NodeEffects.h" alt="" coords="5,286,144,330"/>
+<area shape="rect" id="node5" href="$_filter_node_8cpp.html" title="src/cinder/audio/FilterNode.cpp" alt="" coords="169,294,375,322"/>
+<area shape="rect" id="node8" href="$_fft_8cpp.html" title="src/cinder/audio/dsp\l/Fft.cpp" alt="" coords="431,193,571,237"/>
+<area shape="rect" id="node9" href="$_monitor_node_8cpp.html" title="src/cinder/audio/Monitor\lNode.cpp" alt="" coords="596,193,759,237"/>
+</map>

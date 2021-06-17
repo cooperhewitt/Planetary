@@ -1,0 +1,5 @@
+<map id="cinder::audio::GenOscNode" name="cinder::audio::GenOscNode">
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_gen_node.html" title="Base class for InputNode&#39;s that generate audio samples. Gen&#39;s are always mono channel. " alt="" coords="63,254,224,282"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_input_node.html" title="InputNode is the base class for Node&#39;s that produce audio. It cannot have any inputs. " alt="" coords="61,177,227,205"/>
+<area shape="rect" id="node4" href="$classcinder_1_1audio_1_1_node.html" title="Fundamental building block for creating an audio processing graph. " alt="" coords="76,99,212,127"/>
+</map>

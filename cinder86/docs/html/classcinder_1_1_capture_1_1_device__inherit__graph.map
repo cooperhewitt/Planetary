@@ -1,0 +1,6 @@
+<map id="cinder::Capture::Device" name="cinder::Capture::Device">
+<area shape="rect" id="node2" href="$classcinder_1_1_capture_impl_av_foundation_device.html" title="cinder::CaptureImplAvFoundation\lDevice" alt="" coords="214,5,434,49"/>
+<area shape="rect" id="node3" href="$classcinder_1_1_capture_impl_cocoa_dummy_device.html" title="This class implements a stubbed&#45;out Capture implementation in order to allow an iOS app which require..." alt="" coords="236,73,412,117"/>
+<area shape="rect" id="node4" href="$classcinder_1_1_capture_impl_direct_show_1_1_device.html" title="cinder::CaptureImplDirect\lShow::Device" alt="" coords="238,141,410,185"/>
+<area shape="rect" id="node5" href="$classcinder_1_1_capture_impl_qt_kit_device.html" title="cinder::CaptureImplQtKit\lDevice" alt="" coords="240,209,408,253"/>
+</map>

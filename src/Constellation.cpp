@@ -40,7 +40,10 @@ void Constellation::setup(const vector<NodeArtist*> &filteredNodes)
 		
 		distances.push_back( shortestDist );
 		mConstellation.push_back( child1->mPosDest );
-		mConstellation.push_back( nearestChild->mPosDest );		
+        // KEMAL - THis causes a crash, not sure why yet.  Doenst seem to cause any
+        // noticable issue by removing it though...
+       
+//        mConstellation.push_back( nearestChild->mPosDest );
 	}
     
 	mTotalConstellationVertices	= mConstellation.size();

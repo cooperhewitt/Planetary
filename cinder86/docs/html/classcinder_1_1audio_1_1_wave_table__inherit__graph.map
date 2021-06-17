@@ -1,0 +1,3 @@
+<map id="cinder::audio::WaveTable" name="cinder::audio::WaveTable">
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_wave_table2d.html" title="Manages an array of tables that is used for bandlimited wavetable synthesis. Supports table lookup wi..." alt="" coords="5,83,189,111"/>
+</map>

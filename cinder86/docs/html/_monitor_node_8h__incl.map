@@ -1,0 +1,18 @@
+<map id="include/cinder/audio/MonitorNode.h" name="include/cinder/audio/MonitorNode.h">
+<area shape="rect" id="node2" href="$_context_8h.html" title="cinder/audio/Context.h" alt="" coords="695,99,850,127"/>
+<area shape="rect" id="node33" href="$_dsp_8h.html" title="cinder/audio/dsp/Dsp.h" alt="" coords="1245,270,1402,298"/>
+<area shape="rect" id="node35" href="$_ring_buffer_8h.html" title="cinder/audio/dsp/RingBuffer.h" alt="" coords="1427,270,1622,298"/>
+<area shape="rect" id="node36" href="$_thread_8h.html" title="cinder/Thread.h" alt="" coords="1639,99,1754,127"/>
+<area shape="rect" id="node3" href="$_node_8h.html" title="cinder/audio/Node.h" alt="" coords="715,270,854,298"/>
+<area shape="rect" id="node23" href="$_input_node_8h.html" title="cinder/audio/InputNode.h" alt="" coords="756,185,925,213"/>
+<area shape="rect" id="node31" href="$_output_node_8h.html" title="cinder/audio/OutputNode.h" alt="" coords="418,185,598,213"/>
+<area shape="rect" id="node4" href="$audio_2_buffer_8h.html" title="cinder/audio/Buffer.h" alt="" coords="996,347,1138,375"/>
+<area shape="rect" id="node12" href="$audio_2_exception_8h.html" title="cinder/audio/Exception.h" alt="" coords="214,347,381,375"/>
+<area shape="rect" id="node5" href="$_cinder_assert_8h.html" title="cinder/CinderAssert.h" alt="" coords="1433,425,1582,453"/>
+<area shape="rect" id="node6" href="$_current_function_8h.html" title="cinder/CurrentFunction.h" alt="" coords="1353,502,1521,530"/>
+<area shape="rect" id="node13" href="$_exception_8h.html" title="cinder/Exception.h" alt="" coords="251,425,382,453"/>
+<area shape="rect" id="node14" href="$_cinder_8h.html" title="cinder/Cinder.h" alt="" coords="1021,502,1132,530"/>
+<area shape="rect" id="node24" href="$_param_8h.html" title="cinder/audio/Param.h" alt="" coords="1001,270,1149,298"/>
+<area shape="rect" id="node27" href="$_device_8h.html" title="cinder/audio/Device.h" alt="" coords="434,270,584,298"/>
+<area shape="rect" id="node28" href="$_function_8h.html" title="cinder/Function.h" alt="" coords="456,347,580,375"/>
+</map>

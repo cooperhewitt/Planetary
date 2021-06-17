@@ -121,7 +121,7 @@ void NodeAlbum::setData( PlaylistRef album )
 	
 // CREATE PLANET TEXTURE
 	int totalWidth		= 128;
-	if( G_IS_IPAD2 ) totalWidth = 256;
+	totalWidth = 256;
     
 	int halfWidth		= totalWidth/2;
 	int border			= 10;
@@ -196,8 +196,7 @@ void NodeAlbum::setData( PlaylistRef album )
 	// and add the shadow from the cloud layer
 	Area planetArea			= Area( 0, totalWidth * mPlanetTexIndex, totalWidth, totalWidth * ( mPlanetTexIndex + 1 ) );
 	Surface planetSurface;
-	if( G_IS_IPAD2 ) planetSurface = mHighResSurfaces.clone( planetArea );
-	else			 planetSurface = mLowResSurfaces.clone( planetArea );
+	planetSurface = mHighResSurfaces.clone( planetArea );
 	
 	iter = planetSurface.getIter();
 	while( iter.line() ) {
@@ -408,10 +407,10 @@ void NodeAlbum::drawClouds( const vector<gl::Texture> &clouds )
 		// SHADOW CLOUDS
 		if( mIsHighlighted ){
 			gl::enableAlphaBlending();
-			if( G_IS_IPAD2 || G_DEBUG ){
-				gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
-				lodSphere->draw();
-			}
+			
+            gl::color( ColorA( 0.0f, 0.0f, 0.0f, alpha ) );
+            lodSphere->draw();
+
 			const float eclipseAmt = ( 1.0f - mEclipseStrength ) * 0.5f + 0.5f;
 			gl::color( ColorA( eclipseAmt, eclipseAmt, eclipseAmt, alpha * 2.0f ) );
 		} else {

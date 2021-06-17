@@ -1,0 +1,4 @@
+How to get this block working in XCode:
+
+- Add MediaPlayer.framework to the Frameworks group in your project
+- In your project build settings set "Compile Sources As" to Objective-C++

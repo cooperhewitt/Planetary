@@ -1,0 +1,4 @@
+<map id="cinder::audio::SourceFileOggVorbis" name="cinder::audio::SourceFileOggVorbis">
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_source_file.html" title="Loads and reads from an audio file source. " alt="" coords="5,161,173,189"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_source.html" title="Base class that is used to load and read from an audio source. " alt="" coords="16,83,163,111"/>
+</map>

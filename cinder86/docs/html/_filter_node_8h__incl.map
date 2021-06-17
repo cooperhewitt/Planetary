@@ -1,0 +1,11 @@
+<map id="include/cinder/audio/FilterNode.h" name="include/cinder/audio/FilterNode.h">
+<area shape="rect" id="node2" href="$_node_8h.html" title="cinder/audio/Node.h" alt="" coords="706,99,845,127"/>
+<area shape="rect" id="node22" href="$_biquad_8h.html" title="cinder/audio/dsp/Biquad.h" alt="" coords="335,99,509,127"/>
+<area shape="rect" id="node3" href="$audio_2_buffer_8h.html" title="cinder/audio/Buffer.h" alt="" coords="500,177,643,205"/>
+<area shape="rect" id="node11" href="$audio_2_exception_8h.html" title="cinder/audio/Exception.h" alt="" coords="754,177,920,205"/>
+<area shape="rect" id="node4" href="$_cinder_assert_8h.html" title="cinder/CinderAssert.h" alt="" coords="123,254,272,282"/>
+<area shape="rect" id="node5" href="$_current_function_8h.html" title="cinder/CurrentFunction.h" alt="" coords="44,331,212,359"/>
+<area shape="rect" id="node12" href="$_exception_8h.html" title="cinder/Exception.h" alt="" coords="810,254,941,282"/>
+<area shape="rect" id="node13" href="$_cinder_8h.html" title="cinder/Cinder.h" alt="" coords="647,331,757,359"/>
+<area shape="rect" id="node23" href="$_dsp_8h.html" title="cinder/audio/dsp/Dsp.h" alt="" coords="232,177,389,205"/>
+</map>

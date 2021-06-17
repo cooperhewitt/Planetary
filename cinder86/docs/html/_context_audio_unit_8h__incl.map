@@ -1,0 +1,18 @@
+<map id="include/cinder/audio/cocoa/ContextAudioUnit.h" name="include/cinder/audio/cocoa/ContextAudioUnit.h">
+<area shape="rect" id="node2" href="$_context_8h.html" title="cinder/audio/Context.h" alt="" coords="788,99,943,127"/>
+<area shape="rect" id="node33" href="$_ring_buffer_8h.html" title="cinder/audio/dsp/RingBuffer.h" alt="" coords="1625,270,1820,298"/>
+<area shape="rect" id="node34" href="$_cinder_core_audio_8h.html" title="cinder/audio/cocoa\l/CinderCoreAudio.h" alt="" coords="1399,177,1536,221"/>
+<area shape="rect" id="node3" href="$_node_8h.html" title="cinder/audio/Node.h" alt="" coords="739,270,879,298"/>
+<area shape="rect" id="node23" href="$_input_node_8h.html" title="cinder/audio/InputNode.h" alt="" coords="719,185,888,213"/>
+<area shape="rect" id="node31" href="$_output_node_8h.html" title="cinder/audio/OutputNode.h" alt="" coords="514,185,693,213"/>
+<area shape="rect" id="node4" href="$audio_2_buffer_8h.html" title="cinder/audio/Buffer.h" alt="" coords="1144,347,1287,375"/>
+<area shape="rect" id="node12" href="$audio_2_exception_8h.html" title="cinder/audio/Exception.h" alt="" coords="151,347,317,375"/>
+<area shape="rect" id="node5" href="$_cinder_assert_8h.html" title="cinder/CinderAssert.h" alt="" coords="1629,425,1779,453"/>
+<area shape="rect" id="node6" href="$_current_function_8h.html" title="cinder/CurrentFunction.h" alt="" coords="1549,502,1717,530"/>
+<area shape="rect" id="node13" href="$_exception_8h.html" title="cinder/Exception.h" alt="" coords="169,425,300,453"/>
+<area shape="rect" id="node14" href="$_cinder_8h.html" title="cinder/Cinder.h" alt="" coords="350,502,460,530"/>
+<area shape="rect" id="node24" href="$_param_8h.html" title="cinder/audio/Param.h" alt="" coords="914,270,1061,298"/>
+<area shape="rect" id="node27" href="$_device_8h.html" title="cinder/audio/Device.h" alt="" coords="509,270,659,298"/>
+<area shape="rect" id="node28" href="$_function_8h.html" title="cinder/Function.h" alt="" coords="373,347,496,375"/>
+<area shape="rect" id="node35" href="$_converter_8h.html" title="cinder/audio/dsp/Converter.h" alt="" coords="1085,270,1276,298"/>
+</map>

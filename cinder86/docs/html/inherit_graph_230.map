@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classcinder_1_1qtime_1_1_movie_base.html" title="cinder::qtime::MovieBase" alt="" coords="5,31,176,59"/>
+<area shape="rect" id="node2" href="$classcinder_1_1qtime_1_1_movie_gl.html" title="QuickTime movie playback as OpenGL textures Textures are always bound to the GL_TEXTURE_RECTANGLE_ARB..." alt="" coords="240,5,394,33"/>
+<area shape="rect" id="node3" href="$classcinder_1_1qtime_1_1_movie_surface.html" title="cinder::qtime::MovieSurface" alt="" coords="224,57,411,85"/>
+</map>

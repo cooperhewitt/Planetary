@@ -1,0 +1,20 @@
+# Mac OS X cruft
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.user
+*.xcworkspace
+.DS_Store
+
+xcuserdata/
+build/
+
+# Windows cruft
+*.suo
+*.ncb
+*.sdf
+Debug/
+Release/
+
+# Python
+*.pyc

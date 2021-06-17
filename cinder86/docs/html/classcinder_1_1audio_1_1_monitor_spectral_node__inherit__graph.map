@@ -1,0 +1,5 @@
+<map id="cinder::audio::MonitorSpectralNode" name="cinder::audio::MonitorSpectralNode">
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_monitor_node.html" title="Node for retrieving time&#45;domain audio PCM samples. " alt="" coords="53,254,235,282"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_node_auto_pullable.html" title="a Node that can be pulled without being connected to any outputs. " alt="" coords="38,177,249,205"/>
+<area shape="rect" id="node4" href="$classcinder_1_1audio_1_1_node.html" title="Fundamental building block for creating an audio processing graph. " alt="" coords="76,99,212,127"/>
+</map>
