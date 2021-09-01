@@ -1,0 +1,13 @@
+<map id="include/cinder/Camera.h" name="include/cinder/Camera.h">
+<area shape="rect" id="node2" href="$_vector_8h.html" title="cinder/Vector.h" alt="" coords="417,470,527,498"/>
+<area shape="rect" id="node16" href="$_matrix_8h.html" title="cinder/Matrix.h" alt="" coords="415,161,523,189"/>
+<area shape="rect" id="node23" href="$_quaternion_8h.html" title="cinder/Quaternion.h" alt="" coords="373,83,511,111"/>
+<area shape="rect" id="node24" href="$_ray_8h.html" title="cinder/Ray.h" alt="" coords="4,161,99,189"/>
+<area shape="rect" id="node8" href="$_cinder_math_8h.html" title="cinder/CinderMath.h" alt="" coords="823,547,964,575"/>
+<area shape="rect" id="node9" href="$_cinder_8h.html" title="cinder/Cinder.h" alt="" coords="387,625,497,653"/>
+<area shape="rect" id="node17" href="$_matrix22_8h.html" title="cinder/Matrix22.h" alt="" coords="574,393,697,421"/>
+<area shape="rect" id="node19" href="$_matrix_affine2_8h.html" title="cinder/MatrixAffine2.h" alt="" coords="722,393,872,421"/>
+<area shape="rect" id="node20" href="$_matrix33_8h.html" title="cinder/Matrix33.h" alt="" coords="326,393,449,421"/>
+<area shape="rect" id="node21" href="$_matrix44_8h.html" title="cinder/Matrix44.h" alt="" coords="452,315,575,343"/>
+<area shape="rect" id="node22" href="$_matrix_algo_8h.html" title="cinder/MatrixAlgo.h" alt="" coords="402,238,536,266"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="include/cinder/audio/SampleType.h" name="include/cinder/audio/SampleType.h">
+<area shape="rect" id="node2" href="$_sample_recorder_node_8h.html" title="include/cinder/audio\l/SampleRecorderNode.h" alt="" coords="48,99,216,143"/>
+<area shape="rect" id="node4" href="$_target_8h.html" title="include/cinder/audio\l/Target.h" alt="" coords="249,99,388,143"/>
+<area shape="rect" id="node3" href="$_sample_recorder_node_8cpp.html" title="src/cinder/audio/SampleRecorder\lNode.cpp" alt="" coords="5,193,224,237"/>
+<area shape="rect" id="node5" href="$_file_core_audio_8h.html" title="include/cinder/audio\l/cocoa/FileCoreAudio.h" alt="" coords="248,193,407,237"/>
+<area shape="rect" id="node7" href="$_target_8cpp.html" title="src/cinder/audio/Target.cpp" alt="" coords="432,201,613,229"/>
+<area shape="rect" id="node6" href="$_file_core_audio_8cpp.html" title="src/cinder/audio/cocoa\l/FileCoreAudio.cpp" alt="" coords="251,286,405,330"/>
+</map>

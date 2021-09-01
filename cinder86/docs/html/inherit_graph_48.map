@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classcinder_1_1audio_1_1_voice.html" title="Interface for performing high&#45;level audio playback tasks. " alt="" coords="6,47,144,75"/>
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_voice_callback_processor.html" title="Concrete Voice for processing audio with a callback function. " alt="" coords="192,5,381,49"/>
+<area shape="rect" id="node3" href="$classcinder_1_1audio_1_1_voice_sample_player_node.html" title="Concrete Voice for sample playback. " alt="" coords="195,73,378,117"/>
+</map>

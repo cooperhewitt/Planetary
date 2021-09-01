@@ -1,0 +1,19 @@
+<map id="include/cinder/Camera.h" name="include/cinder/Camera.h">
+<area shape="rect" id="node2" href="$_dx_light_8h.html" title="include/cinder/dx/DxLight.h" alt="" coords="601,91,783,119"/>
+<area shape="rect" id="node5" href="$_frustum_8h.html" title="include/cinder/Frustum.h" alt="" coords="4,91,171,119"/>
+<area shape="rect" id="node7" href="$_light_8h.html" title="include/cinder/gl/Light.h" alt="" coords="195,91,356,119"/>
+<area shape="rect" id="node9" href="$_tile_render_8h.html" title="include/cinder/gl/TileRender.h" alt="" coords="380,91,576,119"/>
+<area shape="rect" id="node11" href="$_maya_cam_u_i_8h.html" title="include/cinder/MayaCamUI.h" alt="" coords="806,91,999,119"/>
+<area shape="rect" id="node12" href="$_app_8cpp.html" title="src/cinder/app/App.cpp" alt="" coords="1022,91,1180,119"/>
+<area shape="rect" id="node13" href="$_app_impl_cocoa_renderer_gl_8mm.html" title="src/cinder/app/AppImplCocoa\lRendererGl.mm" alt="" coords="1205,83,1400,127"/>
+<area shape="rect" id="node14" href="$_app_impl_msw_renderer_dx_8cpp.html" title="src/cinder/app/AppImplMsw\lRendererDx.cpp" alt="" coords="1425,83,1609,127"/>
+<area shape="rect" id="node15" href="$_app_impl_msw_renderer_gl_8cpp.html" title="src/cinder/app/AppImplMsw\lRendererGl.cpp" alt="" coords="1634,83,1819,127"/>
+<area shape="rect" id="node16" href="$_camera_8cpp.html" title="src/cinder/Camera.cpp" alt="" coords="1844,91,1999,119"/>
+<area shape="rect" id="node3" href="$dx_8cpp.html" title="src/cinder/dx/dx.cpp" alt="" coords="1383,177,1523,205"/>
+<area shape="rect" id="node17" href="$gl_8cpp.html" title="src/cinder/gl/gl.cpp" alt="" coords="2074,91,2205,119"/>
+<area shape="rect" id="node18" href="$_stereo_auto_focuser_8cpp.html" title="src/cinder/gl/StereoAuto\lFocuser.cpp" alt="" coords="2230,83,2393,127"/>
+<area shape="rect" id="node4" href="$_dx_light_8cpp.html" title="src/cinder/dx/DxLight.cpp" alt="" coords="606,177,777,205"/>
+<area shape="rect" id="node6" href="$_frustum_8cpp.html" title="src/cinder/Frustum.cpp" alt="" coords="10,177,165,205"/>
+<area shape="rect" id="node8" href="$_light_8cpp.html" title="src/cinder/gl/Light.cpp" alt="" coords="200,177,351,205"/>
+<area shape="rect" id="node10" href="$_tile_render_8cpp.html" title="src/cinder/gl/TileRender.cpp" alt="" coords="386,177,571,205"/>
+</map>

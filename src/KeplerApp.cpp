@@ -16,10 +16,8 @@
 
 #include "CinderIPod.h"
 #include "CinderIPodPlayer.h"
-#include "CinderFlurry.h"
 
 #include "OrientationHelper.h"
-#include "GyroHelper.h"
 #include "Device.h"
 
 #include "Globals.h"
@@ -56,18 +54,15 @@
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-using namespace pollen::flurry;
 using namespace bloom;
 
 float G_ZOOM			= 0;
 int G_CURRENT_LEVEL		= 0;
-bool G_DEBUG			= false;
+bool G_DEBUG			= true;
 bool G_AUTO_MOVE		= false;
 bool G_SHOW_SETTINGS	= false;
 bool G_DRAW_RINGS		= true;
 bool G_DRAW_TEXT		= true;
-bool G_USE_GYRO			= false;
-bool G_IS_IPAD2			= false;
 int G_NUM_PARTICLES		= 25;
 int G_NUM_DUSTS			= 250;
 
@@ -155,10 +150,6 @@ class KeplerApp : public AppCocoaTouch {
     Matrix44f         mOrientationMatrix;
     Matrix44f         mInverseOrientationMatrix;    
     
-// GYRO
-    GyroHelper			mGyroHelper;
-	Quatf				mPrevGyro;
-    
 // AUDIO
 	ipod::Player		mIpodPlayer;
     ipod::TrackRef      mPlayingTrack;
@@ -217,6 +208,7 @@ class KeplerApp : public AppCocoaTouch {
     vector<Ray>		mPinchRays;
 	vector<Vec2f>	mPinchPositions;
     PinchRecognizer mPinchRecognizer;
+    float           mTimeTapStarted;
 	float			mTimePinchEnded;
 	float			mPinchAlphaPer;
 	bool			mIsPinching;
@@ -295,13 +287,7 @@ class KeplerApp : public AppCocoaTouch {
 
 void KeplerApp::prepareSettings(Settings *settings)
 {
-#ifdef DEBUG
-    // "Kepler" ID:
-    Flurry::getInstrumentation()->init("DZ7HPD6FE1GGADVNJ3EX");
-#else
-    // "Planetary" ID:
-    Flurry::getInstrumentation()->init("7FY9M7BIVCFVJRGNSD1E");
-#endif
+
     
     // start requesting events ASAP
     mOrientationHelper.setup();
@@ -311,7 +297,7 @@ void KeplerApp::setup()
 {
 //    float t = getElapsedSeconds();
     
-	Flurry::getInstrumentation()->startTimeEvent("Setup");
+	
     
     mRemainingSetupCalled = false;
     mUiComplete = false;
@@ -319,15 +305,11 @@ void KeplerApp::setup()
     
     mState.setup();
     
-    G_IS_IPAD2 = bloom::isIpad2();
-//    console() << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
-
-	if( G_IS_IPAD2 ){
-		G_NUM_PARTICLES = 80;
-		G_NUM_DUSTS = 5000;
-        mGyroHelper.setup();
-	}
-	
+    //    console() << "G_IS_IPAD2: " << G_IS_IPAD2 << endl;
+    
+    G_NUM_PARTICLES = 80;
+    G_NUM_DUSTS = 5000;
+    
     mOrientationHelper.registerOrientationChanged( this, &KeplerApp::orientationChanged );    
     setInterfaceOrientation( mOrientationHelper.getInterfaceOrientation() );
     
@@ -350,7 +332,7 @@ void KeplerApp::setup()
     mOrientationNodeRef->addChild( mMainBloomNodeRef );
     mMainBloomNodeRef->setVisible(false);    
     
-    Flurry::getInstrumentation()->stopTimeEvent("Setup");
+   
     
 //    std::cout << (getElapsedSeconds() - t) << " seconds to setup()" << std::endl;
 }
@@ -363,7 +345,7 @@ void KeplerApp::remainingSetup()
 
 //    float t = getElapsedSeconds();
     
-    Flurry::getInstrumentation()->startTimeEvent("Remaining Setup");
+   
 
 	mLoadingScreen.setVisible( true );
     
@@ -378,7 +360,8 @@ void KeplerApp::remainingSetup()
 
 void KeplerApp::initTextures()
 {
-    Flurry::getInstrumentation()->startTimeEvent("Load Textures and Fonts");    
+    
+    mTextures.registerComplete( this, &KeplerApp::onTextureLoaderComplete );
     
     // FONTS
     //   Note to would-be optimizers: loadResource is fairly fast (~7ms for 5 fonts)
@@ -451,16 +434,15 @@ void KeplerApp::initTextures()
     mTextures.addRequest( TRACK_ORIGIN_TEX,         "origin.png" );
 	mTextures.addRequest( GRADIENT_OVERLAY_TEX,		"gradientLarge.png" );
     
-    mTextures.registerComplete( this, &KeplerApp::onTextureLoaderComplete );
-    mTextures.start();    
+    
+    mTextures.start();
 }
 
 void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 {
-//    float t = getElapsedSeconds();
+    float t = getElapsedSeconds();
     
-    Flurry::getInstrumentation()->stopTimeEvent("Load Textures and Fonts");        
-	
+    
     // CLOUD TEXTURE VECTOR
 	mCloudTextures.push_back( mTextures[P_CLOUDS_1] );
     mCloudTextures.push_back( mTextures[P_CLOUDS_2] );
@@ -629,13 +611,13 @@ void KeplerApp::onTextureLoaderComplete( TextureLoader* loader )
 	mNotificationOverlay.setup( mFontBig );
     mMainBloomNodeRef->addChild( BloomNodeRef(&mNotificationOverlay) );	
 
-    Flurry::getInstrumentation()->stopTimeEvent("Remaining Setup");
+  
 
-    //console() << "setupEnd: " << getElapsedSeconds() << std::endl;
+    console() << "setupEnd: " << getElapsedSeconds() << std::endl;
 
     mUiComplete = true;
     
-//    std::cout << (getElapsedSeconds() - t) << " seconds to onTextureLoaderComplete()" << std::endl;
+    std::cout << (getElapsedSeconds() - t) << " seconds to onTextureLoaderComplete()" << std::endl;
 }
 
 void KeplerApp::initLoadingTextures()
@@ -654,6 +636,7 @@ void KeplerApp::touchesBegan( TouchEvent event )
 {	
     if (!mUiComplete) return;
 
+    mTimeTapStarted = getElapsedSeconds();
 	mIsDragging = false;
 	const vector<TouchEvent::Touch> touches = getActiveTouches();
 	float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;
@@ -661,20 +644,29 @@ void KeplerApp::touchesBegan( TouchEvent event )
         mIsTouching = true;
         mTouchPos		= touches.begin()->getPos();
         mTouchVel		= Vec2f::zero();
-		Vec3f worldTouchPos;
-		if( G_USE_GYRO ) worldTouchPos = Vec3f(mTouchPos,0);
-		else			 worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
+        Vec3f worldTouchPos = Vec3f(mTouchPos,0);
+//		worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
         mArcball.mouseDown( Vec2i(worldTouchPos.x, worldTouchPos.y) );
 	}
     else {
         mIsTouching = false;
     }
+    
+    this -> update();
+    
+    mBloomSceneRef->touchesBegan(event);
+    mPinchRecognizer.touchesBegan(event);
 }
 
 void KeplerApp::touchesMoved( TouchEvent event )
 {
     if (!mUiComplete) return;
-
+    
+    double timePassed = getElapsedSeconds() - mTimeTapStarted;
+    if( timePassed < 0.1) {
+        return;
+    }
+    
     if ( mIsTouching ) {
         float timeSincePinchEnded = getElapsedSeconds() - mTimePinchEnded;	
         const vector<TouchEvent::Touch> touches = getActiveTouches();
@@ -685,13 +677,15 @@ void KeplerApp::touchesMoved( TouchEvent event )
                 mIsDragging = true;
                 mTouchVel		= currentPos - prevPos;
                 mTouchPos		= currentPos;
-                Vec3f worldTouchPos;
-				if( G_USE_GYRO ) worldTouchPos = Vec3f(mTouchPos,0);
-				else			 worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
+                Vec3f worldTouchPos = Vec3f(mTouchPos,0);
+//				worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
                 mArcball.mouseDrag( Vec2i( worldTouchPos.x, worldTouchPos.y ) );
             }
         }
     }
+    
+    mBloomSceneRef->touchesMoved(event);
+    mPinchRecognizer.touchesMoved(event);
 }
 
 void KeplerApp::touchesEnded( TouchEvent event )
@@ -723,10 +717,14 @@ void KeplerApp::touchesEnded( TouchEvent event )
 		mIsDragging = false;
         mIsTouching = false;
 	}
+    
+    mBloomSceneRef->touchesEnded(event);
+    mPinchRecognizer.touchesEnded(event);
 }
 
 bool KeplerApp::onPinchBegan( PinchEvent event )
 {
+    console() << "Pinch began!" << std::endl;
 	mIsPinching = true;
     mPinchRays = event.getTouchRays( mCam );
 	mPinchPositions.clear();
@@ -747,7 +745,7 @@ bool KeplerApp::onPinchBegan( PinchEvent event )
 //	Vec3f worldTouchPos = mInverseOrientationMatrix * Vec3f(mTouchPos,0);
 //	mArcball.mouseDrag( Vec2i( worldTouchPos.x, worldTouchPos.y ) );
 	
-    return false;
+    return true;
 }
 
 bool KeplerApp::onPinchMoved( PinchEvent event )
@@ -777,11 +775,12 @@ bool KeplerApp::onPinchMoved( PinchEvent event )
 
 	mTimePinchEnded = getElapsedSeconds();
 	
-    return false;
+    return true;
 }
 
 bool KeplerApp::onPinchEnded( PinchEvent event )
 {
+    console() << "Pinch ended!" << std::endl;
 //    logEvent("Pinch Ended");
 
 	if( mPinchPer > mPinchPerThresh ){
@@ -796,7 +795,7 @@ bool KeplerApp::onPinchEnded( PinchEvent event )
 	
     mPinchRays.clear();
 	mIsPinching = false;
-    return false;
+    return true;
 }
 
 bool KeplerApp::keepTouchForPinching( TouchEvent::Touch touch )
@@ -820,24 +819,24 @@ bool KeplerApp::orientationChanged( OrientationEvent event )
 {
     Orientation orientation = event.getInterfaceOrientation();
     setInterfaceOrientation(orientation);
-
+    
     Orientation prevOrientation = event.getPrevInterfaceOrientation();
     
-	if( ! G_USE_GYRO ){
-		// Look over there!
-		// heinous trickery follows...
-		if (mInterfaceOrientation != prevOrientation) {
-			if( mTouchVel.length() > 2.0f && !mIsDragging ){        
-				int steps = getRotationSteps(prevOrientation,mInterfaceOrientation);
-				mTouchVel.rotate( (float)steps * M_PI/2.0f );
-			}
-		}
-		// ... end heinous trickery
-	}
-
-//    if (prevOrientation != orientation) {
-//        std::map<string, string> params;
-//        params["Device Orientation"] = getOrientationString(event.getDeviceOrientation());
+    
+    // Look over there!
+    // heinous trickery follows...
+    if (mInterfaceOrientation != prevOrientation) {
+        if( mTouchVel.length() > 2.0f && !mIsDragging ){
+            int steps = getRotationSteps(prevOrientation,mInterfaceOrientation);
+            mTouchVel.rotate( (float)steps * M_PI/2.0f );
+        }
+    }
+    // ... end heinous trickery
+    
+    
+    //    if (prevOrientation != orientation) {
+    //        std::map<string, string> params;
+    //        params["Device Orientation"] = getOrientationString(event.getDeviceOrientation());
 //        logEvent("Orientation Changed", params);    
 //    }
 
@@ -850,9 +849,6 @@ void KeplerApp::setInterfaceOrientation( const Orientation &orientation )
 
     mOrientationMatrix = getOrientationMatrix44( mInterfaceOrientation, getWindowSize() );
     mInverseOrientationMatrix = mOrientationMatrix.inverted();
-    
-//    if( ! G_USE_GYRO ) mUp = getUpVectorForOrientation( mInterfaceOrientation );
-//	else			   mUp = Vec3f::yAxis();
 }
 
 bool KeplerApp::onVignetteToggled( bool on )
@@ -1157,26 +1153,6 @@ bool KeplerApp::onSettingsPanelButtonPressed( BloomSceneEventRef event )
 				else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*3, uh*1, uw*4, uh*2 ), offArea, "ORBIT LINES" );
 			}
             mSettingsPanel.setOrbitsOn( G_DRAW_RINGS );            
-            break;
-            
-
-            
-		case SettingsPanel::USE_GYRO:
-			if( G_SHOW_SETTINGS ){
-//				logEvent("Use Gyro Button Selected");            
-				G_USE_GYRO = !G_USE_GYRO;
-				
-				if( !G_USE_GYRO ) {
-                    mUp = getUpVectorForOrientation( mInterfaceOrientation );
-                } else {
-                    mUp = Vec3f::yAxis();
-                }				
-				
-				if( G_USE_GYRO )	mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*4, uh*1, uw*5, uh*2 ), "GYROSCOPE" );
-                else				mNotificationOverlay.show( mTextures[UI_BUTTONS_TEX], Area( uw*4, uh*1, uw*5, uh*2 ), offArea, "GYROSCOPE" );
-                
-			}
-            mSettingsPanel.setGyroOn( G_USE_GYRO );
             break;
             
 		case SettingsPanel::DEBUG_FEATURE:
@@ -1597,10 +1573,6 @@ void KeplerApp::update()
     
     if ( mUiComplete && (mData.getState() == Data::LoadStateComplete) )
 	{
-		if( G_IS_IPAD2 && G_USE_GYRO ) {
-			mGyroHelper.update();
-        }
-
 //        const int elapsedFrames = getElapsedFrames();
         const float elapsedSeconds = getElapsedSeconds();
 
@@ -1678,9 +1650,10 @@ void KeplerApp::update()
     if (!mRemainingSetupCalled) {
         // make sure we've drawn the loading screen and then call this
         if (getElapsedFrames() > 1) {
+            
             remainingSetup();
-        }        
-    }    
+        }
+    }
     
     // do UI thread things...
     UiTaskQueue::update();
@@ -1690,26 +1663,22 @@ void KeplerApp::updateArcball()
 {	
 	if( !G_AUTO_MOVE ){
 		if( mTouchVel.length() > 2.0f && !mIsDragging ){
-			Vec3f downPos;
-			if( G_USE_GYRO )	downPos = ( Vec3f(mTouchPos,0) );
-			else				downPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos,0) );
+            Vec3f downPos = Vec3f(mTouchPos,0);
+//			downPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos,0) );
 			mArcball.mouseDown( Vec2i(downPos.x, downPos.y) );
 			
-			Vec3f dragPos;
-			if( G_USE_GYRO )	dragPos = ( Vec3f(mTouchPos + mTouchVel,0) );
-			else				dragPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos + mTouchVel,0) );
+            Vec3f dragPos = Vec3f(mTouchPos + mTouchVel,0);
+//			dragPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos + mTouchVel,0) );
 			mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
 		}
 	} else {
 		if( !mIsDragging ){
-			Vec3f downPos;
-			if( G_USE_GYRO )	downPos = ( Vec3f(mTouchPos,0) );
-			else				downPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos,0) );
+            Vec3f downPos = Vec3f(mTouchPos,0);
+//			downPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos,0) );
 			mArcball.mouseDown( Vec2i(downPos.x, downPos.y) );
 			
-			Vec3f dragPos;
-			if( G_USE_GYRO )	dragPos = ( Vec3f(mTouchPos + mTouchVel,0) );
-			else				dragPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos + mTouchVel,0) );
+            Vec3f dragPos = Vec3f(mTouchPos + mTouchVel,0);
+//			dragPos = mInverseOrientationMatrix * ( Vec3f(mTouchPos + mTouchVel,0) );
 			mArcball.mouseDrag( Vec2i(dragPos.x, dragPos.y) );        
 		}
 	}
@@ -1872,15 +1841,12 @@ void KeplerApp::updateCamera()
     // (instead of to the whole scene)
     Quatf q = mArcball.getQuat();
     q.w *= -1.0; // reverse the angle, keep the axis
-	if( G_IS_IPAD2 && G_USE_GYRO ){
-		q = mGyroHelper.getQuat();
-	}
-	
+
     // set up vector according to screen orientation
 	mUp = Vec3f::yAxis();
-	if( !G_USE_GYRO ){
-        mUp.rotateZ( -1.0f * mOrientationNodeRef->getInterfaceAngle() );
-    }
+
+    mUp.rotateZ( -1.0f * mOrientationNodeRef->getInterfaceAngle() );
+ 
     
     Vec3f camOffset = q * Vec3f( 0, 0, mCamDist);
     mEye = mCenter - camOffset;
@@ -1977,17 +1943,23 @@ void KeplerApp::drawScene()
     mTextures[SKY_DOME_TEX].disable();
     glDisable(GL_CULL_FACE);
     
+
+    
 // GALAXY
+    mGalaxy.drawDarkMatter();    
     mGalaxy.drawLightMatter( mFadeInAlphaToArtist );	
     mGalaxy.drawSpiralPlanes();    
     mGalaxy.drawCenter();
 	
+   
+    
 // STARS
 	gl::enableAdditiveBlending();
 	mTextures[STAR_TEX].enableAndBind();
 	mWorld.drawStarsVertexArray();
 	mTextures[STAR_TEX].disable();
 	
+    
 // STARGLOWS bloom (TOUCH HIGHLIGHTS)
 	mTextures[ECLIPSE_GLOW_TEX].enableAndBind();
 	mWorld.drawTouchHighlights( mFadeInArtistToAlbum );
@@ -2030,7 +2002,7 @@ void KeplerApp::drawScene()
     
     for( int i = 0; i < sortedNodes.size(); i++ ){
         
-        if( (G_IS_IPAD2 || G_DEBUG) && sortedNodes[i]->mGen == G_ALBUM_LEVEL ){ // JUST ALBUM LEVEL CAUSE ALBUM TELLS CHILDREN TO ALSO FIND SHADOWS
+        if( sortedNodes[i]->mGen == G_ALBUM_LEVEL ){ // JUST ALBUM LEVEL CAUSE ALBUM TELLS CHILDREN TO ALSO FIND SHADOWS
             gl::enableAlphaBlending();
             glDisable( GL_CULL_FACE );
             mTextures[ECLIPSE_SHADOW_TEX].enableAndBind();
@@ -2107,7 +2079,7 @@ void KeplerApp::drawScene()
     gl::enableAdditiveBlending();    
 	
 // DUSTS
-	if( artistNode && (G_IS_IPAD2 || G_DEBUG) ){
+	if( artistNode && G_DEBUG ){
 		mParticleController.drawDustVertexArray( artistNode, 0.175f );
 	}
 	
@@ -2158,7 +2130,7 @@ void KeplerApp::drawScene()
 	}
 		
 // LENSFLARE?!?!  SURELY YOU MUST BE MAD.
-	if( (G_IS_IPAD2 || G_DEBUG) && artistNode && artistNode->mDistFromCamZAxis > 0.0f && artistNode->mEclipseStrength < 0.75f ){
+	if( artistNode && artistNode->mDistFromCamZAxis > 0.0f && artistNode->mEclipseStrength < 0.75f ){
 		int numFlares  = 4;
 		float radii[5] = { 4.5f, 12.0f, 18.0f, 13.0f };
 		float dists[5] = { 1.25f, 2.50f, 6.0f, 8.5f };
@@ -2213,7 +2185,7 @@ void KeplerApp::drawScene()
     gl::enableAlphaBlending();  // reinstates normal alpha blending
     
 	// GALAXY DARK MATTER:
-    if (G_IS_IPAD2 || G_DEBUG) {
+    if (G_DEBUG) {
 		gl::setMatrices( mCam );
 		gl::enableDepthRead();
 		gl::enableDepthWrite();
@@ -2418,12 +2390,12 @@ bool KeplerApp::onPlayerStateChanged( ipod::Player *player )
 void KeplerApp::logEvent(const string &event)
 {
 //    if (G_DEBUG) std::cout << "logging: " << event << std::endl;
-    Flurry::getInstrumentation()->logEvent(event);
+   
 }
 void KeplerApp::logEvent(const string &event, const map<string,string> &params)
 {
 //    if (G_DEBUG) std::cout << "logging: " << event << " with params..." << std::endl;
-    Flurry::getInstrumentation()->logEvent(event, params);
+   
 }
 
 

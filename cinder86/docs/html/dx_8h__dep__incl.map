@@ -1,0 +1,18 @@
+<map id="include/cinder/dx/dx.h" name="include/cinder/dx/dx.h">
+<area shape="rect" id="node2" href="$_app_impl_msw_renderer_dx_8h.html" title="include/cinder/app\l/AppImplMswRendererDx.h" alt="" coords="1027,83,1212,127"/>
+<area shape="rect" id="node10" href="$_dx_light_8h.html" title="include/cinder/dx/DxLight.h" alt="" coords="172,91,353,119"/>
+<area shape="rect" id="node12" href="$_dx_render_target_8h.html" title="include/cinder/dx/DxRender\lTarget.h" alt="" coords="794,177,978,221"/>
+<area shape="rect" id="node13" href="$_dx_texture_8h.html" title="include/cinder/dx/DxTexture.h" alt="" coords="659,91,854,119"/>
+<area shape="rect" id="node16" href="$_dx_vbo_8h.html" title="include/cinder/dx/DxVbo.h" alt="" coords="427,91,604,119"/>
+<area shape="rect" id="node17" href="$_hlsl_prog_8h.html" title="include/cinder/dx/HlslProg.h" alt="" coords="1672,91,1857,119"/>
+<area shape="rect" id="node3" href="$_app_impl_msw_renderer_dx_8cpp.html" title="src/cinder/app/AppImplMsw\lRendererDx.cpp" alt="" coords="1492,177,1677,221"/>
+<area shape="rect" id="node5" href="$dx_8cpp.html" title="src/cinder/dx/dx.cpp" alt="" coords="230,185,369,213"/>
+<area shape="rect" id="node6" href="$_dx_render_target_8cpp.html" title="src/cinder/dx/DxRenderTarget.cpp" alt="" coords="791,270,1013,298"/>
+<area shape="rect" id="node7" href="$_dx_texture_8cpp.html" title="src/cinder/dx/DxTexture.cpp" alt="" coords="1003,185,1188,213"/>
+<area shape="rect" id="node9" href="$_hlsl_prog_8cpp.html" title="src/cinder/dx/HlslProg.cpp" alt="" coords="1701,185,1877,213"/>
+<area shape="rect" id="node4" href="$_renderer_dx_8cpp.html" title="src/cinder/app/RendererDx.cpp" alt="" coords="1213,185,1418,213"/>
+<area shape="rect" id="node8" href="$_dx_vbo_8cpp.html" title="src/cinder/dx/DxVbo.cpp" alt="" coords="394,185,560,213"/>
+<area shape="rect" id="node11" href="$_dx_light_8cpp.html" title="src/cinder/dx/DxLight.cpp" alt="" coords="34,185,205,213"/>
+<area shape="rect" id="node14" href="$_dx_texture_font_8h.html" title="include/cinder/dx/DxTexture\lFont.h" alt="" coords="584,177,769,221"/>
+<area shape="rect" id="node15" href="$_dx_texture_font_8cpp.html" title="src/cinder/dx/DxTextureFont.cpp" alt="" coords="555,270,766,298"/>
+</map>

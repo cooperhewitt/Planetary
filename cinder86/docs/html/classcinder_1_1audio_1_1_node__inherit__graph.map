@@ -1,0 +1,39 @@
+<map id="cinder::audio::Node" name="cinder::audio::Node">
+<area shape="rect" id="node4" href="$classcinder_1_1audio_1_1_channel_router_node.html" title="Node for mapping input channels to output channels. " alt="" coords="379,93,605,121"/>
+<area shape="rect" id="node5" href="$classcinder_1_1audio_1_1cocoa_1_1_effect_audio_unit_node.html" title="cinder::audio::cocoa\l::EffectAudioUnitNode" alt="" coords="416,145,568,189"/>
+<area shape="rect" id="node6" href="$classcinder_1_1audio_1_1_delay_node.html" title="General purpose delay line, supporting variable delay with linear interpolation. " alt="" coords="406,213,578,241"/>
+<area shape="rect" id="node7" href="$classcinder_1_1audio_1_1_filter_biquad_node.html" title="General class for filtering nodes based on a biquad (two pole, two zero) filter. " alt="" coords="388,265,596,293"/>
+<area shape="rect" id="node11" href="$classcinder_1_1audio_1_1_input_node.html" title="InputNode is the base class for Node&#39;s that produce audio. It cannot have any inputs. " alt="" coords="409,317,575,345"/>
+<area shape="rect" id="node26" href="$classcinder_1_1audio_1_1_math_node.html" title="Base class for an arithmetic based Node. " alt="" coords="409,473,575,501"/>
+<area shape="rect" id="node32" href="$classcinder_1_1audio_1_1_node_auto_pullable.html" title="a Node that can be pulled without being connected to any outputs. " alt="" coords="386,577,598,605"/>
+<area shape="rect" id="node37" href="$classcinder_1_1audio_1_1_output_node.html" title="Base class for Node&#39;s that consume an audio signal, for example speakers. It cannot have any outputs..." alt="" coords="404,629,580,657"/>
+<area shape="rect" id="node40" href="$classcinder_1_1audio_1_1_pan2d_node.html" title="Simple stereo panning using an equal power cross&#45;fade. The panning position is specified by a single ..." alt="" coords="404,681,580,709"/>
+<area shape="rect" id="node8" href="$classcinder_1_1audio_1_1_filter_band_pass_node.html" title="A band&#45;pass filtering Node. This is a subclass of FilterBiquadNode and manages its configuration appr..." alt="" coords="694,9,860,53"/>
+<area shape="rect" id="node9" href="$classcinder_1_1audio_1_1_filter_high_pass_node.html" title="A high&#45;pass filtering Node. This is a subclass of FilterBiquadNode and manages its configuration appr..." alt="" coords="696,77,858,121"/>
+<area shape="rect" id="node10" href="$classcinder_1_1audio_1_1_filter_low_pass_node.html" title="A low&#45;pass filtering Node. This is a subclass of FilterBiquadNode and manages its configuration appro..." alt="" coords="698,145,857,189"/>
+<area shape="rect" id="node12" href="$classcinder_1_1audio_1_1_callback_processor_node.html" title="InputNode that processes audio with a std::function callback. " alt="" coords="653,213,901,241"/>
+<area shape="rect" id="node13" href="$classcinder_1_1audio_1_1_gen_node.html" title="Base class for InputNode&#39;s that generate audio samples. Gen&#39;s are always mono channel. " alt="" coords="696,265,858,293"/>
+<area shape="rect" id="node21" href="$classcinder_1_1audio_1_1_input_device_node.html" title="Interface representing a Node that communicates with a hardware input device. This is typically a mic..." alt="" coords="674,317,881,345"/>
+<area shape="rect" id="node23" href="$classcinder_1_1audio_1_1_sample_player_node.html" title="Base Node class for sampled audio playback. Can do operations like seek and loop. ..." alt="" coords="667,369,887,397"/>
+<area shape="rect" id="node14" href="$classcinder_1_1audio_1_1_gen_noise_node.html" title="Noise generator. " alt="" coords="967,5,1163,33"/>
+<area shape="rect" id="node15" href="$classcinder_1_1audio_1_1_gen_osc_node.html" title="General purpose, band&#45;limited oscillator using wavetable lookup. " alt="" coords="972,57,1158,85"/>
+<area shape="rect" id="node16" href="$classcinder_1_1audio_1_1_gen_phasor_node.html" title="Phase generator, i.e. ramping waveform that runs from 0 to 1. " alt="" coords="963,109,1168,137"/>
+<area shape="rect" id="node17" href="$classcinder_1_1audio_1_1_gen_pulse_node.html" title="Pulse waveform generator with variable pulse width. Based on wavetable lookup of two band&#45;limited saw..." alt="" coords="968,161,1163,189"/>
+<area shape="rect" id="node18" href="$classcinder_1_1audio_1_1_gen_sine_node.html" title="Sine waveform generator. " alt="" coords="971,213,1160,241"/>
+<area shape="rect" id="node19" href="$classcinder_1_1audio_1_1_gen_table_node.html" title="Basic table&#45;lookup oscillator. " alt="" coords="968,265,1162,293"/>
+<area shape="rect" id="node20" href="$classcinder_1_1audio_1_1_gen_triangle_node.html" title="Triangle waveform generator. " alt="" coords="960,317,1170,345"/>
+<area shape="rect" id="node22" href="$classcinder_1_1audio_1_1cocoa_1_1_input_device_node_audio_unit.html" title="cinder::audio::cocoa\l::InputDeviceNodeAudioUnit" alt="" coords="971,369,1160,413"/>
+<area shape="rect" id="node24" href="$classcinder_1_1audio_1_1_buffer_player_node.html" title="Buffer&#45;based SamplePlayerNode, where all samples are loaded into memory before playback. " alt="" coords="960,437,1170,465"/>
+<area shape="rect" id="node25" href="$classcinder_1_1audio_1_1_file_player_node.html" title="File&#45;based SamplePlayerNode, where samples are constantly streamed from file. Suitable for large audi..." alt="" coords="967,489,1163,517"/>
+<area shape="rect" id="node27" href="$classcinder_1_1audio_1_1_add_node.html" title="Node for performing an addition operation on its input. " alt="" coords="697,421,858,449"/>
+<area shape="rect" id="node28" href="$classcinder_1_1audio_1_1_divide_node.html" title="Node for performing a division operation on its input. " alt="" coords="690,473,864,501"/>
+<area shape="rect" id="node29" href="$classcinder_1_1audio_1_1_multiply_node.html" title="Node for performing a mulitplication operation on its input. " alt="" coords="686,525,868,553"/>
+<area shape="rect" id="node31" href="$classcinder_1_1audio_1_1_subtract_node.html" title="Node for performing a subtration operation on its input. " alt="" coords="684,577,871,605"/>
+<area shape="rect" id="node30" href="$classcinder_1_1audio_1_1_gain_node.html" title="Node for changing the gain, or amplitude, of a signal. " alt="" coords="983,541,1148,569"/>
+<area shape="rect" id="node33" href="$classcinder_1_1audio_1_1_monitor_node.html" title="Node for retrieving time&#45;domain audio PCM samples. " alt="" coords="687,629,868,657"/>
+<area shape="rect" id="node35" href="$classcinder_1_1audio_1_1_sample_recorder_node.html" title="Base Node class for recording audio samples. Inherits from NodeAudioPullable, and therefore does not ..." alt="" coords="659,681,896,709"/>
+<area shape="rect" id="node34" href="$classcinder_1_1audio_1_1_monitor_spectral_node.html" title="A Scope that performs spectral (Fourier) analysis. " alt="" coords="950,629,1181,657"/>
+<area shape="rect" id="node36" href="$classcinder_1_1audio_1_1_buffer_recorder_node.html" title="Records its inputs to a Buffer. The Buffer record size should be specified by the user (the default s..." alt="" coords="952,681,1179,709"/>
+<area shape="rect" id="node38" href="$classcinder_1_1audio_1_1_output_device_node.html" title="Interface representing a Node that communicates with a hardware output device. This is typically spea..." alt="" coords="668,737,886,765"/>
+<area shape="rect" id="node39" href="$classcinder_1_1audio_1_1cocoa_1_1_output_device_node_audio_unit.html" title="cinder::audio::cocoa\l::OutputDeviceNodeAudioUnit" alt="" coords="966,733,1165,777"/>
+</map>

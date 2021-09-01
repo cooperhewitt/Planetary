@@ -1,0 +1,5 @@
+<map id="cinder::XmlTree::Exception" name="cinder::XmlTree::Exception">
+<area shape="rect" id="node4" href="$classcinder_1_1_xml_tree_1_1_exc_attr_not_found.html" title="Exception expressing the absence of an expected attribute. " alt="" coords="4,238,168,282"/>
+<area shape="rect" id="node5" href="$classcinder_1_1_xml_tree_1_1_exc_child_not_found.html" title="Exception expressing the absence of an expected child node. " alt="" coords="194,238,368,282"/>
+<area shape="rect" id="node2" href="$classcinder_1_1_exception.html" title="cinder::Exception" alt="" coords="122,83,245,111"/>
+</map>

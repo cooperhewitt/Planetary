@@ -1,0 +1,11 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$protocol_cinder_view_delegate-p.html" title="\&lt;CinderViewDelegate\&gt;" alt="" coords="14,57,172,85"/>
+<area shape="rect" id="node2" href="$interface_window_impl_basic_cocoa.html" title="WindowImplBasicCocoa" alt="" coords="253,109,419,137"/>
+<area shape="rect" id="node3" href="$interface_window_impl_cocoa_screen_saver.html" title="WindowImplCocoaScreenSaver" alt="" coords="231,57,441,85"/>
+<area shape="rect" id="node5" href="$interface_app_impl_cocoa_basic.html" title="AppImplCocoaBasic" alt="" coords="265,161,407,189"/>
+<area shape="rect" id="node7" href="$interface_app_impl_cocoa_renderer_gl.html" title="AppImplCocoaRendererGl" alt="" coords="247,437,425,465"/>
+<area shape="rect" id="node8" href="$interface_app_impl_cocoa_renderer_quartz.html" title="AppImplCocoaRendererQuartz" alt="" coords="234,213,438,241"/>
+<area shape="rect" id="node9" href="$interface_app_impl_cocoa_screen_saver.html" title="AppImplCocoaScreenSaver" alt="" coords="243,265,429,293"/>
+<area shape="rect" id="node10" href="$interface_app_impl_cocoa_touch_renderer_gl.html" title="AppImplCocoaTouchRendererGl" alt="" coords="229,317,443,345"/>
+<area shape="rect" id="node11" href="$interface_app_impl_cocoa_touch_renderer_quartz.html" title="AppImplCocoaTouchRenderer\lQuartz" alt="" coords="236,369,436,413"/>
+</map>

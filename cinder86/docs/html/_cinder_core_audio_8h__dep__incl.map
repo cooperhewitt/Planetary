@@ -1,0 +1,7 @@
+<map id="include/cinder/audio/cocoa/CinderCoreAudio.h" name="include/cinder/audio/cocoa/CinderCoreAudio.h">
+<area shape="rect" id="node2" href="$_context_audio_unit_8h.html" title="include/cinder/audio\l/cocoa/ContextAudioUnit.h" alt="" coords="5,99,184,143"/>
+<area shape="rect" id="node4" href="$_file_core_audio_8h.html" title="include/cinder/audio\l/cocoa/FileCoreAudio.h" alt="" coords="488,99,647,143"/>
+<area shape="rect" id="node6" href="$_cinder_core_audio_8cpp.html" title="src/cinder/audio/cocoa\l/CinderCoreAudio.cpp" alt="" coords="259,99,413,143"/>
+<area shape="rect" id="node3" href="$_context_audio_unit_8cpp.html" title="src/cinder/audio/cocoa\l/ContextAudioUnit.cpp" alt="" coords="80,193,235,237"/>
+<area shape="rect" id="node5" href="$_file_core_audio_8cpp.html" title="src/cinder/audio/cocoa\l/FileCoreAudio.cpp" alt="" coords="432,193,587,237"/>
+</map>

@@ -30,7 +30,7 @@ public:
     
 	enum ButtonId { NO_BUTTON = 2000, 
                     SHUFFLE, REPEAT, 
-                    HELP, AUTO_MOVE, DRAW_RINGS, DRAW_TEXT, USE_GYRO, DEBUG_FEATURE,
+                    HELP, AUTO_MOVE, DRAW_RINGS, DRAW_TEXT, DEBUG_FEATURE,
                     PARAMSLIDER1, PARAMSLIDER2,
                     LAST_BUTTON };
     
@@ -47,7 +47,6 @@ public:
     // State stuff, passed onto UI classes directly...    
     void setHelpOn(bool on) { mHelpButton->setOn(on); };
 	void setDebugOn(bool on) { mDebugButton->setOn(on); };
-	void setGyroOn(bool on) { mGyroButton->setOn(on); };
     void setOrbitsOn(bool on) { mOrbitsButton->setOn(on); };
     void setLabelsOn(bool on) { mLabelsButton->setOn(on); };	
 	void setShuffleOn(bool on) { mShuffleButton->setOn(on); };
@@ -107,7 +106,6 @@ private:
     ToggleButton *mOrbitsButton;
     ToggleButton *mLabelsButton;
     ToggleButton *mDebugButton;
-    ToggleButton *mGyroButton;
     ToggleButton *mShuffleButton;
     ThreeStateButton *mRepeatButton;
     

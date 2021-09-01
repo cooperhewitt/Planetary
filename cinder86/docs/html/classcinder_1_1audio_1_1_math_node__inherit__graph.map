@@ -1,0 +1,8 @@
+<map id="cinder::audio::MathNode" name="cinder::audio::MathNode">
+<area shape="rect" id="node5" href="$classcinder_1_1audio_1_1_add_node.html" title="Node for performing an addition operation on its input. " alt="" coords="608,5,768,33"/>
+<area shape="rect" id="node6" href="$classcinder_1_1audio_1_1_divide_node.html" title="Node for performing a division operation on its input. " alt="" coords="601,57,775,85"/>
+<area shape="rect" id="node7" href="$classcinder_1_1audio_1_1_multiply_node.html" title="Node for performing a mulitplication operation on its input. " alt="" coords="597,109,779,137"/>
+<area shape="rect" id="node9" href="$classcinder_1_1audio_1_1_subtract_node.html" title="Node for performing a subtration operation on its input. " alt="" coords="595,161,781,189"/>
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_node.html" title="Fundamental building block for creating an audio processing graph. " alt="" coords="193,83,330,111"/>
+<area shape="rect" id="node8" href="$classcinder_1_1audio_1_1_gain_node.html" title="Node for changing the gain, or amplitude, of a signal. " alt="" coords="829,109,995,137"/>
+</map>

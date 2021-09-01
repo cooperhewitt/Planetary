@@ -53,8 +53,5 @@ extern bool G_AUTO_MOVE;
 extern bool G_SHOW_SETTINGS;
 extern bool G_DRAW_RINGS;
 extern bool G_DRAW_TEXT;
-extern bool G_USE_GYRO;
-
-extern bool G_IS_IPAD2;
 extern int G_NUM_PARTICLES;
 extern int G_NUM_DUSTS;

@@ -1,0 +1,7 @@
+<map id="cinder::audio::NodeAutoPullable" name="cinder::audio::NodeAutoPullable">
+<area shape="rect" id="node5" href="$classcinder_1_1audio_1_1_monitor_node.html" title="Node for retrieving time&#45;domain audio PCM samples. " alt="" coords="35,254,216,282"/>
+<area shape="rect" id="node7" href="$classcinder_1_1audio_1_1_sample_recorder_node.html" title="Base Node class for recording audio samples. Inherits from NodeAudioPullable, and therefore does not ..." alt="" coords="249,254,485,282"/>
+<area shape="rect" id="node2" href="$classcinder_1_1audio_1_1_node.html" title="Fundamental building block for creating an audio processing graph. " alt="" coords="173,99,309,127"/>
+<area shape="rect" id="node6" href="$classcinder_1_1audio_1_1_monitor_spectral_node.html" title="A Scope that performs spectral (Fourier) analysis. " alt="" coords="5,331,235,359"/>
+<area shape="rect" id="node8" href="$classcinder_1_1audio_1_1_buffer_recorder_node.html" title="Records its inputs to a Buffer. The Buffer record size should be specified by the user (the default s..." alt="" coords="260,331,487,359"/>
+</map>

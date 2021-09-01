@@ -1,0 +1,10 @@
+<map id="include/cinder/Text.h" name="include/cinder/Text.h">
+<area shape="rect" id="node2" href="$_dx_texture_font_8h.html" title="include/cinder/dx/DxTexture\lFont.h" alt="" coords="83,83,268,127"/>
+<area shape="rect" id="node4" href="$_texture_font_8h.html" title="include/cinder/gl/Texture\lFont.h" alt="" coords="456,83,620,127"/>
+<area shape="rect" id="node6" href="$dx_8cpp.html" title="src/cinder/dx/dx.cpp" alt="" coords="293,91,432,119"/>
+<area shape="rect" id="node3" href="$_dx_texture_font_8cpp.html" title="src/cinder/dx/DxTextureFont.cpp" alt="" coords="4,177,216,205"/>
+<area shape="rect" id="node7" href="$gl_8cpp.html" title="src/cinder/gl/gl.cpp" alt="" coords="646,91,777,119"/>
+<area shape="rect" id="node5" href="$_texture_font_8cpp.html" title="src/cinder/gl/TextureFont.cpp" alt="" coords="581,177,773,205"/>
+<area shape="rect" id="node8" href="$_svg_8cpp.html" title="src/cinder/svg/Svg.cpp" alt="" coords="853,91,1008,119"/>
+<area shape="rect" id="node9" href="$_text_8cpp.html" title="src/cinder/Text.cpp" alt="" coords="1032,91,1164,119"/>
+</map>
